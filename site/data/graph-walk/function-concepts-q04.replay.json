@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "problemId": "function-concepts-q04",
-  "bundleVersion": "[\"stream\",\"08e10e34abdaeb6d5027c50d66d33e9793d18afbc25fe359bfd883d57237a4ae\",\"9be8aa6f20bc2f7e32698da44d04028686fc2622fc63e1f40ee2458d130b3faf\",\"e762f7269fd7468480a2a510384764a5\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"241c5524630f3ac75428ed6fb88a2991a8e5ba828b22c32d974dca25616e3716\",\"9be8aa6f20bc2f7e32698da44d04028686fc2622fc63e1f40ee2458d130b3faf\",\"e762f7269fd7468480a2a510384764a5\",\"/root/goals/0\"]",
   "status": "completed",
   "routes": [
     "domain-parameter"

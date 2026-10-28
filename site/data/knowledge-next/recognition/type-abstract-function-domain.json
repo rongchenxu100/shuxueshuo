@@ -1,0 +1,29 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-abstract-function-domain",
+  "branches": [
+    {
+      "branch_id": "identity-known-affine-target",
+      "checks": [
+        {
+          "id": "abstract-domain-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_abstract_domain",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "complete-supported-abstract-domain",
+          "feature_id": "abstract_function_domain",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 1
+        }
+      ]
+    }
+  ]
+}

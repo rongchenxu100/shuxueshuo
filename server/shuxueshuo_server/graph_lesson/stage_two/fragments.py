@@ -116,6 +116,73 @@ def _domain_formula_body_matches(body, expected):
         return False
 
 
+def _abstract_domain_source_spans(candidate, target_ref, ranges):
+    """Bind the given call/domain pair and requested call to distinct source roles.
+
+    Match the original trees, including variable names and endpoint openness.
+    Locating an unrelated occurrence of the same interval is not evidence for
+    the known call's domain, and a sibling question cannot supply the target.
+    """
+    goal = candidate
+    for part in target_ref.strip("/").split("/"):
+        goal = goal[int(part)] if isinstance(goal, list) else goal[part]
+    text = candidate["original_text"]
+
+    def matches(body, expected, *, call=False):
+        if call:
+            body = re.sub(r"^\s*y\s*=\s*", "", body)
+        try:
+            if parse(normalize_surface(body).text) == parse(expected):
+                return True
+        except (NotationError, ValueError, RecursionError):
+            pass
+        return _domain_formula_body_matches(body, expected)
+
+    givens, targets, outer = [], [], []
+    for begin, end in ranges:
+        formulas = [(begin + match.start(), begin + match.end(), match.group(1))
+                    for match in re.finditer(r"\$([^$\n]+)\$", text[begin:end])]
+        for index, (start, stop, body) in enumerate(formulas):
+            following = text[stop:formulas[index + 1][0] if index + 1 < len(formulas) else end]
+            requirement = re.match(r"\s*的?\s*定义域", following)
+            is_given = False
+            if index + 1 < len(formulas) and matches(body, goal["known_call"], call=True):
+                _next_start, next_stop, next_body = formulas[index + 1]
+                if (re.fullmatch(r"\s*的?\s*定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following)
+                        and matches(next_body, goal["known_domain"])):
+                    givens.append((start, next_stop, "given_domain", ["known_call", "known_domain"]))
+                    is_given = True
+            # A second explicitly given domain is not a request merely because
+            # its call happens to equal target_call. Blank-answer wording has
+            # no following value formula and remains a legitimate question.
+            gives_value = (requirement is not None and index + 1 < len(formulas)
+                           and re.fullmatch(r"\s*的?\s*定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following))
+            if requirement and not is_given and not gives_value and matches(body, goal["target_call"], call=True):
+                targets.append((start, stop, "expression", ["target_call"]))
+                targets.append((stop + requirement.start(), stop + requirement.end(), "goal", ["target_call"]))
+            if "input_domain" in goal:
+                normalized = normalize_surface(body).text
+                if "∈" in normalized:
+                    variable, _, domain = normalized.partition("∈")
+                    # The outer variable belongs to the requested call, never
+                    # to the dummy variable used in the known function call.
+                    argument = parse(goal["target_call"])[2]
+
+                    def names(ast):
+                        if isinstance(ast, list) and ast:
+                            if ast[0] == "name":
+                                return {ast[1]}
+                            return set().union(*(names(child) for child in ast[1:]))
+                        return set()
+
+                    variables = names(argument) or names(parse(goal["known_call"])[2])
+                    if variable.strip() in variables and matches(domain, goal["input_domain"]):
+                        outer.append((start, stop, "given_domain", ["input_domain"]))
+    if len(givens) != 1 or len(targets) != 2 or ("input_domain" in goal and len(outer) != 1):
+        return None
+    return sorted([*givens, *targets, *outer])
+
+
 def _scope_ranges(candidate, target_ref):
     """Use child labels as boundaries, never search a sibling's body.
 
@@ -388,6 +455,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
+    if (values.get("goal", {}).get("kind") == "find_abstract_domain"
+            and values.get("abstract_function_domain", {}).get("structure_supported")):
+        spans = _abstract_domain_source_spans(candidate, target_ref, ranges)
+        if spans is None:
+            return {"fragments": [], "diagnostics": [{
+                "code": "d1.abstract_domain_source_not_uniquely_located", "target_ref": target_ref,
+            }]}
+        for start, end, kind, fields in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ["goal", "abstract_function_domain"])
+            fragments[-1]["source_refs"] = [f"{target_ref}/{field}" for field in fields]
+        for index, item in enumerate(fragments, 1):
+            item["id"] = f"{target_ref}:d1:{index}"
+        return {"fragments": fragments, "diagnostics": diagnostics}
     if (values.get("goal", {}).get("kind") == "compare_functions"
             and values.get("function_comparison", {}).get("structure_supported")):
         # The repeated f/g names belong to separate options. Read the common

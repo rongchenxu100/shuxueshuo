@@ -373,6 +373,7 @@ const math = expr => `$${escape(tex(expr))}$`;
 const knownLine = expr => (/[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(expr));
 const GOALS = {
   find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,
+  find_abstract_domain: g => `${math(g.target_call)} 的定义域${g.input_domain ? `（题设另限外层自变量范围 ${math(g.input_domain)}）` : ''}`,
   find_range: g => `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
   find_count: g => `满足条件的集合 ${math(g.symbol)} 的个数`,
@@ -387,6 +388,12 @@ const goalLine = goal => (GOALS[goal.kind]?.(goal) ?? escape(goal.expression || 
 function meaningBlocks(scope, title, blocks) {
   const known = [...(scope.definitions || []), ...(scope.facts || [])].map(knownLine);
   const goals = (scope.goals || []).map(goal => {
+    if (goal.kind === 'find_abstract_domain') {
+      const given = goal.strength === 'meaningful_only'
+        ? `${math(goal.known_call)} 在 ${math(goal.known_domain)} 上有意义`
+        : `${math(goal.known_call)} 的定义域为 ${math(goal.known_domain)}`;
+      return `已知 ${given}；求 ${goalLine(goal)}`;
+    }
     if (goal.kind !== 'compare_functions') return `求 ${goalLine(goal)}`;
     if (goal.mode === 'pair') return '判断题给的两个函数是否为同一函数';
     const relation = {equal: '表示同一函数', different: '表示不同函数'}[goal.select_relation];
@@ -486,7 +493,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261028-completed-feedback';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261028-domain-derivation';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;

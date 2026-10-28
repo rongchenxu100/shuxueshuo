@@ -25,6 +25,18 @@ export function compileCourse(source, evidence, graph, nodes) {
   const base = structuredClone(goal.walk.bundle);
   base.problemId = source.problemId;
   base.completion = {...base.completion, back: {href: source.topicHref, label: '返回专题'}};
+  // Attach authored choice hints from current type nodes so rebuilt courses get
+  // student-facing notes without re-recording every D2 evidence snapshot.
+  const typeHints = new Map(nodes.filter(node => node.kind === 'problem_type' && node.choice_hint)
+    .map(node => [node.id, node.choice_hint]));
+  for (const step of base.intro || []) {
+    if (step.id !== 'D2' || step.interaction?.type !== 'choice') continue;
+    for (const option of step.interaction.options || []) {
+      const hint = typeHints.get(option.value);
+      if (hint) option.note = hint;
+      else delete option.note;
+    }
+  }
   base.bundleVersion = digest(base);
   // Keep node metadata already captured by this course's execution. The live
   // graph supplies additional called nodes without rewriting older lessons
@@ -68,9 +80,11 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   const config = {problemId: source.problemId, bundleUrl, replayUrl, topicHref: source.topicHref};
   let html = await fs.readFile(path.join(root, 'tools/templates/graph-walk.html'), 'utf8');
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261028-equality-conclusion"')
+    .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
+    .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261028-domain-derivation"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261028-completed-feedback"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261028-domain-derivation"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)

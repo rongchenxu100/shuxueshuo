@@ -349,7 +349,8 @@
           "enum": [
             "function_domain",
             "separated_read",
-            "function_equality"
+            "function_equality",
+            "abstract_function_domain"
           ]
         },
         "parts": {

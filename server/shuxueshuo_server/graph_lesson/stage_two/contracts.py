@@ -47,6 +47,10 @@ def _visible_sources(candidate):
             target = f"{path}/goals/{index}"
             visible[target] = own[path] | inherited | {target}
             goal = scope['goals'][index]
+            if goal['kind'] == 'find_abstract_domain':
+                for field in ('known_call', 'known_domain', 'target_call', 'input_domain'):
+                    if field in goal:
+                        visible[target].add(f'{target}/{field}')
             if goal['kind'] == 'compare_functions':
                 for fi, function in enumerate(goal['shared_functions']):
                     prefix = f'{target}/shared_functions/{fi}'
@@ -158,11 +162,13 @@ def validate_input(value, admission="acceptance"):
         # reviewed goals that never used it. Present rows still receive every
         # ordinary shape/source check above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'function_domain', 'function_comparison'}
+        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain'}
         if kind in ('find_domain', 'match_domain'):
             required.add('function_domain')
         elif kind == 'compare_functions':
             required.add('function_comparison')
+        elif kind == 'find_abstract_domain':
+            required.add('abstract_function_domain')
         if missing := required - found:
             issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))
     return {"ok": not diagnostics, "diagnostics": diagnostics}

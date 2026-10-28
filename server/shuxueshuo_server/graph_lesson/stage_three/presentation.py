@@ -229,8 +229,15 @@ def append_boundary(state, evidence, *, feasible_set=None):
         records[index] = deepcopy(operation)
         updated["trajectory"]["finalization"] = deepcopy(records)
         return updated
+    boundary_variable = _parameter(updated)
+    if goal_kind == "find_abstract_domain":
+        description = updated["trajectory"]["constraint_context"]["abstract_domain_goal"]
+        boundary_variable = sp.Symbol(description["variable"], real=True)
+        operation["used_basis"] = ["function-concept#composite-domain", "interval-notation#finite"]
+        records[index] = deepcopy(operation)
+        updated["trajectory"]["finalization"] = deepcopy(records)
     specification = read("presentation-registry")["templates"]["boundary"]
-    bindings = {"before": [], "after": [], "checks": checks, "parameter": _parameter(updated),
+    bindings = {"before": [], "after": [], "checks": checks, "parameter": boundary_variable,
                 "feasible": feasible_set}
     _, _, description = render_template(specification, bindings)
     fragment = make_fragment(
@@ -257,11 +264,14 @@ def append_boundary(state, evidence, *, feasible_set=None):
     )
     points = {sp.sstr(point): point for point in getattr(
         feasible_set.boundary if isinstance(feasible_set, sp.Set) else sp.S.EmptySet, "args", ())}
-    record_seed(updated, fragment, template="boundary", values={
+    seed_values = {
         "feasible_set": feasible_set,
         "checks": [{"point": points.get(row.get("point", {}).get("expression")),
                     "included": row.get("included"), "holds": row.get("holds")} for row in checks],
-    })
+    }
+    if goal_kind == "find_abstract_domain":
+        seed_values["boundary_variable"] = boundary_variable
+    record_seed(updated, fragment, template="boundary", values=seed_values)
     return updated
 
 
@@ -287,7 +297,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind in ("find_range", "find_domain", "match_domain"):
+    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

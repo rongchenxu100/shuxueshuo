@@ -1,0 +1,595 @@
+{
+  "status": "reviewed_candidate",
+  "source_reviewed": true,
+  "output_contract": "search-problem-extraction/v1",
+  "public_candidate": {
+    "original_text": "【例8】 已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+    "root": {
+      "label": "例8",
+      "goals": [
+        {
+          "kind": "find_abstract_domain",
+          "known_call": "f(x)",
+          "known_domain": "[-3,2]",
+          "strength": "exact",
+          "target_call": "f(2*x-1)"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": "18a27396979d41fe655e2760266a7d77d173f52150fb2308cb8b704b37bad656",
+  "candidate": {
+    "original_text": "【例8】 已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+    "root": {
+      "label": "例8",
+      "goals": [
+        {
+          "kind": "find_abstract_domain",
+          "known_call": "f(x)",
+          "known_domain": "[-3,2]",
+          "strength": "exact",
+          "target_call": "f(2*x-1)"
+        }
+      ]
+    }
+  },
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_abstract_domain",
+        "known_form": "identity",
+        "strength": "exact"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_abstract_domain",
+        "function_name": "f",
+        "function_ref": [
+          "ref",
+          "/root/goals/0:function:f",
+          "function"
+        ],
+        "known_call_ast": [
+          "function_call",
+          [
+            "ref",
+            "/root/goals/0:function:f",
+            "function"
+          ],
+          [
+            "ref",
+            "/root/goals/0:scalar:x",
+            "scalar"
+          ]
+        ],
+        "known_argument_ast": [
+          "ref",
+          "/root/goals/0:scalar:x",
+          "scalar"
+        ],
+        "known_domain_ast": [
+          "interval",
+          true,
+          true,
+          [
+            "neg",
+            [
+              "number",
+              "3"
+            ]
+          ],
+          [
+            "number",
+            "2"
+          ]
+        ],
+        "known_strength": "exact",
+        "target_call_ast": [
+          "function_call",
+          [
+            "ref",
+            "/root/goals/0:function:f",
+            "function"
+          ],
+          [
+            "-",
+            [
+              "*",
+              [
+                "number",
+                "2"
+              ],
+              [
+                "ref",
+                "/root/goals/0:scalar:x",
+                "scalar"
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ]
+        ],
+        "target_argument_ast": [
+          "-",
+          [
+            "*",
+            [
+              "number",
+              "2"
+            ],
+            [
+              "ref",
+              "/root/goals/0:scalar:x",
+              "scalar"
+            ]
+          ],
+          [
+            "number",
+            "1"
+          ]
+        ],
+        "outer_domain_ast": [
+          "real"
+        ],
+        "has_outer_domain": false,
+        "source_ref": "/root/goals/0",
+        "known_call_source_ref": "/root/goals/0/known_call",
+        "known_domain_source_ref": "/root/goals/0/known_domain",
+        "target_call_source_ref": "/root/goals/0/target_call",
+        "structure_supported": true,
+        "reason": "",
+        "structure_version": "abstract-function-domain-identity-affine/v1",
+        "known_form": "identity",
+        "target_slope": "2",
+        "target_intercept": "-1",
+        "variable": "x",
+        "known_variable": "x",
+        "known_argument_latex": "x",
+        "target_argument_latex": "2\\cdot x-1",
+        "input_range_latex": "",
+        "input_range_ready": true
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0",
+        "/root/goals/0/known_call",
+        "/root/goals/0/known_domain",
+        "/root/goals/0/target_call"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "abstract-function-domain-identity-affine/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_abstract_domain_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": true,
+  "feature_diagnostics": [],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "49e9facca18dc7a7d2b64005c339a50527d94ab32c9d7d8b2be8655de1ccdcc4",
+  "sent_image_sha256": [
+    "49e9facca18dc7a7d2b64005c339a50527d94ab32c9d7d8b2be8655de1ccdcc4"
+  ],
+  "elapsed_seconds": 17.414
+}

@@ -170,8 +170,13 @@ def build_d2(type_reports, primary):
         feedback = "这是已确认的主要题型。" if role == "primary" else "这是得到支持的替代思路，不是数学错误。"
         if role == "conflict":
             feedback = "；".join(x["text"] for x in origins[type_id])
-        options.append({"type_id": type_id, "label": nodes.get(type_id, {}).get("label", type_id),
-                        "status": report["status"], "role": role, "feedback": feedback,
-                        "check_ids": [c["check_id"] for c in evidence],
-                        "checks": evidence, "confuse_sources": origins.get(type_id, [])})
+        node = nodes.get(type_id, {})
+        option = {"type_id": type_id, "label": node.get("label", type_id),
+                  "status": report["status"], "role": role, "feedback": feedback,
+                  "check_ids": [c["check_id"] for c in evidence],
+                  "checks": evidence, "confuse_sources": origins.get(type_id, [])}
+        hint = node.get("choice_hint")
+        if isinstance(hint, str) and hint.strip():
+            option["choice_hint"] = hint.strip()
+        options.append(option)
     return {"options": options}

@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-abstract-function-domain",
+  "admission": "abstract_function_domain",
+  "method": "method-input-domain-correspondence",
+  "route_id": "abstract-function-domain"
+}

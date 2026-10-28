@@ -31,7 +31,9 @@
       "label": "求抽象函数的定义域",
       "type": "type-abstract-function-domain",
       "description": "区分「定义域（自变量的范围）」与「f 的输入范围」，用输入范围对应法求复合式的定义域。",
-      "problems": []
+      "problems": [
+        "function-concepts-q25"
+      ]
     },
     {
       "id": "evaluation",
@@ -1175,9 +1177,100 @@
           }
         }
       }
+    },
+    "function-concepts-q25": {
+      "label": "抽象函数的定义域 · Q25",
+      "path": "/topics/function-concepts/q25/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q25.json",
+      "types": [
+        "type-abstract-function-domain"
+      ],
+      "statement": "已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+      "routes": {
+        "abstract-function-domain": {
+          "label": "输入范围对应法",
+          "methods": [
+            "method-input-domain-correspondence"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-input-domain-correspondence"
+              ]
+            },
+            "d471b8527e4b19bfc2939cb1#1": {
+              "title": "求 f 的输入范围",
+              "position": 4,
+              "refs": [
+                "method-input-domain-correspondence#solve",
+                "skill-inequality-transform",
+                "function-concept#composite-domain",
+                "function-concept#elements",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "interval-notation#finite",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "af3a628d7378e25f0af816de#1": {
+              "title": "列出目标函数的输入条件",
+              "position": 5,
+              "refs": [
+                "method-input-domain-correspondence#solve",
+                "skill-inequality-transform",
+                "function-concept#composite-domain",
+                "function-concept#elements",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "interval-notation#finite",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "49c5d4e74f986c460cfd9db6#1": {
+              "title": "求目标函数的定义域",
+              "position": 6,
+              "refs": [
+                "method-input-domain-correspondence#solve",
+                "skill-inequality-transform",
+                "function-concept#composite-domain",
+                "function-concept#elements",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "interval-notation#finite",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "5d127ed3f1d9ab3a08f387ed#1": {
+              "title": "复核边界",
+              "position": 7,
+              "refs": [
+                "method-input-domain-correspondence#solve",
+                "function-concept#composite-domain",
+                "interval-notation#finite"
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "content_version": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1"
+  "content_version": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b"
 }

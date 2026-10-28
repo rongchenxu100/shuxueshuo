@@ -504,9 +504,10 @@ def normalize_bound(root, objects, *, source_locations=None):
                     record(rule, path, fact, after)
         goals = []
         for goal in source["goals"]:
-            if goal['kind'] == 'compare_functions':
-                # Original function syntax defines domain restrictions. Do not
-                # run generic expression rewrites across option-local objects.
+            if goal['kind'] in ('compare_functions', 'find_abstract_domain'):
+                # Original function / abstract-call syntax defines domain
+                # restrictions. Do not run generic expression rewrites across
+                # option-local or abstract function objects.
                 goals.append(deepcopy(goal))
                 continue
             normalized_goal = {}

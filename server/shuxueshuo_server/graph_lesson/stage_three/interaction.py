@@ -1027,7 +1027,9 @@ def _seam_puncture(facts, item):
 # --- Boundary and goal rows (exact evidence) -------------------------------------
 
 def _boundary_facts(values, context):
-    parameter = context.get("parameter")
+    # Abstract-domain boundaries concern the target's outer variable, not a
+    # parameter. The closing projection freezes that symbol with the evidence.
+    parameter = values.get("boundary_variable", context.get("parameter"))
     return {"checks": values["checks"], "parameter": parameter,
             "display": {"feasible_set": values["feasible_set"], "parameter": parameter}}
 
@@ -1650,6 +1652,9 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
         return domain_interaction.compile_domain(seeds, interaction_id)
     if rule.get('compiler') == 'function_equality':
         return equality_presentation.compile_equality(seeds, interaction_id)
+    if rule.get('compiler') == 'abstract_function_domain':
+        from . import abstract_domain_presentation
+        return abstract_domain_presentation.compile_abstract(seeds, interaction_id)
     first_values = decode_value(seeds[0]["values"])
     if rule.get("compiler") == "separated_read":
         before, after = first_values.get("before"), first_values.get("after")

@@ -1,0 +1,150 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-input-domain-correspondence",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "solve",
+          "capability": "solve_abstract_function_domain",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "candidate_set": "candidate_set",
+            "input_range": "input_range",
+            "preimage": "preimage",
+            "outer_domain": "outer_domain",
+            "variable": "variable",
+            "complete_input": "complete_input",
+            "description": "description",
+            "board": "board",
+            "abstract_domain_result": "abstract_domain_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "abstract_align",
+          "after": "solve",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$candidate_set",
+            "phase": "align",
+            "outer_domain": "$outer_domain"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "candidate_set",
+            "outer_domain"
+          ]
+        },
+        {
+          "id": "abstract_condition",
+          "after": "solve",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$candidate_set",
+            "phase": "condition",
+            "outer_domain": "$outer_domain"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "candidate_set",
+            "outer_domain"
+          ]
+        },
+        {
+          "id": "abstract_conclusion",
+          "after": "solve",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$candidate_set",
+            "phase": "conclusion",
+            "outer_domain": "$outer_domain"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "candidate_set",
+            "outer_domain"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$candidate_set",
+    "domain_evidence": {
+      "description": "$description",
+      "input_range": "$input_range",
+      "preimage": "$preimage",
+      "outer_domain": "$outer_domain",
+      "domain": "$candidate_set",
+      "variable": "$variable",
+      "board": "$board",
+      "abstract_domain_result": "$abstract_domain_result"
+    }
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "abstract_function_domain",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

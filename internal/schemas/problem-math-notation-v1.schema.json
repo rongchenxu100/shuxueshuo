@@ -357,6 +357,9 @@
               },
               {
                 "$ref": "#/$defs/CompareFunctionsGoal"
+              },
+              {
+                "$ref": "#/$defs/FindAbstractDomainGoal"
               }
             ]
           },
@@ -595,6 +598,59 @@
         }
       ],
       "description": "比较函数的数学主目标。每组选项独立作用域，不能作为children小问；共享基准只定义一次并显式引用。模型不输出真假或正确标签。"
+    },
+    "FindAbstractDomainGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "known_call",
+        "known_domain",
+        "strength",
+        "target_call"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_abstract_domain",
+          "description": "已知抽象对应关系 f 的输入范围（或某复合写法关于外层自变量的定义域），求目标调用关于外层自变量的定义域；不编造具体解析式。"
+        },
+        "known_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "已知域所归属的调用原文，如 f(x) 或 f(x+2)；指外层自变量的定义域对象，不是答案。"
+        },
+        "known_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题面给出的已知定义域集合，如 [-3,2]、{1}、ℝ；不填写求解答案。"
+        },
+        "strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ],
+          "description": "exact 表示已知恰为完整定义域；meaningful_only 仅表示在该范围有意义，本批第一批仅开放 exact。"
+        },
+        "target_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "所求定义域的目标调用，如 f(2*x-1)；保留完整输入，不化简，不填答案区间。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面另限外层自变量范围时填写，如 (0,2)；否则省略。"
+        }
+      },
+      "description": "抽象函数定义域目标。known_call 与 known_domain 转录题设归属与集合；target_call 为所求表达式；不输出 D_f 推导或最终答案。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

@@ -1,5 +1,5 @@
 {
-  "contentVersion": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1",
+  "contentVersion": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 17,
+    "method": 18,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -54,6 +54,7 @@
     "method-fraction-split/index.html",
     "method-function-equality/index.html",
     "method-homogeneous/index.html",
+    "method-input-domain-correspondence/index.html",
     "method-interval-extremum/index.html",
     "method-matching/index.html",
     "method-parameter-quadratic-cases/index.html",

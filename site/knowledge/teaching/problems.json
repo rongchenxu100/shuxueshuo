@@ -1,5 +1,5 @@
 {
-  "content_version": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1",
+  "content_version": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b",
   "problems": {
     "basic-inequality-q01": {
       "path": "/1/q01/",
@@ -151,6 +151,10 @@
     },
     "function-concepts-q20-v2": {
       "path": "/topics/function-concepts/q20/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-q25": {
+      "path": "/topics/function-concepts/q25/",
       "topic": "function-concepts"
     },
     "quadratic-always-q01": {

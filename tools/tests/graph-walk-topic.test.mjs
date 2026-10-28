@@ -149,9 +149,9 @@ test('native topic publication derives its steps from the verified course withou
   } finally { await fs.rm(root, {recursive: true, force: true}); }
 });
 
-test('rebuilding published courses preserves their immutable native contracts', async () => {
-  // These are published identities, not regenerable snapshots. Changed teaching
-  // contracts need a new problem ID instead of replacing a frozen course.
+test('refreshing authored type hints preserves recorded course mathematics and grading', async () => {
+  // Without the new presentation hints, these historical contracts must remain
+  // byte-for-byte equivalent. Hints may refresh the version, never grading.
   const publishedHashes = {
     'function-concepts-q15': '90ac818ed6f449351e329fa4d23060c876789badb7c30e364687d5483cf14094',
     'function-concepts-q01': 'a6247acf31a3c4e08e98c3dbabd2211e7b9ad7b1eb9b0997d1f9ff329a897847',
@@ -167,11 +167,28 @@ test('rebuilding published courses preserves their immutable native contracts', 
     await fs.cp(path.join(repoRoot, 'site/data/graph-walk'), path.join(root, 'site/data/graph-walk'), {recursive: true});
     const {nodes} = await loadSources();
     const graph = await json('site/knowledge/graph.json');
+    const withoutHints = nodes.map(({choice_hint, ...node}) => node);
+    const refreshedHashes = {};
     for (const id of Object.keys(publishedHashes)) {
       const source = await json(`site/data/graph-walk/${id}.source.json`);
-      const {bundle} = compileCourse(source, await json(source.evidence), graph, nodes);
-      assert.equal(digest({runtime: 'graph-walk', ...nativePracticeContract(bundle)}), publishedHashes[id],
-        `${id} must retain its frozen contract even after retirement`);
+      const evidence = await json(source.evidence);
+      const baseline = nativePracticeContract(compileCourse(source, evidence, graph, withoutHints).bundle);
+      assert.equal(digest({runtime: 'graph-walk', ...baseline}), publishedHashes[id],
+        `${id} must retain its recorded contract when no hints are added`);
+      const {bundle} = compileCourse(source, evidence, graph, nodes);
+      const current = nativePracticeContract(bundle);
+      const normalized = structuredClone(current);
+      normalized.bundleVersion = baseline.bundleVersion;
+      for (const step of normalized.intro.filter(step => step.id === 'D2')) {
+        for (const option of step.interaction.options || []) delete option.note;
+      }
+      assert.deepEqual(normalized, baseline, `${id}: refreshing notes must not change questions, answers or routes`);
+      for (const step of current.intro.filter(step => step.id === 'D2')) {
+        for (const option of step.interaction.options || []) {
+          assert.equal(option.note, nodes.find(node => node.id === option.value)?.choice_hint);
+        }
+      }
+      refreshedHashes[id] = digest({runtime: 'graph-walk', ...current});
       await fs.writeFile(path.join(root, 'site/data/graph-walk', `${id}.json`), JSON.stringify(bundle));
     }
     const exported = await exportContent(root);
@@ -187,7 +204,7 @@ test('rebuilding published courses preserves their immutable native contracts', 
       }
       assert.ok(published, `${id} must remain in the formal publication`);
       assert.equal(published.problem_data._graph_walk.schema, 'graph-walk-practice/v1');
-      assert.equal(published.contract_hash, hash, `${id} cannot replace its published native contract during a rebuild`);
+      assert.equal(published.contract_hash, refreshedHashes[id], `${id} must publish the refreshed display contract`);
     }
   } finally { await fs.rm(root, {recursive: true, force: true}); }
 });

@@ -136,6 +136,31 @@
               }
             }
           ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "known_form",
+            "strength"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_abstract_domain"
+            },
+            "known_form": {
+              "enum": [
+                "identity"
+              ]
+            },
+            "strength": {
+              "enum": [
+                "exact",
+                "meaningful_only"
+              ]
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -817,6 +842,126 @@
           }
         }
       ]
+    },
+    "abstract_function_domain": {
+      "type": "object",
+      "required": [
+        "kind",
+        "function_name",
+        "function_ref",
+        "known_call_ast",
+        "known_argument_ast",
+        "known_domain_ast",
+        "known_strength",
+        "target_call_ast",
+        "target_argument_ast",
+        "outer_domain_ast",
+        "has_outer_domain",
+        "source_ref",
+        "known_call_source_ref",
+        "known_domain_source_ref",
+        "target_call_source_ref",
+        "structure_supported",
+        "reason",
+        "structure_version",
+        "known_form",
+        "variable"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_abstract_domain"
+        },
+        "function_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "function_ref": {
+          "type": "array"
+        },
+        "known_call_ast": {
+          "type": "array"
+        },
+        "known_argument_ast": {
+          "type": "array"
+        },
+        "known_domain_ast": {
+          "type": "array"
+        },
+        "known_strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ]
+        },
+        "target_call_ast": {
+          "type": "array"
+        },
+        "target_argument_ast": {
+          "type": "array"
+        },
+        "outer_domain_ast": {
+          "type": "array"
+        },
+        "has_outer_domain": {
+          "type": "boolean"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "known_call_source_ref": {
+          "type": "string"
+        },
+        "known_domain_source_ref": {
+          "type": "string"
+        },
+        "target_call_source_ref": {
+          "type": "string"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "abstract-function-domain-identity-affine/v1"
+        },
+        "known_form": {
+          "type": "string"
+        },
+        "target_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variable": {
+          "type": "string"
+        },
+        "known_variable": {
+          "type": "string"
+        },
+        "known_argument_latex": {
+          "type": "string"
+        },
+        "target_argument_latex": {
+          "type": "string"
+        },
+        "input_range_latex": {
+          "type": "string"
+        },
+        "input_range_ready": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

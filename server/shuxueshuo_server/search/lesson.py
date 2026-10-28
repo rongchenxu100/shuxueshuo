@@ -141,6 +141,10 @@ def _goal(goal, features, text, candidate=None):
                                            "d1.function_definition_not_uniquely_located"}]
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
+    if known.get("goal", {}).get("kind") == "find_abstract_domain":
+        diagnostics = goal["d1"].get("diagnostics", [])
+        if diagnostics:
+            section["d1"]["diagnostics"] = diagnostics
     section["d2"] = d2_options(goal)
     section["knowledge"] = [knowledge_label(item["ref"]) for item in goal["knowledge"]["items"]]
     section["links"] = goal["knowledge"]["links"]
@@ -406,6 +410,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
     if known.get("goal", {}).get("kind") == "match_domain":
         return _match_domain_d1_rows(target, fragments, known, text, candidate=candidate)
+    if known.get("goal", {}).get("kind") == "find_abstract_domain":
+        return _abstract_domain_d1_rows(target, fragments, known, text, candidate=candidate)
     transform, diagnostics = transformation(target, fragments, known, tex, text=text, candidate=candidate)
     extra = {"transformation": transform} if transform else {}
     if diagnostics:
@@ -557,6 +563,54 @@ def _domain_d1_rows(target, fragments, known, text, *, candidate=None):
             "question": "题目要求“定义域”，也就是要确定什么？", "summary": summary}
 
 
+def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
+    """Separate the given call's domain from the requested outer-variable set."""
+    domain = known.get("abstract_function_domain") or {}
+    selected = [fragment for fragment in fragments if fragment["fragment_kind"] == "goal"]
+    if not domain.get("structure_supported") or not selected or candidate is None:
+        return {"rows": [], "summary": ""}
+    goal = candidate
+    for part in target.strip("/").split("/"):
+        goal = goal[int(part)] if isinstance(goal, list) else goal[part]
+    variable = tex(domain["variable"])
+    known_call, target_call = tex(goal["known_call"]), tex(goal["target_call"])
+    correct = f"使 ${target_call}$ 有意义的自变量 ${variable}$ 的取值范围"
+    feedback = f"目标函数的定义域是外层自变量 ${variable}$ 的取值范围；函数值的取值范围叫值域。"
+    row_id = f"{target}:goal"
+    spans = [_spans([fragment], text) for fragment in selected]
+    row = {
+        "id": row_id, "kind": "goal", "quote": spans,
+        "fragment_ids": [fragment["id"] for fragment in selected],
+        "knowledge_refs": list(dict.fromkeys(ref for fragment in selected for ref in fragment["knowledge_refs"])),
+        "source_refs": [f"{target}/target_call"],
+        "signature": sha256(json.dumps([spans, domain], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16],
+        "options": _shuffle(row_id, [
+            _option(correct),
+            _option(f"函数值 ${target_call}$ 的取值范围", "goal", feedback),
+        ]),
+    }
+    givens = []
+    for index, fragment in enumerate(fragments):
+        if fragment["fragment_kind"] != "given_domain":
+            continue
+        outer = fragment["source_refs"] == [f"{target}/input_domain"]
+        given_text = (f"题设另限外层自变量：${variable}\\in {tex(goal['input_domain'])}$。" if outer else
+                      f"已知 ${known_call}$ 的定义域为 ${tex(goal['known_domain'])}$。")
+        givens.append({
+            "id": f"{target}:given_domain:{index}", "kind": "given_domain",
+            "quote": [_spans([fragment], text)], "fragment_ids": [fragment["id"]],
+            "knowledge_refs": fragment["knowledge_refs"], "source_refs": fragment["source_refs"],
+            "text": given_text,
+        })
+    summary = (f"题面给出了 ${known_call}$ 的定义域；本题要找出所有使 ${target_call}$ 有意义的"
+               f"外层自变量 ${variable}$，需要让完整输入落在同一对应关系的输入范围内。")
+    if "input_domain" in goal:
+        summary += "题设另给的外层自变量范围也要同时满足。"
+    return {"rows": [row], "givens": givens, "interaction": "choice",
+            "question": f"题目要求 ${target_call}$ 的定义域，也就是要确定什么？",
+            "feedback": feedback, "summary": summary}
+
+
 def _match_domain_d1_rows(target, fragments, known, text, *, candidate=None):
     """Read Dom(f)=D → find parameter from reviewed features, without solving."""
     domain = known.get("function_domain") or {}
@@ -624,6 +678,10 @@ def d2_options(goal):
             cues = [c["student_cue"]["text"] for c in option["checks"]
                     if c["status"] == "conflict" and c.get("student_cue")]
             feedback = "；".join(dict.fromkeys(sources or cues)) or "这类题的条件与本题不符。"
-        options.append({"type_id": option["type_id"], "label": option["label"], "role": role,
-                        "feedback": feedback, "reasons": reasons})
+        row = {"type_id": option["type_id"], "label": option["label"], "role": role,
+               "feedback": feedback, "reasons": reasons}
+        hint = option.get("choice_hint")
+        if isinstance(hint, str) and hint.strip():
+            row["choice_hint"] = hint.strip()
+        options.append(row)
     return sorted(options, key=lambda o: sha256((goal["target_ref"] + o["type_id"]).encode()).hexdigest())

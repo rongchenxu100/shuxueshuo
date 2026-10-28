@@ -8,7 +8,8 @@
       "solve_conditions",
       "reciprocal_of_range",
       "solve_interval_conditions",
-      "normalize_parameter_conditions"
+      "normalize_parameter_conditions",
+      "solve_abstract_function_domain"
     ],
     "skill-equality-transform": [
       "separation_division"
@@ -133,6 +134,9 @@
     ],
     "collect_function_comparisons": [
       "method-function-equality#collect"
+    ],
+    "solve_abstract_function_domain": [
+      "method-input-domain-correspondence#solve"
     ]
   }
 }

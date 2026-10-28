@@ -1,6 +1,6 @@
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261027-function-equality';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261027-function-equality';
+import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261028-domain-derivation';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
 import {buildStreamReplay} from './walk-replay.mjs?v=20261027-function-equality';
@@ -244,6 +244,7 @@ function domainPremisesHTML(decision, uid) {
 
 // A server board states what the question works from, in place of the card's own premises.
 function boardHTML(board) {
+  if (board.layout === 'derivation') return '<div data-derivation-board></div>';
   return `<div class="visual-board gw-question-board"><div class="board-caption">${escapeHTML(board.caption)}</div><div class="formula case-lines">${board.lines.map(line => `<p class="case-line" data-math-text>${escapeHTML(line)}</p>`).join('')}</div></div>`;
 }
 
@@ -404,13 +405,14 @@ function gridHTML(decision, answer, interactive = true) {
 }
 
 function completedFeedbackHTML(decision) {
+  if (decision.stem_board?.layout === 'derivation') return '';
   return typeof decision.feedback?.answer === 'string' && decision.feedback.answer.trim()
     ? `<p class="gw-result" data-math-text>${escapeHTML(decision.feedback.answer)}</p>` : '';
 }
 
 function streamCompletedAnswerHTML(decision, answer) {
   // Choice cards keep the student's verdict + teaching feedback above the math conclusion board.
-  if (decision.interaction.type === 'read') return '';
+  if (decision.interaction.type === 'read' || decision.stem_board?.layout === 'derivation') return '';
   const summary = answerSummary(decision, answer);
   if (!summary) return '';
   return `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${completedFeedbackHTML(decision)}`;
@@ -621,6 +623,7 @@ function carryHTML() {
   const record = records.at(-1), decision = record && anyDecision(record.decision);
   const current = bundle.stream ? currentDecision(bundle, state) : null, premises = mergePremisesHTML(current);
   const active = current || bundle.routes?.[state.run?.route]?.steps?.[state.run?.completed?.length || 0];
+  if (active?.stem_board?.layout === 'derivation') return '';
   if (active?.interaction.type === 'original_choice_exact_set' || active?.source === 'original_choice' && active.require_complete_options) return '';
   if (active?.option_context && decision?.option_context?.option_id !== active.option_context.option_id) return '';
   const transition = bundle.stream && caseCarryHTML(decision, current);
@@ -657,6 +660,11 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
   // or the completed-step carry above; only read cards reveal the mathematical record.
   const context = pending == null && host.querySelector('[data-stream-context]');
+  const derivation = pending == null && host.querySelector('[data-derivation-board]');
+  if (derivation) {
+    derivation.append(createDerivationBoard(document, decision.stem_board));
+    renderStreamMath(derivation);
+  }
   if (pending == null && decision.source_regions) {
     const selected = Array.isArray(draft) ? draft : draft == null ? [] : [draft];
     const question = host.querySelector('.question');

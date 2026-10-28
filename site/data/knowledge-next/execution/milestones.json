@@ -37,7 +37,8 @@
       "method-variable-swap",
       "method-domain-intersection",
       "method-domain-parameter",
-      "method-function-equality"
+      "method-function-equality",
+      "method-input-domain-correspondence"
     ]
   }
 }

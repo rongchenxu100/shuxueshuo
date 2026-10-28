@@ -1035,24 +1035,94 @@
           }
         },
         "stem_board": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "caption",
-            "lines"
-          ],
-          "properties": {
-            "caption": {
-              "$ref": "#/$defs/text"
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "caption",
+                "lines"
+              ],
+              "properties": {
+                "caption": {
+                  "$ref": "#/$defs/text"
+                },
+                "lines": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              }
             },
-            "lines": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "$ref": "#/$defs/text"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "layout",
+                "caption",
+                "items",
+                "connector"
+              ],
+              "properties": {
+                "layout": {
+                  "const": "derivation"
+                },
+                "caption": {
+                  "$ref": "#/$defs/text"
+                },
+                "connector": {
+                  "const": "⇒"
+                },
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "label",
+                      "math"
+                    ],
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "math": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1
+                      },
+                      "note": {
+                        "$ref": "#/$defs/text"
+                      }
+                    }
+                  },
+                  "prefixItems": [
+                    {
+                      "properties": {
+                        "math": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "math": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                }
               }
             }
-          }
+          ]
         },
         "feedback": {
           "type": "object",

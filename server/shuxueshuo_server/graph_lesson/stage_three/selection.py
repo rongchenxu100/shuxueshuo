@@ -112,8 +112,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('function_domain', 'function_domain_routes', 'function_equality'):
+        if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
+                             'abstract_function_domain'):
             raise ValueError('selection.unsupported_direct_admission')
+        from .abstract_function_domain import admitted as admitted_abstract
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
         from .function_domain import admitted, admitted_parameter
@@ -124,6 +126,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_domain': admitted,
             'function_domain_parameter': admitted_parameter,
             'function_equality': admitted_equality,
+            'abstract_function_domain': admitted_abstract,
         }
         if admission == 'function_equality':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
@@ -131,6 +134,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         elif admission == 'function_domain':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': 'function_domain', 'label': '列条件求交集法'}]
+        elif admission == 'abstract_function_domain':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '输入范围对应法'}]
         else:
             routes = contract['routes']
         chosen = None
@@ -148,7 +154,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
             return {'status': 'no_applicable_method', 'selection': selection,
                     'd3': None, 'd4': None, 'diagnostics': []}
         label = chosen.get('label') or (
-            '定义域求参法' if chosen['admission'] == 'function_domain_parameter' else '列条件求交集法'
+            '定义域求参法' if chosen['admission'] == 'function_domain_parameter' else
+            '输入范围对应法' if chosen['admission'] == 'abstract_function_domain' else
+            '列条件求交集法'
         )
         branch = {'branch': 'direct', 'target': chosen['method'], 'route_id': chosen['route_id'],
                   'trigger': 'triggered', 'applicability': 'applicable',
@@ -162,7 +170,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
             '逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。'
             if chosen['admission'] == 'function_equality' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
-            if chosen['admission'] == 'function_domain_parameter'
+            if chosen['admission'] == 'function_domain_parameter' else
+            '先求 f 的输入范围，再列出目标函数的输入条件，最后求出目标函数的定义域。'
+            if chosen['admission'] == 'abstract_function_domain'
             else '按原式列出有意义的条件，分别求解，再取交集。'
         )
         d3 = {'id': 'D3', 'title': '选择解题方法', 'question': question,

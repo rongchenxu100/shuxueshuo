@@ -9,7 +9,13 @@
     return `<button type="button" class="shape ${shape} ${label ? 'expression-slot' : ''} ${value ? '' : 'empty'}" data-stage="${stage}" data-slot="${index}" data-occurrence="${escape(occurrence)}" aria-haspopup="dialog" aria-expanded="false" aria-label="${escape(title)}：${escape(occurrence)}${name}，${escape(value || '未填写')}"><span data-math-text>${escape(label || value || '?')}</span></button>`;
   }
   function choices(component, selected, title) {
-    return `<div class="method-options" role="group" aria-label="${escape(title)}">${component.options.map(({value, label}) => `<button type="button" class="method-choice" data-choice="${escape(component.field)}" data-value="${escape(value)}" aria-pressed="${selected === value}"><span class="radio-mark" aria-hidden="true"></span><span data-math-text>${escape(label)}</span></button>`).join('')}</div>`;
+    return `<div class="method-options" role="group" aria-label="${escape(title)}">${component.options.map(({value, label, note}) => {
+      const body = note
+        ? `<span class="method-choice-copy"><span class="method-choice-label" data-math-text>${escape(label)}</span><span class="method-choice-note" data-math-text>${escape(note)}</span></span>`
+        : `<span data-math-text>${escape(label)}</span>`;
+      const spoken = note ? `${label}。${note}` : label;
+      return `<button type="button" class="method-choice" data-choice="${escape(component.field)}" data-value="${escape(value)}" aria-pressed="${selected === value}" aria-label="${escape(spoken)}"><span class="radio-mark" aria-hidden="true"></span>${body}</button>`;
+    }).join('')}</div>`;
   }
   function controls({stage, label, ready, feedback, hint}) {
     return `<div class="actions"><button type="button" class="primary" data-submit="${stage}" ${ready ? '' : 'disabled'}>${escape(label)} <span aria-hidden="true">→</span></button><button type="button" class="hint-button" data-hint="${stage}">${hintIcon}给点提示</button></div>${feedback ? `<p class="feedback ${hint ? 'helper-feedback' : ''}" data-math-text>${escape(feedback)}</p>` : ''}`;

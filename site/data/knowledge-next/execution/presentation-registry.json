@@ -2468,6 +2468,39 @@
         "show_result": true,
         "conclusion_only": true
       }
+    },
+    "abstract_domain_derivation": {
+      "title": "输入范围对应",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "before",
+        "after",
+        "board",
+        "description",
+        "complete_input",
+        "input_range",
+        "candidate_set",
+        "phase",
+        "outer_domain"
+      ],
+      "prepare": "abstract_domain_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
     }
   },
   "boundary_steps": {
@@ -2477,7 +2510,8 @@
     "method-variable-swap": "merge",
     "method-domain-intersection": "verify",
     "method-domain-parameter": "verify",
-    "method-function-equality": "verify"
+    "method-function-equality": "verify",
+    "method-input-domain-correspondence": "solve"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【例8】已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"root\":{\"goals\":[{\"kind\":\"find_abstract_domain\",\"known_call\":\"f(x)\",\"known_domain\":\"[-3,2]\",\"strength\":\"exact\",\"target_call\":\"f(2*x-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 940,
+      "prompt_tokens": 14065,
+      "total_tokens": 15005,
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 13937
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 512,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "49e9facca18dc7a7d2b64005c339a50527d94ab32c9d7d8b2be8655de1ccdcc4",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 3639,
+        "expires_at": 1793260991,
+        "uploaded_at": 1793174591.035115
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "49e9facca18dc7a7d2b64005c339a50527d94ab32c9d7d8b2be8655de1ccdcc4",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793260991,
+        "elapsed_ms": 1681
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6279,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 940,
+          "prompt_tokens": 14065,
+          "total_tokens": 15005,
+          "completion_tokens_details": {
+            "reasoning_tokens": 748
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          },
+          "prompt_cache_hit_tokens": 128,
+          "prompt_cache_miss_tokens": 13937
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 940,
+            "prompt_tokens": 14065,
+            "total_tokens": 15005,
+            "completion_tokens_details": {
+              "reasoning_tokens": 748
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 128
+            },
+            "prompt_cache_hit_tokens": 128,
+            "prompt_cache_miss_tokens": 13937
+          },
+          "created": 1793174591,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【例8】已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"root\":{\"goals\":[{\"kind\":\"find_abstract_domain\",\"known_call\":\"f(x)\",\"known_domain\":\"[-3,2]\",\"strength\":\"exact\",\"target_call\":\"f(2*x-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要回答 JSON。需要提取图片题目。图片文字：【例8】已知函数 y=f(x) 的定义域是 [-3,2]，则函数 y=f(2x-1) 的定义域是____。需要构造 original_text, root, public_content。抽象函数定义域目标。注意题面用 y=f(x)，定义域 [-3,2]，求 y=f(2x-1)定义域。这是 find_abstract_domain。known_call 应该是 f(x) 还是 f(t)? 题面已知 y=f(x) 的定义域，目标 f(2x-1)。使用 known_call \"f(x)\", known_domain \"[-3,2]\", strength exact, target_call \"f(2*x-1)\"。root definitions? 抽象题无解析式，不需要定义。facts 可能写 known domain? 但目标已包含。按照规则 root facts 可空? 目标包含。original_text保留【例8】? 题目原文可以保留来源题号，原题有【例8】。public_content statement 排除来源题号/例8，写“已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。” 注意填空处照原样横线。required public scopes one root. choices target none. root label? 原题有【例8】，这是来源题号？ 例题编号，属于来源？ root.label 可以填 \"例8\" 或 \"【例8】\"? 题面原文是【例8】。root label 可选。若 label 存在且明确来源/试卷题号，source。例8是例题编号，很可能是来源。但 public_content.root_label_role 只有 root.label 存在时填。我们 root 可以省略 label，避免。original_text保留【例8】。public_content statement 排除例8。completeness complete。privacy separated? 没有姓名等，source 题号可排除， complete. figure not_required. root facts: 可空。definitions空。goals [{\"kind\":\"find_abstract_domain\",\"known_call\":\"f(x)\",\"known_domain\":\"[-3,2]\",\"strength\":\"exact\",\"target_call\":\"f(2*x-1)\"}]。是否 target_call 保留原变量 x? 规则 target_call 示例 f(2*x-1)。好的。注意 known_call 中的 x 与目标外层 x 同名但不同绑定，按规则不改名。input_domain 无。\n\nuncertainties 空。public_content scopes statement \"已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是____。\" 里数学式用$。横线原样。choices [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\noriginal_text需要 LaTeX 用 $…$，反斜杠双写。写：“【例8】已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。” 无需要斜杠。\n\nroot fields: 可省略 definitions, facts? Schema Scope properties optional? additionalProperties false but no required in Scope. 我们可以只给 goals。但 public content scopes statement. root no label. 输出 JSON。确保没有额外字段。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7977
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【例8】已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"root\":{\"goals\":[{\"kind\":\"find_abstract_domain\",\"known_call\":\"f(x)\",\"known_domain\":\"[-3,2]\",\"strength\":\"exact\",\"target_call\":\"f(2*x-1)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON。需要提取图片题目。图片文字：【例8】已知函数 y=f(x) 的定义域是 [-3,2]，则函数 y=f(2x-1) 的定义域是____。需要构造 original_text, root, public_content。抽象函数定义域目标。注意题面用 y=f(x)，定义域 [-3,2]，求 y=f(2x-1)定义域。这是 find_abstract_domain。known_call 应该是 f(x) 还是 f(t)? 题面已知 y=f(x) 的定义域，目标 f(2x-1)。使用 known_call \"f(x)\", known_domain \"[-3,2]\", strength exact, target_call \"f(2*x-1)\"。root definitions? 抽象题无解析式，不需要定义。facts 可能写 known domain? 但目标已包含。按照规则 root facts 可空? 目标包含。original_text保留【例8】? 题目原文可以保留来源题号，原题有【例8】。public_content statement 排除来源题号/例8，写“已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。” 注意填空处照原样横线。required public scopes one root. choices target none. root label? 原题有【例8】，这是来源题号？ 例题编号，属于来源？ root.label 可以填 \"例8\" 或 \"【例8】\"? 题面原文是【例8】。root label 可选。若 label 存在且明确来源/试卷题号，source。例8是例题编号，很可能是来源。但 public_content.root_label_role 只有 root.label 存在时填。我们 root 可以省略 label，避免。original_text保留【例8】。public_content statement 排除例8。completeness complete。privacy separated? 没有姓名等，source 题号可排除， complete. figure not_required. root facts: 可空。definitions空。goals [{\"kind\":\"find_abstract_domain\",\"known_call\":\"f(x)\",\"known_domain\":\"[-3,2]\",\"strength\":\"exact\",\"target_call\":\"f(2*x-1)\"}]。是否 target_call 保留原变量 x? 规则 target_call 示例 f(2*x-1)。好的。注意 known_call 中的 x 与目标外层 x 同名但不同绑定，按规则不改名。input_domain 无。\n\nuncertainties 空。public_content scopes statement \"已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是____。\" 里数学式用$。横线原样。choices [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\noriginal_text需要 LaTeX 用 $…$，反斜杠双写。写：“【例8】已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。” 无需要斜杠。\n\nroot fields: 可省略 definitions, facts? Schema Scope properties optional? additionalProperties false but no required in Scope. 我们可以只给 goals。但 public content scopes statement. root no label. 输出 JSON。确保没有额外字段。"
+        }
+      }
+    ],
+    "created": 1793174591,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 940,
+      "prompt_tokens": 14065,
+      "total_tokens": 15005,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 748,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 13937
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.98
+}

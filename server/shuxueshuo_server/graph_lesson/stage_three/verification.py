@@ -957,6 +957,34 @@ def verify(candidate, target_ref, constraint_context, feasible_set):
     if _source(candidate, target_ref).get("kind") == "match_domain":
         from .function_domain import verify_domain_parameter
         return verify_domain_parameter(candidate, target_ref, constraint_context, feasible_set)
+    if _source(candidate, target_ref).get("kind") == "find_abstract_domain":
+        from .abstract_function_domain import independent_verify
+
+        rebuilt = independent_verify(candidate, target_ref, feasible_set)
+        if rebuilt["status"] != "verified":
+            return {
+                "status": "math_failed",
+                "proof": {
+                    "kind": "abstract_domain_preimage",
+                    "passed": False,
+                    "checks": rebuilt["checks"],
+                    "expected": rebuilt["expected"],
+                    "actual": rebuilt["actual"],
+                },
+                "diagnostics": rebuilt.get("diagnostics", []),
+            }
+        return {
+            "status": "verified",
+            "proof": {
+                "kind": "abstract_domain_preimage",
+                "passed": True,
+                "checks": rebuilt["checks"],
+                "expected": rebuilt["expected"],
+                "actual": rebuilt["actual"],
+                "structure_version": rebuilt["checks"][0].get("structure_version"),
+            },
+            "diagnostics": [],
+        }
     result = {"status": "capability_gap", "proof": {}, "diagnostics": []}
     try:
         problem = read_problem(candidate, target_ref, constraint_context)
@@ -1038,6 +1066,10 @@ def endpoint_check(candidate, target_ref, feasible_set):
     if _source(candidate, target_ref).get("kind") == "match_domain":
         from .function_domain import domain_parameter_endpoints
         return domain_parameter_endpoints(candidate, target_ref, feasible_set)
+    if _source(candidate, target_ref).get("kind") == "find_abstract_domain":
+        from .abstract_function_domain import abstract_domain_endpoints
+
+        return abstract_domain_endpoints(candidate, target_ref, feasible_set)
     problem = read_problem(candidate, target_ref)
     _supported_set(feasible_set)
     boundaries = feasible_set.boundary

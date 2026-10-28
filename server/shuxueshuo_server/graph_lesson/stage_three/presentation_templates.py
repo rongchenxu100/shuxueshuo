@@ -404,12 +404,14 @@ def _affine_restore_view(values):
 
 # Preparation functions only select supplied evidence or construct equivalent
 # mathematical objects. They contain no prose and never perform solving.
+from .abstract_domain_presentation import presentation as abstract_domain_presentation
 from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
 from .equality_presentation import view as equality_view
 
 PREPARERS = {
     'equality_view': equality_view,
+    'abstract_domain_view': abstract_domain_presentation,
     "domain_view": domain_presentation,
     "domain_parameter_view": domain_parameter_view,
     "normalize_view": _normalize_view,
@@ -441,6 +443,11 @@ PREPARED_FIELDS = {
         'domain_connector', 'correspondence_connector', 'relation_connector',
         'left_value_math', 'right_value_math', 'correspondence_caption',
         'verdict_result', 'domain_relation_result',
+    },
+    'abstract_domain_view': {
+        'domain_explanation', 'derivation_caption', 'derivation_left_label',
+        'derivation_left_math', 'derivation_left_note', 'derivation_right_label',
+        'derivation_right_math',
     },
     "domain_view": {"domain_lines", "domain_explanation"},
     "domain_parameter_view": {"domain_lines", "domain_explanation"},
@@ -543,8 +550,8 @@ def _validate_highlight(highlight, names):
             or not {"caption", "items"} <= set(highlight)
             <= {"caption", "items", "connector", "result", "conclusion_only", "layout", "replace_with_graph", "show_result"}
             or not isinstance(highlight.get("connector", ""), str)
-            or highlight.get("layout", "merge") != "merge"
-            or (highlight.get("layout") and "result" not in highlight)
+            or highlight.get("layout", "merge") not in ("merge", "derivation")
+            or (highlight.get("layout") == "merge" and "result" not in highlight)
             or not isinstance(highlight.get("conclusion_only", False), bool)
             or not isinstance(highlight.get("show_result", False), bool)
             or (highlight.get("show_result") and "result" not in highlight)
@@ -557,6 +564,10 @@ def _validate_highlight(highlight, names):
     items = highlight["items"]
     if not isinstance(items, list) or not items:
         raise ValueError("presentation.invalid_highlight")
+    if highlight.get("layout") == "derivation" and (
+            len(items) != 2 or highlight.get("connector") != "⇒"
+            or any("for" in item for item in items)):
+        raise ValueError("presentation.invalid_derivation_highlight")
     for item in items:
         if not isinstance(item, dict) or not {"label", "math"} <= set(item) <= {"label", "math", "note", "for", "as"}:
             raise ValueError("presentation.invalid_highlight")

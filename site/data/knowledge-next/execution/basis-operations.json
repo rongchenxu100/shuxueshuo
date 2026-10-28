@@ -161,6 +161,16 @@
     ],
     "function_comparison_collection": [
       "function-concept#identity"
+    ],
+    "abstract_affine_preimage": [
+      "function-concept#composite-domain",
+      "inequality-properties#addition",
+      "inequality-properties#multiplication",
+      "interval-notation#finite"
+    ],
+    "abstract_outer_intersection": [
+      "set-intersection-union#intersection",
+      "function-concept#elements"
     ]
   }
 }

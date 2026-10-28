@@ -959,6 +959,11 @@ class NotationValidator:
 
                     goals.append(compile_comparison(goal, f'{path}.goals[{index}]'))
                     continue
+                if goal['kind'] == 'find_abstract_domain':
+                    from .notation_abstract_domain import compile_abstract_domain
+
+                    goals.append(compile_abstract_domain(goal, f'{path}.goals[{index}]'))
+                    continue
                 target = next(
                     k for k in ("expression", "object", "symbol") if k in goal
                 )

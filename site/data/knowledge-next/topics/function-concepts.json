@@ -52,7 +52,9 @@
       "label": "求抽象函数的定义域",
       "type": "type-abstract-function-domain",
       "description": "区分「定义域（自变量的范围）」与「f 的输入范围」，用输入范围对应法求复合式的定义域。",
-      "problems": []
+      "problems": [
+        "function-concepts-q25"
+      ]
     },
     {
       "id": "evaluation",
@@ -140,6 +142,15 @@
       "bundle": "/data/graph-walk/function-concepts-q20-v2.json",
       "types": [
         "type-function-equality"
+      ]
+    },
+    "function-concepts-q25": {
+      "label": "抽象函数的定义域 · Q25",
+      "path": "/topics/function-concepts/q25/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q25.json",
+      "types": [
+        "type-abstract-function-domain"
       ]
     }
   }

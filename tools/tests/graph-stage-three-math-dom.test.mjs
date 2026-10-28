@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {attachMathQA, createMathCard, setMathCardLayout, createRouteCompletion} from '../../site/assets/graph-walk/stream-math-dom.mjs';
+import {attachMathQA, createDerivationBoard, createMathCard, setMathCardLayout, createRouteCompletion} from '../../site/assets/graph-walk/stream-math-dom.mjs';
 
 function documentFixture() {
   const document = {createElement(tag) { return new Element(tag); }};
@@ -25,6 +25,50 @@ const qa = {...identity, step_id: step.step_id, math_step_sha256: step.math_step
   qa: {questions: ['为什么最小值存在？'], feedback: '因为下确界能取到。'}};
 const exactValue = (value, latex = value) => ({expression: value, latex,
   exact: value.includes('/') ? {$math: 'Rational', p: value.split('/')[0], q: value.split('/')[1]} : {$math: 'Integer', value}});
+
+test('a deduction keeps its labelled cells while the pending question mark becomes the verified formula', () => {
+  const {document, find} = documentFixture();
+  const board = {layout: 'derivation', caption: '求定义域', connector: '⇒', items: [
+    {label: '完整输入 $2x-1$', math: '-3\\le 2x-1\\le 2'}, {label: '目标函数的定义域', math: null}]};
+  const pending = createDerivationBoard(document, board);
+  assert.equal(pending.dataset.state, 'pending');
+  assert.deepEqual(find('gw-derivation-label', pending).map(node => node.textContent), board.items.map(item => item.label));
+  assert.ok(find('gw-derivation-label', pending).every(node => node.dataset.mathText === 'true'));
+  assert.deepEqual(find('gw-derivation-formula', pending).map(node => node.textContent), ['\\displaystyle -3\\le 2x-1\\le 2']);
+  const unknown = find('gw-derivation-unknown', pending)[0];
+  assert.equal(unknown.textContent, '?');
+  assert.equal(unknown['aria-label'], '待求');
+  assert.equal(find('gw-derivation-arrow', pending)[0].textContent, '⇒');
+  const completed = createMathCard(document, {...step, title: '输入范围对应',
+    highlight: {...board, items: [board.items[0], {...board.items[1], math: '[-1,\\frac32]'}]}},
+  {embedded: true, parentTitle: '求定义域'});
+  assert.equal(completed.conclusion.className, pending.className);
+  assert.equal(completed.conclusion.dataset.state, 'complete');
+  assert.deepEqual(find('gw-derivation-label', completed.node).map(node => node.textContent), board.items.map(item => item.label));
+  assert.equal(find('gw-derivation-unknown', completed.node).length, 0);
+  assert.deepEqual(find('gw-derivation-formula', completed.node).map(node => node.textContent),
+    ['\\displaystyle -3\\le 2x-1\\le 2', '\\displaystyle [-1,\\frac32]']);
+  assert.equal(find('details stage-three-derivation', completed.node)[0].open, false);
+  assert.equal(completed.heading.hidden, true, 'the enclosing step title is enough');
+  assert.equal(completed.caption.hidden, true, 'do not repeat the enclosing step title');
+  setMathCardLayout(completed);
+  assert.equal(completed.heading.hidden, false, 'standalone cards retain their own title');
+});
+
+test('deduction labels, notes, captions and formulas are inserted as text, never source HTML', () => {
+  const {document, find} = documentFixture();
+  const untrusted = '<img src=x onerror=alert(1)>', formula = '\\text{<svg/onload=alert(1)>}';
+  const board = createDerivationBoard(document, {layout: 'derivation', caption: untrusted,
+    connector: untrusted, items: [{label: untrusted, note: untrusted, math: formula}, {label: '结果', math: null}]});
+  assert.equal(find('gw-derivation-caption', board)[0].textContent, untrusted);
+  assert.equal(find('gw-derivation-label', board)[0].textContent, untrusted);
+  assert.equal(find('gw-derivation-note', board)[0].textContent, untrusted);
+  assert.equal(find('gw-derivation-formula', board)[0].textContent, `\\displaystyle ${formula}`);
+  assert.equal(find('gw-derivation-arrow', board)[0].textContent, untrusted);
+  for (const name of ['gw-derivation-caption', 'gw-derivation-label', 'gw-derivation-note', 'gw-derivation-formula', 'gw-derivation-arrow']) {
+    assert.ok(find(name, board).every(node => node.children.length === 0));
+  }
+});
 
 test('shared card preserves identity, formula structure and a separate empty QA region', () => {
   const {document, find} = documentFixture(), rendered = [];
@@ -314,6 +358,16 @@ test('domain completion labels the verified set as the domain', () => {
   assert.equal(value.complete, true);
   assert.equal(value.node.children[0].textContent, '定义域：');
   assert.equal(find('stage-three-answer', value.node)[0].textContent, '[1,2)\\cup(2,+\\infty)');
+});
+
+for (const formula of ['[-1,\\frac{3}{2}]', '\\mathbb{R}', '\\varnothing']) test(`abstract domain completion displays ${formula}`, () => {
+  const {document, find} = documentFixture();
+  const payload = {status: 'verified', answer: {kind: 'find_abstract_domain', status: 'set', set: {latex: formula}}};
+  const value = createRouteCompletion(document, payload);
+  assert.equal(value.complete, true);
+  assert.equal(value.node.children[0].textContent, '定义域：');
+  assert.equal(find('stage-three-answer', value.node)[0].textContent, formula);
+  assert.equal(createRouteCompletion(document, {...payload, available: false}).complete, false);
 });
 
 test('comparison conclusion board explains verified reason codes in student language', () => {

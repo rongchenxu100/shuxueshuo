@@ -139,7 +139,7 @@ def test_scalar_parameter_extrema_keep_goal_kind_and_quantified_structure(
     features = feature_values(candidate)
     assert candidate == frozen
     assert all(item["status"] == "known" for key, item in features.items()
-               if key not in {"function_domain", "function_comparison"})
+                   if key not in {"function_domain", "function_comparison", "abstract_function_domain"})
     assert features["function_domain"]["status"] == "unknown"
     assert features["function_comparison"]["status"] == "unknown"
     assert features["goal"]["value"] == {"kind": kind, "symbol": "a"}
@@ -215,7 +215,7 @@ def test_extremum_sub_questions_keep_goals_and_quantifiers_in_their_own_scope():
         assert features[target, "domain"]["value"]["expression"] == domain
         for (target_ref, feature_id), feature in features.items():
             if target_ref == target:
-                assert feature["status"] == ("unknown" if feature_id in {"function_domain", "function_comparison"} else "known")
+                assert feature["status"] == ("unknown" if feature_id in {"function_domain", "function_comparison", "abstract_function_domain"} else "known")
                 assert feature["scope"] == scope
                 assert feature["source_refs"]
                 assert all(ref.startswith(scope + "/") for ref in feature["source_refs"])

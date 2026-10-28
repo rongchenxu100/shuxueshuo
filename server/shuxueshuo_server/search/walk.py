@@ -109,6 +109,7 @@ def _d2(goal, clues, edges):
         "source": "authored", "submit_label": "确认题型",
         "interaction": {"type": "choice", "field": "problem_type",
                         "options": [{"value": o["type_id"], "label": o["label"],
+                                     **({"note": o["choice_hint"]} if o.get("choice_hint") else {}),
                                      **({"feedback": o["feedback"]} if o["role"] == "conflict" else {})}
                                     for o in options]},
         "expected_answer": {"one_of": [primary]},

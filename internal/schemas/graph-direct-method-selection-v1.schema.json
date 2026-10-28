@@ -29,7 +29,8 @@
       "enum": [
         "function_domain",
         "function_domain_routes",
-        "function_equality"
+        "function_equality",
+        "abstract_function_domain"
       ]
     },
     "routes": {
@@ -81,7 +82,8 @@
         "admission": {
           "enum": [
             "function_domain",
-            "function_equality"
+            "function_equality",
+            "abstract_function_domain"
           ]
         }
       }

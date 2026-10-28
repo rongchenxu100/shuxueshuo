@@ -10,6 +10,10 @@ compare_functions 的 select_relation 按题面分别取 equal（选相同）或
 
 求具体函数的定义域时，保留未化简的原解析式为函数定义，目标使用 {"kind":"find_domain","object":"函数符号"}。仅题面明确另给输入范围时，目标加 input_domain；未另限范围时省略。不能把推导出的自然定义域或求解答案填入 input_domain。
 
+未给出具体解析式、已知抽象函数某个调用的定义域，要求另一个调用的定义域时，使用 find_abstract_domain。例如“已知 f(t) 的定义域是 [-3,2]，求 f(2x-1) 的定义域”，目标为 {"kind":"find_abstract_domain","known_call":"f(t)","known_domain":"[-3,2]","strength":"exact","target_call":"f(2*x-1)"}。known_call 与 known_domain 必须对应同一句已知条件，target_call 保留所求调用的完整输入与原变量；已知调用中的 t 与目标外层变量 x 可以不同，不改名、不把两者当成同一个绑定变量。没有解析式是这类题的正常题设，不能仅因此报告 ambiguous_symbol、条件缺失或要求重拍，也不能编造 f(x)=x 等具体函数定义。
+
+“定义域是/为/恰为某集合”用 strength=exact；“在某范围内有意义”仅用 meaningful_only，不能为获得可执行路线改成 exact。known_domain 只转录已知调用关于其外层变量的定义域；若已知的是 f(t+2) 的定义域，不能自行推导后把 known_call 改成 f(t)。input_domain 仅在题面另给目标外层自变量范围时填写，不能拿 known_domain、完整输入的推导范围或最终答案代替。各目标独立保留已知调用的归属和所求调用，不能串用其他小问的域。具体函数定义域仍用 find_domain，含参具体函数按给定定义域求参数仍用 match_domain；抽象域任务不使用 find_range，不提前输出逆像、不等式条件或答案。复核与修复分别核对 known_call、known_domain、strength、target_call 及可选 input_domain 的精确字段；修改多个字段须分别有诊断授权，保留其余原文、作用域与条件。
+
 已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标使用 {"kind":"match_domain","object":"函数符号","domain":"题给定义域","symbol":"待求参数"}。题面“函数中自变量的取值范围为某集合”同样表达已知定义域；domain 只转录这个集合，不能填参数答案，也不能移到 find_domain 的 input_domain。此时不使用 find_range 代替 match_domain，不把“定义域为某集合”提前推导成根式非负、分母非零或对区间内外的量词条件；这些是后续求解步骤。原图确实另给的数学条件仍须保留。
 
 若原图直接给的是“对任意/存在某个自变量，不等式成立”、求参数范围，则按原题保留量词关系并使用 find_range。不能因为表达式含根号或分母，就把显式不等式改成 match_domain 或 find_domain。求函数值仍使用 find_value；函数值域不同于定义域。题面只说“恒成立”而未写出量词变量时，取关系中除待求量以外唯一的自由变量作为量词变量；未写出它的范围时取 ℝ。变量不唯一或范围不确定时报告 uncertainty。

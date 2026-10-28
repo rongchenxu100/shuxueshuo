@@ -176,6 +176,9 @@ function documentFixture() {
         if (match[1] === 'completed' && completed.has(match[2])) continue;
         const node = new Element(); node.dataset[dataKey(`stream-${match[1]}`)] = match[2] || ''; this.append(node);
       }
+      if (value.includes('<div data-derivation-board>')) {
+        const node = new Element(); node.dataset.derivationBoard = ''; this.append(node);
+      }
     }
     get innerHTML() { return this._html; }
     querySelectorAll(selector) {
@@ -528,6 +531,43 @@ test('interactive parts hide frozen formulas; only the last completed part mount
   assert.ok(mounted.every(card => !card.heading.hidden), 'distinct mathematical substeps retain their headings');
 });
 
+test('a local deduction reveals its result only after passing, with no repeated carry, answer or feedback', () => {
+  const value = fixture({parts: [part('deduction')]});
+  const board = {layout: 'derivation', caption: '求定义域', connector: '⇒', items: [
+    {label: '完整输入的范围', math: '-3\\le 2x-1\\le2'}, {label: '目标函数的定义域', math: null}]};
+  for (const route of Object.values(value.bundle.routes)) {
+    const decision = route.steps[0];
+    Object.assign(decision, {title: '求定义域', stem_board: structuredClone(board),
+      feedback: {answer: '重复的正确反馈', wrong: '请检查外层自变量的范围'}});
+    decision.interaction.options[0].label = '已选答案总结';
+  }
+  for (const step of value.bundle.stream.math_steps) {
+    step.highlight = {...board, items: [board.items[0], {...board.items[1], math: '[-1,\\frac32]'}]};
+  }
+  const {run, roots} = engine(value);
+  assert.equal(run('carryHTML()'), '');
+  run('renderInteraction(currentDecision(bundle,state))');
+  const active = roots.get('#gw-active');
+  const pending = active.querySelector('.gw-derivation-board');
+  assert.equal(pending.dataset.state, 'pending');
+  assert.equal(pending.querySelector('.gw-derivation-unknown').textContent, '?');
+  assert.match(pending.textContent, /-3\\le 2x-1\\le2/);
+  assert.doesNotMatch(active.textContent, /secret-|\\frac32/);
+  run(`state=submitAnswer(bundle,state,{decision:'deduction',answer:'no'}); renderInteraction(currentDecision(bundle,state));`);
+  assert.equal(active.querySelector('.gw-derivation-board').dataset.state, 'pending');
+  assert.doesNotMatch(active.textContent, /\\frac32/);
+  run(`state=submitAnswer(bundle,state,{decision:'deduction',answer:'yes'});
+    document.querySelector('#gw-steps').innerHTML=completedHTML(state.run.completed.at(-1),5,1,'discriminant'); mountCompletedMath();`);
+  const completed = roots.get('#gw-steps');
+  assert.doesNotMatch(completed.innerHTML, /gw-answer|gw-result|已选答案总结|重复的正确反馈/);
+  assert.equal(completed.querySelector('.gw-derivation-board').dataset.state, 'complete');
+  assert.equal(completed.querySelector('.gw-derivation-unknown'), null);
+  assert.match(completed.querySelector('.gw-derivation-formula').textContent, /-3\\le 2x-1\\le2/);
+  assert.match(completed.textContent, /\\frac32/);
+  assert.equal(completed.querySelector('.stage-three-derivation').open, false);
+  assert.ok([...run('streamCards.values()')].every(card => card.heading.hidden));
+});
+
 test('a discriminant condition is only an option until confirmed, including retry, restore and undo', () => {
   const condition = 'm^2-4\\ge0';
   const decision = {...part('delta'), title: '开口向上：建立判别式条件',
@@ -545,7 +585,10 @@ test('a discriminant condition is only an option until confirmed, including retr
     const active = roots.get('#gw-active');
     assert.doesNotMatch(active.innerHTML, /data-stream-context|stage-three-before/);
     assert.ok(active.innerHTML.includes(decision.question), 'the discriminant expression stays in the explicit question');
-    assert.equal(active.innerHTML.split(condition).length - 1, 1, 'the condition appears only in its option');
+    const option = /<button\b[^>]*data-value="yes"[^>]*>[\s\S]*?<\/button>/.exec(active.innerHTML)?.[0];
+    assert.ok(option?.includes(`<span data-math-text>$${condition}$</span>`));
+    assert.ok(!active.innerHTML.replace(option, '').includes(condition),
+      'the condition appears only in its option, whose accessible name repeats its visible label');
     assert.ok(!active.textContent.includes(condition), 'no formula is mounted from before');
   };
   checkQuestion();

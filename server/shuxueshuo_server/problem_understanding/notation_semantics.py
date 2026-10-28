@@ -291,6 +291,11 @@ class Canonical:
 
                 goals.append(canonical_comparison(g))
                 continue
+            if g['kind'] == 'find_abstract_domain':
+                from .notation_abstract_domain import canonical_abstract_domain
+
+                goals.append(canonical_abstract_domain(g))
+                continue
             target = (
                 self.math(g["target"])
                 if typecheck(g["target"]) in ("scalar", "length", "angle", "area")

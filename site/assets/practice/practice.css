@@ -355,6 +355,24 @@ button:disabled {
   transition:background .15s,border-color .15s;
 }
 
+.method-choice-copy {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+
+.method-choice-label {
+  font-weight:600;
+}
+
+.method-choice-note {
+  color:#5a7a73;
+  font-size:13px;
+  line-height:1.45;
+  font-weight:400;
+}
+
 .method-choice:hover {
   border-color:#88c5b9;
   background:#f7fbf9;

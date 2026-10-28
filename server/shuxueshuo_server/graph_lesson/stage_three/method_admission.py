@@ -119,8 +119,14 @@ def _function_equality(context):
     return admitted(context)
 
 
+def _abstract_function_domain(context):
+    from .abstract_function_domain import admitted
+    return admitted(context)
+
+
 CHECKS = {
     "function_equality": _function_equality,
+    "abstract_function_domain": _abstract_function_domain,
     "function_domain": _function_domain,
     "function_domain_parameter": _function_domain_parameter,
     "quantifier": _quantifier,

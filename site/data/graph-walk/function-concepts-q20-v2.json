@@ -73,7 +73,8 @@
           {
             "value": "type-function-domain",
             "label": "具体函数的定义域问题",
-            "feedback": "只要求求出合法输入的集合"
+            "feedback": "只要求求出合法输入的集合",
+            "note": "给出了具体解析式，据此确定合法输入（或求参）"
           }
         ]
       },
@@ -1480,13 +1481,13 @@
       "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
     }
   ],
-  "bundleVersion": "[\"stream\",\"9427cb65081f406cee4e8a3a1680cdca52db43272aa7cd4b7c94dc8ee908d783\",\"14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1\",\"3cbfe4b7c0d64ff5b1830355c295a3ba\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"60084ecdabd1bfb15702a90499b9f1abd2316703d7e1d17e4ce4e4522e1c0be7\",\"14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1\",\"3cbfe4b7c0d64ff5b1830355c295a3ba\",\"/root/goals/0\"]",
   "stream": {
     "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
     "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
     "stream_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "9427cb65081f406cee4e8a3a1680cdca52db43272aa7cd4b7c94dc8ee908d783",
+    "base_bundle_version": "60084ecdabd1bfb15702a90499b9f1abd2316703d7e1d17e4ce4e4522e1c0be7",
     "d3": {
       "expected_answer": {},
       "id": "D3",

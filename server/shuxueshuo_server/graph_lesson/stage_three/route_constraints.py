@@ -238,6 +238,16 @@ def apply_visible_constraints(constraint_context, feasible_set):
     if constraint_context.get("goal", {}).get("kind") == "match_domain":
         from .function_domain import process_parameter_context
         return process_parameter_context(constraint_context, feasible_set)
+    if constraint_context.get("goal", {}).get("kind") == "find_abstract_domain":
+        # M2 already returns the independent-variable domain. Batch-1 identity
+        # goals carry no additional visible parameter facts to intersect.
+        goal = constraint_context.get("abstract_domain_goal") or {}
+        return feasible_set, [
+            {
+                "source_ref": goal.get("source_ref") or constraint_context.get("target_ref"),
+                "status": "abstract_domain_identity",
+            }
+        ]
     algebra = _RouteArithmetic(constraint_context)
     atoms = _context_atoms(constraint_context)
     quantified = [ast for _, ast in atoms if ast[0] == "quantifier"]

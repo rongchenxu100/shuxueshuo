@@ -73,7 +73,8 @@
           {
             "value": "type-function-domain",
             "label": "具体函数的定义域问题",
-            "feedback": "只要求求出合法输入的集合"
+            "feedback": "只要求求出合法输入的集合",
+            "note": "给出了具体解析式，据此确定合法输入（或求参）"
           }
         ]
       },
@@ -1487,13 +1488,13 @@
       "text": "$y=\\dfrac{(2x^2+1)(x+1)}{x+1}$"
     }
   ],
-  "bundleVersion": "[\"stream\",\"56b283ce0f47035fb3e92e8b27fd3119bf014d7967d72349dd6124e89f75acf9\",\"17342fd96e5f1494fa2d7c28278eeed3fabec917e2bed460a017985f08926f17\",\"78eabbbb49f74a7d8f768ebe884d4eca\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"e585b1582dc8e86806b6e968cd5249c93e3f416028b405da17d2e635c654c177\",\"17342fd96e5f1494fa2d7c28278eeed3fabec917e2bed460a017985f08926f17\",\"78eabbbb49f74a7d8f768ebe884d4eca\",\"/root/goals/0\"]",
   "stream": {
     "run_id": "78eabbbb49f74a7d8f768ebe884d4eca",
     "lesson_version": "17342fd96e5f1494fa2d7c28278eeed3fabec917e2bed460a017985f08926f17",
     "stream_id": "78eabbbb49f74a7d8f768ebe884d4eca",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "56b283ce0f47035fb3e92e8b27fd3119bf014d7967d72349dd6124e89f75acf9",
+    "base_bundle_version": "e585b1582dc8e86806b6e968cd5249c93e3f416028b405da17d2e635c654c177",
     "d3": {
       "expected_answer": {},
       "id": "D3",

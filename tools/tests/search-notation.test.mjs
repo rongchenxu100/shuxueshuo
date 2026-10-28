@@ -16,6 +16,20 @@ const context = vm.createContext({
 });
 vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'utf8'), context);
 const tex = expression => context.tex(expression);
+
+test('abstract-domain meaning preserves the given call and requested outer expression', () => {
+  const goal = {kind: 'find_abstract_domain', known_call: 'f(t)', known_domain: '[-3,2]',
+    strength: 'exact', target_call: 'f(2*x-1)'};
+  const text = context.meaningBlocks({goals: [goal]}, '', []).join('');
+  assert.match(text, /已知 \$f\(t\)\$ 的定义域为 \$\[-3,2\]\$/);
+  assert.match(text, /求 \$f\(2x-1\)\$ 的定义域/);
+  assert.doesNotMatch(text, /\[-1|undefined/);
+  const limited = context.meaningBlocks({goals: [{...goal, input_domain: '(0,2)'}]}, '', []).join('');
+  assert.match(limited, /题设另限外层自变量范围 \$\(0,2\)\$/);
+  const meaningful = context.meaningBlocks({goals: [{...goal, strength: 'meaningful_only'}]}, '', []).join('');
+  assert.match(meaningful, /\$f\(t\)\$ 在 \$\[-3,2\]\$ 上有意义/);
+  assert.doesNotMatch(meaningful, /定义域为/);
+});
 const render = expression => katex.renderToString(tex(expression), {throwOnError: true, output: 'mathml', strict: 'ignore'});
 
 test('domain goal renders the input question and preserves an explicitly given range', () => {

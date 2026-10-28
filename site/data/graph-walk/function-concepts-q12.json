@@ -104,7 +104,8 @@
         "options": [
           {
             "value": "type-function-domain",
-            "label": "具体函数的定义域问题"
+            "label": "具体函数的定义域问题",
+            "note": "给出了具体解析式，据此确定合法输入（或求参）"
           }
         ]
       },
@@ -2387,13 +2388,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"e79302245eec22abb8942c64bcc615db724555b9107c0310ad648668a3e62b18\",\"17cdc07e0509ae194ca19f2c8d202d226bef76911ab14b0933e1366e07a125d0\",\"f22cf5fd45af4bb8bf354830ec32dc05\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"1afe1db3808ce0e464444ac016c6207f9da5725d1d9e3c0b9d8b2b13355e644f\",\"17cdc07e0509ae194ca19f2c8d202d226bef76911ab14b0933e1366e07a125d0\",\"f22cf5fd45af4bb8bf354830ec32dc05\",\"/root/goals/0\"]",
   "stream": {
     "run_id": "f22cf5fd45af4bb8bf354830ec32dc05",
     "lesson_version": "17cdc07e0509ae194ca19f2c8d202d226bef76911ab14b0933e1366e07a125d0",
     "stream_id": "f22cf5fd45af4bb8bf354830ec32dc05",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "e79302245eec22abb8942c64bcc615db724555b9107c0310ad648668a3e62b18",
+    "base_bundle_version": "1afe1db3808ce0e464444ac016c6207f9da5725d1d9e3c0b9d8b2b13355e644f",
     "d3": {
       "expected_answer": {},
       "id": "D3",

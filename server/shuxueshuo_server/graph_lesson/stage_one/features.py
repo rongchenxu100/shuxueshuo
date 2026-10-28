@@ -14,6 +14,8 @@ from ...problem_understanding.notation_compile import NotationValidator, childre
 from ...problem_understanding.notation_parser import NotationError, parse
 from ...problem_understanding.notation_semantics import Canonical, bounded_expand
 from . import contracts
+from .abstract_function_domain import VERSION as ABSTRACT_DOMAIN_VERSION
+from .abstract_function_domain import describe_abstract_domain_goal
 from .function_domain import VERSION as DOMAIN_VERSION
 from .function_domain import describe_domain_goal
 from .function_domain_parameter import VERSION as DOMAIN_PARAMETER_VERSION
@@ -47,6 +49,14 @@ FEATURE_REGISTRY = (
         version=COMPARISON_VERSION,
         supported_structures=('option_scoped_function_comparison',),
         computation_boundary='original scoped expression and declared-domain syntax only; no solving',
+    ),
+    FeatureSpec(
+        'abstract_function_domain', ('goal',), 'abstract_function_domain',
+        ('function-concept#elements', 'function-concept#composite-domain'),
+        '抽象对应关系的已知输入范围与目标完整输入为 {value}',
+        version=ABSTRACT_DOMAIN_VERSION,
+        supported_structures=('identity_known_affine_target_domain',),
+        computation_boundary='original call and declared-domain syntax only; no solving',
     ),
     FeatureSpec(
         "function_domain", ("goal",), "function_domain",
@@ -451,6 +461,32 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_quantified_comparison_goal'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] == 'find_abstract_domain':
+            add('goal', {
+                'kind': 'find_abstract_domain',
+                'known_form': 'identity',
+                'strength': goal.get('strength'),
+            }, source_refs=[target_ref])
+            produced['goal']['knowledge_refs'] = [
+                'function-concept#elements', 'function-concept#composite-domain',
+            ]
+            try:
+                description = describe_abstract_domain_goal(report, scope, ancestors, goal_index)
+                add('abstract_function_domain', description, source_refs=[
+                    target_ref,
+                    description.get('known_call_source_ref', target_ref),
+                    description.get('known_domain_source_ref', target_ref),
+                    description.get('target_call_source_ref', target_ref),
+                ])
+            except (NotationError, ValueError, TypeError) as exc:
+                add('abstract_function_domain',
+                    diagnostic={'code': getattr(exc, 'code', 'abstract_domain.invalid_structure')},
+                    source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_abstract_domain_goal'},
+                        source_refs=[target_ref])
             continue
         if goal["kind"] == "find_domain":
             add("goal", {"kind": "find_domain", "symbol": objects[goal_ast[1]]["name"]}, source_refs=[target_ref])

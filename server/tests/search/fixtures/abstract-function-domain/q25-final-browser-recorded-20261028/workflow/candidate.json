@@ -1,0 +1,35 @@
+{
+  "original_text": "【例8】 已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+  "root": {
+    "label": "例8",
+    "goals": [
+      {
+        "kind": "find_abstract_domain",
+        "known_call": "f(x)",
+        "known_domain": "[-3,2]",
+        "strength": "exact",
+        "target_call": "f(2*x-1)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $y=f(x)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

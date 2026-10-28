@@ -1723,6 +1723,11 @@
       "repeat": "always",
       "compiler": "function_equality",
       "parts": []
+    },
+    "abstract_domain_derivation": {
+      "repeat": "always",
+      "compiler": "abstract_function_domain",
+      "parts": []
     }
   },
   "overrides": {

@@ -1,0 +1,60 @@
+{
+  "recorded_date": "2026-10-28",
+  "search_id": "3abfa72dc7c0",
+  "run_id": "9f0a155cef7f4da784c51f10bc916c1e",
+  "lesson_version": "24cd5e74323d3cf39a95cd570a380e3a4b9fb35487601eac23504e9a4f3e1e9a",
+  "status": "completed",
+  "goal_status": "solved",
+  "answer": {
+    "kind": "find_abstract_domain",
+    "status": "set",
+    "set": {
+      "expression": "Interval(-1, 3/2)",
+      "latex": "\\left[-1, \\frac{3}{2}\\right]"
+    }
+  },
+  "route_status": "verified",
+  "browser": {
+    "origin": "http://localhost:8848",
+    "recognition": "actual album upload → extract → review",
+    "student_confirmed_steps": 7,
+    "teaching_beats": [
+      "input_range",
+      "complete_input_condition",
+      "target_domain"
+    ],
+    "wrong_answers_rejected": [
+      "D1_range_instead_of_domain",
+      "input_x_instead_of_2x_minus_1",
+      "known_interval_instead_of_target_domain"
+    ],
+    "pending_values_hidden": [
+      "complete_input",
+      "target_domain"
+    ],
+    "refresh_resumed": {
+      "confirmed_steps": 5,
+      "current": "求定义域"
+    },
+    "boundary_labels": [
+      "x=-1",
+      "x=3/2"
+    ],
+    "ai_replay_confirmed_steps": 7,
+    "returned_student_confirmed_steps": 7,
+    "screenshot": "internal/review-analysis/q25-fixes-20261028/photo-student-completed.png",
+    "after_student_reset_and_complete_ai_replay": {
+      "ai_confirmed_steps": 7,
+      "student_confirmed_steps": 0
+    }
+  },
+  "notes": "Browser was exercised against the final three-beat teaching logic. Subsequent lint changes only sort imports, rename an unused local, and change an invalid-type exception to TypeError; current-source offline integration regressions rerun afterwards. Actual recognition responses remain separate, unmodified recordings.",
+  "daily_service": {
+    "port": 8779,
+    "pid": 16955,
+    "topic_http_status": 200,
+    "topic_ai_replay_steps": 7,
+    "course_publication": "passed; local learning test data discarded and current courses republished without backups",
+    "content_version": "f7bbcfb08d8a77c65c0e84f54ae020cbcaebbe4b6f2c51b25a35fc25c2347708"
+  }
+}

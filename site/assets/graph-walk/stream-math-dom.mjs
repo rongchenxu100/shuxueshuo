@@ -11,15 +11,59 @@ const text = (document, tag, value, className) => {
   return node;
 };
 
+/** One local deduction, shared by its unanswered and verified states.
+ * Labels and formulas always enter as text; null alone marks an unknown.
+ */
+export function createDerivationBoard(document, board) {
+  const node = document.createElement('section');
+  node.className = 'gw-derivation-board';
+  node.dataset.state = board.items[1].math === null ? 'pending' : 'complete';
+  node.setAttribute('aria-label', board.caption);
+  node.append(text(document, 'div', board.caption, 'gw-derivation-caption'));
+  const row = document.createElement('div');
+  row.className = 'gw-derivation-row';
+  board.items.forEach((item, index) => {
+    if (index) {
+      const arrow = text(document, 'span', board.connector, 'gw-derivation-arrow');
+      arrow.setAttribute('aria-hidden', 'true');
+      row.append(arrow);
+    }
+    const cell = document.createElement('div');
+    cell.className = 'gw-derivation-cell';
+    cell.dataset.role = index ? 'result' : 'given';
+    const label = text(document, 'div', item.label, 'gw-derivation-label');
+    label.dataset.mathText = 'true';
+    cell.append(label);
+    if (item.math === null) {
+      const unknown = text(document, 'div', '?', 'gw-derivation-unknown');
+      unknown.setAttribute('role', 'img');
+      unknown.setAttribute('aria-label', '待求');
+      cell.append(unknown);
+    } else {
+      const formula = text(document, 'div', `\\displaystyle ${item.math}`, 'gw-derivation-formula');
+      formula.dataset.mathFormula = 'true';
+      cell.append(formula);
+    }
+    if (item.note) {
+      const note = text(document, 'div', item.note, 'gw-derivation-note');
+      note.dataset.mathText = 'true';
+      cell.append(note);
+    }
+    row.append(cell);
+  });
+  node.append(row);
+  return node;
+}
+
 export function routeAnswerSummary(answer = {}) {
   if (answer.kind === 'compare_functions' && answer.status === 'complete' &&
       Array.isArray(answer.option_verdicts) && answer.option_verdicts.length &&
       answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
     return {label: '各项比较已完成', formula: ''};
   }
-  if (['find_range', 'find_domain'].includes(answer.kind) && answer.status === 'set') {
+  if (['find_range', 'find_domain', 'find_abstract_domain'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
-    return formula ? {label: answer.kind === 'find_domain' ? '定义域：' : '参数范围：', formula} : null;
+    return formula ? {label: ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：' : '参数范围：', formula} : null;
   }
   if (!['find_minimum', 'find_maximum'].includes(answer.kind)) return null;
   const minimum = answer.kind === 'find_minimum', name = minimum ? '最小值' : '最大值';
@@ -39,6 +83,7 @@ export function routeAnswerSummary(answer = {}) {
 
 /* The conclusion first: a caption over labelled formulas joined by arrows, as in the authored lessons. */
 function highlightBoard(document, highlight, parallel = false) {
+  if (highlight.layout === 'derivation') return createDerivationBoard(document, highlight);
   if (highlight.layout === 'merge') return mergeBoard(document, highlight);
   const board = document.createElement('div');
   board.className = 'visual-board completed-visual stage-three-highlight';
@@ -125,9 +170,9 @@ function derivationLines(explanation) {
 }
 
 /* The full derivation follows, one prose sentence or mathematical derivation per line. */
-function derivationDetails(document, explanation, before = []) {
+function derivationDetails(document, explanation, before = [], open = true) {
   const details = document.createElement('details');
-  details.className = 'details stage-three-derivation'; details.open = true;
+  details.className = 'details stage-three-derivation'; details.open = open;
   details.append(text(document, 'summary', '完整推导'));
   details.append(...formulaLines(document, before, 'before'));
   for (const sentence of derivationLines(explanation)) {
@@ -150,7 +195,7 @@ export function createMathCard(document, step, options = {}) {
     conclusion = highlightBoard(document, step.highlight, ['domain_locations', 'domain_conditions', 'domain_solutions'].includes(step.display_unit));
     if (step.highlight.layout !== 'merge') caption = conclusion.children[0];
     node.append(conclusion);
-    if (!step.highlight.conclusion_only) node.append(derivationDetails(document, step.explanation || ''));
+    if (!step.highlight.conclusion_only) node.append(derivationDetails(document, step.explanation || '', [], step.highlight.layout !== 'derivation'));
   } else if (step.derivation) {
     // Conclusion is the step's pictures or another board; this card is only the prose.
     node.append(derivationDetails(document, step.explanation || ''));
@@ -179,7 +224,7 @@ export function createMathCard(document, step, options = {}) {
 /** A cached mathematical card can move between a named lesson step and a standalone view. */
 export function setMathCardLayout(card, {embedded = false, parentTitle = '', externalConclusion = false} = {}) {
   card.node.className = `stage-three-math-step${embedded ? ' is-embedded' : ''}`;
-  card.heading.hidden = embedded && card.step.title === parentTitle;
+  card.heading.hidden = embedded && (card.step.title === parentTitle || card.step.highlight?.layout === 'derivation');
   if (card.caption) card.caption.hidden = card.caption.textContent === card.step.title ||
     embedded && card.caption.textContent === parentTitle;
   if (card.conclusion) card.conclusion.hidden = Boolean(card.step.highlight?.replace_with_graph && externalConclusion);

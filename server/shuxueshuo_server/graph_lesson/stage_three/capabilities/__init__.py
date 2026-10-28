@@ -423,6 +423,18 @@ REGISTRY.update({name: _comparison_operation(name) for name in (
     'prepare_function_comparisons', 'prepare_function_pair', 'compare_function_pair',
     'collect_function_comparisons',
 )})
+
+
+def _abstract_domain_operation(name):
+    def invoke(**inputs):
+        from .. import abstract_function_domain
+        return getattr(abstract_function_domain, name)(**inputs)
+    return invoke
+
+
+REGISTRY.update({name: _abstract_domain_operation(name) for name in (
+    'solve_abstract_function_domain',
+)})
 PLANNED = frozenset(
     {
         "elimination",

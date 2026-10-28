@@ -441,7 +441,8 @@
               "enum": [
                 "find_range",
                 "find_domain",
-                "match_domain"
+                "match_domain",
+                "find_abstract_domain"
               ]
             },
             "status": {
