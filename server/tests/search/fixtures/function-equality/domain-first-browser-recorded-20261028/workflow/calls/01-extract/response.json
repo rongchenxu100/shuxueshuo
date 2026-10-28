@@ -1,0 +1,150 @@
+{
+  "text": "{\"original_text\":\"2. 教材习题改编 下列各组函数表示同一个函数的是\\nA. $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\\nB. $f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\\nD. $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"root\":{\"label\":\"2\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"unspecified\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(-2*x^3)\"},{\"id\":\"right\",\"definition\":\"g(x)=x*sqrt(-2*x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=x^2/x\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2-2*x-1\"},{\"id\":\"right\",\"definition\":\"g(t)=t^2-2*t-1\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x-1)*sqrt(x+1)\"},{\"id\":\"right\",\"definition\":\"g(x)=sqrt((x+1)*(x-1))\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"下列各组函数表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"unspecified\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\"},{\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\"},{\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\"},{\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"}]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 4648,
+      "prompt_tokens": 13021,
+      "total_tokens": 17669,
+      "prompt_cache_hit_tokens": 768,
+      "prompt_cache_miss_tokens": 12253
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1950,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 41313,
+        "expires_at": 1793247379,
+        "uploaded_at": 1793160979.247723
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d",
+        "file_id": "[redacted-provider-identifier]",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 21668,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 4648,
+          "prompt_tokens": 13021,
+          "total_tokens": 17669,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3865
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 768
+          },
+          "prompt_cache_hit_tokens": 768,
+          "prompt_cache_miss_tokens": 12253
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 4648,
+            "prompt_tokens": 13021,
+            "total_tokens": 17669,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3865
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 768
+            },
+            "prompt_cache_hit_tokens": 768,
+            "prompt_cache_miss_tokens": 12253
+          },
+          "created": 1793161743,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 教材习题改编 下列各组函数表示同一个函数的是\\nA. $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\\nB. $f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\\nD. $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"root\":{\"label\":\"2\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"unspecified\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(-2*x^3)\"},{\"id\":\"right\",\"definition\":\"g(x)=x*sqrt(-2*x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=x^2/x\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2-2*x-1\"},{\"id\":\"right\",\"definition\":\"g(t)=t^2-2*t-1\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x-1)*sqrt(x+1)\"},{\"id\":\"right\",\"definition\":\"g(x)=sqrt((x+1)*(x-1))\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"下列各组函数表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"unspecified\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\"},{\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\"},{\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\"},{\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"}]}]}]}}",
+                "reasoning_content": "我们需要提取题目。图片：第2题，教材习题改编：下列各组函数表示同一个函数的是。选项A-D，手写答案C，涂改圈等。需要转录题干和选项，不抄手写。注意有四组函数比较，表示同一个函数，select_relation=equal，selection_mode未明示（题面没有明确单选？虽然看起来单选，但规则不能仅凭“下列...的是”推断单选。所以 selection_mode=unspecified）。需要完整选项，原图D选项被换行，内容 f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。A: f(x)=√(-2x^3) 与 g(x)=x√(-2x)。B: f(x)=x 与 g(x)=x^2/x。C: f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D: f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。注意A中的 -2x^3 在根号内，为√(-2x^3)。选项文字保留原式。需要 compare_functions 目标。模式 groups，因为四组各自比较，无共同基准。select_relation=equal。selection_mode=unspecified。completeness complete。每个选项 functions 两个局部函数，left/right local。保留定义结构不化简。注意B的g(x)=x^2/x。C的g(t)自变量是t，定义 g(t)=t^2-2t-1。C f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D保留√(x-1)·√(x+1)，g=√((x+1)(x-1))，不能提前化简。A中 f(x)=√(-2x^3) 与 g(x)=x√(-2x)，保留结构。注意 A 图片可能是 f(x)=√(-2x^3) 与 g(x)=x√(-2x) 对。手写“定义域”等不是题目。公开内容：题号2和来源“教材习题改编”是否是来源？需要公开排除来源题号或来源文字。公开题干应不含来源题号，但“教材习题改编”是来源标注，排除。题干：“下列各组函数表示同一个函数的是” 。选项保持。\n\noriginal_text 保留原题转录，包括题号2、教材习题改编，以及选项。手写答案不抄。手写标注“定义域”不是题目内容，不转录。需要保留原图题号2在 original_text 中。original_text 公式可用 LaTeX。需要把反斜杠转义。JSON字符串中 \\ 写成 \\\\。例如 $\\sqrt{-2x^3}$ 中 \\sqrt 写成 \\\\sqrt。根号下 -2x^3。注意用 $...$ 包围。题干完整。选项文本可能使用 $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$。D: $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$。注意中文“与”连接。\n\nroot.definitions? 比较函数目标模式下，这些函数定义应放在 options 的 functions 里，不提升到 root.definitions。root没有共用定义。root.facts 空。root.goals 包含 compare_functions。root.label 可为 \"2\"？题号2是来源题号，root.label 存在时需 root_label_role=source？但是 label 可作为题号，规则：root.label 存在时，用 root_label_role 区分来源题号与有题意的标签；仅原图明确是来源或试卷题号时为 source。图片左上“2.”明显题号，属于 source。是否应该放 root.label \"2\"？可以。public_content 的 scope_ref /root. statement 不能含题号。root_label_role=source。root.label=\"2\" 可保留，privacy? 公开内容排除题号，root.label 是题号，privacy 要涵盖 root 所有内容，包括 label。privacy 只有全部适合公开才 separated。这里 root.label 是来源题号，不适合公开，但如果公开内容通过 root_label_role 处理是否 privacy separated? 规则：privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。来源只能在能够明确分离时排除。这里 root.label 明确是题号，source，公开可以排除；但 root 内容本身包含题号，是否 privacy separated 仍可？它说“privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。” 那么 root.label 是来源题号不适合公开，privacy 应该 uncertain? 但 public_content 有 root_label_role=source 用于来源。似乎 label 来源可以排除，privacy 可以 separated if clearly separable。但是字面“只有全部适合公开才可声明 separated”会要求 label 也要适合公开？不过 label 分类为 source 就是为了排除。之前规则：source只能明确分离时排除。我认为 root.label 题号 source，privacy=separated 可以，因为明确分离。不过稳妥？题目没有个人信息，只有题号来源，明确可分离。public_content.completeness complete。figure not_required。scopes 一个 root 作用域 statement 不含题号。choices 对应 root.goals[0] 的 compare 选项。需要给出每个 target_ref /root/goals/0。selection_mode 必须 unspecified。options 标签A-D文本完整。public_content的选择模式和目标一致 unspecified。\n\n需要注意 compare_functions 的 options functions 必须定义原函数，使用 id left/right，left local:left，right local:right。选项D g(x)=√((x+1)(x-1))，题面 printed “\\sqrt{(x+1)(x-1)}” 注意图片为根号覆盖 (x+1)(x-1)，中间有空格。定义字符串不写中文。对于A中 f(x)=√(-2x^3) 的 -2x^3 是否题面是 \\sqrt{-2x^3}，是的。B f(x)=x 与 g(x)=x^2/x。C f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。需保留乘号 ·，在 functions definition 中使用 *? 受控数学字符串独立标量乘法用 *，但这里 option text 可保留 ·。functions definition 的受控数学式应该用 * 表示乘法，如 sqrt(x-1)*sqrt(x+1)。但题面中“·”是乘法。规则：独立标量乘法用 *，保留原始结构。定义中使用 sqrt(x-1)*sqrt(x+1)。g 中 sqrt((x+1)(x-1))，两个因式相邻，应写 sqrt((x+1)*(x-1)) 或 sqrt((x+1)(x-1))? 受控数学字符串乘法必须显式*，但根号内 (x+1)(x-1) 是乘积，应写 sqrt((x+1)*(x-1))。题面原始有括号相乘，定义可写 sqrt((x+1)*(x-1))。A中 -2*x^3? 根号内 -2x^3 是 -2*x^3？受控字符串需显式 *，写 sqrt(-2*x^3)。g(x)=x*sqrt(-2*x) 保留结构。B g(x)=x^2/x。C g(t)=t^2-2*t-1? 受控字符串乘法用*，但系数与变量可直接 2*t；x^2-2x-1 常规写成 x^2-2*x-1。题面中 f definition 未化简。选项 text 则可以按原题使用 LaTeX，仍保留中文。注意 public_content statement/choices 的公式用 $...$，乘法记号保留题面 ·，不能换成 * 在公开文本中？保留原样。choices text 应与 options.text 完全一致？compare_functions 的 text 和 public_content choices 的 text 必须一致，且选项文本原样。所以 options.text 需要使用 LaTeX 保留 ·。例如 \"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\" 等。functions definitions 内部则受控字符串可不带$，使用 *；这些不必和 text 完全一致。选项C中 g(t) 的变量t，定义局部函数id right \"g(t)=t^2-2*t-1\"。left \"f(x)=x^2-2*x-1\"。D left \"f(x)=sqrt(x-1)*sqrt(x+1)\", right \"g(x)=sqrt((x+1)*(x-1))\"。\n\n原题题干“下列各组函数表示同一个函数的是”未明确单选或多选。selection_mode unspecified。compare goal mode=groups, select_relation=equal, selection_mode=unspecified, completeness=complete。shared_functions=[]。options 4个。每个 functions 数组两个。\n\noriginal_text 需要保留手写不转。可以写：\n2. 教材习题改编 下列各组函数表示同一个函数的是\nA. $f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$\nB. $f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\nD. $f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$\n注意图片D选项第一行末尾有“=”，第二行根号，合起来“与 g(x)=...”。可以。不要手写“定义域”等。\n\nuncertainties：没有？原图边缘有“题 7.”相邻题，但 public_content只本题，无需报告？图片右侧有题7，但明显相邻。无需 uncertain。题目完整。无图。无需uncertainties。\n\npublic_content.scopes[0].statement：应只本题干：“下列各组函数表示同一个函数的是”。无题号，无来源。choices status complete, selection_mode unspecified, options A-D文本。target_ref /root/goals/0。必须每个goals项对应choices。root只有一个goals compare。target_ref 正确。\n\n注意 root.goals 的 compare_functions 类型包含 options 内 labels/text。root.goals 选项内的 text 与 public_content choices 的 text 必须一致。标签一致。\n\n现在需仔细处理 JSON 转义。original_text 中所有 LaTeX 反斜杠双写。例如 \"\\\\sqrt{-2x^3}\"，在 JSON 字符串中实际显示 \\sqrt。需要 double backslash。公式 \\frac{x^2}{x} 写成 \"\\\\frac{x^2}{x}\"。\\cdot 写成 \"\\\\cdot\"。\n\n目标字段内 definitions 字符串中不能有 $，使用 sqrt(-2*x^3) 等，没有反斜杠。facts/definitions 的字符串中乘号*。目标 options 的 text 是公开文本，含有 LaTeX，需要双反斜杠。options definitions 没有反斜杠。\n\npublic_content choices 的 text 同 options.text。statement 中公式? 题干没有数学公式，纯中文。\n\nroot.label \"2\" 和 root_label_role source。但 root.label 是否应在 root 中？可以。label 用于题号，source。privacy separated? 鉴于明确题号来源可排除，用 separated。不过 public_content root_label_role source 明确。可以。\n\noriginal_text 是否包含“教材习题改编”是来源标注，但原题转录保留。public_content statement 排除。public_content.scopes 不含题号或来源。privacy separated：姓名等无，来源“教材习题改编”属于来源标注，已从公开 statement 排除；但 choices 无来源。root.label source。可以。\n\n需要注意选项文本中的根号覆盖范围：A f(x)=\\sqrt{-2x^3} 图片中根号内是 -2x^3，指数3在x右上。正确。g(x)=x√-2x，中间根号覆盖 -2x。写成 x\\\\sqrt{-2x}。D g(x)=\\sqrt{(x+1)(x-1)}，图片根号下似乎是 (x+1)(x-1)，没有乘号。保留。\n\n选项C的g(t)图片中为 g(t)=t^2-2t-1，f是x^2-2x-1，对。表示同一函数，但自变量名称不同不影响。我们不判定。\n\n选项B g(x)=x^2/x，分数。保留 \\frac{x^2}{x}。定义 g(x)=x^2/x。定义字符串可写 \"g(x)=x^2/x\"。\n\n选项A f 定义 \"f(x)=sqrt(-2*x^3)\"，g \"g(x)=x*sqrt(-2*x)\"。注意 sqrt(-2*x) 根号内 x 在 -2x 中，保留。C定义 \"f(x)=x^2-2*x-1\", \"g(t)=t^2-2*t-1\"；B \"f(x)=x\", \"g(x)=x^2/x\"；D \"f(x)=sqrt(x-1)*sqrt(x+1)\", \"g(x)=sqrt((x+1)*(x-1))\"。\n\n关于函数id：每个选项左右为 left/right 可重复在不同选项，因为局部作用域。left/right 引用 local:left/local:right。\n\n选择关系 equal：题面“表示同一个函数”即选相同。selection_mode unspecified。completeness complete。\n\n现在构造 JSON。注意 schema 要求 root 可以没有 label? 包含。public_content: completeness/privacy/figure/scopes, 可选root_label_role。有 label role source。scopes item required scope_ref, statement, choices。choices item required target_ref,status,selection_mode,options。options label,text。\n\n根节点 facts 可为空, definitions 空, goals 一项, children 省略。uncertainties 空可省略。root.label \"2\"。\n\n要确保 original_text 公式中使用 \\(...\\)？规则明确用 $…$。好。original_text 字符串：\n\"2. 教材习题改编 下列各组函数表示同一个函数的是\\nA. $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\\nB. $f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\\nD. $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"\n注意 JSON 中换行 \\n 可以。反斜杠在 \"\\\\sqrt\" 中，JSON解析后 \\sqrt。 \"\\\\cdot\" 解析后 \\cdot。 \"\\\\frac\" 等。选项D中“\\\\sqrt{(x+1)(x-1)}”表示根号覆盖 (x+1)(x-1)。可以。\n\n选项A在图片中似乎是 f(x)=√(-2x^3) 与 g(x)=x√(-2x)。对。\n\n公开 choices 文本：\nA: \"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\"\nB: \"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\"\nC: \"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\"\nD: \"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"\n\n目标 options 的 text 完全一致。在 compare options 中 label A-D顺序。\n\n注意 target options definitions 的 definition字段不能有中文或 $。可以。\n\npublic_content statement: \"下列各组函数表示同一个函数的是\" 。是否应保留“教材习题改编”？这是来源标注，排除。题号排除。好。\n\nroot_label_role 字段放在 public_content 内，与 scopes 平级。值 source。\n\n需要不要输出 uncertain。可以省略 uncertainties。JSON required only original_text root public_content; root can have optional fields. 最好包括 definitions/facts/goals, label. 不要输出额外。root.goals compare 目标中需要 completeness 和 options等。selection_mode unspecified 是允许。compare_functions mode=groups, select_relation=equal, selection_mode=unspecified, completeness=complete, shared_functions=[]。options includes functions definitions. Good.\n\n注意 compare_functions 的 options 要求 functions maxItems 2。每个两个。\n\n检查 A 函数 id left/right，left local:left right local:right。同一个选项重复 left/right 在不同选项可以。好。\n\nJSON 中 options 数组里 definitions 里的 \"sqrt(-2*x^3)\"，没有反斜杠，所以不需要转义反斜杠。字符串中 * 无碍。\n\n现在输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 21681
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 教材习题改编 下列各组函数表示同一个函数的是\\nA. $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\\nB. $f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\\nD. $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"root\":{\"label\":\"2\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"unspecified\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(-2*x^3)\"},{\"id\":\"right\",\"definition\":\"g(x)=x*sqrt(-2*x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=x^2/x\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2-2*x-1\"},{\"id\":\"right\",\"definition\":\"g(t)=t^2-2*t-1\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x-1)*sqrt(x+1)\"},{\"id\":\"right\",\"definition\":\"g(x)=sqrt((x+1)*(x-1))\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"下列各组函数表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"unspecified\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\"},{\"label\":\"B\",\"text\":\"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\"},{\"label\":\"C\",\"text\":\"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\"},{\"label\":\"D\",\"text\":\"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"}]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片：第2题，教材习题改编：下列各组函数表示同一个函数的是。选项A-D，手写答案C，涂改圈等。需要转录题干和选项，不抄手写。注意有四组函数比较，表示同一个函数，select_relation=equal，selection_mode未明示（题面没有明确单选？虽然看起来单选，但规则不能仅凭“下列...的是”推断单选。所以 selection_mode=unspecified）。需要完整选项，原图D选项被换行，内容 f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。A: f(x)=√(-2x^3) 与 g(x)=x√(-2x)。B: f(x)=x 与 g(x)=x^2/x。C: f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D: f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。注意A中的 -2x^3 在根号内，为√(-2x^3)。选项文字保留原式。需要 compare_functions 目标。模式 groups，因为四组各自比较，无共同基准。select_relation=equal。selection_mode=unspecified。completeness complete。每个选项 functions 两个局部函数，left/right local。保留定义结构不化简。注意B的g(x)=x^2/x。C的g(t)自变量是t，定义 g(t)=t^2-2t-1。C f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D保留√(x-1)·√(x+1)，g=√((x+1)(x-1))，不能提前化简。A中 f(x)=√(-2x^3) 与 g(x)=x√(-2x)，保留结构。注意 A 图片可能是 f(x)=√(-2x^3) 与 g(x)=x√(-2x) 对。手写“定义域”等不是题目。公开内容：题号2和来源“教材习题改编”是否是来源？需要公开排除来源题号或来源文字。公开题干应不含来源题号，但“教材习题改编”是来源标注，排除。题干：“下列各组函数表示同一个函数的是” 。选项保持。\n\noriginal_text 保留原题转录，包括题号2、教材习题改编，以及选项。手写答案不抄。手写标注“定义域”不是题目内容，不转录。需要保留原图题号2在 original_text 中。original_text 公式可用 LaTeX。需要把反斜杠转义。JSON字符串中 \\ 写成 \\\\。例如 $\\sqrt{-2x^3}$ 中 \\sqrt 写成 \\\\sqrt。根号下 -2x^3。注意用 $...$ 包围。题干完整。选项文本可能使用 $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$。D: $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$。注意中文“与”连接。\n\nroot.definitions? 比较函数目标模式下，这些函数定义应放在 options 的 functions 里，不提升到 root.definitions。root没有共用定义。root.facts 空。root.goals 包含 compare_functions。root.label 可为 \"2\"？题号2是来源题号，root.label 存在时需 root_label_role=source？但是 label 可作为题号，规则：root.label 存在时，用 root_label_role 区分来源题号与有题意的标签；仅原图明确是来源或试卷题号时为 source。图片左上“2.”明显题号，属于 source。是否应该放 root.label \"2\"？可以。public_content 的 scope_ref /root. statement 不能含题号。root_label_role=source。root.label=\"2\" 可保留，privacy? 公开内容排除题号，root.label 是题号，privacy 要涵盖 root 所有内容，包括 label。privacy 只有全部适合公开才 separated。这里 root.label 是来源题号，不适合公开，但如果公开内容通过 root_label_role 处理是否 privacy separated? 规则：privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。来源只能在能够明确分离时排除。这里 root.label 明确是题号，source，公开可以排除；但 root 内容本身包含题号，是否 privacy separated 仍可？它说“privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。” 那么 root.label 是来源题号不适合公开，privacy 应该 uncertain? 但 public_content 有 root_label_role=source 用于来源。似乎 label 来源可以排除，privacy 可以 separated if clearly separable。但是字面“只有全部适合公开才可声明 separated”会要求 label 也要适合公开？不过 label 分类为 source 就是为了排除。之前规则：source只能明确分离时排除。我认为 root.label 题号 source，privacy=separated 可以，因为明确分离。不过稳妥？题目没有个人信息，只有题号来源，明确可分离。public_content.completeness complete。figure not_required。scopes 一个 root 作用域 statement 不含题号。choices 对应 root.goals[0] 的 compare 选项。需要给出每个 target_ref /root/goals/0。selection_mode 必须 unspecified。options 标签A-D文本完整。public_content的选择模式和目标一致 unspecified。\n\n需要注意 compare_functions 的 options functions 必须定义原函数，使用 id left/right，left local:left，right local:right。选项D g(x)=√((x+1)(x-1))，题面 printed “\\sqrt{(x+1)(x-1)}” 注意图片为根号覆盖 (x+1)(x-1)，中间有空格。定义字符串不写中文。对于A中 f(x)=√(-2x^3) 的 -2x^3 是否题面是 \\sqrt{-2x^3}，是的。B f(x)=x 与 g(x)=x^2/x。C f(x)=x^2-2x-1 与 g(t)=t^2-2t-1。D f(x)=√(x-1)·√(x+1) 与 g(x)=√((x+1)(x-1))。需保留乘号 ·，在 functions definition 中使用 *? 受控数学字符串独立标量乘法用 *，但这里 option text 可保留 ·。functions definition 的受控数学式应该用 * 表示乘法，如 sqrt(x-1)*sqrt(x+1)。但题面中“·”是乘法。规则：独立标量乘法用 *，保留原始结构。定义中使用 sqrt(x-1)*sqrt(x+1)。g 中 sqrt((x+1)(x-1))，两个因式相邻，应写 sqrt((x+1)*(x-1)) 或 sqrt((x+1)(x-1))? 受控数学字符串乘法必须显式*，但根号内 (x+1)(x-1) 是乘积，应写 sqrt((x+1)*(x-1))。题面原始有括号相乘，定义可写 sqrt((x+1)*(x-1))。A中 -2*x^3? 根号内 -2x^3 是 -2*x^3？受控字符串需显式 *，写 sqrt(-2*x^3)。g(x)=x*sqrt(-2*x) 保留结构。B g(x)=x^2/x。C g(t)=t^2-2*t-1? 受控字符串乘法用*，但系数与变量可直接 2*t；x^2-2x-1 常规写成 x^2-2*x-1。题面中 f definition 未化简。选项 text 则可以按原题使用 LaTeX，仍保留中文。注意 public_content statement/choices 的公式用 $...$，乘法记号保留题面 ·，不能换成 * 在公开文本中？保留原样。choices text 应与 options.text 完全一致？compare_functions 的 text 和 public_content choices 的 text 必须一致，且选项文本原样。所以 options.text 需要使用 LaTeX 保留 ·。例如 \"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\" 等。functions definitions 内部则受控字符串可不带$，使用 *；这些不必和 text 完全一致。选项C中 g(t) 的变量t，定义局部函数id right \"g(t)=t^2-2*t-1\"。left \"f(x)=x^2-2*x-1\"。D left \"f(x)=sqrt(x-1)*sqrt(x+1)\", right \"g(x)=sqrt((x+1)*(x-1))\"。\n\n原题题干“下列各组函数表示同一个函数的是”未明确单选或多选。selection_mode unspecified。compare goal mode=groups, select_relation=equal, selection_mode=unspecified, completeness=complete。shared_functions=[]。options 4个。每个 functions 数组两个。\n\noriginal_text 需要保留手写不转。可以写：\n2. 教材习题改编 下列各组函数表示同一个函数的是\nA. $f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$\nB. $f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\nD. $f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$\n注意图片D选项第一行末尾有“=”，第二行根号，合起来“与 g(x)=...”。可以。不要手写“定义域”等。\n\nuncertainties：没有？原图边缘有“题 7.”相邻题，但 public_content只本题，无需报告？图片右侧有题7，但明显相邻。无需 uncertain。题目完整。无图。无需uncertainties。\n\npublic_content.scopes[0].statement：应只本题干：“下列各组函数表示同一个函数的是”。无题号，无来源。choices status complete, selection_mode unspecified, options A-D文本。target_ref /root/goals/0。必须每个goals项对应choices。root只有一个goals compare。target_ref 正确。\n\n注意 root.goals 的 compare_functions 类型包含 options 内 labels/text。root.goals 选项内的 text 与 public_content choices 的 text 必须一致。标签一致。\n\n现在需仔细处理 JSON 转义。original_text 中所有 LaTeX 反斜杠双写。例如 \"\\\\sqrt{-2x^3}\"，在 JSON 字符串中实际显示 \\sqrt。需要 double backslash。公式 \\frac{x^2}{x} 写成 \"\\\\frac{x^2}{x}\"。\\cdot 写成 \"\\\\cdot\"。\n\n目标字段内 definitions 字符串中不能有 $，使用 sqrt(-2*x^3) 等，没有反斜杠。facts/definitions 的字符串中乘号*。目标 options 的 text 是公开文本，含有 LaTeX，需要双反斜杠。options definitions 没有反斜杠。\n\npublic_content choices 的 text 同 options.text。statement 中公式? 题干没有数学公式，纯中文。\n\nroot.label \"2\" 和 root_label_role source。但 root.label 是否应在 root 中？可以。label 用于题号，source。privacy separated? 鉴于明确题号来源可排除，用 separated。不过 public_content root_label_role source 明确。可以。\n\noriginal_text 是否包含“教材习题改编”是来源标注，但原题转录保留。public_content statement 排除。public_content.scopes 不含题号或来源。privacy separated：姓名等无，来源“教材习题改编”属于来源标注，已从公开 statement 排除；但 choices 无来源。root.label source。可以。\n\n需要注意选项文本中的根号覆盖范围：A f(x)=\\sqrt{-2x^3} 图片中根号内是 -2x^3，指数3在x右上。正确。g(x)=x√-2x，中间根号覆盖 -2x。写成 x\\\\sqrt{-2x}。D g(x)=\\sqrt{(x+1)(x-1)}，图片根号下似乎是 (x+1)(x-1)，没有乘号。保留。\n\n选项C的g(t)图片中为 g(t)=t^2-2t-1，f是x^2-2x-1，对。表示同一函数，但自变量名称不同不影响。我们不判定。\n\n选项B g(x)=x^2/x，分数。保留 \\frac{x^2}{x}。定义 g(x)=x^2/x。定义字符串可写 \"g(x)=x^2/x\"。\n\n选项A f 定义 \"f(x)=sqrt(-2*x^3)\"，g \"g(x)=x*sqrt(-2*x)\"。注意 sqrt(-2*x) 根号内 x 在 -2x 中，保留。C定义 \"f(x)=x^2-2*x-1\", \"g(t)=t^2-2*t-1\"；B \"f(x)=x\", \"g(x)=x^2/x\"；D \"f(x)=sqrt(x-1)*sqrt(x+1)\", \"g(x)=sqrt((x+1)*(x-1))\"。\n\n关于函数id：每个选项左右为 left/right 可重复在不同选项，因为局部作用域。left/right 引用 local:left/local:right。\n\n选择关系 equal：题面“表示同一个函数”即选相同。selection_mode unspecified。completeness complete。\n\n现在构造 JSON。注意 schema 要求 root 可以没有 label? 包含。public_content: completeness/privacy/figure/scopes, 可选root_label_role。有 label role source。scopes item required scope_ref, statement, choices。choices item required target_ref,status,selection_mode,options。options label,text。\n\n根节点 facts 可为空, definitions 空, goals 一项, children 省略。uncertainties 空可省略。root.label \"2\"。\n\n要确保 original_text 公式中使用 \\(...\\)？规则明确用 $…$。好。original_text 字符串：\n\"2. 教材习题改编 下列各组函数表示同一个函数的是\\nA. $f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\\nB. $f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\\nD. $f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"\n注意 JSON 中换行 \\n 可以。反斜杠在 \"\\\\sqrt\" 中，JSON解析后 \\sqrt。 \"\\\\cdot\" 解析后 \\cdot。 \"\\\\frac\" 等。选项D中“\\\\sqrt{(x+1)(x-1)}”表示根号覆盖 (x+1)(x-1)。可以。\n\n选项A在图片中似乎是 f(x)=√(-2x^3) 与 g(x)=x√(-2x)。对。\n\n公开 choices 文本：\nA: \"$f(x)=\\\\sqrt{-2x^3}$ 与 $g(x)=x\\\\sqrt{-2x}$\"\nB: \"$f(x)=x$ 与 $g(x)=\\\\frac{x^2}{x}$\"\nC: \"$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\"\nD: \"$f(x)=\\\\sqrt{x-1}\\\\cdot\\\\sqrt{x+1}$ 与 $g(x)=\\\\sqrt{(x+1)(x-1)}$\"\n\n目标 options 的 text 完全一致。在 compare options 中 label A-D顺序。\n\n注意 target options definitions 的 definition字段不能有中文或 $。可以。\n\npublic_content statement: \"下列各组函数表示同一个函数的是\" 。是否应保留“教材习题改编”？这是来源标注，排除。题号排除。好。\n\nroot_label_role 字段放在 public_content 内，与 scopes 平级。值 source。\n\n需要不要输出 uncertain。可以省略 uncertainties。JSON required only original_text root public_content; root can have optional fields. 最好包括 definitions/facts/goals, label. 不要输出额外。root.goals compare 目标中需要 completeness 和 options等。selection_mode unspecified 是允许。compare_functions mode=groups, select_relation=equal, selection_mode=unspecified, completeness=complete, shared_functions=[]。options includes functions definitions. Good.\n\n注意 compare_functions 的 options 要求 functions maxItems 2。每个两个。\n\n检查 A 函数 id left/right，left local:left right local:right。同一个选项重复 left/right 在不同选项可以。好。\n\nJSON 中 options 数组里 definitions 里的 \"sqrt(-2*x^3)\"，没有反斜杠，所以不需要转义反斜杠。字符串中 * 无碍。\n\n现在输出。"
+        }
+      }
+    ],
+    "created": 1793161743,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 4648,
+      "prompt_tokens": 13021,
+      "total_tokens": 17669,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3865,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 768
+      },
+      "prompt_cache_hit_tokens": 768,
+      "prompt_cache_miss_tokens": 12253
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 21.684
+}

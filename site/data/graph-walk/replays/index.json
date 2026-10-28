@@ -1,10 +1,10 @@
 {
-  "bundleVersion": "1b2417e602cfbbb45d00c37f5eec8492beefc5d7b688e7c318c15647d33366c4",
+  "bundleVersion": "85d881596f3e053a5a62782cec212d818669d09f23c7d7af707d7ca1560a1880",
   "replays": [
     {
       "label": "Codex · 判别式法 → 分离参数法",
       "recorder": "Codex",
-      "path": "walk-1b2417e602cf-e4cbec1377ae.json",
+      "path": "walk-85d881596f3e-c14ca5323a29.json",
       "routes": [
         "discriminant",
         "extremum"

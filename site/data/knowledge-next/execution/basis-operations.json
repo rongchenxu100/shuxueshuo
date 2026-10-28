@@ -148,6 +148,14 @@
     "cancel_common_nonzero_factor": [
       "rational-expression#cancellation"
     ],
+    "bounded_rational_normal_form": [
+      "rational-expression#cancellation",
+      "equality-properties#identity"
+    ],
+    "signed_square_on_sign_cell": [
+      "square-root-expression#meaning",
+      "equality-properties#identity"
+    ],
     "function_identity_comparison": [
       "function-concept#identity"
     ],

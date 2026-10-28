@@ -15,7 +15,7 @@ from ...problem_understanding.notation_semantics import bounded_expand
 from ..domain_expression import expression
 from ..stage_one.function_domain import (
     ARGUMENT,
-    MAX_RADICAND_DEGREE,
+    MAX_FIXED_POLYNOMIAL_DEGREE,
     _fixed_poly,
     _input_domain,
     _inspect_expression,
@@ -37,11 +37,16 @@ def _is_negative(value):
     return expanded.is_negative is True
 
 
-def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
+def _poly_roots(ast, max_degree=MAX_FIXED_POLYNOMIAL_DEGREE):
     """Exact real roots of a fixed rational univariate polynomial AST."""
+    return _poly_roots_proof(ast, max_degree)[0]
+
+
+def _poly_roots_proof(ast, max_degree):
     coeffs = _fixed_poly(ast, max_degree=max_degree)
     if len(coeffs) <= 1:
-        return []
+        return [], {"method": "constant_polynomial", "passed": True,
+                    "identically_zero": coeffs[0] == 0, "critical_points_required": False}
     variable = sp.Dummy("x")
     expr = sum(
         (sp.Rational(c.numerator, c.denominator) * variable**i for i, c in enumerate(coeffs)),
@@ -49,11 +54,14 @@ def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
     )
     poly = sp.Poly(expr, variable, domain=sp.QQ)
     roots = list(dict.fromkeys(sp.polys.polytools.real_roots(poly)))
-    if any(root.has(sp.CRootOf) for root in roots):
-        raise ValueError("domain.parameter_root_checkpoint_unavailable")
+    if any(root.is_Rational is not True for root in roots):
+        raise ValueError("domain.rational_critical_points_required")
     if poly.count_roots(-sp.oo, sp.oo) != len(roots):
         raise ValueError("domain.parameter_root_count")
-    return roots
+    if any(poly.eval(root) != 0 for root in roots):
+        raise ValueError("domain.original_root_substitution_failed")
+    return roots, {"method": "exact_real_roots_and_sturm_count", "passed": True,
+                   "distinct_real_roots": len(roots), "all_rational": True}
 
 
 def input_set(description):
@@ -169,6 +177,10 @@ def extract_domain_conditions(context):
     def add_denominator(ast, path):
         # Product and zero-power factors keep one ≠0 condition per solvable piece;
         # a^0 itself is never 0 once the base is nonzero.
+        if ast[0] == "neg":
+            # Negation preserves zeroes; retain the child's original source path.
+            add_denominator(ast[1], (*path, 1))
+            return
         if ast[0] == "*":
             add_denominator(ast[1], (*path, 1))
             add_denominator(ast[2], (*path, 2))
@@ -370,8 +382,7 @@ def prepare_domain_conditions(constraints, variable):
         base = _square_radicand_base(ast)
         if base is not None:
             # The original square remains in extraction evidence. Only this
-            # explicit, admitted real polynomial square is reduced here; a
-            # generic fourth-degree condition never reaches the quadratic solver.
+            # explicit, admitted real polynomial square is reduced here.
             square = {"kind": "original_polynomial_square", "passed": True,
                       "expression_ast": deepcopy(ast), "base_ast": deepcopy(base),
                       "basis_refs": ["square-nonnegative#nonnegative"]}
@@ -384,7 +395,7 @@ def prepare_domain_conditions(constraints, variable):
         # The source converter deliberately keeps powers unevaluated. Rebuild
         # admitted condition polynomials exactly before the shared solver so
         # constants such as 0**2 and (-3)**2 are rational coefficients too.
-        coefficients = _fixed_poly(ast, max_degree=MAX_RADICAND_DEGREE)
+        coefficients = _fixed_poly(ast, max_degree=MAX_FIXED_POLYNOMIAL_DEGREE)
         canonical = sum((sp.Rational(c.numerator, c.denominator) * variable**i
                          for i, c in enumerate(coefficients)), sp.S.Zero)
         if condition is not sp.true and condition.lhs != canonical:
@@ -718,20 +729,21 @@ def _evaluate(ast, point):
 def _critical(description):
     rows, points, by_path = [], set(), {}
 
-    def record(child, polynomial_path, source, max_degree=MAX_RADICAND_DEGREE, square_origin=None):
+    def record(child, polynomial_path, source, max_degree=MAX_FIXED_POLYNOMIAL_DEGREE, square_origin=None):
         # A sqrt divisor and its own real-definedness condition use the
         # same polynomial at the same original position. Keep both
         # requirements, but produce its critical-polynomial evidence once.
         key = (description["source_ref"], polynomial_path)
         row = by_path.get(key)
         if row is None:
-            roots = _poly_roots(child, max_degree=max_degree)
+            roots, root_completeness = _poly_roots_proof(child, max_degree)
             points.update(roots)
             row = {
                 "source_ref": description["source_ref"],
                 "ast_path": list(polynomial_path),
                 "expression_ast": deepcopy(child),
                 "roots": [math_value(p) for p in roots],
+                "root_completeness": root_completeness,
                 "condition_sources": [],
                 **({"square_structure": square_origin} if square_origin else {}),
             }
@@ -751,6 +763,9 @@ def _critical(description):
             })
 
     def record_divisor(ast, path):
+        if ast[0] == "neg":
+            record_divisor(ast[1], (*path, 1))
+            return
         if ast[0] == "*":
             record_divisor(ast[1], (*path, 1))
             record_divisor(ast[2], (*path, 2))
@@ -778,7 +793,7 @@ def _critical(description):
                 "ast_path": list(path),
                 "kind": "denominator_nonzero",
             },
-            max_degree=1,
+            max_degree=MAX_FIXED_POLYNOMIAL_DEGREE,
         )
 
     def visit(ast, path=()):
@@ -801,7 +816,7 @@ def _critical(description):
                     "ast_path": [*path, 1],
                     "kind": "zero_power_base_nonzero",
                 },
-                max_degree=1,
+                max_degree=MAX_FIXED_POLYNOMIAL_DEGREE,
             )
         elif ast[0] == "/":
             record_divisor(ast[2], (*path, 2))
@@ -881,14 +896,14 @@ def verify_domain(candidate, target_ref, context, proposed):
         result_value.update(
             status="verified" if mismatch is None else "math_failed",
             proof={
-                "category": "original-fixed-affine-function-domain/v5",
+                "category": "original-fixed-rational-polynomial-function-domain/v6",
                 "source_refs": [description["source_ref"]],
                 "expression_ast": description["expression_ast"],
                 "critical_polynomials": roots,
                 "critical_points": [math_value(p) for p in points],
                 "invariance": {
                     "proved": True,
-                    "reason": "Every original radicand (degree ≤2 or an explicit square of a real polynomial of degree ≤2), affine divisor factor and zero-power base is checked on a complete polynomial-root partition. A source square is nonnegative wherever its recursively retained base is defined. Positive integer powers and absolute values retain their argument's definedness. Original syntax and explicit input-domain membership are evaluated independently at every critical point.",
+                    "reason": "Every original fixed rational radicand, polynomial divisor factor and zero-power base (degree ≤6) is checked on a complete rational-root partition, independently certified by exact real-root isolation and Sturm root counting. A source square is nonnegative wherever its recursively retained base is defined. Positive integer powers and absolute values retain their argument's definedness. Original syntax and explicit input-domain membership are evaluated independently at every critical point.",
                 },
                 "cells": cells,
                 "reconstructed_set": math_value(rebuilt),

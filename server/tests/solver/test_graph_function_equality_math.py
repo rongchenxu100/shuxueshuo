@@ -27,9 +27,14 @@ def descriptor(text, variable="x", domain=None, function_ref="option:A:f"):
             return ["ref", "free:" + ast[1]]
         return [bind(child) if isinstance(child, list) else child for child in ast]
 
-    domain_ast = parse(domain) if domain else ["real"]
-    if domain_ast[0] == "tuple":
-        domain_ast = ["interval", False, False, *domain_ast[1:]]
+    def normalize_domain(ast):
+        if ast[0] == "tuple":
+            return ["interval", False, False, *ast[1:]]
+        if ast[0] == "set_difference":
+            return ["set_difference", normalize_domain(ast[1]), ast[2]]
+        return ast
+
+    domain_ast = normalize_domain(parse(domain)) if domain else ["real"]
     return {"function_ref": function_ref, "function_name": "f", "variable": variable,
             "source_ref": "/root/goals/0/comparison/options/A/functions/f/definition",
             "expression_ast": bind(parse(text)), "input_domain_ast": domain_ast,
@@ -136,13 +141,25 @@ def test_invalid_function_does_not_become_false_or_vacuously_equal(text, domain,
 
 
 @pytest.mark.parametrize("text", [
-    "abs(x^3+1)", "sqrt((2*x^3+1)^2)", "x^3", "sqrt(x)",
-    "(x^2-1)/(x-1)", "a*x+1", "(x-1)^0", "sqrt(sqrt(x))", "x^12", "abs(abs(x))",
+    "sqrt((2*x^3+1)^2)", "a*x+1", "sqrt(sqrt(x))", "abs(abs(x))",
 ])
 def test_unsupported_structures_remain_unresolved(text):
     value = descriptor(text)
     assert structural_inspect(value)["structure_supported"] is False
     assert compare_pair(value, descriptor("x"))["relation"] == "unresolved"
+
+
+@pytest.mark.parametrize("text,reason", [
+    ("abs(x^3+1)", "outputs_differ"), ("x^3", "outputs_differ"),
+    ("sqrt(x)", "domains_differ"), ("(x^2-1)/(x-1)", "domains_differ"),
+    ("(x-1)^0", "domains_differ"), ("x^12", "outputs_differ"),
+])
+def test_previously_family_blocked_structures_use_domain_first_proofs(text, reason):
+    value, other = descriptor(text), descriptor("x")
+    assert structural_inspect(value)["structure_supported"] is True
+    result = compare_pair(value, other)
+    assert (result["relation"], result["reason"]) == ("different", reason)
+    assert verify_pair(value, other, result)["status"] == "verified"
 
 
 def test_affirmative_certificate_covers_negative_zero_and_positive_cells():

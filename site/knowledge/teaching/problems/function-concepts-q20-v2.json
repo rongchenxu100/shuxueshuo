@@ -8,7 +8,7 @@
   "types": [
     "type-function-equality"
   ],
-  "statement": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+  "statement": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
   "routes": {
     "function-equality": {
       "label": "同一函数判定法",
@@ -36,7 +36,7 @@
             "method-function-equality"
           ]
         },
-        "8f409a973b6373cc98be6a98#1": {
+        "a349409e1e77b01556be715d#1": {
           "title": "① 两边的定义域",
           "position": 4,
           "refs": [
@@ -45,7 +45,7 @@
             "function-concept#identity"
           ]
         },
-        "946ecc02e50f253a9b8cbf5d#1": {
+        "d13389cd104649ad7eb2ee60#1": {
           "title": "选项 A",
           "position": 5,
           "refs": [
@@ -54,7 +54,7 @@
             "function-concept#identity"
           ]
         },
-        "fa5baf3fa85381d90e8c5e31#1": {
+        "a22a6dd1d203a9bcac977f36#1": {
           "title": "① 两边的定义域",
           "position": 6,
           "refs": [
@@ -63,7 +63,7 @@
             "function-concept#identity"
           ]
         },
-        "fa5baf3fa85381d90e8c5e31#2": {
+        "a22a6dd1d203a9bcac977f36#2": {
           "title": "② 对应关系",
           "position": 7,
           "refs": [
@@ -72,7 +72,7 @@
             "function-concept#identity"
           ]
         },
-        "43fdf67a2b46e2bf8b21179b#1": {
+        "f333b669480671a8435c17b4#1": {
           "title": "选项 B",
           "position": 8,
           "refs": [
@@ -81,37 +81,40 @@
             "function-concept#identity"
           ]
         },
-        "d438115dc5c006523efa066c#1": {
+        "f37848bc89fb0593bbe7a291#1": {
           "title": "① 两边的定义域",
           "position": 9,
           "refs": [
             "method-function-equality#compare",
             "skill-simplify",
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ]
         },
-        "d438115dc5c006523efa066c#2": {
+        "f37848bc89fb0593bbe7a291#2": {
           "title": "② 对应关系",
           "position": 10,
           "refs": [
             "method-function-equality#compare",
             "skill-simplify",
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ]
         },
-        "8ef7303de68dd8d65991d1ab#1": {
+        "e0898bad6b8b2daa807fba29#1": {
           "title": "选项 C",
           "position": 11,
           "refs": [
             "method-function-equality#compare",
             "skill-simplify",
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ]
         },
-        "0437b48d9c2216cbebb90e99#1": {
+        "38d7b035bb9c2579d7aa8cc7#1": {
           "title": "① 两边的定义域",
           "position": 12,
           "refs": [
@@ -120,7 +123,7 @@
             "function-concept#identity"
           ]
         },
-        "0437b48d9c2216cbebb90e99#2": {
+        "38d7b035bb9c2579d7aa8cc7#2": {
           "title": "② 对应关系",
           "position": 13,
           "refs": [
@@ -129,7 +132,7 @@
             "function-concept#identity"
           ]
         },
-        "808b8f4ec1f0201a767b600e#1": {
+        "80ebc309fe59bfa9d316285c#1": {
           "title": "选项 D",
           "position": 14,
           "refs": [
@@ -138,7 +141,7 @@
             "function-concept#identity"
           ]
         },
-        "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"637a02419746ce650a062116ae85425fb463197c58f29c1edf3304ab4a04fa13\"]": {
+        "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"08bb1ea81e8ae7f29e290ac176c7aaf6263e25c55244ae9d00e733377f78d911\"]": {
           "title": "选择原题答案",
           "position": 15,
           "refs": [],
@@ -196,5 +199,5 @@
     "/topics/function-concepts/q22/",
     "/topics/function-concepts/q23b/"
   ],
-  "content_version": "8e831df6d39d27788028850b8371442b19967fd59db27bce76078a61ecfa8194"
+  "content_version": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1"
 }

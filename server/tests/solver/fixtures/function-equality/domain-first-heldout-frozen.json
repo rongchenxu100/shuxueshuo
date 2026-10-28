@@ -1,0 +1,91 @@
+{
+  "contract": "independent-structural-holdout/v1",
+  "frozen_at_utc": "2026-10-28T03:55:30.449994+00:00",
+  "origin": "independently authored after observing the target photo, before running the expanded comparator; not live-photo evidence",
+  "gold_validation": "symbolic sign substitutions with positive p and exact rational cancellation; domain constraints derived from original operators",
+  "cases": [
+    {
+      "id": "negative-cubic-sign",
+      "left": "sqrt(-5*x^3)",
+      "right": "x*sqrt(-5*x)",
+      "domain": null,
+      "relation": "different",
+      "left_domain": "Interval(-oo, 0)",
+      "right_domain": "Interval(-oo, 0)",
+      "witness": "-1",
+      "proof": "Both require x≤0. At x=-1 values are √5 and -√5."
+    },
+    {
+      "id": "positive-cubic-identity",
+      "left": "sqrt(7*x^3)",
+      "right": "x*sqrt(7*x)",
+      "domain": null,
+      "relation": "equal",
+      "left_domain": "Interval(0, oo)",
+      "right_domain": "Interval(0, oo)",
+      "proof": "On x≥0, sqrt(x²·7x)=|x|sqrt(7x)=x sqrt(7x); both zero at x=0."
+    },
+    {
+      "id": "negative-cubic-corrected",
+      "left": "sqrt(-11*x^3)",
+      "right": "-x*sqrt(-11*x)",
+      "domain": null,
+      "relation": "equal",
+      "left_domain": "Interval(-oo, 0)",
+      "right_domain": "Interval(-oo, 0)",
+      "proof": "On x≤0, sqrt(x²·(-11x))=|x|sqrt(-11x)=-x sqrt(-11x); both zero at x=0."
+    },
+    {
+      "id": "singleton-erases-output-disagreement",
+      "left": "sqrt(-5*x^3)",
+      "right": "x*sqrt(-5*x)",
+      "domain": "{0}",
+      "relation": "equal",
+      "left_domain": "{0}",
+      "right_domain": "{0}",
+      "proof": "The explicitly declared singleton is valid on both sides and both values equal zero."
+    },
+    {
+      "id": "expanded-rational-keeps-hole",
+      "left": "(3*x^2+6*x)/(x+2)",
+      "right": "3*x",
+      "domain": null,
+      "relation": "different",
+      "left_domain": "Union(Interval.open(-oo, -2), Interval.open(-2, oo))",
+      "right_domain": "Reals",
+      "witness": "-2",
+      "proof": "Original denominator removes -2 only on the left; cancellation on its domain does not restore that input."
+    },
+    {
+      "id": "expanded-rational-common-domain",
+      "left": "(4*x^2-36)/(x-3)",
+      "right": "4*x+12",
+      "domain": "ℝ∖{3}",
+      "relation": "equal",
+      "left_domain": "Union(Interval.open(-oo, 3), Interval.open(3, oo))",
+      "right_domain": "Union(Interval.open(-oo, 3), Interval.open(3, oo))",
+      "proof": "On the common explicitly punctured domain, 4(x-3)(x+3)/(x-3)=4x+12."
+    },
+    {
+      "id": "separate-roots-domain-mismatch",
+      "left": "sqrt(x-4)*sqrt(x+4)",
+      "right": "sqrt(x^2-16)",
+      "domain": null,
+      "relation": "different",
+      "left_domain": "Interval(4, oo)",
+      "right_domain": "Union(Interval(-oo, -4), Interval(4, oo))",
+      "witness": "-4",
+      "proof": "Left requires x≥4; right requires x≤-4 or x≥4. At -4 only the right is defined."
+    },
+    {
+      "id": "separate-roots-common-positive-domain",
+      "left": "sqrt(x-4)*sqrt(x+4)",
+      "right": "sqrt(x^2-16)",
+      "domain": "[4,∞)",
+      "relation": "equal",
+      "left_domain": "Interval(4, oo)",
+      "right_domain": "Interval(4, oo)",
+      "proof": "Both factors are nonnegative on the shared declared range, so their nonnegative square roots multiply to sqrt(x²-16), including x=4."
+    }
+  ]
+}

@@ -11,12 +11,15 @@ from math import isqrt
 
 from ...problem_understanding.notation_parser import NotationError, definition
 
-VERSION = "fixed-affine-function-domain/v5"
+VERSION = "fixed-rational-polynomial-function-domain/v6"
 ARGUMENT = ["bound", "function_argument"]
 # Match the canonical notation service's existing single-exponent bound.
 MAX_INTEGER_EXPONENT = 12
 MAX_NESTED_POWER = 64
 MAX_RADICAND_DEGREE = 2
+# The parameter-dependent M6 family intentionally keeps the quadratic limit
+# above. M1 has no symbolic coefficients and uses this separate exact boundary.
+MAX_FIXED_POLYNOMIAL_DEGREE = 6
 MAX_COEFFICIENT_BITS = 128
 MAX_EXCLUDED_POINTS = 16
 
@@ -46,7 +49,10 @@ def _mul_coeffs(left, right):
     out = [Fraction(0)] * (len(left) + len(right) - 1)
     for i, a in enumerate(left):
         for j, b in enumerate(right):
-            out[i + j] += a * b
+            term = a * b
+            _coefficient_budget(term)
+            out[i + j] += term
+            _coefficient_budget(out[i + j])
     return out
 
 
@@ -63,14 +69,27 @@ def _perfect_square(value):
 
 
 def _rational_root_radicand(coeffs):
-    """Degree ≤2 radicands must have rational real roots when the discriminant is positive.
-
-    Irrational endpoints break interactive set checks and were incorrectly verified
-    when structural equality missed algebraic zeros.
-    """
+    """Prove every real critical point is rational, without sampling signs."""
     coeffs = _trim_coeffs(list(coeffs))
+    if len(coeffs) - 1 > MAX_FIXED_POLYNOMIAL_DEGREE:
+        return False
+    for coefficient in coeffs:
+        _coefficient_budget(coefficient)
     if len(coeffs) - 1 <= 1:
         return True
+    if len(coeffs) - 1 > 2:
+        import sympy as sp
+
+        variable = sp.Dummy("x")
+        polynomial = sp.Poly.from_list(
+            [sp.Rational(c.numerator, c.denominator) for c in reversed(coeffs)],
+            variable, domain=sp.QQ,
+        )
+        # Ground roots alone are incomplete when an irreducible factor has
+        # irrational real roots. Sturm's exact distinct-root count closes that
+        # gap, including repeated roots and factors with no real roots.
+        rational_roots = polynomial.ground_roots()
+        return len(rational_roots) == polynomial.count_roots(-sp.oo, sp.oo)
     c, b, a = (coeffs + [Fraction(0), Fraction(0)])[:3]
     disc = b * b - 4 * a * c
     if disc < 0:
@@ -140,10 +159,13 @@ def _fixed_poly(ast, max_degree=1, depth=0):
 
 
 def _square_radicand_base(ast):
-    """Recognize a source square, never infer one from an expanded quartic."""
+    """Recognize a source square without losing its original condition or path."""
     if ast[0] != "^" or _integer_exponent(ast[2]) != 2:
         return None
-    coefficients = _fixed_poly(ast[1], max_degree=MAX_RADICAND_DEGREE)
+    coefficients = _fixed_poly(ast[1], max_degree=MAX_FIXED_POLYNOMIAL_DEGREE // 2)
+    # The shortcut proves a sign, not a license to bypass the coefficient
+    # budget on the original expanded condition.
+    _mul_coeffs(coefficients, coefficients)
     if not _rational_root_radicand(coefficients):
         raise NotationError("domain.fixed_affine_condition_required")
     return ast[1]
@@ -158,12 +180,15 @@ def _affine(ast, depth=0):
 
 
 def _require_nonzero_expression(ast, depth=0):
-    """Divisors must decompose into affine, zero-power, or sqrt(poly≤2) factors."""
+    """Divisors decompose into admitted polynomial, zero-power or radical factors."""
     if depth > 24:
         raise NotationError("domain.structure_limit")
+    if ast[0] == "neg":
+        _require_nonzero_expression(ast[1], depth + 1)
+        return
     if ast[:2] == ["call", "sqrt"]:
         base = _square_radicand_base(ast[2])
-        coeffs = _fixed_poly(base if base is not None else ast[2], max_degree=MAX_RADICAND_DEGREE, depth=depth + 1)
+        coeffs = _fixed_poly(base if base is not None else ast[2], max_degree=MAX_FIXED_POLYNOMIAL_DEGREE, depth=depth + 1)
         if not _rational_root_radicand(coeffs):
             raise NotationError("domain.fixed_affine_condition_required")
         return
@@ -172,9 +197,16 @@ def _require_nonzero_expression(ast, depth=0):
         _require_nonzero_expression(ast[2], depth + 1)
         return
     if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
-        _affine(ast[1], depth + 1)
+        _require_fixed_condition(ast[1], depth + 1)
         return
-    _affine(ast, depth + 1)
+    _require_fixed_condition(ast, depth + 1)
+
+
+def _require_fixed_condition(ast, depth=0):
+    coefficients = _fixed_poly(ast, max_degree=MAX_FIXED_POLYNOMIAL_DEGREE, depth=depth)
+    if not _rational_root_radicand(coefficients):
+        raise NotationError("domain.fixed_affine_condition_required")
+    return coefficients
 
 
 def _integer_exponent(ast):
@@ -216,9 +248,8 @@ def _inspect_expression(ast):
         if kind == "^":
             exponent = _integer_exponent(value[2])
             if exponent == 0:
-                # Only the zero power adds a new nonzero condition, whose
-                # expression must stay within the existing affine solver.
-                _affine(value[1])
+                # Only the zero power adds a new nonzero condition.
+                _require_fixed_condition(value[1])
                 counts["has_zero_power"] = True
             weight = power_weight * max(1, exponent)
             if weight > MAX_NESTED_POWER:
@@ -229,19 +260,14 @@ def _inspect_expression(ast):
         if kind == "call" and value[1] == "sqrt":
             counts["has_radical"] = True
             base = _square_radicand_base(value[2])
-            coeffs = _fixed_poly(base if base is not None else value[2], max_degree=MAX_RADICAND_DEGREE)
-            if not _rational_root_radicand(coeffs):
-                raise NotationError("domain.fixed_affine_condition_required")
+            coeffs = _require_fixed_condition(base if base is not None else value[2])
             if base is None and len(coeffs) - 1 == 2:
                 # Radicand ≥ 0 becomes a unary quadratic inequality at solve time.
                 counts["has_quadratic_condition"] = True
             walk(value[2], depth + 1, power_weight)
             return
         if kind == "call" and value[1] == "abs":
-            # Q19 extends the same rational sign-cell boundary to quadratics.
-            coefficients = _fixed_poly(value[2], max_degree=MAX_RADICAND_DEGREE)
-            if not _rational_root_radicand(coefficients):
-                raise NotationError("domain.fixed_affine_condition_required")
+            _require_fixed_condition(value[2])
             walk(value[2], depth + 1, power_weight)
             return
         if kind == "/":

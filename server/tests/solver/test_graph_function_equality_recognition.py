@@ -100,7 +100,7 @@ def test_direct_pair_has_no_fabricated_selection_polarity(tmp_path):
 @pytest.mark.parametrize("change", [
     lambda goal: goal.update(completeness="incomplete"),
     lambda goal: goal.update(select_relation="unknown"),
-    lambda goal: goal["options"][0]["functions"][0].update(definition="f(x)=abs(x^3+1)"),
+    lambda goal: goal["options"][0]["functions"][0].update(definition="f(x)=abs(x^7+1)"),
 ])
 def test_unresolved_input_never_becomes_supported_t1(change):
     c = candidate()
@@ -111,6 +111,18 @@ def test_unresolved_input_never_becomes_supported_t1(change):
     report = next(row for row in evaluate_types(value["features"]) if row["type_id"] == "type-function-equality")
     assert report["status"] == "conflict"
     assert derive_knowledge(value["features"])["items"] == []
+
+
+def test_domain_supported_cubic_is_not_rejected_by_the_old_correspondence_family(tmp_path):
+    c = candidate()
+    c["root"]["goals"][0]["options"][0]["functions"][0]["definition"] = "f(x)=abs(x^3+1)"
+    value = envelope(c)
+    checked = validate_input(value)
+    assert checked["ok"], checked
+    result = run_result(value, tmp_path / "cubic-domain")
+    assert result["status"] == "completed"
+    assert result["goals"][0]["primary"] == "type-function-equality"
+    assert result["goals"][0]["supported"] == ["type-function-equality"]
 
 
 @pytest.mark.parametrize("change", [

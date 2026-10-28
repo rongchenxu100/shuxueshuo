@@ -1,0 +1,81 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-equality-domain-first/manifest.json",
+  "source_kind": "browser_album_upload_product_full_image_crop",
+  "recorded_date": "2026-10-28",
+  "search_id": "10861330e2cf",
+  "upload_source": "internal/senior-high/source-images/function-equality-domain-first/source-crop.png",
+  "upload_source_sha256": "431242e8703450b2dd9744db798aeff7ae48391c03a28a309d000d10ffb234a9",
+  "product_crop": {
+    "box": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "page_size": [
+      834,
+      505
+    ],
+    "crop_size": [
+      834,
+      505
+    ]
+  },
+  "product_crop_source": {
+    "file": "original.png",
+    "sha256": "65b86e82fdaabc0dcabd0c6025869062272d85300420afca71eca84105a53e4f",
+    "processing": "Browser album canvas JPEG encoding followed by normal server RGB conversion and full-image crop."
+  },
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "notes": "Successful live browser extraction and review; no repair was needed. Response text and source semantics are preserved. Offline tests replay both recorded calls through the current workflow without new paid model calls.",
+  "sanitization": {
+    "removed": "provider file/request identifiers and signed transport URLs only; no account/session data copied",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id",
+      "workflow/calls/02-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/02-review/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "question.png": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d",
+    "original.png": "65b86e82fdaabc0dcabd0c6025869062272d85300420afca71eca84105a53e4f",
+    "result.json": "889a918a5d80bcb17b0223a78974d065efaa18e4bd08389dd236721c7dcf18c6",
+    "workflow/ledger.json": "22a7573be6d481541b8676c84368f0e11eb606cd23dcfb143baf2235d5b90b50",
+    "workflow/candidate.json": "31e7c00c3bf7db054534261f89614040c406dee220ced5f56557a5b39a27cc10",
+    "workflow/latest-review.json": "42aca30a838201d5cb3a568b253cd6e1e8eaea6851c6d2fe476c6f97279f1957",
+    "workflow/workflow-result.json": "4cd9f6df9320d2c44ec3cd95a6e52e3d34defb36d69e3d199090d5dcaf3f91ec",
+    "workflow/calls/01-extract/request.json": "acd0a33d859c630810939e6e9e46a9facc866bc00a9b05638cfd91de9eb71047",
+    "workflow/calls/01-extract/response.json": "ac7f82d01e42211117e13e3aaf4a482f1af7c1d8bb78741f63249e8e41383bb6",
+    "workflow/calls/02-review/request.json": "fb7195c3551e07a470919063fed04ea12ad9742ffd02da2522b4fb74d12b53d5",
+    "workflow/calls/02-review/response.json": "408ebc09e6e6645307c4fac663b2ecc6b0a4ec9cb122529b76f2e6b61169fc5c"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "31588bf3dbdfda969ef013f6f9e87355223d938557aff738d31f125cef6f8ba8",
+    "workflow/calls/02-review/response.json": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+  },
+  "files": {
+    "question.png": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d",
+    "original.png": "65b86e82fdaabc0dcabd0c6025869062272d85300420afca71eca84105a53e4f",
+    "result.json": "2635593d5ec04dedf2471d18388a6d4ae82ac20abf6fded5560295b5d9b9a44f",
+    "workflow/ledger.json": "7b9a68fc70ee17fadb279ee57d01330f7bec4190041ae7200930886adbe4d260",
+    "workflow/candidate.json": "82bebcaca96b8a0c94d2cb8a45f997e61ba2c1eaeb0fe75366503db6c2c03b49",
+    "workflow/latest-review.json": "cc243589cbf13a6acf3f39f7cb409362ff50046855ce42a6326ce9808db1195d",
+    "workflow/workflow-result.json": "2de29b88401ebfecab8952a917ca5c169191bb3bb1802daced868524243b4c40",
+    "workflow/calls/01-extract/request.json": "678c16788983c2830dd7acf3b9007d70ef358d301240d03b475e21eca9ca1536",
+    "workflow/calls/01-extract/response.json": "266318353773ee0326869e261c3be85b1cda0aef69039af54524dbfc1972b112",
+    "workflow/calls/02-review/request.json": "6f8d833a45b3aecd9bd0b31b1a65a6ad67205a7f9a6b9418216b4c121f72c7a5",
+    "workflow/calls/02-review/response.json": "c98eb65a02d4972c5cd6e9939daa97861ea24bbc8e09f6837982605d6677cdc0",
+    "lesson-verification.json": "3f788b5e50849e9fe2f7db1a72660fb0b78b5221bf2b8804853fcc1e5ffc9ebc"
+  }
+}

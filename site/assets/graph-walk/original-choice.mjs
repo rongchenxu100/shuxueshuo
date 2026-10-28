@@ -11,8 +11,13 @@ export function matchedOriginalChoice(completion, targetRef = completion?.target
   const labels = new Set(choice.options.map(option => option.label));
   if (labels.size !== choice.options.length || new Set(choice.correct_labels).size !== choice.correct_labels.length ||
       choice.correct_labels.some(label => !labels.has(label))) return null;
-  if (choice.kind === 'single_choice') return choice.correct_labels.length === 1 ? choice : null;
-  if (choice.selection_mode !== 'multiple' || !['equal', 'different'].includes(choice.select_relation) ||
+  const single = choice.kind === 'single_choice';
+  if (single && choice.correct_labels.length !== 1) return null;
+  const comparison = completion.answer?.kind === 'compare_functions' ||
+    choice.option_verdicts !== undefined || choice.select_relation !== undefined;
+  if (single && !comparison) return choice;
+  const validMode = single ? choice.selection_mode === 'single' : ['multiple', 'unspecified'].includes(choice.selection_mode);
+  if (!validMode || !['equal', 'different'].includes(choice.select_relation) ||
       !Array.isArray(choice.option_verdicts) || choice.option_verdicts.length !== choice.options.length) return null;
   const ids = new Set(choice.options.map(option => option.option_id));
   if (ids.size !== choice.options.length || [...ids].some(id => typeof id !== 'string' || !id)) return null;
@@ -35,7 +40,7 @@ export function exactOriginalAnswer(decision, answer) {
       new Set(labels).size !== labels.length || new Set(expected.option_labels).size !== expected.option_labels.length ||
       labels.length !== expected.option_labels.length || labels.some(label => !expected.option_labels.includes(label)) ||
       new Set(expected.correct_labels).size !== expected.correct_labels.length ||
-      expected.correct_labels.some(label => !labels.includes(label))) throw new Error('原题多选评分契约无效，请重新加载。');
+      expected.correct_labels.some(label => !labels.includes(label))) throw new Error('原题选项评分契约无效，请重新加载。');
   return Array.isArray(answer) && answer.every(value => typeof value === 'string') &&
     new Set(answer).size === answer.length && answer.every(label => labels.includes(label)) &&
     answer.length === expected.correct_labels.length && expected.correct_labels.every(label => answer.includes(label));

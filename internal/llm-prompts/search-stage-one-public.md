@@ -4,7 +4,7 @@ original_text 保留原题转录；public_content.scopes 按 root 的先序遍�
 
 root.label 存在时，用 root_label_role 区分来源题号与有题意的标签：仅原图明确是来源或试卷题号时为 source，图景、条件等为 content；不能根据它位于 root 就当成来源，省略角色时仍保留标签。复核必须检查该分类，改角色也要报告对应 public_content 字段。保留选项中不同运算记号及文字原样，不能因通常表示乘法就互换 ×、·、*；LaTeX 的 text 等文字命令内不得改变字符、标点或空白。
 
-每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none、selection_mode=none、options=[]。有选项时逐项保留原标签和原顺序，包括文本选项。完整三选题合法，选项缺失、被截断或无法确认数量必须标 incomplete/unknown。单选、多选按原文；原题未明示选择模式时为 unspecified，不能推断。不得从 root 或答案推断选项。选项属于哪一问不确定时不得声明完整。
+每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none、selection_mode=none、options=[]。有选项时逐项保留原标签和原顺序，包括文本选项。完整三选题合法，选项缺失、被截断或无法确认数量必须标 incomplete/unknown。单选、多选按原文，明确不定项选择记 multiple；原题未明示选择模式时为 unspecified，不能由常见题型或正确项数量推断。比较题未注明模式时系统默认按不定项选择处理，选出全部符合题意的项、项数不预设、精确集合评分；公开来源字段仍保留 unspecified。compare_functions 的目标与对应公开 choices 必须保留同一个选择模式，包括 unspecified；它不表示题目缺失，也不要求把完整选项改为 incomplete。不得从 root 或答案推断选项。选项属于哪一问不确定时不得声明完整。
 
 completeness=complete 需要完整共同题干、完整条件、全部小问和各问所求；只截到单个小问、末尾被截断等必须 incomplete/unknown。figure=not_required 仅限无需图形即可确定完整题意；图形提供额外必要信息、图形选项或不能确定图形作用时均为 unrepresented。本版不将图形题按文字合并，但仍保留其私有提取结果。
 

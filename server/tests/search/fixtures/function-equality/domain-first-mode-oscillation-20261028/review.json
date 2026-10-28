@@ -1,0 +1,17 @@
+{
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/goals/0/selection_mode",
+      "kind": "wrong_goal",
+      "source_excerpt": "下列各组函数表示同一个函数的是",
+      "message": "候选将该比较题的选择方式设为 single，但原题题干未明示单选或多选；按规则不能由题目形式推断，应改为 unspecified。"
+    },
+    {
+      "path": "/public_content/scopes/0/choices/0/selection_mode",
+      "kind": "wrong_public_content",
+      "source_excerpt": "下列各组函数表示同一个函数的是",
+      "message": "公开内容中的选择方式同样被设为 single，原题未明示单选或多选，应改为 unspecified。"
+    }
+  ]
+}

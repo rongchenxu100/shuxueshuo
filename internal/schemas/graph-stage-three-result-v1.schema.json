@@ -987,6 +987,7 @@
               "enum": [
                 "multiple",
                 "single",
+                "unspecified",
                 "none"
               ]
             },
@@ -1039,7 +1040,48 @@
                 }
               }
             }
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "pair"
+                  }
+                },
+                "required": [
+                  "mode"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "selection_mode": {
+                    "const": "none"
+                  },
+                  "select_relation": {
+                    "const": null
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "selection_mode": {
+                    "enum": [
+                      "single",
+                      "multiple",
+                      "unspecified"
+                    ]
+                  },
+                  "select_relation": {
+                    "enum": [
+                      "equal",
+                      "different"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
         }
       ]
     }

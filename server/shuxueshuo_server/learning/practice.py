@@ -361,13 +361,14 @@ def submit(db, user, aid, identity, step, answer):
             revisiting = graph_walk.snapshot(a) and a['status'] != 'closed' and one(c,
                 'SELECT step_id FROM student_step_results WHERE attempt_id=:a AND step_id=:s AND passed', a=aid, s=step)
             if revisiting and (node(a, step).get('option_context') or
-                               node(a, step)['interaction']['type'] == graph_walk.EXACT_CHOICE):
+                               node(a, step)['interaction']['type'] == graph_walk.EXACT_CHOICE or
+                               node(a, step).get('require_complete_options')):
                 raise HTTPException(409, '已完成的选项仅供回看；如需重做，请重新练习。')
             if not revisiting:
                 ensure_current(c, a, step)
         n = node(a, step)
         if graph_walk.snapshot(a):
-            if not old and n['interaction']['type'] == graph_walk.EXACT_CHOICE:
+            if not old and (n['interaction']['type'] == graph_walk.EXACT_CHOICE or n.get('require_complete_options')):
                 passed_ids = c.execute(text('SELECT step_id FROM student_step_results WHERE attempt_id=:a AND passed'),
                                        {'a': aid}).scalars().all()
                 graph_walk.ensure_option_prerequisites(graph_walk.snapshot(a), a['route_id'], n, passed_ids)

@@ -22,7 +22,8 @@ export function optionProgress(bundle, state) {
     precedingComplete &&= complete;
     return {...row, complete, unlocked, current: current?.option_context?.option_id === row.option_id};
   });
-  const final = steps.find(step => step.interaction.type === 'original_choice_exact_set');
+  const final = steps.find(step => step.interaction.type === 'original_choice_exact_set' ||
+    step.source === 'original_choice' && step.interaction.type === 'choice' && step.require_complete_options);
   return {options, current: current?.option_context?.option_id || null,
     finalReady: Boolean(final && options.length && options.every(row => row.complete)),
     finalPassed: Boolean(final && completed.has(final.id)),

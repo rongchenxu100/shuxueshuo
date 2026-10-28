@@ -1,0 +1,1655 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 0,
+  "first_candidate": {
+    "original_text": "2. 教材习题改编 下列各组函数表示同一个函数的是\nA. $f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$\nB. $f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\nD. $f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+    "root": {
+      "label": "2",
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "groups",
+          "select_relation": "equal",
+          "selection_mode": "unspecified",
+          "completeness": "complete",
+          "shared_functions": [],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(-2*x^3)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=x*sqrt(-2*x)"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=x^2/x"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x^2-2*x-1"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(t)=t^2-2*t-1"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(x-1)*sqrt(x+1)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=sqrt((x+1)*(x-1))"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "下列各组函数表示同一个函数的是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$"
+                },
+                {
+                  "label": "B",
+                  "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$"
+                },
+                {
+                  "label": "C",
+                  "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$"
+                },
+                {
+                  "label": "D",
+                  "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "2. 教材习题改编 下列各组函数表示同一个函数的是\nA. $f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$\nB. $f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\nD. $f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+    "root": {
+      "label": "2",
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "groups",
+          "select_relation": "equal",
+          "selection_mode": "unspecified",
+          "completeness": "complete",
+          "shared_functions": [],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(-2*x^3)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=x*sqrt(-2*x)"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=x^2/x"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x^2-2*x-1"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(t)=t^2-2*t-1"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(x-1)*sqrt(x+1)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=sqrt((x+1)*(x-1))"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "下列各组函数表示同一个函数的是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$"
+                },
+                {
+                  "label": "B",
+                  "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$"
+                },
+                {
+                  "label": "C",
+                  "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$"
+                },
+                {
+                  "label": "D",
+                  "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "compare_functions",
+            "mode": "groups",
+            "select_relation": "equal",
+            "selection_mode": "unspecified",
+            "completeness": "complete",
+            "options": [
+              {
+                "label": "A",
+                "left": {
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "*",
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "*",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "B",
+                "left": {
+                  "expression_ast": [
+                    "bound",
+                    "function_argument"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "/",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "C",
+                "left": {
+                  "expression_ast": [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "D",
+                "left": {
+                  "expression_ast": [
+                    "*",
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "-",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "*",
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "-",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "compare_functions",
+            "target": [
+              "comparison_task",
+              "/root/goals/0"
+            ],
+            "target_ref": "/root/goals/0",
+            "mode": "groups",
+            "select_relation": "equal",
+            "selection_mode": "unspecified",
+            "completeness": "complete",
+            "options": [
+              {
+                "option_id": "option_a",
+                "label": "A",
+                "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$",
+                "source_ref": "/root/goals/0/options/0",
+                "left": {
+                  "function_ref": "/root/goals/0/options/option_a/functions/left",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/0/functions/0/definition",
+                  "expression": "sqrt(-2*x^3)",
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "*",
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\sqrt{(-2)\\cdot x^{3}}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_a/functions/right",
+                  "function_name": "g",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/0/functions/1/definition",
+                  "expression": "x*sqrt(-2*x)",
+                  "expression_ast": [
+                    "*",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "x\\cdot \\sqrt{(-2)\\cdot x}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_b",
+                "label": "B",
+                "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$",
+                "source_ref": "/root/goals/0/options/1",
+                "left": {
+                  "function_ref": "/root/goals/0/options/option_b/functions/left",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/1/functions/0/definition",
+                  "expression": "x",
+                  "expression_ast": [
+                    "bound",
+                    "function_argument"
+                  ],
+                  "expression_latex": "x",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_b/functions/right",
+                  "function_name": "g",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/1/functions/1/definition",
+                  "expression": "x^2/x",
+                  "expression_ast": [
+                    "/",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  "expression_latex": "\\frac{x^{2}}{x}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_c",
+                "label": "C",
+                "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$",
+                "source_ref": "/root/goals/0/options/2",
+                "left": {
+                  "function_ref": "/root/goals/0/options/option_c/functions/left",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/2/functions/0/definition",
+                  "expression": "x^2-2*x-1",
+                  "expression_ast": [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "x^{2}-2\\cdot x-1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_c/functions/right",
+                  "function_name": "g",
+                  "variable": "t",
+                  "source_ref": "/root/goals/0/options/2/functions/1/definition",
+                  "expression": "t^2-2*t-1",
+                  "expression_ast": [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "t^{2}-2\\cdot t-1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_d",
+                "label": "D",
+                "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+                "source_ref": "/root/goals/0/options/3",
+                "left": {
+                  "function_ref": "/root/goals/0/options/option_d/functions/left",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/3/functions/0/definition",
+                  "expression": "sqrt(x-1)*sqrt(x+1)",
+                  "expression_ast": [
+                    "*",
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "-",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\sqrt{x-1}\\cdot \\sqrt{x+1}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_d/functions/right",
+                  "function_name": "g",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/3/functions/1/definition",
+                  "expression": "sqrt((x+1)*(x-1))",
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "*",
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "-",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\sqrt{(x+1)\\cdot (x-1)}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "10861330e2cf",
+      "source_sha256": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "compare_functions",
+                "mode": "groups",
+                "select_relation": "equal",
+                "selection_mode": "unspecified",
+                "completeness": "complete",
+                "options": [
+                  {
+                    "label": "A",
+                    "left": {
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "*",
+                          [
+                            "neg",
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "*",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "*",
+                            [
+                              "neg",
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "B",
+                    "left": {
+                      "expression_ast": [
+                        "bound",
+                        "function_argument"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "/",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "C",
+                    "left": {
+                      "expression_ast": [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "D",
+                    "left": {
+                      "expression_ast": [
+                        "*",
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "-",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ],
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "*",
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "-",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "compare_functions",
+                "target": [
+                  "comparison_task",
+                  "/root/goals/0"
+                ],
+                "target_ref": "/root/goals/0",
+                "mode": "groups",
+                "select_relation": "equal",
+                "selection_mode": "unspecified",
+                "completeness": "complete",
+                "options": [
+                  {
+                    "option_id": "option_a",
+                    "label": "A",
+                    "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$",
+                    "source_ref": "/root/goals/0/options/0",
+                    "left": {
+                      "function_ref": "/root/goals/0/options/option_a/functions/left",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/0/functions/0/definition",
+                      "expression": "sqrt(-2*x^3)",
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "*",
+                          [
+                            "neg",
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\sqrt{(-2)\\cdot x^{3}}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_a/functions/right",
+                      "function_name": "g",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/0/functions/1/definition",
+                      "expression": "x*sqrt(-2*x)",
+                      "expression_ast": [
+                        "*",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "*",
+                            [
+                              "neg",
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "x\\cdot \\sqrt{(-2)\\cdot x}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_b",
+                    "label": "B",
+                    "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$",
+                    "source_ref": "/root/goals/0/options/1",
+                    "left": {
+                      "function_ref": "/root/goals/0/options/option_b/functions/left",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/1/functions/0/definition",
+                      "expression": "x",
+                      "expression_ast": [
+                        "bound",
+                        "function_argument"
+                      ],
+                      "expression_latex": "x",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_b/functions/right",
+                      "function_name": "g",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/1/functions/1/definition",
+                      "expression": "x^2/x",
+                      "expression_ast": [
+                        "/",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      "expression_latex": "\\frac{x^{2}}{x}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_c",
+                    "label": "C",
+                    "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$",
+                    "source_ref": "/root/goals/0/options/2",
+                    "left": {
+                      "function_ref": "/root/goals/0/options/option_c/functions/left",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/2/functions/0/definition",
+                      "expression": "x^2-2*x-1",
+                      "expression_ast": [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "x^{2}-2\\cdot x-1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_c/functions/right",
+                      "function_name": "g",
+                      "variable": "t",
+                      "source_ref": "/root/goals/0/options/2/functions/1/definition",
+                      "expression": "t^2-2*t-1",
+                      "expression_ast": [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "t^{2}-2\\cdot t-1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_d",
+                    "label": "D",
+                    "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+                    "source_ref": "/root/goals/0/options/3",
+                    "left": {
+                      "function_ref": "/root/goals/0/options/option_d/functions/left",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/3/functions/0/definition",
+                      "expression": "sqrt(x-1)*sqrt(x+1)",
+                      "expression_ast": [
+                        "*",
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "-",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ],
+                        [
+                          "call",
+                          "sqrt",
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\sqrt{x-1}\\cdot \\sqrt{x+1}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_d/functions/right",
+                      "function_name": "g",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/3/functions/1/definition",
+                      "expression": "sqrt((x+1)*(x-1))",
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "*",
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "-",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\sqrt{(x+1)\\cdot (x-1)}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "10861330e2cf",
+          "source_sha256": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d"
+        }
+      },
+      "revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "08535040523bc8b5513b495a00573ab101fb7f27d602374d439a9bc26c558590",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

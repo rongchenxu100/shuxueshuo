@@ -27,7 +27,7 @@ def validate_original_choice(choice, target):
         return
     if not isinstance(choice, dict) or choice.get("target_ref") != target:
         raise ValueError("handoff.invalid_original_choice")
-    if choice.get('selection_mode') in ('multiple', 'single'):
+    if choice.get('selection_mode') in ('multiple', 'single', 'unspecified'):
         _validate_comparison_choice(choice)
         return
     if choice.get("status") == "unavailable":
@@ -57,7 +57,7 @@ def _validate_comparison_choice(choice):
     expected = {'status', 'kind', 'selection_mode', 'target_ref', 'select_relation',
                 'options', 'correct_labels', 'option_verdicts'}
     if (set(choice) != expected or choice['status'] != 'matched'
-            or choice['kind'] != ('multiple_choice' if choice['selection_mode'] == 'multiple' else 'single_choice')
+            or choice['kind'] != ('single_choice' if choice['selection_mode'] == 'single' else 'multiple_choice')
             or choice['select_relation'] not in ('equal', 'different')):
         raise ValueError('handoff.invalid_original_choice')
     options, rows, correct = choice['options'], choice['option_verdicts'], choice['correct_labels']

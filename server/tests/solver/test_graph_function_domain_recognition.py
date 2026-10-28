@@ -111,9 +111,9 @@ def test_expression_latex_uses_precedence_not_universal_wrapping(expression, lat
 
 @pytest.mark.parametrize("expression", [
     "sqrt(m*x-1)/(x-2)",
-    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x^3)/(x-1)",
-    "1/(x*x-1)", "1/(sqrt(x)+1)", "(x^2-1)^0", "1/(x^2-1)",
-    "sqrt(x^3-1)", "sqrt(1/(x-1))",
+    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x^7)/(x-1)",
+    "1/(x*x-2)", "1/(sqrt(x)+1)", "(x^2-2)^0", "1/(x^7-1)",
+    "sqrt(x^3-2)", "sqrt(1/(x-1))",
     "sqrt(x^2+x-1)", "sqrt(x^2-2)", "1/sqrt(x^2+x-1)",
     "sqrt((x-1)^0+1)", "sqrt(((2^12)^12)^12)",
 ])
@@ -295,8 +295,8 @@ def test_zero_power_feature_and_knowledge_follow_original_syntax(expression, exp
     ("x^13", "domain.integer_exponent_limit"),
     ("(x^9)^8", "domain.nested_power_limit"),
     ("(sqrt(x-1))^0", "domain.fixed_affine_condition_required"),
-    ("(x^2-1)^0", "domain.fixed_affine_condition_required"),
-    ("abs(x^3)", "domain.fixed_affine_condition_required"),
+    ("(x^2-2)^0", "domain.fixed_affine_condition_required"),
+    ("abs(x^7)", "domain.fixed_affine_condition_required"),
 ])
 def test_power_limits_and_unsupported_reasons_remain_explicit(expression, reason):
     value = candidate(expression)

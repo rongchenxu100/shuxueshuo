@@ -91,6 +91,7 @@
               "enum": [
                 "single",
                 "multiple",
+                "unspecified",
                 "none"
               ]
             }
@@ -127,7 +128,8 @@
                   "selection_mode": {
                     "enum": [
                       "single",
-                      "multiple"
+                      "multiple",
+                      "unspecified"
                     ]
                   }
                 }
@@ -603,6 +605,7 @@
           "enum": [
             "single",
             "multiple",
+            "unspecified",
             "none"
           ]
         },
@@ -627,7 +630,7 @@
           "type": "string"
         },
         "structure_version": {
-          "const": "function-comparison-options/v1"
+          "const": "function-comparison-domain-first/v2"
         }
       },
       "additionalProperties": false,
@@ -721,6 +724,7 @@
             },
             "family": {
               "enum": [
+                "domain_only",
                 "polynomial",
                 "absolute_affine",
                 "absolute_quadratic",
@@ -805,7 +809,8 @@
               "selection_mode": {
                 "enum": [
                   "single",
-                  "multiple"
+                  "multiple",
+                  "unspecified"
                 ]
               }
             }

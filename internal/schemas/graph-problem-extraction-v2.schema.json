@@ -513,6 +513,7 @@
           "enum": [
             "single",
             "multiple",
+            "unspecified",
             "none"
           ]
         },
@@ -575,7 +576,8 @@
               "selection_mode": {
                 "enum": [
                   "single",
-                  "multiple"
+                  "multiple",
+                  "unspecified"
                 ]
               },
               "options": {

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "problemId": "quadratic-always-q01",
-  "bundleVersion": "aada522a90b640746a7a401a5a6515d292baf4939a7122bb4921b35a420dabeb",
-  "graphVersion": "8e831df6d39d27788028850b8371442b19967fd59db27bce76078a61ecfa8194",
+  "bundleVersion": "85d881596f3e053a5a62782cec212d818669d09f23c7d7af707d7ca1560a1880",
+  "graphVersion": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1",
   "problem": {
     "text": "若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。",
     "root": {
@@ -4035,11 +4035,12 @@
         "kind": "problem_type",
         "status": "planned",
         "label": "抽象函数的定义域问题",
-        "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
         "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
         "features": [
-          "未给出完整解析式，而是给出函数或某种复合形式的定义域。",
-          "目标是让交给函数的完整输入落在已知允许范围内；反推原函数定义域时必须有足够的输入覆盖条件。",
+          "未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域。",
+          "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。",
+          "目标是让交给 f 的完整输入落在其输入范围内；由复合式定义域反推输入范围时必须有足够的覆盖条件。",
           "目标表达式同时含分母、根式等结构时，还要保留各部分自身的合法条件。"
         ],
         "confuse": [
@@ -5744,6 +5745,6 @@
   "provenance": {
     "judgments": "authored",
     "queries": "computed",
-    "compilerVersion": "3ffaa37b67ba42fde45012675c2a3c836eaefc605e6e038b0ba69b6187802643"
+    "compilerVersion": "82081f0cf9f019f77882141d9f2665b1f2e03bc9f857e628dfdd0cb5a02cd2da"
   }
 }

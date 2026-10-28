@@ -1,0 +1,30 @@
+{
+  "contract": "failed-source-mode-recording/v1",
+  "source": "internal/senior-high/source-images/function-equality-domain-first/manifest.json",
+  "search_id": "60809cd078af",
+  "status": "workflow.oscillation",
+  "source_reviewed": false,
+  "elapsed_seconds": 73.952,
+  "semantic_calls": 4,
+  "network_attempts": 4,
+  "call_stages": [
+    "extract",
+    "review",
+    "repair",
+    "repair"
+  ],
+  "response_text_sha256": {
+    "01-extract": "e4fa71aad41479fb3ebf22d7fabbf322872ba70b5a5b1989bcc21d54dee22f4f",
+    "02-review": "a8ddbd496a5c1f622a235e4675300e83f2af80aa3399df73648c9a30a8033cc2",
+    "03-repair": "c3c7591c9926e6be32d22e22d50e24962ff9a988b09c93140a80dd1216eb9ca5",
+    "04-repair": "e4fa71aad41479fb3ebf22d7fabbf322872ba70b5a5b1989bcc21d54dee22f4f"
+  },
+  "files": {
+    "initial-candidate.json": "b4d46f54afb63770f395d5c80658eeaff3c6b564d8b504bbd05b1878e465223f",
+    "review.json": "e6038f4560866485660730719a3ef610f2be73116b54947b93184b7faa4a7695",
+    "partial-repair-candidate.json": "422cf00e7d41bb95579209576594914f8f008db7d8a1d25c51db722db93b1558",
+    "rollback-candidate.json": "b4d46f54afb63770f395d5c80658eeaff3c6b564d8b504bbd05b1878e465223f",
+    "question.png": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d"
+  },
+  "notes": "Actual failed browser run. Only image, candidate/review JSON parsed from exact provider text, and non-sensitive status/hash metadata retained. No provider/account/session/config records copied. This is not successful photo evidence."
+}

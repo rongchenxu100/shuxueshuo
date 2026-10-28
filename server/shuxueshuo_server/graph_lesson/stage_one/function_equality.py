@@ -7,7 +7,7 @@ from ...problem_understanding.notation_parser import NotationError
 from . import contracts
 from .function_domain import source_pointer
 
-VERSION = 'function-comparison-options/v1'
+VERSION = 'function-comparison-domain-first/v2'
 
 
 def describe_comparison_goal(report, scope, ancestors, goal_index):
@@ -29,6 +29,8 @@ def describe_comparison_goal(report, scope, ancestors, goal_index):
         return value
     for option in value['options']:
         for side in ('left', 'right'):
+            # M1 domain syntax is the admission boundary. Whether M8 can
+            # simplify the correspondence matters only after domains agree.
             inspected = structural_inspect(option[side])
             option[side].update(inspected)
             if not inspected['structure_supported']:

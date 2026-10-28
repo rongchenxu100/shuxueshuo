@@ -1,0 +1,126 @@
+{
+  "original_text": "2. 教材习题改编 下列各组函数表示同一个函数的是\nA. $f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$\nB. $f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$\nC. $f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$\nD. $f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+  "root": {
+    "label": "2",
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "compare_functions",
+        "mode": "groups",
+        "select_relation": "equal",
+        "selection_mode": "single",
+        "completeness": "complete",
+        "shared_functions": [],
+        "options": [
+          {
+            "id": "option_a",
+            "label": "A",
+            "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=sqrt(-2*x^3)"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=x*sqrt(-2*x)"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_b",
+            "label": "B",
+            "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=x"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=x^2/x"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_c",
+            "label": "C",
+            "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=x^2-2*x-1"
+              },
+              {
+                "id": "right",
+                "definition": "g(t)=t^2-2*t-1"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_d",
+            "label": "D",
+            "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=sqrt(x-1)*sqrt(x+1)"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=sqrt((x+1)*(x-1))"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          }
+        ]
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "下列各组函数表示同一个函数的是",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "single",
+            "options": [
+              {
+                "label": "A",
+                "text": "$f(x)=\\sqrt{-2x^3}$ 与 $g(x)=x\\sqrt{-2x}$"
+              },
+              {
+                "label": "B",
+                "text": "$f(x)=x$ 与 $g(x)=\\frac{x^2}{x}$"
+              },
+              {
+                "label": "C",
+                "text": "$f(x)=x^2-2x-1$ 与 $g(t)=t^2-2t-1$"
+              },
+              {
+                "label": "D",
+                "text": "$f(x)=\\sqrt{x-1}\\cdot\\sqrt{x+1}$ 与 $g(x)=\\sqrt{(x+1)(x-1)}$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

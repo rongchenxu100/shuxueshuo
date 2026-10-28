@@ -621,7 +621,7 @@ function carryHTML() {
   const record = records.at(-1), decision = record && anyDecision(record.decision);
   const current = bundle.stream ? currentDecision(bundle, state) : null, premises = mergePremisesHTML(current);
   const active = current || bundle.routes?.[state.run?.route]?.steps?.[state.run?.completed?.length || 0];
-  if (active?.interaction.type === 'original_choice_exact_set') return '';
+  if (active?.interaction.type === 'original_choice_exact_set' || active?.source === 'original_choice' && active.require_complete_options) return '';
   if (active?.option_context && decision?.option_context?.option_id !== active.option_context.option_id) return '';
   const transition = bundle.stream && caseCarryHTML(decision, current);
   if (transition || premises) return (transition || '') + premises;

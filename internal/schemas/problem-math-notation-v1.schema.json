@@ -516,9 +516,10 @@
           "enum": [
             "single",
             "multiple",
+            "unspecified",
             "none"
           ],
-          "description": "原题单选用single、多选用multiple；直接比较一对函数用none，不凭求解结论推测单选或多选。"
+          "description": "原题明确单选用single、明确多选或不定项选择用multiple；题面未明示选择模式用unspecified，系统默认按不定项选择处理：选出全部符合题意的项，项数不预设，精确集合评分。不能由选项数量或求解后正确项数量反推原题模式。直接比较一对函数用none。"
         },
         "completeness": {
           "enum": [
@@ -582,7 +583,8 @@
               "selection_mode": {
                 "enum": [
                   "single",
-                  "multiple"
+                  "multiple",
+                  "unspecified"
                 ]
               },
               "options": {

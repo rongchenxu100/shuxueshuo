@@ -125,7 +125,7 @@ def test_positive_power_has_no_new_guard_but_does_not_restore_undefined_base():
 
 
 @pytest.mark.parametrize("expression", [
-    "x^-1", "x^(1/2)", "x^m", "x^13", "(x^9)^8", "(x^2-1)^0", "1/(x^2-1)",
+    "x^-1", "x^(1/2)", "x^m", "x^13", "(x^9)^8", "(x^2-2)^0", "1/(x^2-2)",
 ])
 def test_forged_features_and_direct_method_cannot_bypass_power_admission(expression):
     original = candidate(expression)

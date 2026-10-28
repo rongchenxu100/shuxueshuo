@@ -80,10 +80,14 @@ def compare_function_pair(option, left_domain, right_domain):
              for side in ('left_rule', 'right_rule')}
     result['operations'].extend(sorted(rules & {
         'absolute_value_on_sign_cell', 'square_of_real_square_root', 'cancel_common_nonzero_factor',
+        'bounded_rational_normal_form', 'signed_square_on_sign_cell',
     }))
     if any(cell[side].get('from_square_root') for cell in comparison['proof'].get('cells', [])
            for side in ('left_rule', 'right_rule')):
         result['operations'].append('square_of_real_square_root')
+    if any(cell[side].get('from_absolute') for cell in comparison['proof'].get('cells', [])
+           for side in ('left_rule', 'right_rule')) and 'absolute_value_on_sign_cell' not in result['operations']:
+        result['operations'].append('absolute_value_on_sign_cell')
     return result
 
 
@@ -138,8 +142,15 @@ def answer_for(result):
 def original_choice(context, answer):
     goal = context["comparison_goal"]
     if goal["selection_mode"] == "none":
+        if goal["mode"] != "pair":
+            raise LocalCheckFailed("function_equality.invalid_selection_mode")
         return None
-    return {"status": "matched", "kind": "multiple_choice" if goal["selection_mode"] == "multiple" else "single_choice",
+    if goal["mode"] == "pair" or goal["selection_mode"] not in {"single", "multiple", "unspecified"}:
+        raise LocalCheckFailed("function_equality.invalid_selection_mode")
+    # An unmarked source keeps its mode. The set-valued control does not claim
+    # that the original exam explicitly said "multiple choice", and the number
+    # of correct options must never be used to infer the source mode.
+    return {"status": "matched", "kind": "single_choice" if goal["selection_mode"] == "single" else "multiple_choice",
             "selection_mode": goal["selection_mode"], "target_ref": goal["target_ref"],
             "select_relation": goal["select_relation"],
             "options": [{key: option[key] for key in ("option_id", "label", "text")} for option in goal["options"]],

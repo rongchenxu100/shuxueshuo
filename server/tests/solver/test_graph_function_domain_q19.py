@@ -96,11 +96,11 @@ def test_squared_radicand_zero_and_nonzero_constant_denominators(expression, exp
 
 
 @pytest.mark.parametrize('expression', [
-    'sqrt(x^4+2*x^2+1)', 'sqrt((x^3-1)^2)', 'sqrt((x^2-2)^2)',
-    'abs(x^2-2)', 'abs(x^3)', 'sqrt(((x-1)/(x-1))^2)',
+    'sqrt(x^7+1)', 'sqrt((x^4-1)^2)', 'sqrt((x^2-2)^2)',
+    'abs(x^2-2)', 'abs(x^7)', 'sqrt(((x-1)/(x-1))^2)',
     'sqrt(((x-1)^0)^2)', 'sqrt((sqrt(x))^2)', 'sqrt((a*x^2+1)^2)',
 ])
-def test_square_extension_does_not_admit_general_quartics_or_drop_internal_restrictions(expression):
+def test_square_extension_respects_degree_and_rational_root_limits_and_internal_restrictions(expression):
     original = candidate(expression)
     description = inspect_domain_target(original, TARGET)
     assert not description['structure_supported']

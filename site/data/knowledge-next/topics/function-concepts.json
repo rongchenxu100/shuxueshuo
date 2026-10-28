@@ -51,7 +51,7 @@
       "id": "abstract-domain",
       "label": "求抽象函数的定义域",
       "type": "type-abstract-function-domain",
-      "description": "区分自变量与函数的实际输入，转换已知的输入范围。",
+      "description": "区分「定义域（自变量的范围）」与「f 的输入范围」，用输入范围对应法求复合式的定义域。",
       "problems": []
     },
     {

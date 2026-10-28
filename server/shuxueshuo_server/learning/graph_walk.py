@@ -10,6 +10,29 @@ SCHEMA = 'graph-walk-practice/v1'
 EXACT_CHOICE = 'original_choice_exact_set'
 
 
+def _single_original(decision):
+    component = decision.get('interaction', {})
+    return (decision.get('source') == 'original_choice' and component.get('type') == 'choice'
+            and component.get('field') == 'original_choice')
+
+
+def _comparison_answer_contract(decision):
+    if not _single_original(decision):
+        return exact_choice_contract(decision)
+    expected = decision.get('expected_answer', {})
+    options = decision['interaction'].get('options', [])
+    if (not isinstance(expected, dict) or set(expected) != {'one_of'}
+            or not isinstance(expected['one_of'], list) or len(expected['one_of']) != 1
+            or not isinstance(expected['one_of'][0], str) or not isinstance(options, list)):
+        raise ValueError('invalid original single-choice contract')
+    labels = [option.get('value') for option in options if isinstance(option, dict)]
+    if (len(labels) != len(options) or not labels
+            or any(not isinstance(label, str) or not label for label in labels)
+            or len(set(labels)) != len(labels) or expected['one_of'][0] not in labels):
+        raise ValueError('invalid original single-choice labels')
+    return {'correct_labels': expected['one_of'], 'option_labels': labels}
+
+
 def exact_choice_contract(decision):
     """Original exam answers never inherit step-multi's optional choices."""
     expected = decision.get('expected_answer')
@@ -77,14 +100,14 @@ def option_requirements(contract, route, decision):
         labels.append(label)
         if final['expected_answer']['one_of'][0] == decision['select_relation']:
             correct.append(label)
-    expected = exact_choice_contract(decision)
+    expected = _comparison_answer_contract(decision)
     if labels != expected['option_labels'] or set(correct) != set(expected['correct_labels']):
         raise ValueError('comparison verdicts disagree with original-choice polarity')
     return prerequisites
 
 
 def ensure_option_prerequisites(contract, route, decision, passed_ids):
-    if decision.get('interaction', {}).get('type') != EXACT_CHOICE:
+    if decision.get('interaction', {}).get('type') != EXACT_CHOICE and not decision.get('require_complete_options'):
         return
     try:
         required = option_requirements(contract, route, decision)
@@ -112,13 +135,14 @@ def validate_contract(contract, problem_id):
             raise ValueError('invalid graph-walk practice steps')
         for step in steps:
             if ((step.get('require_complete_options') or step.get('source') == 'original_choice'
-                 and step['interaction']['type'] == 'multi') and step['interaction']['type'] != EXACT_CHOICE):
+                 and step['interaction']['type'] == 'multi') and step['interaction']['type'] != EXACT_CHOICE
+                    and not _single_original(step)):
                 raise ValueError('original multiple choice requires its independent grader')
             if step['interaction']['type'] not in {'read', 'choice', 'multi', 'checklist', 'fill', 'plane', 'grid', EXACT_CHOICE}:
                 raise ValueError('unsupported graph-walk interaction')
             if 'expected_answer' not in step:
                 raise ValueError('graph-walk step has no grading contract')
-            if step['interaction']['type'] == EXACT_CHOICE:
+            if step['interaction']['type'] == EXACT_CHOICE or step.get('require_complete_options'):
                 if step is not steps[-1]:
                     raise ValueError('original-choice exact answer must finish the route')
                 option_requirements(contract, route, step)
@@ -132,8 +156,13 @@ def grade(decision, answer, route):
     component, expected = decision['interaction'], decision['expected_answer']
     kind = component['type']
     if ((decision.get('require_complete_options') or decision.get('source') == 'original_choice' and kind == 'multi')
-            and kind != EXACT_CHOICE):
+            and kind != EXACT_CHOICE and not _single_original(decision)):
         raise HTTPException(422, '原题多选必须使用独立的精确评分。')
+    if _single_original(decision) and decision.get('require_complete_options'):
+        try:
+            _comparison_answer_contract(decision)
+        except ValueError as error:
+            raise HTTPException(422, '原题单选评分契约无效。') from error
     if kind == 'read':
         passed = value == 'read'
         if decision.get('route_by_answer'):

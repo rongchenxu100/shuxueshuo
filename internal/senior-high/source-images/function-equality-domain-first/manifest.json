@@ -1,0 +1,173 @@
+{
+  "problem_id": "function-equality-domain-first",
+  "source": "本轮用户通过拍题学正常上传并裁题的真实教材题图；原题第2题，教材习题改编。",
+  "source_kind": "normal_photo_search_upload",
+  "search_id": "8f8b3caf3eb5",
+  "page_id": "4dff374a5f9d",
+  "files": {
+    "source-upload.png": {
+      "sha256": "ee469a98db3fe781eb503b03afa2d183dde97570d2febb47c968cad833e9834a"
+    },
+    "source-page.png": {
+      "sha256": "9e17b5d43f6ed3db5ec79baa95690496d03d9cda779350b7d619f7d8a8a201cb"
+    },
+    "source-crop.png": {
+      "sha256": "431242e8703450b2dd9744db798aeff7ae48391c03a28a309d000d10ffb234a9"
+    },
+    "question.png": {
+      "sha256": "85b96a0bfbf0e4acfa72d0306c505d0e1ec0e94a0ad2b250de9851c711709878"
+    },
+    "crop.json": {
+      "sha256": "0a599f7ce4f8d5d7ff6f14c31d8b611be73bdeaa2a63d250095559cee37e1d2b"
+    }
+  },
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "rotation_counterclockwise_degrees_from_upload": [
+      270
+    ]
+  },
+  "crop": {
+    "file": "source-crop.png",
+    "xyxy": [
+      147,
+      526,
+      981,
+      1031
+    ],
+    "normalized_box": [
+      0.115,
+      0.30844,
+      0.76667,
+      0.60437
+    ],
+    "size": [
+      834,
+      505
+    ]
+  },
+  "model_image": {
+    "file": "question.png",
+    "pipeline": "search.question_image.question_png(original rectangle crop)"
+  },
+  "candidate_fixture": "server/tests/solver/fixtures/function-equality/domain-first-photo-public-candidate.json",
+  "candidate_sha256": "51ad75252abdbd346d7ccd000c9916768023ac933c47ec606827806b85e9b183",
+  "historical_result": {
+    "recognition_status": "reviewed_candidate",
+    "source_reviewed": true,
+    "features_ok": true,
+    "target_status": "unsupported",
+    "primary": null,
+    "elapsed_seconds": 47.62,
+    "semantic_calls": 2,
+    "network_attempts": 2
+  },
+  "processing": "上述PNG均从实际上传/裁题记录逐字节复制。source-upload.png是实际原始上传图，source-page.png是产品旋正后页图，source-crop.png是服务端保存的原色矩形裁片（记录原名original.png），question.png是实际送模预处理图。未重绘、遮罩、改字、拼接或替换为浏览器截图。原图带有手写批注，金标由逐项数学证明得到，不读取手写选项作答案。此次历史记录原图复核已通过，但旧题型准入为unsupported；不把它记为真实成功求解。",
+  "mathematical_gold": {
+    "selection_mode": "unspecified",
+    "correct_labels": [
+      "C"
+    ],
+    "option_verdicts": {
+      "A": {
+        "relation": "different",
+        "reason": "两域都是x≤0；x=-1时两值分别√2和-√2。"
+      },
+      "B": {
+        "relation": "different",
+        "reason": "左域ℝ，右域ℝ∖{0}，约分不恢复x=0。"
+      },
+      "C": {
+        "relation": "equal",
+        "reason": "两域都是ℝ；绑定自变量改名后均为u²-2u-1。"
+      },
+      "D": {
+        "relation": "different",
+        "reason": "左域[1,+∞)，右域(-∞,-1]∪[1,+∞)，x=-1仅右式有意义。"
+      }
+    },
+    "selection_mode_basis": "原题没有明示单选或多选；正确标签数量不能决定题面模式。历史候选single原样保留，未改写历史录制。"
+  },
+  "acceptance_status": "passed_live_recognition_solving_student_refresh_ai_readonly_and_recorded_api_replay; historical_failures_retained",
+  "new_photo_attempts": [
+    {
+      "search_id": "60809cd078af",
+      "status": "workflow.oscillation",
+      "source_reviewed": false,
+      "elapsed_seconds": 73.952,
+      "semantic_calls": 4,
+      "network_attempts": 4,
+      "call_stages": [
+        "extract",
+        "review",
+        "repair",
+        "repair"
+      ],
+      "fixture": "server/tests/search/fixtures/function-equality/domain-first-mode-oscillation-20261028/recording.json",
+      "reason": "题面未明示选择模式，review要求unspecified；旧goal schema不支持，repair在两侧模式间回滚。"
+    },
+    {
+      "search_id": "10861330e2cf",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "features_ok": true,
+      "elapsed_seconds": 29.199,
+      "semantic_calls": 2,
+      "network_attempts": 2,
+      "call_stages": [
+        "extract",
+        "review"
+      ],
+      "fixture": "server/tests/search/fixtures/function-equality/domain-first-browser-recorded-20261028/recording.json",
+      "model_image_sha256": "aa81810476271e74fd8b1f86837c0e7131767c8c0af2adf859a58866018fff9d",
+      "selection_mode": "unspecified",
+      "stage_three_run_id": "0d973bf242f549449c8c48178e14b693",
+      "stage_three_status": "completed",
+      "goal_status": "solved",
+      "lesson_version": "b0fd56f7f08847f41d9178b41af867b80722e91ac89c9a296c276a7afff1380f",
+      "correct_labels": [
+        "C"
+      ]
+    }
+  ],
+  "new_photo_processing": "新上传以source-crop.png为真实相册源，使用整张图（834×505）。浏览器相册画布JPEG编码后，服务端正常RGB转换/PNG预处理产生新送模图aa818…；该字节不同于历史灰度图85b96…，具体各角色哈希保留在新recording.json。未将浏览器截图作为题图。",
+  "browser_evidence": {
+    "acceptance-first-failure.png": {
+      "sha256": "21d8b4a0b4fdcc7ba3733fff3360cbd88c191d29ae8c3645d61972eff7f59c94",
+      "purpose": "browser_acceptance_screenshot_not_problem_source"
+    },
+    "acceptance-student-completed.png": {
+      "sha256": "b2583334521df123fbab8194b6a26d1212cb932f21d8ce6de244623a81547454",
+      "purpose": "browser_acceptance_screenshot_not_problem_source"
+    },
+    "acceptance-ai-completed.png": {
+      "sha256": "44488baf37933fa00ebc1b5f730bba71275137688b9f127a78dc62eb139ee109",
+      "purpose": "browser_acceptance_screenshot_not_problem_source"
+    },
+    "acceptance-readonly-a.png": {
+      "sha256": "82bc58f717dcad7f1e747fac4e17129f463782ef47b75136d8c2d32330667b57",
+      "purpose": "browser_acceptance_screenshot_not_problem_source"
+    }
+  },
+  "browser_acceptance": {
+    "search_id": "10861330e2cf",
+    "student_scored_decisions": 14,
+    "student_display_cards": 12,
+    "student_complete": true,
+    "wrong_option_verdict_blocked": true,
+    "original_empty_and_wrong_label_blocked": true,
+    "correct_labels": [
+      "C"
+    ],
+    "refresh_restores_completion": true,
+    "ai_separate_initial_progress": true,
+    "ai_replay_completed_decisions": 14,
+    "ai_replay_total_decisions": 14,
+    "student_completion_unchanged_after_ai": true,
+    "option_a_readonly_review_counterexample_preserved": true
+  }
+}

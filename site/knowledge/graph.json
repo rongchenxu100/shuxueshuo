@@ -1466,7 +1466,7 @@
       "id": "type-abstract-function-domain",
       "kind": "problem_type",
       "label": "抽象函数的定义域问题",
-      "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+      "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
       "aliases": [],
       "status": "planned",
       "home": "compulsory-1-ch3"

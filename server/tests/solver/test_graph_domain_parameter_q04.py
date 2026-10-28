@@ -66,8 +66,13 @@ def test_q04_keeps_constant_zero_case_and_intersects_nondegenerate_range(q04):
     parts = [part for chunk, _ in chunks for part in chunk["parts"]]
     degenerate = next(part for part in parts if part["interaction"]["type"] == "checklist")
     assert "$3 \\geq 0$" in degenerate["question"]
-    assert grade(degenerate, {"value": ["s1o1"]}, "domain-parameter") == "passed"
-    assert grade(degenerate, {"value": ["s1o2"]}, "domain-parameter") == "wrong"
+    slot, = degenerate["interaction"]["slots"]
+    options = {option["label"]: option["value"] for option in slot["options"]}
+    assert set(options) == {"对所有实数成立，保留本情况", "不能对所有实数成立，排除本情况"}
+    # Option IDs are assigned after shuffling; 3 >= 0 determines the student's
+    # choice independently of both that order and the generated answer key.
+    assert grade(degenerate, {"value": [options["对所有实数成立，保留本情况"]]}, "domain-parameter") == "passed"
+    assert grade(degenerate, {"value": [options["不能对所有实数成立，排除本情况"]]}, "domain-parameter") == "wrong"
     assert len(parts) == 11
     for part in parts:
         expected = part["expected_answer"]

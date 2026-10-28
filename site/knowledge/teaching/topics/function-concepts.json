@@ -30,7 +30,7 @@
       "id": "abstract-domain",
       "label": "求抽象函数的定义域",
       "type": "type-abstract-function-domain",
-      "description": "区分自变量与函数的实际输入，转换已知的输入范围。",
+      "description": "区分「定义域（自变量的范围）」与「f 的输入范围」，用输入范围对应法求复合式的定义域。",
       "problems": []
     },
     {
@@ -876,7 +876,7 @@
       "types": [
         "type-function-equality"
       ],
-      "statement": "（多选）与函数 $y=2x^2+1$ 相同的函数是（ ）\nA. $y=x^2+|x^2+1|$\nB. $y=\\sqrt{(2x^2+1)^2}$\nC. $y=|2x^2+1|$\nD. $y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+      "statement": "（多选）与函数 $y=2x^2+1$ 相同的函数是\nA. $y=x^2+\\lvert x^2+1\\rvert$\nB. $y=\\sqrt{(2x^2+1)^2}$\nC. $y=\\lvert2x^2+1\\rvert$\nD. $y=\\dfrac{(2x^2+1)(x+1)}{x+1}$",
       "routes": {
         "function-equality": {
           "label": "同一函数判定法",
@@ -904,7 +904,7 @@
                 "method-function-equality"
               ]
             },
-            "9806b450521f0e590da811b1#1": {
+            "87a0af3d567a58487690f37c#1": {
               "title": "① 两边的定义域",
               "position": 4,
               "refs": [
@@ -914,7 +914,7 @@
                 "function-concept#identity"
               ]
             },
-            "9806b450521f0e590da811b1#2": {
+            "87a0af3d567a58487690f37c#2": {
               "title": "② 对应关系",
               "position": 5,
               "refs": [
@@ -924,7 +924,7 @@
                 "function-concept#identity"
               ]
             },
-            "f0ee876cbf7d4c2c9973a02b#1": {
+            "b5198d4d944cd3e71afffc4e#1": {
               "title": "选项 A",
               "position": 6,
               "refs": [
@@ -934,7 +934,7 @@
                 "function-concept#identity"
               ]
             },
-            "e34e239d32918850889877ab#1": {
+            "6aa1a23067e6f26cd4771e84#1": {
               "title": "① 两边的定义域",
               "position": 7,
               "refs": [
@@ -945,7 +945,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "e34e239d32918850889877ab#2": {
+            "6aa1a23067e6f26cd4771e84#2": {
               "title": "② 对应关系",
               "position": 8,
               "refs": [
@@ -956,7 +956,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "82bdf77eada8669e7bfa4207#1": {
+            "ccb0a80c6e7dd331b9f3c8b6#1": {
               "title": "选项 B",
               "position": 9,
               "refs": [
@@ -967,7 +967,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "87cf644da114d93a7c4bc085#1": {
+            "9b9f94704053de7c83416f0b#1": {
               "title": "① 两边的定义域",
               "position": 10,
               "refs": [
@@ -977,7 +977,7 @@
                 "function-concept#identity"
               ]
             },
-            "87cf644da114d93a7c4bc085#2": {
+            "9b9f94704053de7c83416f0b#2": {
               "title": "② 对应关系",
               "position": 11,
               "refs": [
@@ -987,7 +987,7 @@
                 "function-concept#identity"
               ]
             },
-            "957c971c7d6d4190a6da51b5#1": {
+            "e70aa545d19796a7a469eeec#1": {
               "title": "选项 C",
               "position": 12,
               "refs": [
@@ -997,7 +997,7 @@
                 "function-concept#identity"
               ]
             },
-            "0e0eae4d41433c8601929297#1": {
+            "587b99fbb50338de053ae1cb#1": {
               "title": "① 两边的定义域",
               "position": 13,
               "refs": [
@@ -1006,7 +1006,7 @@
                 "function-concept#identity"
               ]
             },
-            "96e10fc75f581c11a640a158#1": {
+            "8a9cb2d98413424c7ec27f4c#1": {
               "title": "选项 D",
               "position": 14,
               "refs": [
@@ -1015,7 +1015,7 @@
                 "function-concept#identity"
               ]
             },
-            "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"0ea18d60cd557fd2aa8c7f73f300c442480243c11f1aebcc91b7fcdd51d14f4b\"]": {
+            "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"1e39d761a0bc9ab596452cb3d94e5f66d493324035e830818593e7fdbdc0aeac\"]": {
               "title": "选择原题答案",
               "position": 15,
               "refs": [],
@@ -1033,7 +1033,7 @@
       "types": [
         "type-function-equality"
       ],
-      "statement": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+      "statement": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
       "routes": {
         "function-equality": {
           "label": "同一函数判定法",
@@ -1061,7 +1061,7 @@
                 "method-function-equality"
               ]
             },
-            "8f409a973b6373cc98be6a98#1": {
+            "a349409e1e77b01556be715d#1": {
               "title": "① 两边的定义域",
               "position": 4,
               "refs": [
@@ -1070,7 +1070,7 @@
                 "function-concept#identity"
               ]
             },
-            "946ecc02e50f253a9b8cbf5d#1": {
+            "d13389cd104649ad7eb2ee60#1": {
               "title": "选项 A",
               "position": 5,
               "refs": [
@@ -1079,7 +1079,7 @@
                 "function-concept#identity"
               ]
             },
-            "fa5baf3fa85381d90e8c5e31#1": {
+            "a22a6dd1d203a9bcac977f36#1": {
               "title": "① 两边的定义域",
               "position": 6,
               "refs": [
@@ -1088,7 +1088,7 @@
                 "function-concept#identity"
               ]
             },
-            "fa5baf3fa85381d90e8c5e31#2": {
+            "a22a6dd1d203a9bcac977f36#2": {
               "title": "② 对应关系",
               "position": 7,
               "refs": [
@@ -1097,7 +1097,7 @@
                 "function-concept#identity"
               ]
             },
-            "43fdf67a2b46e2bf8b21179b#1": {
+            "f333b669480671a8435c17b4#1": {
               "title": "选项 B",
               "position": 8,
               "refs": [
@@ -1106,37 +1106,40 @@
                 "function-concept#identity"
               ]
             },
-            "d438115dc5c006523efa066c#1": {
+            "f37848bc89fb0593bbe7a291#1": {
               "title": "① 两边的定义域",
               "position": 9,
               "refs": [
                 "method-function-equality#compare",
                 "skill-simplify",
                 "absolute-value-concept#rules",
-                "function-concept#identity"
+                "function-concept#identity",
+                "square-root-expression#meaning"
               ]
             },
-            "d438115dc5c006523efa066c#2": {
+            "f37848bc89fb0593bbe7a291#2": {
               "title": "② 对应关系",
               "position": 10,
               "refs": [
                 "method-function-equality#compare",
                 "skill-simplify",
                 "absolute-value-concept#rules",
-                "function-concept#identity"
+                "function-concept#identity",
+                "square-root-expression#meaning"
               ]
             },
-            "8ef7303de68dd8d65991d1ab#1": {
+            "e0898bad6b8b2daa807fba29#1": {
               "title": "选项 C",
               "position": 11,
               "refs": [
                 "method-function-equality#compare",
                 "skill-simplify",
                 "absolute-value-concept#rules",
-                "function-concept#identity"
+                "function-concept#identity",
+                "square-root-expression#meaning"
               ]
             },
-            "0437b48d9c2216cbebb90e99#1": {
+            "38d7b035bb9c2579d7aa8cc7#1": {
               "title": "① 两边的定义域",
               "position": 12,
               "refs": [
@@ -1145,7 +1148,7 @@
                 "function-concept#identity"
               ]
             },
-            "0437b48d9c2216cbebb90e99#2": {
+            "38d7b035bb9c2579d7aa8cc7#2": {
               "title": "② 对应关系",
               "position": 13,
               "refs": [
@@ -1154,7 +1157,7 @@
                 "function-concept#identity"
               ]
             },
-            "808b8f4ec1f0201a767b600e#1": {
+            "80ebc309fe59bfa9d316285c#1": {
               "title": "选项 D",
               "position": 14,
               "refs": [
@@ -1163,7 +1166,7 @@
                 "function-concept#identity"
               ]
             },
-            "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"637a02419746ce650a062116ae85425fb463197c58f29c1edf3304ab4a04fa13\"]": {
+            "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"08bb1ea81e8ae7f29e290ac176c7aaf6263e25c55244ae9d00e733377f78d911\"]": {
               "title": "选择原题答案",
               "position": 15,
               "refs": [],
@@ -1176,5 +1179,5 @@
   },
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "content_version": "8e831df6d39d27788028850b8371442b19967fd59db27bce76078a61ecfa8194"
+  "content_version": "50367c3e6eb4e1e823697a3b9a5c52ce3094feb678dc8913ea4658accc38fbc1"
 }

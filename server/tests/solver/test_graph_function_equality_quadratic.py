@@ -138,19 +138,42 @@ def test_equality_honors_the_shared_removed_points_and_coefficient_budget():
 
 @pytest.mark.parametrize("expression", [
     "abs(x^2-2)", "sqrt((x^2-2)^2)", "x+abs(x^2-2)",  # irrational sign cuts
-    "sqrt(x^4+1)", "sqrt(x^4+2*x^2+1)",               # no original square structure
-    "abs(x^3)", "sqrt((x^3)^2)", "x^3+abs(x)",
     "abs(abs(x))", "sqrt((abs(x))^2)", "abs(sqrt(x))",
-    "abs(x)+abs(x-1)", "x*abs(x)",
-    "(x^2-1)/(x-1)", "((x^2+1)*(x+1))/(x-1)",
-    "((x^3+1)*(x-1))/(x-1)", "((x^2+1)*(x^2-1))/(x^2-1)",
-    "((x^2+1)*0)/0", "((x^2+1)*(x-x))/(x-x)",
     "a*x+abs(x)", "abs(a*x^2+1)",
 ])
 def test_outside_declared_families_is_unresolved_never_unequal(expression):
     value = descriptor(expression)
     assert equality.structural_inspect(value)["structure_supported"] is False
     assert equality.compare_pair(value, descriptor("x"))["relation"] == "unresolved"
+
+
+@pytest.mark.parametrize("expression,reason", [
+    ("sqrt(x^4+1)", "outputs_differ"), ("sqrt(x^4+2*x^2+1)", "outputs_differ"),
+    ("abs(x^3)", "outputs_differ"), ("sqrt((x^3)^2)", "outputs_differ"),
+    ("x*abs(x)", "outputs_differ"),
+    ("(x^2-1)/(x-1)", "domains_differ"), ("((x^2+1)*(x+1))/(x-1)", "domains_differ"),
+    ("((x^3+1)*(x-1))/(x-1)", "domains_differ"),
+    ("((x^2+1)*(x^2-1))/(x^2-1)", "domains_differ"),
+])
+def test_new_domain_first_boundary_extends_previous_rejections(expression, reason):
+    value, other = descriptor(expression), descriptor("x")
+    assert equality.structural_inspect(value)["structure_supported"] is True
+    result = equality.compare_pair(value, other)
+    assert (result["relation"], result["reason"]) == ("different", reason)
+    assert equality.verify_pair(value, other, result)["status"] == "verified"
+
+
+@pytest.mark.parametrize("expression,reason", [
+    ("x^3+abs(x)", "function_equality.radical_sum_unsupported"),
+    ("abs(x)+abs(x-1)", "function_equality.radical_sum_unsupported"),
+    ("((x^2+1)*0)/0", "function_equality.empty_function_domain"),
+    ("((x^2+1)*(x-x))/(x-x)", "function_equality.empty_function_domain"),
+])
+def test_domain_admission_does_not_turn_incomplete_correspondence_into_false(expression, reason):
+    value = descriptor(expression)
+    assert equality.structural_inspect(value)["structure_supported"] is True
+    result = equality.compare_pair(value, descriptor("x"))
+    assert (result["relation"], result["reason"]) == ("unresolved", reason)
 
 
 def test_sign_partition_is_complete_and_uses_every_quadratic_root():

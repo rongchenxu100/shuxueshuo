@@ -30,7 +30,7 @@ def test_native_position_selection_requires_both_sources_and_rejects_duplicates(
     assert graph_walk.grade(decision, {'value': ['root', 'root', 'denominator']}, 'direct') == 'wrong'
 
 
-def equality_contract(relation='equal', truths=('different', 'different', 'equal', 'equal')):
+def equality_contract(relation='equal', truths=('different', 'different', 'equal', 'equal'), mode='multiple'):
     steps = []
     for index, verdict in enumerate(truths):
         label = 'ABCD'[index]
@@ -49,6 +49,9 @@ def equality_contract(relation='equal', truths=('different', 'different', 'equal
                   'interaction': {'type': graph_walk.EXACT_CHOICE, 'options': [{'value': label} for label in labels]},
                   'expected_answer': {'option_labels': labels,
                                       'correct_labels': [label for label, verdict in zip(labels, truths) if verdict == relation]}})
+    if mode == 'single':
+        steps[-1]['interaction'].update(type='choice', field='original_choice')
+        steps[-1]['expected_answer'] = {'one_of': steps[-1]['expected_answer']['correct_labels']}
     return {'schema': graph_walk.SCHEMA, 'problemId': 'q20', 'bundleVersion': 'v1',
             'intro': [], 'routes': {'equality': {'steps': steps}}}
 
@@ -86,6 +89,42 @@ def test_original_multiple_polarity_empty_set_and_all_prerequisite_evidence():
                 graph_walk.ensure_option_prerequisites(contract, 'equality', steps[-1], passed)
             assert error.value.status_code == 409
         graph_walk.ensure_option_prerequisites(contract, 'equality', steps[-1], [row['id'] for row in steps[:-1]])
+
+
+def test_original_single_comparison_checks_polarity_all_evidence_and_scalar_answer():
+    contract = equality_contract(truths=('different', 'different', 'equal', 'different'), mode='single')
+    graph_walk.validate_contract(contract, 'q20')
+    steps = contract['routes']['equality']['steps']
+    decision = steps[-1]
+    assert graph_walk.grade(decision, {'value': 'C'}, 'equality') == 'passed'
+    assert graph_walk.grade(decision, {'value': 'D'}, 'equality') == 'wrong'
+    for value in (['C'], ['C', 'D'], '', None, 'Z'):
+        with pytest.raises(HTTPException):
+            graph_walk.grade(decision, {'value': value}, 'equality')
+    for passed in ([], [step['id'] for step in steps[:-2]],
+                   [step['id'] for step in steps if step['id'].endswith('verdict')]):
+        with pytest.raises(HTTPException) as error:
+            graph_walk.ensure_option_prerequisites(contract, 'equality', decision, passed)
+        assert error.value.status_code == 409
+    graph_walk.ensure_option_prerequisites(contract, 'equality', decision, [step['id'] for step in steps[:-1]])
+    for mutation in ('wrong-label', 'extra-correct', 'scalar-one-of', 'loose-multi', 'early-final'):
+        bad = deepcopy(contract)
+        bad_steps = bad['routes']['equality']['steps']
+        if mutation == 'wrong-label':
+            bad_steps[-1]['expected_answer'] = {'one_of': ['A']}
+        elif mutation == 'extra-correct':
+            bad_steps[-1]['expected_answer'] = {'one_of': ['C', 'D']}
+        elif mutation == 'scalar-one-of':
+            bad_steps[-1]['expected_answer'] = {'one_of': 'C'}
+            with pytest.raises(HTTPException) as error:
+                graph_walk.grade(bad_steps[-1], {'value': 'C'}, 'equality')
+            assert error.value.status_code == 422
+        elif mutation == 'loose-multi':
+            bad_steps[-1]['interaction']['type'] = 'multi'
+        else:
+            bad_steps.insert(0, bad_steps.pop())
+        with pytest.raises(ValueError):
+            graph_walk.validate_contract(bad, 'q20')
 
 
 @pytest.mark.parametrize('mutation', ['missing-evidence', 'wrong-scope', 'duplicate-option', 'wrong-polarity'])
@@ -220,7 +259,8 @@ def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
         db.dispose()
 
 
-def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final():
+@pytest.mark.parametrize('mode', ['multiple', 'single'])
+def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final(mode, monkeypatch):
     from sqlalchemy import text
 
     from shuxueshuo_server.learning.content import load_content, publish
@@ -232,10 +272,20 @@ def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final():
         pytest.skip('Requires independent PostgreSQL')
     db = engine(Settings.load('local', root, os.environ['PRODUCT_TEST_INSTANCE']).url('migration'))
     pid, uid, aid = f'equality-contract-probe-{uuid4()}', uuid4(), uuid4()
-    contract = equality_contract()
+    truths = ('different', 'different', 'equal', 'different' if mode == 'single' else 'equal')
+    contract = equality_contract(truths=truths, mode=mode)
+    final_answer = 'C' if mode == 'single' else ['D', 'C']
     contract['problemId'] = pid
     steps = contract['routes']['equality']['steps']
     graph_walk.validate_contract(contract, pid)
+    checked_prerequisites = []
+    ensure_prerequisites = graph_walk.ensure_option_prerequisites
+
+    def check_prerequisites(contract, route, decision, passed_ids):
+        checked_prerequisites.append(set(passed_ids))
+        return ensure_prerequisites(contract, route, decision, passed_ids)
+
+    monkeypatch.setattr(graph_walk, 'ensure_option_prerequisites', check_prerequisites)
 
     class RollbackProbe(Exception):
         pass
@@ -257,7 +307,7 @@ def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final():
             started = practice.start(db, uid, pid, 'equality', aid)
             assert started['active_step'] == 'A-evidence'
             with pytest.raises(HTTPException) as premature:
-                practice.submit(db, uid, aid, uuid4(), 'final', {'value': ['C', 'D']})
+                practice.submit(db, uid, aid, uuid4(), 'final', {'value': final_answer})
             assert premature.value.status_code == 409
             for step in steps[:-1]:
                 answer = 'read' if step['interaction']['type'] == 'read' else step['expected_answer']['one_of'][0]
@@ -272,14 +322,23 @@ def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final():
                 with pytest.raises(HTTPException) as locked:
                     practice.submit(db, uid, aid, uuid4(), step['id'], {'value': answer})
                 assert locked.value.status_code == 409
-            for answer in [[], ['C'], ['A', 'C', 'D'], ['C', 'C', 'D'], ['C', 'D', 'Z']]:
+            wrong_answers = ['A', 'B', 'D'] if mode == 'single' else [[], ['C'], ['A', 'C', 'D'], ['C', 'C', 'D'], ['C', 'D', 'Z']]
+            for answer in wrong_answers:
                 wrong = practice.submit(db, uid, aid, uuid4(), 'final', {'value': answer})
                 assert wrong['active_step'] == 'final' and wrong['status'] == 'in_progress'
             identity = uuid4()
-            completed = practice.submit(db, uid, aid, identity, 'final', {'value': ['D', 'C']})
+            completed = practice.submit(db, uid, aid, identity, 'final', {'value': final_answer})
             assert completed['status'] == 'completed'
-            assert completed['steps'][-1]['answer'] == {'value': ['D', 'C']}
-            assert practice.submit(db, uid, aid, identity, 'final', {'value': ['D', 'C']})['status'] == 'completed'
+            assert completed['steps'][-1]['answer'] == {'value': final_answer}
+            assert practice.submit(db, uid, aid, identity, 'final', {'value': final_answer})['status'] == 'completed'
+            assert checked_prerequisites
+            assert all({step['id'] for step in steps[:-1]} <= checked for checked in checked_prerequisites)
+            event_count = c.scalar(text('SELECT count(*) FROM student_practice_events WHERE attempt_id=:a'), {'a': aid})
+            for repeated_answer in (final_answer, wrong_answers[0]):
+                with pytest.raises(HTTPException) as locked:
+                    practice.submit(db, uid, aid, uuid4(), 'final', {'value': repeated_answer})
+                assert locked.value.status_code == 409
+            assert c.scalar(text('SELECT count(*) FROM student_practice_events WHERE attempt_id=:a'), {'a': aid}) == event_count
             raise RollbackProbe()
     finally:
         db.dispose()

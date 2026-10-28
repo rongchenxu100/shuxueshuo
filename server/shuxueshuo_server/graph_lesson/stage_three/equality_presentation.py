@@ -90,8 +90,19 @@ def _correspondence_stem(option, comparison):
                            f"所以 ${chain}$")
             if explanation not in rules:
                 rules.append(explanation)
-    parts = [f"当 $u\\in {_domain_latex(cell['domain'])}$ 时，两式都等于 ${latex(cell['left_polynomial'])}$"
-             for cell in cells]
+    parts = []
+    for cell in cells:
+        left_rule, right_rule = cell['left_rule'], cell['right_rule']
+        if left_rule['rule'] == right_rule['rule'] == 'signed_square_on_sign_cell':
+            sign_text = {1: '正数', -1: '负数', 0: '零'}[left_rule['sign']]
+            parts.append(
+                f"在 $u\\in {_domain_latex(cell['domain'])}$ 上，两式均为{sign_text}，"
+                f"且平方都为 ${latex(left_rule['square'])}$，因此两式相等")
+        else:
+            parts.append(f"当 $u\\in {_domain_latex(cell['domain'])}$ 时，两式都等于 ${latex(cell['left_polynomial'])}$")
+    if any(cell[side]['rule'] == 'bounded_rational_normal_form'
+           for cell in cells for side in ('left_rule', 'right_rule')):
+        introduction += '只在已确定的共同定义域内化简，保留原式中分母不为零等限制。'
     return introduction + ('；'.join(rules) + '。' if rules else '') + '；'.join(parts) + '。这些范围覆盖整个共同定义域。'
 
 
