@@ -47,8 +47,8 @@ def _visible_sources(candidate):
             target = f"{path}/goals/{index}"
             visible[target] = own[path] | inherited | {target}
             goal = scope['goals'][index]
-            if goal['kind'] == 'find_abstract_domain':
-                for field in ('known_call', 'known_domain', 'target_call', 'input_domain'):
+            if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
+                for field in ('known_call', 'known_domain', 'known_range', 'target_call', 'input_domain', 'variable', 'parameter', 'quantifier', 'strength'):
                     if field in goal:
                         visible[target].add(f'{target}/{field}')
             if goal['kind'] == 'compare_functions':
@@ -167,7 +167,7 @@ def validate_input(value, admission="acceptance"):
             required.add('function_domain')
         elif kind == 'compare_functions':
             required.add('function_comparison')
-        elif kind == 'find_abstract_domain':
+        elif kind in ('find_abstract_domain', 'find_abstract_domain_parameter'):
             required.add('abstract_function_domain')
         if missing := required - found:
             issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))

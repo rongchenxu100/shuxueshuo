@@ -8,7 +8,6 @@ from hashlib import sha256
 import pytest
 from _math_notation_test_support import Recorded
 from jsonschema import Draft202012Validator
-
 from shuxueshuo_server.problem_understanding.batch_smoke import (
     CASES,
     NOTATION_FIXTURES,
@@ -128,6 +127,9 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_domain",
         "match_domain",
         "compare_functions",
+        "find_abstract_domain",
+        "find_abstract_domain_parameter",
+        "find_abstract_range",
     }
     for goal in goals:
         assert goal["description"]

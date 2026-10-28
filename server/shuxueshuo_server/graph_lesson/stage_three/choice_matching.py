@@ -9,15 +9,17 @@ import sympy as sp
 
 from ...problem_understanding.notation_compile import Report, Scope, typecheck
 from ...problem_understanding.notation_parser import NotationError, parse
-from .choice_source import choice_source
+from .choice_source import choice_source, option_expression
 from .context import build_context
 from .goals import _answer_value, verify_goal_answer
+from .math_values import math_value
 from .route_constraints import _condition_set, _relation_domain, _RouteArithmetic
 from .trajectory import decode_value
 from .verification import VerificationGap, _set_mismatch, _supported_set
 
 _SETS = {"real", "empty_set", "interval", "tuple", "set", "set_builder", "∪", "∩"}
 _RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "and", "or"}
+_SET_GOALS = {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"}
 
 
 def _domain(ast):
@@ -86,12 +88,12 @@ def _option_set(expression, parameter_name, goal_kind):
 
 
 def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None):
-    """Return one certified label, or an explicit unavailable reason (never guess).
+    """Return certified original labels, or an explicit unavailable reason.
 
     Range answers have a legacy display-only set, so their separately verified
     exact feasible set is required. Unsupported, incomplete, or ambiguous
-    alternatives disable only this optional final exercise. Multiple-selection
-    questions need a separate statement-verification contract and are deferred.
+    alternatives disable only this optional final exercise. Set-answer choices
+    use exact set equality; unspecified selection mode is nonexclusive.
     """
     source = choice_source(candidate, target_ref)
     if source["status"] == "not_choice":
@@ -99,41 +101,59 @@ def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None
     base = {"status": "unavailable", "target_ref": target_ref}
     if source["status"] != "recognized":
         return {**base, "reason": source["reason"]}
-    if source["selection_mode"] == "multiple":
-        return {**base, "reason": "choice.multiple_selection_unsupported"}
     try:
         context = build_context(candidate, target_ref)
         goal, goal_ast = context["goal"], context["goal_ast"]
-        if (goal["kind"] not in ("find_range", "find_minimum", "find_maximum")
-                or goal_ast["target"][0] != "ref" or answer.get("kind") != goal["kind"]):
+        set_goal = goal["kind"] in _SET_GOALS
+        if (not set_goal and goal["kind"] not in ("find_minimum", "find_maximum")
+                or not isinstance(answer, dict) or answer.get("kind") != goal["kind"]):
             return {**base, "reason": "choice.unsupported_goal"}
+        if not set_goal and source["selection_mode"] == "multiple":
+            return {**base, "reason": "choice.multiple_selection_unsupported"}
         if feasible_set_exact is not None:
             feasible = decode_value(feasible_set_exact)
             _supported_set(feasible)
             verify_goal_answer(goal, feasible, answer)
-        elif goal["kind"] == "find_range":
+        elif set_goal:
             return {**base, "reason": "choice.exact_answer_required"}
-        if goal["kind"] == "find_range":
+        if set_goal:
+            if answer["set"].get("expression") != math_value(feasible)["expression"]:
+                return {**base, "reason": "choice.answer_mismatch"}
             expected = feasible
         elif answer.get("status") == "attained":
             expected = sp.FiniteSet(_answer_value(answer, "value"))
         else:
             return {**base, "reason": "choice.unattained_answer_unsupported"}
-        parameter_name = next(symbol["name"] for symbol in context["symbols"]
-                              if symbol["ref"] == goal_ast["target"][1])
+        if goal["kind"] == "find_abstract_domain_parameter":
+            parameter_name = goal["parameter"]
+        elif goal["kind"] == "find_abstract_domain":
+            parameter_name = context["abstract_domain_goal"]["variable"]
+        elif goal["kind"] == "find_domain":
+            parameter_name = context["domain_goal"]["variable"]
+        elif goal["kind"] == "match_domain":
+            parameter_name = context["domain_goal"]["parameter"]
+        else:
+            if goal_ast["target"][0] != "ref":
+                return {**base, "reason": "choice.unsupported_goal"}
+            parameter_name = next(symbol["name"] for symbol in context["symbols"]
+                                  if symbol["ref"] == goal_ast["target"][1])
         option_sets = []
         for option in source["options"]:
-            if not isinstance(option["expression"], str):
+            expression = option_expression(option["text"], real_parameter=parameter_name) if set_goal else option["expression"]
+            if not isinstance(expression, str):
                 return {**base, "reason": "choice.unsupported_option"}
-            option_sets.append(_option_set(option["expression"], parameter_name, goal["kind"]))
+            option_sets.append(_option_set(expression, parameter_name,
+                                           "find_range" if set_goal else goal["kind"]))
         matches = [option["label"] for option, value in zip(source["options"], option_sets, strict=True)
                    if _set_mismatch(value, expected) is None]
     except (NotationError, VerificationGap, ValueError, TypeError, KeyError,
             StopIteration, IndexError, RecursionError, ZeroDivisionError):
         return {**base, "reason": "choice.unverifiable_options"}
-    if len(matches) != 1:
+    if (not set_goal or source["selection_mode"] == "single") and len(matches) != 1:
         return {**base, "reason": "choice.ambiguous_match" if matches else "choice.no_match"}
-    return {"status": "matched", "kind": "single_choice", "target_ref": target_ref,
+    mode = source["selection_mode"]
+    return {"status": "matched", "kind": "multiple_choice" if set_goal and mode != "single" else "single_choice", "target_ref": target_ref,
+            **({"matching": "set_equality", "selection_mode": mode} if set_goal else {}),
             "options": [{"label": option["label"], "text": option["text"]}
                         for option in source["options"]], "correct_labels": matches}
 

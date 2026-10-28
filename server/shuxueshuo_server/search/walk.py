@@ -87,7 +87,7 @@ def _d1(goal, clues, shown, best):
     if goal["d1"].get("interaction") == "choice":
         (slot,), (answer,) = slots, answer
         givens = [item["text"] for item in goal["d1"].get("givens", [])
-                  if item["kind"] == "given_domain" and item.get("text")]
+                  if item["kind"] in ("given_domain", "given_range") and item.get("text")]
         decision.update(question="\n\n".join([*givens, goal["d1"]["question"]]),
                         interaction={"type": "choice", "field": "reading", "options": slot["options"]},
                         expected_answer={"one_of": [answer]},

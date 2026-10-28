@@ -9,7 +9,8 @@
       "reciprocal_of_range",
       "solve_interval_conditions",
       "normalize_parameter_conditions",
-      "solve_abstract_function_domain"
+      "solve_abstract_function_domain",
+      "solve_abstract_domain_parameter"
     ],
     "skill-equality-transform": [
       "separation_division"
@@ -60,7 +61,8 @@
     ],
     "skill-expression-defined": [
       "extract_domain_conditions",
-      "extract_domain_parameter_conditions"
+      "extract_domain_parameter_conditions",
+      "extract_abstract_concrete_conditions"
     ],
     "method-discriminant": [
       "submethod"
@@ -136,6 +138,9 @@
       "method-function-equality#collect"
     ],
     "solve_abstract_function_domain": [
+      "method-input-domain-correspondence#solve"
+    ],
+    "solve_abstract_domain_parameter": [
       "method-input-domain-correspondence#solve"
     ]
   }

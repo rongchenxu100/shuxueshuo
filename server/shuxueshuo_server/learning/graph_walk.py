@@ -55,6 +55,18 @@ def exact_choice_contract(decision):
 
 def option_requirements(contract, route, decision):
     """Validate a complete comparison lesson and return all prerequisite step ids."""
+    if 'matching' in decision:
+        steps = route_steps(contract, route)
+        if (decision['matching'] != 'set_equality' or decision.get('source') != 'original_choice'
+                or decision.get('interaction', {}).get('type') not in {EXACT_CHOICE, 'choice'}
+                or not isinstance(decision.get('target_ref'), str) or not decision['target_ref']
+                or any(key in decision for key in ('require_complete_options', 'select_relation'))
+                or any('option_context' in step for step in steps)):
+            raise ValueError('invalid set-answer requirements')
+        _comparison_answer_contract(decision)
+        if not steps or steps[-1]['id'] != decision['id']:
+            raise ValueError('set answer must finish the route')
+        return [step['id'] for step in steps[:-1]]
     required = decision.get('require_complete_options')
     if (not isinstance(required, list) or not required
             or any(not isinstance(item, str) or not item for item in required)
@@ -107,13 +119,16 @@ def option_requirements(contract, route, decision):
 
 
 def ensure_option_prerequisites(contract, route, decision, passed_ids):
-    if decision.get('interaction', {}).get('type') != EXACT_CHOICE and not decision.get('require_complete_options'):
+    if (decision.get('interaction', {}).get('type') != EXACT_CHOICE
+            and not decision.get('require_complete_options') and 'matching' not in decision):
         return
     try:
         required = option_requirements(contract, route, decision)
     except ValueError as error:
         raise HTTPException(409, '本题判断记录不完整，请重新开始练习。') from error
     if not set(required) <= set(passed_ids):
+        if decision.get('matching') == 'set_equality':
+            raise HTTPException(409, '请先完成求解步骤，再提交原题答案。')
         raise HTTPException(409, '请先完成每个选项的证据步骤和判断，再提交原题答案。')
 
 
@@ -142,7 +157,7 @@ def validate_contract(contract, problem_id):
                 raise ValueError('unsupported graph-walk interaction')
             if 'expected_answer' not in step:
                 raise ValueError('graph-walk step has no grading contract')
-            if step['interaction']['type'] == EXACT_CHOICE or step.get('require_complete_options'):
+            if step['interaction']['type'] == EXACT_CHOICE or step.get('require_complete_options') or 'matching' in step:
                 if step is not steps[-1]:
                     raise ValueError('original-choice exact answer must finish the route')
                 option_requirements(contract, route, step)

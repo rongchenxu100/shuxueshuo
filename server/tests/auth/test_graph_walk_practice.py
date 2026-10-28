@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,7 +8,6 @@ from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
-
 from shuxueshuo_server.learning import api, graph_walk, practice
 
 
@@ -143,6 +143,63 @@ def test_original_multiple_contract_rejects_incomplete_or_mixed_option_evidence(
         graph_walk.validate_contract(contract, 'q20')
 
 
+def test_comparison_cannot_remove_verdict_gates_by_claiming_set_equality():
+    contract = equality_contract()
+    final = contract['routes']['equality']['steps'][-1]
+    final['matching'] = 'set_equality'
+    final.pop('require_complete_options')
+    final.pop('select_relation')
+    with pytest.raises(ValueError, match='invalid set-answer requirements'):
+        graph_walk.validate_contract(contract, 'q20')
+
+
+def test_real_mixed_set_course_native_contract_grades_and_requires_all_prior_steps():
+    root = Path(__file__).resolve().parents[3]
+    pid = 'function-concepts-abstract-mixed-q03'
+    bundle = json.loads((root / f'site/data/graph-walk/{pid}.json').read_text())
+    replay = json.loads((root / f'site/data/graph-walk/{pid}.replay.json').read_text())
+    code = """import fs from 'node:fs';
+import {nativePracticeContract} from './tools/lib/graph-walk-practice.mjs';
+console.log(JSON.stringify(nativePracticeContract(JSON.parse(fs.readFileSync(0, 'utf8')))));"""
+    contract = json.loads(subprocess.check_output(
+        ['node', '--input-type=module', '-e', code], input=json.dumps(bundle), text=True, cwd=root,
+    ))
+    graph_walk.validate_contract(contract, pid)
+    route, = replay['routes']
+    steps = graph_walk.route_steps(contract, route)
+    final = steps[-1]
+    assert final['matching'] == 'set_equality'
+    assert final['interaction']['type'] == graph_walk.EXACT_CHOICE
+    assert 'require_complete_options' not in final
+    assert len(replay['actions']) == 10
+    assert final['expected_answer']['correct_labels'] == ['D']
+    for previous in ([], [step['id'] for step in steps[:-2]]):
+        with pytest.raises(HTTPException) as error:
+            graph_walk.ensure_option_prerequisites(contract, route, final, previous)
+        assert error.value.status_code == 409
+    passed = []
+    decisions = {step['id']: step for step in steps}
+    for action in replay['actions']:
+        decision = decisions[action['decision']]
+        graph_walk.ensure_option_prerequisites(contract, route, decision, passed)
+        assert graph_walk.grade(decision, {'value': action['answer']}, route) == 'passed'
+        passed.append(action['decision'])
+    for value in ([], ['C'], ['A', 'D'], ['D', 'D'], ['Z']):
+        assert graph_walk.grade(final, {'value': value}, route) == 'wrong'
+    for labels in ([], ['A', 'D']):
+        variant = deepcopy(contract)
+        choice = variant['routes'][route]['steps'][-1]
+        choice['expected_answer']['correct_labels'] = labels
+        graph_walk.validate_contract(variant, pid)
+        assert graph_walk.grade(choice, {'value': labels[::-1]}, route) == 'passed'
+    single = deepcopy(contract)
+    choice = single['routes'][route]['steps'][-1]
+    choice['interaction']['type'] = 'choice'
+    choice['expected_answer'] = {'one_of': ['D']}
+    graph_walk.validate_contract(single, pid)
+    assert graph_walk.grade(choice, {'value': 'D'}, route) == 'passed'
+
+
 @pytest.mark.parametrize('kind', ['plane', 'grid'])
 @pytest.mark.parametrize('bad', [{}, []])
 def test_native_position_payload_rejects_nested_objects(kind, bad):
@@ -178,11 +235,10 @@ def test_native_attempt_reads_its_frozen_version_without_loading_legacy_teacher(
 
 
 def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
-    from sqlalchemy import text
-
     from shuxueshuo_server.learning.content import load_content, publish
     from shuxueshuo_server.product.config import Settings
     from shuxueshuo_server.product.db import engine, transaction
+    from sqlalchemy import text
 
     root = os.getenv('PRODUCT_TEST_DATA_DIR')
     if not root:
@@ -261,11 +317,10 @@ def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
 
 @pytest.mark.parametrize('mode', ['multiple', 'single'])
 def test_equality_recording_enforces_evidence_locked_verdicts_and_exact_final(mode, monkeypatch):
-    from sqlalchemy import text
-
     from shuxueshuo_server.learning.content import load_content, publish
     from shuxueshuo_server.product.config import Settings
     from shuxueshuo_server.product.db import engine, transaction
+    from sqlalchemy import text
 
     root = os.getenv('PRODUCT_TEST_DATA_DIR')
     if not root:

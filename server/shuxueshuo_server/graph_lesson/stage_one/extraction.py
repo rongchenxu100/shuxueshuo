@@ -141,7 +141,7 @@ def _alias_policy(scope, scope_path, related):
                 # The dedicated compiler owns option-local function binders;
                 # these are not global scalar aliases or parameter targets.
                 continue
-            if goal['kind'] == 'find_abstract_domain':
+            if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                 # Abstract calls bind a local function identity without a body;
                 # known_call / target_call are not global scalar aliases.
                 continue

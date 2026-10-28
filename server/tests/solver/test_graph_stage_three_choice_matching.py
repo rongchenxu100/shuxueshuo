@@ -4,7 +4,6 @@ from copy import deepcopy
 
 import pytest
 import sympy as sp
-
 from shuxueshuo_server.graph_lesson.stage_three.choice_matching import (
     dispatch,
     match_original_choice,
@@ -16,7 +15,7 @@ TARGET = "/root/goals/0"
 FEASIBLE = sp.Union(sp.Interval(-sp.oo, -2), sp.Interval(2, sp.oo))
 
 
-def candidate(options=None, *, symbol="m", kind="find_range", prefix=""):
+def candidate(options=None, *, symbol="m", kind="find_range", prefix="单选题"):
     options = options or [f"{symbol}≤-2 或 {symbol}≥2", f"-2≤{symbol}≤2",
                           f"{symbol}<-2 或 {symbol}>2", f"-2<{symbol}<2"]
     goal = {"kind": kind, "symbol" if kind == "find_range" else "expression": symbol}
@@ -40,6 +39,7 @@ def test_verified_range_selects_original_letter_without_changing_problem_or_answ
     result = dispatch({"candidate": source, "target_ref": TARGET,
                        "answer": answer, "feasible_set_exact": encode_value(FEASIBLE)})
     assert result == {"status": "matched", "kind": "single_choice", "target_ref": TARGET,
+                      "matching": "set_equality", "selection_mode": "single",
                       "options": [{"label": "A", "text": "m≤-2 或 m≥2"},
                                   {"label": "B", "text": "-2≤m≤2"},
                                   {"label": "C", "text": "m<-2 或 m>2"},
@@ -111,8 +111,10 @@ def test_no_unique_complete_match_never_guesses(options, reason):
     assert match(candidate(options))["reason"] == reason
 
 
-def test_explicit_multiple_choice_needs_its_own_statement_contract():
-    assert match(candidate(prefix="多选题"))["reason"] == "choice.multiple_selection_unsupported"
+def test_explicit_multiple_choice_matches_all_equivalent_sets():
+    result = match(candidate(["m^2≥4", "m≤-2 或 m≥2", "m=0", "m=1"], prefix="多选题"))
+    assert result["kind"] == "multiple_choice"
+    assert result["correct_labels"] == ["A", "B"]
 
 
 def test_non_choice_and_ambiguous_scope_do_not_add_a_choice():

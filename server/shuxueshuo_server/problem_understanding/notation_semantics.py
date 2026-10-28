@@ -291,7 +291,7 @@ class Canonical:
 
                 goals.append(canonical_comparison(g))
                 continue
-            if g['kind'] == 'find_abstract_domain':
+            if g['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                 from .notation_abstract_domain import canonical_abstract_domain
 
                 goals.append(canonical_abstract_domain(g))

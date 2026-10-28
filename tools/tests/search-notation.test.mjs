@@ -30,6 +30,32 @@ test('abstract-domain meaning preserves the given call and requested outer expre
   assert.match(meaningful, /\$f\(t\)\$ 在 \$\[-3,2\]\$ 上有意义/);
   assert.doesNotMatch(meaningful, /定义域为/);
 });
+
+test('abstract-domain parameter meaning preserves guaranteed input scope and the shared variable', () => {
+  const goal = {kind: 'find_abstract_domain_parameter', known_call: 'f(t)', known_domain: '[0,1]',
+    strength: 'meaningful_only', target_call: 'f(x+a)+f(x-a)', parameter: 'a', variable: 'x', quantifier: 'exists'};
+  const text = context.meaningBlocks({goals: [goal]}, '', []).join('');
+  assert.match(text, /\$f\(t\)\$ 在 \$\[0,1\]\$ 上有意义/);
+  assert.match(text, /在题设给定输入范围内/);
+  assert.match(text, /\$f\(x\+a\)\+f\(x-a\)\$ 的各调用有共同合法 \$x\$/);
+  assert.match(text, /参数 \$a\$ 的取值范围/);
+  assert.doesNotMatch(text, /定义域为|D_f|undefined|frac|1\/2/);
+  const exact = context.meaningBlocks({goals: [{...goal, strength: 'exact'}]}, '', []).join('');
+  assert.match(exact, /定义域为/);
+});
+
+test('same-scope abstract domain and range goals retain the known range without inventing subquestions', () => {
+  const known = {known_call: 'f(x)', known_domain: '[-1,2]', known_range: '[3,5]',
+    strength: 'exact', target_call: 'f(2*x-1)'};
+  const root = {goals: [{kind: 'find_abstract_domain', ...known}, {kind: 'find_abstract_range', ...known}]};
+  const text = context.meaningBlocks(root, '', []).join('');
+  assert.match(text, /已知 \$f\(x\)\$ 的定义域为 \$\[-1,2\]\$/);
+  assert.match(text, /值域为 \$\[3,5\]\$/);
+  assert.match(text, /求 \$f\(2x-1\)\$ 的定义域/);
+  assert.match(text, /求 \$f\(2x-1\)\$ 的值域/);
+  assert.doesNotMatch(text, /第[12]问|undefined/);
+  assert.equal((text.match(/值域为/g) || []).length, 1, 'shared given range is stated once');
+});
 const render = expression => katex.renderToString(tex(expression), {throwOnError: true, output: 'mathml', strict: 'ignore'});
 
 test('domain goal renders the input question and preserves an explicitly given range', () => {

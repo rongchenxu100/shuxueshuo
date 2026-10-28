@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "bundleVersion": "597b6bb63f03107b0245de3bdec5d1c05c484abd4e141c34f43a86c67c03658b",
+  "bundleVersion": "63736f5c617701b860cb5e6b4f9e6cbbb10832808a3b30ab1fb2e2062439451a",
   "problemId": "quadratic-always-q01",
   "routes": [
     "discriminant",

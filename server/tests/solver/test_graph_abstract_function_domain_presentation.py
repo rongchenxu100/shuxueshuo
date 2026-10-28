@@ -167,3 +167,72 @@ def test_boundary_card_uses_the_target_outer_variable(known_call, target_call, s
     assert 'None' not in str(boundary)
     assert decode_value(finished['interaction_seeds'][-1]['values'])['boundary_variable'] == sp.Symbol(symbol, real=True)
     assert 'function-concept#composite-domain' in finished['fragments'][-1]['used_basis']
+
+
+@pytest.mark.parametrize(('known_call', 'known_domain', 'recovered'), [
+    ('f(x+2)', '[-3,2]', sp.Interval(-1, 4)),
+    ('f(1-2*t)', '[0,2)', sp.Interval.Lopen(-3, 1)),
+    ('f(-x)', '[-1,1]', sp.Interval(-1, 1)),
+])
+def test_affine_known_card_derives_only_current_input_range(known_call, known_domain, recovered):
+    _, state = execute(known_call=known_call, known_domain=known_domain)
+    align, condition, conclusion = parts(state)
+    values = decode_value(state['interaction_seeds'][0]['values'])
+    assert values['input_range'] == recovered
+    assert values['known_domain'] != recovered or known_call == 'f(-x)'
+    board = align['stem_board']
+    assert board['items'][0]['label'] == f"$f({values['description']['known_argument_latex']})$ 的定义域"
+    assert board['items'][0]['note'].startswith('完整输入 ')
+    assert board['items'][1]['math'] is None
+    assert '目标函数' not in str(board)
+    completed = state['fragments'][0]['highlight']
+    assert completed['items'][1]['math'] == sp.latex(recovered)
+    assert condition['stem_board']['items'][0]['math'] == sp.latex(recovered)
+    assert conclusion['stem_board']['items'][1]['math'] is None
+    options = align['interaction']['options']
+    assert len({option['label'] for option in options}) == len(options)
+    assert next(option for option in options if option['value'] == 'o2')['label'] == f'${sp.latex(recovered)}$'
+    assert '完整定义域' in state['fragments'][0]['explanation']
+
+
+def test_mixed_domain_uses_five_local_derivations_and_preserves_both_denominator_reasons():
+    _, state = execute(known_call='f(x+2)', known_domain='(-3,4)',
+                       target_call='f(x+1)/sqrt(3*x-1)')
+    cards = parts(state)
+    assert [card['title'] for card in cards] == [
+        '求 f 的输入范围', '列出抽象调用的输入条件', '求抽象调用允许的范围',
+        '求分母允许的范围', '取交集，写出定义域',
+    ]
+    values = decode_value(state['interaction_seeds'][-1]['values'])
+    assert values['abstract_domain'] == sp.Interval.open(-2, 5)
+    assert values['concrete_domain'] == sp.Interval.open(sp.Rational(1, 3), sp.oo)
+    assert values['candidate_set'] == sp.Interval.open(sp.Rational(1, 3), 5)
+    rows = values['concrete_constraints']
+    assert {row['kind'] for row in rows} == {'radicand_nonnegative', 'denominator_nonzero'}
+    assert all(row['source_ref'].endswith('/target_call') for row in rows)
+    assert {tuple(row['ast_path']) for row in rows} == {(2,), (2, 2)}
+    for card, fragment in zip(cards, state['fragments'], strict=True):
+        before, after = card['stem_board'], fragment['highlight']
+        assert before['items'][1]['math'] is None
+        assert before['items'][0] == after['items'][0]
+        assert after['items'][1]['math']
+        options = card['interaction']['options']
+        assert len({row['label'] for row in options}) == len(options)
+    denominator = cards[3]['stem_board']
+    assert r'\sqrt' in denominator['items'][0]['math']
+    assert r'\geq' in denominator['items'][0]['note']
+    assert r'\neq' in denominator['items'][0]['note']
+    assert r'\cap' in cards[4]['stem_board']['items'][0]['math']
+    assert any(row.get('public_ref') == 'skill-expression-defined'
+               for step in state['trajectory']['steps'] for row in step['calls'])
+
+
+@pytest.mark.parametrize('denominator', ['2', 'sqrt(2)', 'x-1'])
+def test_mixed_constant_and_redundant_denominators_keep_distinct_choices(denominator):
+    _, state = execute(known_domain='[1,3]', target_call=f'f(x)/({denominator})')
+    cards = parts(state)
+    assert len(cards) == 5
+    for card in cards:
+        labels = [option['label'] for option in card['interaction']['options']]
+        assert len(set(labels)) == len(labels)
+    assert '原分母' == cards[3]['stem_board']['items'][0]['label']

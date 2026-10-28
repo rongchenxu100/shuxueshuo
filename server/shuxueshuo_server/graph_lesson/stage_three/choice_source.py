@@ -57,7 +57,7 @@ def _tex_math(text, depth=0):
         raise ValueError("TeX depth limit")
     result, index = [], 0
     while index < len(text):
-        command = re.match(r"\\(dfrac|tfrac|frac|sqrt)\b", text[index:])
+        command = re.match(r"\\(dfrac|tfrac|frac|sqrt)(?![A-Za-z])", text[index:])
         if command:
             name = command.group(1)
             first, stop = _math_group(text, index + command.end())
@@ -93,6 +93,7 @@ def option_expression(text, *, real_parameter=None):
         return None
     try:
         value = _tex_math(text).replace("$", "")
+        value = re.sub(r"\\mathbf(?:\{\s*R\s*\}|\s+R\b)", "ℝ", value)
         value = re.sub(
             r"\\([A-Za-z]+)",
             lambda match: _EXTRA_COMMANDS.get(match.group(1), match.group()),
@@ -194,6 +195,8 @@ def choice_source(candidate, target_ref):
     lists are deliberately unavailable instead of guessing their completeness.
     """
     base = {"target_ref": target_ref, "source": "transcription"}
+    if isinstance(candidate, dict) and "public_content" in candidate:
+        return _public_choice_source(candidate, target_ref)
     text = candidate.get("original_text", "") if isinstance(candidate, dict) else ""
     if not isinstance(text, str) or not text or len(text) > 32768:
         return {**base, "status": "unavailable", "reason": "choice.missing_text"}
@@ -217,7 +220,8 @@ def choice_source(candidate, target_ref):
     if len(labels) < 4 or labels != list(_LABELS[:len(labels)]):
         return {**base, "status": "unavailable", "reason": "choice.incomplete_options"}
     goal = scope["goals"][0]
-    real_parameter = goal.get("symbol") if goal.get("kind") == "find_range" else None
+    real_parameter = (goal.get("symbol") if goal.get("kind") == "find_range"
+                      else goal.get("parameter") if goal.get("kind") == "find_abstract_domain_parameter" else None)
     options = []
     for index, marker in enumerate(markers):
         stop = markers[index + 1].start() if index + 1 < len(markers) else len(body)
@@ -228,3 +232,40 @@ def choice_source(candidate, target_ref):
                         "expression": option_expression(option, real_parameter=real_parameter)})
     return {**base, "status": "recognized", "selection_mode": _selection_mode(text, visible_ranges),
             "options": options}
+
+
+def _public_choice_source(candidate, target_ref):
+    """Use the reviewed, scoped option contract; never borrow a sibling's options."""
+    base = {"target_ref": target_ref, "source": "public_content"}
+    try:
+        scope = _scope(candidate, target_ref)
+        public = candidate["public_content"]
+        scopes = [row for row in public["scopes"]
+                  if row["scope_ref"] == target_ref.rsplit("/goals/", 1)[0]]
+        if public["completeness"] != "complete" or len(scopes) != 1:
+            raise ValueError("incomplete public content")
+        choices = [row for row in scopes[0]["choices"] if row["target_ref"] == target_ref]
+        if len(choices) != 1:
+            raise ValueError("ambiguous choice target")
+        choice = choices[0]
+        mode, options = choice["selection_mode"], choice["options"]
+        if choice["status"] == "none" and mode == "none" and options == []:
+            return {**base, "status": "not_choice"}
+        if (choice["status"] != "complete" or mode not in ("single", "multiple", "unspecified")
+                or not isinstance(options, list) or not 2 <= len(options) <= 32):
+            raise ValueError("incomplete choices")
+        labels = [row["label"] for row in options]
+        if (any(not isinstance(label, str) or not label.strip() for label in labels)
+                or len(set(labels)) != len(labels)
+                or any(not isinstance(row["text"], str) or not row["text"].strip()
+                       or len(row["text"]) > 4096 for row in options)):
+            raise ValueError("invalid choices")
+        goal = scope["goals"][0]
+        parameter = (goal.get("symbol") if goal["kind"] == "find_range"
+                     else goal.get("parameter") if goal["kind"] == "find_abstract_domain_parameter" else None)
+        return {**base, "status": "recognized", "selection_mode": mode,
+                "options": [{"label": row["label"], "text": row["text"],
+                             "expression": option_expression(row["text"], real_parameter=parameter)}
+                            for row in options]}
+    except (KeyError, IndexError, TypeError, ValueError):
+        return {**base, "status": "unavailable", "reason": "choice.incomplete_public_options"}

@@ -2033,6 +2033,33 @@
         ]
       },
       {
+        "id": "type-abstract-function-domain|involves|quantifiers",
+        "from": "type-abstract-function-domain",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|rational-expression",
+        "from": "type-abstract-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|square-root-expression",
+        "from": "type-abstract-function-domain",
+        "to": "square-root-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-amgm-quantified|involves|function-range-extrema",
         "from": "type-amgm-quantified",
         "to": "function-range-extrema",

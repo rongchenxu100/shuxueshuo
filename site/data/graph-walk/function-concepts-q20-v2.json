@@ -1376,6 +1376,15 @@
         ]
       },
       {
+        "id": "type-abstract-function-domain|involves|square-root-expression",
+        "from": "type-abstract-function-domain",
+        "to": "square-root-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-function-domain|involves|function-concept",
         "from": "type-function-domain",
         "to": "function-concept",

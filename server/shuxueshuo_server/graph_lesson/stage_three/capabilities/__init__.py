@@ -433,8 +433,17 @@ def _abstract_domain_operation(name):
 
 
 REGISTRY.update({name: _abstract_domain_operation(name) for name in (
-    'solve_abstract_function_domain',
+    'solve_abstract_function_domain', 'extract_abstract_concrete_conditions',
 )})
+
+
+def _abstract_domain_parameter_operation(**inputs):
+    from ..abstract_domain_parameter import solve_abstract_domain_parameter
+
+    return solve_abstract_domain_parameter(**inputs)
+
+
+REGISTRY['solve_abstract_domain_parameter'] = _abstract_domain_parameter_operation
 PLANNED = frozenset(
     {
         "elimination",

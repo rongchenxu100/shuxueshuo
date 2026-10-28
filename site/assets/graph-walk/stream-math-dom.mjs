@@ -1,7 +1,8 @@
 /** Safe mathematical card DOM shared by completed/read steps and debug views.
  * This module never controls progress, transport, or interaction availability.
  */
-import {matchedOriginalChoice} from './original-choice.mjs?v=20261027-function-equality';
+import {matchedOriginalChoice} from './original-choice.mjs?v=20261028-domain-overlap';
+import {createIntervalOverlapExplorer} from './interval-overlap-visual.mjs?v=20261028-domain-overlap';
 
 const expressionText = value => typeof value === 'string' ? value : value?.latex || '';
 const text = (document, tag, value, className) => {
@@ -51,6 +52,7 @@ export function createDerivationBoard(document, board) {
     }
     row.append(cell);
   });
+  if (board.interval_explorer) node.append(createIntervalOverlapExplorer(document, board.interval_explorer));
   node.append(row);
   return node;
 }
@@ -61,7 +63,7 @@ export function routeAnswerSummary(answer = {}) {
       answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
     return {label: '各项比较已完成', formula: ''};
   }
-  if (['find_range', 'find_domain', 'find_abstract_domain'].includes(answer.kind) && answer.status === 'set') {
+  if (['find_range', 'find_domain', 'find_abstract_domain', 'find_abstract_domain_parameter'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
     return formula ? {label: ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：' : '参数范围：', formula} : null;
   }
@@ -261,7 +263,7 @@ export function createRouteCompletion(document, payload, options = {}) {
   node.dataset.answerStatus = answerStatus;
   const choice = complete && matchedOriginalChoice(payload);
   if (choice) node.append(text(document, 'strong', `答案：${choice.correct_labels.join('、') || '无符合项'}　`, 'stage-three-choice-answer'));
-  if (choice?.kind === 'multiple_choice') {
+  if (choice?.kind === 'multiple_choice' && Array.isArray(choice.option_verdicts)) {
     const board = document.createElement('ul');
     board.className = 'gw-option-verdict-board';
     const reasons = {domains_differ: '定义域不同', outputs_differ: '存在同一个输入，两式的函数值不同',

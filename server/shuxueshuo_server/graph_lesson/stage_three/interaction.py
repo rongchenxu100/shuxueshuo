@@ -1653,6 +1653,9 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'function_equality':
         return equality_presentation.compile_equality(seeds, interaction_id)
     if rule.get('compiler') == 'abstract_function_domain':
+        if seeds[0]['template'] == 'abstract_domain_parameter_derivation':
+            from . import abstract_parameter_presentation
+            return abstract_parameter_presentation.compile_parameter(seeds, interaction_id)
         from . import abstract_domain_presentation
         return abstract_domain_presentation.compile_abstract(seeds, interaction_id)
     first_values = decode_value(seeds[0]["values"])

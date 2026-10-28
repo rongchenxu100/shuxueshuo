@@ -171,6 +171,17 @@
     "abstract_outer_intersection": [
       "set-intersection-union#intersection",
       "function-concept#elements"
+    ],
+    "abstract_common_domain": [
+      "function-concept#composite-domain",
+      "set-intersection-union#intersection"
+    ],
+    "abstract_exists_linear_elimination": [
+      "quantifiers#existential",
+      "set-intersection-union#intersection",
+      "interval-notation#finite",
+      "inequality-properties#addition",
+      "inequality-properties#multiplication"
     ]
   }
 }

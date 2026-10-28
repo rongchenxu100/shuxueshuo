@@ -1,0 +1,28 @@
+{
+  "problem_id": "function-concepts-q02",
+  "source": "用户上传的《函数的概念与性质小条（5）》第2题",
+  "page": {
+    "file": "../function-concepts-q04/source-page.jpg",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "7a8ddb3688995ff1a965c125d5e7c100f45e10a5c008eef3c76631341fbe9203"
+  },
+  "crop": {
+    "file": "source-question.png",
+    "xyxy": [
+      180,
+      284,
+      800,
+      329
+    ],
+    "size": [
+      620,
+      45
+    ],
+    "sha256": "ef5a1e408291227c06e78fccf99b86f784d95ff2b80a697efc57e29baf5565ef"
+  },
+  "verified_statement": "已知函数 f(x) 的定义域为 [-1,1]，则函数 f(2x-1) 的定义域为____。",
+  "processing": "直接引用已归档原页，未复制整页。只按 crop.xyxy 一次矩形裁取第2题完整印刷语句，未旋转、遮罩、拼接、重绘或改字。题号与右侧手写答案未进入裁片；填空横线因与手写答案重叠一并位于裁片外。"
+}

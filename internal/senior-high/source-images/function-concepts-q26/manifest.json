@@ -1,0 +1,29 @@
+{
+  "problem_id": "function-concepts-q26",
+  "source": "用户上传的高中数学一本通·必修一（RJA版）第84页：例8变式1",
+  "page": {
+    "file": "../function-concepts-q25/source-page.jpg",
+    "size": [
+      767,
+      1024
+    ],
+    "sha256": "87914c8037da00434e3c1f30fb35f8787fbe9d4154da44aa6a0166673f634d7e"
+  },
+  "crop": {
+    "file": "source-question.png",
+    "xyxy": [
+      79,
+      750,
+      675,
+      831
+    ],
+    "size": [
+      596,
+      81
+    ],
+    "sha256": "31ca6e73335f7f4d8191d343d26c35a82eaf755668eb4e09546ff80736aa249b"
+  },
+  "verified_statement": "已知函数 y=f(x+2) 的定义域是 [-3,2]，则函数 y=f(2x-1) 的定义域是____。",
+  "processing": "直接引用已归档原页，未复制整页。只按 crop.xyxy 一次矩形裁取完整变式1题干及填空线，未旋转、遮罩、拼接、重绘或改字。原页倾斜使矩形底部带有少量“分析”开头，未包含输入范围计算结果或最终答案；提取时应只采用完整印刷题干。",
+  "candidate_fixture": "server/tests/solver/fixtures/abstract-function-domain/q26-candidate.json"
+}

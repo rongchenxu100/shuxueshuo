@@ -1,0 +1,48 @@
+{
+  "original_text": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$，求 $f(x+1)$ 的定义域和值域。",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_abstract_domain",
+        "known_call": "f(x)",
+        "known_domain": "[1,2]",
+        "known_range": "[0,1/2]",
+        "strength": "exact",
+        "target_call": "f(x+1)"
+      },
+      {
+        "kind": "find_abstract_range",
+        "known_call": "f(x)",
+        "known_domain": "[1,2]",
+        "known_range": "[0,1/2]",
+        "strength": "exact",
+        "target_call": "f(x+1)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$，求 $f(x+1)$ 的定义域和值域。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

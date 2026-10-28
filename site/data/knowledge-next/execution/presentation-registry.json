@@ -2481,7 +2481,12 @@
         "input_range",
         "candidate_set",
         "phase",
-        "outer_domain"
+        "outer_domain",
+        "known_domain",
+        "abstract_domain",
+        "concrete_domain",
+        "concrete_constraints",
+        "has_concrete_conditions"
       ],
       "prepare": "abstract_domain_view",
       "render": "{domain_explanation}",
@@ -2500,6 +2505,41 @@
           }
         ],
         "connector": "⇒"
+      }
+    },
+    "abstract_domain_parameter_derivation": {
+      "title": "共同输入与参数范围",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "before",
+        "after",
+        "description",
+        "input_range",
+        "candidate_set",
+        "call_conditions",
+        "call_ranges",
+        "overlap_conditions",
+        "parameter_result",
+        "phase"
+      ],
+      "prepare": "abstract_domain_parameter_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒",
+        "interval_explorer": "interval_explorer"
       }
     }
   },

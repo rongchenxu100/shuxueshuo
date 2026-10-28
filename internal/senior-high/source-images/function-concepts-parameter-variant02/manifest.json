@@ -1,0 +1,29 @@
+{
+  "problem_id": "function-concepts-parameter-variant02",
+  "source": "用户提供教材第85页变式2",
+  "page": {
+    "file": "/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/codex-clipboard-dceafd8b-8f36-4c42-8bfc-dcf3b44161eb.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "248cc821ce87500adc2e3d5b2b6d5a4619681defc9c30dbc36ca4c0e52f6c0d6"
+  },
+  "crop": {
+    "file": "source-question.png",
+    "xyxy": [
+      40,
+      120,
+      1240,
+      342
+    ],
+    "size": [
+      1200,
+      222
+    ],
+    "sha256": "d0ebf1e97e6ec30bdda99cc65c7936a1c6da62f6dfa61b69cfefe655728fd7ed"
+  },
+  "verified_statement": "若 f(x) 在 [0,1] 上有定义，要使函数 f(x+a)+f(x-a) 有意义，则 a 的取值范围是（ ）。A. (-∞,-1/2)；B. [-1/2,1/2]；C. (1/2,+∞)；D. R。",
+  "processing": "只裁取完整题干和四个选项，排除教材解答；不改字、不重绘。未注明选择模式，按不定项选择。保留meaningful_only语义，在题设给定输入区间内求能保证存在合法x的参数。",
+  "candidate_fixture": "server/tests/solver/fixtures/abstract-function-domain/variant02-candidate.json"
+}

@@ -54,6 +54,7 @@ RESOLVERS = {
     "strict": lambda source: source.math.value("relation")["strict"],
     "goal": lambda source: source.context["goal"],
     "constraint_context": lambda source: source.context,
+    "abstract_domain_parameter_mode": lambda source: source.context["goal"]["kind"] == "find_abstract_domain_parameter",
     "interval_function": _interval_function,
     "interval_operator": lambda source: {"<": ">", "<=": ">=", ">": "<", ">=": "<="}[
         source.math.value("relation")["operator"]
@@ -121,6 +122,9 @@ def _function_equality(context):
 
 def _abstract_function_domain(context):
     from .abstract_function_domain import admitted
+    if context["goal"]["kind"] == "find_abstract_domain_parameter":
+        from .abstract_domain_parameter import admitted as admitted_parameter
+        return admitted_parameter(context)
     return admitted(context)
 
 

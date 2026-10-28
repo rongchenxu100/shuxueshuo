@@ -957,6 +957,19 @@ def verify(candidate, target_ref, constraint_context, feasible_set):
     if _source(candidate, target_ref).get("kind") == "match_domain":
         from .function_domain import verify_domain_parameter
         return verify_domain_parameter(candidate, target_ref, constraint_context, feasible_set)
+    if _source(candidate, target_ref).get("kind") == "find_abstract_domain_parameter":
+        from .abstract_domain_parameter import independent_verify
+
+        try:
+            check_context(collect_original(candidate, target_ref), constraint_context)
+        except ContextMismatch as exc:
+            return {"status": "math_failed", "proof": {}, "diagnostics": [{"code": str(exc)}]}
+        rebuilt = independent_verify(candidate, target_ref, feasible_set)
+        passed = rebuilt["status"] == "verified"
+        return {"status": "verified" if passed else "math_failed",
+                "proof": {"kind": "abstract_domain_parameter_exists", "passed": passed,
+                          "checks": rebuilt["checks"], "expected": rebuilt["expected"], "actual": rebuilt["actual"]},
+                "diagnostics": rebuilt["diagnostics"]}
     if _source(candidate, target_ref).get("kind") == "find_abstract_domain":
         from .abstract_function_domain import independent_verify
 
@@ -1066,6 +1079,10 @@ def endpoint_check(candidate, target_ref, feasible_set):
     if _source(candidate, target_ref).get("kind") == "match_domain":
         from .function_domain import domain_parameter_endpoints
         return domain_parameter_endpoints(candidate, target_ref, feasible_set)
+    if _source(candidate, target_ref).get("kind") == "find_abstract_domain_parameter":
+        from .abstract_domain_parameter import parameter_endpoints
+
+        return parameter_endpoints(candidate, target_ref, feasible_set)
     if _source(candidate, target_ref).get("kind") == "find_abstract_domain":
         from .abstract_function_domain import abstract_domain_endpoints
 

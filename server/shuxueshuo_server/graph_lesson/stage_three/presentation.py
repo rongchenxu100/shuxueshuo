@@ -236,6 +236,12 @@ def append_boundary(state, evidence, *, feasible_set=None):
         operation["used_basis"] = ["function-concept#composite-domain", "interval-notation#finite"]
         records[index] = deepcopy(operation)
         updated["trajectory"]["finalization"] = deepcopy(records)
+    if goal_kind == "find_abstract_domain_parameter":
+        description = updated["trajectory"]["constraint_context"]["abstract_domain_parameter_goal"]
+        boundary_variable = sp.Symbol(description["parameter"], real=True)
+        operation["used_basis"] = ["function-concept#composite-domain", "quantifiers#existential"]
+        records[index] = deepcopy(operation)
+        updated["trajectory"]["finalization"] = deepcopy(records)
     specification = read("presentation-registry")["templates"]["boundary"]
     bindings = {"before": [], "after": [], "checks": checks, "parameter": boundary_variable,
                 "feasible": feasible_set}
@@ -269,7 +275,7 @@ def append_boundary(state, evidence, *, feasible_set=None):
         "checks": [{"point": points.get(row.get("point", {}).get("expression")),
                     "included": row.get("included"), "holds": row.get("holds")} for row in checks],
     }
-    if goal_kind == "find_abstract_domain":
+    if goal_kind in ("find_abstract_domain", "find_abstract_domain_parameter"):
         seed_values["boundary_variable"] = boundary_variable
     record_seed(updated, fragment, template="boundary", values=seed_values)
     return updated
@@ -297,7 +303,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain"):
+    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

@@ -197,6 +197,7 @@
     "/2/q08/",
     "/2/q09/",
     "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
     "/topics/function-concepts/q04/",
     "/topics/function-concepts/q12/",
     "/topics/function-concepts/q15/",
@@ -204,7 +205,9 @@
     "/topics/function-concepts/q20/",
     "/topics/function-concepts/q22/",
     "/topics/function-concepts/q23b/",
-    "/topics/function-concepts/q25/"
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/variant02/"
   ],
-  "content_version": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b"
+  "content_version": "dcd10efdc13b2c0622dca140a2c5339c636db4c593ef64ca03d0f7e9d49ab91c"
 }

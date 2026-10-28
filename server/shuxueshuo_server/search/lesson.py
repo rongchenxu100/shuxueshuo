@@ -141,7 +141,7 @@ def _goal(goal, features, text, candidate=None):
                                            "d1.function_definition_not_uniquely_located"}]
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
-    if known.get("goal", {}).get("kind") == "find_abstract_domain":
+    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter"):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -410,7 +410,7 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
     if known.get("goal", {}).get("kind") == "match_domain":
         return _match_domain_d1_rows(target, fragments, known, text, candidate=candidate)
-    if known.get("goal", {}).get("kind") == "find_abstract_domain":
+    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter"):
         return _abstract_domain_d1_rows(target, fragments, known, text, candidate=candidate)
     transform, diagnostics = transformation(target, fragments, known, tex, text=text, candidate=candidate)
     extra = {"transformation": transform} if transform else {}
@@ -566,6 +566,8 @@ def _domain_d1_rows(target, fragments, known, text, *, candidate=None):
 def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
     """Separate the given call's domain from the requested outer-variable set."""
     domain = known.get("abstract_function_domain") or {}
+    if domain.get('kind') == 'find_abstract_domain_parameter':
+        return _abstract_parameter_d1_rows(target, fragments, domain, text, candidate=candidate)
     selected = [fragment for fragment in fragments if fragment["fragment_kind"] == "goal"]
     if not domain.get("structure_supported") or not selected or candidate is None:
         return {"rows": [], "summary": ""}
@@ -591,24 +593,74 @@ def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
     }
     givens = []
     for index, fragment in enumerate(fragments):
-        if fragment["fragment_kind"] != "given_domain":
+        kind = fragment["fragment_kind"]
+        if kind not in ("given_domain", "given_range"):
             continue
         outer = fragment["source_refs"] == [f"{target}/input_domain"]
         given_text = (f"题设另限外层自变量：${variable}\\in {tex(goal['input_domain'])}$。" if outer else
                       f"已知 ${known_call}$ 的定义域为 ${tex(goal['known_domain'])}$。")
+        if kind == 'given_range':
+            given_text = (f"已知 ${known_call}$ 的值域为 ${tex(goal['known_range'])}$；"
+                          "这是函数值的范围，不是自变量的范围。")
         givens.append({
-            "id": f"{target}:given_domain:{index}", "kind": "given_domain",
+            "id": f"{target}:{kind}:{index}", "kind": kind,
             "quote": [_spans([fragment], text)], "fragment_ids": [fragment["id"]],
             "knowledge_refs": fragment["knowledge_refs"], "source_refs": fragment["source_refs"],
             "text": given_text,
         })
     summary = (f"题面给出了 ${known_call}$ 的定义域；本题要找出所有使 ${target_call}$ 有意义的"
                f"外层自变量 ${variable}$，需要让完整输入落在同一对应关系的输入范围内。")
+    if domain.get("concrete_denominator_ast") is not None:
+        summary += "具体分母自身有意义且不为零的条件也要同时满足。"
     if "input_domain" in goal:
         summary += "题设另给的外层自变量范围也要同时满足。"
+    if 'known_range' in goal:
+        summary += "当前目标只求定义域；题设值域保留为已知条件，不用它限制自变量。"
     return {"rows": [row], "givens": givens, "interaction": "choice",
             "question": f"题目要求 ${target_call}$ 的定义域，也就是要确定什么？",
             "feedback": feedback, "summary": summary}
+
+
+def _abstract_parameter_d1_rows(target, fragments, domain, text, *, candidate=None):
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not domain.get('structure_supported') or not selected or candidate is None:
+        return {'rows': [], 'summary': ''}
+    goal = candidate
+    for part in target.strip('/').split('/'):
+        goal = goal[int(part)] if isinstance(goal, list) else goal[part]
+    variable, parameter = tex(domain['variable']), tex(domain['parameter'])
+    expression = tex(goal['target_call'])
+    scope = '在题设给定的输入范围内，' if domain['known_strength'] == 'meaningful_only' else ''
+    correct = f'{scope}求能保证至少存在一个合法 ${variable}$，使所有调用同时有意义的 ${parameter}$ 范围'
+    feedback = f'固定参数 ${parameter}$ 后，至少要能找到一个 ${variable}$，让每个调用的输入同时落在题设给定范围内。'
+    if domain['known_strength'] == 'meaningful_only':
+        feedback += '只使用这个已知输入范围，不推断范围外是否有定义。'
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    row = {
+        'id': row_id, 'kind': 'goal', 'quote': spans,
+        'fragment_ids': [fragment['id'] for fragment in selected],
+        'knowledge_refs': list(dict.fromkeys(ref for fragment in selected for ref in fragment['knowledge_refs'])),
+        'source_refs': [f'{target}/parameter', f'{target}/quantifier'],
+        'signature': sha256(json.dumps([spans, domain], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16],
+        'options': _shuffle(row_id, [
+            _option(correct),
+            _option(f'求让每一个实数 ${variable}$ 都合法的 ${parameter}$ 范围', 'goal', feedback),
+            _option(f'只要其中一个调用有意义，就接受这个 ${parameter}$', 'goal', feedback),
+        ]),
+    }
+    given_text = (f"已知 ${tex(goal['known_call'])}$ 在 ${tex(goal['known_domain'])}$ 上有定义；只使用题设保证的输入范围。"
+                  if domain['known_strength'] == 'meaningful_only' else
+                  f"已知 ${tex(goal['known_call'])}$ 的定义域恰为 ${tex(goal['known_domain'])}$。")
+    givens = [{
+        'id': f'{target}:given_domain:{index}', 'kind': 'given_domain',
+        'quote': [_spans([fragment], text)], 'fragment_ids': [fragment['id']],
+        'knowledge_refs': fragment['knowledge_refs'], 'source_refs': fragment['source_refs'], 'text': given_text,
+    } for index, fragment in enumerate(fragments) if fragment['fragment_kind'] == 'given_domain']
+    summary = f'{given_text}本题要求 ${expression}$ 中各调用同时有意义，即{correct}。'
+    return {'rows': [row], 'givens': givens, 'interaction': 'choice',
+            'question': f'要使 ${expression}$ 有意义，这里要求参数 ${parameter}$ 满足什么条件？',
+            'feedback': feedback, 'summary': summary}
 
 
 def _match_domain_d1_rows(target, fragments, known, text, *, candidate=None):

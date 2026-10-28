@@ -115,10 +115,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
                              'abstract_function_domain'):
             raise ValueError('selection.unsupported_direct_admission')
-        from .abstract_function_domain import admitted as admitted_abstract
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
         from .function_domain import admitted, admitted_parameter
+        from .method_admission import _abstract_function_domain as admitted_abstract
         context = build_context(candidate, target_ref)
         # Re-read the candidate. A supplied type/feature/method override never
         # grants admission to a different mathematical category.
@@ -171,7 +171,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
             if chosen['admission'] == 'function_equality' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
             if chosen['admission'] == 'function_domain_parameter' else
-            '先求 f 的输入范围，再列出目标函数的输入条件，最后求出目标函数的定义域。'
+            ('让每个完整输入落在题设给定范围内，要求存在共同合法的自变量，再求参数范围。'
+             if context['goal']['kind'] == 'find_abstract_domain_parameter' else
+             '先求 f 的输入范围，再列出目标函数的输入条件，最后求出目标函数的定义域。')
             if chosen['admission'] == 'abstract_function_domain'
             else '按原式列出有意义的条件，分别求解，再取交集。'
         )

@@ -374,6 +374,8 @@ const knownLine = expr => (/[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(ex
 const GOALS = {
   find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_domain: g => `${math(g.target_call)} 的定义域${g.input_domain ? `（题设另限外层自变量范围 ${math(g.input_domain)}）` : ''}`,
+  find_abstract_range: g => `${math(g.target_call)} 的值域`,
+  find_abstract_domain_parameter: g => `${math(g.parameter)} 的取值范围`,
   find_range: g => `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
   find_count: g => `满足条件的集合 ${math(g.symbol)} 的个数`,
@@ -387,12 +389,19 @@ const goalLine = goal => (GOALS[goal.kind]?.(goal) ?? escape(goal.expression || 
 
 function meaningBlocks(scope, title, blocks) {
   const known = [...(scope.definitions || []), ...(scope.facts || [])].map(knownLine);
+  const abstractGivens = new Set();
   const goals = (scope.goals || []).map(goal => {
-    if (goal.kind === 'find_abstract_domain') {
-      const given = goal.strength === 'meaningful_only'
+    if (['find_abstract_domain', 'find_abstract_range', 'find_abstract_domain_parameter'].includes(goal.kind)) {
+      let given = goal.strength === 'meaningful_only'
         ? `${math(goal.known_call)} 在 ${math(goal.known_domain)} 上有意义`
         : `${math(goal.known_call)} 的定义域为 ${math(goal.known_domain)}`;
-      return `已知 ${given}；求 ${goalLine(goal)}`;
+      if (goal.known_range) given += `，值域为 ${math(goal.known_range)}`;
+      const prefix = abstractGivens.has(given) ? '' : `已知 ${given}；`;
+      abstractGivens.add(given);
+      if (goal.kind === 'find_abstract_domain_parameter') {
+        return `${prefix}在题设给定输入范围内，求使 ${math(goal.target_call)} 的各调用有共同合法 ${math(goal.variable)} 的参数 ${goalLine(goal)}`;
+      }
+      return `${prefix}求 ${goalLine(goal)}`;
     }
     if (goal.kind !== 'compare_functions') return `求 ${goalLine(goal)}`;
     if (goal.mode === 'pair') return '判断题给的两个函数是否为同一函数';
@@ -493,7 +502,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261028-domain-derivation';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261028-domain-overlap';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;
@@ -515,6 +524,7 @@ function savePageProgress(view) {
     renderMeaning();
   }
   lesson.actor = view.actor;
+  renderGoalCompletion(view, goal);
   if (pageProgressKey() && session.writable(searchId)) try { localStorage.setItem(pageProgressKey(), JSON.stringify({actor: view.actor, part: lesson.part,
     run_id: lesson.data?.stream?.run_id, lesson_version: lesson.data?.stream?.lesson_version})); } catch {}
 }
@@ -578,7 +588,7 @@ function goalState(goal) {
 }
 
 const goals = () => lesson.data?.goals || [];
-const authoredGoal = ref => ref.split('/').slice(2).reduce((node, key) => node?.[key], shown.root);
+const authoredGoal = ref => typeof ref === 'string' ? ref.split('/').slice(2).reduce((node, key) => node?.[key], shown.root) : null;
 
 /* One scope can ask for several things (a range and a minimum); each goal then gets its own tab. */
 function goalTitle(goal) {
@@ -613,8 +623,19 @@ function markPartTabs() {
 }
 
 function noteHtml(goal) {
-  const which = goals().length > 1 ? '这一问' : '这道题';
-  if (goal?.status === 'unsupported') return `<section class="pq-part" data-state="unsupported"><p class="pq-part-note">${which}暂不支持，可以换一道题。</p></section>`;
+  const siblings = goals().filter(other => other.scope === goal?.scope);
+  const which = siblings.length > 1 ? '这个目标' : goals().length > 1 ? '这一问' : '这道题';
+  if (goal?.status === 'unsupported') {
+    const authored = authoredGoal(goal.target_ref);
+    const message = authored?.kind === 'find_abstract_range'
+      ? `求 ${goalLine(authored)} 这个目标暂未支持。`
+      : `${which}暂不支持。`;
+    const continuation = goals().some(other => other !== goal && other.walk)
+      ? '可以切换上方标签，继续学习本题已支持的目标。'
+      : authored?.kind === 'find_abstract_range' ? '' : '可以换一道题。';
+    const text = continuation === '可以换一道题。' ? `${message.slice(0, -1)}，${continuation}` : message + continuation;
+    return `<section class="pq-part" data-state="unsupported"><p class="pq-part-note">${text}</p></section>`;
+  }
   const message = goal?.status === 'resolved' && goal.primary
     ? `${which}的学习页面生成失败，请重试。`
     : goal?.status === 'selection_failed' && !goal.primary
@@ -622,6 +643,31 @@ function noteHtml(goal) {
       : `暂时无法获取${which}的解题步骤，请重试。`;
   return `<section class="pq-part" data-state="failed"><p class="pq-part-note">${message}</p>
     <div class="pq-fail-actions"><button type="button" class="sq-primary" data-lesson-retry>重试</button><a class="sq-ghost" href="./">重新拍照</a></div></section>`;
+}
+
+/* A walk completes one target. An unsupported sibling must stay visible even
+   after the supported target has finished its own route. */
+function renderGoalCompletion(view, goal) {
+  if (!view.done || goals().length < 2) return;
+  const host = $('#gw-completion');
+  const heading = $('#gw-completion .gw-completion h2');
+  if (!host || !heading) return;
+  const authored = authoredGoal(goal.target_ref);
+  heading.innerHTML = `${authored ? `求 ${goalLine(authored)}` : goalTitle(goal)} · ${view.actor === 'replay' ? '这个目标回放已结束' : '这个目标已完成'}`;
+  const unsupported = goals().filter(other => other !== goal && other.status === 'unsupported');
+  const message = unsupported.length
+    ? unsupported.map(other => {
+      const target = authoredGoal(other.target_ref);
+      return `${target ? `求 ${goalLine(target)}` : goalTitle(other) || '另一个目标'}暂未支持`;
+    }).join('；') + '。本次完成的是当前目标的解答。'
+    : '其他目标可通过上方标签切换查看。';
+  host.querySelector?.('[data-pq-goal-note]')?.remove();
+  const note = document.createElement('p');
+  note.className = 'pq-part-note';
+  note.dataset.pqGoalNote = 'true';
+  note.innerHTML = message;
+  host.append(note);
+  renderMath(host);
 }
 
 const LOST = `<section class="pq-part" data-state="failed"><p class="pq-part-note">连不上服务器，暂时拿不到解题步骤</p>

@@ -131,4 +131,9 @@ def build_context(candidate, target_ref):
     elif goal['kind'] == 'find_abstract_domain':
         from ..stage_one.abstract_function_domain import inspect_abstract_domain_target
         context['abstract_domain_goal'] = inspect_abstract_domain_target(candidate, target_ref)
+    elif goal['kind'] == 'find_abstract_domain_parameter':
+        from ..stage_one.abstract_domain_parameter import (
+            inspect_abstract_domain_parameter_target,
+        )
+        context['abstract_domain_parameter_goal'] = inspect_abstract_domain_parameter_target(candidate, target_ref)
     return context

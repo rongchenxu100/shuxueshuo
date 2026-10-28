@@ -51,9 +51,12 @@
       "id": "abstract-domain",
       "label": "求抽象函数的定义域",
       "type": "type-abstract-function-domain",
-      "description": "区分「定义域（自变量的范围）」与「f 的输入范围」，用输入范围对应法求复合式的定义域。",
+      "description": "区分自变量范围与函数输入范围，求复合式的定义域，或根据共同输入存在求参数。",
       "problems": [
-        "function-concepts-q25"
+        "function-concepts-q25",
+        "function-concepts-q26",
+        "function-concepts-abstract-mixed-q03",
+        "function-concepts-parameter-variant02"
       ]
     },
     {
@@ -149,6 +152,33 @@
       "path": "/topics/function-concepts/q25/",
       "runtime": "graph-walk",
       "bundle": "/data/graph-walk/function-concepts-q25.json",
+      "types": [
+        "type-abstract-function-domain"
+      ]
+    },
+    "function-concepts-q26": {
+      "label": "已知复合函数的定义域 · Q26",
+      "path": "/topics/function-concepts/q26/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q26.json",
+      "types": [
+        "type-abstract-function-domain"
+      ]
+    },
+    "function-concepts-abstract-mixed-q03": {
+      "label": "抽象调用与根式分母 · Q03",
+      "path": "/topics/function-concepts/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-abstract-mixed-q03.json",
+      "types": [
+        "type-abstract-function-domain"
+      ]
+    },
+    "function-concepts-parameter-variant02": {
+      "label": "共同输入存在求参数 · 变式2",
+      "path": "/topics/function-concepts/variant02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-parameter-variant02.json",
       "types": [
         "type-abstract-function-domain"
       ]

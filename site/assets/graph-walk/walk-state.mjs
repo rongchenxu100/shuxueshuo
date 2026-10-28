@@ -1,6 +1,6 @@
 // One local decision engine for the student UI, model recorder and replay.
 import '../practice/context.js?v=15';
-import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261027-function-equality';
+import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261028-domain-overlap';
 import {optionPrerequisitesPassed, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
 
 const copy = value => structuredClone(value);
@@ -154,7 +154,8 @@ export function submitAnswer(bundle, state, action) {
   const terminal = bundle.routes[state.run.route]?.steps.at(-1);
   if (state.done && terminal?.source === 'original_choice' &&
       ['choice', 'original_choice_exact_set'].includes(terminal.interaction.type) &&
-      Array.isArray(terminal.require_complete_options) && terminal.require_complete_options.length &&
+      (terminal.interaction.type === 'original_choice_exact_set' ||
+        Array.isArray(terminal.require_complete_options) && terminal.require_complete_options.length) &&
       state.run.completed.at(-1)?.decision === terminal.id) return copy(state);
   const next = copy(state);
   const decision = currentDecision(bundle, state);
@@ -677,17 +678,20 @@ export function originalChoiceDecision(completion, target, route) {
   const multiple = choice.kind === 'multiple_choice';
   const comparison = Array.isArray(choice.option_verdicts);
   return {id: JSON.stringify(['original-choice', target, route, completion.verified_route_sha256]),
-    source: 'original_choice', title: '选择原题答案', question: multiple
+    source: 'original_choice', title: '选择原题答案', question: multiple && !comparison
+      ? '根据求得的集合，按不定项选择作答，选出全部符合题意的选项。' : multiple
       ? choice.selection_mode === 'unspecified'
         ? '已完成各项判断，请按不定项选择作答，选出全部符合题意的选项。'
         : '已完成各项判断，请按原题要求选择，并确认答案。' : comparison
         ? '已完成各项判断，请按原题要求选择一项，并确认答案。' : '根据求得的结果，原题应选择哪一项？',
-    ...(multiple || comparison ? {target_ref: target, require_complete_options: choice.options.map(option => option.option_id), select_relation: choice.select_relation} : {}),
+    ...(comparison ? {target_ref: target, require_complete_options: choice.options.map(option => option.option_id), select_relation: choice.select_relation} : {}),
+    ...(choice.matching === 'set_equality' ? {matching: choice.matching, target_ref: target} : {}),
     interaction: {type: multiple ? 'original_choice_exact_set' : 'choice', field: 'original_choice', options: choice.options.map(option => ({
       value: option.label, label: originalChoiceLabel(option)}))},
     expected_answer: multiple ? {correct_labels: copy(choice.correct_labels), option_labels: choice.options.map(option => option.label)}
       : {one_of: copy(choice.correct_labels)}, submit_label: '确认答案',
-    feedback: {answer: multiple ? '请检查原题问的是相同还是不同，必要时点进度标签回看理由，再检查是否漏选或多选。'
+    feedback: {answer: multiple && !comparison ? '请把求得的集合与各选项比较，注意端点是否包含，再检查是否漏选或多选。'
+      : multiple ? '请检查原题问的是相同还是不同，必要时点进度标签回看理由，再检查是否漏选或多选。'
       : comparison ? '请检查原题问的是相同还是不同，必要时点进度标签回看各项理由。'
         : '请把求得的结果与原题各选项比较，注意边界是否包含。'},
     stream_steps: [], effects: {nodes: [], edges: [], calls: [], results: [], log: '已确认原题选项答案。'}};

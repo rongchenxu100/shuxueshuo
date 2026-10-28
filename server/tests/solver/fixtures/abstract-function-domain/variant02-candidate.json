@@ -1,0 +1,53 @@
+{
+  "original_text": "若 $f(x)$ 在 $[0,1]$ 上有定义，要使函数 $f(x+a)+f(x-a)$ 有意义，则 $a$ 的取值范围是（　）。\nA. $(-\\infty,-\\frac12)$\nB. $[-\\frac12,\\frac12]$\nC. $(\\frac12,+\\infty)$\nD. $\\mathbb R$",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_abstract_domain_parameter",
+        "known_call": "f(x)",
+        "known_domain": "[0,1]",
+        "strength": "meaningful_only",
+        "target_call": "f(x+a)+f(x-a)",
+        "variable": "x",
+        "parameter": "a",
+        "quantifier": "exists"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若 $f(x)$ 在 $[0,1]$ 上有定义，要使函数 $f(x+a)+f(x-a)$ 有意义，则 $a$ 的取值范围是（　）。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "label": "A",
+                "text": "$(-\\infty,-\\frac12)$"
+              },
+              {
+                "label": "B",
+                "text": "$[-\\frac12,\\frac12]$"
+              },
+              {
+                "label": "C",
+                "text": "$(\\frac12,+\\infty)$"
+              },
+              {
+                "label": "D",
+                "text": "$\\mathbb R$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

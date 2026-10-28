@@ -146,11 +146,17 @@
           ],
           "properties": {
             "kind": {
-              "const": "find_abstract_domain"
+              "enum": [
+                "find_abstract_domain",
+                "find_abstract_domain_parameter",
+                "find_abstract_range"
+              ]
             },
             "known_form": {
               "enum": [
-                "identity"
+                "identity",
+                "affine",
+                null
               ]
             },
             "strength": {
@@ -844,6 +850,16 @@
       ]
     },
     "abstract_function_domain": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/abstract_function_domain_plain"
+        },
+        {
+          "$ref": "#/$defs/abstract_function_domain_parameter"
+        }
+      ]
+    },
+    "abstract_function_domain_plain": {
       "type": "object",
       "required": [
         "kind",
@@ -865,11 +881,26 @@
         "reason",
         "structure_version",
         "known_form",
-        "variable"
+        "variable",
+        "known_slope",
+        "known_intercept",
+        "target_form",
+        "target_latex",
+        "concrete_denominator_ast",
+        "denominator_slope",
+        "denominator_intercept",
+        "denominator_ast_path",
+        "concrete_denominator_latex"
       ],
       "properties": {
         "kind": {
           "const": "find_abstract_domain"
+        },
+        "known_range_ast": {
+          "type": "array"
+        },
+        "known_range_source_ref": {
+          "type": "string"
         },
         "function_name": {
           "type": "string",
@@ -925,10 +956,14 @@
           "type": "string"
         },
         "structure_version": {
-          "const": "abstract-function-domain-identity-affine/v1"
+          "const": "abstract-function-domain-mixed-and-parameter/v4"
         },
         "known_form": {
-          "type": "string"
+          "enum": [
+            "identity",
+            "affine",
+            null
+          ]
         },
         "target_slope": {
           "type": [
@@ -959,8 +994,218 @@
         },
         "input_range_ready": {
           "type": "boolean"
+        },
+        "known_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "known_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_form": {
+          "enum": [
+            "plain",
+            "affine_denominator",
+            "sqrt_affine_denominator",
+            null
+          ]
+        },
+        "target_latex": {
+          "type": "string"
+        },
+        "concrete_denominator_ast": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "denominator_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "denominator_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "denominator_ast_path": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "concrete_denominator_latex": {
+          "type": "string"
         }
       },
+      "additionalProperties": false
+    },
+    "abstract_function_domain_parameter": {
+      "type": "object",
+      "properties": {
+        "function_name": {
+          "type": "string"
+        },
+        "known_variable": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "parameter": {
+          "type": "string"
+        },
+        "target_latex": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "known_call_source_ref": {
+          "type": "string"
+        },
+        "known_domain_source_ref": {
+          "type": "string"
+        },
+        "target_call_source_ref": {
+          "type": "string"
+        },
+        "parameter_source_ref": {
+          "type": "string"
+        },
+        "variable_source_ref": {
+          "type": "string"
+        },
+        "quantifier_source_ref": {
+          "type": "string"
+        },
+        "function_ref": {
+          "type": "array"
+        },
+        "known_call_ast": {
+          "type": "array"
+        },
+        "known_argument_ast": {
+          "type": "array"
+        },
+        "known_domain_ast": {
+          "type": "array"
+        },
+        "target_call_ast": {
+          "type": "array"
+        },
+        "variable_ref": {
+          "type": "array"
+        },
+        "parameter_ref": {
+          "type": "array"
+        },
+        "kind": {
+          "const": "find_abstract_domain_parameter"
+        },
+        "known_strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ]
+        },
+        "known_form": {
+          "enum": [
+            "identity",
+            null
+          ]
+        },
+        "quantifier": {
+          "const": "exists"
+        },
+        "structure_version": {
+          "const": "abstract-function-domain-mixed-and-parameter/v4"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "calls": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "argument_ast",
+              "argument_latex",
+              "x_coefficient",
+              "parameter_coefficient",
+              "constant",
+              "ast_path"
+            ],
+            "properties": {
+              "argument_ast": {
+                "type": "array"
+              },
+              "argument_latex": {
+                "type": "string"
+              },
+              "x_coefficient": {
+                "type": "string"
+              },
+              "parameter_coefficient": {
+                "type": "string"
+              },
+              "constant": {
+                "type": "string"
+              },
+              "ast_path": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "function_name",
+        "known_variable",
+        "variable",
+        "parameter",
+        "target_latex",
+        "reason",
+        "source_ref",
+        "known_call_source_ref",
+        "known_domain_source_ref",
+        "target_call_source_ref",
+        "parameter_source_ref",
+        "variable_source_ref",
+        "quantifier_source_ref",
+        "function_ref",
+        "known_call_ast",
+        "known_argument_ast",
+        "known_domain_ast",
+        "target_call_ast",
+        "variable_ref",
+        "parameter_ref",
+        "kind",
+        "known_strength",
+        "known_form",
+        "quantifier",
+        "structure_version",
+        "structure_supported",
+        "calls"
+      ],
       "additionalProperties": false
     }
   }

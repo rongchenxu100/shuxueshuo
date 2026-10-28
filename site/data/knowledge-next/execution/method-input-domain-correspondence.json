@@ -4,6 +4,9 @@
   "inputs": {
     "context": {
       "role": "constraint_context"
+    },
+    "parameter_mode": {
+      "role": "abstract_domain_parameter_mode"
     }
   },
   "steps": [
@@ -18,7 +21,6 @@
             "context": "$context"
           },
           "outputs": {
-            "candidate_set": "candidate_set",
             "input_range": "input_range",
             "preimage": "preimage",
             "outer_domain": "outer_domain",
@@ -26,9 +28,69 @@
             "complete_input": "complete_input",
             "description": "description",
             "board": "board",
-            "abstract_domain_result": "abstract_domain_result"
+            "abstract_domain_result": "abstract_domain_result",
+            "known_domain": "known_domain",
+            "abstract_domain": "abstract_domain",
+            "concrete_domain": "concrete_domain",
+            "concrete_constraints": "concrete_constraints",
+            "has_concrete_conditions": "has_concrete_conditions",
+            "ordinary_candidate_set": "candidate_set"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": false
+          },
+          "skip_reason": "abstract_parameter_goal"
+        },
+        {
+          "id": "extract_concrete",
+          "capability": "extract_abstract_concrete_conditions",
+          "public_ref": "skill-expression-defined",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "display_concrete_constraints": "concrete_constraints"
+          },
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              {
+                "ref": "has_concrete_conditions",
+                "equals": true
+              }
+            ]
+          },
+          "skip_reason": "plain_abstract_call",
+          "order": 1
+        },
+        {
+          "id": "parameter_solve",
+          "capability": "solve_abstract_domain_parameter",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "parameter_candidate_set": "candidate_set",
+            "parameter_description": "description",
+            "parameter_input_range": "input_range",
+            "call_conditions": "call_conditions",
+            "call_ranges": "call_ranges",
+            "overlap_conditions": "overlap_conditions",
+            "parameter_result": "parameter_result",
+            "parameter_use_complement": "use_complement"
+          },
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": true
+          },
+          "skip_reason": "ordinary_domain_goal",
+          "order": 2
         }
       ],
       "judgments": [],
@@ -44,18 +106,32 @@
             "description": "$description",
             "complete_input": "$complete_input",
             "input_range": "$input_range",
-            "candidate_set": "$candidate_set",
+            "candidate_set": "$ordinary_candidate_set",
             "phase": "align",
-            "outer_domain": "$outer_domain"
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
           },
           "depends_on": [
             "board",
             "description",
             "complete_input",
             "input_range",
-            "candidate_set",
-            "outer_domain"
-          ]
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "concrete_constraints",
+            "has_concrete_conditions"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": false
+          }
         },
         {
           "id": "abstract_condition",
@@ -68,18 +144,32 @@
             "description": "$description",
             "complete_input": "$complete_input",
             "input_range": "$input_range",
-            "candidate_set": "$candidate_set",
+            "candidate_set": "$ordinary_candidate_set",
             "phase": "condition",
-            "outer_domain": "$outer_domain"
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
           },
           "depends_on": [
             "board",
             "description",
             "complete_input",
             "input_range",
-            "candidate_set",
-            "outer_domain"
-          ]
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "concrete_constraints",
+            "has_concrete_conditions"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": false
+          }
         },
         {
           "id": "abstract_conclusion",
@@ -92,17 +182,429 @@
             "description": "$description",
             "complete_input": "$complete_input",
             "input_range": "$input_range",
-            "candidate_set": "$candidate_set",
+            "candidate_set": "$ordinary_candidate_set",
             "phase": "conclusion",
-            "outer_domain": "$outer_domain"
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
           },
           "depends_on": [
             "board",
             "description",
             "complete_input",
             "input_range",
-            "candidate_set",
-            "outer_domain"
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "concrete_constraints",
+            "has_concrete_conditions"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              {
+                "ref": "has_concrete_conditions",
+                "equals": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "abstract_abstract_range",
+          "after": "solve",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$ordinary_candidate_set",
+            "phase": "abstract_range",
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "concrete_constraints",
+            "has_concrete_conditions"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              {
+                "ref": "has_concrete_conditions",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "abstract_concrete_range",
+          "after": "extract_concrete",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$ordinary_candidate_set",
+            "phase": "concrete_range",
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$display_concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "has_concrete_conditions",
+            "display_concrete_constraints"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              {
+                "ref": "has_concrete_conditions",
+                "equals": true
+              }
+            ]
+          },
+          "source_scope": {
+            "step": "solve",
+            "actions": [
+              "solve",
+              "extract_concrete"
+            ]
+          }
+        },
+        {
+          "id": "abstract_intersection",
+          "after": "extract_concrete",
+          "template": "abstract_domain_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "board": "$board",
+            "description": "$description",
+            "complete_input": "$complete_input",
+            "input_range": "$input_range",
+            "candidate_set": "$ordinary_candidate_set",
+            "phase": "intersection",
+            "outer_domain": "$outer_domain",
+            "known_domain": "$known_domain",
+            "abstract_domain": "$abstract_domain",
+            "concrete_domain": "$concrete_domain",
+            "concrete_constraints": "$display_concrete_constraints",
+            "has_concrete_conditions": "$has_concrete_conditions"
+          },
+          "depends_on": [
+            "board",
+            "description",
+            "complete_input",
+            "input_range",
+            "ordinary_candidate_set",
+            "outer_domain",
+            "known_domain",
+            "abstract_domain",
+            "concrete_domain",
+            "has_concrete_conditions",
+            "display_concrete_constraints"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              {
+                "ref": "has_concrete_conditions",
+                "equals": true
+              }
+            ]
+          },
+          "source_scope": {
+            "step": "solve",
+            "actions": [
+              "solve",
+              "extract_concrete"
+            ]
+          }
+        },
+        {
+          "id": "parameter_conditions",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "conditions"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": true
+          }
+        },
+        {
+          "id": "parameter_ranges",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "ranges"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": true
+          }
+        },
+        {
+          "id": "parameter_overlap",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "overlap"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": true
+          }
+        },
+        {
+          "id": "parameter_separation",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "separation"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": true
+              },
+              {
+                "ref": "parameter_use_complement",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "parameter_excluded",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "excluded"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "all": [
+              {
+                "ref": "parameter_mode",
+                "equals": true
+              },
+              {
+                "ref": "parameter_use_complement",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "parameter_parameter",
+          "after": "parameter_solve",
+          "template": "abstract_domain_parameter_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$parameter_description",
+            "input_range": "$parameter_input_range",
+            "candidate_set": "$parameter_candidate_set",
+            "call_conditions": "$call_conditions",
+            "call_ranges": "$call_ranges",
+            "overlap_conditions": "$overlap_conditions",
+            "parameter_result": "$parameter_result",
+            "phase": "parameter"
+          },
+          "depends_on": [
+            "parameter_description",
+            "parameter_input_range",
+            "parameter_candidate_set",
+            "call_conditions",
+            "call_ranges",
+            "overlap_conditions",
+            "parameter_result"
+          ],
+          "guard": {
+            "ref": "parameter_mode",
+            "equals": true
+          }
+        }
+      ],
+      "merges": [
+        {
+          "id": "return_domain_result",
+          "order": 3,
+          "branches": [
+            {
+              "guard": {
+                "ref": "parameter_mode",
+                "equals": false
+              },
+              "bindings": {
+                "candidate_set": "$ordinary_candidate_set",
+                "domain_evidence": {
+                  "description": "$description",
+                  "input_range": "$input_range",
+                  "preimage": "$preimage",
+                  "outer_domain": "$outer_domain",
+                  "domain": "$ordinary_candidate_set",
+                  "variable": "$variable",
+                  "board": "$board",
+                  "abstract_domain_result": "$abstract_domain_result",
+                  "known_domain": "$known_domain",
+                  "abstract_domain": "$abstract_domain",
+                  "concrete_domain": "$concrete_domain",
+                  "concrete_constraints": "$concrete_constraints",
+                  "has_concrete_conditions": "$has_concrete_conditions"
+                }
+              }
+            },
+            {
+              "guard": {
+                "ref": "parameter_mode",
+                "equals": true
+              },
+              "bindings": {
+                "candidate_set": "$parameter_candidate_set",
+                "domain_evidence": "$parameter_result"
+              }
+            }
           ]
         }
       ]
@@ -110,16 +612,7 @@
   ],
   "outputs": {
     "candidate_set": "$candidate_set",
-    "domain_evidence": {
-      "description": "$description",
-      "input_range": "$input_range",
-      "preimage": "$preimage",
-      "outer_domain": "$outer_domain",
-      "domain": "$candidate_set",
-      "variable": "$variable",
-      "board": "$board",
-      "abstract_domain_result": "$abstract_domain_result"
-    }
+    "domain_evidence": "$domain_evidence"
   },
   "exits": {
     "capability_gap": {
@@ -136,6 +629,9 @@
     "bindings": {
       "context": {
         "resolver": "constraint_context"
+      },
+      "parameter_mode": {
+        "resolver": "abstract_domain_parameter_mode"
       }
     },
     "checks": [

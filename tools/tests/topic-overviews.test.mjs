@@ -132,14 +132,16 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic keeps six domain courses and both equality courses in order', async () => {
+test('real topic keeps domain, equality and abstract-domain courses in order', async () => {
   const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   const comparison = 'function-concepts-q20-v2';
+  const abstract = ['function-concepts-q25', 'function-concepts-q26', 'function-concepts-abstract-mixed-q03', 'function-concepts-parameter-variant02'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'equality').problems, [comparison, 'function-concepts-q19']);
-  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison, 'function-concepts-q19'].sort());
+  assert.deepEqual(currentTopic.groups.find(group => group.id === 'abstract-domain').problems, abstract);
+  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison, 'function-concepts-q19', ...abstract].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 8);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 12);
   const equality = page.slice(page.indexOf('data-problem-id="function-concepts-q20-v2"'));
   assert.doesNotMatch(equality.slice(0, 1200), /【变式】/);
   assert.match(equality.slice(0, 1200), /class="problem-options"/);
@@ -157,14 +159,21 @@ test('real topic keeps six domain courses and both equality courses in order', a
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
   assert.match(page, /kx\^\{2\}/);
-  assert.match(page, /5 个题型 · 8 道题/);
+  assert.match(page, /5 个题型 · 12 道题/);
   assert.match(page, /href="\/topics\/function-concepts\/q20\/"/);
   assert.match(page, /href="\/topics\/function-concepts\/q19\/"/);
   assert.ok(page.indexOf(`data-problem-id="${comparison}"`) < page.indexOf('data-problem-id="function-concepts-q19"'));
   assert.match(page, /表示同一个函数/);
   assert.equal(currentTopic.problems[comparison].runtime, 'graph-walk');
   assert.deepEqual(currentTopic.problems[comparison].types, ['type-function-equality']);
-  assert.ok(currentTopic.groups.filter(group => !['domain', 'equality'].includes(group.id)).every(group => group.problems.length === 0));
+  assert.ok(page.indexOf(`data-problem-id="${abstract[0]}"`) < page.indexOf(`data-problem-id="${abstract[1]}"`));
+  for (const id of abstract) {
+    assert.ok(page.includes(`href="${currentTopic.problems[id].path}"`));
+    assert.equal(currentTopic.problems[id].runtime, 'graph-walk');
+    assert.deepEqual(currentTopic.problems[id].types, ['type-abstract-function-domain']);
+  }
+  assert.equal(currentTopic.problems['function-concepts-q02'], undefined, 'Q2 validates reuse without adding a duplicate topic exercise');
+  assert.ok(currentTopic.groups.filter(group => !['domain', 'equality', 'abstract-domain'].includes(group.id)).every(group => group.problems.length === 0));
 });
 
 test('topic builder is deterministic and check mode reports staleness without writing', async t => {

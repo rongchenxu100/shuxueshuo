@@ -1728,6 +1728,11 @@
       "repeat": "always",
       "compiler": "abstract_function_domain",
       "parts": []
+    },
+    "abstract_domain_parameter_derivation": {
+      "repeat": "always",
+      "compiler": "abstract_function_domain",
+      "parts": []
     }
   },
   "overrides": {

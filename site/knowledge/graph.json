@@ -724,14 +724,15 @@
       "id": "method-input-domain-correspondence",
       "kind": "method",
       "label": "输入范围对应法",
-      "summary": "区分目标函数定义域与 f 的输入范围：先对齐或恢复 f 的输入范围，再要求目标完整输入落在该范围内，解出外层自变量的定义域。",
+      "summary": "先确定可用输入范围，再约束每个调用的完整输入；可求目标定义域，或以共同输入存在求参数。",
       "aliases": [],
       "steps": [
         {
           "id": "solve",
           "title": "用输入范围对应求定义域",
           "calls": [
-            "skill-inequality-transform"
+            "skill-inequality-transform",
+            "skill-expression-defined"
           ]
         }
       ]
@@ -2195,6 +2196,18 @@
       "occurrences": [
         {
           "entry": "identity"
+        }
+      ]
+    },
+    {
+      "id": "method-input-domain-correspondence|calls|skill-expression-defined",
+      "from": "method-input-domain-correspondence",
+      "to": "skill-expression-defined",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
         }
       ]
     },
@@ -4152,9 +4165,36 @@
       ]
     },
     {
+      "id": "type-abstract-function-domain|involves|quantifiers",
+      "from": "type-abstract-function-domain",
+      "to": "quantifiers",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-abstract-function-domain|involves|rational-expression",
+      "from": "type-abstract-function-domain",
+      "to": "rational-expression",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-abstract-function-domain|involves|set-intersection-union",
       "from": "type-abstract-function-domain",
       "to": "set-intersection-union",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-abstract-function-domain|involves|square-root-expression",
+      "from": "type-abstract-function-domain",
+      "to": "square-root-expression",
       "type": "involves",
       "occurrences": [
         {}

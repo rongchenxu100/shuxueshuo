@@ -1,0 +1,14 @@
+{
+  "original_text": "已知函数 $y=f(x+2)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是____。",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_abstract_domain",
+        "known_call": "f(x+2)",
+        "known_domain": "[-3,2]",
+        "strength": "exact",
+        "target_call": "f(2*x-1)"
+      }
+    ]
+  }
+}

@@ -447,6 +447,41 @@ test('problem meaning follows the confirmed conversion and ignores another goal 
   assert.match(element('#pq-meaning-body').innerHTML, /原命题为假/);
 });
 
+test('one scope keeps distinct domain and range targets and explains partial availability', () => {
+  const {context, element} = setup('problem.js');
+  vm.runInContext(`
+    shown.root = {goals: [
+      {kind: 'find_abstract_domain', target_call: 'f(2*x-1)', known_call: 'f(x)', known_domain: '[-1,2]', known_range: '[3,5]', strength: 'exact'},
+      {kind: 'find_abstract_range', target_call: 'f(2*x-1)', known_call: 'f(x)', known_domain: '[-1,2]', known_range: '[3,5]', strength: 'exact'}
+    ]};
+    lesson.data = {status: 'partial', goals: [
+      {target_ref: '/root/goals/0', scope: '/root', status: 'resolved', walk: {bundle: {problemId: 'q13/domain', bundleVersion: 'current'}}},
+      {target_ref: '/root/goals/1', scope: '/root', status: 'unsupported'}
+    ]};
+    lesson.part = 0;
+  `, context);
+  const titles = vm.runInContext('goals().map(goalTitle)', context);
+  assert.match(titles[0], /求 .*的定义域/);
+  assert.match(titles[1], /求 .*的值域/);
+  assert.ok(titles.every(title => !/第[12]问/.test(title)));
+  const note = vm.runInContext('noteHtml(goals()[1])', context);
+  assert.match(note, /值域.*目标暂未支持/);
+  assert.doesNotMatch(note, /换一道题|重新拍照|没判断出题型/);
+  context.renderTabs();
+  assert.match(element('#pq-parts').innerHTML, /data-part="0".*定义域/);
+  assert.match(element('#pq-parts').innerHTML, /data-part="1".*值域/);
+  assert.equal(element('#pq-parts').hidden, false);
+  const completion = element('#gw-completion');
+  completion.append = node => completion.children.push(node);
+  const accepted = {actor: 'student', problem_id: 'q13/domain', base_bundle_version: 'current', done: true};
+  context.savePageProgress(accepted);
+  assert.match(element('#gw-completion .gw-completion h2').innerHTML, /定义域.*这个目标已完成/);
+  assert.match(completion.children.at(-1).innerHTML, /值域.*暂未支持/);
+  assert.doesNotMatch(completion.children.at(-1).innerHTML, /整题已完成|全部完成/);
+  context.savePageProgress({...accepted, problem_id: 'another-goal'});
+  assert.equal(completion.children.length, 1, 'an unrelated goal cannot alter the current completion');
+});
+
 for (const order of ['decode-first', 'upload-first']) test(`submitting during loading is ignored until upload and decoding finish: ${order}`, async () => {
   const {context, element, location, setImageDecode} = setup('camera.js');
   const decoded = deferred(), uploaded = deferred(), requests = [];
@@ -752,11 +787,12 @@ for (const action of ['retryLesson', 'start', 'resume']) for (const failure of [
 });
 
 test('camera and problem pages load the versioned pure notice helper before their updated scripts', () => {
-  for (const [name, version] of [['camera', '20261025-admission-review'], ['problem', '20261028-abstract-domain-meaning']]) {
+  for (const name of ['camera', 'problem']) {
     const html = fs.readFileSync(new URL(`../../site/lab/search/${name}.html`, import.meta.url), 'utf8');
     const helper = html.indexOf('src="search-errors.js?v=20261025-admission-review" defer');
+    const script = html.match(new RegExp(`src="${name}\\.js\\?v=[\\w-]+" defer`));
     assert.ok(helper >= 0);
-    assert.ok(html.indexOf(`src="${name}.js?v=${version}" defer`) > helper);
+    assert.ok(script && script.index > helper);
   }
 });
 

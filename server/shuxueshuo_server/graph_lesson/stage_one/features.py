@@ -462,10 +462,22 @@ def _scope_features(report, candidate, scope, ancestors, features):
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_quantified_comparison_goal'}, source_refs=[target_ref])
             continue
-        if goal['kind'] == 'find_abstract_domain':
+        if goal['kind'] == 'find_abstract_range':
+            # Preserve the requested output range as a distinct, known target.
+            # Its solving method is not implemented yet; domain features must
+            # not accidentally make this second goal executable via M2.
+            add('goal', {'kind': 'find_abstract_range', 'known_form': None,
+                         'strength': goal['strength']}, source_refs=[target_ref])
+            produced['goal']['knowledge_refs'] = ['function-concept#elements']
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.abstract_range_not_implemented'},
+                        source_refs=[target_ref])
+            continue
+        if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter'):
             add('goal', {
-                'kind': 'find_abstract_domain',
-                'known_form': 'identity',
+                'kind': goal['kind'],
+                'known_form': None,
                 'strength': goal.get('strength'),
             }, source_refs=[target_ref])
             produced['goal']['knowledge_refs'] = [
@@ -473,12 +485,16 @@ def _scope_features(report, candidate, scope, ancestors, features):
             ]
             try:
                 description = describe_abstract_domain_goal(report, scope, ancestors, goal_index)
-                add('abstract_function_domain', description, source_refs=[
+                produced['goal']['value']['known_form'] = description['known_form']
+                source_refs = [
                     target_ref,
                     description.get('known_call_source_ref', target_ref),
                     description.get('known_domain_source_ref', target_ref),
                     description.get('target_call_source_ref', target_ref),
-                ])
+                ]
+                if description.get('known_range_source_ref'):
+                    source_refs.append(description['known_range_source_ref'])
+                add('abstract_function_domain', description, source_refs=source_refs)
             except (NotationError, ValueError, TypeError) as exc:
                 add('abstract_function_domain',
                     diagnostic={'code': getattr(exc, 'code', 'abstract_domain.invalid_structure')},

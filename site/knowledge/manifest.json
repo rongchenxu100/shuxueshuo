@@ -1,5 +1,5 @@
 {
-  "contentVersion": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b",
+  "contentVersion": "dcd10efdc13b2c0622dca140a2c5339c636db4c593ef64ca03d0f7e9d49ab91c",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -229,6 +229,8 @@
     "teaching/problems/basic-inequality-q28.json",
     "teaching/problems/basic-inequality-q29.json",
     "teaching/problems/basic-inequality-q30.json",
+    "teaching/problems/function-concepts-abstract-mixed-q03.json",
+    "teaching/problems/function-concepts-parameter-variant02.json",
     "teaching/problems/function-concepts-q01.json",
     "teaching/problems/function-concepts-q04.json",
     "teaching/problems/function-concepts-q12.json",
@@ -238,6 +240,7 @@
     "teaching/problems/function-concepts-q22-v2.json",
     "teaching/problems/function-concepts-q23b.json",
     "teaching/problems/function-concepts-q25.json",
+    "teaching/problems/function-concepts-q26.json",
     "teaching/problems/quadratic-always-q01.json",
     "teaching/problems/quadratic-always-q02.json",
     "teaching/problems/quadratic-always-q03.json",

@@ -17,7 +17,7 @@ const h = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&
 
 export function compileCourse(source, evidence, graph, nodes) {
   assert(source.schemaVersion === 1 && /^[a-z][a-z0-9-]*$/.test(source.problemId), 'Invalid course source');
-  assert(/^\/topics\/[a-z][a-z0-9-]*\/q\d+[a-z]?\/$/.test(source.page), 'Invalid topic problem path');
+  assert(/^\/topics\/[a-z][a-z0-9-]*\/(?:q\d+[a-z]?|variant\d+)\/$/.test(source.page), 'Invalid topic problem path');
   assert(typeof source.title === 'string' && source.title.trim(), 'Missing course title');
   assert(/^\/topics\/[a-z][a-z0-9-]*\/$/.test(source.topicHref) && source.page.startsWith(source.topicHref), 'Invalid course topic');
   const goal = evidence.lesson?.goals?.find(item => item.target_ref === source.targetRef);
@@ -82,9 +82,9 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
     .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261028-domain-derivation"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261028-domain-overlap"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261028-domain-derivation"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261028-domain-overlap"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)

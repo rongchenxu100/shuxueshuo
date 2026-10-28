@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "problemId": "quadratic-always-q01",
-  "bundleVersion": "597b6bb63f03107b0245de3bdec5d1c05c484abd4e141c34f43a86c67c03658b",
-  "graphVersion": "205e1f665231b6a8e49b895ca1fcec0fb68863830827ad8b2afbf61028f0b42b",
+  "bundleVersion": "63736f5c617701b860cb5e6b4f9e6cbbb10832808a3b30ab1fb2e2062439451a",
+  "graphVersion": "dcd10efdc13b2c0622dca140a2c5339c636db4c593ef64ca03d0f7e9d49ab91c",
   "problem": {
     "text": "若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。",
     "root": {
@@ -218,6 +218,7 @@
         "quadratic-inequality",
         "type-function-domain",
         "type-quantified-quadratic",
+        "type-abstract-function-domain",
         "type-amgm-quantified",
         "type-parameter-quadratic-solve",
         "type-quadratic-solve",
@@ -232,6 +233,10 @@
         {
           "id": "type-quantified-quadratic",
           "coverage": 2
+        },
+        {
+          "id": "type-abstract-function-domain",
+          "coverage": 1
         },
         {
           "id": "type-amgm-quantified",
@@ -264,7 +269,7 @@
         "results": [
           "合起来：关于 $x$ 的二次不等式对所有实数 $x$ 都成立，求参数 $a$ 的取值范围。"
         ],
-        "log": "图谱查询：从 2 个知识线索反查，找到 7 个相关题型；最高覆盖 2/2。"
+        "log": "图谱查询：从 2 个知识线索反查，找到 8 个相关题型；最高覆盖 2/2。"
       }
     },
     {
@@ -4036,7 +4041,7 @@
         "status": "active",
         "label": "抽象函数的定义域问题",
         "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
-        "choice_hint": "未给出 $f$ 的解析式，只知道输入范围",
+        "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
         "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
         "features": [
           {
@@ -4046,10 +4051,13 @@
             "cue": "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
           },
           {
-            "cue": "目标是让交给 f 的完整输入落在其输入范围内；第一批支持已知恰为 f(x) 的定义域、目标为 f(ax+b)。"
+            "cue": "目标是让交给 f 的完整输入落在其输入范围内；支持已知 f(x) 或 f(cx+d) 的完整自然定义域（c、d 为固定有理数且 c≠0），目标为 f(ax+b)，或它除以仿射式、仿射式的平方根。已知侧另限外层范围、常量或非线性反推仍未开放。"
           },
           {
-            "cue": "目标表达式同时含分母、根式等结构时，还要保留各部分自身的合法条件（后续批次）。"
+            "cue": "目标含具体分母时保留原式限制：仿射分母不能为零，根式分母同时满足被开方数非负与分母非零；不由 f 的定义域推断 f 的函数值符号或零点。"
+          },
+          {
+            "cue": "已知 f 在固定有限区间的输入范围；多个调用的输入是外层变量和参数的有理线性式，通过共同有意义求存在合法外层变量的参数范围。题干仅说在区间上有定义时，只使用题设保证的输入范围，不推断区间外无定义。"
           }
         ],
         "confuse": [
@@ -4061,7 +4069,10 @@
         "knowledge": [
           "function-concept",
           "interval-notation",
-          "set-intersection-union"
+          "set-intersection-union",
+          "rational-expression",
+          "square-root-expression",
+          "quantifiers"
         ],
         "methods": [
           "method-input-domain-correspondence"
@@ -5170,6 +5181,15 @@
         ]
       },
       {
+        "id": "type-abstract-function-domain|involves|quantifiers",
+        "from": "type-abstract-function-domain",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-amgm-quantified|involves|function-range-extrema",
         "from": "type-amgm-quantified",
         "to": "function-range-extrema",
@@ -5370,20 +5390,20 @@
     ],
     "layout": {
       "positions": {
-        "quadratic-inequality": {
+        "quantifiers": {
           "x": 36,
           "y": 420,
           "lines": [
-            "一元二次不等式"
+            "全称量词与存在量词"
           ],
           "w": 196,
           "h": 40
         },
-        "quantifiers": {
+        "quadratic-inequality": {
           "x": 36,
           "y": 472,
           "lines": [
-            "全称量词与存在量词"
+            "一元二次不等式"
           ],
           "w": 196,
           "h": 40
@@ -5397,24 +5417,24 @@
           "w": 196,
           "h": 40
         },
-        "type-rational-inequality": {
+        "type-amgm-quantified": {
           "x": 360,
           "y": 250,
+          "lines": [
+            "应用基本不等式的恒成立与",
+            "存在成立问题"
+          ],
+          "w": 196,
+          "h": 56
+        },
+        "type-rational-inequality": {
+          "x": 360,
+          "y": 318,
           "lines": [
             "一元分式不等式求解问题"
           ],
           "w": 196,
           "h": 40
-        },
-        "type-quadratic-solve": {
-          "x": 360,
-          "y": 302,
-          "lines": [
-            "不含参数的一元二次不等式",
-            "求解问题"
-          ],
-          "w": 196,
-          "h": 56
         },
         "type-function-domain": {
           "x": 360,
@@ -5425,9 +5445,38 @@
           "w": 196,
           "h": 40
         },
-        "type-parameter-quadratic-solve": {
+        "type-quantified-quadratic": {
           "x": 360,
           "y": 422,
+          "lines": [
+            "含参一元二次不等式的恒成",
+            "立与存在成立问题"
+          ],
+          "w": 196,
+          "h": 56
+        },
+        "type-quadratic-solve": {
+          "x": 360,
+          "y": 490,
+          "lines": [
+            "不含参数的一元二次不等式",
+            "求解问题"
+          ],
+          "w": 196,
+          "h": 56
+        },
+        "type-function-range": {
+          "x": 360,
+          "y": 558,
+          "lines": [
+            "求函数的值域"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "type-parameter-quadratic-solve": {
+          "x": 360,
+          "y": 610,
           "lines": [
             "含参数的一元二次不等式求",
             "解问题"
@@ -5437,39 +5486,10 @@
         },
         "type-solution-parameters": {
           "x": 360,
-          "y": 490,
+          "y": 678,
           "lines": [
             "由一元二次不等式的解集求",
             "参数"
-          ],
-          "w": 196,
-          "h": 56
-        },
-        "type-quantified-quadratic": {
-          "x": 360,
-          "y": 558,
-          "lines": [
-            "含参一元二次不等式的恒成",
-            "立与存在成立问题"
-          ],
-          "w": 196,
-          "h": 56
-        },
-        "type-function-range": {
-          "x": 360,
-          "y": 626,
-          "lines": [
-            "求函数的值域"
-          ],
-          "w": 196,
-          "h": 40
-        },
-        "type-amgm-quantified": {
-          "x": 360,
-          "y": 678,
-          "lines": [
-            "应用基本不等式的恒成立与",
-            "存在成立问题"
           ],
           "w": 196,
           "h": 56
@@ -5493,20 +5513,20 @@
           "w": 196,
           "h": 40
         },
-        "method-variable-swap": {
+        "method-interval-extremum": {
           "x": 1008,
           "y": 420,
           "lines": [
-            "更换主元法"
+            "区间最值法"
           ],
           "w": 196,
           "h": 40
         },
-        "method-interval-extremum": {
+        "method-variable-swap": {
           "x": 1008,
           "y": 472,
           "lines": [
-            "区间最值法"
+            "更换主元法"
           ],
           "w": 196,
           "h": 40
@@ -5538,27 +5558,46 @@
           "w": 196,
           "h": 40
         },
-        "quadratic-inequality-solve": {
-          "x": 1332,
-          "y": 172,
-          "lines": [
-            "二次函数图像法"
-          ],
-          "w": 196,
-          "h": 40
-        },
         "method-elimination": {
           "x": 1332,
-          "y": 224,
+          "y": 172,
           "lines": [
             "消元"
           ],
           "w": 196,
           "h": 40
         },
-        "skill-quadratic-sign": {
+        "skill-inequality-transform": {
+          "x": 1332,
+          "y": 224,
+          "lines": [
+            "不等式变形与推导"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "skill-quantified-range": {
           "x": 1332,
           "y": 276,
+          "lines": [
+            "将恒成立与存在成立转化为",
+            "值域或最值条件"
+          ],
+          "w": 196,
+          "h": 56
+        },
+        "quadratic-inequality-solve": {
+          "x": 1332,
+          "y": 344,
+          "lines": [
+            "二次函数图像法"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "skill-quadratic-sign": {
+          "x": 1332,
+          "y": 396,
           "lines": [
             "根据开口与零点判断二次式",
             "的正负"
@@ -5566,27 +5605,9 @@
           "w": 196,
           "h": 56
         },
-        "skill-inequality-transform": {
-          "x": 1332,
-          "y": 344,
-          "lines": [
-            "不等式变形与推导"
-          ],
-          "w": 196,
-          "h": 40
-        },
-        "skill-solve-quadratic": {
-          "x": 1332,
-          "y": 396,
-          "lines": [
-            "求解一元二次方程"
-          ],
-          "w": 196,
-          "h": 40
-        },
         "skill-equality-transform": {
           "x": 1332,
-          "y": 448,
+          "y": 464,
           "lines": [
             "等式变形与推导"
           ],
@@ -5595,26 +5616,16 @@
         },
         "method-substitution": {
           "x": 1332,
-          "y": 500,
+          "y": 516,
           "lines": [
             "换元"
           ],
           "w": 196,
           "h": 40
         },
-        "skill-quantified-range": {
-          "x": 1332,
-          "y": 552,
-          "lines": [
-            "将恒成立与存在成立转化为",
-            "值域或最值条件"
-          ],
-          "w": 196,
-          "h": 56
-        },
         "skill-linear-range": {
           "x": 1332,
-          "y": 620,
+          "y": 568,
           "lines": [
             "求一次函数及常函数在区间",
             "上的最值与值域"
@@ -5622,9 +5633,19 @@
           "w": 196,
           "h": 56
         },
+        "skill-reciprocal-range": {
+          "x": 1332,
+          "y": 636,
+          "lines": [
+            "求对勾函数在区间上的最值",
+            "与值域"
+          ],
+          "w": 196,
+          "h": 56
+        },
         "quadratic-interval-extremum": {
           "x": 1332,
-          "y": 688,
+          "y": 704,
           "lines": [
             "求二次函数在区间上的最值",
             "与值域"
@@ -5634,22 +5655,21 @@
         },
         "method-square-extremum": {
           "x": 1332,
-          "y": 756,
+          "y": 772,
           "lines": [
             "配方求最值法"
           ],
           "w": 196,
           "h": 40
         },
-        "skill-reciprocal-range": {
+        "skill-solve-quadratic": {
           "x": 1332,
-          "y": 808,
+          "y": 824,
           "lines": [
-            "求对勾函数在区间上的最值",
-            "与值域"
+            "求解一元二次方程"
           ],
           "w": 196,
-          "h": 56
+          "h": 40
         },
         "square-nonnegative": {
           "x": 1656,
@@ -5678,11 +5698,11 @@
           "w": 196,
           "h": 40
         },
-        "quadratic-equation": {
+        "function-range-extrema": {
           "x": 1656,
           "y": 472,
           "lines": [
-            "一元二次方程"
+            "函数的值域与最值"
           ],
           "w": 196,
           "h": 40
@@ -5696,11 +5716,11 @@
           "w": 196,
           "h": 40
         },
-        "function-range-extrema": {
+        "quadratic-equation": {
           "x": 1656,
           "y": 576,
           "lines": [
-            "函数的值域与最值"
+            "一元二次方程"
           ],
           "w": 196,
           "h": 40
@@ -5768,6 +5788,6 @@
   "provenance": {
     "judgments": "authored",
     "queries": "computed",
-    "compilerVersion": "0f8a752d84435335631ee1ffd0fda2eb4d8060c7cfa1224f4542e82c1ad69c34"
+    "compilerVersion": "355d7ceb0330353d9183186f549b585cf2a93977806be856e23a275c1b3bac9a"
   }
 }

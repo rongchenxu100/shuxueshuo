@@ -1119,6 +1119,9 @@
                       }
                     }
                   ]
+                },
+                "interval_explorer": {
+                  "$ref": "#/$defs/interval_explorer"
                 }
               }
             }
@@ -1555,6 +1558,155 @@
           }
         }
       ]
+    },
+    "interval_explorer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parameter",
+        "variable",
+        "intervals",
+        "parameter_min",
+        "parameter_max",
+        "initial",
+        "critical_values",
+        "mode",
+        "strategy"
+      ],
+      "properties": {
+        "parameter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intervals": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "call_latex",
+              "lower",
+              "upper",
+              "left_open",
+              "right_open"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "call_latex": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lower": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "slope",
+                  "intercept"
+                ],
+                "properties": {
+                  "slope": {
+                    "type": "number"
+                  },
+                  "intercept": {
+                    "type": "number"
+                  },
+                  "slope_exact": {
+                    "type": "string",
+                    "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+                  },
+                  "intercept_exact": {
+                    "type": "string",
+                    "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+                  }
+                }
+              },
+              "upper": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "slope",
+                  "intercept"
+                ],
+                "properties": {
+                  "slope": {
+                    "type": "number"
+                  },
+                  "intercept": {
+                    "type": "number"
+                  },
+                  "slope_exact": {
+                    "type": "string",
+                    "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+                  },
+                  "intercept_exact": {
+                    "type": "string",
+                    "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+                  }
+                }
+              },
+              "lower_latex": {
+                "type": "string",
+                "minLength": 1
+              },
+              "upper_latex": {
+                "type": "string",
+                "minLength": 1
+              },
+              "left_open": {
+                "type": "boolean"
+              },
+              "right_open": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "parameter_min": {
+          "type": "number"
+        },
+        "parameter_max": {
+          "type": "number"
+        },
+        "initial": {
+          "type": "number"
+        },
+        "critical_values": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "mode": {
+          "enum": [
+            "explore",
+            "separation"
+          ]
+        },
+        "strategy": {
+          "enum": [
+            "direct",
+            "complement"
+          ]
+        },
+        "critical_exact_values": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+          }
+        }
+      }
     }
   }
 }

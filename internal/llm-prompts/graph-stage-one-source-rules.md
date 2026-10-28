@@ -14,6 +14,20 @@ compare_functions 的 select_relation 按题面分别取 equal（选相同）或
 
 “定义域是/为/恰为某集合”用 strength=exact；“在某范围内有意义”仅用 meaningful_only，不能为获得可执行路线改成 exact。known_domain 只转录已知调用关于其外层变量的定义域；若已知的是 f(t+2) 的定义域，不能自行推导后把 known_call 改成 f(t)。input_domain 仅在题面另给目标外层自变量范围时填写，不能拿 known_domain、完整输入的推导范围或最终答案代替。各目标独立保留已知调用的归属和所求调用，不能串用其他小问的域。具体函数定义域仍用 find_domain，含参具体函数按给定定义域求参数仍用 match_domain；抽象域任务不使用 find_range，不提前输出逆像、不等式条件或答案。复核与修复分别核对 known_call、known_domain、strength、target_call 及可选 input_domain 的精确字段；修改多个字段须分别有诊断授权，保留其余原文、作用域与条件。
 
+同题给出抽象函数的完整定义域和值域，同时求新调用的定义域和值域时，保留两个平级目标，不伪造成 children 小问。例如“已知 f(x) 的定义域为 [1,2]，值域为 [0,1/2]，求 f(x+1) 的定义域和值域”，goals 为 [{"kind":"find_abstract_domain","known_call":"f(x)","known_domain":"[1,2]","known_range":"[0,1/2]","strength":"exact","target_call":"f(x+1)"},{"kind":"find_abstract_range","known_call":"f(x)","known_domain":"[1,2]","known_range":"[0,1/2]","strength":"exact","target_call":"f(x+1)"}]。known_range 只转录 known_call 的完整已知值域，不能填推导值域、改作 known_domain/input_domain 或删掉；strength 仍描述已知定义域的强度。同一作用域内两个目标指向同一函数，但目标和外层变量各自绑定。未给具体解析式不能补造函数定义；当前求解能力未开放值域也不能省略该目标、报告图片模糊或把它改成求参数的 find_range。原图未明确完整值域时不能擅自填写 known_range，应保留不确定性。提取、复核和修复都要逐目标核对这两种域和完整 target_call，不能在修复一个目标时改变另一个目标的条件。
+
+复合写法作为已知条件同样按原文提取。例如“已知 f(x+2) 的定义域为 [-3,2]，求 f(2x-1) 的定义域”，目标为 {"kind":"find_abstract_domain","known_call":"f(x+2)","known_domain":"[-3,2]","strength":"exact","target_call":"f(2*x-1)"}。这里 [-3,2] 约束已知调用里的外层 x，不是直接给 f 的输入范围；不能改成 known_call=f(x)，也不能把推导出的 [-1,4] 填入 known_domain。f(c*t+d) 的原系数、完整输入和 t 均须保留；提取阶段不生成 known_slope、known_intercept 或逆变换，这些由确定性识别提取。已知常量、非线性、仅在区间有意义或带额外已知侧限域的题仍照实表示，不为进入当前仿射路线删条件或改成恒等调用。
+
+抽象调用与具体分母混合时，target_call 仍转录完整目标原式，例如 f(3-4*x)/sqrt(x-1) 或 f(2*x-1)/(x-2)，不拆成两个目标，不省略或约去分母，不提前列不等式、交集或答案。根号范围、分式括号、外层变量须逐项核对；复核与修复发现这些错误时定位完整 target_call 字段并按原图修正。已知域事实仍只归属 known_call，不为混合目标编造具体函数定义。提取阶段不生成分母 AST、类型或系数，这些由确定性识别提取。1/f(u)、sqrt(f(u))、f(u)^0 涉及未知函数值条件，仅知定义域不能当成仿射分母路线；多次抽象调用、含参或非线性目标也必须照实保留，不为通过准入删去结构。
+
+题面将所求函数命名为 g(x)=f(x+1)/sqrt(3*x-1) 时，original_text 与 public_content 保留完整等式；find_abstract_domain 的 target_call 填等号右侧完整表达式 f(x+1)/sqrt(3*x-1)，不只填 g(x)，无须在 definitions/facts 重复写目标等式。若候选已忠实保留该等式，且右侧完整原式、外层变量与 target_call 一致，它只是目标函数的命名，不是 f 的具体解析式或额外条件；复核不应仅因重复命名要求删除，也不能据此说 f 未定义或条件缺失。此规则同样适用于 find_abstract_domain_parameter 和 find_abstract_range。不同表达式、冲突定义或独立条件仍须分别保留并核对，不能作为命名别名忽略。这个名字不能改变目标外层变量或省略任何分母。
+
+抽象函数多个调用共同有意义并求参数时，使用 find_abstract_domain_parameter。例如“已知函数 f(x) 在 [0,1] 上有定义，若要使 f(x+a)+f(x-a) 有意义，求 a 的取值范围”，目标为 {"kind":"find_abstract_domain_parameter","known_call":"f(x)","known_domain":"[0,1]","strength":"meaningful_only","target_call":"f(x+a)+f(x-a)","variable":"x","parameter":"a","quantifier":"exists"}。这里目标明确按“在题设给定的输入范围内，求能保证至少存在一个合法 x 的 a 范围”解释，不宣称区间外一定无定义；原文“在区间上有定义/有意义”必须保留 meaningful_only，不能改成 exact，也不因这一范围语义报告 needs_confirmation 或要求重拍。原文明确给出完整定义域时才用 exact。提取、复核和修复均保持这一差别。
+
+此类目标保留完整多调用表达式、外层变量和待求参数，不能合并重复调用、约消相减项或把 x 与 a 互换；不提前生成 x±a 的区间条件、交集、非空条件或参数答案，不使用具体解析式的 match_domain。题面“要使……有意义”在该目标中按存在合法外层变量处理；若明确要求任意 x 都有意义，不改成 exists。图中的旁边解析、手写答案、选项勾画均不是题设条件，不能用于补写已知事实或正确标签。
+
+若题面额外限制已知调用的外层变量（例如仅对 t∈[0,1] 定义 g(t)=f(t+2)，并给 g 的定义域），该限制独立保留在所属 scope.facts；不能省略，也不能搬到目标的 input_domain。当前完整输入范围恢复路线不开放这种已知侧受限情形。只有原文明确另限所求调用的外层变量时，才使用目标 input_domain。复核须分别检查已知侧额外条件有没有被丢弃、known_call 是否被误化简、known_domain 是否被换成推导范围；修复仍只修改逐项授权的字段。
+
 已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标使用 {"kind":"match_domain","object":"函数符号","domain":"题给定义域","symbol":"待求参数"}。题面“函数中自变量的取值范围为某集合”同样表达已知定义域；domain 只转录这个集合，不能填参数答案，也不能移到 find_domain 的 input_domain。此时不使用 find_range 代替 match_domain，不把“定义域为某集合”提前推导成根式非负、分母非零或对区间内外的量词条件；这些是后续求解步骤。原图确实另给的数学条件仍须保留。
 
 若原图直接给的是“对任意/存在某个自变量，不等式成立”、求参数范围，则按原题保留量词关系并使用 find_range。不能因为表达式含根号或分母，就把显式不等式改成 match_domain 或 find_domain。求函数值仍使用 find_value；函数值域不同于定义域。题面只说“恒成立”而未写出量词变量时，取关系中除待求量以外唯一的自由变量作为量词变量；未写出它的范围时取 ℝ。变量不唯一或范围不确定时报告 uncertainty。

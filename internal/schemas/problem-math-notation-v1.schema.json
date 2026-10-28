@@ -360,6 +360,12 @@
               },
               {
                 "$ref": "#/$defs/FindAbstractDomainGoal"
+              },
+              {
+                "$ref": "#/$defs/FindAbstractDomainParameterGoal"
+              },
+              {
+                "$ref": "#/$defs/FindAbstractRangeGoal"
               }
             ]
           },
@@ -633,14 +639,14 @@
             "exact",
             "meaningful_only"
           ],
-          "description": "exact 表示已知恰为完整定义域；meaningful_only 仅表示在该范围有意义，本批第一批仅开放 exact。"
+          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。当前可执行路线仅开放 exact，不能为了通过准入改写关系强度。"
         },
         "target_call": {
           "type": "string",
           "minLength": 1,
           "maxLength": 4096,
           "pattern": "\\S",
-          "description": "所求定义域的目标调用，如 f(2*x-1)；保留完整输入，不化简，不填答案区间。"
+          "description": "所求定义域的完整目标原式，如 f(2*x-1)、f(2*x-1)/sqrt(x+1) 或 f(2*x-1)/(x-2)；保留抽象调用和具体分母的原始结构，不拆目标、不约分、不填答案区间。"
         },
         "input_domain": {
           "type": "string",
@@ -648,9 +654,140 @@
           "maxLength": 4096,
           "pattern": "\\S",
           "description": "仅在题面另限外层自变量范围时填写，如 (0,2)；否则省略。"
+        },
+        "known_range": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面明确给出 known_call 的完整值域时填写原给定集合，如[0,1/2]。这是输出范围，不是额外输入限制，也不是目标答案；不得从兄弟目标或其他函数借用。"
         }
       },
       "description": "抽象函数定义域目标。known_call 与 known_domain 转录题设归属与集合；target_call 为所求表达式；不输出 D_f 推导或最终答案。"
+    },
+    "FindAbstractDomainParameterGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "known_call",
+        "known_domain",
+        "strength",
+        "target_call",
+        "variable",
+        "parameter",
+        "quantifier"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_abstract_domain_parameter",
+          "description": "根据抽象函数各调用存在共同合法输入，求参数的取值范围。"
+        },
+        "known_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "已知域所归属的调用原文，如 f(x) 或 f(x+2)；指外层自变量的定义域对象，不是答案。"
+        },
+        "known_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题面给出的已知定义域集合，如 [-3,2]、{1}、ℝ；不填写求解答案。"
+        },
+        "strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ],
+          "description": "原文定义域为用exact；在区间上有定义/有意义用meaningful_only。后者只用题设保证的输入范围，不断言域外无定义，禁止改写为exact。"
+        },
+        "target_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "求参目标中的完整多调用表达式，如f(x+a)+f(x-a)，保留相加/相减/相乘结构，不提前列条件或写答案。"
+        },
+        "variable": {
+          "type": "string",
+          "pattern": "^[A-Za-z]$",
+          "description": "目标表达式的外层自变量，如x；与parameter独立。"
+        },
+        "parameter": {
+          "type": "string",
+          "pattern": "^[A-Za-z]$",
+          "description": "要求取值范围的参数，如a。"
+        },
+        "quantifier": {
+          "const": "exists",
+          "description": "要求至少存在一个外层自变量，使所有调用的输入同时落在题设给定输入范围内。"
+        }
+      },
+      "description": "抽象函数的多调用共同有意义求参：只用题设给定输入范围，求能保证存在合法外层自变量的参数范围；保留原已知关系强度，不编造解析式。"
+    },
+    "FindAbstractRangeGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "known_call",
+        "known_domain",
+        "strength",
+        "target_call",
+        "known_range"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_abstract_range",
+          "description": "保留抽象函数的完整值域目标，与同题定义域目标独立；当前仅编译保留，尚不执行T5求解。"
+        },
+        "known_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "已知域所归属的调用原文，如 f(x) 或 f(x+2)；指外层自变量的定义域对象，不是答案。"
+        },
+        "known_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题面给出的已知定义域集合，如 [-3,2]、{1}、ℝ；不填写求解答案。"
+        },
+        "strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ],
+          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。当前可执行路线仅开放 exact，不能为了通过准入改写关系强度。"
+        },
+        "target_call": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "所求完整值域的目标原式，如f(x+1)；保留完整输入和运算，不把原已知值域直接填成目标答案。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面另限外层自变量范围时填写，如 (0,2)；否则省略。"
+        },
+        "known_range": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面明确给出 known_call 的完整值域时填写原给定集合，如[0,1/2]。这是输出范围，不是额外输入限制，也不是目标答案；不得从兄弟目标或其他函数借用。"
+        }
+      },
+      "description": "抽象函数完整值域目标。保留已知调用的定义域和值域及目标原式，和同题定义域目标分别记录。known_range必须有明确题面归属；缺少时报告不确定，不编造事实。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

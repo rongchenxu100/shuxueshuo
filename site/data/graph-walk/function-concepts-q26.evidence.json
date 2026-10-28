@@ -1,0 +1,1156 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "7eb42951a55e429ca29200149a45d6e2",
+    "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+    "input_sha256": "ec03d43399a6e8aa4080f84f0df51bc96f73d8227942341a1b90e8d030d70940",
+    "checkpoint_sha256": "bb54432618b32645271b6d6635e423ad26e744c5f8fd7fad4d961e4c8439b64c",
+    "result_sha256": "a1ddd8200c40fab3d7a74193c17326db1bd366a280f64148f975309e9f93c84f",
+    "stage_one_sha256": "a813625c18be7964c7f11fc3be46e330bd9ca5686e300deecf7a16155849969f",
+    "stage_two_sha256": "bcf5d03bfc8f61bacc7c9ed6911505e243b2bd17bd75120eb480a4b34807777b"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-abstract-function-domain",
+        "supported": [
+          "type-abstract-function-domain"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 51,
+                  "end": 56,
+                  "text": " 的定义域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0/target_call"
+              ],
+              "signature": "53135a85ed7d19e6",
+              "options": [
+                {
+                  "text": "函数值 $f(2x-1)$ 的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "使 $f(2x-1)$ 有意义的自变量 $x$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ]
+            }
+          ],
+          "givens": [
+            {
+              "id": "/root/goals/0:given_domain:0",
+              "kind": "given_domain",
+              "quote": [
+                {
+                  "start": 10,
+                  "end": 35,
+                  "text": "$y=f(x+2)$ 的定义域是 $[-3,2]$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0/known_call",
+                "/root/goals/0/known_domain"
+              ],
+              "text": "已知 $f(x+2)$ 的定义域为 $[-3,2]$。"
+            }
+          ],
+          "interaction": "choice",
+          "question": "题目要求 $f(2x-1)$ 的定义域，也就是要确定什么？",
+          "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。",
+          "summary": "题面给出了 $f(x+2)$ 的定义域；本题要找出所有使 $f(2x-1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域。",
+              "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+            ],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "已知具体解析式并直接由原式确定合法输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#elements",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "函数的三要素"
+          },
+          {
+            "ref": "function-concept#composite-domain",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "复合写法的定义域与输入范围"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-abstract-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#elements",
+              "function-concept#composite-domain"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-q26//root/goals/0",
+            "graphVersion": "861c66561a5bede94bc949f4d4904acffdcdfa6db80ee6fac06df71e9afff3c2",
+            "problem": {
+              "text": "已知函数 $y=f(x+2)$ 的定义域是 $[-3,2]$，则函数 $y=f(2x-1)$ 的定义域是 ______。",
+              "givens": [
+                {
+                  "id": "/root/goals/0:given_domain:0",
+                  "kind": "given_domain",
+                  "quote": [
+                    {
+                      "start": 10,
+                      "end": 35,
+                      "text": "$y=f(x+2)$ 的定义域是 $[-3,2]$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/0:d1:1"
+                  ],
+                  "knowledge_refs": [
+                    "function-concept#composite-domain",
+                    "function-concept#elements"
+                  ],
+                  "source_refs": [
+                    "/root/goals/0/known_call",
+                    "/root/goals/0/known_domain"
+                  ],
+                  "text": "已知 $f(x+2)$ 的定义域为 $[-3,2]$。"
+                }
+              ]
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "已知 $f(x+2)$ 的定义域为 $[-3,2]$。\n\n题目要求 $f(2x-1)$ 的定义域，也就是要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "函数值 $f(2x-1)$ 的取值范围",
+                      "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "使 $f(2x-1)$ 有意义的自变量 $x$ 的取值范围"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-abstract-function-domain",
+                  "type-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "题面给出了 $f(x+2)$ 的定义域；本题要找出所有使 $f(2x-1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+                    },
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "已知具体解析式并直接由原式确定合法输入"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-abstract-function-domain"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-domain"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-abstract-function-domain"
+                  ],
+                  "edges": [
+                    "type-abstract-function-domain|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域；定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+                  ],
+                  "log": "作答判断：选择主要题型「抽象函数的定义域问题」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-input-domain-correspondence",
+                  "kind": "method",
+                  "label": "输入范围对应法",
+                  "summary": "区分目标函数定义域与 f 的输入范围：先对齐或恢复 f 的输入范围，再要求目标完整输入落在该范围内，解出外层自变量的定义域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "solve",
+                      "title": "用输入范围对应求定义域",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|candidate|method-input-domain-correspondence",
+                  "from": "type-abstract-function-domain",
+                  "to": "method-input-domain-correspondence",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "79f62558ca89dec6ab22b59e932bbeb20bff018199400069aa208dec60624b6b"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-q26//root/goals/0",
+            "bundleVersion": "79f62558ca89dec6ab22b59e932bbeb20bff018199400069aa208dec60624b6b",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "题面给出了 $f(x+2)$ 的定义域；本题要找出所有使 $f(2x-1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-abstract-function-domain",
+                "reason": "选「抽象函数的定义域问题」：未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域；定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "7eb42951a55e429ca29200149a45d6e2",
+    "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+    "input_sha256": "ec03d43399a6e8aa4080f84f0df51bc96f73d8227942341a1b90e8d030d70940",
+    "stream_id": "7eb42951a55e429ca29200149a45d6e2",
+    "last_seq": 19,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_align",
+        "explanation": "当 $x\\in \\left[-3, 2\\right]$ 时，完整输入 $x+2$ 取遍 $\\left[-1, 4\\right]$。题设给出完整定义域，且这个一次式能取遍所有实数，因此 $\\left[-1, 4\\right]$ 就是 $f$ 的全部输入范围。",
+        "highlight": {
+          "caption": "输入范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "$f(x+2)$ 的定义域",
+              "math": "\\left[-3, 2\\right]",
+              "note": "完整输入 $x+2$"
+            },
+            {
+              "label": "$f$ 的输入范围",
+              "math": "\\left[-1, 4\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "local_check": "passed",
+        "math_step_sha256": "5fe0bd69ace8178c4e714e2614cea8016d8eb6bb5a98145da7f2632783abe6c5",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "2ce9b0c708ab810331b63b91c8be98c85d7ad0609b5298a50f5b8247823e2204",
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_condition",
+        "explanation": "目标函数 $f(2\\cdot x-1)$ 有意义，需要完整输入 $2\\cdot x-1$ 属于 $f$ 的输入范围。",
+        "highlight": {
+          "caption": "输入条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "$f$ 的输入范围",
+              "math": "\\left[-1, 4\\right]",
+              "note": "目标函数 $f(2\\cdot x-1)$"
+            },
+            {
+              "label": "完整输入须满足",
+              "math": "2\\cdot x-1\\in \\left[-1, 4\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "local_check": "passed",
+        "math_step_sha256": "47f2f137a2359572b883ec896b85dc3045429ae36c3299a2465a24f7cce3e689",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "2ce9b0c708ab810331b63b91c8be98c85d7ad0609b5298a50f5b8247823e2204",
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_conclusion",
+        "explanation": "解输入条件，得到目标函数关于 $x$ 的定义域。",
+        "highlight": {
+          "caption": "目标函数的定义域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入条件",
+              "math": "2\\cdot x-1\\in \\left[-1, 4\\right]"
+            },
+            {
+              "label": "$f(2\\cdot x-1)$ 的定义域",
+              "math": "\\left[0, \\frac{5}{2}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "local_check": "passed",
+        "math_step_sha256": "ba9cdafb8e7a0f2519a7e03616e0746d7debc5356769f7c0d3204a1fbfb6b046",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "2ce9b0c708ab810331b63b91c8be98c85d7ad0609b5298a50f5b8247823e2204",
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(0, 5/2)",
+            "latex": "\\left[0, \\frac{5}{2}\\right]"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "boundary",
+        "explanation": "当 $x=0$ 时，代回原题成立，$\\therefore$ 边界 $0$ 保留；\n当 $x=\\frac{5}{2}$ 时，代回原题成立，$\\therefore$ 边界 $\\frac{5}{2}$ 保留，\n$\\therefore\\ x \\in \\left[0, \\frac{5}{2}\\right]$。",
+        "highlight": {
+          "caption": "检查边界",
+          "conclusion_only": true,
+          "items": [
+            {
+              "label": "$x$ 的取值范围",
+              "math": "x \\in \\left[0, \\frac{5}{2}\\right]",
+              "note": "$x=0$ 代回原题成立，保留；$x=\\frac{5}{2}$ 代回原题成立，保留"
+            }
+          ]
+        },
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "local_check": "passed",
+        "math_step_sha256": "b1a030c6ddcdbb57d67e0c8c6a605891ab0dd752f4698cf58f7d44992c53f2a1",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "2ce9b0c708ab810331b63b91c8be98c85d7ad0609b5298a50f5b8247823e2204",
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "source_refs": [
+          "/finalization/2"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-004-boundary",
+        "target_ref": "/root/goals/0",
+        "title": "检查边界",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "interval-notation#finite"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_abstract_domain",
+          "set": {
+            "expression": "Interval(0, 5/2)",
+            "latex": "\\left[0, \\frac{5}{2}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(0, 5/2)",
+          "latex": "\\left[0, \\frac{5}{2}\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_abstract_domain",
+          "set": {
+            "expression": "Interval(0, 5/2)",
+            "latex": "\\left[0, \\frac{5}{2}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(0, 5/2)",
+          "latex": "\\left[0, \\frac{5}{2}\\right]"
+        },
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "math_steps": [
+          {
+            "math_step_sha256": "5fe0bd69ace8178c4e714e2614cea8016d8eb6bb5a98145da7f2632783abe6c5",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align"
+          },
+          {
+            "math_step_sha256": "47f2f137a2359572b883ec896b85dc3045429ae36c3299a2465a24f7cce3e689",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition"
+          },
+          {
+            "math_step_sha256": "ba9cdafb8e7a0f2519a7e03616e0746d7debc5356769f7c0d3204a1fbfb6b046",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion"
+          },
+          {
+            "math_step_sha256": "b1a030c6ddcdbb57d67e0c8c6a605891ab0dd752f4698cf58f7d44992c53f2a1",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-abstract-function-domain-004-boundary"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "c51407de69394cce0782cc923a5a01f55ec39ce74daa02f80aec4d474b1f839c",
+        "verified_route_sha256": "09039c12c6a20c756bb10da15b27a9de74ac001e8d3ba39152fddf8d310a89dd"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-abstract-function-domain",
+            "op": "methods"
+          },
+          "question": "先求 f 的输入范围，再列出目标函数的输入条件，最后求出目标函数的定义域。",
+          "submit_label": "用输入范围对应法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-input-domain-correspondence",
+              "recommendation": "preferred",
+              "route_id": "abstract-function-domain",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align",
+        "ordinal": 1,
+        "math_step_sha256": "5fe0bd69ace8178c4e714e2614cea8016d8eb6bb5a98145da7f2632783abe6c5",
+        "status": "interactive",
+        "interaction_id": "30379ec4bfe9c443e3a1c195"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition",
+        "ordinal": 2,
+        "math_step_sha256": "47f2f137a2359572b883ec896b85dc3045429ae36c3299a2465a24f7cce3e689",
+        "status": "interactive",
+        "interaction_id": "a16ad80e65cc5f375b9f8fde"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion",
+        "ordinal": 3,
+        "math_step_sha256": "ba9cdafb8e7a0f2519a7e03616e0746d7debc5356769f7c0d3204a1fbfb6b046",
+        "status": "interactive",
+        "interaction_id": "1cbf55dfd7bb700d1168cb73"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-004-boundary",
+        "ordinal": 4,
+        "math_step_sha256": "b1a030c6ddcdbb57d67e0c8c6a605891ab0dd752f4698cf58f7d44992c53f2a1",
+        "status": "interactive",
+        "interaction_id": "28848c03ee51254b677ff0f2"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "2ce9b0c708ab810331b63b91c8be98c85d7ad0609b5298a50f5b8247823e2204",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:abstract-function-domain:complete",
+        "last_seq": 17
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-input-domain-correspondence",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "function-concept#composite-domain",
+                  "function-concept#elements",
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "interval-notation#finite",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#composite-domain",
+                "interval-notation#finite"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "30379ec4bfe9c443e3a1c195",
+        "interaction_revision": "6a22585043e7790e2775013bd9f61722fa9bc7693d25c262d95f3669d5ed838b",
+        "interaction_sha256": "133bff5aaf0bb2377c9eb2856c5033199c26e33725bfdbee7da1738f5e52b755",
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "先让 $x$ 遍历 $\\left[-3, 2\\right]$，求完整输入 $x+2$ 的取值范围。"
+            },
+            "id": "30379ec4bfe9c443e3a1c195#1",
+            "interaction": {
+              "field": "known_object",
+              "options": [
+                {
+                  "label": "$\\left[-3, 2\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[-1, 4\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由「$f(x+2)$ 的定义域为 $\\left[-3, 2\\right]$」，得到 $f$ 的输入范围是？",
+            "stem_board": {
+              "caption": "输入范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f(x+2)$ 的定义域",
+                  "math": "\\left[-3, 2\\right]",
+                  "note": "完整输入 $x+2$"
+                },
+                {
+                  "label": "$f$ 的输入范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 f 的输入范围"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "5fe0bd69ace8178c4e714e2614cea8016d8eb6bb5a98145da7f2632783abe6c5",
+            "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a16ad80e65cc5f375b9f8fde",
+        "interaction_revision": "6a22585043e7790e2775013bd9f61722fa9bc7693d25c262d95f3669d5ed838b",
+        "interaction_sha256": "8633280dc8ef482e5b29f243b8cd08c780359ae3481e18c2dcc55ee27663e900",
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "完整输入是 $2\\cdot x-1$，须有 $2\\cdot x-1\\in \\left[-1, 4\\right]$。"
+            },
+            "id": "a16ad80e65cc5f375b9f8fde#1",
+            "interaction": {
+              "field": "input_condition",
+              "options": [
+                {
+                  "label": "完整输入是 $2\\cdot x-1$，须有 $2\\cdot x-1\\in \\left[-1, 4\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "完整输入是 $x$，须有 $x\\in \\left[-1, 4\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "完整输入是 $2\\cdot x-1$，须有 $2\\cdot x-1\\notin \\left[-1, 4\\right]$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "要使目标函数 $f(2\\cdot x-1)$ 有意义，完整输入及其须满足的范围是？",
+            "stem_board": {
+              "caption": "输入条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f$ 的输入范围",
+                  "math": "\\left[-1, 4\\right]",
+                  "note": "目标函数 $f(2\\cdot x-1)$"
+                },
+                {
+                  "label": "完整输入须满足",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "列出目标函数的输入条件"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "47f2f137a2359572b883ec896b85dc3045429ae36c3299a2465a24f7cce3e689",
+            "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1cbf55dfd7bb700d1168cb73",
+        "interaction_revision": "6a22585043e7790e2775013bd9f61722fa9bc7693d25c262d95f3669d5ed838b",
+        "interaction_sha256": "2094a4fdadd20faf85da41061796c2839ccbe3dc582692acc97e0dd9f0dc3b08",
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域是 $\\left[0, \\frac{5}{2}\\right]$。$\\left[-1, 4\\right]$ 是 $f$ 的输入范围，不是本题最终答案。"
+            },
+            "id": "1cbf55dfd7bb700d1168cb73#1",
+            "interaction": {
+              "field": "domain_answer",
+              "options": [
+                {
+                  "label": "$\\left[0, \\frac{5}{2}\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[-1, 4\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $2\\cdot x-1\\in \\left[-1, 4\\right]$，目标函数 $f(2\\cdot x-1)$ 关于 $x$ 的定义域是？",
+            "stem_board": {
+              "caption": "目标函数的定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入条件",
+                  "math": "2\\cdot x-1\\in \\left[-1, 4\\right]"
+                },
+                {
+                  "label": "$f(2\\cdot x-1)$ 的定义域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求目标函数的定义域"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ba9cdafb8e7a0f2519a7e03616e0746d7debc5356769f7c0d3204a1fbfb6b046",
+            "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "28848c03ee51254b677ff0f2",
+        "interaction_revision": "6a22585043e7790e2775013bd9f61722fa9bc7693d25c262d95f3669d5ed838b",
+        "interaction_sha256": "1dcde1b52b27ec5a59c7a88d52053b90662f4a13088a567fbd9e7fcf013966f8",
+        "lesson_version": "79e147caa3c7322c105e565f5976aee258423ce0123f123188d4153327903aab",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "边界是否保留取决于它是否满足原题的全部条件。"
+            },
+            "id": "28848c03ee51254b677ff0f2#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$x=0$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $0$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "不成立，排除 $0$",
+                      "value": "s1o2"
+                    }
+                  ]
+                },
+                {
+                  "label": "$x=\\frac{5}{2}$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $\\frac{5}{2}$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "不成立，排除 $\\frac{5}{2}$",
+                      "value": "s2o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "复核边界",
+              "type": "checklist"
+            },
+            "question": "把可行集 $\\left[0, \\frac{5}{2}\\right]$ 的有限边界代回原题，判断是否保留。",
+            "submit_label": "确认判断",
+            "title": "复核边界"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "7eb42951a55e429ca29200149a45d6e2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b1a030c6ddcdbb57d67e0c8c6a605891ab0dd752f4698cf58f7d44992c53f2a1",
+            "step_id": "39e5646dcb-abstract-function-domain-004-boundary"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

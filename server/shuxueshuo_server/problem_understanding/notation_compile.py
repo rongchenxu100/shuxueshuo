@@ -111,6 +111,8 @@ class Report:
     # Per-scope bound facts in source order. Unlike source_locations, equal
     # bound ASTs in sibling scopes keep separate entries.
     scope_facts: dict = dc_field(default_factory=dict)
+    # Proven redundant target names are audit records, never additional facts.
+    abstract_target_aliases: dict = dc_field(default_factory=dict)
 
     def record_intersections(self, ast, path, source):
         if ast[0] == "point_intersection_definition":
@@ -138,6 +140,8 @@ class Report:
             "object_bindings": self.semantic_normalization.get("object_bindings", []),
             "normalization_proofs": self.semantic_normalization.get("proofs", []),
             "normalization_report": self.normalization_report,
+            **({"abstract_target_aliases": self.abstract_target_aliases}
+               if self.abstract_target_aliases else {}),
         }
 
 
@@ -392,9 +396,9 @@ class Scope:
             for side in ast[1:3]:
                 for name in set_operand_names(side):
                     self.declare(name, "set")
-        if ast[:2] == ["call", "sum"] and len(ast) == 3:
-            if ast[2][0] == "name" and ast[2][1][:1].isupper():
-                self.declare(ast[2][1], "set")
+        if (ast[:2] == ["call", "sum"] and len(ast) == 3
+                and ast[2][0] == "name" and ast[2][1][:1].isupper()):
+            self.declare(ast[2][1], "set")
         for child in children(ast):
             self.set_declarations(child)
 
@@ -893,10 +897,19 @@ class NotationValidator:
             if len(report.objects) == known:
                 break
         expressions = []
+        from .notation_abstract_domain import target_naming_aliases
+
+        target_aliases = target_naming_aliases(source, path, env)
         for field in ("definitions", "facts"):
             for index, text in enumerate(source[field]):
                 location = f"{path}.{field}[{index}]"
                 try:
+                    if location in target_aliases:
+                        report.abstract_target_aliases[location] = target_aliases[location]
+                        report.units[location] = {
+                            "scope": path, "collection": field, "index": index,
+                        }
+                        continue
                     # Both collections use the same math-object recognition.
                     # Keep the original field/path for audit, not for typing.
                     ast = definition(text, known_functions=env.functions)
@@ -959,7 +972,7 @@ class NotationValidator:
 
                     goals.append(compile_comparison(goal, f'{path}.goals[{index}]'))
                     continue
-                if goal['kind'] == 'find_abstract_domain':
+                if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                     from .notation_abstract_domain import compile_abstract_domain
 
                     goals.append(compile_abstract_domain(goal, f'{path}.goals[{index}]'))
@@ -1024,6 +1037,9 @@ class NotationValidator:
                         "message": str(exc),
                     }
                 )
+        from .notation_abstract_domain import validate_abstract_knowledge
+
+        validate_abstract_knowledge(goals)
         result = {
             "scope": path,
             "facts": compiled,

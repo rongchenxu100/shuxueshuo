@@ -94,7 +94,7 @@
           {
             "value": "type-abstract-function-domain",
             "label": "抽象函数的定义域问题",
-            "note": "未给出 $f$ 的解析式，只知道输入范围"
+            "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
           },
           {
             "value": "type-function-domain",
@@ -803,13 +803,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"9962a41a91d0d42667f8897a2fbd715ac95d1e6f21be92be29f50022bf773bc7\",\"d29ab06cd8319e350a636ea949c85c2f5715451510f7e44eacee4343d64cf8b7\",\"5cacedbf7cfd454aac1025ede56503a5\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"21948ba38182d630fd10958f41d27ec63516372730d186b1ed607a878aa5f248\",\"d29ab06cd8319e350a636ea949c85c2f5715451510f7e44eacee4343d64cf8b7\",\"5cacedbf7cfd454aac1025ede56503a5\",\"/root/goals/0\"]",
   "stream": {
     "run_id": "5cacedbf7cfd454aac1025ede56503a5",
     "lesson_version": "d29ab06cd8319e350a636ea949c85c2f5715451510f7e44eacee4343d64cf8b7",
     "stream_id": "5cacedbf7cfd454aac1025ede56503a5",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "9962a41a91d0d42667f8897a2fbd715ac95d1e6f21be92be29f50022bf773bc7",
+    "base_bundle_version": "21948ba38182d630fd10958f41d27ec63516372730d186b1ed607a878aa5f248",
     "d3": {
       "expected_answer": {},
       "id": "D3",

@@ -676,3 +676,45 @@
 .gw-option-heading button {margin-top:12px;padding:8px 12px;border:1px solid #aecfca;border-radius:8px;background:white;color:#13695f;font:inherit;cursor:pointer}
 .gw-option-ready {padding:16px;background:#eef7f4;border-radius:10px;color:#315c58}
 .gw-option-verdict-board {padding-left:1.4em;line-height:1.9;color:#315c58}
+
+/* Local interval experiments do not change the lesson's answer or progress. */
+.gw-interval-explorer { min-width: 0; margin: 0 0 15px; padding: 15px 13px 12px; border: 1px solid #d8e6df; border-radius: 14px; background: #fcfefd; }
+.gw-interval-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-bottom: 3px; font-size: 13px; }
+.gw-interval-legend-item { display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 100%; color: #087f79; }
+.gw-interval-legend-item[data-interval="1"] { color: #536ec5; }
+.gw-interval-legend-item > span:last-child { min-width: 0; max-width: 100%; overflow-x: auto; }
+.gw-interval-legend-dot { display: grid; flex: 0 0 22px; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: #e5f3ed; font-size: 11px; font-weight: 650; }
+.gw-interval-legend-item[data-interval="1"] .gw-interval-legend-dot { background: #edf0fb; }
+.gw-interval-svg { display: block; width: 100%; height: auto; overflow: visible; font-family: inherit; }
+.gw-interval-viewport { width: 100%; max-width: 560px; margin: 0 auto; }
+.gw-interval-status { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 10px; padding: 10px 12px; border-radius: 9px; background: #edf6ef; color: #39694c; font-size: 12px; line-height: 1.6; }
+.gw-interval-explorer[data-state="separate"] .gw-interval-status,
+.gw-interval-explorer[data-state="touch-empty"] .gw-interval-status { background: #f2f4f5; color: #627481; }
+.gw-interval-intersection { font-size: 14px; font-variant-numeric: tabular-nums; }
+.gw-interval-controls { display: grid; grid-template-columns: 90px minmax(0, 1fr); align-items: center; gap: 12px; margin: 17px 0 9px; color: #234c42; }
+.gw-interval-current { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.gw-interval-slider { width: 100%; min-width: 0; margin: 0; height: 26px; cursor: ew-resize; accent-color: #087f79; }
+.gw-interval-snapshots { display: flex; flex-wrap: wrap; gap: 6px; }
+.gw-interval-snapshot { padding: 5px 9px; border: 1px solid #d8e4dd; border-radius: 7px; background: #fff; color: #678076; font: inherit; font-size: 11px; line-height: 1.5; cursor: pointer; }
+.gw-interval-snapshot[aria-pressed="true"] { border-color: #87b5a6; background: #eaf5ef; color: #08756b; }
+.gw-interval-snapshot:focus-visible, .gw-interval-slider:focus-visible { outline: 2px solid #087f79; outline-offset: 3px; }
+.gw-interval-hint { margin: 11px 0 0; color: #84978e; font-size: 11px; line-height: 1.6; }
+.gw-interval-separations { display: grid; gap: 10px; margin-top: 12px; }
+.gw-interval-separation { min-width: 0; padding: 11px 8px 0; border: 1px solid #e2ebe6; border-radius: 10px; background: #f7faf8; }
+.gw-interval-separation-title { padding-left: 4px; color: #557269; font-size: 12px; }
+.gw-interval-separations > .gw-interval-hint { margin-top: 0; }
+@container domain-derivation (min-width: 650px) {
+  .gw-interval-explorer[data-mode="explore"] { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); column-gap: 24px; align-items: center; }
+  .gw-interval-explorer[data-mode="explore"] .gw-interval-legend { grid-column: 1 / -1; margin-bottom: 8px; }
+  .gw-interval-explorer[data-mode="explore"] .gw-interval-viewport { grid-column: 1; grid-row: 2 / 6; }
+  .gw-interval-explorer[data-mode="explore"] .gw-interval-status,
+  .gw-interval-explorer[data-mode="explore"] .gw-interval-controls,
+  .gw-interval-explorer[data-mode="explore"] .gw-interval-snapshots,
+  .gw-interval-explorer[data-mode="explore"] > .gw-interval-hint { grid-column: 2; }
+  .gw-interval-separations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gw-interval-separations > .gw-interval-hint { grid-column: 1 / -1; }
+}
+@container domain-derivation (max-width: 330px) {
+  .gw-interval-explorer { padding: 12px 9px; }
+  .gw-interval-controls { grid-template-columns: 75px minmax(0, 1fr); gap: 8px; }
+}

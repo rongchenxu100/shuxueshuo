@@ -13,6 +13,16 @@ export function matchedOriginalChoice(completion, targetRef = completion?.target
       choice.correct_labels.some(label => !labels.has(label))) return null;
   const single = choice.kind === 'single_choice';
   if (single && choice.correct_labels.length !== 1) return null;
+  if (choice.matching === 'set_equality') {
+    const keys = ['status', 'kind', 'matching', 'selection_mode', 'target_ref', 'options', 'correct_labels'];
+    if (!['find_range', 'find_domain', 'match_domain', 'find_abstract_domain', 'find_abstract_domain_parameter'].includes(completion.answer?.kind) ||
+        completion.answer.status !== 'set' || Object.keys(choice).length !== keys.length ||
+        keys.some(key => !Object.hasOwn(choice, key)) ||
+        !(single ? choice.selection_mode === 'single' : ['multiple', 'unspecified'].includes(choice.selection_mode)) ||
+        choice.options.some(option => Object.keys(option).sort().join(',') !== 'label,text')) return null;
+    return choice;
+  }
+  if (choice.matching !== undefined) return null;
   const comparison = completion.answer?.kind === 'compare_functions' ||
     choice.option_verdicts !== undefined || choice.select_relation !== undefined;
   if (single && !comparison) return choice;

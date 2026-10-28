@@ -3,7 +3,7 @@
   "type_id": "type-abstract-function-domain",
   "branches": [
     {
-      "branch_id": "identity-known-affine-target",
+      "branch_id": "invertible-affine-known-plain-or-concrete-denominator-target",
       "checks": [
         {
           "id": "abstract-domain-goal",
@@ -22,6 +22,29 @@
           "expected": true,
           "role": "required",
           "student_cue": 1
+        }
+      ]
+    },
+    {
+      "branch_id": "finite-input-range-multiple-call-parameter-exists",
+      "checks": [
+        {
+          "id": "abstract-domain-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_abstract_domain_parameter",
+          "role": "required",
+          "student_cue": 4
+        },
+        {
+          "id": "complete-supported-abstract-domain",
+          "feature_id": "abstract_function_domain",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 4
         }
       ]
     }

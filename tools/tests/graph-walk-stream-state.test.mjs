@@ -40,6 +40,23 @@ const completedRoute = () => ({...identity, identity: [target, 'discriminant'], 
 const handoffRoute = () => ({...completedRoute(), target_ref: target, route_id: 'discriminant', status: 'pending'});
 const routeView = extra => ({...view, math_steps: [first], ...extra});
 
+test('live and recovered generic set choices keep the exact final without T1 option gates', () => {
+  const completion = completedRoute();
+  completion.answer.kind = 'find_abstract_domain';
+  Object.assign(completion.original_choice, {kind: 'multiple_choice', matching: 'set_equality', selection_mode: 'unspecified'});
+  const handoff = {...completion, target_ref: target, route_id: 'discriminant', status: 'pending'};
+  for (const extra of [{completions: [completion]}, {handoffs: [handoff],
+    checkpoints: [{target_ref: target, route_id: 'discriminant', status: 'verified'}]}]) {
+    const bundle = extendStreamBundle(original.bundle, routeView(extra), target, graph);
+    const route = bundle.routes.discriminant;
+    const final = route.steps.at(-1);
+    assert.equal(route.interactions_complete, true);
+    assert.equal(final.interaction.type, 'original_choice_exact_set');
+    assert.equal(final.require_complete_options, undefined);
+    assert.deepEqual(final.expected_answer, {correct_labels: ['A'], option_labels: ['A', 'B']});
+  }
+});
+
 for (const text of ['A. $[0,1]$', 'A．$[0,1]$', 'Ａ． $[0,1]$', 'A、$[0,1]$', 'A： $[0,1]$', 'A) $[0,1]$', 'A）$[0,1]$',
   '(A) $[0,1]$', '（Ａ）$[0,1]$', '[A] $[0,1]$', '【A】 $[0,1]$', ' \n A. $[0,1]$']) {
   test(`original option marker is displayed once without changing frozen data: ${JSON.stringify(text)}`, () => {

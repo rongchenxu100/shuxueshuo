@@ -116,6 +116,31 @@ def _domain_formula_body_matches(body, expected):
         return False
 
 
+def _abstract_source_names(ast):
+    if isinstance(ast, list) and ast:
+        if ast[0] == "name":
+            return {ast[1]}
+        return set().union(*(_abstract_source_names(child) for child in ast[1:]))
+    return set()
+
+
+def _abstract_formula_matches(body, expected, *, call=False, alias_variables=()):
+    """Accept source naming only for an explicitly allowed outer argument."""
+    if call:
+        body = re.sub(r"^\s*y\s*=\s*", "", body)
+    if alias_variables:
+        alias = re.match(r"^\s*[A-Za-z]\s*(?:\\left\s*)?\(\s*([A-Za-z])\s*"
+                         r"(?:\\right\s*)?\)\s*=\s*(.+)$", body)
+        if alias and alias[1] in alias_variables:
+            body = alias[2]
+    try:
+        if parse(normalize_surface(body).text) == parse(expected):
+            return True
+    except (NotationError, ValueError, RecursionError):
+        pass
+    return _domain_formula_body_matches(body, expected)
+
+
 def _abstract_domain_source_spans(candidate, target_ref, ranges):
     """Bind the given call/domain pair and requested call to distinct source roles.
 
@@ -128,23 +153,20 @@ def _abstract_domain_source_spans(candidate, target_ref, ranges):
         goal = goal[int(part)] if isinstance(goal, list) else goal[part]
     text = candidate["original_text"]
 
-    def matches(body, expected, *, call=False):
-        if call:
-            body = re.sub(r"^\s*y\s*=\s*", "", body)
-        try:
-            if parse(normalize_surface(body).text) == parse(expected):
-                return True
-        except (NotationError, ValueError, RecursionError):
-            pass
-        return _domain_formula_body_matches(body, expected)
+    def matches(body, expected, *, call=False, target_alias=False):
+        variables = ()
+        if target_alias:
+            variables = (_abstract_source_names(parse(expected))
+                         or _abstract_source_names(parse(goal["known_call"])[2]))
+        return _abstract_formula_matches(body, expected, call=call, alias_variables=variables)
 
-    givens, targets, outer = [], [], []
+    givens, given_ranges, targets, outer = [], [], [], []
     for begin, end in ranges:
         formulas = [(begin + match.start(), begin + match.end(), match.group(1))
                     for match in re.finditer(r"\$([^$\n]+)\$", text[begin:end])]
         for index, (start, stop, body) in enumerate(formulas):
             following = text[stop:formulas[index + 1][0] if index + 1 < len(formulas) else end]
-            requirement = re.match(r"\s*的?\s*定义域", following)
+            requirement = re.match(r"\s*的?\s*(?:值域\s*(?:和|与|及|、)\s*)?(?P<domain>定义域)", following)
             is_given = False
             if index + 1 < len(formulas) and matches(body, goal["known_call"], call=True):
                 _next_start, next_stop, next_body = formulas[index + 1]
@@ -152,35 +174,91 @@ def _abstract_domain_source_spans(candidate, target_ref, ranges):
                         and matches(next_body, goal["known_domain"])):
                     givens.append((start, next_stop, "given_domain", ["known_call", "known_domain"]))
                     is_given = True
+                    if 'known_range' in goal and index + 2 < len(formulas):
+                        range_start, range_stop, range_body = formulas[index + 2]
+                        if (re.fullmatch(r"\s*[，,、]\s*(?:其)?值域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", text[next_stop:range_start])
+                                and matches(range_body, goal['known_range'])):
+                            given_ranges.append((start, range_stop, 'given_range', ['known_call', 'known_range']))
+                if ('known_range' in goal
+                        and re.fullmatch(r"\s*的?\s*值域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following)
+                        and matches(next_body, goal['known_range'])):
+                    given_ranges.append((start, next_stop, 'given_range', ['known_call', 'known_range']))
+                    if index + 2 < len(formulas):
+                        domain_start, domain_stop, domain_body = formulas[index + 2]
+                        if (re.fullmatch(r"\s*[，,、]\s*(?:其)?定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", text[next_stop:domain_start])
+                                and matches(domain_body, goal['known_domain'])):
+                            givens.append((start, domain_stop, 'given_domain', ['known_call', 'known_domain']))
             # A second explicitly given domain is not a request merely because
             # its call happens to equal target_call. Blank-answer wording has
             # no following value formula and remains a legitimate question.
             gives_value = (requirement is not None and index + 1 < len(formulas)
                            and re.fullmatch(r"\s*的?\s*定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following))
-            if requirement and not is_given and not gives_value and matches(body, goal["target_call"], call=True):
+            if requirement and not is_given and not gives_value and matches(
+                    body, goal["target_call"], call=True, target_alias=True):
                 targets.append((start, stop, "expression", ["target_call"]))
-                targets.append((stop + requirement.start(), stop + requirement.end(), "goal", ["target_call"]))
+                targets.append((stop + requirement.start('domain'), stop + requirement.end('domain'), "goal", ["target_call"]))
             if "input_domain" in goal:
                 normalized = normalize_surface(body).text
                 if "∈" in normalized:
                     variable, _, domain = normalized.partition("∈")
                     # The outer variable belongs to the requested call, never
                     # to the dummy variable used in the known function call.
-                    argument = parse(goal["target_call"])[2]
+                    argument = parse(goal["target_call"])
 
-                    def names(ast):
-                        if isinstance(ast, list) and ast:
-                            if ast[0] == "name":
-                                return {ast[1]}
-                            return set().union(*(names(child) for child in ast[1:]))
-                        return set()
-
-                    variables = names(argument) or names(parse(goal["known_call"])[2])
+                    variables = (_abstract_source_names(argument)
+                                 or _abstract_source_names(parse(goal["known_call"])[2]))
                     if variable.strip() in variables and matches(domain, goal["input_domain"]):
                         outer.append((start, stop, "given_domain", ["input_domain"]))
-    if len(givens) != 1 or len(targets) != 2 or ("input_domain" in goal and len(outer) != 1):
+    if (len(givens) != 1 or len(targets) != 2
+            or ('known_range' in goal and len(given_ranges) != 1)
+            or ("input_domain" in goal and len(outer) != 1)):
         return None
-    return sorted([*givens, *targets, *outer])
+    return sorted([*givens, *given_ranges, *targets, *outer])
+
+
+def _abstract_parameter_source_spans(candidate, target_ref, ranges):
+    """Bind the stated input interval, full expression and requested parameter."""
+    goal = candidate
+    for part in target_ref.strip('/').split('/'):
+        goal = goal[int(part)] if isinstance(goal, list) else goal[part]
+    text = candidate['original_text']
+
+    matches = _abstract_formula_matches
+
+    givens, targets, parameters = [], [], []
+    for begin, end in ranges:
+        segment = text[begin:end]
+        # An explicit universal requirement is outside this existential goal.
+        normalized = normalize_surface(segment).text
+        universal_variables = re.findall(
+            r'(?:任意|所有|一切|∀)(?:\s*(?:的|实数))*\s*\$?\s*'
+            r'([A-Za-z])(?![A-Za-z0-9_])', normalized)
+        if goal['variable'] in universal_variables:
+            return None
+        formulas = [(begin + match.start(), begin + match.end(), match.group(1))
+                    for match in re.finditer(r'\$([^$\n]+)\$', segment)]
+        for index, (start, stop, body) in enumerate(formulas):
+            next_start = formulas[index + 1][0] if index + 1 < len(formulas) else end
+            following = text[stop:next_start]
+            if index + 1 < len(formulas) and matches(body, goal['known_call'], call=True):
+                _next_start, next_stop, next_body = formulas[index + 1]
+                after_domain = text[next_stop:formulas[index + 2][0] if index + 2 < len(formulas) else end]
+                exact = re.fullmatch(r'\s*的?\s*定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*', following)
+                meaningful = (re.fullmatch(r'\s*在\s*(?:区间\s*)?', following)
+                              and re.match(r'\s*(?:上|内)?\s*(?:有定义|有意义)', after_domain))
+                if matches(next_body, goal['known_domain']) and (
+                        (goal['strength'] == 'exact' and exact)
+                        or (goal['strength'] == 'meaningful_only' and meaningful)):
+                    givens.append((start, next_stop, 'given_domain', ['known_call', 'known_domain', 'strength']))
+            if (matches(body, goal['target_call'], call=True, alias_variables={goal['variable']})
+                    and re.match(r'\s*(?:有意义|有定义)', following)):
+                targets.append((start, stop, 'expression', ['target_call']))
+            parameter_goal = re.match(r'\s*的?\s*(?:取值)?范围', following)
+            if matches(body, goal['parameter']) and parameter_goal:
+                parameters.append((start, stop + parameter_goal.end(), 'goal', ['parameter', 'quantifier']))
+    if len(givens) != 1 or len(targets) != 1 or len(parameters) != 1:
+        return None
+    return sorted([*givens, *targets, *parameters])
 
 
 def _scope_ranges(candidate, target_ref):
@@ -455,9 +533,12 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
-    if (values.get("goal", {}).get("kind") == "find_abstract_domain"
+    if (values.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter")
             and values.get("abstract_function_domain", {}).get("structure_supported")):
-        spans = _abstract_domain_source_spans(candidate, target_ref, ranges)
+        locator = (_abstract_parameter_source_spans
+                   if values['goal']['kind'] == 'find_abstract_domain_parameter'
+                   else _abstract_domain_source_spans)
+        spans = locator(candidate, target_ref, ranges)
         if spans is None:
             return {"fragments": [], "diagnostics": [{
                 "code": "d1.abstract_domain_source_not_uniquely_located", "target_ref": target_ref,

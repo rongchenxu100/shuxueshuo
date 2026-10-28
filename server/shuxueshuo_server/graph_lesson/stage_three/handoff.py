@@ -27,6 +27,9 @@ def validate_original_choice(choice, target):
         return
     if not isinstance(choice, dict) or choice.get("target_ref") != target:
         raise ValueError("handoff.invalid_original_choice")
+    if choice.get("matching") == "set_equality":
+        _validate_set_choice(choice)
+        return
     if choice.get('selection_mode') in ('multiple', 'single', 'unspecified'):
         _validate_comparison_choice(choice)
         return
@@ -50,6 +53,28 @@ def validate_original_choice(choice, target):
     if (choice.get("status") != "matched" or choice.get("kind") != "single_choice"
             or len(labels) < 2 or len(set(labels)) != len(labels)
             or not isinstance(correct, list) or len(correct) != 1 or correct[0] not in labels):
+        raise ValueError("handoff.invalid_original_choice")
+
+
+def _validate_set_choice(choice):
+    expected = {"status", "kind", "matching", "selection_mode", "target_ref", "options", "correct_labels"}
+    mode = choice.get("selection_mode")
+    if (set(choice) != expected or choice["status"] != "matched"
+            or mode not in ("single", "multiple", "unspecified")
+            or choice["kind"] != ("single_choice" if mode == "single" else "multiple_choice")):
+        raise ValueError("handoff.invalid_original_choice")
+    options, correct = choice["options"], choice["correct_labels"]
+    if not isinstance(options, list) or not 2 <= len(options) <= 32 or not isinstance(correct, list):
+        raise ValueError("handoff.invalid_original_choice")
+    labels = []
+    for option in options:
+        if (not isinstance(option, dict) or set(option) != {"label", "text"}
+                or any(not isinstance(value, str) or not value.strip() for value in option.values())):
+            raise ValueError("handoff.invalid_original_choice")
+        labels.append(option["label"])
+    if (len(set(labels)) != len(labels) or any(not isinstance(label, str) for label in correct)
+            or len(set(correct)) != len(correct) or any(label not in labels for label in correct)
+            or mode == "single" and len(correct) != 1):
         raise ValueError("handoff.invalid_original_choice")
 
 
@@ -96,6 +121,10 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
         raise ValueError("handoff.invalid_consistency")
     target, route_id = checkpoint["target_ref"], checkpoint["route_id"]
     validate_original_choice(original_choice, target)
+    if (original_choice and original_choice.get("matching") == "set_equality"
+            and (answer.get("kind") not in {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"}
+                 or answer.get("status") != "set")):
+        raise ValueError("handoff.invalid_original_choice_goal")
     choice_fields = {"original_choice": deepcopy(original_choice)} if original_choice is not None else {}
     for key, expected in (("target_ref", target), ("route_id", route_id)):
         if route.get(key, expected) != expected:

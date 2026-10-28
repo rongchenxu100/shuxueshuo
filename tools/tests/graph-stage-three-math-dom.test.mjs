@@ -26,6 +26,28 @@ const qa = {...identity, step_id: step.step_id, math_step_sha256: step.math_step
 const exactValue = (value, latex = value) => ({expression: value, latex,
   exact: value.includes('/') ? {$math: 'Rational', p: value.split('/')[0], q: value.split('/')[1]} : {$math: 'Integer', value}});
 
+test('generic set-answer completion displays labels without a T1 verdict board', () => {
+  const {document, find} = documentFixture();
+  const payload = {status: 'verified', target_ref: '/root/goals/0',
+    answer: {kind: 'find_abstract_domain', status: 'set', set: {latex: '(\\frac13,5)'}},
+    original_choice: {status: 'matched', kind: 'multiple_choice', matching: 'set_equality',
+      selection_mode: 'unspecified', target_ref: '/root/goals/0',
+      options: [{label: 'A', text: '(1/3,3)'}, {label: 'D', text: '(1/3,5)'}], correct_labels: ['D']}};
+  const {node, complete} = createRouteCompletion(document, payload);
+  assert.equal(complete, true);
+  assert.equal(find('stage-three-choice-answer', node)[0].textContent, '答案：D　');
+  assert.equal(find('gw-option-verdict-board', node).length, 0);
+});
+
+test('abstract-domain parameter completion identifies the result as a parameter range', () => {
+  const {document, find} = documentFixture();
+  const {node, complete} = createRouteCompletion(document, {status: 'verified',
+    answer: {kind: 'find_abstract_domain_parameter', status: 'set', set: {latex: '[-\\frac12,\\frac12]'}}});
+  assert.equal(complete, true);
+  assert.equal(node.children[0].textContent, '参数范围：');
+  assert.equal(find('stage-three-answer', node)[0].textContent, '[-\\frac12,\\frac12]');
+});
+
 test('a deduction keeps its labelled cells while the pending question mark becomes the verified formula', () => {
   const {document, find} = documentFixture();
   const board = {layout: 'derivation', caption: '求定义域', connector: '⇒', items: [

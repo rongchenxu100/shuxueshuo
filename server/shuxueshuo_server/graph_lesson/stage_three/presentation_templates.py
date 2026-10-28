@@ -1,6 +1,7 @@
 """Declarative prose rendering and registered, pure mathematical preparation."""
 
 import re
+from copy import deepcopy
 from string import Formatter
 
 import sympy as sp
@@ -405,6 +406,9 @@ def _affine_restore_view(values):
 # Preparation functions only select supplied evidence or construct equivalent
 # mathematical objects. They contain no prose and never perform solving.
 from .abstract_domain_presentation import presentation as abstract_domain_presentation
+from .abstract_parameter_presentation import (
+    presentation as abstract_parameter_presentation,
+)
 from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
 from .equality_presentation import view as equality_view
@@ -412,6 +416,7 @@ from .equality_presentation import view as equality_view
 PREPARERS = {
     'equality_view': equality_view,
     'abstract_domain_view': abstract_domain_presentation,
+    'abstract_domain_parameter_view': abstract_parameter_presentation,
     "domain_view": domain_presentation,
     "domain_parameter_view": domain_parameter_view,
     "normalize_view": _normalize_view,
@@ -437,6 +442,11 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    'abstract_domain_parameter_view': {
+        'domain_explanation', 'derivation_caption', 'derivation_left_label',
+        'derivation_left_math', 'derivation_left_note', 'derivation_right_label',
+        'derivation_right_math', 'interval_explorer',
+    },
     'equality_view': {
         'equality_explanation', 'option_label', 'left_name', 'right_name',
         'left_math', 'right_math', 'left_domain', 'right_domain',
@@ -548,7 +558,7 @@ def validate_registry(registry):
 def _validate_highlight(highlight, names):
     if (not isinstance(highlight, dict)
             or not {"caption", "items"} <= set(highlight)
-            <= {"caption", "items", "connector", "result", "conclusion_only", "layout", "replace_with_graph", "show_result"}
+            <= {"caption", "items", "connector", "result", "conclusion_only", "layout", "replace_with_graph", "show_result", "interval_explorer"}
             or not isinstance(highlight.get("connector", ""), str)
             or highlight.get("layout", "merge") not in ("merge", "derivation")
             or (highlight.get("layout") == "merge" and "result" not in highlight)
@@ -557,6 +567,10 @@ def _validate_highlight(highlight, names):
             or (highlight.get("show_result") and "result" not in highlight)
             or not isinstance(highlight.get("replace_with_graph", False), (bool, str))):
         raise ValueError("presentation.invalid_highlight")
+    if "interval_explorer" in highlight:
+        if highlight.get("layout") != "derivation":
+            raise ValueError("presentation.invalid_interval_explorer_layout")
+        _validate_path(highlight["interval_explorer"], names)
     if isinstance(highlight.get("replace_with_graph"), str):
         _validate_path(highlight["replace_with_graph"], names)
     _validate_node(highlight["caption"], names)
@@ -625,6 +639,12 @@ def render_highlight(specification, bindings, *, has_case=False):
         rendered["connector"] = _render(highlight["connector"], values)
     if "layout" in highlight:
         rendered["layout"] = highlight["layout"]
+    if "interval_explorer" in highlight:
+        explorer = _lookup(values, highlight["interval_explorer"])
+        if explorer is not None:
+            if not isinstance(explorer, dict):
+                raise ValueError("presentation.invalid_interval_explorer")
+            rendered["interval_explorer"] = deepcopy(explorer)
     if result := _render(highlight.get("result", ""), values):
         rendered["result"] = result
         if highlight.get("show_result"):

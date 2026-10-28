@@ -804,7 +804,7 @@
       "from": "compulsory-1-ch3",
       "to": "junior-knowledge",
       "type": "relation",
-      "count": 5
+      "count": 7
     },
     {
       "from": "compulsory-1-ch2",
@@ -816,7 +816,7 @@
       "from": "compulsory-1-ch1",
       "to": "compulsory-1-ch3",
       "type": "relation",
-      "count": 7
+      "count": 8
     },
     {
       "from": "compulsory-1-ch1",

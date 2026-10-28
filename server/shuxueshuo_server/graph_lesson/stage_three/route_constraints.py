@@ -238,6 +238,14 @@ def apply_visible_constraints(constraint_context, feasible_set):
     if constraint_context.get("goal", {}).get("kind") == "match_domain":
         from .function_domain import process_parameter_context
         return process_parameter_context(constraint_context, feasible_set)
+    if constraint_context.get("goal", {}).get("kind") == "find_abstract_domain_parameter":
+        from .abstract_domain_parameter import admitted
+        if not admitted(constraint_context):
+            raise VerificationGap("abstract_domain_parameter.context_not_admitted")
+        return feasible_set, [{
+            "source_ref": constraint_context["target_ref"],
+            "status": "abstract_domain_parameter_identity",
+        }]
     if constraint_context.get("goal", {}).get("kind") == "find_abstract_domain":
         # M2 already returns the independent-variable domain. Batch-1 identity
         # goals carry no additional visible parameter facts to intersect.

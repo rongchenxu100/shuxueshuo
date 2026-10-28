@@ -1,0 +1,2481 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-parameter-variant02",
+  "graphVersion": "121c685f44b1af6b9771f95db7569dd267e0b76fee264ef1255beca344bd13f4",
+  "problem": {
+    "text": "若 $f(x)$ 在 $[0,1]$ 上有定义，要使函数 $f(x+a)+f(x-a)$ 有定义，则 $a$ 的取值范围是（ ）\nA. $\\left(-\\infty,-\\frac{1}{2}\\right)$\nB. $\\left[-\\frac{1}{2},\\frac{1}{2}\\right]$\nC. $\\left(\\frac{1}{2},+\\infty\\right)$\nD. $\\mathbf{R}$",
+    "givens": [
+      {
+        "id": "/root/goals/0:given_domain:0",
+        "kind": "given_domain",
+        "quote": [
+          {
+            "start": 7,
+            "end": 23,
+            "text": "$f(x)$ 在 $[0,1]$"
+          }
+        ],
+        "fragment_ids": [
+          "/root/goals/0:d1:1"
+        ],
+        "knowledge_refs": [],
+        "source_refs": [
+          "/root/goals/0/known_call",
+          "/root/goals/0/known_domain",
+          "/root/goals/0/strength"
+        ],
+        "text": "已知 $f(x)$ 在 $[0,1]$ 上有定义；只使用题设保证的输入范围。"
+      }
+    ]
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "已知 $f(x)$ 在 $[0,1]$ 上有定义；只使用题设保证的输入范围。\n\n要使 $f(x+a)+f(x-a)$ 有意义，这里要求参数 $a$ 满足什么条件？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "求让每一个实数 $x$ 都合法的 $a$ 范围",
+            "feedback": "固定参数 $a$ 后，至少要能找到一个 $x$，让每个调用的输入同时落在题设给定范围内。只使用这个已知输入范围，不推断范围外是否有定义。"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "在题设给定的输入范围内，求能保证至少存在一个合法 $x$，使所有调用同时有意义的 $a$ 范围"
+          },
+          {
+            "value": "/root/goals/0:goal:o2",
+            "label": "只要其中一个调用有意义，就接受这个 $a$",
+            "feedback": "固定参数 $a$ 后，至少要能找到一个 $x$，让每个调用的输入同时落在题设给定范围内。只使用这个已知输入范围，不推断范围外是否有定义。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o1"
+        ]
+      },
+      "feedback": {
+        "answer": "固定参数 $a$ 后，至少要能找到一个 $x$，让每个调用的输入同时落在题设给定范围内。只使用这个已知输入范围，不推断范围外是否有定义。"
+      },
+      "candidateNodes": [
+        "type-abstract-function-domain",
+        "type-function-domain"
+      ],
+      "effects": {
+        "nodes": [],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "已知 $f(x)$ 在 $[0,1]$ 上有定义；只使用题设保证的输入范围。本题要求 $f(x+a)+f(x-a)$ 中各调用同时有意义，即在题设给定的输入范围内，求能保证至少存在一个合法 $x$，使所有调用同时有意义的 $a$ 范围。"
+        ],
+        "log": "图谱查询：从 0 个知识线索反查，找到 2 个相关题型；最高覆盖 0/0。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "value": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "note": "给出了具体解析式，据此确定合法输入（或求参）",
+            "feedback": "已知具体解析式并直接由原式确定合法输入"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-abstract-function-domain"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-abstract-function-domain",
+        "type-function-domain"
+      ],
+      "effects": {
+        "nodes": [
+          "type-abstract-function-domain"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "判断依据：未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域；定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+        ],
+        "log": "作答判断：选择主要题型「抽象函数的定义域问题」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "输入范围对应法",
+            "target": "method-input-domain-correspondence",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "abstract-function-domain"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-abstract-function-domain",
+        "op": "methods"
+      },
+      "question": "使用输入范围对应法：让每个完整输入落在题设给定范围内，要求存在共同合法的自变量，再求参数范围。",
+      "submit_label": "用输入范围对应法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-input-domain-correspondence"
+      ],
+      "effects": {
+        "nodes": [
+          "method-input-domain-correspondence"
+        ],
+        "edges": [
+          "type-abstract-function-domain|candidate|method-input-domain-correspondence"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "abstract-function-domain"
+      }
+    }
+  ],
+  "routes": {
+    "abstract-function-domain": {
+      "id": "abstract-function-domain",
+      "method": "method-input-domain-correspondence",
+      "label": "输入范围对应法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "16524e0ab125b5259b314ac2#1",
+          "interaction": {
+            "field": "input_conditions",
+            "options": [
+              {
+                "label": "每个调用的完整输入都属于 $\\left[0, 1\\right]$",
+                "value": "o1"
+              },
+              {
+                "label": "要求各调用的函数值属于 $\\left[0, 1\\right]$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在已知输入范围 $\\left[0, 1\\right]$ 内，要保证目标函数有意义，应该怎样约束各个调用？",
+          "stem_board": {
+            "caption": "各调用的输入条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题设给定的输入范围",
+                "math": "\\left[0, 1\\right]",
+                "note": "在题设给定的输入范围内求解。"
+              },
+              {
+                "label": "需要同时满足",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "分别列出输入条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bd7d0ae86856c378b4d783c1ff4f911db1c05f5cd7102091f54efc2c1883acae",
+              "step_id": "39e5646dcb-abstract-function-domain-001-parameter_conditions"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "16524e0ab125b5259b314ac2",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：分别列出输入条件"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "o1",
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "9b8465ece916730207cccd43#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "$f(x+a)$ 允许的 $x$ 范围",
+                "options": [
+                  {
+                    "label": "$\\left[- a,\\,1 - a\\right]$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left[1 - a,\\,2 - a\\right]$",
+                    "value": "o2"
+                  }
+                ]
+              },
+              {
+                "label": "$f(x-a)$ 允许的 $x$ 范围",
+                "options": [
+                  {
+                    "label": "$\\left[a,\\,a + 1\\right]$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left[a + 1,\\,a + 2\\right]$",
+                    "value": "o2"
+                  }
+                ]
+              }
+            ],
+            "title": "分别解输入条件",
+            "type": "checklist"
+          },
+          "question": "把 $a$ 暂看作常数，分别解关于 $x$ 的输入条件。",
+          "stem_board": {
+            "caption": "分别求范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各调用的输入条件",
+                "math": "\\begin{gathered}0 \\leq x + a \\leq 1\\\\0 \\leq x - a \\leq 1\\end{gathered}"
+              },
+              {
+                "label": "各调用允许的范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求各调用允许的范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "cebebad8f452ee27300106ff411ce100a28c78e1a98fdc9b067d0abbda4b9e40",
+              "step_id": "39e5646dcb-abstract-function-domain-002-parameter_ranges"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "9b8465ece916730207cccd43",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求各调用允许的范围"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "aa59873620f18100909946a9#1",
+          "interaction": {
+            "field": "common_input",
+            "options": [
+              {
+                "label": "有共同的取值：重叠一段，或有一个所有范围都包含的公共点",
+                "value": "o1"
+              },
+              {
+                "label": "各自有取值就够了，可以没有共同取值",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "移动参数，观察数轴。能否找到同一个 $x$，同时落在所有范围里？题目要求下面哪一种情况？",
+          "stem_board": {
+            "caption": "共同输入",
+            "connector": "⇒",
+            "interval_explorer": {
+              "critical_exact_values": [
+                "-1/2",
+                "0",
+                "1/2"
+              ],
+              "critical_values": [
+                -0.5,
+                0,
+                0.5
+              ],
+              "initial": 0,
+              "intervals": [
+                {
+                  "call_latex": "f(x+a)",
+                  "label": "A",
+                  "left_open": false,
+                  "lower": {
+                    "intercept": 0,
+                    "intercept_exact": "0",
+                    "slope": -1,
+                    "slope_exact": "-1"
+                  },
+                  "lower_latex": "- a",
+                  "right_open": false,
+                  "upper": {
+                    "intercept": 1,
+                    "intercept_exact": "1",
+                    "slope": -1,
+                    "slope_exact": "-1"
+                  },
+                  "upper_latex": "1 - a"
+                },
+                {
+                  "call_latex": "f(x-a)",
+                  "label": "B",
+                  "left_open": false,
+                  "lower": {
+                    "intercept": 0,
+                    "intercept_exact": "0",
+                    "slope": 1,
+                    "slope_exact": "1"
+                  },
+                  "lower_latex": "a",
+                  "right_open": false,
+                  "upper": {
+                    "intercept": 1,
+                    "intercept_exact": "1",
+                    "slope": 1,
+                    "slope_exact": "1"
+                  },
+                  "upper_latex": "a + 1"
+                }
+              ],
+              "mode": "explore",
+              "parameter": "a",
+              "parameter_max": 1.5,
+              "parameter_min": -1.5,
+              "strategy": "complement",
+              "variable": "x"
+            },
+            "items": [
+              {
+                "label": "各调用允许的范围",
+                "math": "\\begin{gathered}x\\in \\left[- a,\\,1 - a\\right]\\\\x\\in \\left[a,\\,a + 1\\right]\\end{gathered}"
+              },
+              {
+                "label": "至少有一个共同取值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "观察范围的公共部分",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "5e43dde1e13746e6cae0781f66177fccceb38c0eb9fa6aba5dcaa04db21ed002",
+              "step_id": "39e5646dcb-abstract-function-domain-003-parameter_overlap"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "aa59873620f18100909946a9",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：观察范围的公共部分"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "o1",
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "5fb5bff521c4758ca17850d6#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "$A$ 完全在 $B$ 的左边",
+                "options": [
+                  {
+                    "label": "$1 - a < a$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$1 - a \\geq a$",
+                    "value": "o2"
+                  }
+                ]
+              },
+              {
+                "label": "$B$ 完全在 $A$ 的左边",
+                "options": [
+                  {
+                    "label": "$a + 1 < - a$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$a + 1 \\geq - a$",
+                    "value": "o2"
+                  }
+                ]
+              }
+            ],
+            "title": "两种分离情况",
+            "type": "checklist"
+          },
+          "question": "先找没有公共取值的情况。看两幅图，分别比较左边区间的右端点与右边区间的左端点。",
+          "stem_board": {
+            "caption": "先求交集为空",
+            "connector": "⇒",
+            "interval_explorer": {
+              "critical_exact_values": [
+                "-1/2",
+                "0",
+                "1/2"
+              ],
+              "critical_values": [
+                -0.5,
+                0,
+                0.5
+              ],
+              "initial": 0,
+              "intervals": [
+                {
+                  "call_latex": "f(x+a)",
+                  "label": "A",
+                  "left_open": false,
+                  "lower": {
+                    "intercept": 0,
+                    "intercept_exact": "0",
+                    "slope": -1,
+                    "slope_exact": "-1"
+                  },
+                  "lower_latex": "- a",
+                  "right_open": false,
+                  "upper": {
+                    "intercept": 1,
+                    "intercept_exact": "1",
+                    "slope": -1,
+                    "slope_exact": "-1"
+                  },
+                  "upper_latex": "1 - a"
+                },
+                {
+                  "call_latex": "f(x-a)",
+                  "label": "B",
+                  "left_open": false,
+                  "lower": {
+                    "intercept": 0,
+                    "intercept_exact": "0",
+                    "slope": 1,
+                    "slope_exact": "1"
+                  },
+                  "lower_latex": "a",
+                  "right_open": false,
+                  "upper": {
+                    "intercept": 1,
+                    "intercept_exact": "1",
+                    "slope": 1,
+                    "slope_exact": "1"
+                  },
+                  "upper_latex": "a + 1"
+                }
+              ],
+              "mode": "separation",
+              "parameter": "a",
+              "parameter_max": 1.5,
+              "parameter_min": -1.5,
+              "strategy": "complement",
+              "variable": "x"
+            },
+            "items": [
+              {
+                "label": "两个区间完全错开",
+                "math": "A\\cap B=\\varnothing"
+              },
+              {
+                "label": "两种情况满足其一",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "找出两个区间完全错开的条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "fa62b4fb8eb204250d93b359217667fb2004a8568607595b85f2da01516df507",
+              "step_id": "39e5646dcb-abstract-function-domain-004-parameter_separation"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "5fb5bff521c4758ca17850d6",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：找出两个区间完全错开的条件"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "172b84cc6a3310a156eb78f3#1",
+          "interaction": {
+            "field": "excluded_parameter_range",
+            "options": [
+              {
+                "label": "$\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "分别解两种分离条件，再取并集：哪些 $a$ 会让两个区间没有公共取值？",
+          "stem_board": {
+            "caption": "空交集对应的参数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "两种分离条件",
+                "math": "1 - a < a\\quad\\text{或}\\quad a + 1 < - a"
+              },
+              {
+                "label": "没有公共取值时",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求交集为空时的参数范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "e1ac336b501b55ce079f83fecf293341b27995aee5938926889f197f6e8ada30",
+              "step_id": "39e5646dcb-abstract-function-domain-005-parameter_excluded"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "172b84cc6a3310a156eb78f3",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求交集为空时的参数范围"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同一个自变量必须满足所有调用的输入限制。"
+          },
+          "id": "6b6710e8909342f7d0753155#1",
+          "interaction": {
+            "field": "parameter_range",
+            "options": [
+              {
+                "label": "$\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left[0, 1\\right]$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "排除刚才交集为空的参数，剩下哪些 $a$ 能让两个区间有公共取值？",
+          "stem_board": {
+            "caption": "参数范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "从全体实数中排除",
+                "math": "\\mathbb{R}\\setminus\\left(\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)\\right)"
+              },
+              {
+                "label": "$a$ 的范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "取补集，得到参数范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "7982cc02deb3c5a7053d69d5c71ac962d7496c1606470f89984405928b17ec6f",
+              "step_id": "39e5646dcb-abstract-function-domain-006-parameter_parameter"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "6b6710e8909342f7d0753155",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "共同输入与参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：取补集，得到参数范围"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "s1o1",
+              "s2o1"
+            ]
+          },
+          "feedback": {
+            "terms": "边界是否保留取决于它是否满足原题的全部条件。"
+          },
+          "id": "aa2eeaf09c558b606bed1e25#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "$a=- \\frac{1}{2}$ 时，原题条件是否成立？",
+                "options": [
+                  {
+                    "label": "成立，保留 $- \\frac{1}{2}$",
+                    "value": "s1o1"
+                  },
+                  {
+                    "label": "不成立，排除 $- \\frac{1}{2}$",
+                    "value": "s1o2"
+                  }
+                ]
+              },
+              {
+                "label": "$a=\\frac{1}{2}$ 时，原题条件是否成立？",
+                "options": [
+                  {
+                    "label": "成立，保留 $\\frac{1}{2}$",
+                    "value": "s2o1"
+                  },
+                  {
+                    "label": "不成立，排除 $\\frac{1}{2}$",
+                    "value": "s2o2"
+                  }
+                ]
+              }
+            ],
+            "title": "复核边界",
+            "type": "checklist"
+          },
+          "question": "把可行集 $\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$ 的有限边界代回原题，判断是否保留。",
+          "submit_label": "确认判断",
+          "title": "复核边界",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3f34d4079d61964a84af898a5203d8151e63abf23bb31d6fcf1999aa2b35edc5",
+              "step_id": "39e5646dcb-abstract-function-domain-007-boundary"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "aa2eeaf09c558b606bed1e25",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "检查边界",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：复核边界"
+          }
+        },
+        {
+          "id": "[\"original-choice\",\"/root/goals/0\",\"abstract-function-domain\",\"631f5840810ccbccf90886e4ab5d805f80ef7864f4f5baa3d665b15069c6b2ca\"]",
+          "source": "original_choice",
+          "title": "选择原题答案",
+          "question": "根据求得的集合，按不定项选择作答，选出全部符合题意的选项。",
+          "matching": "set_equality",
+          "target_ref": "/root/goals/0",
+          "interaction": {
+            "type": "original_choice_exact_set",
+            "field": "original_choice",
+            "options": [
+              {
+                "value": "A",
+                "label": "A. $\\left(-\\infty,-\\frac{1}{2}\\right)$"
+              },
+              {
+                "value": "B",
+                "label": "B. $\\left[-\\frac{1}{2},\\frac{1}{2}\\right]$"
+              },
+              {
+                "value": "C",
+                "label": "C. $\\left(\\frac{1}{2},+\\infty\\right)$"
+              },
+              {
+                "value": "D",
+                "label": "D. $\\mathbf{R}$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "correct_labels": [
+              "B"
+            ],
+            "option_labels": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "submit_label": "确认答案",
+          "feedback": {
+            "answer": "请把求得的集合与各选项比较，注意端点是否包含，再检查是否漏选或多选。"
+          },
+          "stream_steps": [],
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "已确认原题选项答案。"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "find_abstract_domain_parameter",
+          "set": {
+            "expression": "Interval(-1/2, 1/2)",
+            "latex": "\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(-1/2, 1/2)",
+          "latex": "\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "math_steps": [
+          {
+            "math_step_sha256": "bd7d0ae86856c378b4d783c1ff4f911db1c05f5cd7102091f54efc2c1883acae",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-abstract-function-domain-001-parameter_conditions"
+          },
+          {
+            "math_step_sha256": "cebebad8f452ee27300106ff411ce100a28c78e1a98fdc9b067d0abbda4b9e40",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-abstract-function-domain-002-parameter_ranges"
+          },
+          {
+            "math_step_sha256": "5e43dde1e13746e6cae0781f66177fccceb38c0eb9fa6aba5dcaa04db21ed002",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-abstract-function-domain-003-parameter_overlap"
+          },
+          {
+            "math_step_sha256": "fa62b4fb8eb204250d93b359217667fb2004a8568607595b85f2da01516df507",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-abstract-function-domain-004-parameter_separation"
+          },
+          {
+            "math_step_sha256": "e1ac336b501b55ce079f83fecf293341b27995aee5938926889f197f6e8ada30",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-abstract-function-domain-005-parameter_excluded"
+          },
+          {
+            "math_step_sha256": "7982cc02deb3c5a7053d69d5c71ac962d7496c1606470f89984405928b17ec6f",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-abstract-function-domain-006-parameter_parameter"
+          },
+          {
+            "math_step_sha256": "3f34d4079d61964a84af898a5203d8151e63abf23bb31d6fcf1999aa2b35edc5",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-abstract-function-domain-007-boundary"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "B"
+          ],
+          "kind": "multiple_choice",
+          "matching": "set_equality",
+          "options": [
+            {
+              "label": "A",
+              "text": "$\\left(-\\infty,-\\frac{1}{2}\\right)$"
+            },
+            {
+              "label": "B",
+              "text": "$\\left[-\\frac{1}{2},\\frac{1}{2}\\right]$"
+            },
+            {
+              "label": "C",
+              "text": "$\\left(\\frac{1}{2},+\\infty\\right)$"
+            },
+            {
+              "label": "D",
+              "text": "$\\mathbf{R}$"
+            }
+          ],
+          "selection_mode": "unspecified",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "7490bbd28397e31cb53c51952e9bd7d88baec83b997deee47a61477c1bc886d7",
+        "verified_route_sha256": "631f5840810ccbccf90886e4ab5d805f80ef7864f4f5baa3d665b15069c6b2ca"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-concepts/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-input-domain-correspondence",
+        "kind": "method",
+        "label": "输入范围对应法",
+        "summary": "先确定可用输入范围，再约束每个调用的完整输入；可求目标定义域，或以共同输入存在求参数。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "solve",
+            "title": "用输入范围对应求定义域",
+            "calls": [
+              "skill-inequality-transform",
+              "skill-expression-defined"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform",
+        "kind": "skill",
+        "label": "不等式变形与推导",
+        "summary": "对不等式两边加减、乘除或取倒数时，先看乘除的数是正是负，再决定不等号要不要改方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "inequality-properties",
+        "kind": "knowledge",
+        "label": "不等式的性质",
+        "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "interval-notation",
+        "kind": "knowledge",
+        "label": "区间的概念",
+        "summary": "区间用端点和开闭符号表示连续的实数范围，端点是否属于集合必须明确。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "quantifiers",
+        "kind": "knowledge",
+        "label": "全称量词与存在量词",
+        "summary": "先明确“对谁、在哪个范围内”，再区分全部满足与至少一次满足。",
+        "aliases": [
+          "恒成立",
+          "存在成立",
+          "任意",
+          "有解"
+        ],
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      }
+    ],
+    "edges": [
+      {
+        "id": "inequality-properties|prerequisite|interval-notation",
+        "from": "inequality-properties",
+        "to": "interval-notation",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "method-input-domain-correspondence|calls|skill-inequality-transform",
+        "from": "method-input-domain-correspondence",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform|uses|inequality-properties",
+        "from": "skill-inequality-transform",
+        "to": "inequality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "reciprocal"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|candidate|method-input-domain-correspondence",
+        "from": "type-abstract-function-domain",
+        "to": "method-input-domain-correspondence",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|interval-notation",
+        "from": "type-abstract-function-domain",
+        "to": "interval-notation",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|quantifiers",
+        "from": "type-abstract-function-domain",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|set-intersection-union",
+        "from": "type-abstract-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|interval-notation",
+        "from": "type-function-domain",
+        "to": "interval-notation",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|quantifiers",
+        "from": "type-function-domain",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|set-intersection-union",
+        "from": "type-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": []
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-inequality-transform",
+          "function-concept",
+          "inequality-properties",
+          "interval-notation",
+          "quantifiers",
+          "set-intersection-union"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"5061039e60a6f6a6d8f17b364d34b1ad439910729847ba296b11827ccdcfde9c\",\"c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc\",\"0548ba55e5d84ea2844f7b3b40ea0960\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+    "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+    "stream_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "5061039e60a6f6a6d8f17b364d34b1ad439910729847ba296b11827ccdcfde9c",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-abstract-function-domain",
+        "op": "methods"
+      },
+      "question": "让每个完整输入落在题设给定范围内，要求存在共同合法的自变量，再求参数范围。",
+      "submit_label": "用输入范围对应法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-input-domain-correspondence",
+          "recommendation": "preferred",
+          "route_id": "abstract-function-domain",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_conditions",
+        "explanation": "分别约束传给 $f$ 的输入；所有条件要同时满足。在题设给定的输入范围内求解。",
+        "highlight": {
+          "caption": "各调用的输入条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题设给定的输入范围",
+              "math": "\\left[0, 1\\right]",
+              "note": "在题设给定的输入范围内求解。"
+            },
+            {
+              "label": "需要同时满足",
+              "math": "\\begin{gathered}0 \\leq x + a \\leq 1\\\\0 \\leq x - a \\leq 1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "bd7d0ae86856c378b4d783c1ff4f911db1c05f5cd7102091f54efc2c1883acae",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-001-parameter_conditions",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_ranges",
+        "explanation": "逐个求出允许的 $x$ 范围；不含 $x$ 的条件直接保留为参数限制。",
+        "highlight": {
+          "caption": "分别求范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "各调用的输入条件",
+              "math": "\\begin{gathered}0 \\leq x + a \\leq 1\\\\0 \\leq x - a \\leq 1\\end{gathered}"
+            },
+            {
+              "label": "各调用允许的范围",
+              "math": "\\begin{gathered}x\\in \\left[- a,\\,1 - a\\right]\\\\x\\in \\left[a,\\,a + 1\\right]\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "cebebad8f452ee27300106ff411ce100a28c78e1a98fdc9b067d0abbda4b9e40",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-002-parameter_ranges",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_overlap",
+        "explanation": "同一个自变量必须落在所有区间里。重叠一段有公共取值；两个闭端点接触时，这一个点也可以取。这两个区间的左右位置会随参数变化，接下来先找完全错开的情况，再排除它们。",
+        "highlight": {
+          "caption": "共同输入",
+          "connector": "⇒",
+          "interval_explorer": {
+            "critical_exact_values": [
+              "-1/2",
+              "0",
+              "1/2"
+            ],
+            "critical_values": [
+              -0.5,
+              0,
+              0.5
+            ],
+            "initial": 0,
+            "intervals": [
+              {
+                "call_latex": "f(x+a)",
+                "label": "A",
+                "left_open": false,
+                "lower": {
+                  "intercept": 0,
+                  "intercept_exact": "0",
+                  "slope": -1,
+                  "slope_exact": "-1"
+                },
+                "lower_latex": "- a",
+                "right_open": false,
+                "upper": {
+                  "intercept": 1,
+                  "intercept_exact": "1",
+                  "slope": -1,
+                  "slope_exact": "-1"
+                },
+                "upper_latex": "1 - a"
+              },
+              {
+                "call_latex": "f(x-a)",
+                "label": "B",
+                "left_open": false,
+                "lower": {
+                  "intercept": 0,
+                  "intercept_exact": "0",
+                  "slope": 1,
+                  "slope_exact": "1"
+                },
+                "lower_latex": "a",
+                "right_open": false,
+                "upper": {
+                  "intercept": 1,
+                  "intercept_exact": "1",
+                  "slope": 1,
+                  "slope_exact": "1"
+                },
+                "upper_latex": "a + 1"
+              }
+            ],
+            "mode": "explore",
+            "parameter": "a",
+            "parameter_max": 1.5,
+            "parameter_min": -1.5,
+            "strategy": "complement",
+            "variable": "x"
+          },
+          "items": [
+            {
+              "label": "各调用允许的范围",
+              "math": "\\begin{gathered}x\\in \\left[- a,\\,1 - a\\right]\\\\x\\in \\left[a,\\,a + 1\\right]\\end{gathered}"
+            },
+            {
+              "label": "至少有一个共同取值",
+              "math": "A\\cap B\\ne\\varnothing"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "5e43dde1e13746e6cae0781f66177fccceb38c0eb9fa6aba5dcaa04db21ed002",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-003-parameter_overlap",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_separation",
+        "explanation": "两个区间不相交，只有 A 完全在 B 左边，或 B 完全在 A 左边。若相接的两个端点都包含，接触时仍有公共点，所以分离条件用严格不等式；只要有一个不包含，接触也算交集为空。",
+        "highlight": {
+          "caption": "先求交集为空",
+          "connector": "⇒",
+          "interval_explorer": {
+            "critical_exact_values": [
+              "-1/2",
+              "0",
+              "1/2"
+            ],
+            "critical_values": [
+              -0.5,
+              0,
+              0.5
+            ],
+            "initial": 0,
+            "intervals": [
+              {
+                "call_latex": "f(x+a)",
+                "label": "A",
+                "left_open": false,
+                "lower": {
+                  "intercept": 0,
+                  "intercept_exact": "0",
+                  "slope": -1,
+                  "slope_exact": "-1"
+                },
+                "lower_latex": "- a",
+                "right_open": false,
+                "upper": {
+                  "intercept": 1,
+                  "intercept_exact": "1",
+                  "slope": -1,
+                  "slope_exact": "-1"
+                },
+                "upper_latex": "1 - a"
+              },
+              {
+                "call_latex": "f(x-a)",
+                "label": "B",
+                "left_open": false,
+                "lower": {
+                  "intercept": 0,
+                  "intercept_exact": "0",
+                  "slope": 1,
+                  "slope_exact": "1"
+                },
+                "lower_latex": "a",
+                "right_open": false,
+                "upper": {
+                  "intercept": 1,
+                  "intercept_exact": "1",
+                  "slope": 1,
+                  "slope_exact": "1"
+                },
+                "upper_latex": "a + 1"
+              }
+            ],
+            "mode": "separation",
+            "parameter": "a",
+            "parameter_max": 1.5,
+            "parameter_min": -1.5,
+            "strategy": "complement",
+            "variable": "x"
+          },
+          "items": [
+            {
+              "label": "两个区间完全错开",
+              "math": "A\\cap B=\\varnothing"
+            },
+            {
+              "label": "两种情况满足其一",
+              "math": "1 - a < a\\quad\\text{或}\\quad a + 1 < - a"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "fa62b4fb8eb204250d93b359217667fb2004a8568607595b85f2da01516df507",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-004-parameter_separation",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_excluded",
+        "explanation": "两种分离情况满足任意一种，交集就为空，因此把它们的参数范围取并集。",
+        "highlight": {
+          "caption": "空交集对应的参数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "两种分离条件",
+              "math": "1 - a < a\\quad\\text{或}\\quad a + 1 < - a"
+            },
+            {
+              "label": "没有公共取值时",
+              "math": "\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "e1ac336b501b55ce079f83fecf293341b27995aee5938926889f197f6e8ada30",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-005-parameter_excluded",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parameter_parameter",
+        "explanation": "从全体实数中排除使交集为空的参数，取补集得到交集非空的参数。在题设给定的输入范围内求解。",
+        "highlight": {
+          "caption": "参数范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "从全体实数中排除",
+              "math": "\\mathbb{R}\\setminus\\left(\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)\\right)"
+            },
+            {
+              "label": "$a$ 的范围",
+              "math": "\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "7982cc02deb3c5a7053d69d5c71ac962d7496c1606470f89984405928b17ec6f",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-006-parameter_parameter",
+        "target_ref": "/root/goals/0",
+        "title": "共同输入与参数范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "quantifiers#existential",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(-1/2, 1/2)",
+            "latex": "\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "boundary",
+        "explanation": "当 $a=- \\frac{1}{2}$ 时，代回原题成立，$\\therefore$ 边界 $- \\frac{1}{2}$ 保留；\n当 $a=\\frac{1}{2}$ 时，代回原题成立，$\\therefore$ 边界 $\\frac{1}{2}$ 保留，\n$\\therefore\\ a \\in \\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$。",
+        "highlight": {
+          "caption": "检查边界",
+          "conclusion_only": true,
+          "items": [
+            {
+              "label": "$a$ 的取值范围",
+              "math": "a \\in \\left[- \\frac{1}{2}, \\frac{1}{2}\\right]",
+              "note": "$a=- \\frac{1}{2}$ 代回原题成立，保留；$a=\\frac{1}{2}$ 代回原题成立，保留"
+            }
+          ]
+        },
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "local_check": "passed",
+        "math_step_sha256": "3f34d4079d61964a84af898a5203d8151e63abf23bb31d6fcf1999aa2b35edc5",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "964fe7b9107c7e97ea775a629c40d8630ab602c5d4374b413defcdceadba77e2",
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "source_refs": [
+          "/finalization/2"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-007-boundary",
+        "target_ref": "/root/goals/0",
+        "title": "检查边界",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "quantifiers#existential"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-001-parameter_conditions\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-002-parameter_ranges\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-003-parameter_overlap\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-004-parameter_separation\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-005-parameter_excluded\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-006-parameter_parameter\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "interval-notation#finite",
+            "quantifiers#existential",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"abstract-function-domain\",\"39e5646dcb-abstract-function-domain-007-boundary\"]": [
+        {
+          "method": "method-input-domain-correspondence",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#composite-domain",
+            "quantifiers#existential"
+          ],
+          "source": "/finalization/2"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-001-parameter_conditions",
+        "ordinal": 1,
+        "math_step_sha256": "bd7d0ae86856c378b4d783c1ff4f911db1c05f5cd7102091f54efc2c1883acae",
+        "status": "interactive",
+        "interaction_id": "16524e0ab125b5259b314ac2"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-002-parameter_ranges",
+        "ordinal": 2,
+        "math_step_sha256": "cebebad8f452ee27300106ff411ce100a28c78e1a98fdc9b067d0abbda4b9e40",
+        "status": "interactive",
+        "interaction_id": "9b8465ece916730207cccd43"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-003-parameter_overlap",
+        "ordinal": 3,
+        "math_step_sha256": "5e43dde1e13746e6cae0781f66177fccceb38c0eb9fa6aba5dcaa04db21ed002",
+        "status": "interactive",
+        "interaction_id": "aa59873620f18100909946a9"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-004-parameter_separation",
+        "ordinal": 4,
+        "math_step_sha256": "fa62b4fb8eb204250d93b359217667fb2004a8568607595b85f2da01516df507",
+        "status": "interactive",
+        "interaction_id": "5fb5bff521c4758ca17850d6"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-005-parameter_excluded",
+        "ordinal": 5,
+        "math_step_sha256": "e1ac336b501b55ce079f83fecf293341b27995aee5938926889f197f6e8ada30",
+        "status": "interactive",
+        "interaction_id": "172b84cc6a3310a156eb78f3"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-006-parameter_parameter",
+        "ordinal": 6,
+        "math_step_sha256": "7982cc02deb3c5a7053d69d5c71ac962d7496c1606470f89984405928b17ec6f",
+        "status": "interactive",
+        "interaction_id": "6b6710e8909342f7d0753155"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-007-boundary",
+        "ordinal": 7,
+        "math_step_sha256": "3f34d4079d61964a84af898a5203d8151e63abf23bb31d6fcf1999aa2b35edc5",
+        "status": "interactive",
+        "interaction_id": "aa2eeaf09c558b606bed1e25"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "16524e0ab125b5259b314ac2",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "c1f75a50b506c1b0c7ab684f04a5e710d97b13535d40b064aa56ecb0028c104c",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "16524e0ab125b5259b314ac2#1",
+            "interaction": {
+              "field": "input_conditions",
+              "options": [
+                {
+                  "label": "每个调用的完整输入都属于 $\\left[0, 1\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "要求各调用的函数值属于 $\\left[0, 1\\right]$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在已知输入范围 $\\left[0, 1\\right]$ 内，要保证目标函数有意义，应该怎样约束各个调用？",
+            "stem_board": {
+              "caption": "各调用的输入条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题设给定的输入范围",
+                  "math": "\\left[0, 1\\right]",
+                  "note": "在题设给定的输入范围内求解。"
+                },
+                {
+                  "label": "需要同时满足",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "分别列出输入条件"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bd7d0ae86856c378b4d783c1ff4f911db1c05f5cd7102091f54efc2c1883acae",
+            "step_id": "39e5646dcb-abstract-function-domain-001-parameter_conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9b8465ece916730207cccd43",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "123b24af717d7d8b8ba106d7624c1288f146bc5719ad9fbb3b06b4c50ef409f7",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o1",
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "9b8465ece916730207cccd43#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$f(x+a)$ 允许的 $x$ 范围",
+                  "options": [
+                    {
+                      "label": "$\\left[- a,\\,1 - a\\right]$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left[1 - a,\\,2 - a\\right]$",
+                      "value": "o2"
+                    }
+                  ]
+                },
+                {
+                  "label": "$f(x-a)$ 允许的 $x$ 范围",
+                  "options": [
+                    {
+                      "label": "$\\left[a,\\,a + 1\\right]$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left[a + 1,\\,a + 2\\right]$",
+                      "value": "o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "分别解输入条件",
+              "type": "checklist"
+            },
+            "question": "把 $a$ 暂看作常数，分别解关于 $x$ 的输入条件。",
+            "stem_board": {
+              "caption": "分别求范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各调用的输入条件",
+                  "math": "\\begin{gathered}0 \\leq x + a \\leq 1\\\\0 \\leq x - a \\leq 1\\end{gathered}"
+                },
+                {
+                  "label": "各调用允许的范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求各调用允许的范围"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "cebebad8f452ee27300106ff411ce100a28c78e1a98fdc9b067d0abbda4b9e40",
+            "step_id": "39e5646dcb-abstract-function-domain-002-parameter_ranges"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "aa59873620f18100909946a9",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "a07219f8102d9792986d78a43b97788acbeb2204155e7ce5ae0dbee19e40fea8",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "aa59873620f18100909946a9#1",
+            "interaction": {
+              "field": "common_input",
+              "options": [
+                {
+                  "label": "有共同的取值：重叠一段，或有一个所有范围都包含的公共点",
+                  "value": "o1"
+                },
+                {
+                  "label": "各自有取值就够了，可以没有共同取值",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "移动参数，观察数轴。能否找到同一个 $x$，同时落在所有范围里？题目要求下面哪一种情况？",
+            "stem_board": {
+              "caption": "共同输入",
+              "connector": "⇒",
+              "interval_explorer": {
+                "critical_exact_values": [
+                  "-1/2",
+                  "0",
+                  "1/2"
+                ],
+                "critical_values": [
+                  -0.5,
+                  0,
+                  0.5
+                ],
+                "initial": 0,
+                "intervals": [
+                  {
+                    "call_latex": "f(x+a)",
+                    "label": "A",
+                    "left_open": false,
+                    "lower": {
+                      "intercept": 0,
+                      "intercept_exact": "0",
+                      "slope": -1,
+                      "slope_exact": "-1"
+                    },
+                    "lower_latex": "- a",
+                    "right_open": false,
+                    "upper": {
+                      "intercept": 1,
+                      "intercept_exact": "1",
+                      "slope": -1,
+                      "slope_exact": "-1"
+                    },
+                    "upper_latex": "1 - a"
+                  },
+                  {
+                    "call_latex": "f(x-a)",
+                    "label": "B",
+                    "left_open": false,
+                    "lower": {
+                      "intercept": 0,
+                      "intercept_exact": "0",
+                      "slope": 1,
+                      "slope_exact": "1"
+                    },
+                    "lower_latex": "a",
+                    "right_open": false,
+                    "upper": {
+                      "intercept": 1,
+                      "intercept_exact": "1",
+                      "slope": 1,
+                      "slope_exact": "1"
+                    },
+                    "upper_latex": "a + 1"
+                  }
+                ],
+                "mode": "explore",
+                "parameter": "a",
+                "parameter_max": 1.5,
+                "parameter_min": -1.5,
+                "strategy": "complement",
+                "variable": "x"
+              },
+              "items": [
+                {
+                  "label": "各调用允许的范围",
+                  "math": "\\begin{gathered}x\\in \\left[- a,\\,1 - a\\right]\\\\x\\in \\left[a,\\,a + 1\\right]\\end{gathered}"
+                },
+                {
+                  "label": "至少有一个共同取值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "观察范围的公共部分"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "5e43dde1e13746e6cae0781f66177fccceb38c0eb9fa6aba5dcaa04db21ed002",
+            "step_id": "39e5646dcb-abstract-function-domain-003-parameter_overlap"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "5fb5bff521c4758ca17850d6",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "7c564c9683173bc4425e7f5bb5955d62be55ae61deeec28ec599b0d338e54413",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o1",
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "5fb5bff521c4758ca17850d6#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$A$ 完全在 $B$ 的左边",
+                  "options": [
+                    {
+                      "label": "$1 - a < a$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$1 - a \\geq a$",
+                      "value": "o2"
+                    }
+                  ]
+                },
+                {
+                  "label": "$B$ 完全在 $A$ 的左边",
+                  "options": [
+                    {
+                      "label": "$a + 1 < - a$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$a + 1 \\geq - a$",
+                      "value": "o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "两种分离情况",
+              "type": "checklist"
+            },
+            "question": "先找没有公共取值的情况。看两幅图，分别比较左边区间的右端点与右边区间的左端点。",
+            "stem_board": {
+              "caption": "先求交集为空",
+              "connector": "⇒",
+              "interval_explorer": {
+                "critical_exact_values": [
+                  "-1/2",
+                  "0",
+                  "1/2"
+                ],
+                "critical_values": [
+                  -0.5,
+                  0,
+                  0.5
+                ],
+                "initial": 0,
+                "intervals": [
+                  {
+                    "call_latex": "f(x+a)",
+                    "label": "A",
+                    "left_open": false,
+                    "lower": {
+                      "intercept": 0,
+                      "intercept_exact": "0",
+                      "slope": -1,
+                      "slope_exact": "-1"
+                    },
+                    "lower_latex": "- a",
+                    "right_open": false,
+                    "upper": {
+                      "intercept": 1,
+                      "intercept_exact": "1",
+                      "slope": -1,
+                      "slope_exact": "-1"
+                    },
+                    "upper_latex": "1 - a"
+                  },
+                  {
+                    "call_latex": "f(x-a)",
+                    "label": "B",
+                    "left_open": false,
+                    "lower": {
+                      "intercept": 0,
+                      "intercept_exact": "0",
+                      "slope": 1,
+                      "slope_exact": "1"
+                    },
+                    "lower_latex": "a",
+                    "right_open": false,
+                    "upper": {
+                      "intercept": 1,
+                      "intercept_exact": "1",
+                      "slope": 1,
+                      "slope_exact": "1"
+                    },
+                    "upper_latex": "a + 1"
+                  }
+                ],
+                "mode": "separation",
+                "parameter": "a",
+                "parameter_max": 1.5,
+                "parameter_min": -1.5,
+                "strategy": "complement",
+                "variable": "x"
+              },
+              "items": [
+                {
+                  "label": "两个区间完全错开",
+                  "math": "A\\cap B=\\varnothing"
+                },
+                {
+                  "label": "两种情况满足其一",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "找出两个区间完全错开的条件"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "fa62b4fb8eb204250d93b359217667fb2004a8568607595b85f2da01516df507",
+            "step_id": "39e5646dcb-abstract-function-domain-004-parameter_separation"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "172b84cc6a3310a156eb78f3",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "058c2ac2f1bc3e63d9a855360cc9f21ad68fc73989ada0a758ebeb61dd7a7f81",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "172b84cc6a3310a156eb78f3#1",
+            "interaction": {
+              "field": "excluded_parameter_range",
+              "options": [
+                {
+                  "label": "$\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "分别解两种分离条件，再取并集：哪些 $a$ 会让两个区间没有公共取值？",
+            "stem_board": {
+              "caption": "空交集对应的参数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "两种分离条件",
+                  "math": "1 - a < a\\quad\\text{或}\\quad a + 1 < - a"
+                },
+                {
+                  "label": "没有公共取值时",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求交集为空时的参数范围"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e1ac336b501b55ce079f83fecf293341b27995aee5938926889f197f6e8ada30",
+            "step_id": "39e5646dcb-abstract-function-domain-005-parameter_excluded"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6b6710e8909342f7d0753155",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "0e2394c6c5b800441b1a9a413b9901a736392126b9e654ddb49a22971eef6d8f",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "同一个自变量必须满足所有调用的输入限制。"
+            },
+            "id": "6b6710e8909342f7d0753155#1",
+            "interaction": {
+              "field": "parameter_range",
+              "options": [
+                {
+                  "label": "$\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[0, 1\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "排除刚才交集为空的参数，剩下哪些 $a$ 能让两个区间有公共取值？",
+            "stem_board": {
+              "caption": "参数范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "从全体实数中排除",
+                  "math": "\\mathbb{R}\\setminus\\left(\\left(-\\infty, - \\frac{1}{2}\\right) \\cup \\left(\\frac{1}{2}, \\infty\\right)\\right)"
+                },
+                {
+                  "label": "$a$ 的范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "取补集，得到参数范围"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "7982cc02deb3c5a7053d69d5c71ac962d7496c1606470f89984405928b17ec6f",
+            "step_id": "39e5646dcb-abstract-function-domain-006-parameter_parameter"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "aa2eeaf09c558b606bed1e25",
+        "interaction_revision": "08997afcdd46cfe89ad76bfae14c1c0da631d77b297fafc662bceeab206104c2",
+        "interaction_sha256": "37da67ff7b7e2f910a85dd000bc31a3d03db933c78516133614bf4b1526ea54f",
+        "lesson_version": "c55403205bbfca46a34aab0ac21238ae6a806664fb2e44ccf3aa8dc63e1f1ddc",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "边界是否保留取决于它是否满足原题的全部条件。"
+            },
+            "id": "aa2eeaf09c558b606bed1e25#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$a=- \\frac{1}{2}$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $- \\frac{1}{2}$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "不成立，排除 $- \\frac{1}{2}$",
+                      "value": "s1o2"
+                    }
+                  ]
+                },
+                {
+                  "label": "$a=\\frac{1}{2}$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $\\frac{1}{2}$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "不成立，排除 $\\frac{1}{2}$",
+                      "value": "s2o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "复核边界",
+              "type": "checklist"
+            },
+            "question": "把可行集 $\\left[- \\frac{1}{2}, \\frac{1}{2}\\right]$ 的有限边界代回原题，判断是否保留。",
+            "submit_label": "确认判断",
+            "title": "复核边界"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "0548ba55e5d84ea2844f7b3b40ea0960",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3f34d4079d61964a84af898a5203d8151e63abf23bb31d6fcf1999aa2b35edc5",
+            "step_id": "39e5646dcb-abstract-function-domain-007-boundary"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

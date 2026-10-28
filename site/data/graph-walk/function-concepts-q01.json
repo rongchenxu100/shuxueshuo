@@ -1732,6 +1732,15 @@
         ]
       },
       {
+        "id": "type-abstract-function-domain|involves|rational-expression",
+        "from": "type-abstract-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-abstract-function-domain|involves|set-intersection-union",
         "from": "type-abstract-function-domain",
         "to": "set-intersection-union",
