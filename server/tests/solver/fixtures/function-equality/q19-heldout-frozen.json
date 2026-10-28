@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "frozen_date": "2026-10-28",
+  "provenance": "Independent acceptance inputs authored before inspecting or running the Q19 implementation. Synthetic mathematical inputs, not photographs.",
+  "pairs": [
+    {"id": "H1", "left": "abs((2*x-1)*(x+3))", "right": "sqrt(((2*x-1)*(x+3))^2)", "expected": "equal"},
+    {"id": "H2", "left": "sqrt((3*x^2+2)^2)", "right": "-(3*x^2+2)", "expected": "different"},
+    {"id": "H3", "left": "x^2+abs(-2*x^2-7)", "right": "3*x^2+7", "expected": "equal"},
+    {"id": "H4", "left": "((x^2+2*x+5)*(x-3))/(x-3)", "right": "x^2+2*x+5", "domain": {"base": "real", "excluded": [3]}, "expected": "equal"},
+    {"id": "H5", "left": "abs((x+2)^2)", "right": "(x+2)^2", "expected": "equal"},
+    {"id": "H6", "left": "abs(4*x-6)", "right": "4*x-6", "domain": {"interval": ["-inf", "3/2"], "closed": [false, true]}, "expected": "different"}
+  ],
+  "questions": [
+    {
+      "id": "H7", "mode": "groups", "select_relation": "different", "expected_labels": ["B", "C"],
+      "options": [
+        {"label": "A", "left": "sqrt((x^2-4*x+5)^2)", "right": "x^2-4*x+5"},
+        {"label": "B", "left": "abs(x^2-9)", "right": "x^2-9"},
+        {"label": "C", "left": "sqrt(2*x+4)^2", "right": "2*x+4"},
+        {"label": "D", "left": "t^2+5*t-2", "left_variable": "t", "right": "x^2+5*x-2"}
+      ]
+    },
+    {
+      "id": "H8", "mode": "shared_baseline", "baseline": "x^2-2*x+4", "select_relation": "equal", "expected_labels": ["A", "B"],
+      "options": [
+        {"label": "A", "right": "abs(-x^2+2*x-4)"},
+        {"label": "B", "right": "sqrt((x^2-2*x+4)^2)"},
+        {"label": "C", "right": "((x^2-2*x+4)*(2*x+5))/(2*x+5)"},
+        {"label": "D", "right": "x^2+abs(2*x-4)"}
+      ]
+    }
+  ]
+}

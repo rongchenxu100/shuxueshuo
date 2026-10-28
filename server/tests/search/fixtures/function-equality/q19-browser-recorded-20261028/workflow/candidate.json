@@ -1,0 +1,112 @@
+{
+  "original_text": "【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\nA. $y=x^2+|x^2+1|$　　B. $y=\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+  "root": {
+    "label": "【例5】",
+    "goals": [
+      {
+        "kind": "compare_functions",
+        "mode": "shared_baseline",
+        "select_relation": "equal",
+        "selection_mode": "multiple",
+        "completeness": "complete",
+        "shared_functions": [
+          {
+            "id": "base",
+            "definition": "f(x)=2*x^2+1"
+          }
+        ],
+        "options": [
+          {
+            "id": "option_a",
+            "label": "A",
+            "text": "$y=x^2+|x^2+1|$",
+            "functions": [
+              {
+                "id": "cand",
+                "definition": "f(x)=x^2+abs(x^2+1)"
+              }
+            ],
+            "left": "shared:base",
+            "right": "local:cand"
+          },
+          {
+            "id": "option_b",
+            "label": "B",
+            "text": "$y=\\sqrt{(2x^2+1)^2}$",
+            "functions": [
+              {
+                "id": "cand",
+                "definition": "f(x)=sqrt((2*x^2+1)^2)"
+              }
+            ],
+            "left": "shared:base",
+            "right": "local:cand"
+          },
+          {
+            "id": "option_c",
+            "label": "C",
+            "text": "$y=|2x^2+1|$",
+            "functions": [
+              {
+                "id": "cand",
+                "definition": "f(x)=abs(2*x^2+1)"
+              }
+            ],
+            "left": "shared:base",
+            "right": "local:cand"
+          },
+          {
+            "id": "option_d",
+            "label": "D",
+            "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+            "functions": [
+              {
+                "id": "cand",
+                "definition": "f(x)=((2*x^2+1)*(x+1))/(x+1)"
+              }
+            ],
+            "left": "shared:base",
+            "right": "local:cand"
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "multiple",
+            "options": [
+              {
+                "label": "A",
+                "text": "$y=x^2+|x^2+1|$"
+              },
+              {
+                "label": "B",
+                "text": "$y=\\sqrt{(2x^2+1)^2}$"
+              },
+              {
+                "label": "C",
+                "text": "$y=|2x^2+1|$"
+              },
+              {
+                "label": "D",
+                "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

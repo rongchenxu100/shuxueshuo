@@ -372,6 +372,8 @@ class Scope:
         return node("ref", value["ref"], value["kind"])
 
     def set_like(self, ast):
+        if ast[0] == "set_difference":
+            return True
         if value_set(ast):
             return True
         if ast[0] == "name":
@@ -575,6 +577,11 @@ class Scope:
             )
         if kind == "interval":
             return node(kind, ast[1], ast[2], bind(ast[3]), bind(ast[4]))
+        if kind == "set_difference":
+            base = bind(ast[1])
+            if base[0] == "tuple":
+                base = node("interval", False, False, *base[1:])
+            return node(kind, base, bind(ast[2]))
         return node(kind, *[bind(p) for p in ast[1:]])
 
 
@@ -706,6 +713,13 @@ def typecheck(ast):
         if any(typecheck(x) != "boolean" for x in ast[1:]):
             raise NotationError("type.logic")
         return "boolean"
+    if kind == "set_difference":
+        if len(ast) != 3:
+            raise NotationError("type.set_difference")
+        left_type, right_type = typecheck(ast[1]), typecheck(ast[2])
+        if left_type not in ("domain", "set") or right_type != "set":
+            raise NotationError("type.set_difference")
+        return "domain" if left_type == "domain" else "set"
     if kind in SET_OPERATIONS:
         types = [typecheck(x) for x in ast[1:]]
         if all(t == "set" for t in types):

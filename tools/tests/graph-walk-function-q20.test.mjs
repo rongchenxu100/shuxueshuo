@@ -16,7 +16,7 @@ const route = bundle.routes[routeId];
 test('Q20 is published in the equality group with all four original comparisons', async () => {
   const source = await read(`../../site/data/graph-walk/${id}.source.json`);
   const topic = await read('../../site/data/knowledge-next/topics/function-concepts.json');
-  assert.deepEqual(topic.groups.find(group => group.id === 'equality').problems, [id]);
+  assert.ok(topic.groups.find(group => group.id === 'equality').problems.includes(id));
   assert.equal(source.problemId, id);
   assert.equal(source.page, '/topics/function-concepts/q20/');
   assert.equal(topic.problems[id].path, source.page);

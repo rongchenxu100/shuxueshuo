@@ -1,12 +1,15 @@
 """Bounded real-function comparison with original domains and exact certificates.
 
-The first family is polynomial degree <= 2, abs(affine), sqrt(affine^2),
-and sqrt(affine)^2.  An unsupported expression is unresolved, never unequal.
+The bounded families are quadratic polynomials, abs(Q), sqrt(Q^2),
+P + abs(Q), (Q*L)/L and sqrt(affine)^2. Q's real zeros must be rational;
+L is a nonzero affine polynomial. Original divisor restrictions survive.
+An unsupported expression is unresolved, never unequal.
 Descriptors come from the scoped notation compiler, not from model answers.
 """
 
 from copy import deepcopy
 from itertools import pairwise
+from math import isqrt
 
 import sympy as sp
 
@@ -18,6 +21,7 @@ from .stage_one.function_domain import (
     _input_domain,
     _inspect_expression,
     _integer_exponent,
+    _rational_root_radicand,
 )
 from .stage_three.function_domain import (
     _critical,
@@ -29,7 +33,7 @@ from .stage_three.function_domain import (
 )
 from .stage_three.verification import _rational_between
 
-VERSION = "function-equality-affine-absolute/v1"
+VERSION = "function-equality-quadratic-absolute/v2"
 VARIABLE = sp.Symbol("u", real=True)
 
 
@@ -37,25 +41,84 @@ def _square(ast):
     return ast[0] == "^" and _integer_exponent(ast[2]) == 2
 
 
+def _polynomial(ast, *, max_degree=2, sign_partition=False):
+    coefficients = _fixed_poly(ast, max_degree=max_degree)
+    for value in coefficients:
+        _coefficient_budget(value)
+    if sign_partition and not _rational_root_radicand(coefficients):
+        raise NotationError("function_equality.rational_critical_points_required")
+    return coefficients
+
+
+def _polynomial_value(ast):
+    return sum((sp.Rational(c.numerator, c.denominator) * VARIABLE**i
+                for i, c in enumerate(_polynomial(ast))), sp.S.Zero)
+
+
+def _rational_zeros(ast):
+    """All distinct zeros, by exact degree <= 2 formulas; zero has no cuts."""
+    coefficients = _polynomial(ast, sign_partition=True)
+    if len(coefficients) == 1:
+        return []
+    c, b = coefficients[:2]
+    if len(coefficients) == 2:
+        return [sp.Rational(-c / b)]
+    a = coefficients[2]
+    discriminant = b * b - 4 * a * c
+    if discriminant < 0:
+        return []
+    root = sp.Rational(isqrt(discriminant.numerator), isqrt(discriminant.denominator))
+    return sorted({(-sp.Rational(b) - root) / (2 * sp.Rational(a)),
+                   (-sp.Rational(b) + root) / (2 * sp.Rational(a))})
+
+
+def _cancelled_product(ast):
+    if ast[0] != "/" or ast[1][0] != "*":
+        raise NotationError("function_equality.structure_unsupported")
+    denominator = _polynomial(ast[2], max_degree=1)
+    if not any(denominator):
+        raise NotationError("function_equality.nonzero_affine_factor_required")
+    for factor_index, quotient_index in ((1, 2), (2, 1)):
+        factor, quotient = ast[1][factor_index], ast[1][quotient_index]
+        try:
+            if _polynomial(factor, max_degree=1) != denominator:
+                continue
+            _polynomial(quotient)
+            return {"quotient": quotient, "factor": factor, "denominator": ast[2],
+                    "factor_path": [1, factor_index]}
+        except NotationError:
+            continue
+    raise NotationError("function_equality.structure_unsupported")
+
+
 def _family(ast):
     # This also enforces the shared AST, coefficient and expansion budgets.
     _inspect_expression(ast)
     try:
-        coeffs = _fixed_poly(ast, max_degree=2)
-        for value in coeffs:
-            _coefficient_budget(value)
+        _polynomial(ast)
         return "polynomial", ast
     except NotationError:
         pass
     if ast[:2] == ["call", "abs"]:
-        _affine(ast[2])
-        return "absolute_affine", ast[2]
+        coefficients = _polynomial(ast[2], sign_partition=True)
+        return ("absolute_affine" if len(coefficients) <= 2 else "absolute_quadratic"), ast[2]
     if ast[:2] == ["call", "sqrt"] and _square(ast[2]):
-        _affine(ast[2][1])
+        _polynomial(ast[2][1], sign_partition=True)
         return "square_root_square", ast[2][1]
     if _square(ast) and ast[1][:2] == ["call", "sqrt"]:
         _affine(ast[1][2])
         return "square_root_squared", ast[1][2]
+    if ast[0] == "+":
+        for absolute_index, polynomial_index in ((1, 2), (2, 1)):
+            absolute = ast[absolute_index]
+            if absolute[:2] == ["call", "abs"]:
+                _polynomial(absolute[2], sign_partition=True)
+                _polynomial(ast[polynomial_index])
+                return "polynomial_plus_absolute", {
+                    "absolute": absolute[2], "polynomial": ast[polynomial_index],
+                    "absolute_path": [absolute_index, 2], "polynomial_path": [polynomial_index]}
+    if ast[0] == "/":
+        return "cancelled_affine_factor", _cancelled_product(ast)
     raise NotationError("function_equality.structure_unsupported")
 
 
@@ -156,13 +219,11 @@ def _solve_domain(descriptor):
 
 def _breakpoints(descriptor):
     family, body = _family(descriptor["expression_ast"])
-    if family not in {"absolute_affine", "square_root_square"}:
+    if family == "polynomial_plus_absolute":
+        body = body["absolute"]
+    elif family not in {"absolute_affine", "absolute_quadratic", "square_root_square"}:
         return []
-    slope, intercept = _affine(body)
-    if not slope:
-        return []
-    root = -intercept / slope
-    return [sp.Rational(root.numerator, root.denominator)]
+    return _rational_zeros(body)
 
 
 def _partition(domain, left, right):
@@ -182,6 +243,24 @@ def _partition(domain, left, right):
     return cells
 
 
+def _absolute_rule(family, body, value, sample, sign, roots):
+    rule = {"rule": "absolute_value_on_sign_cell", "sign": int(sign),
+            "absolute_argument": value, "from_square_root": family == "square_root_square",
+            "basis": "absolute-value-concept#rules",
+            "sign_evidence": {"kind": "complete_polynomial_sign_partition",
+                              "real_zeros": roots, "sample_value": value.subs(VARIABLE, sample)}}
+    if family == "polynomial_plus_absolute":
+        rule.update(polynomial_offset=_polynomial_value(body["polynomial"]),
+                    absolute_ast_path=body["absolute_path"], polynomial_ast_path=body["polynomial_path"])
+    return rule
+
+
+def _cancellation_rule(body):
+    return {"rule": "cancel_common_nonzero_factor", "common_factor": _polynomial_value(body["factor"]),
+            "factor_ast_path": body["factor_path"], "divisor_ast_path": [2],
+            "nonzero_on_cell": True, "basis": "rational-expression#cancellation"}
+
+
 def _normal_form(descriptor, cell, sample):
     ast = descriptor["expression_ast"]
     family, body = _family(ast)
@@ -190,20 +269,67 @@ def _normal_form(descriptor, cell, sample):
         if not valid:
             raise NotationError("function_equality.undefined_proof_point")
         return sp.expand(value), {"rule": "original_point_evaluation", "point": sample}
-    coefficients = _fixed_poly(body, max_degree=2 if family == "polynomial" else 1)
-    value = sum((sp.Rational(c.numerator, c.denominator) * VARIABLE**i
-                 for i, c in enumerate(coefficients)), sp.S.Zero)
+    if family == "cancelled_affine_factor":
+        return _polynomial_value(body["quotient"]), _cancellation_rule(body)
+    absolute = body["absolute"] if family == "polynomial_plus_absolute" else body
+    value = _polynomial_value(absolute)
     if family == "polynomial":
         return value, {"rule": "polynomial_expansion"}
     if family == "square_root_squared":
         return value, {"rule": "square_of_real_square_root", "basis": "square-root-expression#meaning"}
     sign = sp.sign(value.subs(VARIABLE, sample))
-    if sign not in (-1, 0, 1):
+    if sign not in (-1, 0, 1) or (sign == 0 and value != 0):
         raise NotationError("function_equality.sign_unknown")
-    return sp.expand(sign * value), {
-        "rule": "absolute_value_on_sign_cell", "sign": int(sign),
-        "absolute_argument": value, "from_square_root": family == "square_root_square",
-        "basis": "absolute-value-concept#rules"}
+    offset = _polynomial_value(body["polynomial"]) if family == "polynomial_plus_absolute" else sp.S.Zero
+    return sp.expand(offset + sign * value), _absolute_rule(
+        family, body, value, sample, sign, _rational_zeros(absolute))
+
+
+def _verified_normal_form(descriptor, cell, sample):
+    """Recheck the original rule without invoking the comparison normalizer.
+
+    The producer cuts cells using rational quadratic formulas. The verifier
+    independently counts roots of the source polynomial on each interval, so
+    a missed sign change cannot be certified by a single sample observation.
+    """
+    ast = descriptor["expression_ast"]
+    family, body = _family(ast)
+    if isinstance(cell, sp.FiniteSet):
+        defined, value = _evaluate(ast, sample)
+        if not defined or cell != sp.FiniteSet(sample):
+            raise NotationError("function_equality.undefined_proof_point")
+        return sp.expand(value), {"rule": "original_point_evaluation", "point": sample}
+    if not isinstance(cell, sp.Interval) or cell.contains(sample) is not sp.true:
+        raise NotationError("function_equality.invalid_proof_cell")
+    if family == "cancelled_affine_factor":
+        divisor = _polynomial_value(body["denominator"])
+        if any(cell.contains(root) is sp.true for root in sp.Poly(divisor, VARIABLE).real_roots()):
+            raise NotationError("function_equality.cancellation_at_zero")
+        return _polynomial_value(body["quotient"]), _cancellation_rule(body)
+    absolute = body["absolute"] if family == "polynomial_plus_absolute" else body
+    value = _polynomial_value(absolute)
+    if family == "polynomial":
+        return value, {"rule": "polynomial_expansion"}
+    if family == "square_root_squared":
+        # The source-domain certificate already proves the root is real on
+        # the entire cell; this identity cannot extend the original domain.
+        return value, {"rule": "square_of_real_square_root", "basis": "square-root-expression#meaning"}
+    polynomial = sp.Poly(value, VARIABLE)
+    roots = sorted(set(polynomial.real_roots())) if not polynomial.is_zero else []
+    if any(not isinstance(root, sp.Rational) for root in roots):
+        raise NotationError("function_equality.rational_critical_points_required")
+    if not polynomial.is_zero:
+        interior_roots = polynomial.count_roots(cell.start, cell.end)
+        for endpoint, is_open in ((cell.start, cell.left_open), (cell.end, cell.right_open)):
+            if is_open and endpoint not in (-sp.oo, sp.oo) and polynomial.eval(endpoint) == 0:
+                interior_roots -= 1
+        if interior_roots != 0:
+            raise NotationError("function_equality.sign_cell_not_invariant")
+    sign = sp.sign(polynomial.eval(sample))
+    if sign not in (-1, 0, 1) or (sign == 0 and not polynomial.is_zero):
+        raise NotationError("function_equality.sign_unknown")
+    offset = _polynomial_value(body["polynomial"]) if family == "polynomial_plus_absolute" else sp.S.Zero
+    return sp.expand(offset + sign * value), _absolute_rule(family, body, value, sample, sign, roots)
 
 
 def _sample_set(domain):
@@ -325,8 +451,8 @@ def verify_pair(left, right, result):
             if len(proof["cells"]) != len(partition):
                 raise NotationError("function_equality.identity_partition_incomplete")
             for (cell, sample), claim in zip(partition, proof["cells"], strict=True):
-                lhs, left_rule = _normal_form(left, cell, sample)
-                rhs, right_rule = _normal_form(right, cell, sample)
+                lhs, left_rule = _verified_normal_form(left, cell, sample)
+                rhs, right_rule = _verified_normal_form(right, cell, sample)
                 expected = {"domain": cell, "sample": sample,
                             "left_polynomial": lhs, "right_polynomial": rhs,
                             "left_rule": left_rule, "right_rule": right_rule}

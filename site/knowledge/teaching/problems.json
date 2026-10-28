@@ -1,5 +1,5 @@
 {
-  "content_version": "b3f342397ca3f8ee8be47f38d409ee5886d1b4da7ab8606c5c93dce29ac5754f",
+  "content_version": "8e831df6d39d27788028850b8371442b19967fd59db27bce76078a61ecfa8194",
   "problems": {
     "basic-inequality-q01": {
       "path": "/1/q01/",
@@ -143,6 +143,10 @@
     },
     "function-concepts-q23b": {
       "path": "/topics/function-concepts/q23b/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-q19": {
+      "path": "/topics/function-concepts/q19/",
       "topic": "function-concepts"
     },
     "function-concepts-q20-v2": {

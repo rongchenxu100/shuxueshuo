@@ -85,6 +85,11 @@ def test_each_option_keeps_its_m1_calls_and_finishes_with_a_choice(executed):
     assert [step['highlight']['connector'] for step in verdict_cards] == ['≠', '≠', '=', '=']
     assert all(step['highlight']['caption'] == '本项比较' for step in verdict_cards)
     assert all('=' in step['highlight']['items'][0]['math'] for step in verdict_cards)
+    # Domain-only items never ran correspondence; stream copy must not claim they did.
+    by_label = {step['option_context']['label']: step['explanation'] for step in verdict_cards}
+    assert '定义域与对应关系' not in by_label['A']
+    assert '定义域比较' in by_label['A']
+    assert all('定义域与对应关系' in by_label[label] for label in ('B', 'C', 'D'))
     domains = [step for step in state['fragments'] if step['display_unit'] == 'equality_domains']
     assert len(domains) == 4
     assert all(step['option_context']['phase'] == 'evidence' for step in domains)

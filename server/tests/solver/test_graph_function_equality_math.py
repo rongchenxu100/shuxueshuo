@@ -136,10 +136,10 @@ def test_invalid_function_does_not_become_false_or_vacuously_equal(text, domain,
 
 
 @pytest.mark.parametrize("text", [
-    "abs(x^2+1)", "sqrt((2*x^2+1)^2)", "x^3", "sqrt(x)",
+    "abs(x^3+1)", "sqrt((2*x^3+1)^2)", "x^3", "sqrt(x)",
     "(x^2-1)/(x-1)", "a*x+1", "(x-1)^0", "sqrt(sqrt(x))", "x^12", "abs(abs(x))",
 ])
-def test_second_batch_and_unsupported_structures_remain_unresolved(text):
+def test_unsupported_structures_remain_unresolved(text):
     value = descriptor(text)
     assert structural_inspect(value)["structure_supported"] is False
     assert compare_pair(value, descriptor("x"))["relation"] == "unresolved"

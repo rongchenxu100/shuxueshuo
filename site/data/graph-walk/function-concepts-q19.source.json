@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q19",
+  "title": "公共基准下的同一函数判定 · Q19",
+  "page": "/topics/function-concepts/q19/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-concepts-q19.evidence.json"
+}

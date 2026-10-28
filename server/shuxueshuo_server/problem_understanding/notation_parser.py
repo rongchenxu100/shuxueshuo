@@ -20,7 +20,7 @@ def node(kind, *args):
 
 
 TOKEN = re.compile(
-    r"\s*(?:(\d+(?:\.\d+)?)|([A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*)|(<=|>=|!=|\*\*|[+*/^=<>−\-(),{}\[\]:|∈∉∩∪⊆⊊⊇⊋∅∧∨∀∃ℝ∞∠△°⟂∥√]))"
+    r"\s*(?:(\d+(?:\.\d+)?)|([A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*)|(<=|>=|!=|\*\*|[+*/^=<>−\-(),{}\[\]:|∈∉∩∪∖⊆⊊⊇⊋∅∧∨∀∃ℝ∞∠△°⟂∥√]))"
 )
 SUBSET_RELATIONS = {"⊆", "⊊", "⊇", "⊋"}
 PREC = {
@@ -42,6 +42,7 @@ PREC = {
     "∥": 20,
     "∩": 30,
     "∪": 30,
+    "∖": 30,
     "+": 40,
     "-": 40,
     "*": 50,
@@ -108,6 +109,9 @@ def clean(text):
         "**": "^",
     }.items():
         text = text.replace(a, b)
+    # A distinct set operator avoids interpreting arithmetic subtraction as a
+    # domain restriction. LaTeX remains rejected by the controlled parser.
+    text = re.sub(r"\bsetminus\b", "∖", text)
     return unicodedata.normalize("NFC", text.strip())
 
 
@@ -357,7 +361,7 @@ class Parser:
                 previous = left
                 left = self.make("and", previous, self.make(op, previous[2], right))
             else:
-                left = self.make({"∧": "and", "∨": "or"}.get(op, op), left, right)
+                left = self.make({"∧": "and", "∨": "or", "∖": "set_difference"}.get(op, op), left, right)
         self.depth -= 1
         return left
 

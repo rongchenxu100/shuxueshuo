@@ -132,14 +132,14 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic keeps six domain courses and adds Q20 in its own equality group', async () => {
+test('real topic keeps six domain courses and both equality courses in order', async () => {
   const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   const comparison = 'function-concepts-q20-v2';
-  assert.deepEqual(currentTopic.groups.find(group => group.id === 'equality').problems, [comparison]);
-  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison].sort());
+  assert.deepEqual(currentTopic.groups.find(group => group.id === 'equality').problems, [comparison, 'function-concepts-q19']);
+  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison, 'function-concepts-q19'].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 7);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 8);
   const equality = page.slice(page.indexOf('data-problem-id="function-concepts-q20-v2"'));
   assert.doesNotMatch(equality.slice(0, 1200), /【变式】/);
   assert.match(equality.slice(0, 1200), /class="problem-options"/);
@@ -157,8 +157,10 @@ test('real topic keeps six domain courses and adds Q20 in its own equality group
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
   assert.match(page, /kx\^\{2\}/);
-  assert.match(page, /5 个题型 · 7 道题/);
+  assert.match(page, /5 个题型 · 8 道题/);
   assert.match(page, /href="\/topics\/function-concepts\/q20\/"/);
+  assert.match(page, /href="\/topics\/function-concepts\/q19\/"/);
+  assert.ok(page.indexOf(`data-problem-id="${comparison}"`) < page.indexOf('data-problem-id="function-concepts-q19"'));
   assert.match(page, /表示同一个函数/);
   assert.equal(currentTopic.problems[comparison].runtime, 'graph-walk');
   assert.deepEqual(currentTopic.problems[comparison].types, ['type-function-equality']);

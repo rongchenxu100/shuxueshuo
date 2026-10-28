@@ -1,0 +1,1851 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 0,
+  "first_candidate": {
+    "original_text": "【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\nA. $y=x^2+|x^2+1|$　　B. $y=\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+    "root": {
+      "label": "【例5】",
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "shared_baseline",
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "completeness": "complete",
+          "shared_functions": [
+            {
+              "id": "base",
+              "definition": "f(x)=2*x^2+1"
+            }
+          ],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$y=x^2+|x^2+1|$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=x^2+abs(x^2+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$y=\\sqrt{(2x^2+1)^2}$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=sqrt((2*x^2+1)^2)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$y=|2x^2+1|$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=abs(2*x^2+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=((2*x^2+1)*(x+1))/(x+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            }
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "multiple",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "$y=x^2+|x^2+1|$"
+                },
+                {
+                  "label": "B",
+                  "text": "$y=\\sqrt{(2x^2+1)^2}$"
+                },
+                {
+                  "label": "C",
+                  "text": "$y=|2x^2+1|$"
+                },
+                {
+                  "label": "D",
+                  "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\nA. $y=x^2+|x^2+1|$　　B. $y=\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+    "root": {
+      "label": "【例5】",
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "shared_baseline",
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "completeness": "complete",
+          "shared_functions": [
+            {
+              "id": "base",
+              "definition": "f(x)=2*x^2+1"
+            }
+          ],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$y=x^2+|x^2+1|$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=x^2+abs(x^2+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$y=\\sqrt{(2x^2+1)^2}$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=sqrt((2*x^2+1)^2)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$y=|2x^2+1|$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=abs(2*x^2+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+              "functions": [
+                {
+                  "id": "cand",
+                  "definition": "f(x)=((2*x^2+1)*(x+1))/(x+1)"
+                }
+              ],
+              "left": "shared:base",
+              "right": "local:cand"
+            }
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "multiple",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "$y=x^2+|x^2+1|$"
+                },
+                {
+                  "label": "B",
+                  "text": "$y=\\sqrt{(2x^2+1)^2}$"
+                },
+                {
+                  "label": "C",
+                  "text": "$y=|2x^2+1|$"
+                },
+                {
+                  "label": "D",
+                  "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "compare_functions",
+            "mode": "shared_baseline",
+            "select_relation": "equal",
+            "selection_mode": "multiple",
+            "completeness": "complete",
+            "options": [
+              {
+                "label": "A",
+                "left": {
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "B",
+                "left": {
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "^",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "C",
+                "left": {
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "call",
+                    "abs",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              },
+              {
+                "label": "D",
+                "left": {
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                },
+                "right": {
+                  "expression_ast": [
+                    "/",
+                    [
+                      "*",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_ast": [
+                    "real"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "compare_functions",
+            "target": [
+              "comparison_task",
+              "/root/goals/0"
+            ],
+            "target_ref": "/root/goals/0",
+            "mode": "shared_baseline",
+            "select_relation": "equal",
+            "selection_mode": "multiple",
+            "completeness": "complete",
+            "options": [
+              {
+                "option_id": "option_a",
+                "label": "A",
+                "text": "$y=x^2+|x^2+1|$",
+                "source_ref": "/root/goals/0/options/0",
+                "left": {
+                  "function_ref": "/root/goals/0/shared_functions/base",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/shared_functions/0/definition",
+                  "expression": "2*x^2+1",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "2\\cdot x^{2}+1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_a/functions/cand",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/0/functions/0/definition",
+                  "expression": "x^2+abs(x^2+1)",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "x^{2}+\\left|x^{2}+1\\right|",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_b",
+                "label": "B",
+                "text": "$y=\\sqrt{(2x^2+1)^2}$",
+                "source_ref": "/root/goals/0/options/1",
+                "left": {
+                  "function_ref": "/root/goals/0/shared_functions/base",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/shared_functions/0/definition",
+                  "expression": "2*x^2+1",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "2\\cdot x^{2}+1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_b/functions/cand",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/1/functions/0/definition",
+                  "expression": "sqrt((2*x^2+1)^2)",
+                  "expression_ast": [
+                    "call",
+                    "sqrt",
+                    [
+                      "^",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\sqrt{(2\\cdot x^{2}+1)^{2}}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_c",
+                "label": "C",
+                "text": "$y=|2x^2+1|$",
+                "source_ref": "/root/goals/0/options/2",
+                "left": {
+                  "function_ref": "/root/goals/0/shared_functions/base",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/shared_functions/0/definition",
+                  "expression": "2*x^2+1",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "2\\cdot x^{2}+1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_c/functions/cand",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/2/functions/0/definition",
+                  "expression": "abs(2*x^2+1)",
+                  "expression_ast": [
+                    "call",
+                    "abs",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\left|2\\cdot x^{2}+1\\right|",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              },
+              {
+                "option_id": "option_d",
+                "label": "D",
+                "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+                "source_ref": "/root/goals/0/options/3",
+                "left": {
+                  "function_ref": "/root/goals/0/shared_functions/base",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/shared_functions/0/definition",
+                  "expression": "2*x^2+1",
+                  "expression_ast": [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  "expression_latex": "2\\cdot x^{2}+1",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                },
+                "right": {
+                  "function_ref": "/root/goals/0/options/option_d/functions/cand",
+                  "function_name": "f",
+                  "variable": "x",
+                  "source_ref": "/root/goals/0/options/3/functions/0/definition",
+                  "expression": "((2*x^2+1)*(x+1))/(x+1)",
+                  "expression_ast": [
+                    "/",
+                    [
+                      "*",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  "expression_latex": "\\frac{(2\\cdot x^{2}+1)\\cdot (x+1)}{x+1}",
+                  "input_domain_ast": [
+                    "real"
+                  ],
+                  "explicit_domain": false,
+                  "input_domain_source_ref": ""
+                }
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "c8acac7d5768",
+      "source_sha256": "d5a5871ddfd559b3ff190281b7582eb69cb578943a0f42f9699b759db6314761"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "compare_functions",
+                "mode": "shared_baseline",
+                "select_relation": "equal",
+                "selection_mode": "multiple",
+                "completeness": "complete",
+                "options": [
+                  {
+                    "label": "A",
+                    "left": {
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "call",
+                          "abs",
+                          [
+                            "+",
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "B",
+                    "left": {
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "^",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "C",
+                    "left": {
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "call",
+                        "abs",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  },
+                  {
+                    "label": "D",
+                    "left": {
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    },
+                    "right": {
+                      "expression_ast": [
+                        "/",
+                        [
+                          "*",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ],
+                        [
+                          "+",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ]
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_ast": [
+                        "real"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "compare_functions",
+                "target": [
+                  "comparison_task",
+                  "/root/goals/0"
+                ],
+                "target_ref": "/root/goals/0",
+                "mode": "shared_baseline",
+                "select_relation": "equal",
+                "selection_mode": "multiple",
+                "completeness": "complete",
+                "options": [
+                  {
+                    "option_id": "option_a",
+                    "label": "A",
+                    "text": "$y=x^2+|x^2+1|$",
+                    "source_ref": "/root/goals/0/options/0",
+                    "left": {
+                      "function_ref": "/root/goals/0/shared_functions/base",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/shared_functions/0/definition",
+                      "expression": "2*x^2+1",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "2\\cdot x^{2}+1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_a/functions/cand",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/0/functions/0/definition",
+                      "expression": "x^2+abs(x^2+1)",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "call",
+                          "abs",
+                          [
+                            "+",
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "x^{2}+\\left|x^{2}+1\\right|",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_b",
+                    "label": "B",
+                    "text": "$y=\\sqrt{(2x^2+1)^2}$",
+                    "source_ref": "/root/goals/0/options/1",
+                    "left": {
+                      "function_ref": "/root/goals/0/shared_functions/base",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/shared_functions/0/definition",
+                      "expression": "2*x^2+1",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "2\\cdot x^{2}+1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_b/functions/cand",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/1/functions/0/definition",
+                      "expression": "sqrt((2*x^2+1)^2)",
+                      "expression_ast": [
+                        "call",
+                        "sqrt",
+                        [
+                          "^",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\sqrt{(2\\cdot x^{2}+1)^{2}}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_c",
+                    "label": "C",
+                    "text": "$y=|2x^2+1|$",
+                    "source_ref": "/root/goals/0/options/2",
+                    "left": {
+                      "function_ref": "/root/goals/0/shared_functions/base",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/shared_functions/0/definition",
+                      "expression": "2*x^2+1",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "2\\cdot x^{2}+1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_c/functions/cand",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/2/functions/0/definition",
+                      "expression": "abs(2*x^2+1)",
+                      "expression_ast": [
+                        "call",
+                        "abs",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\left|2\\cdot x^{2}+1\\right|",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  },
+                  {
+                    "option_id": "option_d",
+                    "label": "D",
+                    "text": "$y=\\frac{(2x^2+1)(x+1)}{x+1}$",
+                    "source_ref": "/root/goals/0/options/3",
+                    "left": {
+                      "function_ref": "/root/goals/0/shared_functions/base",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/shared_functions/0/definition",
+                      "expression": "2*x^2+1",
+                      "expression_ast": [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      "expression_latex": "2\\cdot x^{2}+1",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    },
+                    "right": {
+                      "function_ref": "/root/goals/0/options/option_d/functions/cand",
+                      "function_name": "f",
+                      "variable": "x",
+                      "source_ref": "/root/goals/0/options/3/functions/0/definition",
+                      "expression": "((2*x^2+1)*(x+1))/(x+1)",
+                      "expression_ast": [
+                        "/",
+                        [
+                          "*",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ],
+                          [
+                            "+",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "1"
+                            ]
+                          ]
+                        ],
+                        [
+                          "+",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ]
+                      ],
+                      "expression_latex": "\\frac{(2\\cdot x^{2}+1)\\cdot (x+1)}{x+1}",
+                      "input_domain_ast": [
+                        "real"
+                      ],
+                      "explicit_domain": false,
+                      "input_domain_source_ref": ""
+                    }
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "c8acac7d5768",
+          "source_sha256": "d5a5871ddfd559b3ff190281b7582eb69cb578943a0f42f9699b759db6314761"
+        }
+      },
+      "revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "541c9a66eaabf637f5fef8c1345c28693499e3438029b0477b29b6e3ddbe4780",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "problemId": "function-concepts-q20-v2",
   "graphVersion": "b70d2e0e8de3b032ad2a90f8be7efcb379cc2ba45f5abed4de65a9061f6053ce",
   "problem": {
-    "text": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+    "text": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
   },
   "notation": {},
   "intro": [
@@ -167,7 +167,7 @@
           "feedback": {
             "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
           },
-          "id": "8f409a973b6373cc98be6a98#1",
+          "id": "a349409e1e77b01556be715d#1",
           "interaction": {
             "slots": [
               {
@@ -226,10 +226,10 @@
           },
           "option_context": {
             "label": "A",
-            "left_ref": "/root/goals/0/options/option_a/functions/left",
-            "option_id": "option_a",
+            "left_ref": "/root/goals/0/options/A/functions/f",
+            "option_id": "A",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_a/functions/right",
+            "right_ref": "/root/goals/0/options/A/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。分别选出两边的定义域。",
@@ -238,12 +238,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "b47ba13f3e7a1efd2ebd92e92c58db3880a647788054c7b519dbe53e19b0fd46",
+              "math_step_sha256": "8dd94b31e9586d27856660233ffa04f1d93c23777b6a1ae4e37580cf0df4a397",
               "step_id": "39e5646dcb-function-equality-001-equality_domains"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "8f409a973b6373cc98be6a98",
+          "stream_interaction_id": "a349409e1e77b01556be715d",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "比较本项定义域",
@@ -264,7 +264,7 @@
           "feedback": {
             "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
           },
-          "id": "946ecc02e50f253a9b8cbf5d#1",
+          "id": "d13389cd104649ad7eb2ee60#1",
           "interaction": {
             "field": "function_relation",
             "options": [
@@ -281,10 +281,10 @@
           },
           "option_context": {
             "label": "A",
-            "left_ref": "/root/goals/0/options/option_a/functions/left",
-            "option_id": "option_a",
+            "left_ref": "/root/goals/0/options/A/functions/f",
+            "option_id": "A",
             "phase": "verdict",
-            "right_ref": "/root/goals/0/options/option_a/functions/right",
+            "right_ref": "/root/goals/0/options/A/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。结合已经比较的定义域，本项两个函数是否相同？",
@@ -293,12 +293,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "e2a383e5820e9a153653387024856aa0631e1873692aa76be0a8819da1c3b113",
+              "math_step_sha256": "a88d58ef2d6d5fbded93caa7132f8275b65d702b7f62edc663e34aeeb3ee2da3",
               "step_id": "39e5646dcb-function-equality-002-equality_verdict"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "946ecc02e50f253a9b8cbf5d",
+          "stream_interaction_id": "d13389cd104649ad7eb2ee60",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "选项 A 的结论",
@@ -322,7 +322,7 @@
           "feedback": {
             "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
           },
-          "id": "fa5baf3fa85381d90e8c5e31#1",
+          "id": "a22a6dd1d203a9bcac977f36#1",
           "interaction": {
             "slots": [
               {
@@ -381,10 +381,10 @@
           },
           "option_context": {
             "label": "B",
-            "left_ref": "/root/goals/0/options/option_b/functions/left",
-            "option_id": "option_b",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_b/functions/right",
+            "right_ref": "/root/goals/0/options/B/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。分别选出两边的定义域。",
@@ -393,16 +393,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+              "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
               "step_id": "39e5646dcb-function-equality-003-equality_domains"
             },
             {
-              "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+              "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
               "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "fa5baf3fa85381d90e8c5e31",
+          "stream_interaction_id": "a22a6dd1d203a9bcac977f36",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -423,7 +423,7 @@
           "feedback": {
             "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
           },
-          "id": "fa5baf3fa85381d90e8c5e31#2",
+          "id": "a22a6dd1d203a9bcac977f36#2",
           "interaction": {
             "field": "correspondence",
             "options": [
@@ -440,10 +440,10 @@
           },
           "option_context": {
             "label": "B",
-            "left_ref": "/root/goals/0/options/option_b/functions/left",
-            "option_id": "option_b",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_b/functions/right",
+            "right_ref": "/root/goals/0/options/B/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "两边定义域相同。对应关系是否等价？",
@@ -452,16 +452,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+              "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
               "step_id": "39e5646dcb-function-equality-003-equality_domains"
             },
             {
-              "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+              "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
               "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "fa5baf3fa85381d90e8c5e31",
+          "stream_interaction_id": "a22a6dd1d203a9bcac977f36",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -482,7 +482,7 @@
           "feedback": {
             "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
           },
-          "id": "43fdf67a2b46e2bf8b21179b#1",
+          "id": "f333b669480671a8435c17b4#1",
           "interaction": {
             "field": "function_relation",
             "options": [
@@ -499,10 +499,10 @@
           },
           "option_context": {
             "label": "B",
-            "left_ref": "/root/goals/0/options/option_b/functions/left",
-            "option_id": "option_b",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
             "phase": "verdict",
-            "right_ref": "/root/goals/0/options/option_b/functions/right",
+            "right_ref": "/root/goals/0/options/B/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -511,12 +511,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "88ddc845cd2235da6eb68ffec445d3c0b78dc32978d1b1b95f5bea6dabaf8846",
+              "math_step_sha256": "f38cc9c8d48d5e5f43d34a970ca2cbf4f142ed2cfc723a89be532c17d447bdbe",
               "step_id": "39e5646dcb-function-equality-005-equality_verdict"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "43fdf67a2b46e2bf8b21179b",
+          "stream_interaction_id": "f333b669480671a8435c17b4",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "选项 B 的结论",
@@ -540,7 +540,7 @@
           "feedback": {
             "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
           },
-          "id": "d438115dc5c006523efa066c#1",
+          "id": "f37848bc89fb0593bbe7a291#1",
           "interaction": {
             "slots": [
               {
@@ -599,10 +599,10 @@
           },
           "option_context": {
             "label": "C",
-            "left_ref": "/root/goals/0/options/option_c/functions/left",
-            "option_id": "option_c",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_c/functions/right",
+            "right_ref": "/root/goals/0/options/C/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。分别选出两边的定义域。",
@@ -611,16 +611,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+              "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
               "step_id": "39e5646dcb-function-equality-006-equality_domains"
             },
             {
-              "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+              "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
               "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "d438115dc5c006523efa066c",
+          "stream_interaction_id": "f37848bc89fb0593bbe7a291",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -641,7 +641,7 @@
           "feedback": {
             "answer": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。"
           },
-          "id": "d438115dc5c006523efa066c#2",
+          "id": "f37848bc89fb0593bbe7a291#2",
           "interaction": {
             "field": "correspondence",
             "options": [
@@ -658,10 +658,10 @@
           },
           "option_context": {
             "label": "C",
-            "left_ref": "/root/goals/0/options/option_c/functions/left",
-            "option_id": "option_c",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_c/functions/right",
+            "right_ref": "/root/goals/0/options/C/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "两边定义域相同。对应关系是否等价？",
@@ -670,16 +670,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+              "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
               "step_id": "39e5646dcb-function-equality-006-equality_domains"
             },
             {
-              "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+              "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
               "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d438115dc5c006523efa066c",
+          "stream_interaction_id": "f37848bc89fb0593bbe7a291",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -700,7 +700,7 @@
           "feedback": {
             "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
           },
-          "id": "8ef7303de68dd8d65991d1ab#1",
+          "id": "e0898bad6b8b2daa807fba29#1",
           "interaction": {
             "field": "function_relation",
             "options": [
@@ -717,10 +717,10 @@
           },
           "option_context": {
             "label": "C",
-            "left_ref": "/root/goals/0/options/option_c/functions/left",
-            "option_id": "option_c",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
             "phase": "verdict",
-            "right_ref": "/root/goals/0/options/option_c/functions/right",
+            "right_ref": "/root/goals/0/options/C/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -729,12 +729,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "ef05a29280a6802a63a5b7c2b925718d7ff0ddcbea4d93b87900747367084a52",
+              "math_step_sha256": "f2ee3ee39d9a4d2642aa3240a78e3dc7f97de573c5e3bf02c679de8a52d71f7b",
               "step_id": "39e5646dcb-function-equality-008-equality_verdict"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "8ef7303de68dd8d65991d1ab",
+          "stream_interaction_id": "e0898bad6b8b2daa807fba29",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "选项 C 的结论",
@@ -758,7 +758,7 @@
           "feedback": {
             "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
           },
-          "id": "0437b48d9c2216cbebb90e99#1",
+          "id": "38d7b035bb9c2579d7aa8cc7#1",
           "interaction": {
             "slots": [
               {
@@ -817,10 +817,10 @@
           },
           "option_context": {
             "label": "D",
-            "left_ref": "/root/goals/0/options/option_d/functions/left",
-            "option_id": "option_d",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_d/functions/right",
+            "right_ref": "/root/goals/0/options/D/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。分别选出两边的定义域。",
@@ -829,16 +829,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+              "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
               "step_id": "39e5646dcb-function-equality-009-equality_domains"
             },
             {
-              "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+              "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
               "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "0437b48d9c2216cbebb90e99",
+          "stream_interaction_id": "38d7b035bb9c2579d7aa8cc7",
           "stream_part_index": 0,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -859,7 +859,7 @@
           "feedback": {
             "answer": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。"
           },
-          "id": "0437b48d9c2216cbebb90e99#2",
+          "id": "38d7b035bb9c2579d7aa8cc7#2",
           "interaction": {
             "field": "correspondence",
             "options": [
@@ -876,10 +876,10 @@
           },
           "option_context": {
             "label": "D",
-            "left_ref": "/root/goals/0/options/option_d/functions/left",
-            "option_id": "option_d",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
             "phase": "evidence",
-            "right_ref": "/root/goals/0/options/option_d/functions/right",
+            "right_ref": "/root/goals/0/options/D/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "两边定义域相同。对应关系是否等价？",
@@ -888,16 +888,16 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+              "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
               "step_id": "39e5646dcb-function-equality-009-equality_domains"
             },
             {
-              "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+              "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
               "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "0437b48d9c2216cbebb90e99",
+          "stream_interaction_id": "38d7b035bb9c2579d7aa8cc7",
           "stream_part_index": 1,
           "stream_part_count": 2,
           "stream_group_title": "比较本项定义域 · 比较本项对应关系",
@@ -918,7 +918,7 @@
           "feedback": {
             "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
           },
-          "id": "808b8f4ec1f0201a767b600e#1",
+          "id": "80ebc309fe59bfa9d316285c#1",
           "interaction": {
             "field": "function_relation",
             "options": [
@@ -935,10 +935,10 @@
           },
           "option_context": {
             "label": "D",
-            "left_ref": "/root/goals/0/options/option_d/functions/left",
-            "option_id": "option_d",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
             "phase": "verdict",
-            "right_ref": "/root/goals/0/options/option_d/functions/right",
+            "right_ref": "/root/goals/0/options/D/functions/g",
             "target_ref": "/root/goals/0"
           },
           "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -947,12 +947,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "7fba0ba56510935cf60d92962ae8d60c42608761aadec4b1babb4271810c1521",
+              "math_step_sha256": "741a45db04ea4457eb635a7537079d62a8c947112eef08787deeb9a236a493cf",
               "step_id": "39e5646dcb-function-equality-011-equality_verdict"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "808b8f4ec1f0201a767b600e",
+          "stream_interaction_id": "80ebc309fe59bfa9d316285c",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "选项 D 的结论",
@@ -967,16 +967,16 @@
           }
         },
         {
-          "id": "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"637a02419746ce650a062116ae85425fb463197c58f29c1edf3304ab4a04fa13\"]",
+          "id": "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"08bb1ea81e8ae7f29e290ac176c7aaf6263e25c55244ae9d00e733377f78d911\"]",
           "source": "original_choice",
           "title": "选择原题答案",
           "question": "已完成各项判断，请按原题要求选择，并确认答案。",
           "target_ref": "/root/goals/0",
           "require_complete_options": [
-            "option_a",
-            "option_b",
-            "option_c",
-            "option_d"
+            "A",
+            "B",
+            "C",
+            "D"
           ],
           "select_relation": "equal",
           "interaction": {
@@ -993,7 +993,7 @@
               },
               {
                 "value": "C",
-                "label": "C. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+                "label": "C. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
               },
               {
                 "value": "D",
@@ -1042,25 +1042,25 @@
           "option_verdicts": [
             {
               "label": "A",
-              "option_id": "option_a",
+              "option_id": "A",
               "reason": "domains_differ",
               "verdict": "different"
             },
             {
               "label": "B",
-              "option_id": "option_b",
+              "option_id": "B",
               "reason": "outputs_differ",
               "verdict": "different"
             },
             {
               "label": "C",
-              "option_id": "option_c",
+              "option_id": "C",
               "reason": "same_domain_and_correspondence",
               "verdict": "equal"
             },
             {
               "label": "D",
-              "option_id": "option_d",
+              "option_id": "D",
               "reason": "same_domain_and_correspondence",
               "verdict": "equal"
             }
@@ -1072,60 +1072,60 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "math_steps": [
           {
-            "math_step_sha256": "b47ba13f3e7a1efd2ebd92e92c58db3880a647788054c7b519dbe53e19b0fd46",
+            "math_step_sha256": "8dd94b31e9586d27856660233ffa04f1d93c23777b6a1ae4e37580cf0df4a397",
             "ordinal": 1,
             "step_id": "39e5646dcb-function-equality-001-equality_domains"
           },
           {
-            "math_step_sha256": "e2a383e5820e9a153653387024856aa0631e1873692aa76be0a8819da1c3b113",
+            "math_step_sha256": "a88d58ef2d6d5fbded93caa7132f8275b65d702b7f62edc663e34aeeb3ee2da3",
             "ordinal": 2,
             "step_id": "39e5646dcb-function-equality-002-equality_verdict"
           },
           {
-            "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+            "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
             "ordinal": 3,
             "step_id": "39e5646dcb-function-equality-003-equality_domains"
           },
           {
-            "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+            "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
             "ordinal": 4,
             "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
           },
           {
-            "math_step_sha256": "88ddc845cd2235da6eb68ffec445d3c0b78dc32978d1b1b95f5bea6dabaf8846",
+            "math_step_sha256": "f38cc9c8d48d5e5f43d34a970ca2cbf4f142ed2cfc723a89be532c17d447bdbe",
             "ordinal": 5,
             "step_id": "39e5646dcb-function-equality-005-equality_verdict"
           },
           {
-            "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+            "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
             "ordinal": 6,
             "step_id": "39e5646dcb-function-equality-006-equality_domains"
           },
           {
-            "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+            "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
             "ordinal": 7,
             "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
           },
           {
-            "math_step_sha256": "ef05a29280a6802a63a5b7c2b925718d7ff0ddcbea4d93b87900747367084a52",
+            "math_step_sha256": "f2ee3ee39d9a4d2642aa3240a78e3dc7f97de573c5e3bf02c679de8a52d71f7b",
             "ordinal": 8,
             "step_id": "39e5646dcb-function-equality-008-equality_verdict"
           },
           {
-            "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+            "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
             "ordinal": 9,
             "step_id": "39e5646dcb-function-equality-009-equality_domains"
           },
           {
-            "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+            "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
             "ordinal": 10,
             "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
           },
           {
-            "math_step_sha256": "7fba0ba56510935cf60d92962ae8d60c42608761aadec4b1babb4271810c1521",
+            "math_step_sha256": "741a45db04ea4457eb635a7537079d62a8c947112eef08787deeb9a236a493cf",
             "ordinal": 11,
             "step_id": "39e5646dcb-function-equality-011-equality_verdict"
           }
@@ -1139,25 +1139,25 @@
           "option_verdicts": [
             {
               "label": "A",
-              "option_id": "option_a",
+              "option_id": "A",
               "reason": "domains_differ",
               "verdict": "different"
             },
             {
               "label": "B",
-              "option_id": "option_b",
+              "option_id": "B",
               "reason": "outputs_differ",
               "verdict": "different"
             },
             {
               "label": "C",
-              "option_id": "option_c",
+              "option_id": "C",
               "reason": "same_domain_and_correspondence",
               "verdict": "equal"
             },
             {
               "label": "D",
-              "option_id": "option_d",
+              "option_id": "D",
               "reason": "same_domain_and_correspondence",
               "verdict": "equal"
             }
@@ -1165,22 +1165,22 @@
           "options": [
             {
               "label": "A",
-              "option_id": "option_a",
+              "option_id": "A",
               "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
             },
             {
               "label": "B",
-              "option_id": "option_b",
+              "option_id": "B",
               "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
             },
             {
               "label": "C",
-              "option_id": "option_c",
-              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+              "option_id": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
             },
             {
               "label": "D",
-              "option_id": "option_d",
+              "option_id": "D",
               "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
             }
           ],
@@ -1190,11 +1190,11 @@
           "target_ref": "/root/goals/0"
         },
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "ce4b41b4d77f2d1645f62db4958f020d84fc7acc7466473c566fb6b514ca2f84",
-        "verified_route_sha256": "637a02419746ce650a062116ae85425fb463197c58f29c1edf3304ab4a04fa13"
+        "task_id": "7944e7f102db3445d7e7b16ad7493e6f43f75bab766f0790efe6a2e5d147eebe",
+        "verified_route_sha256": "08bb1ea81e8ae7f29e290ac176c7aaf6263e25c55244ae9d00e733377f78d911"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1341,6 +1341,15 @@
         "aliases": [],
         "status": "knowledge_only",
         "home": "junior-knowledge"
+      },
+      {
+        "id": "square-root-expression",
+        "kind": "knowledge",
+        "label": "二次根式",
+        "summary": "在实数范围内，二次根式要求被开方数非负，结果表示非负的算术平方根。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
       }
     ],
     "edges": [
@@ -1369,6 +1378,15 @@
         "id": "type-function-domain|involves|function-concept",
         "from": "type-function-domain",
         "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|square-root-expression",
+        "from": "type-function-domain",
+        "to": "square-root-expression",
         "type": "involves",
         "occurrences": [
           {}
@@ -1434,40 +1452,41 @@
         "label": "本步调用与依据",
         "ids": [
           "skill-simplify",
-          "absolute-value-concept"
+          "absolute-value-concept",
+          "square-root-expression"
         ]
       }
     ]
   },
   "option_workspaces": [
     {
-      "option_id": "option_a",
+      "option_id": "A",
       "label": "A",
       "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
     },
     {
-      "option_id": "option_b",
+      "option_id": "B",
       "label": "B",
       "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
     },
     {
-      "option_id": "option_c",
+      "option_id": "C",
       "label": "C",
-      "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+      "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
     },
     {
-      "option_id": "option_d",
+      "option_id": "D",
       "label": "D",
       "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
     }
   ],
-  "bundleVersion": "[\"stream\",\"adaf195bdf6ee2aeb6f736fe0926e257bc56177d118dee0757bc1983cdb6de08\",\"755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f\",\"29ca9f1400724dcc8aa11535c8dfa821\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"9427cb65081f406cee4e8a3a1680cdca52db43272aa7cd4b7c94dc8ee908d783\",\"14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1\",\"3cbfe4b7c0d64ff5b1830355c295a3ba\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
-    "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
-    "stream_id": "29ca9f1400724dcc8aa11535c8dfa821",
+    "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
+    "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
+    "stream_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "adaf195bdf6ee2aeb6f736fe0926e257bc56177d118dee0757bc1983cdb6de08",
+    "base_bundle_version": "9427cb65081f406cee4e8a3a1680cdca52db43272aa7cd4b7c94dc8ee908d783",
     "d3": {
       "expected_answer": {},
       "id": "D3",
@@ -1493,22 +1512,22 @@
           "option_workspaces": [
             {
               "label": "A",
-              "option_id": "option_a",
+              "option_id": "A",
               "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
             },
             {
               "label": "B",
-              "option_id": "option_b",
+              "option_id": "B",
               "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
             },
             {
               "label": "C",
-              "option_id": "option_c",
-              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+              "option_id": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
             },
             {
               "label": "D",
-              "option_id": "option_d",
+              "option_id": "D",
               "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
             }
           ],
@@ -1542,23 +1561,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "b47ba13f3e7a1efd2ebd92e92c58db3880a647788054c7b519dbe53e19b0fd46",
+        "math_step_sha256": "8dd94b31e9586d27856660233ffa04f1d93c23777b6a1ae4e37580cf0df4a397",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "A",
-          "left_ref": "/root/goals/0/options/option_a/functions/left",
-          "option_id": "option_a",
+          "left_ref": "/root/goals/0/options/A/functions/f",
+          "option_id": "A",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_a/functions/right",
+          "right_ref": "/root/goals/0/options/A/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/13/calls/0"
         ],
@@ -1575,7 +1594,7 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "equality_verdict",
-        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "explanation": "结合本项已经完成的定义域比较，判断两个函数是否相同。",
         "highlight": {
           "caption": "本项比较",
           "conclusion_only": true,
@@ -1593,23 +1612,23 @@
           "result": "本项结论：不同",
           "show_result": true
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "e2a383e5820e9a153653387024856aa0631e1873692aa76be0a8819da1c3b113",
+        "math_step_sha256": "a88d58ef2d6d5fbded93caa7132f8275b65d702b7f62edc663e34aeeb3ee2da3",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "A",
-          "left_ref": "/root/goals/0/options/option_a/functions/left",
-          "option_id": "option_a",
+          "left_ref": "/root/goals/0/options/A/functions/f",
+          "option_id": "A",
           "phase": "verdict",
-          "right_ref": "/root/goals/0/options/option_a/functions/right",
+          "right_ref": "/root/goals/0/options/A/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/13/calls/0"
         ],
@@ -1642,23 +1661,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+        "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "B",
-          "left_ref": "/root/goals/0/options/option_b/functions/left",
-          "option_id": "option_b",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "right_ref": "/root/goals/0/options/B/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/25/calls/0"
         ],
@@ -1691,23 +1710,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+        "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "B",
-          "left_ref": "/root/goals/0/options/option_b/functions/left",
-          "option_id": "option_b",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "right_ref": "/root/goals/0/options/B/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/25/calls/0"
         ],
@@ -1742,23 +1761,23 @@
           "result": "本项结论：不同",
           "show_result": true
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "88ddc845cd2235da6eb68ffec445d3c0b78dc32978d1b1b95f5bea6dabaf8846",
+        "math_step_sha256": "f38cc9c8d48d5e5f43d34a970ca2cbf4f142ed2cfc723a89be532c17d447bdbe",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "B",
-          "left_ref": "/root/goals/0/options/option_b/functions/left",
-          "option_id": "option_b",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
           "phase": "verdict",
-          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "right_ref": "/root/goals/0/options/B/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 5,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/25/calls/0"
         ],
@@ -1791,23 +1810,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+        "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "C",
-          "left_ref": "/root/goals/0/options/option_c/functions/left",
-          "option_id": "option_c",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "right_ref": "/root/goals/0/options/C/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 6,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/37/calls/0"
         ],
@@ -1816,7 +1835,8 @@
         "title": "比较本项定义域",
         "used_basis": [
           "absolute-value-concept#rules",
-          "function-concept#identity"
+          "function-concept#identity",
+          "square-root-expression#meaning"
         ]
       },
       {
@@ -1841,23 +1861,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+        "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "C",
-          "left_ref": "/root/goals/0/options/option_c/functions/left",
-          "option_id": "option_c",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "right_ref": "/root/goals/0/options/C/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 7,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/37/calls/0"
         ],
@@ -1866,7 +1886,8 @@
         "title": "比较本项对应关系",
         "used_basis": [
           "absolute-value-concept#rules",
-          "function-concept#identity"
+          "function-concept#identity",
+          "square-root-expression#meaning"
         ]
       },
       {
@@ -1893,23 +1914,23 @@
           "result": "本项结论：相同",
           "show_result": true
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "ef05a29280a6802a63a5b7c2b925718d7ff0ddcbea4d93b87900747367084a52",
+        "math_step_sha256": "f2ee3ee39d9a4d2642aa3240a78e3dc7f97de573c5e3bf02c679de8a52d71f7b",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "C",
-          "left_ref": "/root/goals/0/options/option_c/functions/left",
-          "option_id": "option_c",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
           "phase": "verdict",
-          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "right_ref": "/root/goals/0/options/C/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 8,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/37/calls/0"
         ],
@@ -1918,7 +1939,8 @@
         "title": "选项 C 的结论",
         "used_basis": [
           "absolute-value-concept#rules",
-          "function-concept#identity"
+          "function-concept#identity",
+          "square-root-expression#meaning"
         ]
       },
       {
@@ -1943,23 +1965,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+        "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "D",
-          "left_ref": "/root/goals/0/options/option_d/functions/left",
-          "option_id": "option_d",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "right_ref": "/root/goals/0/options/D/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 9,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/49/calls/0"
         ],
@@ -1992,23 +2014,23 @@
             }
           ]
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+        "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "D",
-          "left_ref": "/root/goals/0/options/option_d/functions/left",
-          "option_id": "option_d",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
           "phase": "evidence",
-          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "right_ref": "/root/goals/0/options/D/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 10,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/49/calls/0"
         ],
@@ -2043,23 +2065,23 @@
           "result": "本项结论：相同",
           "show_result": true
         },
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "local_check": "passed",
-        "math_step_sha256": "7fba0ba56510935cf60d92962ae8d60c42608761aadec4b1babb4271810c1521",
+        "math_step_sha256": "741a45db04ea4457eb635a7537079d62a8c947112eef08787deeb9a236a493cf",
         "method_ref": "method-function-equality#compare",
         "option_context": {
           "label": "D",
-          "left_ref": "/root/goals/0/options/option_d/functions/left",
-          "option_id": "option_d",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
           "phase": "verdict",
-          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "right_ref": "/root/goals/0/options/D/functions/g",
           "target_ref": "/root/goals/0"
         },
         "ordinal": 11,
         "premise_refs": [],
-        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "revisions_ref": "6ce41979693f5f5dc3e6398d9d1416b8d86ec6ac945f3a27aea94d03e10ce90a",
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "source_refs": [
           "/steps/49/calls/0"
         ],
@@ -2134,7 +2156,8 @@
           "ref": "skill-simplify",
           "usedBasis": [
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ],
           "source": "/steps/37/calls/0"
         }
@@ -2146,7 +2169,8 @@
           "ref": "skill-simplify",
           "usedBasis": [
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ],
           "source": "/steps/37/calls/0"
         }
@@ -2158,7 +2182,8 @@
           "ref": "skill-simplify",
           "usedBasis": [
             "absolute-value-concept#rules",
-            "function-concept#identity"
+            "function-concept#identity",
+            "square-root-expression#meaning"
           ],
           "source": "/steps/37/calls/0"
         }
@@ -2204,108 +2229,108 @@
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-001-equality_domains",
         "ordinal": 1,
-        "math_step_sha256": "b47ba13f3e7a1efd2ebd92e92c58db3880a647788054c7b519dbe53e19b0fd46",
+        "math_step_sha256": "8dd94b31e9586d27856660233ffa04f1d93c23777b6a1ae4e37580cf0df4a397",
         "status": "interactive",
-        "interaction_id": "8f409a973b6373cc98be6a98"
+        "interaction_id": "a349409e1e77b01556be715d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-002-equality_verdict",
         "ordinal": 2,
-        "math_step_sha256": "e2a383e5820e9a153653387024856aa0631e1873692aa76be0a8819da1c3b113",
+        "math_step_sha256": "a88d58ef2d6d5fbded93caa7132f8275b65d702b7f62edc663e34aeeb3ee2da3",
         "status": "interactive",
-        "interaction_id": "946ecc02e50f253a9b8cbf5d"
+        "interaction_id": "d13389cd104649ad7eb2ee60"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-003-equality_domains",
         "ordinal": 3,
-        "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+        "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
         "status": "interactive",
-        "interaction_id": "fa5baf3fa85381d90e8c5e31"
+        "interaction_id": "a22a6dd1d203a9bcac977f36"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-004-equality_correspondence",
         "ordinal": 4,
-        "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+        "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
         "status": "interactive",
-        "interaction_id": "fa5baf3fa85381d90e8c5e31"
+        "interaction_id": "a22a6dd1d203a9bcac977f36"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-005-equality_verdict",
         "ordinal": 5,
-        "math_step_sha256": "88ddc845cd2235da6eb68ffec445d3c0b78dc32978d1b1b95f5bea6dabaf8846",
+        "math_step_sha256": "f38cc9c8d48d5e5f43d34a970ca2cbf4f142ed2cfc723a89be532c17d447bdbe",
         "status": "interactive",
-        "interaction_id": "43fdf67a2b46e2bf8b21179b"
+        "interaction_id": "f333b669480671a8435c17b4"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-006-equality_domains",
         "ordinal": 6,
-        "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+        "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
         "status": "interactive",
-        "interaction_id": "d438115dc5c006523efa066c"
+        "interaction_id": "f37848bc89fb0593bbe7a291"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-007-equality_correspondence",
         "ordinal": 7,
-        "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+        "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
         "status": "interactive",
-        "interaction_id": "d438115dc5c006523efa066c"
+        "interaction_id": "f37848bc89fb0593bbe7a291"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-008-equality_verdict",
         "ordinal": 8,
-        "math_step_sha256": "ef05a29280a6802a63a5b7c2b925718d7ff0ddcbea4d93b87900747367084a52",
+        "math_step_sha256": "f2ee3ee39d9a4d2642aa3240a78e3dc7f97de573c5e3bf02c679de8a52d71f7b",
         "status": "interactive",
-        "interaction_id": "8ef7303de68dd8d65991d1ab"
+        "interaction_id": "e0898bad6b8b2daa807fba29"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-009-equality_domains",
         "ordinal": 9,
-        "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+        "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
         "status": "interactive",
-        "interaction_id": "0437b48d9c2216cbebb90e99"
+        "interaction_id": "38d7b035bb9c2579d7aa8cc7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-010-equality_correspondence",
         "ordinal": 10,
-        "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+        "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
         "status": "interactive",
-        "interaction_id": "0437b48d9c2216cbebb90e99"
+        "interaction_id": "38d7b035bb9c2579d7aa8cc7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "function-equality",
         "step_id": "39e5646dcb-function-equality-011-equality_verdict",
         "ordinal": 11,
-        "math_step_sha256": "7fba0ba56510935cf60d92962ae8d60c42608761aadec4b1babb4271810c1521",
+        "math_step_sha256": "741a45db04ea4457eb635a7537079d62a8c947112eef08787deeb9a236a493cf",
         "status": "interactive",
-        "interaction_id": "808b8f4ec1f0201a767b600e"
+        "interaction_id": "80ebc309fe59bfa9d316285c"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8f409a973b6373cc98be6a98",
+        "interaction_id": "a349409e1e77b01556be715d",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "9014345a9b4c94fc729a960ef4cb88c8b96deffb18de1792bc120d0043f247a5",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "bda8a86e0f88f3b325fb8a227032b44fa6668f80d3f31d5906c053bac157c369",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2317,7 +2342,7 @@
             "feedback": {
               "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
             },
-            "id": "8f409a973b6373cc98be6a98#1",
+            "id": "a349409e1e77b01556be715d#1",
             "interaction": {
               "slots": [
                 {
@@ -2376,10 +2401,10 @@
             },
             "option_context": {
               "label": "A",
-              "left_ref": "/root/goals/0/options/option_a/functions/left",
-              "option_id": "option_a",
+              "left_ref": "/root/goals/0/options/A/functions/f",
+              "option_id": "A",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "right_ref": "/root/goals/0/options/A/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。分别选出两边的定义域。",
@@ -2388,11 +2413,11 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b47ba13f3e7a1efd2ebd92e92c58db3880a647788054c7b519dbe53e19b0fd46",
+            "math_step_sha256": "8dd94b31e9586d27856660233ffa04f1d93c23777b6a1ae4e37580cf0df4a397",
             "step_id": "39e5646dcb-function-equality-001-equality_domains"
           }
         ],
@@ -2400,10 +2425,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "946ecc02e50f253a9b8cbf5d",
+        "interaction_id": "d13389cd104649ad7eb2ee60",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "b4d560a2c6b4afd7dbeb62b8a0ca0785c2c767a9e38c59046adc693bfb351480",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "d16eed67f2236c7da3dd91644eba104c11499d49ed81e77f2c7deba66eb8e18c",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2414,7 +2439,7 @@
             "feedback": {
               "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
             },
-            "id": "946ecc02e50f253a9b8cbf5d#1",
+            "id": "d13389cd104649ad7eb2ee60#1",
             "interaction": {
               "field": "function_relation",
               "options": [
@@ -2431,10 +2456,10 @@
             },
             "option_context": {
               "label": "A",
-              "left_ref": "/root/goals/0/options/option_a/functions/left",
-              "option_id": "option_a",
+              "left_ref": "/root/goals/0/options/A/functions/f",
+              "option_id": "A",
               "phase": "verdict",
-              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "right_ref": "/root/goals/0/options/A/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。结合已经比较的定义域，本项两个函数是否相同？",
@@ -2443,11 +2468,11 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "e2a383e5820e9a153653387024856aa0631e1873692aa76be0a8819da1c3b113",
+            "math_step_sha256": "a88d58ef2d6d5fbded93caa7132f8275b65d702b7f62edc663e34aeeb3ee2da3",
             "step_id": "39e5646dcb-function-equality-002-equality_verdict"
           }
         ],
@@ -2455,10 +2480,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "fa5baf3fa85381d90e8c5e31",
+        "interaction_id": "a22a6dd1d203a9bcac977f36",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "ca0c8890e4e37db786df91ec84a0de458f81f4fc8502bc35eba3c2fb836d8547",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "6e4e848c6f599fd0601650ad368e7e69435fbb711a5fbaee07d7269d724f4db5",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2470,7 +2495,7 @@
             "feedback": {
               "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
             },
-            "id": "fa5baf3fa85381d90e8c5e31#1",
+            "id": "a22a6dd1d203a9bcac977f36#1",
             "interaction": {
               "slots": [
                 {
@@ -2529,10 +2554,10 @@
             },
             "option_context": {
               "label": "B",
-              "left_ref": "/root/goals/0/options/option_b/functions/left",
-              "option_id": "option_b",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "right_ref": "/root/goals/0/options/B/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。分别选出两边的定义域。",
@@ -2548,7 +2573,7 @@
             "feedback": {
               "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
             },
-            "id": "fa5baf3fa85381d90e8c5e31#2",
+            "id": "a22a6dd1d203a9bcac977f36#2",
             "interaction": {
               "field": "correspondence",
               "options": [
@@ -2565,10 +2590,10 @@
             },
             "option_context": {
               "label": "B",
-              "left_ref": "/root/goals/0/options/option_b/functions/left",
-              "option_id": "option_b",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "right_ref": "/root/goals/0/options/B/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "两边定义域相同。对应关系是否等价？",
@@ -2577,15 +2602,15 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "12e3d88a68a38c247e0823d2932dbbbcf10ef208ecbd69740a4cfbde1442c9f1",
+            "math_step_sha256": "65a3bce991b3a0d7fedb1e9add3276ff9a100732f113d22edbda39ec5019bedd",
             "step_id": "39e5646dcb-function-equality-003-equality_domains"
           },
           {
-            "math_step_sha256": "25922fd797f0aa258a0edc462e95d7df33cc86d16aaf5424ce98290736048c93",
+            "math_step_sha256": "2043d2a5859d8001bb7265f891aa223f02bff334f664039edca209c9ae84aa65",
             "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
           }
         ],
@@ -2593,10 +2618,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "43fdf67a2b46e2bf8b21179b",
+        "interaction_id": "f333b669480671a8435c17b4",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "59450f965cf60b34feaab069a03ce7101ab91e358e36ff81840489d66eb375ef",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "3211eccd0df0cbf0f06146dbe7f931d1b0d6e6d6eca22d0ac287268ad18fc7c6",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2607,7 +2632,7 @@
             "feedback": {
               "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
             },
-            "id": "43fdf67a2b46e2bf8b21179b#1",
+            "id": "f333b669480671a8435c17b4#1",
             "interaction": {
               "field": "function_relation",
               "options": [
@@ -2624,10 +2649,10 @@
             },
             "option_context": {
               "label": "B",
-              "left_ref": "/root/goals/0/options/option_b/functions/left",
-              "option_id": "option_b",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
               "phase": "verdict",
-              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "right_ref": "/root/goals/0/options/B/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -2636,11 +2661,11 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "88ddc845cd2235da6eb68ffec445d3c0b78dc32978d1b1b95f5bea6dabaf8846",
+            "math_step_sha256": "f38cc9c8d48d5e5f43d34a970ca2cbf4f142ed2cfc723a89be532c17d447bdbe",
             "step_id": "39e5646dcb-function-equality-005-equality_verdict"
           }
         ],
@@ -2648,10 +2673,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d438115dc5c006523efa066c",
+        "interaction_id": "f37848bc89fb0593bbe7a291",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "455f563a93c444171068d42153d7491e7c5f41c5b2980e72b18485f609e194e8",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "86b40f171f4e3e48edbab21626675f6447930968f2d402421d86749d92c743e5",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2663,7 +2688,7 @@
             "feedback": {
               "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
             },
-            "id": "d438115dc5c006523efa066c#1",
+            "id": "f37848bc89fb0593bbe7a291#1",
             "interaction": {
               "slots": [
                 {
@@ -2722,10 +2747,10 @@
             },
             "option_context": {
               "label": "C",
-              "left_ref": "/root/goals/0/options/option_c/functions/left",
-              "option_id": "option_c",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "right_ref": "/root/goals/0/options/C/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。分别选出两边的定义域。",
@@ -2741,7 +2766,7 @@
             "feedback": {
               "answer": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。"
             },
-            "id": "d438115dc5c006523efa066c#2",
+            "id": "f37848bc89fb0593bbe7a291#2",
             "interaction": {
               "field": "correspondence",
               "options": [
@@ -2758,10 +2783,10 @@
             },
             "option_context": {
               "label": "C",
-              "left_ref": "/root/goals/0/options/option_c/functions/left",
-              "option_id": "option_c",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "right_ref": "/root/goals/0/options/C/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "两边定义域相同。对应关系是否等价？",
@@ -2770,15 +2795,15 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "5d10134c4ef921d9530fa28258fa21465efd821a1b678ea0350c71ac70fe7444",
+            "math_step_sha256": "78f28501ac0f854ef230e5c5a5c7b815b3317f21af4918ba35e72cbd92d02af3",
             "step_id": "39e5646dcb-function-equality-006-equality_domains"
           },
           {
-            "math_step_sha256": "9c2b58c8ca360d0fa1d37bf9e159f27fc7fb3a5135a98087e4faf877e98c4f91",
+            "math_step_sha256": "678d3d9956c07603803700dfcc7d1267b895b9d57b1ede0153c67ca779c6cd97",
             "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
           }
         ],
@@ -2786,10 +2811,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8ef7303de68dd8d65991d1ab",
+        "interaction_id": "e0898bad6b8b2daa807fba29",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "5a4402cfd20ed26e929f6c5c80c3a515245a0bb1c823a7b4ae8a2a4f14532913",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "814901c3d473a921a9683deaeb2535ee304526ee248ee929b83cc9785feecd02",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2800,7 +2825,7 @@
             "feedback": {
               "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
             },
-            "id": "8ef7303de68dd8d65991d1ab#1",
+            "id": "e0898bad6b8b2daa807fba29#1",
             "interaction": {
               "field": "function_relation",
               "options": [
@@ -2817,10 +2842,10 @@
             },
             "option_context": {
               "label": "C",
-              "left_ref": "/root/goals/0/options/option_c/functions/left",
-              "option_id": "option_c",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
               "phase": "verdict",
-              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "right_ref": "/root/goals/0/options/C/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -2829,11 +2854,11 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "ef05a29280a6802a63a5b7c2b925718d7ff0ddcbea4d93b87900747367084a52",
+            "math_step_sha256": "f2ee3ee39d9a4d2642aa3240a78e3dc7f97de573c5e3bf02c679de8a52d71f7b",
             "step_id": "39e5646dcb-function-equality-008-equality_verdict"
           }
         ],
@@ -2841,10 +2866,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "0437b48d9c2216cbebb90e99",
+        "interaction_id": "38d7b035bb9c2579d7aa8cc7",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "931b4152076974ee3b4d52d1154a5b3195b0d551e87a91f8f4a0772cdff29012",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "948bc89da7777a5e35deca23fee78eb52614466184f11c842899dfcb39c69d75",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2856,7 +2881,7 @@
             "feedback": {
               "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
             },
-            "id": "0437b48d9c2216cbebb90e99#1",
+            "id": "38d7b035bb9c2579d7aa8cc7#1",
             "interaction": {
               "slots": [
                 {
@@ -2915,10 +2940,10 @@
             },
             "option_context": {
               "label": "D",
-              "left_ref": "/root/goals/0/options/option_d/functions/left",
-              "option_id": "option_d",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "right_ref": "/root/goals/0/options/D/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。分别选出两边的定义域。",
@@ -2934,7 +2959,7 @@
             "feedback": {
               "answer": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。"
             },
-            "id": "0437b48d9c2216cbebb90e99#2",
+            "id": "38d7b035bb9c2579d7aa8cc7#2",
             "interaction": {
               "field": "correspondence",
               "options": [
@@ -2951,10 +2976,10 @@
             },
             "option_context": {
               "label": "D",
-              "left_ref": "/root/goals/0/options/option_d/functions/left",
-              "option_id": "option_d",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
               "phase": "evidence",
-              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "right_ref": "/root/goals/0/options/D/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "两边定义域相同。对应关系是否等价？",
@@ -2963,15 +2988,15 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "53757a340018734ef94ceaf23d927427492b72004c93618ff7b90bda8293a4cd",
+            "math_step_sha256": "cee3165b1b4ac6f5151244616cff4b065d4175d3a575a96b669ccc53f08b37ef",
             "step_id": "39e5646dcb-function-equality-009-equality_domains"
           },
           {
-            "math_step_sha256": "938224e476190f811d1a4d5177752123b312afc2a5434241d9d6a61d59b56763",
+            "math_step_sha256": "3196f32e0ea6fabd8a01f8a9e32379fcbe087be750ae968a2d3cd90553c41f50",
             "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
           }
         ],
@@ -2979,10 +3004,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "808b8f4ec1f0201a767b600e",
+        "interaction_id": "80ebc309fe59bfa9d316285c",
         "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
-        "interaction_sha256": "0f7f77d879e3fc7d72f74b9f56586bce2795ac0d28595cf2fc70b4ca8d32921b",
-        "lesson_version": "755cb798f3c0fdcc60af3c8448665929dafaf2fcdc29bec2e04c2c2d7e4a9e7f",
+        "interaction_sha256": "466cd957322857847975f0609d39bad904b9865f177fb507abef962c3830ad4d",
+        "lesson_version": "14f886f4443c3168b68f7ff4859565b340639b58867e6b1c930eec08ecdb86b1",
         "parts": [
           {
             "expected_answer": {
@@ -2993,7 +3018,7 @@
             "feedback": {
               "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
             },
-            "id": "808b8f4ec1f0201a767b600e#1",
+            "id": "80ebc309fe59bfa9d316285c#1",
             "interaction": {
               "field": "function_relation",
               "options": [
@@ -3010,10 +3035,10 @@
             },
             "option_context": {
               "label": "D",
-              "left_ref": "/root/goals/0/options/option_d/functions/left",
-              "option_id": "option_d",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
               "phase": "verdict",
-              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "right_ref": "/root/goals/0/options/D/functions/g",
               "target_ref": "/root/goals/0"
             },
             "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
@@ -3022,11 +3047,11 @@
           }
         ],
         "route_id": "function-equality",
-        "run_id": "29ca9f1400724dcc8aa11535c8dfa821",
+        "run_id": "3cbfe4b7c0d64ff5b1830355c295a3ba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "7fba0ba56510935cf60d92962ae8d60c42608761aadec4b1babb4271810c1521",
+            "math_step_sha256": "741a45db04ea4457eb635a7537079d62a8c947112eef08787deeb9a236a493cf",
             "step_id": "39e5646dcb-function-equality-011-equality_verdict"
           }
         ],

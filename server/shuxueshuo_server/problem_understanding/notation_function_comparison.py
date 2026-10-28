@@ -90,8 +90,14 @@ def compile_comparison(goal, path):
         if used_local != set(local):
             raise NotationError('comparison.unused_local_definition', path=source + '/functions')
         if goal['mode'] == 'shared_baseline':
-            if not option['left'].startswith('shared:') or not option['right'].startswith('local:'):
+            namespaces = {option[side].split(':', 1)[0] for side in ('left', 'right')}
+            if namespaces != {'shared', 'local'}:
                 raise NotationError('comparison.shared_baseline_required', path=source)
+            # Identity is symmetric. Canonicalize only the compiled roles;
+            # the candidate, object identities and original definition source
+            # pointers remain unchanged for review and exact repair authority.
+            if option['left'].startswith('local:'):
+                resolved = {'left': resolved['right'], 'right': resolved['left']}
         elif any(option[side].startswith('shared:') for side in ('left', 'right')):
             raise NotationError('comparison.local_pair_required', path=source)
         options.append({'option_id': option['id'], 'label': option['label'],

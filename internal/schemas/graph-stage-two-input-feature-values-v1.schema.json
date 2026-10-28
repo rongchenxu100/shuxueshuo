@@ -723,6 +723,9 @@
               "enum": [
                 "polynomial",
                 "absolute_affine",
+                "absolute_quadratic",
+                "polynomial_plus_absolute",
+                "cancelled_affine_factor",
                 "square_root_square",
                 "square_root_squared"
               ]

@@ -11,13 +11,14 @@ from math import isqrt
 
 from ...problem_understanding.notation_parser import NotationError, definition
 
-VERSION = "fixed-affine-function-domain/v4"
+VERSION = "fixed-affine-function-domain/v5"
 ARGUMENT = ["bound", "function_argument"]
 # Match the canonical notation service's existing single-exponent bound.
 MAX_INTEGER_EXPONENT = 12
 MAX_NESTED_POWER = 64
 MAX_RADICAND_DEGREE = 2
 MAX_COEFFICIENT_BITS = 128
+MAX_EXCLUDED_POINTS = 16
 
 
 def source_pointer(path):
@@ -133,7 +134,19 @@ def _fixed_poly(ast, max_degree=1, depth=0):
     coeffs = _trim_coeffs(coeffs)
     if len(coeffs) - 1 > max_degree:
         raise NotationError("domain.fixed_affine_condition_required")
+    for coefficient in coeffs:
+        _coefficient_budget(coefficient)
     return coeffs
+
+
+def _square_radicand_base(ast):
+    """Recognize a source square, never infer one from an expanded quartic."""
+    if ast[0] != "^" or _integer_exponent(ast[2]) != 2:
+        return None
+    coefficients = _fixed_poly(ast[1], max_degree=MAX_RADICAND_DEGREE)
+    if not _rational_root_radicand(coefficients):
+        raise NotationError("domain.fixed_affine_condition_required")
+    return ast[1]
 
 
 def _affine(ast, depth=0):
@@ -149,7 +162,8 @@ def _require_nonzero_expression(ast, depth=0):
     if depth > 24:
         raise NotationError("domain.structure_limit")
     if ast[:2] == ["call", "sqrt"]:
-        coeffs = _fixed_poly(ast[2], max_degree=MAX_RADICAND_DEGREE, depth=depth + 1)
+        base = _square_radicand_base(ast[2])
+        coeffs = _fixed_poly(base if base is not None else ast[2], max_degree=MAX_RADICAND_DEGREE, depth=depth + 1)
         if not _rational_root_radicand(coeffs):
             raise NotationError("domain.fixed_affine_condition_required")
         return
@@ -214,18 +228,20 @@ def _inspect_expression(ast):
             return
         if kind == "call" and value[1] == "sqrt":
             counts["has_radical"] = True
-            coeffs = _fixed_poly(value[2], max_degree=MAX_RADICAND_DEGREE)
+            base = _square_radicand_base(value[2])
+            coeffs = _fixed_poly(base if base is not None else value[2], max_degree=MAX_RADICAND_DEGREE)
             if not _rational_root_radicand(coeffs):
                 raise NotationError("domain.fixed_affine_condition_required")
-            if len(coeffs) - 1 == 2:
+            if base is None and len(coeffs) - 1 == 2:
                 # Radicand ≥ 0 becomes a unary quadratic inequality at solve time.
                 counts["has_quadratic_condition"] = True
             walk(value[2], depth + 1, power_weight)
             return
         if kind == "call" and value[1] == "abs":
-            # Q20 needs affine absolute values now; quadratic absolute values
-            # belong to the later equality extension and remain unadmitted.
-            _affine(value[2])
+            # Q19 extends the same rational sign-cell boundary to quadratics.
+            coefficients = _fixed_poly(value[2], max_degree=MAX_RADICAND_DEGREE)
+            if not _rational_root_radicand(coefficients):
+                raise NotationError("domain.fixed_affine_condition_required")
             walk(value[2], depth + 1, power_weight)
             return
         if kind == "/":
@@ -242,6 +258,18 @@ def _inspect_expression(ast):
 
 
 def _input_domain(ast):
+    if ast[0] == "set_difference":
+        if len(ast) != 3 or ast[1][0] not in ("real", "interval", "set"):
+            raise NotationError("domain.explicit_interval_required")
+        _input_domain(ast[1])
+        points = ast[2]
+        if points[0] != "set" or not 1 <= len(points) - 1 <= MAX_EXCLUDED_POINTS:
+            raise NotationError("domain.excluded_points_limit")
+        for point in points[1:]:
+            slope, _ = _affine(point)
+            if slope:
+                raise NotationError("domain.fixed_interval_required")
+        return
     if ast == ["real"]:
         return
     if ast[0] == "set" and len(ast) == 2:

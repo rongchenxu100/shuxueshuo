@@ -31,12 +31,14 @@ test('structured export contains current ontology and private drills without HTM
   assert.equal(data.knowledge_nodes.length, 95);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 46);
-  assert.equal(data.practice_routes.length, 57);
+  assert.equal(data.practice_problems.length, 47);
+  assert.equal(data.practice_routes.length, 58);
   const comparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q20-v2');
-  // B–D each merge two scored parts into one displayed card: 15 decisions, 12 confirmations.
+  // B–D each merge two scored parts into one displayed card: 15 decisions, 12 cards.
   assert.equal(comparisonSteps.length, 15, '3 intro + 11 scoped mathematical decisions + 1 original exact selection');
-  assert.equal(data.practice_steps.length, 329 + comparisonSteps.length);
+  const sharedComparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q19');
+  assert.equal(sharedComparisonSteps.length, 15);
+  assert.equal(data.practice_steps.length, 329 + comparisonSteps.length + sharedComparisonSteps.length);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -52,9 +54,10 @@ test('chapter 3.1 exposes domain and equality courses with their own sources and
   assert.equal(topic.groups.length, 5);
   const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(topic.groups.find((group) => group.id === 'domain').problems, ids);
-  assert.deepEqual(topic.groups.find(group => group.id === 'equality').problems, ['function-concepts-q20-v2']);
+  const comparisonIds = ['function-concepts-q20-v2', 'function-concepts-q19'];
+  assert.deepEqual(topic.groups.find(group => group.id === 'equality').problems, comparisonIds);
   assert.ok(topic.groups.filter((group) => !['domain', 'equality'].includes(group.id)).every((group) => group.problems.length === 0));
-  assert.deepEqual(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(), [...ids, 'function-concepts-q20-v2'].sort());
+  assert.deepEqual(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(), [...ids, ...comparisonIds].sort());
   for (const [id, basis] of [[ids[0], 'square-root-expression#meaning'], [ids[1], 'integer-power#zero-exponent']]) {
     const problem = data.practice_problems.find((row) => row.id === id);
     const course = problem.problem_data._graph_walk;

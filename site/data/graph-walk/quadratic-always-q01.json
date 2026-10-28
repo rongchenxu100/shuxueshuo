@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "problemId": "quadratic-always-q01",
-  "bundleVersion": "b02135ab5b5aa7373251c20e754eb6373b48856043afc1441960035b2f737953",
-  "graphVersion": "b3f342397ca3f8ee8be47f38d409ee5886d1b4da7ab8606c5c93dce29ac5754f",
+  "bundleVersion": "aada522a90b640746a7a401a5a6515d292baf4939a7122bb4921b35a420dabeb",
+  "graphVersion": "8e831df6d39d27788028850b8371442b19967fd59db27bce76078a61ecfa8194",
   "problem": {
     "text": "若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。",
     "root": {
@@ -5744,6 +5744,6 @@
   "provenance": {
     "judgments": "authored",
     "queries": "computed",
-    "compilerVersion": "fbd76174e321f78fdae89a7ec0e296b124fa7a66e4e5ee0576399ffbe88a0b9c"
+    "compilerVersion": "3ffaa37b67ba42fde45012675c2a3c836eaefc605e6e038b0ba69b6187802643"
   }
 }

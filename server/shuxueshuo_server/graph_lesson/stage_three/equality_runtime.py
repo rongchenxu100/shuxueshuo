@@ -35,7 +35,8 @@ def prepare_function_comparisons(context):
 
 # Families whose natural domain is all reals for the admitted M8 input class.
 _TRIVIAL_DOMAIN_FAMILIES = frozenset({
-    "polynomial", "absolute_affine", "square_root_square",
+    "polynomial", "absolute_affine", "absolute_quadratic",
+    "polynomial_plus_absolute", "square_root_square",
 })
 
 
@@ -77,7 +78,12 @@ def compare_function_pair(option, left_domain, right_domain):
                      "function_identity_comparison")
     rules = {cell[side]['rule'] for cell in comparison['proof'].get('cells', [])
              for side in ('left_rule', 'right_rule')}
-    result['operations'].extend(sorted(rules & {'absolute_value_on_sign_cell', 'square_of_real_square_root'}))
+    result['operations'].extend(sorted(rules & {
+        'absolute_value_on_sign_cell', 'square_of_real_square_root', 'cancel_common_nonzero_factor',
+    }))
+    if any(cell[side].get('from_square_root') for cell in comparison['proof'].get('cells', [])
+           for side in ('left_rule', 'right_rule')):
+        result['operations'].append('square_of_real_square_root')
     return result
 
 

@@ -100,7 +100,7 @@ def test_direct_pair_has_no_fabricated_selection_polarity(tmp_path):
 @pytest.mark.parametrize("change", [
     lambda goal: goal.update(completeness="incomplete"),
     lambda goal: goal.update(select_relation="unknown"),
-    lambda goal: goal["options"][0]["functions"][0].update(definition="f(x)=abs(x^2)"),
+    lambda goal: goal["options"][0]["functions"][0].update(definition="f(x)=abs(x^3+1)"),
 ])
 def test_unresolved_input_never_becomes_supported_t1(change):
     c = candidate()

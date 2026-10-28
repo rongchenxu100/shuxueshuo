@@ -1,6 +1,6 @@
 提取、复核、修复共用以下题意表示规则；阶段变化不改变这些规则。
 
-比较函数是否相同的题目使用 compare_functions 目标。四组选项是同一道题内的局部比较，不是 children 小问。每个 options 条目有稳定 id、原标签 label、原选项 text、局部 functions 及 left/right 引用；functions 中保留原函数名、自变量和未化简 definition，题面显式指定定义域才填写 domain。同名 f、g 可以在不同选项重复，不能提升到 root.definitions，不能串用其他选项的函数。left/right 必须写 local:本项函数id；共同基准写在 shared_functions，引用 shared:基准id，候选仍在各项局部作用域。无基准的多组比较 mode=groups，共同基准 mode=shared_baseline，直接比较两个函数 mode=pair（只有一个 options 条目，selection_mode=none，select_relation=null）。
+比较函数是否相同的题目使用 compare_functions 目标。四组选项是同一道题内的局部比较，不是 children 小问。每个 options 条目有稳定 id、原标签 label、原选项 text、局部 functions 及 left/right 引用；functions 中保留原函数名、自变量和未化简 definition，题面显式指定定义域才填写 domain。同名 f、g 可以在不同选项重复，不能提升到 root.definitions，不能串用其他选项的函数。局部引用写 local:本项函数id；共同基准写在 shared_functions，引用 shared:基准id，候选仍在各项局部作用域。无基准的多组比较 mode=groups，共同基准 mode=shared_baseline，直接比较两个函数 mode=pair（只有一个 options 条目，selection_mode=none，select_relation=null）。共同基准模式每项必须恰有一侧 shared、一侧 local，建议 left=shared:基准id、right=local:候选id；同一函数判定是对称关系，反向引用同样合法，不仅因左右方向要求修复。编译时只规范展示角色为基准在左、候选在右，不修改候选原文、引用字段或源函数身份。
 
 compare_functions 的 select_relation 按题面分别取 equal（选相同）或 different（选不同），多选 selection_mode=multiple，单选为 single；不能从猜测的正确标签反推极性。不清楚选相同还是不同，记 unknown 并报告 uncertainty；选项不全用 completeness=incomplete，否则 complete。不能将判定结果、反例、自然定义域或正确标签写进这些字段。保留 sqrt(x^2)、(sqrt(x))^2、abs(x) 的原始结构，不能提前化简成相同写法。original_text、public_content.choices 与 options 的标签、顺序和完整公式必须一致；public_content 的选择方式同样遵循原题。复核和修复必须使用含选项索引的精确 path，修复 A 项不授权更改 B 项或把局部函数移到 root。
 
@@ -15,6 +15,10 @@ compare_functions 的 select_relation 按题面分别取 equal（选相同）或
 若原图直接给的是“对任意/存在某个自变量，不等式成立”、求参数范围，则按原题保留量词关系并使用 find_range。不能因为表达式含根号或分母，就把显式不等式改成 match_domain 或 find_domain。求函数值仍使用 find_value；函数值域不同于定义域。题面只说“恒成立”而未写出量词变量时，取关系中除待求量以外唯一的自由变量作为量词变量；未写出它的范围时取 ℝ。变量不唯一或范围不确定时报告 uncertainty。
 
 题面只写 y=解析式、目标需要引用这个函数时，可以在 root.definitions 中将同一对应关系记作 f(x)=原解析式，并在目标 object 中引用 f；已有 f 时选择没有冲突的函数符号。这个内部函数名是表示别名，不是新题设，也不算擅自改动原图变量。保留原自变量、参数和整个原解析式，不化简、不约分、不添加合法条件。original_text 和 public_content 中仍保留原图的 y，不把内部别名写回题面。复核不能仅因这个允许的别名要求改名或删除函数定义。若原题已有函数名则沿用。若原题以 y=表达式给出公式，之后在量词内使用 y<0、y>0 等关系，直接将表达式展开到量词关系中，不另写量词外的全局 y 定义或条件。
+
+同一 y 别名规则适用于 compare_functions 的 shared_functions 和各选项 functions：在各自对象中用 f(x)=原解析式表达同一对应关系，保留原自变量，明确用 shared/local 身份引用；不同对象可以使用同名 f，不因此合并。公共基准只定义一次，不移到 root.definitions，也不复制到各项。original_text、public_content 和 options.text 仍写原图的 y；内部别名不写回学生题面。abs(Q)、sqrt(Q^2)、P+abs(Q) 和 (Q*L)/L 均保留原始结构，不能在提取或修复时预先去绝对值、展开平方或约分。
+
+比较函数的 domain 仅转录原题显式给出的范围。题面若明确从实数集、区间或单点集合去掉有限点，用集合差 ∖，例如 ℝ∖{-1,1/2} 或 [0,2]∖{1}；ASCII setminus 同义。不能用算术减号代替集合差，也不能因原式分母为零而自行填写 domain。原题额外给出的去点条件要保留，不把它遗漏为自然定义域；超出当前执行范围的真实范围仍照实表示，不改写成可执行的新题。
 
 复核 findings 必须描述 path 指向的当前 candidate 字段实际存在的问题，不能把其他字段中的内容归到这个位置。original_text 是原题转录，可以保留来源题号；公开题干 public_content 按公开内容规则排除来源题号。必须分别读取两者，不能因 original_text 含题号就判定已经去掉题号的公开题干有错。原图文字依据写入 source_excerpt；对候选现状的描述必须与 path 处的实际值一致。
 

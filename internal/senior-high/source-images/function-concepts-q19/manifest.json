@@ -1,0 +1,60 @@
+{
+  "problem_id": "function-concepts-q19",
+  "source": "用户上传的高中数学必修一（RJA版）第81页：例5（多选）",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "msg_01a16d08-d6da-78c1-85ca-2c36c45d03e2",
+  "source_message_timestamp": "2026-10-24T08:30:58.271Z",
+  "source_attachment_index": 1,
+  "original_filename": "codex-clipboard-306947bb-1261-4412-b20a-b9ad2e625a4d.png",
+  "original_path": "/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/codex-clipboard-306947bb-1261-4412-b20a-b9ad2e625a4d.png",
+  "recovery": {
+    "source": "同一用户消息的本地会话 input_image 内容",
+    "session_file": "rollout-2026-10-16T11-51-31-01a142d6-1e4f-7a62-aa2b-b6f799302aa4.jsonl",
+    "media_type": "image/jpeg",
+    "processing": "原临时附件路径已失效；从原用户消息第1张 input_image 的 data:image/jpeg;base64 内容逐字节解码，未重编码，不声称与已失效临时文件重新核对。"
+  },
+  "page": {
+    "file": "source-page.jpg",
+    "size": [
+      1279,
+      1706
+    ],
+    "media_type": "image/jpeg",
+    "sha256": "8f6c3bee9980fe893ce3f6c980608a8ebc4bd02e8c35f65dbfa1a77cf3b729b8"
+  },
+  "crop": {
+    "file": "source-question.png",
+    "xyxy": [
+      62,
+      973,
+      1201,
+      1128
+    ],
+    "normalized_box": [
+      0.04847537138389367,
+      0.5703399765533411,
+      0.9390148553557467,
+      0.6611957796014069
+    ],
+    "sha256": "4c645c47cd889cfe910b3384b4eb556bd40abb052991b5a45535d32a6a6c4ba6"
+  },
+  "processing": "完整原页保留原书解析与答案。按 crop.xyxy 一次矩形裁取题干和 A–D 四个选项，转 RGB 后保存 PNG；未遮罩、拼接、重绘或改字。题干的【例5】属来源标记，提取时按共同规则仅在 original_text 保留。真实照片提取、复核、求解及学生／AI交互已完成，详见验收记录。",
+  "verified_statement": "（多选）与函数 y=2*x^2+1 相同的函数是：A. y=x^2+abs(x^2+1)；B. y=sqrt((2*x^2+1)^2)；C. y=abs(2*x^2+1)；D. y=((2*x^2+1)*(x+1))/(x+1)。",
+  "original_printed_answer": "ABC",
+  "acceptance_status": "q19_photo_and_topic_verified; independent_new_photo_pending",
+  "acceptance": {
+    "document": "docs/function-equality-q19-acceptance.md",
+    "search_id": "c8acac7d5768",
+    "recording": "server/tests/search/fixtures/function-equality/q19-browser-recorded-20261028/recording.json",
+    "run_id": "0108ac815d654145a54f5c737e498a09",
+    "question_sha256": "d5a5871ddfd559b3ff190281b7582eb69cb578943a0f42f9699b759db6314761",
+    "lesson_status": "completed/solved",
+    "correct_labels": [
+      "A",
+      "B",
+      "C"
+    ],
+    "student": "15 grading decisions completed; 12 displayed cards; wrong D/empty final/missing C rejected; refresh/read-only verified",
+    "ai": "independent 15/15 photo and topic replays; student progress preserved"
+  }
+}

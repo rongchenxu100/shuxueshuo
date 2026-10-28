@@ -64,6 +64,8 @@ def recognized(value):
     ("sqrt(x^2-1)", "x", None),
     ("sqrt(x*x-1)", "x", None),
     ("sqrt(3-2*x-x^2)", "x", None),
+    ("abs(x^2)/(x-1)", "x", None),
+    ("sqrt((2*x^2+1)^2)", "x", None),
     ("(2*x+1)/((2*x-1)^0*sqrt(3-2*x-x^2))", "x", None),
 ])
 def test_supported_boundary_is_structural_and_keeps_original_source(expression, variable, domain):
@@ -109,7 +111,7 @@ def test_expression_latex_uses_precedence_not_universal_wrapping(expression, lat
 
 @pytest.mark.parametrize("expression", [
     "sqrt(m*x-1)/(x-2)",
-    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x^2)/(x-1)",
+    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x^3)/(x-1)",
     "1/(x*x-1)", "1/(sqrt(x)+1)", "(x^2-1)^0", "1/(x^2-1)",
     "sqrt(x^3-1)", "sqrt(1/(x-1))",
     "sqrt(x^2+x-1)", "sqrt(x^2-2)", "1/sqrt(x^2+x-1)",
@@ -294,7 +296,7 @@ def test_zero_power_feature_and_knowledge_follow_original_syntax(expression, exp
     ("(x^9)^8", "domain.nested_power_limit"),
     ("(sqrt(x-1))^0", "domain.fixed_affine_condition_required"),
     ("(x^2-1)^0", "domain.fixed_affine_condition_required"),
-    ("abs(x^2)", "domain.fixed_affine_condition_required"),
+    ("abs(x^3)", "domain.fixed_affine_condition_required"),
 ])
 def test_power_limits_and_unsupported_reasons_remain_explicit(expression, reason):
     value = candidate(expression)

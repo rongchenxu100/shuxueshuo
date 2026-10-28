@@ -2770,6 +2770,83 @@
     },
     {
       "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "f0ee876cbf7d4c2c9973a02b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "82bdf77eada8669e7bfa4207#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "957c971c7d6d4190a6da51b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "0e0eae4d41433c8601929297#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "96e10fc75f581c11a640a158#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
       "problem": "function-concepts-q20-v2",
       "route": "function-equality",
       "step": "8f409a973b6373cc98be6a98#1",
@@ -3373,6 +3450,13 @@
     },
     {
       "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
       "problem": "function-concepts-q20-v2",
       "route": "function-equality",
       "step": "D1",
@@ -3726,6 +3810,27 @@
       "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "700c1ada1f3e713e76852fac#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "82bdf77eada8669e7bfa4207#1",
       "conditions": {}
     }
   ],
@@ -5576,10 +5681,21 @@
   "type-function-equality": [
     {
       "topic": "function-concepts",
+      "problem": "function-concepts-q19"
+    },
+    {
+      "topic": "function-concepts",
       "problem": "function-concepts-q20-v2"
     }
   ],
   "method-function-equality": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "D3",
+      "conditions": {}
+    },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q20-v2",
@@ -5591,83 +5707,81 @@
   "method-function-equality#compare": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "8f409a973b6373cc98be6a98#1",
+      "step": "9806b450521f0e590da811b1#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "946ecc02e50f253a9b8cbf5d#1",
+      "step": "9806b450521f0e590da811b1#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "fa5baf3fa85381d90e8c5e31#1",
+      "step": "f0ee876cbf7d4c2c9973a02b#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "fa5baf3fa85381d90e8c5e31#2",
+      "step": "e34e239d32918850889877ab#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "43fdf67a2b46e2bf8b21179b#1",
+      "step": "e34e239d32918850889877ab#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "d438115dc5c006523efa066c#1",
+      "step": "82bdf77eada8669e7bfa4207#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "d438115dc5c006523efa066c#2",
+      "step": "87cf644da114d93a7c4bc085#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "8ef7303de68dd8d65991d1ab#1",
+      "step": "87cf644da114d93a7c4bc085#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "0437b48d9c2216cbebb90e99#1",
+      "step": "957c971c7d6d4190a6da51b5#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "0437b48d9c2216cbebb90e99#2",
+      "step": "0e0eae4d41433c8601929297#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q20-v2",
+      "problem": "function-concepts-q19",
       "route": "function-equality",
-      "step": "808b8f4ec1f0201a767b600e#1",
+      "step": "96e10fc75f581c11a640a158#1",
       "conditions": {}
-    }
-  ],
-  "function-concept#identity": [
+    },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q20-v2",
@@ -5749,6 +5863,69 @@
   "absolute-value-concept#rules": [
     {
       "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "f0ee876cbf7d4c2c9973a02b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "82bdf77eada8669e7bfa4207#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "957c971c7d6d4190a6da51b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
       "problem": "function-concepts-q20-v2",
       "route": "function-equality",
       "step": "d438115dc5c006523efa066c#1",
@@ -5766,6 +5943,162 @@
       "problem": "function-concepts-q20-v2",
       "route": "function-equality",
       "step": "8ef7303de68dd8d65991d1ab#1",
+      "conditions": {}
+    }
+  ],
+  "function-concept#identity": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "9806b450521f0e590da811b1#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "f0ee876cbf7d4c2c9973a02b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "e34e239d32918850889877ab#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "82bdf77eada8669e7bfa4207#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "87cf644da114d93a7c4bc085#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "957c971c7d6d4190a6da51b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "0e0eae4d41433c8601929297#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q19",
+      "route": "function-equality",
+      "step": "96e10fc75f581c11a640a158#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "8f409a973b6373cc98be6a98#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "946ecc02e50f253a9b8cbf5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "fa5baf3fa85381d90e8c5e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "fa5baf3fa85381d90e8c5e31#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "43fdf67a2b46e2bf8b21179b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "d438115dc5c006523efa066c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "d438115dc5c006523efa066c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "8ef7303de68dd8d65991d1ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "0437b48d9c2216cbebb90e99#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "0437b48d9c2216cbebb90e99#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q20-v2",
+      "route": "function-equality",
+      "step": "808b8f4ec1f0201a767b600e#1",
       "conditions": {}
     }
   ],

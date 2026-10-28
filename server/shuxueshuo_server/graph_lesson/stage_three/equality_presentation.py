@@ -2,6 +2,8 @@
 
 from copy import deepcopy
 
+import sympy as sp
+
 from .math_values import latex
 from .trajectory import decode_value
 
@@ -11,8 +13,22 @@ def _formula(descriptor):
 
 
 def pair_text(option):
+    if _shared_baseline(option):
+        return (f"题干函数的解析式为 ${_formula(option['left'])}$；"
+                f"选项 {option['label']} 的解析式为 ${_formula(option['right'])}$")
     return '；'.join(f"${side['function_name']}({side['variable']})={_formula(side)}$"
                     for side in (option['left'], option['right']))
+
+
+def _shared_baseline(option):
+    return '/shared_functions/' in option['left']['function_ref']
+
+
+def _side_name(option, side):
+    if _shared_baseline(option):
+        return '题干函数' if side == 'left' else f"选项 {option['label']} 的函数"
+    descriptor = option[side]
+    return f"{descriptor['function_name']}({descriptor['variable']})"
 
 
 def reason_text(comparison):
@@ -52,9 +68,31 @@ def _correspondence_stem(option, comparison):
     left_variable, right_variable = (option[side]['variable'] for side in ('left', 'right'))
     introduction = ('用 $u$ 表示共同定义域内的同一个输入。' if left_variable == right_variable else
                     f'将两边的自变量 ${left_variable}$、${right_variable}$ 统一记为 $u$，比较同一个输入对应的函数值。')
+    rules = []
+    for cell in cells:
+        for side in ('left_rule', 'right_rule'):
+            rule = cell[side]
+            if rule['rule'] != 'absolute_value_on_sign_cell':
+                continue
+            argument = rule['absolute_argument']
+            # Affine cases already have the compact negative/zero/positive
+            # partition below. Quadratic extensions explain the sign that
+            # justifies removing the absolute value (and square root).
+            if not argument.free_symbols or sp.Poly(argument).total_degree() <= 1:
+                continue
+            sign = rule['sign']
+            relation = {1: '>0', -1: '<0', 0: '=0'}[sign]
+            body = latex(argument)
+            reduced = latex(sign * argument)
+            chain = (rf'\sqrt{{\left({body}\right)^2}}=' if rule.get('from_square_root') else '')
+            chain += rf'\left|{body}\right|={reduced}'
+            explanation = (f"在 $u\\in {_domain_latex(cell['domain'])}$ 上，${body}{relation}$，"
+                           f"所以 ${chain}$")
+            if explanation not in rules:
+                rules.append(explanation)
     parts = [f"当 $u\\in {_domain_latex(cell['domain'])}$ 时，两式都等于 ${latex(cell['left_polynomial'])}$"
              for cell in cells]
-    return introduction + '；'.join(parts) + '。这些范围覆盖整个共同定义域。'
+    return introduction + ('；'.join(rules) + '。' if rules else '') + '；'.join(parts) + '。这些范围覆盖整个共同定义域。'
 
 
 _DOMAIN_DISTRACTORS = (
@@ -80,14 +118,13 @@ def view(values):
     option, phase = values['option'], values['phase']
     comparison = values.get('comparison')
     left, right = option['left'], option['right']
-    left_name = f"{left['function_name']}({left['variable']})"
-    right_name = f"{right['function_name']}({right['variable']})"
+    left_name, right_name = (_side_name(option, side) for side in ('left', 'right'))
     prepared = {
         'option_label': option['label'],
         'left_name': left_name,
         'right_name': right_name,
-        'left_math': f"{left_name}={_formula(left)}",
-        'right_math': f"{right_name}={_formula(right)}",
+        'left_math': _formula(left) if _shared_baseline(option) else f"{left_name}={_formula(left)}",
+        'right_math': _formula(right) if _shared_baseline(option) else f"{right_name}={_formula(right)}",
         'left_domain': '',
         'right_domain': '',
         'domain_connector': '',
@@ -119,8 +156,9 @@ def view(values):
             witness = comparison['counterexample']
             point = latex(witness['point'])
             prepared['correspondence_caption'] = f'输入 {point} 时的输出'
-            prepared['left_name'] = f"{left['function_name']}({point})"
-            prepared['right_name'] = f"{right['function_name']}({point})"
+            if not _shared_baseline(option):
+                prepared['left_name'] = f"{left['function_name']}({point})"
+                prepared['right_name'] = f"{right['function_name']}({point})"
             prepared['left_value_math'] = latex(witness['left_value'])
             prepared['right_value_math'] = latex(witness['right_value'])
             prepared['correspondence_connector'] = '≠'
@@ -132,7 +170,13 @@ def view(values):
             prepared['correspondence_connector'] = '='
         text = _correspondence_stem(option, comparison)
     else:
-        text = '结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。'
+        # Match _verdict_part: domain-only items never ran the correspondence card.
+        same_domain = (
+            comparison is not None
+            and comparison['left']['domain'] == comparison['right']['domain'])
+        text = ('结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。'
+                if same_domain else
+                '结合本项已经完成的定义域比较，判断两个函数是否相同。')
         if comparison is not None:
             prepared['relation_connector'] = '=' if comparison['relation'] == 'equal' else '≠'
             prepared['verdict_result'] = (
@@ -150,8 +194,7 @@ def _domains_checklist(part, option, comparison):
     right = _domain_latex(comparison['right']['domain'])
     left_options, left_answer = _domain_slot(left)
     right_options, right_answer = _domain_slot(right)
-    left_name = f"{option['left']['function_name']}({option['left']['variable']})"
-    right_name = f"{option['right']['function_name']}({option['right']['variable']})"
+    left_name, right_name = (_side_name(option, side) for side in ('left', 'right'))
     part.update(
         title='① 两边的定义域',
         question=f"{pair_text(option)}。分别选出两边的定义域。",

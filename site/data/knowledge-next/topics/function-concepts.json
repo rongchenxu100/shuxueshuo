@@ -43,7 +43,8 @@
       "type": "type-function-equality",
       "description": "比较定义域与对应关系，保留原式的输入限制。",
       "problems": [
-        "function-concepts-q20-v2"
+        "function-concepts-q20-v2",
+        "function-concepts-q19"
       ]
     },
     {
@@ -121,6 +122,15 @@
       "bundle": "/data/graph-walk/function-concepts-q23b.json",
       "types": [
         "type-function-domain"
+      ]
+    },
+    "function-concepts-q19": {
+      "label": "公共基准下的同一函数判定 · Q19",
+      "path": "/topics/function-concepts/q19/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q19.json",
+      "types": [
+        "type-function-equality"
       ]
     },
     "function-concepts-q20-v2": {

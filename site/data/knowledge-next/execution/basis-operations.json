@@ -145,6 +145,9 @@
     "square_of_real_square_root": [
       "square-root-expression#meaning"
     ],
+    "cancel_common_nonzero_factor": [
+      "rational-expression#cancellation"
+    ],
     "function_identity_comparison": [
       "function-concept#identity"
     ],

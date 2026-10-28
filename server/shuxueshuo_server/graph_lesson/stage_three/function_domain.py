@@ -20,6 +20,7 @@ from ..stage_one.function_domain import (
     _input_domain,
     _inspect_expression,
     _integer_exponent,
+    _square_radicand_base,
     inspect_domain_target,
 )
 from .math_values import math_value
@@ -57,6 +58,11 @@ def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
 
 def input_set(description):
     ast = description["input_domain_ast"]
+    _input_domain(ast)
+    if ast[0] == "set_difference":
+        base = input_set({**description, "input_domain_ast": ast[1]})
+        variable = sp.Symbol(description["variable"], real=True)
+        return base - sp.FiniteSet(*(expression(point, variable) for point in ast[2][1:]))
     if ast == ["real"]:
         return sp.S.Reals
     variable = sp.Symbol(description["variable"], real=True)
@@ -349,6 +355,7 @@ def prepare_domain_conditions(constraints, variable):
     for row in constraints:
         ast = row["expression_ast"]
         condition = row["condition"]
+        square = None
         if row["kind"] == "denominator_nonzero" and ast[:2] == ["call", "sqrt"]:
             # sqrt(t) != 0 iff t != 0 on the separately retained t >= 0 domain.
             radial = expression(ast[2], variable)
@@ -360,13 +367,27 @@ def prepare_domain_conditions(constraints, variable):
             condition = sp.Ne(radial, 0, evaluate=False)
             ast = ast[2]
             operations.append("domain_condition_normalization")
+        base = _square_radicand_base(ast)
+        if base is not None:
+            # The original square remains in extraction evidence. Only this
+            # explicit, admitted real polynomial square is reduced here; a
+            # generic fourth-degree condition never reaches the quadratic solver.
+            square = {"kind": "original_polynomial_square", "passed": True,
+                      "expression_ast": deepcopy(ast), "base_ast": deepcopy(base),
+                      "basis_refs": ["square-nonnegative#nonnegative"]}
+            if row["kind"] == "radicand_nonnegative":
+                condition = sp.true
+            else:
+                condition = sp.Ne(expression(base, variable), 0, evaluate=False)
+            ast = base
+            operations.extend(["domain_condition_normalization", "square_nonnegative"])
         # The source converter deliberately keeps powers unevaluated. Rebuild
         # admitted condition polynomials exactly before the shared solver so
         # constants such as 0**2 and (-3)**2 are rational coefficients too.
         coefficients = _fixed_poly(ast, max_degree=MAX_RADICAND_DEGREE)
         canonical = sum((sp.Rational(c.numerator, c.denominator) * variable**i
                          for i, c in enumerate(coefficients)), sp.S.Zero)
-        if condition.lhs != canonical:
+        if condition is not sp.true and condition.lhs != canonical:
             condition = condition.func(canonical, 0, evaluate=False)
             operations.append("domain_condition_normalization")
         conditions.append(condition)
@@ -377,6 +398,7 @@ def prepare_domain_conditions(constraints, variable):
                 "condition_id": row["condition_id"],
                 "original": row["condition"],
                 "normalized": condition,
+                **({"square_structure": square} if square else {}),
             }
         )
     return result(
@@ -696,7 +718,7 @@ def _evaluate(ast, point):
 def _critical(description):
     rows, points, by_path = [], set(), {}
 
-    def record(child, polynomial_path, source, max_degree=MAX_RADICAND_DEGREE):
+    def record(child, polynomial_path, source, max_degree=MAX_RADICAND_DEGREE, square_origin=None):
         # A sqrt divisor and its own real-definedness condition use the
         # same polynomial at the same original position. Keep both
         # requirements, but produce its critical-polynomial evidence once.
@@ -711,11 +733,22 @@ def _critical(description):
                 "expression_ast": deepcopy(child),
                 "roots": [math_value(p) for p in roots],
                 "condition_sources": [],
+                **({"square_structure": square_origin} if square_origin else {}),
             }
             rows.append(row)
             by_path[key] = row
         if source not in row["condition_sources"]:
             row["condition_sources"].append(source)
+
+    def record_radical(ast, path, source):
+        base = _square_radicand_base(ast[2])
+        if base is None:
+            record(ast[2], (*path, 2), source)
+        else:
+            record(base, (*path, 2, 1), source, square_origin={
+                "ast_path": [*path, 2], "expression_ast": deepcopy(ast[2]),
+                "basis_refs": ["square-nonnegative#nonnegative"], "passed": True,
+            })
 
     def record_divisor(ast, path):
         if ast[0] == "*":
@@ -725,9 +758,9 @@ def _critical(description):
         if ast[:2] == ["call", "sqrt"]:
             # Polynomial evidence is the radicand; the nonzero condition points
             # at the whole square-root divisor in the original tree.
-            record(
-                ast[2],
-                (*path, 2),
+            record_radical(
+                ast,
+                path,
                 {
                     "source_ref": description["source_ref"],
                     "ast_path": list(path),
@@ -750,9 +783,9 @@ def _critical(description):
 
     def visit(ast, path=()):
         if ast[:2] == ["call", "sqrt"]:
-            record(
-                ast[2],
-                (*path, 2),
+            record_radical(
+                ast,
+                path,
                 {
                     "source_ref": description["source_ref"],
                     "ast_path": [*path, 2],
@@ -848,14 +881,14 @@ def verify_domain(candidate, target_ref, context, proposed):
         result_value.update(
             status="verified" if mismatch is None else "math_failed",
             proof={
-                "category": "original-fixed-affine-function-domain/v4",
+                "category": "original-fixed-affine-function-domain/v5",
                 "source_refs": [description["source_ref"]],
                 "expression_ast": description["expression_ast"],
                 "critical_polynomials": roots,
                 "critical_points": [math_value(p) for p in points],
                 "invariance": {
                     "proved": True,
-                    "reason": "Every original radicand (degree ≤2), affine divisor factor and zero-power base has fixed sign between all polynomial roots; positive integer powers retain their base's definedness. Original syntax and explicit interval membership are evaluated independently at every critical point.",
+                    "reason": "Every original radicand (degree ≤2 or an explicit square of a real polynomial of degree ≤2), affine divisor factor and zero-power base is checked on a complete polynomial-root partition. A source square is nonnegative wherever its recursively retained base is defined. Positive integer powers and absolute values retain their argument's definedness. Original syntax and explicit input-domain membership are evaluated independently at every critical point.",
                 },
                 "cells": cells,
                 "reconstructed_set": math_value(rebuilt),

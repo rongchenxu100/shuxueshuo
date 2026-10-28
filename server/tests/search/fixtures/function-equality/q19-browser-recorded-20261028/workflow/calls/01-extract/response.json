@@ -1,0 +1,150 @@
+{
+  "text": "{\"original_text\":\"【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\\nA. $y=x^2+|x^2+1|$　　B. $y=\\\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"root\":{\"label\":\"【例5】\",\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"shared_baseline\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[{\"id\":\"base\",\"definition\":\"f(x)=2*x^2+1\"}],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=x^2+abs(x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=sqrt((2*x^2+1)^2)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=abs(2*x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=((2*x^2+1)*(x+1))/(x+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\"},{\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\"},{\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\"},{\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\"}]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3820,
+      "prompt_tokens": 12756,
+      "total_tokens": 16576,
+      "prompt_cache_hit_tokens": 640,
+      "prompt_cache_miss_tokens": 12116
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1537,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "d5a5871ddfd559b3ff190281b7582eb69cb578943a0f42f9699b759db6314761",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 17605,
+        "expires_at": 1793241651,
+        "uploaded_at": 1793155251.551125
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "d5a5871ddfd559b3ff190281b7582eb69cb578943a0f42f9699b759db6314761",
+        "file_id": "[redacted-provider-identifier]",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 21124,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3820,
+          "prompt_tokens": 12756,
+          "total_tokens": 16576,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3189
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 640
+          },
+          "prompt_cache_hit_tokens": 640,
+          "prompt_cache_miss_tokens": 12116
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3820,
+            "prompt_tokens": 12756,
+            "total_tokens": 16576,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3189
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 640
+            },
+            "prompt_cache_hit_tokens": 640,
+            "prompt_cache_miss_tokens": 12116
+          },
+          "created": 1793155600,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\\nA. $y=x^2+|x^2+1|$　　B. $y=\\\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"root\":{\"label\":\"【例5】\",\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"shared_baseline\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[{\"id\":\"base\",\"definition\":\"f(x)=2*x^2+1\"}],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=x^2+abs(x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=sqrt((2*x^2+1)^2)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=abs(2*x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=((2*x^2+1)*(x+1))/(x+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\"},{\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\"},{\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\"},{\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\"}]}]}]}}",
+                "reasoning_content": "我们需要提取题目。原图是一个多项选择题：求与函数 y=2x^2+1 相同的函数是。选项 A-D。需要按 compare_functions 处理？题干“与函数 y=2x^2+1 相同的函数是”四组选项比较，属于 compare_functions，mode=shared_baseline？共同基准是 y=2x^2+1，各选项候选。selection_mode=multiple（多选），select_relation=equal（选相同）。completeness complete。需要定义 shared_functions 中基准函数。原题写 y=2x^2+1，没有函数名。按规则可以使用局部函数别名 f(x)=2*x^2+1 在 shared_functions。但 compare_functions 的 shared_functions 是 ComparisonFunction required id, definition。可以用 id 如 base，definition \"f(x)=2*x^2+1\"。选项函数：A y=x^2+|x^2+1|。内部别名可用 f(x)=...? 每个选项局部 functions 需要 left/right 引用。共同基准模式每项必须一侧 shared 一侧 local。选项每个 candidate 一个函数。left=shared:base, right=local:cand。但选项的候选定义只一个函数。ComparisonOption functions maxItems 2，required left/right。我们需要每项 functions 包含局部候选函数（id可以 cand），然后 left=shared:base right=local:cand。shared_functions 定义基准。各选项 candidate definitions 保留原结构：A \"f(x)=x^2+abs(x^2+1)\"? 原题 y=x^2+|x^2+1|。使用 abs 或 | |。在 root/controlled 数学字符串中不要 $ 和反斜杠。definitions 允许 abs。保留原结构。但同名 f 可以在不同选项重复；不过 shared base 已经用 f，候选也可用 f？规则说同名 f、g 可以在不同选项重复，不能提升 root。shared_functions 与选项局部作用域不同，可同名 f。但为了清晰，候选定义可以写 \"f(x)=x^2+abs(x^2+1)\"。原题无函数名，使用内部别名 f(x) 表示 y对应关系。选项 B y=sqrt((2x^2+1)^2)。候选 f(x)=sqrt((2*x^2+1)^2)。C y=|2x^2+1| => f(x)=abs(2*x^2+1)。D y=((2x^2+1)(x+1))/(x+1) => f(x)=((2*x^2+1)*(x+1))/(x+1)。需保留未化简。原题特别：D 的分母 x+1，会自然定义域去掉 -1，但题干没给定义域，候选 domain omit，不填写自然域。\n\nroot definitions? 整题共用基准 y=2x^2+1。但是 compare_functions 目标字段里 shared_functions 放基准，不能放 root.definitions？规则说 compare_functions 的共享基准写在 shared_functions，不放到 root.definitions。root 可以无 definitions/facts。root.goals 包含 compare_functions。root 没有 children。\n\npublic_content: scopes 按 root 先序，只有一个 /root。statement 是题干自身纯文本，排除题号？原题有【例5】（多选）与函数... 公开题干应排除来源题号/例号，保留“（多选）与函数...”。题号【例5】属于来源题号，应移除。选项另存 choices，不在 statement 中包含 A-D。statement: \"（多选）与函数 $y=2x^2+1$ 相同的函数是\" 但空格/句号？公开题干本身。choices target_ref /root/goals/0，status complete, selection_mode multiple, options A-D text with $...$. 选项 text 必须与 original_text/public_content choices 标签顺序完整公式一致。选项文本：A. \\(y=x^2+|x^2+1|\\)，B. \\(y=\\sqrt{(2x^2+1)^2}\\)，C. \\(y=|2x^2+1|\\)，D. \\(y=\\frac{(2x^2+1)(x+1)}{x+1}\\)。用 $…$，sqrt 可用 \\sqrt，绝对值可 | |，分式可 \\frac。要保留原结构。选项 text 应仅选项公式，不含“A.”？choices options label A, text 公式。按规则 public_content 选项 text 保留原公式。original_text 转录完整题干和所有选项，包含题号? original_text 保留来源题号可以。它需要完整题干包括【例5】和选项。选项公式用 $…$，注意 JSON 转义反斜杠。可以用 \\sqrt。花括号在 original_text 的 $…$ 内：集合才要求转义，分式 \\frac 的花括号怎么办？规则说 original_text 的 $…$ 内集合花括号写成 \\{ \\}；裸花括号只是分组、显示时会消失。这有点奇怪：LaTeX 分式的花括号是分组，会消失？他们说“裸花括号只是分组、显示时会消失”可能只针对集合语境。实际上 JSON 输出给模型，需要 LaTeX 正确：\\frac{(...)}{...} 必须花括号。但指令说 JSON 字符串里的反斜杠必须写成 \\\\。original_text 用 $…$ 包围，公式用 LaTeX 排版，不化简。花括号在 \\frac 必须存在。这可能与“裸花括号只是分组”的提示冲突？它说 original_text 的 $…$ 内集合花括号写成 \\{ \\}；裸花括号只是分组、显示时会消失。可能指不要在文字中写裸集合花括号作为集合；但 LaTeX 命令参数必须花括号。我们按正常 LaTeX 写，反斜杠转义：\\sqrt 写成 \\\\sqrt，\\frac 写成 \\\\frac。JSON 解析后是 \\sqrt。这个标准。\n\nroot.facts? compare_functions 的基准在 shared_functions，不需要 facts。root.label? 原图有【例5】，属于来源题号，可设 root.label=\"【例5】\"，root_label_role=\"source\"？但 label 是否应包含（多选）？原图“【例5】（多选）与函数...” 例5是来源题号，label 可以设为“【例5】” role source。但 root.label存在时用 root_label_role 区分；public_content 有 root_label_role 字段可选。可以设 root.label=\"【例5】\" and root_label_role=\"source\"。但 schema root.label 是 Scope 字段，public_content.root_label_role 可选。我们设 source。公开 statement 排除【例5】，但保留（多选）。好。\n\nuncertainties? 没有。\n\ncompare_functions goal 里的 options 每项 text 需要与 public_content 选项文本标签顺序公式一致。options 条目 id option_a label A text 包含 $y=...$。functions 局部定义 id \"cand\" definition \"f(x)=x^2+abs(x^2+1)\"? Original option A has x^2+|x^2+1|. Use abs or | | in definition? Controlled math strings prefer abs. Fine.\n\nNeed shared_functions: id maybe \"base\", definition \"f(x)=2*x^2+1\". Does shared function need domain? 未给定义域省略。But original baseline is y=2x^2+1, no given domain. Since compare functions asked \"与函数 y=...相同的函数\", the natural domain maybe implicit but no explicit. Do not fill. Candidate domain likewise omit. But for D, it has denominator x+1; natural domain excludes -1, but not given. Candidate local function may need to preserve expression; no domain.\n\nPotential issue: compare \"same function\" means same domain too; but we don't solve. The D candidate domain naturally excludes -1, so not same; but we don't output. Fine.\n\nNeed original_text full. Let's draft:\n\n\"【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\nA. $y=x^2+|x^2+1|$　　B. $y=\\\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\"\n\nNeed ensure in JSON string backslash double. For \\sqrt, JSON string must be \"\\\\sqrt\"; for \\frac \"\\\\frac\". The original_text display will be \\sqrt. Good.\n\npublic_content statement: \"（多选）与函数 $y=2x^2+1$ 相同的函数是\". Do we include trailing \"（　　）\" maybe statement should include question blank? It is part of题干. \"相同的函数是（　　）\" yes. Choices separate but blank in statement okay. It may include parentheses. Use \"（　　）\". Could simply \"相同的函数是\" no blank. Should keep original ask. Use \"（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\". Good.\n\nOptions text no labels. D text: \"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\". A text: \"$y=x^2+|x^2+1|$\". B: \"$y=\\\\sqrt{(2x^2+1)^2}$\". C: \"$y=|2x^2+1|$\". These use $...$. JSON escaping.\n\nNeed goal in root: {\"kind\":\"compare_functions\",\"mode\":\"shared_baseline\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[{\"id\":\"base\",\"definition\":\"f(x)=2*x^2+1\"}],\"options\":[...]}. For each option:\n{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=x^2+abs(x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"}\nBut candidate definition uses f same as base? It's local scope, okay. But if definitions in option use f, and shared base also f, references distinguish shared/local. Fine.\n\nOption B candidate \"f(x)=sqrt((2*x^2+1)^2)\".\nC \"f(x)=abs(2*x^2+1)\".\nD \"f(x)=((2*x^2+1)*(x+1))/(x+1)\" preserving original parentheses. We might use \\frac in text; definition uses /.\n\nWill the option text formula D have \\frac with braces; JSON escaping double. Fine.\n\nNeed no root.definitions.\n\nNeed public_content.completeness complete, privacy separated?题目公开，题号来源已分离? The image has no personal info. We exclude 【例5】 from statement but original_text includes; can declare separated if source separated. root.label role source. Figure not_required. scopes one.\n\npublic_content scopes choices target_ref /root/goals/0, status complete, selection_mode multiple, options exactly label/text. Options text match goal options text? The instruction says original_text、public_content.choices 与 options 的标签、顺序和完整公式必须一致。Goal options text include $...$; choices text same. Good.\n\nDo we need public_content.root_label_role source? It's optional but root.label exists. Set \"root_label_role\":\"source\".\n\nOriginal_text retains source题号. Good.\n\nNeed no other fields. Let's ensure schema: root can include label, definitions? not necessary, facts? maybe no. goals. children omitted. uncertainties omitted. root.label allowed. No additional properties? Scope allows label definitions facts goals children uncertainties. If omit definitions/facts okay. goals required? Schema not explicitly required for Scope? It doesn't list required, but likely need goals. We'll include.\n\nPublic_content required completeness/privacy/figure/scopes. root_label_role optional.\n\nPotential issue compare_functions options functions must have maxItems 2. We put one local candidate; shared separately. Good.\n\nBut ComparisonOption requires functions, left, right. left shared:base, right local:cand. The shared function base is in shared_functions. Each option has local candidate. For option A local id \"cand\" repeated across options allowed? id pattern. Each option separate, same id okay. left shared base, right local cand. Fine.\n\nCould use option specific local id \"a\" etc to avoid ambiguity? Either. Use id \"candidate\" repeated. The reference local:cand within each option. Good.\n\nNeed selection_mode multiple because 多选. select_relation equal because 相同的函数. completeness complete.\n\nNow consider original_text transcription of sqrt: \\sqrt{(2x^2+1)^2}. In LaTeX, \\sqrt{(...)}. Good.\n\nPotential \"|\" not escaped. Fine.\n\nNeed JSON object only. Let's craft with escaped backslashes. Need valid JSON. In JSON strings, `\\\\sqrt` outputs \\sqrt; `\\\\frac` outputs \\frac. The schema pattern for original_text not relevant. In public_content statement, `$y=2x^2+1$`. In options B text, \"$y=\\\\sqrt{(2x^2+1)^2}$\". D \"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\".\n\nOriginal_text has fullwidth spaces maybe. Use \"　　\". Fine.\n\nOne subtle rule: original_text 的 $…$ 内集合花括号写成 \\{ \\}。Not relevant.\n\nNeed maybe option A original y=x^2+|x^2+1|; |...| as absolute. Candidate definition \"f(x)=x^2+abs(x^2+1)\" is equivalent but not original notation? It's controlled math string, absolute value allowed. Fine. It preserves structure x^2+abs(x^2+1), not simplify. Good.\n\nOption B candidate \"f(x)=sqrt((2*x^2+1)^2)\" preserves sqrt. Good.\n\nOption C \"f(x)=abs(2*x^2+1)\". Good. Note original C is y=|2x^2+1|. Candidate abs. Fine.\n\nD candidate \"f(x)=((2*x^2+1)*(x+1))/(x+1)\" preserves product and unchanged division. Good.\n\nShared base \"f(x)=2*x^2+1\". Good.\n\nShould root.facts include baseline? No.\n\nNeed maybe root definitions? no.\n\nLet's output JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 21139
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\\nA. $y=x^2+|x^2+1|$　　B. $y=\\\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"root\":{\"label\":\"【例5】\",\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"shared_baseline\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[{\"id\":\"base\",\"definition\":\"f(x)=2*x^2+1\"}],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=x^2+abs(x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=sqrt((2*x^2+1)^2)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=abs(2*x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=((2*x^2+1)*(x+1))/(x+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\"},{\"label\":\"B\",\"text\":\"$y=\\\\sqrt{(2x^2+1)^2}$\"},{\"label\":\"C\",\"text\":\"$y=|2x^2+1|$\"},{\"label\":\"D\",\"text\":\"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\"}]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。原图是一个多项选择题：求与函数 y=2x^2+1 相同的函数是。选项 A-D。需要按 compare_functions 处理？题干“与函数 y=2x^2+1 相同的函数是”四组选项比较，属于 compare_functions，mode=shared_baseline？共同基准是 y=2x^2+1，各选项候选。selection_mode=multiple（多选），select_relation=equal（选相同）。completeness complete。需要定义 shared_functions 中基准函数。原题写 y=2x^2+1，没有函数名。按规则可以使用局部函数别名 f(x)=2*x^2+1 在 shared_functions。但 compare_functions 的 shared_functions 是 ComparisonFunction required id, definition。可以用 id 如 base，definition \"f(x)=2*x^2+1\"。选项函数：A y=x^2+|x^2+1|。内部别名可用 f(x)=...? 每个选项局部 functions 需要 left/right 引用。共同基准模式每项必须一侧 shared 一侧 local。选项每个 candidate 一个函数。left=shared:base, right=local:cand。但选项的候选定义只一个函数。ComparisonOption functions maxItems 2，required left/right。我们需要每项 functions 包含局部候选函数（id可以 cand），然后 left=shared:base right=local:cand。shared_functions 定义基准。各选项 candidate definitions 保留原结构：A \"f(x)=x^2+abs(x^2+1)\"? 原题 y=x^2+|x^2+1|。使用 abs 或 | |。在 root/controlled 数学字符串中不要 $ 和反斜杠。definitions 允许 abs。保留原结构。但同名 f 可以在不同选项重复；不过 shared base 已经用 f，候选也可用 f？规则说同名 f、g 可以在不同选项重复，不能提升 root。shared_functions 与选项局部作用域不同，可同名 f。但为了清晰，候选定义可以写 \"f(x)=x^2+abs(x^2+1)\"。原题无函数名，使用内部别名 f(x) 表示 y对应关系。选项 B y=sqrt((2x^2+1)^2)。候选 f(x)=sqrt((2*x^2+1)^2)。C y=|2x^2+1| => f(x)=abs(2*x^2+1)。D y=((2x^2+1)(x+1))/(x+1) => f(x)=((2*x^2+1)*(x+1))/(x+1)。需保留未化简。原题特别：D 的分母 x+1，会自然定义域去掉 -1，但题干没给定义域，候选 domain omit，不填写自然域。\n\nroot definitions? 整题共用基准 y=2x^2+1。但是 compare_functions 目标字段里 shared_functions 放基准，不能放 root.definitions？规则说 compare_functions 的共享基准写在 shared_functions，不放到 root.definitions。root 可以无 definitions/facts。root.goals 包含 compare_functions。root 没有 children。\n\npublic_content: scopes 按 root 先序，只有一个 /root。statement 是题干自身纯文本，排除题号？原题有【例5】（多选）与函数... 公开题干应排除来源题号/例号，保留“（多选）与函数...”。题号【例5】属于来源题号，应移除。选项另存 choices，不在 statement 中包含 A-D。statement: \"（多选）与函数 $y=2x^2+1$ 相同的函数是\" 但空格/句号？公开题干本身。choices target_ref /root/goals/0，status complete, selection_mode multiple, options A-D text with $...$. 选项 text 必须与 original_text/public_content choices 标签顺序完整公式一致。选项文本：A. \\(y=x^2+|x^2+1|\\)，B. \\(y=\\sqrt{(2x^2+1)^2}\\)，C. \\(y=|2x^2+1|\\)，D. \\(y=\\frac{(2x^2+1)(x+1)}{x+1}\\)。用 $…$，sqrt 可用 \\sqrt，绝对值可 | |，分式可 \\frac。要保留原结构。选项 text 应仅选项公式，不含“A.”？choices options label A, text 公式。按规则 public_content 选项 text 保留原公式。original_text 转录完整题干和所有选项，包含题号? original_text 保留来源题号可以。它需要完整题干包括【例5】和选项。选项公式用 $…$，注意 JSON 转义反斜杠。可以用 \\sqrt。花括号在 original_text 的 $…$ 内：集合才要求转义，分式 \\frac 的花括号怎么办？规则说 original_text 的 $…$ 内集合花括号写成 \\{ \\}；裸花括号只是分组、显示时会消失。这有点奇怪：LaTeX 分式的花括号是分组，会消失？他们说“裸花括号只是分组、显示时会消失”可能只针对集合语境。实际上 JSON 输出给模型，需要 LaTeX 正确：\\frac{(...)}{...} 必须花括号。但指令说 JSON 字符串里的反斜杠必须写成 \\\\。original_text 用 $…$ 包围，公式用 LaTeX 排版，不化简。花括号在 \\frac 必须存在。这可能与“裸花括号只是分组”的提示冲突？它说 original_text 的 $…$ 内集合花括号写成 \\{ \\}；裸花括号只是分组、显示时会消失。可能指不要在文字中写裸集合花括号作为集合；但 LaTeX 命令参数必须花括号。我们按正常 LaTeX 写，反斜杠转义：\\sqrt 写成 \\\\sqrt，\\frac 写成 \\\\frac。JSON 解析后是 \\sqrt。这个标准。\n\nroot.facts? compare_functions 的基准在 shared_functions，不需要 facts。root.label? 原图有【例5】，属于来源题号，可设 root.label=\"【例5】\"，root_label_role=\"source\"？但 label 是否应包含（多选）？原图“【例5】（多选）与函数...” 例5是来源题号，label 可以设为“【例5】” role source。但 root.label存在时用 root_label_role 区分；public_content 有 root_label_role 字段可选。可以设 root.label=\"【例5】\" and root_label_role=\"source\"。但 schema root.label 是 Scope 字段，public_content.root_label_role 可选。我们设 source。公开 statement 排除【例5】，但保留（多选）。好。\n\nuncertainties? 没有。\n\ncompare_functions goal 里的 options 每项 text 需要与 public_content 选项文本标签顺序公式一致。options 条目 id option_a label A text 包含 $y=...$。functions 局部定义 id \"cand\" definition \"f(x)=x^2+abs(x^2+1)\"? Original option A has x^2+|x^2+1|. Use abs or | | in definition? Controlled math strings prefer abs. Fine.\n\nNeed shared_functions: id maybe \"base\", definition \"f(x)=2*x^2+1\". Does shared function need domain? 未给定义域省略。But original baseline is y=2x^2+1, no given domain. Since compare functions asked \"与函数 y=...相同的函数\", the natural domain maybe implicit but no explicit. Do not fill. Candidate domain likewise omit. But for D, it has denominator x+1; natural domain excludes -1, but not given. Candidate local function may need to preserve expression; no domain.\n\nPotential issue: compare \"same function\" means same domain too; but we don't solve. The D candidate domain naturally excludes -1, so not same; but we don't output. Fine.\n\nNeed original_text full. Let's draft:\n\n\"【例5】（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\nA. $y=x^2+|x^2+1|$　　B. $y=\\\\sqrt{(2x^2+1)^2}$　　C. $y=|2x^2+1|$　　D. $y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\"\n\nNeed ensure in JSON string backslash double. For \\sqrt, JSON string must be \"\\\\sqrt\"; for \\frac \"\\\\frac\". The original_text display will be \\sqrt. Good.\n\npublic_content statement: \"（多选）与函数 $y=2x^2+1$ 相同的函数是\". Do we include trailing \"（　　）\" maybe statement should include question blank? It is part of题干. \"相同的函数是（　　）\" yes. Choices separate but blank in statement okay. It may include parentheses. Use \"（　　）\". Could simply \"相同的函数是\" no blank. Should keep original ask. Use \"（多选）与函数 $y=2x^2+1$ 相同的函数是（　　）\". Good.\n\nOptions text no labels. D text: \"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\". A text: \"$y=x^2+|x^2+1|$\". B: \"$y=\\\\sqrt{(2x^2+1)^2}$\". C: \"$y=|2x^2+1|$\". These use $...$. JSON escaping.\n\nNeed goal in root: {\"kind\":\"compare_functions\",\"mode\":\"shared_baseline\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[{\"id\":\"base\",\"definition\":\"f(x)=2*x^2+1\"}],\"options\":[...]}. For each option:\n{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$y=x^2+|x^2+1|$\",\"functions\":[{\"id\":\"cand\",\"definition\":\"f(x)=x^2+abs(x^2+1)\"}],\"left\":\"shared:base\",\"right\":\"local:cand\"}\nBut candidate definition uses f same as base? It's local scope, okay. But if definitions in option use f, and shared base also f, references distinguish shared/local. Fine.\n\nOption B candidate \"f(x)=sqrt((2*x^2+1)^2)\".\nC \"f(x)=abs(2*x^2+1)\".\nD \"f(x)=((2*x^2+1)*(x+1))/(x+1)\" preserving original parentheses. We might use \\frac in text; definition uses /.\n\nWill the option text formula D have \\frac with braces; JSON escaping double. Fine.\n\nNeed no root.definitions.\n\nNeed public_content.completeness complete, privacy separated?题目公开，题号来源已分离? The image has no personal info. We exclude 【例5】 from statement but original_text includes; can declare separated if source separated. root.label role source. Figure not_required. scopes one.\n\npublic_content scopes choices target_ref /root/goals/0, status complete, selection_mode multiple, options exactly label/text. Options text match goal options text? The instruction says original_text、public_content.choices 与 options 的标签、顺序和完整公式必须一致。Goal options text include $...$; choices text same. Good.\n\nDo we need public_content.root_label_role source? It's optional but root.label exists. Set \"root_label_role\":\"source\".\n\nOriginal_text retains source题号. Good.\n\nNeed no other fields. Let's ensure schema: root can include label, definitions? not necessary, facts? maybe no. goals. children omitted. uncertainties omitted. root.label allowed. No additional properties? Scope allows label definitions facts goals children uncertainties. If omit definitions/facts okay. goals required? Schema not explicitly required for Scope? It doesn't list required, but likely need goals. We'll include.\n\nPublic_content required completeness/privacy/figure/scopes. root_label_role optional.\n\nPotential issue compare_functions options functions must have maxItems 2. We put one local candidate; shared separately. Good.\n\nBut ComparisonOption requires functions, left, right. left shared:base, right local:cand. The shared function base is in shared_functions. Each option has local candidate. For option A local id \"cand\" repeated across options allowed? id pattern. Each option separate, same id okay. left shared base, right local cand. Fine.\n\nCould use option specific local id \"a\" etc to avoid ambiguity? Either. Use id \"candidate\" repeated. The reference local:cand within each option. Good.\n\nNeed selection_mode multiple because 多选. select_relation equal because 相同的函数. completeness complete.\n\nNow consider original_text transcription of sqrt: \\sqrt{(2x^2+1)^2}. In LaTeX, \\sqrt{(...)}. Good.\n\nPotential \"|\" not escaped. Fine.\n\nNeed JSON object only. Let's craft with escaped backslashes. Need valid JSON. In JSON strings, `\\\\sqrt` outputs \\sqrt; `\\\\frac` outputs \\frac. The schema pattern for original_text not relevant. In public_content statement, `$y=2x^2+1$`. In options B text, \"$y=\\\\sqrt{(2x^2+1)^2}$\". D \"$y=\\\\frac{(2x^2+1)(x+1)}{x+1}$\".\n\nOriginal_text has fullwidth spaces maybe. Use \"　　\". Fine.\n\nOne subtle rule: original_text 的 $…$ 内集合花括号写成 \\{ \\}。Not relevant.\n\nNeed maybe option A original y=x^2+|x^2+1|; |...| as absolute. Candidate definition \"f(x)=x^2+abs(x^2+1)\" is equivalent but not original notation? It's controlled math string, absolute value allowed. Fine. It preserves structure x^2+abs(x^2+1), not simplify. Good.\n\nOption B candidate \"f(x)=sqrt((2*x^2+1)^2)\" preserves sqrt. Good.\n\nOption C \"f(x)=abs(2*x^2+1)\". Good. Note original C is y=|2x^2+1|. Candidate abs. Fine.\n\nD candidate \"f(x)=((2*x^2+1)*(x+1))/(x+1)\" preserves product and unchanged division. Good.\n\nShared base \"f(x)=2*x^2+1\". Good.\n\nShould root.facts include baseline? No.\n\nNeed maybe root definitions? no.\n\nLet's output JSON."
+        }
+      }
+    ],
+    "created": 1793155600,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3820,
+      "prompt_tokens": 12756,
+      "total_tokens": 16576,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3189,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 640
+      },
+      "prompt_cache_hit_tokens": 640,
+      "prompt_cache_miss_tokens": 12116
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 21.141
+}
