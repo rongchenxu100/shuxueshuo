@@ -59,7 +59,7 @@ macOS 默认数据目录为 `$HOME/Library/Application Support/shuxueshuo/local`
 
 固定本地联调使用 `127.0.0.1:8779` 和默认数据目录、数据库端口 `5432`。题页参数
 `?knowledge=next` 为无记录预览，`?knowledge=next&learning=1` 为登录联调；节点详情页使用
-`?learning=1`。完整字段、验收及维护说明见 [阶段 3 文档](../../docs/public-knowledge-graph-stage3.md)。
+`?learning=1`。完整字段、验收及维护说明见 [公共图谱维护说明](../../docs/public-knowledge-graph-stage4.md)。
 
 ## 服务器 Docker 发布
 
@@ -176,7 +176,7 @@ admin 以部署用户 UID/GID 运行，按需挂载配置及数据；不启动�
 
 拍题准入新增 `0016_search_admission` 迁移：每账号每日新生成 10／重跑 3、全站 100／50，生成账号并发 1、全局 2 运行＋4 等待，上传/OCR 在途每账号 2、全站 10。OCR 保持单进程。费用开关初始关闭且恢复后强制关闭，须显式启用；配置、停开命令及离线验收见[拍题准入说明](../../docs/search-admission.md)。额度账本随备份保存，但题目删除或到期不能退回已消耗额度。
 
-上述生产 Compose 组合、Nginx、空库迁移、单进程 OCR 和费用开关已完成[最终容器离线演练](../../docs/search-final-container-rehearsal.md)。复现入口 `deploy/product/rehearse-search.py` 需要本机已有 app/admin/PostgreSQL/Nginx/RabbitMQ/OCR 六种镜像；仅使用隔离内部网络和 fixtures，不代表正式发布、真实供应商或目标服务器容量验收。
+生产 Compose 组合、Nginx、空库迁移、单进程 OCR 和费用开关的复验方式见[单机服务与离线演练](../../docs/search-single-host-production.md)。复现入口 `deploy/product/rehearse-search.py` 需要本机已有 app/admin/PostgreSQL/Nginx/RabbitMQ/OCR 六种镜像；仅使用隔离内部网络和 fixtures，不代表正式发布、真实供应商或目标服务器容量验收。
 
 先停止业务写入和产物清理。`product-backup/v2` 包含逻辑数据库 dump、产品登记产物，以及数据库登记且尚未到期的拍题页面和提交私有文件；拍题文件逐项记录 SHA-256、字节数、归属和原始 `expires_at`，不按目录扫描导入匿名或孤立文件。备份清单还记录行数、迁移版本和删除权威游标；不包含原始凭据。
 备份前阻止新的 app 登录，现存 app 连接会令操作失败；不会强制终止其他进程。
@@ -235,7 +235,7 @@ PRODUCT_TEST_DATA_DIR='/absolute/path/p1-test' PRODUCT_TEST_INSTANCE=p1-test uv 
 
 测试会在专用库追加隔离的用户、空间及 fixture 数据，不自动删除历史；每次安装验收使用新的空数据根。
 默认缺少 `PRODUCT_TEST_DATA_DIR` 时数据库用例跳过；带跳过的测试结果不能作为 PostgreSQL 验收通过。
-不同环境的安装、依赖版本、实际测试数和备份恢复证据记录在 `docs/product-p1-acceptance.md`。
+内部事务与存储合同见 `docs/product-p1-interfaces.md`；各环境的实际测试结果随对应运行产物保存。
 
 退出码：0 成功，2 前置条件/参数错误，3 服务不可用，4 迁移或版本错误，5 完整性失败。
 ## 敏感配置提交规则

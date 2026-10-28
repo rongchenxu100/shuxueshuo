@@ -1,10 +1,6 @@
 # 拍题学：单机生产接入与离线镜像演练
 
-日期：2026-10-24。本次只接通既有能力，不增加公共课程缓存、任务队列或分布式运行；未部署线上，也不把离线 fixture 当成真实模型、短信或 Paddle 推理验收。
-
-2026-10-25 后续补充：[拍题准入与费用保护](search-admission.md)在既有本机线程池外增加有界准入、账号／全站每日额度及热停止开关；没有新增分布式队列，OCR 仍为一个进程。下文保留此前镜像演练结果，新规则和本轮离线证据以该说明为准。
-
-同日完成[最终容器离线演练](search-final-container-rehearsal.md)：原生产三份 Compose 与 Nginx、空库迁移至 `0016`、单进程 OCR、默认准入额度及费用热停止通过。下文旧轮次结果只作历史记录，不替代最新报告。
+拍题服务与产品基础设施共用单机部署。准入额度及费用停止见[准入规范](search-admission.md)，数据库和私有文件恢复见[备份恢复](search-backup-restore-local-acceptance.md)。离线镜像演练不能代替真实 OCR、模型、短信或目标服务器验收。
 
 ## 1. 生产入口与持久化
 
@@ -65,13 +61,9 @@ python -m shuxueshuo_server.search.maintenance --mode server \
 
 `work/search/private-v1/recovery/deletions.jsonl` 是独立于数据库回滚的删除权威，写入并 `fsync` 后才删除数据库记录；日志仅含账号、提交 ID 及创建时间。追加失败尝试截回原长度并刷盘，初始化只允许在排他锁下、完整前缀与数据库游标校验通过后修剪末尾无换行残片；缺失、完整行/中间记录损坏、日志落后或 authority 不匹配仍失败关闭，不得手改日志或游标绕过。恢复旧备份必须额外指定当前源的 `--search-recovery-root`，不能使用旧备份内日志替代；源实例必须先停止全部写入，恢复共享锁冲突时删除返回 503（不是删除成功），不能以此代替停源。迁移中的 authority/cursor 校验不等于能判断任意离线副本是否最新，部署者须独立保管当前日志，不能用回滚数据库覆盖它。目标恢复全程 `NOLOGIN`，删除重放、到期清理、中断恢复及 doctor 全部通过后才放行；失败保留 `locks/restore-incomplete`，禁止通过 `resume`/`services-start` 绕过。操作细节与真实 PostgreSQL 本地验收见[拍题备份恢复说明](search-backup-restore-local-acceptance.md)。
 
-首次建头断电遗留空文件或半行时，只有数据库尚未初始化、两个游标为零且摘要为空，才在状态行锁及日志排他锁内清除没有完整行的普通文件并用原 authority 重建。已有完整记录及已绑定日志不走此重建路径。显式 `maintenance cleanup` 同时遇到运行文件与备份清理异常时，保留前者并记录后者；只有备份异常仍向命令行报告失败。
-
 含拍题数据的 `0014` 备份及所有含拍题数据的 v1 备份不支持新版私有拍题恢复。迁移到 `0015`、当前日志首次初始化成功后，必须立即停止业务写入和清理，创建并核验首份 v2 备份、独立保管当前日志，然后才重新接单；在这份备份建立前没有新版拍题可用恢复点，不应等下一次日常备份。
 
 隔离恢复演练不切流量，原源实例继续作为当前权威；若以后正式切换到恢复目标，须同时切换到目标新 journal 并立即创建新 v2 备份。旧备份与新 authority 不匹配时失败关闭，不能再把旧备份和仍存在的旧源日志当作最新恢复入口；工具不自动决定哪个实例已成为正式源。
-
-本轮 v2 备份恢复及审查修复合并回归 **200 passed、0 skipped**，53.98 秒，日志 `/private/tmp/search-backup-edge-acceptance-20261024.log`。包含真实 PostgreSQL dump/restore、日志写入失败及受限修尾、首次日志头断电恢复、清理双异常、恢复锁下 HTTP 删除 503、历史快照复用与每小时备份维护；生产 lifespan 修尾后健康检查、MockSMS 登录及归属隔离可用，完整行损坏仍拒绝启动。原 **79 项**及 Q01 离线课程恢复证据保留为历史基线，不累加计数。完整命令及范围见[审查修复验收](search-backup-restore-local-acceptance.md#7-审查修复验收2026-10-24)；这不等于服务器 Docker 只读挂载端到端、停服 timer 或异地灾备已验收，未调用付费模型或真实短信。
 
 ## 4. 可复现的离线镜像演练
 
@@ -104,72 +96,6 @@ python3 deploy/product/rehearse-search.py \
 - 本次不新增业务能力、跨设备进度、集群调度或自动线上发布。
 - 私有拍题文件与删除/到期重放现使用 v2 备份恢复契约，验收状态单独记录在[拍题备份恢复说明](search-backup-restore-local-acceptance.md)，不由历史产品备份验收代替。长期容量/配额、锁文件 inode 运维及当前删除权威的独立异地保管仍是上线前工作；本轮不实现账号注销。
 
-回归及实际镜像结果见下节；旧 8779 浏览器证据保留在[第一期说明](shared-problem-library-and-student-learning-stage1.md)，不替换成此次容器验收。
+## 维护拒绝与上传限制
 
-第 6—8 节保留各轮当时冻结代码的历史结果，包含旧像素阈值和 48MP/50MP JPEG 成功证据；它们及后续 10MP 回归不代表当前代码。当前 32MP 规则见第 2 节，最新离线镜像报告见文末补充。
-
-## 6. 初次接入验证
-
-使用独立 PostgreSQL 实例 `/private/tmp/sss-search-acceptance`（实例 `search-acceptance`），保持 `RUN_LLM_INTEGRATION=0`：
-
-| 范围 | 结果 |
-| --- | --- |
-| 全部 Search/Auth | 773 passed、4 skipped；无数据库跳过 |
-| 独立 OCR 解释器 | 补跑上述 3 个 numpy 环境用例，3 passed；剩余 1 个付费 LLM 测试刻意禁用 |
-| 生产健康、启停脚本、部署配置与运行配置 | 71 passed |
-| 真实 Nginx 容器配置与代理基础回归 | 3 passed，不拉取镜像 |
-| 阶段一报告、批次、评估及无测试文件导入 | 63 passed |
-| 最终无测试文件运行资源与部署专项 | 6 passed，实际读取图谱、生成 walk bundle 并检查课程指纹 |
-| 前端 Search/Graph-walk | 372 passed、0 skipped |
-
-这些是不同范围的测试集，部分重叠，不应相加作为独立测试数。全量 Search/Auth 日志为 `/private/tmp/search-auth-production-frozen.log`，前端为 `/private/tmp/search-graph-walk-production-final.log`。本次后端、演练脚本及新增测试通过 Ruff，Bash 语法及差异空白检查通过；未扩修 `test_studio_nginx.py` 原有风格问题。测试仅有既存 Alembic 配置弃用提醒。
-
-镜像演练实际暴露并修复了三类生产缺口：阶段一模块导入时读取测试语料、应用镜像漏打包课程运行 JSON、服务健康失败却清除 draining。新增回归不再依赖完整开发仓库恰好包含这些文件。
-
-最终隔离镜像演练 **通过**，报告为 `/private/tmp/search-image-rehearsal-20261024-d/report.json`，总日志为 `/private/tmp/search-image-rehearsal-20261024-d.log`。使用空 PostgreSQL 17.10 数据库，真实安装至 `0014_lesson_execution`；通过 HTTPS 登录、上传旋转、幂等、课程生成与快照/事件/TLS WebSocket、账号隔离、停用删除、来源整页保留、draining、重启中断、到期清理及服务器维护命令。API 日志确认完整 shutdown/startup；本轮重启发生在生成结束后，另用预置 queued 提交验证中断恢复，不冒充持续计算中强杀的镜像演练。
-
-应用与管理镜像复用 `linux/amd64` 缓存层，PostgreSQL/Nginx 为本机 `linux/arm64`，不作为服务器性能依据。所有本次临时容器、网络和数据库卷均已移除；派生镜像及仓库外测试输出保留。没有调用付费模型或真实短信，没有部署线上或 push。
-
-## 7. OCR 审查修复与复验
-
-2026-10-24 审查后，修复了产品 OCR 被搜索锁超时影响、手机大图越过生产 OCR 限额、搜索方向模型未严格预热的问题，并补充排空状态诊断。产品请求继续无超时等锁，产品 stdout/stderr 不套用搜索的 2 MiB 响应上限；搜索锁等待单独为 100 秒，启动时完成全部模型加载，请求不再懒加载。健康就绪表示模型加载成功，不表示持续验证实际推理结果。
-
-新增回归覆盖真实 48MP/50MP JPEG、EXIF 转置、JPEG 缩略解码、超限图片在解码前拒绝、Pillow 解压炸弹、旧大图手动旋转；覆盖搜索与产品串行但采用不同等锁期限、产品大日志兼容、任一模型加载失败不得 READY、方向模型缓存缺失或空文件不得打印 `PREHEAT_OK`。排空检查覆盖动态标记、不可读标记、doctor 保留标记，以及服务异常仍返回失败。
-
-| 范围 | 结果 |
-| --- | --- |
-| 完整 Search/Auth | 823 passed、6 skipped；无数据库跳过 |
-| 独立 OCR 解释器 | 补跑上述 5 个 numpy 环境用例，5 passed；其余 1 个付费 LLM 测试刻意禁用 |
-| OCR HTTP、严格启动预热、缓存与产品兼容专项 | 112 passed |
-| 上传边界、既有图片 API 与应用生命周期专项 | 83 passed、0 skipped |
-| 生产健康、doctor、启停脚本与部署专项 | 83 passed |
-
-测试范围有重叠，不相加计数。完整回归日志为 `/private/tmp/search-auth-upload-final.log`，独立 OCR 假模型日志为 `/private/tmp/search-ocr-orientation-upload-final.log`，上传专项为 `/private/tmp/search-upload-limits.log`。本轮修改通过 Ruff、Bash 语法及差异空白检查。
-
-冻结生产代码后重新完成隔离镜像演练，报告 `/private/tmp/search-image-rehearsal-20261024-review2/report.json` 为 `passed: true`，总日志 `/private/tmp/search-image-rehearsal-20261024-review2.log`。除第 6 节的完整链路外，本轮把真实 8000×6000 JPEG 通过 Nginx 上传，确认进入 sidecar 前已保存为 4096×3072 RGB PNG，并验证排空前、排空中和恢复后的 `/api/health` 状态。临时容器、网络和数据库卷已清理；未调用付费模型或真实短信，未部署、提交或 push。
-
-真实 `shuxueshuo-ocr:3.3.0` 镜像本机不存在，因此**真实 Linux OCR 镜像导入、五种模型缓存、断网严格预热、方向推理和双套模型峰值内存仍未验收**，必须按 OCR 手册的上线前检查清单完成。此次演练仍以 fixture 替换 OCR 模型预热和最底层推理，只证明生产 HTTP 协议、文件边界、应用与代理接通，不替代 Paddle 验收。
-
-## 8. 维护提示与上传内存边界补充
-
-后续 P3 审查收紧了非 JPEG 的解码前像素上限，并统一上传、旋转、提交、重试生成、开始课程和继续计算的维护提示。前端不修改会话协议、不自动重试 POST；维护拒绝后保留原图、手动选区、课程和提交幂等键，换号后的迟到响应不能更新界面。像素超限单独提示缩小分辨率或改用 JPEG，不再只要求压缩文件体积。
-
-OCR 排队问题此次仅记录，不增加队列、优先级或远程取消机制。非 JPEG 20MP 上限降低单张解码峰值，但不是并发上传总内存限额；JPEG 缩略解码、Pillow 转换副本、上传请求体和双套常驻模型仍需真实环境容量验收。
-
-前端拍题专项为 190 passed；完整 `tools/tests/*.test.mjs` 为 838 passed、0 skipped，日志 `/private/tmp/search-maintenance-node-tests.log`。独立 PostgreSQL 上的上传、私有 API、应用生命周期和页面方向回归为 126 passed、0 skipped，日志 `/private/tmp/search-upload-non-jpeg-final.log`；新增小文件大尺寸 PNG/BMP 头部 fixture 验证 20MP 边界与解码前拒绝，伪造 `Content-Type` 不改变按实际格式判定，真实 48MP/50MP JPEG 回归保持通过。Ruff、JavaScript 语法及差异空白检查通过。
-
-本轮未重新执行镜像或浏览器验收，第 7 节报告仅代表当时冻结的代码；未调用付费模型或真实短信，未部署、提交或 push。
-
-此前统一 10MP 后，独立 PostgreSQL 上传及相邻 API 回归 136 passed、0 skipped（`/private/tmp/search-upload-10mp-final.log`），前端拍题专项 190 passed、0 skipped（`/private/tmp/search-10mp-node-tests.log`）。包含各格式同阈值、超限在解码前拒绝、限额内图片转正/缩图/原分辨率裁剪；Ruff、JavaScript 语法和差异检查通过。此为历史代码结果，不作为当前 32MP 及串行预处理规则的验收。
-
-**当前规则补充：**所有支持图片格式统一最多 32MP（32,000,000 像素），上传文件仍最多 20 MiB，长边归一到最多 4096；超过像素上限须降低分辨率，改用 JPEG 不能绕过。进程内串行解码/缩图，但不锁住后续 OCR 等待。此规则覆盖第 6—8 节及此前 10MP 的历史阈值，不改写旧验收结果。预处理互斥和像素限额不承诺并发总内存上限；前述 OCR 排队和总耗时限制仍保留，OCR 仍保持 1 个进程。
-
-冻结实现后重跑离线镜像演练，报告 `/private/tmp/search-image-rehearsal-20261024-32mp/report.json` 为 `passed: true`：真实 6000×4000 JPEG 成功并归一为 4096×2731、完整 32MP 低位深 PNG 边界成功，以及超过 32MP 的轻量 JPEG 头部拒绝；原 HTTPS 登录、账号隔离、幂等、课程/TLS WebSocket、停用删除、排空、重启和到期清理链路仍通过。本轮临时容器、网络和 PostgreSQL 卷已清理。OCR 预热和推理仍使用 fixture，并非真实 Paddle 或多进程容量验收，也未做浏览器交互验收。
-
-32MP 与串行预处理的完整 Search/Auth 回归为 847 passed、6 skipped，无数据库跳过（`/private/tmp/search-auth-32mp-final.log`）。其中 5 个 OCR 解释器用例已独立用假模型全部补跑通过（`/private/tmp/search-ocr-32mp-final.log`），另 1 个付费 LLM 用例保持显式禁用。新增 6 项确定性并发测试覆盖解码/缩图两阶段互斥、上传/旋转双向互斥、异常释放，以及阻塞 OCR 时另一次上传仍能完成图像准备；不依赖睡眠猜测调度。前端拍题专项 190 passed、0 skipped（`/private/tmp/search-32mp-node-tests.log`），Ruff、JavaScript 语法及差异检查通过。未调用付费模型或真实短信，未部署、提交或 push。
-
-## 9. 后续真实 OCR 镜像验收
-
-2026-10-24 已另用生产 Dockerfile 构建 Linux/amd64 OCR 镜像，在 Apple Silicon/Rosetta 上完成断网实测：五模型缓存与严格预热、12 项方向检查、产品真实公式推理及同一进程恢复搜索均通过。缺方向模型的负例不能就绪并退出 1；容器观测峰值 3.009 GiB，OOM 为 0。OCR 保持一个进程，临时验收容器已清理。
-
-详细环境、失败探索记录、内存口径、证据和回归命令见[真实 OCR 本地验收记录](search-real-ocr-local-acceptance.md)。该结果补齐第 7 节当时缺少的本地真实镜像证据，不改写历史 fixture 结果，也不代替原生服务器整套服务容量、真实供应商及拍题备份恢复验收。
+维护拒绝后保留原图、手动选区、课程和提交幂等键，不自动重试 POST；换号后的迟到响应不能更新界面。所有支持格式统一按 32MP 上限在解码前检查，不能通过改用 JPEG 绕过；超限须降低分辨率。上传大小、像素数和并发内存是不同限制，目标服务器的峰值内存和 OCR 排队仍需实际测量。

@@ -20,7 +20,7 @@
 
 缺图预期只存在于测试元数据与金标中，不发送给 LLM；新契约金标已迁移 K 题原有的局部 `k≥1` 遗漏 policy，缺图属于预期成功识别的输入缺陷。离线回放验证请求装配与阻断逻辑，不代表真实模型已识别成功。
 
-当前七题入口默认使用 `problem-math-notation/v1` 数学字符串契约；旧版通过 `--contract problem-domain/v2` 显式回放，其他历史调用保留原契约。第一轮 DeepSeek 实测及原始响应见[验证报告](../../../../../../docs/validation/math-notation-deepseek-20260916/README.md)。图片与辅助文本输入均已变化，新旧通过率不能直接归因于模型或 prompt 改进。
+当前七题入口默认使用 `problem-math-notation/v1` 数学字符串契约；旧版通过 `--contract problem-domain/v2` 显式回放，其他历史调用保留原契约。第一轮 DeepSeek 实测及原始响应见[冻结验证数据](../../../../../../docs/validation/math-notation-deepseek-20260916/)。图片与辅助文本输入均已变化，新旧通过率不能直接归因于模型或 prompt 改进。
 
 在 `server` 目录执行以下命令可复现图片和运行离线检查：
 

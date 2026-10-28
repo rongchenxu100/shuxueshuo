@@ -1,7 +1,7 @@
 # 本机 Review 运行手册
 
 入口：[运行列表](http://127.0.0.1:3000/review/runs)。本文描述现有 SQLite/worker/SSE 实现；
-工作台仍是 Mock。目标产品架构见[产品服务架构](product-service-architecture.md)，
+默认工作台已连接产品服务；本手册只适用于显式启用的 legacy Review。目标产品架构见[产品服务架构](product-service-architecture.md)，
 迁移前仍按本文启动，不把 RabbitMQ/Celery 当作已经接通。
 
 ## 启动
@@ -26,7 +26,7 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 
 所需配置沿用 `SolverRuntimeConfig`：`DEEPSEEK_API_KEY`、`DOUBAO_API_KEY`、对应的
 base URL/model 配置。密钥不写入 Review 产物。当前 `.env` 与求解代码默认模型
-使用 `deepseek-v4-flash`，提取仍使用豆包；DeepSeek 多模态切换尚待实施。该模型别名不代表固定权重版本。
+使用 `deepseek-v4-flash`，提取供应商由运行配置决定；不要用 legacy 配置推断学生拍题的当前模型。该模型别名不代表固定权重版本。
 Review 求解的 Pass 1 和语义重试均开启 low thinking，
 通过 provider 请求选项设置，不增加 prompt 内容；学生讲解仍关闭 thinking。
 不同服务端请显式配置该服务实际支持的模型；失败时不会自动切换模型或 Mock。

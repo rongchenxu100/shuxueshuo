@@ -1,9 +1,8 @@
-# Track F：图片到 Problem 领域模型设计
+# Legacy 领域题意：图片到 Problem 模型
 
 ## 1. 状态与范围
 
-Track F0–F4 已完成。本文描述当前有效的图片提取、验证、投影和 Solver 接线边界，不再
-保存已完成迁移的逐轮 batch 记录。
+本文适用于仍保留的 `solver/extraction` 领域模型与 legacy Review 路径。内部产品数学记法流程见[数学题意接入](math-notation-integration.md)，学生拍题见[图谱课程架构](graph-guided-interactive-lesson-design.md)，不能用下列 v1 协议替代这两条入口。
 
 本 Track 负责：
 

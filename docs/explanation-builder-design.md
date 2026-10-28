@@ -1,6 +1,6 @@
 # Explanation Builder 设计
 
-基本不等式阶段 4B 的新增设计见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)：Method/rule 产生步骤及展示声明，LLM 润色并提出合法合并，代码统一校验与组件绑定。该路径尚待实现；本文既有 Snapshot 的公开事实边界继续适用。
+基本不等式阶段 4B 的新增设计见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)：Method/rule 产生步骤及展示声明，LLM 润色并提出合法合并，代码统一校验与组件绑定。该路径已有实现；本文既有 Snapshot 的公开事实边界继续适用。
 
 ## 1. 目标
 

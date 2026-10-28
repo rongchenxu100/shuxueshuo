@@ -68,19 +68,11 @@ Direct compiler 只消费 prepared typed call：
 
 输出仍是 `StepPlan / MethodInvocation`，作为稳定 runtime 边界。
 
-## 6. Transactional execution
+## 6. 执行与失败恢复
 
-canonical calls 按 typed DAG 执行。每个 call fork 当前 RuntimeContext：
+canonical calls 按类型化依赖执行，一次尝试共用上下文。调用准备 binding、编译 Function/Macro，执行并校验 returns、closure、状态及 goal evidence 后登记结果。正常路径不逐调用 fork 整份 RuntimeContext。
 
-1. 准备 binding 和 runtime snapshot；
-2. 编译单个 Function/Macro；
-3. 在 branch 中执行；
-4. 校验 returns、closure、B1/B3 和 goal evidence；
-5. 全部通过后原子提交。
-
-失败 call 不留下 declaration、promotion 或 StateVersion；dependents 被 blocked，独立分支可以继续。
-
-最终只聚合 required goal closure 中 verified calls，交给 Orchestrator 再执行得到公开 SolverResult。
+失败调用从初始上下文和已验证公开输出重建，移除失败输出；依赖调用被阻断，独立调用可继续。外部 checkpoint 恢复仍校验证书和授权。具体事实与预算约束见[分层证明搜索](scoped-proof-search-architecture.md)。
 
 ## 7. Symbolic closure
 

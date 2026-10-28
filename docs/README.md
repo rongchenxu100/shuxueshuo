@@ -1,71 +1,117 @@
 # 文档索引
 
-`docs/` 保存当前架构、接口、实施计划和必要验收摘要；目标设计必须标明待实施。过期中间过程从计划移除，代码演变由 Git 追溯，原始调用与 fingerprint 证据留在运行产物。
+文档维护当前架构、操作规则、能力边界与仍有效的扩展设计。实际接口以代码、Schema 和测试为准；本地实现、真实模型验收与生产发布分别表述。
 
-## 当前路线
+函数专题当前收录七题，T1/T2 受限开放，T3/T4/T5 保留开发设计。学生拍题的图谱执行链与内部 FunctionalPlan 链分别维护。
 
-- [系统路线图](functional-planner-next-stage-roadmap.md)：拍照解析 → 官方题库 → 题目对话 → 逐次交互更新的个人知识掌握图谱与题目/专项练习推荐；当前聚焦一期。
-- [在线服务开发计划](online-service-development-plan.md)：一期拍照解析服务的 P1–P5 技术实施顺序和验收标准。
-- [产品服务架构](product-service-architecture.md)：PostgreSQL/Alembic、RabbitMQ/Celery、HTTP/WebSocket、存储、页面与学生空间的统一设计入口；待实施。
-- [产品数据库设计](product-database-design.md)：用户/工作空间、题目与修订、构建/产物、空库初始化及目录设计；P1 已实现，本地验收通过，服务器完整验收待完成。
-- [P1 安装与管理](../deploy/product/README.md)、[服务器发布手册](../deploy/release.md)、[内部接口](product-p1-interfaces.md)、[验收记录](product-p1-acceptance.md)：原生 PostgreSQL 本地安装、服务器发布包、备份恢复和 P2 接入边界。
-- [本机 Review 手册](review-runs-local.md)：迁移前现有服务的启动、操作与恢复。
-- [Review 修订与重建](review-rebuild-g3-b.md)：已实现能力与有效验收摘要。
-- `problem-extraction-context-design.md`：当前图片提取、验证、投影与 Solver 接线边界。
+## 系统与日常运行
 
-## Solver 与 LLM
+- [系统能力与后续工作](functional-planner-next-stage-roadmap.md)
+- [本地产品服务列表与启动、停止命令](product-local-services.md)
+- [P2 本地运行手册](product-p2-local-runbook.md)
+- [手机号登录：本地运行与测试](site-login-local-testing.md)
+- [拍题学：单机生产接入与离线镜像演练](search-single-host-production.md)
+- [拍题准入、每日额度与费用停止开关](search-admission.md)
+- [拍题备份恢复：删除与到期不复活](search-backup-restore-local-acceptance.md)
+- [真实 OCR 镜像本地验收（2026-10-24）](search-real-ocr-local-acceptance.md)
+- [OCR 本地环境安装](ocr-local-environment-setup.md)
+- [Solver 测试分级策略](solver-test-strategy.md)
 
-- `method-solver-architecture.md`：当前 FunctionalPlan 到 runtime 的生产链。
-- [Scope 事实复用与分层证明搜索设计](scoped-proof-search-architecture.md)：已验证数学事实跨 Method 复用、Scope 与执行依赖授权、分层搜索和预算、证书回放及迁移门禁；目标设计，待实施。
-- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范；**§3 规定优先采用 `organize_expressions` 验证型范式，并给出防无限打补丁清单**。
-- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范；§1.1 与上条交叉引用。
-- `organize-expressions-q08-design.md`：验证型 Method 参考实现（LLM 填式链、代码验等价）。
-- `llm-context-model-design.md`：Context version、dependency、stale/rebase 规范。
-- `llm-planner-reliability-engineering.md`：失败归因、指标和候选选择原则。
-- `llm-sample-failure-review-guide.md`：逐 sample 检查 prompt、thinking、Plan、runtime 与 retry 的证据流程；包含输出超长专项和逐轮图示规范。
-- `solver-test-strategy.md`：Solver 测试分级、affected ownership、并行分片、单场景重放和真实 LLM 隔离规范。
-- `functional-scope-retry-design.md`：当前 Annotated Plan、Scope-only authority、完整 Scope replacement 与 restore 规范。
-- `scope-native-c0-c5-executable-gate.md`：scope、typed state、Scope Retry 与 closure 生成式门禁。
-- `path-minimum-macro-redesign.md`：路径最值原子Macro的Planner边界、runtime证据、retry约束与F5-F4.3分段迁移计划。
-- `dynamic-few-shot-strategy-plan.md`：FunctionalPlan mechanism few-shot 资产规则。
-- `entity-fact-handle-naming.md`：ProblemIR 展示引用与 typed identity 边界。
+## 专题与图谱
 
-## 课程页与交互
+- [新专题与拍题学能力同步建设：开发流程](topic-and-photo-learning-development-workflow.md)
+- [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)
+- [3.1 函数的概念及其表示：知识图谱设计](function-concepts-and-representation-knowledge-graph-discussion.md)
+- [高中数学公共知识图谱设计](public-knowledge-graph-ontology-design.md)
+- [公共知识图谱：维护与发布](public-knowledge-graph-stage4.md)
+- [个人知识图谱数据设计](student-knowledge-graph-data-design.md)
+- [个人知识图谱：六阶段实现与验收](student-knowledge-graph-implementation.md)
 
-- [新专题与拍题学能力同步建设：开发流程](topic-and-photo-learning-development-workflow.md)：先建章节知识、题型节点与空专题；逐题型完成代表题双验收、其余题全量扩能力及专题精选，旧专题不迁移。
-- [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)：P0 已交付 3.1 图谱与零题专题；本次唯一收录 Q15，之后按 T2、T1、T3、T4、T5 逐型扩能力并精选；保留历史与当前完成口径。
-- [T2 具体函数的定义域问题：题型与代表题设计](function-domain-problem-type-design.md)：列条件求交集法、条件提取技能、知识依据、来源驱动交互及受限准入；首题数学和照片回放已接通，完整题型仍待扩充。
-- [函数定义域 Q15 验收记录](function-domain-q15-acceptance.md)：原图、真实 extract/review 两次调用、边界与兼容回归；最终课包、专题与拍题双入口及学习记录已通过本地验收。
-- [函数定义域 Q01 扩题验收](function-domain-q01-acceptance.md)：零次幂、约分前分母限制、真实原图与共同求解链、七步交互及双题专题发布。
-- [全站手机号登录与题目学习标记计划](site-login-and-learning-marks-plan.md)：手机号验证码登录、AI 接口登录校验，以及是否练习过和学习状态（未标记／熟练掌握／需要再次练习）；第一阶段登录与登出已实现，后续阶段待实施，尚未上线。
-- [手机号登录本地测试说明](site-login-local-testing.md)：独立数据库、同源本地站点、模拟短信及阿里云 SendSms 真实联调。
-- [基本不等式章节题库首版计划](basic-inequality-practice-bank-plan.md)：`/1` 章节入口、题目与 JSON 清单、个人做题状态、登录的四阶段计划；静态入口已实现、待发布。
-- [图谱解题过程 Demo：恒成立 Q01](graph-walk-demo-q01-design.md)：学生与 LLM 共用决策协议，作答时同步展示图谱遍历、判断节点与方法模板执行；已贯通两条路线。
-- [Demo 维护与验收](graph-walk-demo-q01.md)：本地入口、构建、真实 AI 录制命令及验收结果。
-- [学生拍题学页面设计](student-problem-search-design.md)：“拍题学”学生产品层，对标作业帮的拍照搜题，但结果是 AI 陪学生把题学会；按题型开放，页面随四阶段生成链路分期开发，S5 完成后上线；讨论稿，待实施。
-- [交互题目公共运行时设计](interactive-lesson-shared-runtime-design.md)：HTML 承担学生课程，教师 JSON + Context 支撑一对一对话；Q01 已实现本地练习和发起对话时批量同步，未部署。
+## 函数题型与验收范围
 
-- [错题本构建规范](mistake-book-authoring-guide.md)：原解保留、三步内容结构、错误分类、可视化、双视图浏览和新增题目检查规范。
+- [T2 具体函数的定义域问题：题型与代表题设计](function-domain-problem-type-design.md)
+- [函数定义域 Q01：零次幂与约分前限制验收](function-domain-q01-acceptance.md)
+- [函数的概念 Q04：定义域求参扩题验收](function-domain-q04-acceptance.md)
+- [函数的概念 Q12：根式分母的定义域求参](function-domain-q12-acceptance.md)
+- [函数定义域 Q15：实现范围与验收记录](function-domain-q15-acceptance.md)
+- [函数的概念 Q23（2）：独立的定义域求参问题](function-domain-q23b-acceptance.md)
 
-- [工作台首版设计](workspace-product-design.md)：最新收敛范围，上传单题图片、中栏生成进度、右栏解析网页；批量、框选与其他功能后续重新讨论。
-- `teaching-scope-student-visual-animation-design.md`：F5-F5 Canonical Scope 教学投影、学生步骤、VisualStepIR 与动画 timeline 的统一规范。
-- `lesson-scope-llm-authoring-vnext-design.md`：F5-F5B 一次 Scope Lesson LLM、完整计算输入、recursive LessonIR、组件选择，以及和平二模纵向冒烟的分阶段实现计划。
-- `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
-- `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
-- `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。
-- [基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)：8 个 Method 统一采用表达式优先协议，包含 M11 局部不等式识别、31 题网页生成目标、代表性集成测试集、Family 讲解规则与 Lesson LLM 边界；扩展能力待实现验证。
-- [基本不等式表达式优先 Method 实施计划](basic-inequality-expression-method-implementation-plan.md)：Parser、证明内核、8 个 Method、31 题网页生成、代表性集成测试和切换门禁的分阶段计划。
-- `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
-- [知识点与方法：专题地图、知识图谱与个人图谱设计](knowledge-graph-pages-design.md)：练习系统的知识点／方法数据（只有点和边的图谱、每个专题的关联文件、展示文件），专题页知识地图、跨专题 `/knowledge/` 页和个人图谱（练习覆盖 → 步骤级证据 → 推荐）；设计稿，待实施。
-- `frontend-parallel-development-with-mock-api-plan.md`：工作台真实接入与 API/事件测试合同，Mock 仅用于测试和显式开发。
-- [学生交互与个性化教学系统设计](student-tutor-chat-system-design.md)：文本表达解题思路（可使用系统语音输入法）、系统代办基础计算、受验证的解题 workflow、识别/求解/交互并行与五阶段实施验收；长期知识图谱作为后续扩展，目标设计待实施。
-- [Q01 交互 Demo 讨论稿](q01-interaction-demo.md)：三个节点及通过条件、单栏可视化点选与默认可见对话框、Method 教学单元分别声明交互组件和展示组件；待实现。
-- `translations/educational-knowledge-graph-reading-list.md`：教育知识图谱外文阅读清单与中文全文译文入口（ACE / 学习空间 / GbKT / LLM 建图等）。
+## 拍题与交互课程
 
-## 文档维护规则
+- [学生拍题学页面设计](student-problem-search-design.md)
+- [公共题库、学生关联与解析复用：设计稿](shared-problem-library-and-student-learning-design.md)
+- [公共题库、学生关联与解析复用：第一期实施说明](shared-problem-library-and-student-learning-stage1.md)
+- [基于四阶段的交互课程生成设计](graph-guided-interactive-lesson-design.md)
+- [图谱交互课程阶段①实现计划：题意与数学特征](graph-guided-stage-one-implementation-plan.md)
+- [图谱交互课程阶段②实现计划：特征检查表判型与 D1、D2](graph-guided-stage-two-implementation-plan.md)
+- [图谱交互课程阶段③实现计划：选法评估、方法驱动求解与数学步骤逐步交付](graph-guided-stage-three-implementation-plan.md)
+- [阶段三执行器：PostgreSQL 存储实施说明](stage-three-postgresql-execution-storage.md)
+- [阶段三步骤交互卡技术方案](stage-three-step-interaction-design.md)
+- [恒成立 Q01 图谱解题 Demo](graph-walk-demo-q01.md)
+- [图谱解题过程 Demo 技术设计：恒成立 Q01](graph-walk-demo-q01-design.md)
+- [交互步骤卡片设计规范](interactive-step-card-design-spec.md)
+- [交互题目：静态课程与一对一老师的职责](interactive-lesson-shared-runtime-design.md)
+- [一元二次不等式的应用：恒成立问题题库设计](quadratic-inequality-always-true-practice-design.md)
+- [全站手机号登录与题目学习标记计划](site-login-and-learning-marks-plan.md)
+- [错题本内容与页面构建规范](mistake-book-authoring-guide.md)
+- [高中数学方法可视化原则（知识库方法卡）](senior-high-method-visualization-principles.md)
 
-1. 文档描述当前事实和未完成工作，不追加时间线式 review 记录。
-2. 完成的 migration plan 应删除或并入当前架构说明。
-3. 代码、schema、测试是接口细节的最终权威；文档只保留稳定语义和入口。
-4. 真实 batch 结果保存在 `internal/solver-runs/`，路线图只记录是否达到门禁。
-5. 一个概念只保留一个规范入口，其余文档链接到该入口。
+## 内部产品与题意处理
+
+- [工作台首版：上传图片生成解析网页](workspace-product-design.md)
+- [产品服务架构：任务、实时交互、存储与版本](product-service-architecture.md)
+- [产品数据库设计：工作空间、题目身份、版本与产物](product-database-design.md)
+- [P1 内部接口与 P2 接入约定](product-p1-interfaces.md)
+- [P2 产品接口与 P3 交接](product-p2-interfaces.md)
+- [本机 Review 运行手册](review-runs-local.md)
+- [G3-B：Review 修改与版本一致重建](review-rebuild-g3-b.md)
+- [数学题意、运行时绑定与 Method 参数](math-notation-integration.md)
+- [数学记法题意抽取：repair 与原图复核设计](math-notation-repair-design.md)
+- [数学语义等价约束归一化实现设计](math-notation-equivalence-normalization-design.md)
+- [数学记法抽取：已知限制](math-notation-known-issues.md)
+- [Legacy 领域题意：图片到 Problem 模型](problem-extraction-context-design.md)
+- [原图主导的题意抽取与独立复核](problem-source-review-v1.md)
+
+## FunctionalPlan、证明与教学
+
+- [基本不等式自动求解：能力边界与后续工作](basic-inequality-expression-method-implementation-plan.md)
+- [高中基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)
+- [Capability 编写指南](capability-authoring-guide.md)
+- [M08 条件消元：阶段 5A](constraint-elimination-method-design.md)
+- [FunctionalPlan 动态 Few-shot](dynamic-few-shot-strategy-plan.md)
+- [ProblemIR 引用与 Typed Identity 规范](entity-fact-handle-naming.md)
+- [Explanation Builder 设计](explanation-builder-design.md)
+- [Functional Method DSL 编写规范](functional-method-dsl-authoring-guide.md)
+- [FunctionalPlan Scope Retry 设计](functional-scope-retry-design.md)
+- [F5-F5B/G1 Lesson Scope LLM Authoring 与视觉选择 vNext 设计](lesson-scope-llm-authoring-vnext-design.md)
+- [LLM Context 模型设计](llm-context-model-design.md)
+- [LLM Planner 可靠性工程](llm-planner-reliability-engineering.md)
+- [LLM Sample 故障审查指南](llm-sample-failure-review-guide.md)
+- [Method Solver 当前架构](method-solver-architecture.md)
+- [整理式子 Method：q08 首轮实现](organize-expressions-q08-design.md)
+- [路径最值原子 Macro 设计](path-minimum-macro-redesign.md)
+- [Scope-native C0-C5 可执行门禁](scope-native-c0-c5-executable-gate.md)
+- [Scope 事实复用与分层证明搜索](scoped-proof-search-architecture.md)
+- [学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)
+- [M07 换元：阶段 5B](substitution-method-design.md)
+- [F5-F5 Teaching Scope、学生步骤、可视化与动画设计](teaching-scope-student-visual-animation-design.md)
+- [逐帧数学状态机制（v1）](visual-math-state.md)
+- [VisualStepIR v2：递归 Scope 图形状态设计](visual-step-ir-design.md)
+
+## 实验与扩展设计
+
+- [学生讲解模式：会话上下文设计](student-explanation-context-design.md)
+- [学生讲解模式：我来讲解](student-explanation-mode-design.md)
+- [学生讲解模式：交互设计（扩展设计）](student-explanation-interaction-design.md)
+- [学生交互与个性化教学系统设计](student-tutor-chat-system-design.md)
+- [基本不等式：最小学习空间](basic-inequality-minimal-learning-space.md)
+- [不等式知识图谱与可视化组件绑定重构设计](inequality-visual-component-refactor-design.md)
+- [Q01 交互 Demo：三个节点、页面交互与组件职责](q01-interaction-demo.md)
+
+## 参考与维护
+
+- [部署与安装](../deploy/product/README.md)、[服务器发布](../deploy/release.md)。
+- [论文译文与阅读索引](translations/README.md)：研究资料不作为当前实现说明。
+- [验证数据](validation/README.md)：保留回放和测试依赖资产，历史机器报告不代表当前通过率。
+
+规范不追加讨论时间线、逐轮审查、提交状态或临时服务日志。完成的计划合并到当前规范；未完成设计须标明范围。原始实验材料保存在运行目录，稳定测试输入进入 fixture，代码演变由 Git 追溯。

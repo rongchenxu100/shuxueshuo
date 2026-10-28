@@ -219,46 +219,6 @@ q07 展示 `2 − 0 = 2`，下接“消元 → 求解”的两张目的卡片，
 
 多次应用用合成公开证据测试编排契约即可；完整求解验收须等待相应 Runtime 能力，不表示阶段 4A 已支持连续 AM-GM。
 
-## 7. 阶段 4B 实现与验收
-
-1. `runtime/inequality_teaching_evidence.py` 从成功执行生成类型化公开证据；`explanation/basic_inequality_teaching.py` 将 M11 拆为观察、应用，M13 产生验等单元。单 `teaching_unit` 兼容保留，与多单元声明互斥。
-2. `explanation/teaching_rules.py` 提供显式注册的 Scope/Goal 编排入口、来源覆盖检查。默认无规则；测试规则新增概览并绑定已有 VisualSpec，不伪造 capability ID。q01 不注册无作用规则。
-3. `visual/teaching_diagrams.py` 的 `VisualSpecRegistry` 声明规格 ID、版本、组件与角色 binder。4B 角色为公开证据引用；旧数学场景继续使用既有模板/binder/Frame。两条路径由 VisualStepBuilder 汇集到最终步骤，分别保留生命周期。
-4. 教学图序列持久化为 `VisualStep.diagram_blocks`，包含实际规格/组件版本和来源；空值不改变既有 JSON。组件共享渲染入口在 `lesson-page-runtime.js`。规格版本清单另存 `visual-version-manifest.json`。
-5. LLM 前生成确定性草稿，LLM 后校验来源与独立边界，再绑定组件；不合法合并局部恢复。`run_basic_inequality_stage4b.py` 支持草稿、录制回放及真实 Lesson LLM，输出新目录中的完整审计与 HTML。
-
-4B 只实现 `coexist` 与独立边界检查；`replace`、`compose`、规则冲突解决及 q07 总观察业务留待连续 AM-GM 求解能力完成后。§4.2 的多次应用注册示例不是当前可调用规格。
-
-AM-GM 教学图从公开证据的 `application_roles` 绑定数学角色，不能使用推导行下标：参与项由已验证的取等关系确定，AM-GM、定和代入、根式界和目标上界按关系两侧表达式识别，每个角色保留原行 `origins`。正性前置、同一行包含多个关系、交换项序或反向书写关系不改变角色。只提交 AM-GM 与上界的简写时，不生成代入/化简中间式；组件省略缺失的中间卡片。
-
-必须覆盖以下回归：
-
-- Method 和 rule 声明通过同一注册/绑定入口，rule 新步骤不靠伪造 capability ID 才能画图。
-- q01 为三步，正性、定和、目标、上界及取等见证来自实际公开证据；变更题号或变量名无需增加绑定分支。
-- 二次函数同一 scene 内曲线与交点合并、focus/context、分支隔离及生命周期保持既有行为。
-- 测试规则新增概览与原始材料的覆盖/只读来源可审计；q07 多次应用规则不在本阶段验收范围。
-- 自定义教学图不隐式继承；相同规格的两次应用不误去重；混合类型不强塞进同一几何 Frame。
-- `coexist` 与独立边界有确定性测试；覆盖/组合测试随后续业务规则实现，当前不接受 rule 删除或合并原始独立材料。
-- LLM 合并前后必讲材料完整、来源可追溯；非法合并局部回退，导航与展示数量一致。
-- 缺组件、缺角色、未知版本产生明确 gap；可用文字不被删掉，完整页面验收仍失败。
-- 不启用生产 basic_inequality Family、不改求解协议、不新增其余 21 题阶段资产。
-
-已完成 q01 离线求解与两次独立真实 Lesson LLM 验收，均无回退地产出三步；浏览器检查桌面、390px 窄屏、公式及步骤导航。对应审计目录为 `internal/review-analysis/basic-inequality-stage4b/live-final-01`、`live-final-02`。公开证据缺失即报错，VisualGap 保留可靠 LessonIR 文字但不能计为页面闭环成功。
-
-### 7.1 连续估计与整理组件接入（2026-09-24）
-
-路线分组标签（2026-09-25）：`basic_inequality.route_label` 在数学编排完成后声明代码管理的 `section_label`。连续应用总览标为“多次应用基本不等式”；仅一次 AM-GM 且没有整理 Method 的路线标为“直接应用基本不等式”；配齐次式和通分观察分别使用对应路线标签。判断来自组合单元与来源调用，不读取题号或 LLM 标题。字段随 LessonIR 序列化，旧产物缺省为空；页面适配器统一生成卡片标签、导航分组与手机底栏，优先显示来源题面中的小问名称，不追加解法标签；没有小问时显示解法标签，缺省为“解题过程”。跨小问的公共前置步骤显示“公共推导”。小问由 Snapshot 的题目 Scope 父子关系与原题小问标记共同确定，内部求解分支沿用最近的小问，不凭 Lesson 标题或 Scope ID 猜测。数学 Scope/Goal 所有权与原始 `section_label` 均不改变。不同标签的材料不能直接合并。
-
-q07 应用步骤与导航固定使用完整名称“应用基本不等式消元”“再次应用基本不等式取极值”。后续规则只修改既有合并单元的标签时，不重复申请合并权限，但仍校验完整覆盖、来源和独立成步边界。
-
-在 4B 最小入口之后，q03、q07、q08 网页已接通。M01 通过公开整理证据声明 `expression_rewrite.chain`，M11 的通用下界配对使用同一个 `basic_inequality.application` 规格，绑定 `basic-inequality-mapping` 的完整 `sum-geometric` 模式（旧 `local-bound` 仅保留读取兼容），M13 同时展示累计取等条件及所有已提交的有效见证。
-
-`explanation/amgm_sequence_rule.py` 提供显式注册的总观察规则：仅匹配同一目标、按前序结果相接的连续 AM-GM 应用，合并其 `amgm_observe`，保留各 `amgm_apply`。编排后的 authority 保存多个 `source_step_ids` 和完整证据引用；规则声明可合并的单元键，注册层检查覆盖唯一、其他材料顺序和独立边界。此能力只在页面 authoring 构建入口启用，默认空规则注册仍保留。
-
-总观察的 `visuals` 为 `basic_inequality.amgm_sequence_overview`，角色是多个公开证据来源。binder 校验目标和依赖后复用结构观察组件，展示每轮实际参与项及次数。编排代码不写组件 HTML，也不把来源调用 ID 当成新 capability。此处实现的是单条连续应用链的观察合成，尚不是任意图形覆盖、规则冲突或多路线合并引擎。
-
-数学场景仍由既有 Frame 继承；新增整理、估计与取等图均为当前步骤的 `teaching_diagram`，不会跨步隐式继承。LLM 只处理讲解文字与允许的分组，不能修改绑定角色；最值方向文案冲突会被拒绝，确定性草稿可回退。数学图与结论使用公开证据。
-
 ## 8. 相关设计
 
 - [基本不等式实施计划](basic-inequality-expression-method-implementation-plan.md)：4A 已有求解链与 4B 实施边界。
@@ -267,8 +227,7 @@ q07 应用步骤与导航固定使用完整名称“应用基本不等式消元�
 - [VisualStepIR v2](visual-step-ir-design.md)：数学对象场景的继承和完整 Frame 合同。
 - [不等式视觉组件重构](inequality-visual-component-refactor-design.md)：共享组件和图谱扩展；非本阶段前置条件。
 
-
-### 2026-09-24：配齐次识别与通用双项映射
+### 配齐次识别与通用双项映射
 
 M01 在逐行等价验证完成后，对原始展示树作保守次数分析。仅当实际变形是原式乘入已通过 `using` 绑定、值为 1 的条件，原式和因子次数相反，最终式为零次齐次式时，记录 `homogenization` 元数据及条件、节点来源。混合次数、未支持结构、多重匹配仍保留普通整理展示；这里不新增求解策略或证明权限。
 
@@ -278,7 +237,6 @@ M11 的 `basic_inequality.application` 在上下界场景均绑定完整的 `sum
 
 页面验证覆盖 q03、q07、q08 的桌面与 390px 窄屏。q03 更新了真实 Lesson LLM 讲解；q07/q08 重放此前通过的响应，视觉绑定保持代码管理。
 
-
 ### q03 页面审阅补充：排版、术语与固定标题
 
 - `fixed_title` 是编排代码写入的标题约束。Lesson 绑定时恢复为该值；配齐次整理步骤固定名为“配齐次式”，LLM 可润色推导但不改此标题。
@@ -286,7 +244,6 @@ M11 的 `basic_inequality.application` 在上下界场景均绑定完整的 `sum
 - 页面编译前，`math_typography.typeset_lesson_data` 只对题面、标题、要点、推导和图形的展示字段做分式排版；复用安全 Parser 生成 LaTeX，不改 Solver 输入、符号身份、证据或来源 ID。保持分母分组，已有 TeX 幂等保留；不支持的输入保持原文，不猜数学意义。
 - 学生文案优先使用“不超过”“至少为”或具体不等式。上界、下界是估计关系，不能直接替换为最大值、最小值；确认等号可取之后才能宣称最值。
 - 验收页面：`internal/review-analysis/basic-inequality-stage4-pages/q03-typography-02/lesson.html`。真实讲解原始记录保留在 `q03-typography-01`；最终页面重放同一响应，未修改响应内容。
-
 
 ### 定积代入与联立取等的语义角色
 
@@ -311,8 +268,7 @@ M01 保持独立，提供通分、条件量显形、实际代入及完整等价�
 
 编排发生在 Lesson LLM 前；LLM 润色文字，不能改覆盖、数学角色或组件。q08 因此由四步变为观察结构、应用基本不等式、验证取等三步。不改变求解计划、证明或 Canonical Fact。
 
-
-### 教学模板、Family 背景与本题路线（2026-09-25）
+### 教学模板、Family 背景与本题路线
 
 教学请求使用 `explanation/prompts/` 下的 Jinja2 模板：`system-v1.jinja`、`user-v1.jinja` 分别负责完整 system/user 请求；通过 include 引用共享协议 `shared-v1.jinja`、认知边界示例 `shared-example-v1.jinja`、独立与可合并材料说明 `boundaries-v1.jinja`，以及 Family 声明的可选模板（基本不等式为 `basic-inequality-v1.jinja`）。段落顺序、条件段落和列表循环均由模板管理，不再由 Python 拼接 prompt 文案。
 

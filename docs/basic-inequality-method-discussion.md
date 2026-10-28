@@ -1,11 +1,6 @@
 # 高中基本不等式 Method 与讲解设计
 
-> 状态：以 31 题完整生成基本不等式网页为验收目标；表达式优先的 Method 协议与代表性集成测试集已确定方向，新增能力与讲解规则仍待实现验证。更新：2026-09-24（修订学生步骤与视觉绑定设计）。
-> 已实现的 M01 q08 整理前缀见 [独立设计](organize-expressions-q08-design.md)，不代表完整求解与讲解链已通过验收。
-
-具体实施顺序见[基本不等式表达式优先 Method 实施计划](basic-inequality-expression-method-implementation-plan.md)。
-
-本文保留 8 个 Method，沿用原编号以保持引用稳定。课件题目来源为 `internal/senior-high/lesson-specs/inequality-basic-q01` 至 `q31`。
+本文维护 FunctionalPlan 基本不等式的表达式优先 Method 与教学契约。M01、M07、M08、M11、M12、M13 已有 authoring 路径；M09/M14 的完整范围、全题集迁移及生产 Family 开放须按[后续工作](basic-inequality-expression-method-implementation-plan.md)验收。静态练习站已收录的题目不等同于自动求解链已全部支持。
 
 ## 1. 求解与讲解的协作
 
@@ -66,7 +61,7 @@ Method 数量、调用次数和学生步骤数分别计算。一个 Method 可�
 
 ### 1.2 Method 与 rule 声明展示，LLM 后统一绑定
 
-详细契约见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)。本节为阶段 4B 目标设计，尚未实现；取代此前“rule 的标题和正文全部锁定”的方案。
+详细契约见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)。Method/rule 声明及 LLM 后绑定已有实现；标题、正文和公式分别按字段权限处理。
 
 ```text
 成功执行 → ExplanationSnapshot / 公共教学证据

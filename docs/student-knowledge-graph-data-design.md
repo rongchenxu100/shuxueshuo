@@ -4,7 +4,7 @@
 
 复用现有 PostgreSQL 与用户登录。公共内容由文件编写、发布时导入数据库，数据库不独立编辑；学生记录由服务端保存。个人图谱在公共节点上叠加学生状态，不为每个学生复制节点或连线。
 
-相关文档：[知识图谱页面设计](knowledge-graph-pages-design.md)、[知识点与方法清单](knowledge-graph-topic-inventory.md)、[登录与学习标记](site-login-and-learning-marks-plan.md)。数据保存与记录范围以本文为准。
+相关文档：[知识图谱页面设计](public-knowledge-graph-ontology-design.md)、[知识点与方法清单](public-knowledge-graph-ontology-design.md)、[登录与学习标记](site-login-and-learning-marks-plan.md)。数据保存与记录范围以本文为准。
 
 ## 1. 数据保存分工
 

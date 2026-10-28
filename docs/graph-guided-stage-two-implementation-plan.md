@@ -1,10 +1,6 @@
 # 图谱交互课程阶段②实现计划：特征检查表判型与 D1、D2
 
-> 状态：阶段②已实现并完成代码复审、自动回归（2026-10-18）。已补齐单一参数最小值／最大值的特征、判型及学生页面数据，阶段①、阶段②与搜索回归合计 710 通过、12 项真实调用测试默认跳过。题 13 的真实识图／复核录制通过当前全链路离线回放；Q01 在新契约下另做真实选择并回放，1 项通过，1 次语义调用、1 次网络请求。旧录制保留为契约漂移检测；人工页面核对待完成。
-> 设计依据：[四阶段交互课程生成设计](graph-guided-interactive-lesson-design.md)第 5 节。
-> 输入依据：[阶段①实现计划](graph-guided-stage-one-implementation-plan.md)。阶段②读取阶段①已经验收的题意和特征，不再识图、不再提取题意。
-> 命中规则：唯一命中 → 程序确认；多个命中（一律）→ LLM 选定；未命中 → 不调用 LLM，学生端暂不支持，本地文件待处理（数据库待前后端打通）。
-> 判型单位：阶段①的每个目标（`target_ref`），即每个小问独立判型、点亮知识点、出 D1/D2。
+阶段②读取已验收题意与特征，按注册的识别契约判型。唯一命中由程序确认，多命中由 LLM 选择；零命中返回暂不支持。识别、准入与数学执行分别验证，题型节点存在不表示能力已开放。
 
 ## 1. 目标与边界
 
@@ -262,7 +258,7 @@ Q01 的 D2 与 [Demo 设计](graph-walk-demo-q01-design.md) 一致：主要题�
 
 | 位置 | 内容 |
 | --- | --- |
-| `site/data/knowledge-next/recognition/*.json` | 三份识别契约；`feature-knowledge.json` 特征值到知识点的规则表 |
+| `site/data/knowledge-next/recognition/*.json` | 已注册的识别契约；`feature-knowledge.json` 特征值到知识点的规则表 |
 | `server/shuxueshuo_server/graph_lesson/stage_two/` | 读入阶段①结果、执行检查、命中分流、知识点点亮与连线、Q01 验证、D1/D2、未命中落盘、报告 |
 | `server/tests/solver/test_graph_stage_two_*.py` | 上表测试 |
 | `server/tests/solver/fixtures/graph-guided-stage-two/` | 判型金标、D1/D2 金标、多命中 LLM 录制响应、未命中样例 |
@@ -270,16 +266,6 @@ Q01 的 D2 与 [Demo 设计](graph-walk-demo-q01-design.md) 一致：主要题�
 | `internal/solver-runs/graph-guided-stage-two/unsupported/` | 运行期未命中记录（gitignore） |
 
 判型金标按各题原文和 Demo 原稿独立编写，不从某次程序输出抄回来再标为正确。
-
-## 10. 实施顺序
-
-1. 输入准入、结果与选择响应契约、检查执行器；按目标分组，用 11 题金标特征做通唯一命中与 Q11（1）未命中路径。
-2. 接入 22 个阶段①录制候选（验证关闭），确认各目标主要归属一致且无网络调用。
-3. 未命中落盘与学生端「暂不支持」状态。
-4. 特征值到知识点的规则表与知识 → 题型连线。
-5. D1 显示归一、原文位置映射、片段知识绑定和 D2 三态过滤，先对照 Q01 Demo，再覆盖其余各题与多小问。
-6. Q01 的和积验证；通过后走多命中 LLM，录制选择并做零网络回放；补齐调用失败和全题部分完成路径。
-7. 再构造一份非 Q01 的多命中样例，确认「一律交 LLM」不依赖基本不等式特例。
 
 ## 11. 完成判据
 
@@ -293,7 +279,7 @@ Q01 的 D2 与 [Demo 设计](graph-walk-demo-q01-design.md) 一致：主要题�
 - [x] Q01 的 D1、D2 与 Demo 原稿一致；定位失败只省略对应选项。
 - [x] 带 `$` 的 TeX、裸 TeX 与 Unicode 写法定位语义一致、原文位置准确；片段知识按直接命中特征绑定，同一事实引用不造成知识串挂。
 - [x] D2 仅含支持题型和已确认冲突的易混题型，未知项只进调试报告。
-- [x] 阶段②生成自包含离线报告，包含每项检查与命中路径；报告内容与本地链接经自动验证，浏览器视觉检查情况见下节。
+- [x] 阶段②生成自包含离线报告，包含每项检查与命中路径；报告内容与本地链接经自动验证，视觉效果另做浏览器核对。
 
 ## 12. 运行与调试
 
@@ -354,22 +340,3 @@ RUN_LLM_INTEGRATION=1 .venv/bin/python -m pytest -q tests/solver/test_graph_stag
 ```
 
 每份 `index.html` 展示题图、原文、准入诊断、按目标的全部检查、知识点触发依据、D1 原文高亮、D2 选项和 LLM 请求／原始响应。报告无远端脚本或在线资源；`source.png` 会随录制保留。未知题型的待处理记录同时保存在当前运行目录，便于移动或回放后打开。
-
-首轮实现与审查修复产物（历史）：
-
-- [22 份录制的批次报告](../internal/solver-runs/graph-guided-stage-two/offline-20261018-03/index.html)。共 26 个目标：24 个确认题型，两个 Q11（1）样本为暂不支持。
-- [Q01 真实 LLM 选择报告](../internal/solver-runs/graph-guided-stage-two/live-selection-20261018-01/selection/index.html)。包括和积验证、双命中检查、主要归属与替代思路。
-- [Q01 在审查修复代码上的零网络回放报告](../internal/solver-runs/graph-guided-stage-two/replay-20261018-02/index.html)。本次与历史调用计数分别展示，并确认历史结论一致。
-- [首轮 Q01 选择录制](../server/tests/solver/fixtures/graph-guided-stage-two/recorded/q01-20261018-01/recording.json)。
-
-参数极值扩展产物：
-
-- [题 13 真实识图／复核录制的全链路调试报告](../internal/solver-runs/graph-guided-stage-two/extrema-q13-20261018-01/index.html)。含历史结果、当前特征、判型、D1/D2 及学生页面 JSON。
-- [新契约下的 Q01 真实选择与离线回放](../internal/solver-runs/graph-guided-stage-two/live-extrema-q01-20261018-01/replay/index.html)。
-- [当前 Q01 选择录制](../server/tests/solver/fixtures/graph-guided-stage-two/recorded/q01-20261018-02/recording.json)与[题 13 录制及运行说明](../server/tests/search/fixtures/parameter-extremum/README.md)。
-
-运行报告位于 gitignore 目录；其他机器可用上述命令从录制重新生成。浏览器工具本次因 `file://` 协议策略拒绝打开本地报告，未完成浏览器视觉检查；报告内容、转义、原文位置和离线性由自动测试覆盖。
-
-首轮审查修复的历史验证：阶段②及阶段①特征、作用域身份、集合与验收回归合计 `456 passed, 1 skipped`，其中阶段②为 `347 passed, 1 skipped`。当时新增回归覆盖缺标签／重复标签时带警告回退完整原文、选择与 D2 继续成功、降级请求录制回放，以及裸公式后同一行全角标题的两个小问关系定位与偏移。阶段② Ruff 和 `git diff --check` 通过；该轮没有真实 LLM 请求，使用当时的真实 Q01 录制验证兼容性。首次实现时的 Q01 真实集成 `1 passed` 及较广共享模块回归 `949 passed, 18 skipped` 保留为历史验证记录。此前复审修复的畸形输入、TeX 包装高亮和重复录制回放材料保留仍有回归覆盖。
-
-2026-10-22 否定命题 D1 修复：阶段②、拍题读题及最值录制回归 `509 passed, 1 skipped`（未启用真实 LLM），Ruff 与差异检查通过。新增回归覆盖两类量词、四种不等号、TeX／Unicode／集合构造式、变量与域隔离、函数定义顺序、否定作用域、填空式目标，以及完整 `run_stage_two → present_lesson` 的 D1/D2 组装。实际上传题的识题录制离线重跑恢复三行读题，调用 LLM 为 0；[调试报告](../internal/solver-runs/graph-guided-stage-two/negated-reading-20261022-01/index.html)及[学生课程数据](../internal/solver-runs/graph-guided-stage-two/negated-reading-20261022-01/student-lesson.json)保留原文高亮、取反信息和判题选项。本轮未重跑全部阶段③数学测试或浏览器视觉验收。

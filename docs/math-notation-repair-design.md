@@ -1,14 +1,6 @@
 # 数学记法题意抽取：repair 与原图复核设计
 
-2026-09-17 当前状态：**目标at已删除，条件统一放facts，部分目标的局部状态用children表达；不保留旧at输入兼容。** 实现说明见第11节；本版没有追加模型调用。以下数值为删除字段前的历史验证结果。
-
-日期：2026-09-16；2026-09-17 更新 review 上下文与不确定性规则。状态：**本设计已定案并实现独立闭环；真实调用前离线门禁 425 项通过，七题冻结首轮及闭环均为 5/7；比较器修复后同一批响应离线复验 7/7，当前门禁 512 项通过，结果见第 10 节及 [review 调整报告](validation/math-notation-review-prompt-20260917/README.md)。** 原图复核检查代码难以发现的来源差异。完整返回的 repair、预算、停止和恢复策略均已确认，不再处于讨论状态。
-
-代码基线：`3129e787`，原有相关回归 358 项全部保留。此前真实批次 DeepSeek 6/7、Doubao 4/7，代码修复后的离线回放均为 6/7；这些是历史成绩。新增 `--workflow review-repair`，默认仍为 `single`。两种入口均保持 `candidate_only=true`、`solver_ready=false`；只有当前修订完成 confirmed 复核时，闭环结果的 `source_reviewed=true`。
-
-本轮实现独立协调器、外置契约、录制门禁和一次 DeepSeek 七题真实闭环。Planner、Solver、生产 API 和部署不在本轮范围；不自动追加付费批次，不运行 24 例付费模型评价。
-
-相关入口：[主计划](seven-problem-math-notation-review.md)、[当前验证报告](validation/math-notation-angle-catalog-20260916/README.md)、[已知问题 MN-001](math-notation-known-issues.md)。完整历史运行归档保留在本地 `internal/solver-runs/`，未随本次代码提交加入 Git；必要录制响应、金标和哈希已纳入测试 fixture，验证报告及离线回放产物已提交。
+当前数学题意流程使用完整候选返回、代码校验、原图复核和有授权边界的修复。目标不接受 `at`；条件统一放入 `facts`，局部状态由 `children` 限定。实现位于 `server/shuxueshuo_server/problem_understanding/`。
 
 ## 1. 先区分三个问题
 
@@ -19,74 +11,6 @@
 | 当前系统能否求解？ | 独立的 family、能力及后续执行检查 | 不支持不能反向要求模型补写题设 |
 
 Repair 是对已定位问题的修订动作，不是寻找所有读题错误的万能检查器。测试中的金标语义比较只用于评测，生产环境没有金标；金标、答案及金标差异不得进入抽取、复核或 repair 请求。
-
-## 2. 原生产链路的实际行为
-
-生产入口仍使用 `solver/extraction` 下的 `ProblemDomainExtractionService`。首次输出契约为 `problem-domain/v1`；已有合法草稿后的修复契约为 `problem-repair/v1`。这与已清理的实验性 `problem-domain/v2` 不同。
-
-```mermaid
-flowchart TD
-    A[原图与辅助 OCR] --> B[LLM 输出完整旧格式]
-    B --> C{JSON 与 Schema 合法}
-    C -->|否：尚无合法草稿| B
-    C -->|是| D[代码规范化与校验]
-    D -->|存在问题| R[LLM 输出局部补丁]
-    R --> P[版本及权限检查，原子应用]
-    P --> D
-    D -->|本地校验及 Solver 投影通过| E{存在来源疑点}
-    E -->|无| F[采用候选]
-    E -->|有| V[LLM 重新核对完整原图]
-    V -->|confirmed| F
-    V -->|correction_required| R
-    V -->|uncertain 或复核失败| X[停止并保留原因]
-```
-
-所有循环受预算和无进展检查限制。已有合法草稿后，某次补丁格式错误不会销毁之前的草稿。
-
-### 2.1 旧代码校验的内容
-
-- JSON、字段结构、枚举、必填项及输出截断。
-- 分问和实体名称冲突、父子继承、引用存在性、可见性和对象类型。
-- 受限代数式是否合法、自由符号是否声明。
-- 冗余对象、重复或冲突定义、重复目标，以及模型自己的题面转录和对象名称是否一致。
-- family 所需的基础条件数量和特征；是否能投影到 Solver 输入、建立运行上下文、满足方法输入预检。
-
-旧 `source_text` 一致性检查并不是图片识别。模型如果同时在转录和结构化条件中漏掉某条题设，内部检查仍可能通过。旧校验中也混合了抽取合法性与 Solver 就绪性，新设计应拆开。
-
-旧协调器明确阻断原图复核的 uncertain、复核格式无效和复核失败；其他问题主要进入受预算限制的循环。不能把 issue 上存在 `retryable` 字段误认为当前协调器已完整按错误类别执行分流；新设计需要显式分流测试。
-
-### 2.2 旧补丁 Schema
-
-[完整 Schema](../internal/schemas/problem-repair.schema.json)。以下 ID 为示意，实际必须复制请求提供的值：
-
-```json
-{
-  "schema_version": "problem-repair/v1",
-  "base_revision_id": "problem-revision:…",
-  "replacements": [
-    {
-      "unit_id": "代码提供的条件ID",
-      "value": {"kind": "point_coordinate", "point": "A", "value": ["-1", "0"]}
-    }
-  ],
-  "additions": [],
-  "removals": []
-}
-```
-
-`replacements` 按单元替换；`additions` 指定作用域、集合与内容；`removals` 指定单元。内容沿用旧实体、fact、goal 等对象，因此 Schema 较大。
-
-代码根据错误及依赖关系生成允许修改的范围，验证补丁基准版本，禁止越界或隐式修改其他单元，原子应用后重新校验。允许修改不意味着可以随意删条件来规避错误；旧代码也对删除单独授权。无语义变化的补丁会被判为无进展，来源纠错另有字面变化处理。
-
-### 2.3 旧原图复核与预算
-
-旧复核仅在本地校验及投影通过、且有来源疑点时触发。疑点来自 OCR 与候选转录不一致、题型来源标记未覆盖、未解决的观察问题。复核会看完整题目，不只看差异区域。
-
-`problem-source-review/v1` 输出 confirmed、correction_required 或 uncertain，findings 带单元、原图短文、说明及区域。复核本身不修改草稿。结果绑定图片与候选修订，不能用于另一个版本。
-
-当前生产预算为内容调用最多 3 次、复核最多 3 次、总语义调用最多 6 次、网络尝试最多 12 次。恢复机制保留调用审计，不会把结果未知的复核悄悄再跑一次。
-
-代码依据：[协调器](../server/shuxueshuo_server/solver/extraction/problem_domain_service.py)、[校验器](../server/shuxueshuo_server/solver/extraction/problem_domain_validation.py)、[补丁应用](../server/shuxueshuo_server/solver/extraction/problem_domain.py)、[原图复核](../server/shuxueshuo_server/solver/extraction/problem_source_review.py)、[生产预算](../server/shuxueshuo_server/product/execution.py)。
 
 ## 3. 已实现的新闭环
 
@@ -187,7 +111,7 @@ flowchart TD
 
 2026-09-17 收紧来源复核的路径授权：空 JSON Pointer `""` 只允许用于 `wrong_transcription`，且当前候选确实缺失 `original_text`；它在服务端转换为唯一的 `/original_text` 授权。其他 finding 必须指向已有的非空路径，整题数学分问为 `/root`。Schema 限制空路径的 kind，代码再核对候选字段是否存在。非法 review 以 `review.invalid_response` 停止，不进入 repair、不改变原候选。
 
-授权生成再次检查 review 的精确路径，不沿用编译诊断的“回退到最近父路径”规则。最终 guard 独立拒绝整份候选的 `source_edit`、`subtree`、`replace`、`append`，已有可用候选时也拒绝 `reextract`；没有可用候选时保留明确的重新抽取。`source_edit` 对分问容器按路径识别，即使容器只有 label、没有 facts/children，也不能整块改写。补充原文、具体数学字符串纠错与保留内容的分问迁移继续可用。该修复有独立攻击回归并纳入 affected 门禁，见[空路径授权修复报告](validation/math-notation-product-stage-one-20260917/repair-authority.md)。
+授权生成再次检查 review 的精确路径，不沿用编译诊断的“回退到最近父路径”规则。最终 guard 独立拒绝整份候选的 `source_edit`、`subtree`、`replace`、`append`，已有可用候选时也拒绝 `reextract`；没有可用候选时保留明确的重新抽取。`source_edit` 对分问容器按路径识别，即使容器只有 label、没有 facts/children，也不能整块改写。补充原文、具体数学字符串纠错与保留内容的分问迁移继续可用。越权输入由独立攻击回归与 affected 门禁验证。
 
 空路径诊断的 `source` 为 null，完整候选仅从 `base_candidate` 读取，不在每个诊断中重复携带。诊断补全也遵循此规则；具体路径继续保留该位置的原内容，不改变授权范围。
 
@@ -289,9 +213,7 @@ review 的 Markdown 模板只作为 system 消息；[请求装配](../server/shu
 
 2026-09-17 再加入“> 与 ≥ 无法辨认则 uncertain”和“≥ 清晰时接受等价 >=”一组对照。当前八例均为文字行为例，可读性用文字模拟情境，明确不是本次图片的证据，也不是实际视觉评价；只进入 review 请求，不进入抽取或 repair。六次既有真实 review 的输入文字相对冻结请求增加 3,068 字符（约 23%）。保留现有 low thinking、输出上限和调用预算，不通过截断响应压缩成本。
 
-同日用户另行授权的两题 review 对照已完成：同图、同候选下和平 thinking 从 9,720 降至 2,117，南开从 9,684 降至 8,987；总 token 分别下降 40.00%、上升 3.68%，收益不均匀。两次均 confirmed，南开仍存在大量重复核对，视觉不确定性规则的有效性未获证明。详见[两题实测与 thinking 分析](validation/math-notation-review-two-20260917-065500/README.md)。这两次不属于七题历史批次重跑，未追加抽取、repair 或 24 例真实评价。
 
-随后用户授权三题高成本 review，按各题最近一次记录选中南开、河西、西青；原图和候选不变，使用当前 Prompt 与 Files API。三次均 confirmed，thinking 合计从 24,569 降至 23,098（−5.99%），总 token 从 43,734 增至 45,485（+4.00%），累计耗时从 118.394 增至 124.686 秒（+5.31%）。旧题型字段指令、求解机制分析与 at 接受规则仍造成反复推敲，记录为 MN-004；MN-003 未关闭。这次只进行了三次 review，没有自动扩展调用或修改 Prompt。[三题分析与后续建议](validation/math-notation-review-three-20260917-083103/README.md)。
 
 以下保留后续扩展示例池；不代表全部注入请求：
 
@@ -350,13 +272,13 @@ few-shot 不使用七题、七题金标或模型失败响应，不携带答案�
 
 保留原始响应、请求、图片和模板哈希、基准修订、规范化候选、编译结果、诊断、改动审查、复核结果、采用决定、耗时与用量。候选修订与复核结论绑定；恢复时复用已完成且匹配版本的结果，结果未知时保留未知状态，不能静默追加付费调用。
 
-2026-09-17 修正文件指纹中的机器路径依赖：`frozen_files.templates` 使用仓库相对 POSIX 路径，`implementation` 继续使用 Python 包相对路径。相同文件布局、字节、请求及预算的账本迁移到另一目录后可以复用已完成响应；模板或实现字节改变仍会触发 `workflow.stale_binding`。旧版绝对路径账本不自动改写或放宽校验；代码版本变化后需使用新运行目录，旧账本作为历史证据保留。Files 传输的凭据作用域仍参与请求绑定，换凭据不是单纯换目录。
+文件指纹不依赖机器绝对路径：`frozen_files.templates` 使用仓库相对 POSIX 路径，`implementation` 继续使用 Python 包相对路径。相同文件布局、字节、请求及预算的账本迁移到另一目录后可以复用已完成响应；模板或实现字节改变仍会触发 `workflow.stale_binding`。旧版绝对路径账本不自动改写或放宽校验；代码版本变化后需使用新运行目录，旧账本作为历史证据保留。Files 传输的凭据作用域仍参与请求绑定，换凭据不是单纯换目录。
 
 产物提交边界：`internal/solver-runs/` 下的批次目录和 `docs/validation/**/frozen-files/` 源码副本由 Git 忽略，已有受版本控制的文件保留。验证摘要、清单和必要的离线复现 fixture 逐项审阅后选择提交；不要整包暂存验证目录或强制添加原始批次。
 
-### 6.1 DeepSeek Files API 复用（2026-09-17）
+### 6.1 DeepSeek Files API 复用
 
-当前独立七题入口的 DeepSeek 单次抽取和 review-repair 均默认采用 Files API：原始图片第一次通过 `/files` 上传，抽取、review、repair 使用 `{"type":"file","file_id":"file-api-…"}` 引用同一文件。图片字节、顺序及来源哈希不变，不发送旧 OCR；本次不接入生产 API。协议依据：[DeepSeek Files API](https://api-docs.deepseek.com/guides/files_api/)。
+当前独立七题入口的 DeepSeek 单次抽取和 review-repair 均默认采用 Files API：原始图片第一次通过 `/files` 上传，抽取、review、repair 使用 `{"type":"file","file_id":"file-api-…"}` 引用同一文件。图片字节、顺序及来源哈希不变，不发送旧 OCR；产品接线见[数学题意接入](math-notation-integration.md)。协议依据：[DeepSeek Files API](https://api-docs.deepseek.com/guides/files_api/)。
 
 - 本地缓存按 API endpoint、API Key 的哈希及图片 SHA-256 隔离，存入被 Git 忽略的 `internal/solver-runs/.deepseek-files-cache/`；不保存密钥。跨 provider 实例、跨进程通过文件锁和原子写入复用，支持并发批次。远程文件设置 24 小时有效期。
 - `prepare_request` 与版本冻结只检查图片和传输策略，不上传。账本预留之后才解析 file_id；冻结中包含 Files 传输策略、凭据作用域哈希及实现文件。逻辑请求以图片哈希为依据，实际 file_id 单独记录，避免文件过期改变题目身份。
@@ -364,9 +286,9 @@ few-shot 不使用七题、七题金标或模型失败响应，不携带答案�
 - 文件上传单次最多 60 秒，SDK 自动重试关闭；每次解析每张独立图片最多上传一次。失败即停止并保留文件操作记录。语义调用仍为原有最多 6 次、网络尝试最多 12 次、每次最多 300 秒与 16,384 输出 token。`file_api_calls` 单独统计，不伪装成模型调用；总耗时包含上传。
 - 每个调用目录的 `request.json` 保存逻辑请求；`provider-attempts/NN-request.json` 在模型请求发出前保存实际 file_id 与原图哈希；`file-operations.json` 记录上传、缓存命中、失效和耗时。响应 metadata 保留绑定及文件 API 次数，失败账本也记录已经发生的文件调用。上传前先记录 started，崩溃留下未知状态时原账本拒绝自动重跑；未知上传可能留下无引用文件，由 24 小时到期回收。
 
-复用 file_id 减少上传流量，不意味着图片 token 或 thinking token 减少。已完成响应的恢复不会再次解析或上传文件。验证详情见 [Files API 接入验证](validation/math-notation-files-20260917/README.md)；没有额外启动七题付费批次。
+复用 file_id 减少上传流量，不意味着图片 token 或 thinking token 减少。已完成响应的恢复不会再次解析或上传文件。
 
-实验入口支持显式 `--image-transport files` 或 `--image-transport base64`，DeepSeek 默认 Files，Doubao 仅支持 base64；生产配置不变。模式进入冻结输入和结果汇总，质量、token 与 provider 调用耗时按传输方式分组。历史模式从原始请求恢复，缺失依据不猜测；不同契约/提示词批次不能用来估计单独的传输收益。见[四项 P2 修复与分组报告](validation/math-notation-p2-fixes-20260917/README.md)。
+实验入口支持显式 `--image-transport files` 或 `--image-transport base64`，DeepSeek 默认 Files，Doubao 仅支持 base64；生产配置不变。模式进入冻结输入和结果汇总，质量、token 与 provider 调用耗时按传输方式分组。历史模式从原始请求恢复，缺失依据不猜测；不同契约/提示词批次不能用来估计单独的传输收益。
 
 ## 7. 结果状态分开保存
 
@@ -420,33 +342,3 @@ RUN_LLM_INTEGRATION=1 uv run python -m shuxueshuo_server.problem_understanding.b
 ```
 
 不传 `--workflow` 保持原单次抽取。恢复已有闭环使用同一协调器、相同请求和 output；批次 CLI 不自动重开旧目录。预算可向下限制，不能超过已定上限。生产接入、Planner 投影以及完整图片评价集的真实识别率验证属于后续范围。
-
-## 10. 历史闭环验证（移除目标字段前）
-
-真实调用前：425 passed、7 live tests deselected，静态检查通过；当前为 **502 passed、7 deselected**。七题真实批次 `math-notation-review-repair-20260916-222053` 冻结首轮/闭环均为 5/7；比较器修复后同一批原始响应离线复验 **7/7**，六题严格等价，K 题按既定遗漏政策接受且正确阻断。六次 review 均 confirmed，未触发 repair。河西、西青的 at 不改变所求参数 b 的答案集合，MN-002 已修复并撤回此前 review 漏检归因。
-
-西青顶点别名与参数目标冗余 at 均由代码证明等价，金标、验收政策、原始候选和冻结成绩不变。新增 `parameter_goal_extremum_witness` 只归约比较投影：以祖先曲线参数、参数确定的端点、单个轴上自由坐标、同问无条件有限最值事实和一致的变量提示证明存在最优点不影响参数答案；不解题，不跨分问或逻辑分支借条件，不统一忽略 at。所求依赖动点、状态有额外条件或证明超出能力时仍保留差异。49 项独立生成正反例和 review 数据来源测试已纳入门禁。
-
-共 13 次语义/网络调用，墙钟 141.814 秒；输入 108,059、输出 85,189 token（输出已含 reasoning）。完整逐题结果、当前门禁及版本差异见[全过程报告](validation/math-notation-review-repair-20260916-222053/README.md)。本轮没有追加付费批次或 24 例真实评价。
-
-## 11. 2026-09-17：条件统一为facts
-
-用户确认项目尚未上线，直接移除目标`at`，不做旧格式适配或自动转换。六种目标的Schema均不再允许该字段，严格验证在编译前拒绝它；抽取、review、repair及数学表达目录同步更新。当前仍为未发布的`problem-math-notation/v1`，文件哈希参与批次和账本冻结，旧批次不能按新模板恢复。
-
-facts是本节点及其子节点适用的条件，goals只说明在这些条件下求什么。`min(S)=c`给出最小值，`S=min(S)`表示当前取到该最小值；两者均为关系，但不能互相替代。共同状态写一次；若同问只有部分目标受限定，将条件与这些目标置于独立子节点，不提升为整问前提。最值仍指原题可行范围，不因选择最优状态而缩小原优化范围。
-
-七题金标版本更新为`20260917-state-facts`：和平二模、南开明确的最优状态移入所在分问facts，题设和目标不变。六个抽取few-shot中，两例分别展示单目标局部状态和多目标共同状态；review新增两例，分别接受正确子节点、纠正状态被提升到父节点。24例来源评价集的擅自新增状态改为facts中的合法数学关系，不以Schema非法替代来源错误检查。
-
-编译与比较删除目标条件分支。既有参数答案等价证书转为`parameter_state_extremum_witness`，仅用于比较投影，不改原候选或原始IR；仅在无子节点且所有目标均有证明时才能消除不影响参数答案的冗余状态，坐标目标或后续子问需要的状态不会被消除。repair按普通关系保护、补充或纠正状态，只有来源证据授权的非题设新增才可删除。
-
-历史真实响应、金标及哈希不改写。含旧字段的录制样本检查其原始证据与当前Schema拒绝行为，不再声称可以按新契约回放通过；其余兼容当前结构的录制仍正常回归。移除字段时先完成下述离线验证，随后按用户要求运行一次新契约真实批次，结果见第12节。
-
-本版离线验证：**667 passed、13 live tests deselected，20.34秒**；Ruff及`git diff --check`通过。覆盖七题金标自身编译/比较、六类目标对旧字段的拒绝、局部状态与兄弟问隔离、状态遗漏/越界/误放的review-repair流程、已证明的参数冗余及其反例、请求内容与版本冻结、Files调用边界，以及独立数学树审计回归。该结果不是新的真实模型通过率。
-
-## 12. 2026-09-17：facts状态契约七题真实闭环
-
-批次`math-notation-state-facts-seven-20260917-094219`使用当前契约、冻结图片及金标，DeepSeek并发3，完整启用`review-repair`。**首轮6/7、最终6/7，六题均严格通过且review为confirmed，repair为0次。** 七个抽取响应均无旧`at`字段；六个实际review请求均不含`path_minimum_target`旧要求。调用期间冻结的代码、模板、Schema、图片和金标没有变化。
-
-K题的四项`missing_figure`均正确，按既定规则在review前终止，这一子项成功；整题语义验收仍失败。根节点的`k≥1`把各问k绑定为全局`r:scalar:k`，与金标局部对象的作用域不同；图2及（2）漏掉`quadrilateral(A,B,C,D)`，现有证明未消除这些差异。未把缺图阻断计作review confirmed，也未放宽验收或追加调用。
-
-共7次抽取、6次原图review，13次语义调用和13次网络尝试；墙钟117.762秒，调用累计308.109秒。输入114,391、输出66,593 token，合计180,984；输出中已含63,469 reasoning token。仍为`candidate_only=true`、`solver_ready=false`。完整原始返回、逐阶段用量、具体差异及冻结清单见[本轮报告](validation/math-notation-state-facts-seven-20260917-094219/README.md)和[交互页面](validation/math-notation-state-facts-seven-20260917-094219/outputs.html)。

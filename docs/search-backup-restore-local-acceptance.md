@@ -25,8 +25,6 @@
 
 追加前记录原文件长度；写入或刷盘失败时尝试截回该长度并再次刷盘，删除事务不提交。若进程中断留下**末尾无换行的残片**，初始化只在持有数据库状态行锁及日志排他锁、验证全部完整前缀的哈希链/authority，且数据库游标不超过该前缀并匹配其摘要、已重放游标也不越界后，截去残片、刷盘并记录告警。不会删除任何完整记录，完整且已刷盘但数据库尚未提交的删除意图仍有效。
 
-首次创建日志头时若本次写入、文件刷盘或目录刷盘失败，仅撤销本次排他创建的新文件并刷盘目录，不删除既有日志。首次断电遗留空文件或半行时，仅当数据库仍为 `initialized=False`、`sequence=replayed_sequence=0` 且 `digest` 为空，才在状态行锁和日志排他锁内检查并清除不含任何完整行的普通文件，刷盘目录后用同一个 authority 重建日志头。已有完整行不丢弃；已初始化或有游标痕迹、符号链接及非普通文件均不走此重建路径。并发初始化由锁串行化，修复过程失败仍不绑定数据库，可在排除磁盘故障后重试。
-
 排查磁盘故障时先停止业务写入、腾出空间并修复文件系统，再重启应用，让初始化执行上述有限修复；不要手工编辑 JSONL、改游标、删除日志或创建空日志绕过检查。若完整记录、游标或 authority 校验仍失败，继续失败关闭，须取回可信当前删除权威；不提供跳过校验的恢复方式。独立异地保管、同步频率及灾备取回流程仍属部署前运维工作。日志没有通过逐行删除来缩短保留的实现，避免破坏仍可能恢复的旧备份所需删除证据。
 
 ### 升级后的首个恢复点
@@ -85,52 +83,6 @@ uv run python -m shuxueshuo_server.search.maintenance \
 
 显式 `maintenance cleanup` 若运行文件清理与备份清理同时抛错，会记录备份异常并保留最先的异常及 traceback；若只有备份清理抛错，该异常继续向命令行传播，不输出成功结果。
 
-## 5. 本地验收基线（审查修复前）
-
-2026-10-24 使用独立原生 PostgreSQL 17、真实 `pg_dump`/`pg_restore` 和明确标记的离线数据完成验收。每个恢复场景创建全新临时实例及空闲端口，并在 `finally` 停止临时数据库；不使用 8779、55444 或日常实例。相邻全量回归使用独立 `search-stage1` 实例（数据根 `/private/tmp/sss-search-stage1`、端口 55443），已迁移至 `0015_search_recovery` 并核对角色授权。数据库用例无跳过。
-
-| 范围 | 结果 | 日志 |
-| --- | --- | --- |
-| 尾部写入修复前的合并基线 | **79 passed、0 skipped**，46.76 秒；16 个真实 PostgreSQL 恢复场景 + 39 个文件边界 + 3 个恢复围栏 + 21 个删除日志用例 | `/private/tmp/search-backup-final-acceptance.log` |
-| 完整 Search 回归 | **771 passed、5 skipped**，223.82 秒；5 项只因主解释器无 NumPy 跳过 | `/private/tmp/search-backup-all-search.log` |
-| 独立 OCR 解释器补跑 | **5/5 OK**，补齐上述 5 项；使用假模型单测，不冒充真实 OCR 推理 | `/private/tmp/search-backup-ocr-unit.log` |
-| Auth、管理、学习发布、恢复围栏、PostgreSQL 执行预算 | **150 passed、1 skipped**，29.60 秒；唯一跳过为明确关闭的付费学习图谱集成 | `/private/tmp/search-backup-final-regression.log` |
-
-各范围存在重叠，不能相加作为独立总测试数。79 项是在删除日志/FIFO/符号链接安全收口后合并重跑的历史基线，不冒充包含后续尾部写入修复；此前单独的备份恢复/文件边界 **55 passed**（50.70 秒，`/private/tmp/search-backup-restore-rehearsal-final.log`）与删除日志 **21 passed**（1.93 秒，`/private/tmp/search-recovery-journal-20261024.log`）均已被该组合覆盖，不重复计数。此前 771 项全量结果不冒充包含其后新增用例。告警仅见既有 Alembic 配置弃用提醒。
-
-### 实际执行命令
-
-在仓库 `server/` 下执行：
-
-```bash
-RUN_SEARCH_BACKUP_RESTORE_TEST=1 RUN_LLM_INTEGRATION=0 \
-  PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 PRODUCT_TEST_INSTANCE=search-stage1 \
-  uv run pytest -q tests/product/test_search_backup_restore.py tests/product/test_search_backup_files.py \
-  tests/product/test_restore_fence.py tests/search/test_recovery_journal.py
-
-RUN_LLM_INTEGRATION=0 PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 \
-  PRODUCT_TEST_INSTANCE=search-stage1 uv run pytest -q tests/search
-
-PYTHONDONTWRITEBYTECODE=1 .venv-ocr/bin/python -m unittest discover \
-  -s tests/search -p test_ocr_orientation_worker.py
-
-RUN_LLM_INTEGRATION=0 PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 \
-  PRODUCT_TEST_INSTANCE=search-stage1 RUN_LEARNING_ROLLOUT_TEST=1 uv run pytest -q \
-  tests/auth tests/product/test_admin.py tests/product/test_learning_rollout.py \
-  tests/product/test_restore_fence.py tests/solver/test_graph_stage_three_postgres_budget.py
-
-```
-
-### 已核对行为
-
-- 数据库与拍题私有文件真实恢复，校验 SHA-256、大小、归属和原截止时间；保留既有产品产物备份通路，本轮恢复场景未额外植入非拍题产品产物。正常演练不改变源实例，也不切换业务流量。
-- 备份后删除不复活；删除后新建的独立重拍提交幸存，同页其他题和另一账号记录不误删。原页面 24 小时及提交 30 天分别到期；24 小时场景先实际清除备份中的过期页面文件，再恢复仍未到期的课程文件。
-- Q01 使用既有阶段二真实离线录制回放，再运行本地阶段三至 `completed`；两阶段新增语义调用及网络调用均为 0。备份后将源 `submissions` 目录隔离改名，再从新目标通过 HTTP 读取课程详情、快照及事件；课程运行标识、快照和事件与源结果匹配，历史仍可学习，响应保持 `no-store`，不依赖原课程目录。
-- 删除日志在数据库回滚后仍生效；日志写入失败不提交数据库删除。缺日志、完整记录损坏或截断、落后游标、错误 authority、符号链接/FIFO、篡改文件或未知额外文件均不能变成有效恢复；应用角色不能替换数据库 authority。
-- 真实导入后的复制/清理失败保留 `NOLOGIN` 和恢复失败标记；`resume` 不能绕过，服务启动围栏由专项回归覆盖。
-- 旧学生 Cookie/会话及未消费验证码失效，验证码用离线 MockSMS 验证；含拍题数据的 v1 备份拒绝恢复。
-- 私有文件副本按原截止时间清理，完整包最多 30 天、不完整包一小时；正在备份或恢复的 lease 阻止并发物理清理。失败可重试，不修改未知/外部目录，运行锁文件不进入拍题文件清单。
-
 ## 6. 未覆盖边界
 
 - 本轮是原生 PostgreSQL 的本地恢复验收，不是服务器发布。源备份/日志只读打开由代码与单测覆盖，**尚未在真实 Docker 只读 volume 挂载中端到端执行恢复**。
@@ -138,38 +90,8 @@ RUN_LLM_INTEGRATION=0 PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 \
 - 账号注销按当前决定暂缓，不列本轮工作；按题删除、退出登录和恢复时撤销会话都不等同于注销账号。
 - 未调用付费模型或真实短信，未进行真实供应商联调；未改动 8779/55444、部署线上、提交代码或 push。离线课程验收不代表新图片识别质量或真实模型付费路径通过。
 
-## 7. 审查修复验收（2026-10-24）
+## 验证入口
 
-补齐首次建头断电及清理双异常后，按本节相同八文件命令重跑合并回归：**200 passed、0 skipped，53.98 秒**，日志 `/private/tmp/search-backup-edge-acceptance-20261024.log`；38 条告警为既有 Alembic 配置弃用提醒。使用独立 `search-stage1` 数据库及临时原生 PostgreSQL 恢复实例，未跳过数据库用例。此前 **177 passed**（55.26 秒，`/private/tmp/search-backup-review-fixes-20261024.log`）及本次先行 **71 passed**（4.90 秒，`/private/tmp/search-backup-edge-cases-20261024.log`）均已被该组合覆盖，不与第 5 节历史基线相加。
+在独立已迁移 PostgreSQL 上运行 `tests/product/test_search_backup_restore.py`、`test_search_backup_files.py`、`test_restore_fence.py` 与 `tests/search/test_recovery_journal.py`、`test_recovery_startup.py`、`test_maintenance_schedule.py`。备份恢复专项需显式设置 `RUN_SEARCH_BACKUP_RESTORE_TEST=1`，并通过 `PRODUCT_TEST_DATA_DIR`、`PRODUCT_TEST_INSTANCE` 指定隔离实例。
 
-前轮相邻私有 API、PostgreSQL 执行、阶段三 API、课程准入并发及执行预算回归 **86 passed、0 skipped，77.45 秒**，日志 `/private/tmp/search-backup-review-api-20261024.log`。本次两项边缘修复后未重跑这组邻接测试；该范围单列，不与专项或历史结果相加。
-
-已验证：
-
-- 模拟追加写入、文件/目录刷盘失败，原有完整记录不丢失，未完成删除不提交；首次新文件失败可回滚。初始化仅修剪经游标校验的末尾残片，完整记录损坏、日志落后及不匹配 authority 继续拒绝启动。
-- 首次断电的空文件、半行及缺少末尾换行的日志头可在未绑定状态下重建；并发首次启动只重建一次、authority 不变。已有完整记录或检查点不清空，目录刷盘失败后仍未绑定且可重试；生产 lifespan 在首次空文件/半行后能正常提供产品、登录和拍题接口。
-- 生产 lifespan 用真实 `SearchRepository` 修复半行后，API 与产品健康检查可用；通过 HTTP MockSMS 发送/验证并登录，搜索归属隔离仍有效。未调用真实短信。
-- 恢复持源日志共享锁时，HTTP 删除在有界等待后返回 503；释放共享锁后重试可删除，不把失败请求当作已完成删除。
-- 历史分页复用快照，校验次数不随页内记录数增长；返回前过滤新写入的删除意图，包括数据库删除回滚的情形，日志损坏仍返回 503。
-- 运行文件每分钟维护，备份仅启动及每小时扫描，失败按对应周期重试；显式维护仍立即执行，运行文件清理失败不跳过已到时的备份清理。
-- 显式清理遇到双异常保留原始错误对象及 traceback，同时记录备份错误；仅备份失败仍报错。覆盖真实 `backups` 符号链接异常、无 settings、CLI 失败无成功输出及数据库资源释放。
-
-在 `server/` 下实际执行：
-
-```bash
-PYTHONDONTWRITEBYTECODE=1 RUN_LLM_INTEGRATION=0 RUN_SEARCH_BACKUP_RESTORE_TEST=1 \
-  PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 PRODUCT_TEST_INSTANCE=search-stage1 \
-  uv run pytest -q tests/product/test_search_backup_restore.py \
-  tests/product/test_search_backup_files.py tests/product/test_restore_fence.py \
-  tests/search/test_recovery_journal.py tests/search/test_repository.py \
-  tests/search/test_maintenance_schedule.py tests/search/test_recovery_startup.py \
-  tests/search/test_application.py
-
-PYTHONDONTWRITEBYTECODE=1 RUN_LLM_INTEGRATION=0 \
-  PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-stage1 PRODUCT_TEST_INSTANCE=search-stage1 \
-  uv run pytest -q tests/search/test_private_api.py tests/search/test_postgres_execution.py \
-  tests/search/test_stage_three_api.py tests/search/test_lesson_admission_concurrency.py \
-  tests/solver/test_graph_stage_three_postgres_budget.py
-```
-
-第 6 节的未覆盖边界不变：本轮是本地离线回归，不是线上发布、真实供应商调用或 Docker 只读挂载恢复端到端验收；没有新增账号注销、付费模型或真实短信调用。
+检查删除重放、到期不延长、首次日志写入中断、authority 不匹配、失败关闭及恢复围栏。缺失数据库而跳过不能当作通过。真实供应商与目标服务器环境仍须单独验收。

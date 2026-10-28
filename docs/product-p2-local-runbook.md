@@ -99,7 +99,7 @@ RabbitMQ4.3 默认拒绝非持久、非独占队列。本实现关闭不用的 C
 `$HOME/Library/Application Support/shuxueshuo/local/backups/cf2a15501cbe4307838e28441c21e676`。
 该快照是 `0001_product`、零登记产物；P2 migration 为 `0002_product_runtime_indexes`，只新增运行查询索引，不修改初始 revision。
 
-恢复必须选择新实例和新数据根，保持原实例不动；使用与备份 revision 相匹配的发布代码验证恢复，再显式 migrate 到新版本。不自动 downgrade。完整 P1 本地恢复记录见 [P1 验收](product-p1-acceptance.md)。服务器恢复未验收。
+恢复必须选择新实例和新数据根，保持原实例不动；使用与备份 revision 相匹配的发布代码验证恢复，再显式 migrate 到新版本。不自动 downgrade。当前恢复步骤及私有拍题删除重放见[恢复契约](search-backup-restore-local-acceptance.md)，各目标环境独立验收。
 
 ## Review 使用
 
@@ -137,4 +137,4 @@ npm run typecheck --prefix frontend
 npm run build --prefix frontend
 ```
 
-前端 build 与 dev 共用 `.next`，先停止前端再构建。接口合同及 P3 接线见 [P2 接口说明](product-p2-interfaces.md)；实测结果与未完成项见 [P2 验收记录](product-p2-acceptance.md)。
+前端 build 与 dev 共用 `.next`，先停止前端再构建。接口合同及 P3 接线见 [P2 接口说明](product-p2-interfaces.md)。

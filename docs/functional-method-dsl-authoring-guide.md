@@ -1017,7 +1017,6 @@ from __future__ import annotations
 from ._common import *
 from ._spec import MethodSpecSource
 
-
 class ExampleMethod:
     """由两个已物化点计算一个可验证的几何量。"""
 
@@ -1074,7 +1073,6 @@ class ExampleMethod:
                 )
             ],
         )
-
 
 SPEC = MethodSpecSource(
     method_cls=ExampleMethod,

@@ -1,6 +1,6 @@
 # 本地产品服务列表与启动、停止命令
 
-适用环境：P2 本地产品实例 `local`，macOS 原生运行。以下服务在 2026-09-11 核查时均已启动；实时状态以 `services-status` 为准。服务器 Docker 部署另行安排。
+适用环境：P2 本地产品实例 `local`，macOS 原生运行。实时状态以 `services-status` 为准；服务器配置见[部署手册](../deploy/product/README.md)。
 
 所有命令从仓库根目录执行：
 

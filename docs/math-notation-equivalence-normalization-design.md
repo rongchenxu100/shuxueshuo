@@ -232,26 +232,6 @@ Retry feedback 应区分：
 - 增加端到端回放：理解结果 → 归一化 → binding → Macro replay → verifier。
 - 将真实失败样本保存为回归夹具，验证错误代码和 retry feedback 稳定。
 
-## 10. 迁移计划
-
-### 阶段一：抽取现有逻辑
-
-把 `runtime_lowering.py`、planner retry 和 Macro 中的等价判断迁移到规则注册表，保持现有输出不变。
-
-### 阶段二：接入 FactGraph
-
-在 understanding 与 planner 之间生成 `NormalizationReport`，并将 provenance 写入 checkpoint，前端显示具体失败阶段和缺失转换。
-
-### 阶段三：扩大规则族
-
-先加入几何关系和坐标约束，再加入纯代数规范化、函数关系和路径表达式。每加入一族规则，必须同时加入正例、负例和真实回放样本。
-
-### 阶段四：收敛 retry
-
-统计 `normalization_missing`、`binding_missing`、`plan_invalid` 和 `scope_retry_exhausted` 的比例。若同一错误连续重试无新 Facts，应停止重试并返回可读诊断。
-
-详细实施顺序、接口、Prompt 迁移和验收门槛见[数学表达式优先：等价归一化实施计划](math-notation-equivalence-normalization-implementation-plan.md)。
-
 ## 11. 验收标准
 
 1. “直线垂直”与“夹角为直角”在明确交点和作用域时进入同一个 Canonical Fact。

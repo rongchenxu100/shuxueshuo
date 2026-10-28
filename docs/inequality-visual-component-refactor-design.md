@@ -1,6 +1,6 @@
 # 不等式知识图谱与可视化组件绑定重构设计
 
-2026-09-24 补充：基本不等式 4B 的步骤级绑定以[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)为准（待实现）。Method 解释代码和 Family rule 编排代码都声明 VisualSpec；LLM 润色/合并之后由统一代码层绑定前端组件，不再仅靠原 Method invocation 推断最终展示。数学对象场景与自定义教学图使用两套合并机制。本文的 KnowledgePoint 图谱扩展不是 4B 的前置条件。
+基本不等式的步骤级绑定以[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)为准（已有实现）。Method 解释代码和 Family rule 编排代码都声明 VisualSpec；LLM 润色/合并之后由统一代码层绑定前端组件，不再仅靠原 Method invocation 推断最终展示。数学对象场景与自定义教学图使用两套合并机制。本文的 KnowledgePoint 图谱扩展不是 4B 的前置条件。
 
 ## 1. 文档状态与目标
 

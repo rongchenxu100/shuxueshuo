@@ -1,6 +1,6 @@
 # 个人知识图谱：六阶段实现与验收
 
-2026-10-08。代码及本地验收完成，已构建 linux/amd64 管理与 API 验收镜像；尚未制作正式发布包或上线。设计依据：[数据设计](student-knowledge-graph-data-design.md)。复用现有 PostgreSQL、账号、管理工具及备份流程，无需新增数据库服务。
+公共内容发布、练习证据、五题检测和个人节点状态已有实现；正式入口与维护命令见[公共图谱维护](public-knowledge-graph-stage4.md)。当前评估器为 `drill_round_v1`，综合学习效果评估仍属后续设计。
 
 ## 1. 六阶段交付
 
@@ -96,50 +96,3 @@ uv run --project server python server/tools/run_site.py
 ```
 
 启动器自动启动或复用已安装的数据库。重启不会更换端口、目录、账号或登录密钥。详细连接和启停方式见[本地测试说明](site-login-local-testing.md)。
-
-2026-10-08 已在备份后将 `graph-stage` 的学生记录迁入 `local`：173 个学生账号、144 条学习标记、47 轮小题、172 次整题练习、2,505 条过程事件和 809 条步骤汇总。逐条核对迁移数据并保留登录密钥与 218 条会话记录；原有 9 道产品题目、2,606 个产物保持不变。旧隔离目录保留作追溯，不再作为手动测试入口。下节中的临时端口属于自动化验收记录。
-
-固定实例迁移前备份为 `backups/966f383632e147dd9aea229016b457ff`，合并后备份为 `backups/fca43836a47349c9a55090cb40beeb21`（均相对于上述数据根）。已通过数据库完整性自检、默认命令冷启动、浏览器刷新保留登录和节点状态验证。原隔离实例 `graph-stage / graph-restore` 已停止，数据目录未删除。快速重启的端口探测兼容 `TIME_WAIT`，另有两个真实回环端口测试，确认连接回收不误拦、其他服务监听时仍拒绝启动。
-
-## 6. 验收记录
-
-隔离实例 `graph-stage`，数据根 `/private/tmp/sss-graph-20261008`，PostgreSQL 17.10，端口 55449；模拟短信账号只用于本地。恢复实例 `graph-restore` 使用另一数据根与端口 55450，没有操作生产数据。
-
-已验证：
-
-- 数据库迁移／重复导入／冲突回滚；旧题 ID 迁移保持标记与自评。
-- 并发开练、首答幂等、拒绝覆盖、五题完成才改状态、已掌握可回退、跨账号不可读写。
-- 39 道整题的 50 条路线全部按真实教学规则记录完成，仍不改变节点掌握状态。
-- 模型失败保留输入；真实模型提示和浏览器实际对话均落库；普通求助不记为错误作答。
-- 浏览器完成五题、查看图谱已掌握状态、整题刷新续练后继续真实导师对话。
-- 备份恢复到新实例，15 张学习相关表的记录数与备份清单一致；两实例 `doctor` 通过。新实例执行完整 `deploy` 成功。
-
-回归结果：`tests/auth tests/tutor_demo tests/product/test_admin.py` 为 **471 passed、54 skipped**（45.33 秒）；最终学习记录／发布／队列专项显式启用真实模型后 **11 passed**（4.65 秒），覆盖真实提示、正确回答推进、重试去重及展示确认；不将默认跳过当作通过。日志位于 `/private/tmp/graph-acceptance-final.log` 与 `/private/tmp/graph-final-focused.log`。
-
-记录完整性修复验收（2026-10-08）：新增先错选后对话通过、通过提交顺序恢复、发布清理与回滚、节点停用保留历史、旧展示时间迁移和应用账号禁止改写 payload 的测试。`tests/auth`、导师重试／本地练习及部署管理回归 **75 passed、1 skipped**；本轮未启用真实 LLM。浏览器记录器测试 **19 passed**。日常本地实例已备份并升级至 `0010_learning_record_integrity`，10 张学生记录表数量与备份一致，2505 条过程事件和 16 条展示确认保留；网页仍为 `8779`、数据库仍为 `5432`，浏览器节点状态可正常读取。
-
-镜像验收（2026-10-08）：实际构建 `linux/amd64` 管理/API 镜像，标签均为 `learning-review-20261008`。
-管理镜像使用 Debian bookworm 的 Node.js **18.20.4**，构建时内容校验通过；镜像内 `site/` 从整站约 110 MB
-缩为管理镜像 **2.2 MB**、API/Worker 镜像 **4.5 MB**（不是镜像总大小）。管理镜像仅保留图谱原稿、图解模块、
-题页与导出脚本；API/Worker 保留编译资源，排除小红书图片。
-
-`tests/product/test_learning_image.py` 显式启用后 **2 passed**（20.27 秒）：独立 PostgreSQL 17.10 容器中，
-只读、非 root 管理容器执行 `install`、两次 `publish-learning` 和 `doctor`，导入 27 个节点、39 道题、
-259 个步骤、180 道小题；全部图解导出与本地一致。API/Worker 镜像实际编译独立题页成功，另验 API 模块加载正常。
-测试数据库不映射宿主机端口；专用容器、数据卷及网络已清理，日常 5432 实例未参与。
-构建与测试日志：`/private/tmp/learning-admin-image-build.log`、`/private/tmp/learning-app-image-build.log`、
-`/private/tmp/learning-image-integration-final.log`。可复跑命令见[镜像验收说明](../deploy/product/README.md#个人知识图谱内容发布)。
-
-缓存／会话修复验收（2026-10-08）：`tests/auth`、导师会话创建／主应用入口／图谱／重试／本地练习及部署管理回归 **121 passed、1 skipped**（10.96 秒），未启用真实 LLM。覆盖恢复返回 404／409／503、取消请求不消耗或淘汰会话，以及两个内容入口拒绝非法节点、边和前提环。重构前后全部导出数据相同，27 个详情页生成检查通过。恢复三个既有文件的原排版时已比对语法树；无关的 `review/dependencies.py` 保持原样。本轮修复晚于上述镜像验收，正式发布时须重新构建镜像。
-
-测试命令（必须指定独立测试实例）：
-
-```sh
-cd server
-PRODUCT_TEST_DATA_DIR=/private/tmp/sss-graph-20261008 PRODUCT_TEST_INSTANCE=graph-stage \
-  uv run pytest tests/auth tests/tutor_demo tests/product/test_admin.py -q
-RUN_LLM_INTEGRATION=1 PRODUCT_TEST_DATA_DIR=/private/tmp/sss-graph-20261008 PRODUCT_TEST_INSTANCE=graph-stage \
-  uv run pytest tests/auth/test_learning_graph.py::test_live_tutor_persists_original_dialogue -q
-```
-
-正式发布包、服务器切换及真实短信不在本次本地验收结果内。

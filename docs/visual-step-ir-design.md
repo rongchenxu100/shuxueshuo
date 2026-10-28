@@ -2,10 +2,10 @@
 
 状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3-A/B COMPLETE (Review)`。
 
-当前优先级以[产品服务与工作台计划](online-service-development-plan.md#11-实施顺序)为准。
+当前优先级以[产品服务与工作台计划](functional-planner-next-stage-roadmap.md)为准。
 G1 的 LLM 视觉选择不列为必做项；G2 新动画和配音延后。现有确定性图形及交互仍须通过回归。
 
-阶段 4B 的学生步骤级声明与组件绑定见[专项设计](student-step-visual-binding-design.md)（待实现）。本文已有 Frame 继承与对象合并属于数学对象图形机制；自定义教学图另按展示契约处理并存、覆盖、组合与独立，不自动套用场景继承。同一步可包含两类展示。
+阶段 4B 的学生步骤级声明与组件绑定见[专项设计](student-step-visual-binding-design.md)（已有实现）。本文已有 Frame 继承与对象合并属于数学对象图形机制；自定义教学图另按展示契约处理并存、覆盖、组合与独立，不自动套用场景继承。同一步可包含两类展示。
 
 ## 1. 目标与边界
 

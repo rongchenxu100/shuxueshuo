@@ -1,6 +1,6 @@
 # 数学记法抽取金标 v1
 
-七题 JSON 从已确认的 `docs/seven-problem-math-notation-review.md` 前七个题目示例整理，真实调用前冻结；使用 `understanding-v2/integration-images-20260916` 的选定图片复核。不是模型返回，不随模型表现修改。
+七题 JSON 从已确认的人工题意示例整理，真实调用前冻结；示例审查历史可从 Git 追溯，当前契约见 `docs/math-notation-integration.md`。使用 `understanding-v2/integration-images-20260916` 的选定图片复核。不是模型返回，不随模型表现修改。
 
 线上的模型输出没有 `schema_version`；请求以 `problem-math-notation/v1` 显式选择 Schema、解析与比较。`definitions/facts` 为字符串，省略数组视为空，`variables` 和最值下标可省略，代码默认实数域不属于强制输出。
 

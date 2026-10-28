@@ -4,7 +4,7 @@
 
 本文定义公共图谱的对象、关联与教学用途，记录 2.1–2.3 节、相关专题及两份补充练习的知识点、技能、方法和题型。个人知识图谱与掌握评估单独设计。具体执行能力以相应实施计划与验收记录为准；3.1 章节起步状态见[函数的概念实施计划](function-concepts-topic-and-photo-learning-plan.md)。
 
-现行内容约定见[知识点与方法清单](knowledge-graph-topic-inventory.md)、[知识图谱页面设计](knowledge-graph-pages-design.md)。
+现行内容约定见[知识点与方法清单](public-knowledge-graph-ontology-design.md)、[知识图谱页面设计](public-knowledge-graph-ontology-design.md)。
 
 ## 1. 目标与范围
 

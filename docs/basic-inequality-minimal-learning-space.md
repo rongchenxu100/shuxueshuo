@@ -295,7 +295,7 @@ t^2-st+p=0.
 
 ## 9. 与练习站知识图谱的对应
 
-练习站 `/1/` 的知识地图、知识图谱用的是全局图谱节点（`site/data/knowledge/graph.json`），逐题逐步骤的对应写在 `site/data/knowledge/topics/basic-inequality.json`，见[知识图谱页面设计](knowledge-graph-pages-design.md)与[知识点与方法清单](knowledge-graph-topic-inventory.md)。本文的原子不直接变成图谱节点；本文题号来自课程源数据，与 `/1/` 的 q01–q30 不是同一套编号。
+练习站 `/1/` 的知识地图、知识图谱用的是全局图谱节点（`site/data/knowledge/graph.json`），逐题逐步骤的对应写在 `site/data/knowledge/topics/basic-inequality.json`，见[知识图谱页面设计](public-knowledge-graph-ontology-design.md)与[知识点与方法清单](public-knowledge-graph-ontology-design.md)。本文的原子不直接变成图谱节点；本文题号来自课程源数据，与 `/1/` 的 q01–q30 不是同一套编号。
 
 | 原子 | 对应的图谱节点 |
 |---|---|

@@ -1,6 +1,6 @@
 # 阶段三执行器：PostgreSQL 存储实施说明
 
-更新日期：2026-10-24。本轮将 `graph_lesson/stage_three` 的执行权威存储接入现有产品 PostgreSQL，学生拍题与离线 CLI 共用同一实现。数学执行、事件、检查点、交互卡片、阶段四交接及预算回执协议保持不变；不修改 legacy Review 的存储。
+阶段三执行器、学生拍题与离线 CLI 共用产品 PostgreSQL。运行目录提供冻结输入和调试导出，数据库是事件、状态、预算及恢复权威。
 
 ## 1. 单一权威与范围
 
@@ -74,53 +74,14 @@ uv run --offline pytest -q tests/search/test_execution_storage.py \
 
 专项还发现并修复两处运行边界：路线 advisory lease 使用独立 AUTOCOMMIT 连接并脱离应用连接池，避免持有多条路线时耗尽池；本地计算子进程被并发回收时，等待退出码发布后再关闭 `Process`，避免恢复过程中误报仍在运行。均有确定性回归，不靠延长计算预算或忽略异常规避。
 
-首次适配验收的搜索与账号测试：`tests/search tests/auth` 为 **670 passed、4 skipped**，数据库用例没有跳过。4 个跳过中，3 个 OCR worker 用例已在 `.venv-ocr` 独立环境执行并全部通过，另 1 个为本轮禁止调用的真实模型测试。前端 `tools/tests/*.test.mjs` 与迁移测试为 **802 passed、0 skipped**。日志分别为 `/private/tmp/search-pg-final-complete.log`、`/private/tmp/search-ocr-final-complete.log` 和 `/private/tmp/search-pg-frontend.log`。后续复审结果见第 7 节。
-
-阶段三全量离线回归原次运行收集 2992 项，结果为 **2984 passed、8 failed、2 teardown errors**（3007.62 秒）。该进程启动后仍有修复落地，不能把它当作冻结版本结果。代码冻结后，按日志实际失败节点重跑，并覆盖完整预算模块及新增 CLI、子进程回收回归，共 **22 passed、1 failed、0 errors、0 skipped**（230.58 秒）；原先另外 7 个失败和 2 个 teardown 错误均已通过复测。另有存储专项 82 项、非阶段三前缀的交互失败存储用例 16 项通过。最新收集为 2996 项，本轮不将分批结果推算成一次全量全绿。
-
-唯一保留的失败是 `test_graph_stage_three_interaction_ranges.py::test_every_presentation_template_has_an_explicit_rule`：现有 presentation registry 有 43 个模板，interaction registry 有 42 个，缺少 `opening_excluded` 的显式规则，且测试仍硬编码 37。测试及两个注册表与本轮开始时的 `HEAD 1a0830a1` 完全相同；这属于既有模板覆盖问题，不是 PostgreSQL 适配回归，未修改断言、注册表或跳过该用例。原次日志为 `/private/tmp/stage-three-pg-full.log`，冻结复测日志为 `/private/tmp/stage-three-pg-final-retests.log`，最终收集日志为 `/private/tmp/stage-three-pg-collected-final.log`。
-
 ## 5. 仍是本地执行，不等于分布式改造
 
 执行状态与预算账本统一到 PostgreSQL，但运行目录、冻结输入、supervisor 回执、导出锁及搜索文件生命周期锁仍依赖当前主机文件系统。路线预算除本机 `flock` 外，也使用 PostgreSQL session advisory lease，阻止同一运行的相同路线从另一个目录并发占用；这不等于完整的跨主机 worker 协调。
 
 本轮不增加远程任务队列、共享对象存储、跨机 supervisor 恢复、自动重试付费调用或线上部署。
 
-**现有 `backup` 不是私有课程的完整文件备份。** 它通过 `pg_dump` 备份数据库，并按 `artifacts` 表清单复制产品 artifact 根目录；新 `lesson_*` 表已进入数据库和行数校验清单，但 `work/search/private-v1/` 以及独立 CLI 运行目录不在自动复制范围内。只恢复该备份能恢复数据库证据，不能承诺恢复原图、冻结输入、私有课程文件或继续本机 supervisor 执行。
+私有拍题文件、执行数据、原始到期期限与删除权威必须一致恢复。当前 v2 备份及恢复已包含对应规则，详见[备份恢复契约](search-backup-restore-local-acceptance.md)；独立 CLI 运行目录需自行一致备份。稳定锁文件不能在运行中按 mtime 或记录缺失直接删除。
 
-需要完整恢复仍在保留期内的私有课程时，应在停止所有共用实例和文件存储的 web、worker、cleanup 后，另行一致备份所需运行目录；恢复时核对存储 key、运行身份、原始到期期限和文件完整性，不因恢复备份延长保留期。此文件备份及完整恢复流程本轮尚未实现或验收。搜索稳定锁文件的 inode 容量和安全离线回收仍按[第一期上线前待办](shared-problem-library-and-student-learning-stage1.md)处理，不在运行中按 mtime 或记录缺失直接 unlink。
+## 课程可用性
 
-## 6. 8779 离线验收（2026-10-24）
-
-使用独立 `search-acceptance` 实例（55444）和 `0014_lesson_execution`。本机 harness 将识别替换为明确标记的合成复核 fixture，阶段二重放 Q01 原录制，阶段三执行真实本地计算及 PostgreSQL 事务；拒绝外部网络，短信为 mock。此验收不冒充真实 OCR/LLM 复核质量证据，也未改变日常数据库或部署线上。
-
-- 真实浏览器走通登录、上传、整图选题、生成和课程打开。新提交 `dc6cf27a6a1a` 的事件、快照及互动步骤由 PostgreSQL 提供，与另一账号同题共用公共身份但不共用私有运行。
-- 预置 25 个私有提交，按题聚合成 24 条历史；浏览器首次显示 20 条，加载更多后为 24 条，没有重复，按钮消失。
-- 另一个标签同账号重登时，选题页不退出，课程保留在“确定题型”及已完成的读题步骤；换号和退出立即停止原课程并回首页。账号 B 访问账号 A 提交显示不存在，同题新课程从 0 步开始；切回 A 后原进度可恢复。
-- “识别有误”仅出现一次确认，并明确删除该题本人全部关联记录。确认后返回拍题页，另一个正在学习的标签显示已删除；账号 A 该题所有版本的本机进度键消失，刷新不复活。
-- 删除账号 A 的两次 Q01 提交后，提交行、目录、`lesson_runs` 及全部 15 个执行子表中的对应数据均为零。同来源页的另一条合成题仍保留；账号 B 的 Q01 课程仍可打开；来源整页仍为 active，期限保持首次创建后 24 小时，待清理队列为空。
-- CLI 在同一 PostgreSQL 上完成 `run → events → resume → events`；恢复前后事件导出逐字节相同，未产生重复事件。新 CLI 与浏览器运行目录不含 SQLite 文件。旧验收目录不导入，也不作为本轮证据。
-
-本轮浏览器全流程以顶层页面验证。嵌入式窄视口只检查访客布局；站点认证刻意拒绝 iframe，不能据此声称手机端真实登录、拍摄权限或相机硬件已复测。
-
-本机复核文件：`/private/tmp/search-postgres-8779.log`、`/private/tmp/search-postgres-deletion-audit.json`、`/private/tmp/cli-postgres-q01.log`、`/private/tmp/search-postgres-8779-proof.png`，以及独立实例 `work/browser-postgres-execution-fixture-20261024.json`。上述为本地验收产物，不含真实短信或新付费模型回执。
-
-## 7. PostgreSQL 适配复审修复（2026-10-24）
-
-没有修改 `0014` 去覆写旧提交状态，而是统一计算运行时可用性：持久状态为 `ready`，但缺少匹配提交的 PostgreSQL 运行、原始题目结果、裁剪元数据、题图、阶段二结果、运行身份、冻结输入或阶段三结果时，历史与详情响应 `unavailable`，显示“课程不可用”，不是“可开始学习”。持久 `ready` 保持原样，读取不重建文件、不触发计算。已到期和已停用状态仍优先；同题有较旧可用课程时继续打开旧课程，同时独立标记最近一次课程不可用。
-
-不可用详情保留公共规范题面，只提供重新拍照；不显示失效图片、生成或继续计算入口。直接调用重跑阶段二 `POST /problems/{id}/lesson`、start 或 resume 均返回 `409 lesson.execution_unavailable`，重跑阶段二取得生命周期锁后也再次检查，不登记重试意图或投递任务。未开始的正常课程与仍在生成的早期运行不因此被判作归档缺失。
-
-重跑入口收口的后续专项为 **18 passed**（`/private/tmp/search-pg-retry-availability-final.log`）：覆盖 9 类不可用产物、拿锁时运行/题目结果/课程结果消失，以及原有正常重试与失败恢复流程；拒绝请求不触发 provider、任务或重试意图，锁会释放，原持久状态不变。题目结果读取也放在生命周期锁内。8779 已重新加载该修复，日志为 `/private/tmp/search-pg-retry-8779.log`；此次小改动未重跑后文记录的完整测试集。
-
-重跑阶段二、启动和继续计算的准入检查不再持有进程内 `errors_lock` 执行数据库或文件操作；该锁只保护 `judging` 与错误字典。每提交的生命周期锁仍贯穿复查、排队与后台执行，防止同题重复启动以及删除/到期后重建产物。任务收尾及排队失败时，先完成状态写入与内存标记清理，最后释放生命周期锁，避免旧任务覆盖新任务状态；慢请求不再让其他题目的状态轮询等待全局锁。
-
-此项修复冻结后离线 PostgreSQL 专项 **104 passed、0 skipped**（`/private/tmp/search-pg-admission-final.log`），其中新增 13 项确定性交错测试，覆盖三个入口的慢数据库/文件检查、跨题轮询、同题不重复排队、失败重新准入与旧任务收尾；同时回归可用性、账号、删除和到期边界。Ruff 与差异空白检查通过。8779 已重新加载，首页返回 200、匿名历史返回 401（`/private/tmp/search-pg-admission-8779.log`）；此次仅做服务冒烟，没有重复整套浏览器流程，没有付费模型、真实短信或线上部署。
-
-执行器 SQL 已统一命名绑定，不再按问号拆分语句；回归覆盖 JSONB `?` 操作符、问号字面量及固定 `run_id` 作用域。`RunNotFound` 是独立领域异常，不再继承 `FileNotFoundError` / `OSError`；需要将运行缺失降级为不可用的调用点显式处理。
-
-本地 `_reap` 的 join 与退出码等待共享 1 秒上限，仍兼容并发回收者稍后发布退出码。若退出状态始终不可得，记录明确 warning、关闭管道，不调用可能掩盖原异常的 `Process.close()`；保留已收到的数学结果或原异常。此极端分支不宣称进程已确认回收，进程句柄可能延后释放。
-
-8779 已重启并启用严格上下文标志。只在隔离实例建立明确合成的 `66f8530dea44` 缺失运行样本（数据库仍为 `ready`，无对应 `lesson_runs`）：浏览器历史显示“课程不可用”，详情保留公共题面并仅显示重新拍照；既有正常 PostgreSQL 课程 `dc6cf27a6a1a` 仍能读取快照并进入读题步骤。未重新生成课程、调用付费模型或真实短信，也未部署线上。样本清单为 `work/browser-missing-run-review-20261024.json`，截图为 `/private/tmp/search-pg-review-8779-proof.png`，服务日志为 `/private/tmp/search-pg-review-8779.log`。
-
-本轮冻结后的完整搜索/账号回归为 **706 passed、4 skipped**（`/private/tmp/search-pg-review-frozen-all.log`），数据库用例无跳过；3 个 OCR worker 用例在独立环境再次全部通过（`/private/tmp/search-pg-review-ocr.log`），另一个跳过仍为禁止调用的付费模型测试。前端全套为 **806 passed、0 skipped**（`/private/tmp/search-pg-review-all-frontend.log`）。事件/交互/裁剪专项 69 项、CLI/运行身份/进程恢复专项 53 项、bounded 与回收专项 48 项、Q07/Q09 的 after-commit 恢复 2 项均通过；日志依次为 `/private/tmp/search-pg-review-events.log`、`/private/tmp/search-pg-review-recovery.log`、`/private/tmp/stage-three-bounded-cleanup-final.log`、`/private/tmp/stage-three-bounded-cleanup-recovery.log`。Ruff 和差异空白检查通过。本轮未重跑阶段三全部数学矩阵，也未改动第 4 节记录的既有模板覆盖失败。
+持久状态为 `ready` 仍须检查匹配提交的 PostgreSQL 运行、原始题目、裁剪元数据、题图、冻结输入及阶段结果。材料缺失时返回 `unavailable`，不在读取时重建；到期和停用状态优先。详情保留公共题面并提供重新拍照；start/resume/重跑不得绕过可用性或生命周期检查。同题较旧的可用课程与最新失败状态分别表达。
