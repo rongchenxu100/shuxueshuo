@@ -388,6 +388,21 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
+    if (values.get("goal", {}).get("kind") == "compare_functions"
+            and values.get("function_comparison", {}).get("structure_supported")):
+        # The repeated f/g names belong to separate options. Read the common
+        # comparison requirement, not eight definitions in a fake shared scope.
+        for begin, end in ranges:
+            surface = normalize_surface(text, begin, end)
+            header = re.split(r"(?:^|\n)\s*[A-Z][.．、]", surface.text, maxsplit=1)[0]
+            pattern = r"(?:是否(?:为|表示)?|不表示|不是|不为|并非|表示|为)?(?:不相同|不同|同一个|同一|相同)(?:的)?函数"
+            for match in re.finditer(pattern, header):
+                add(surface, match.start(), match.end(), "goal", ["goal", "function_comparison"])
+        for index, item in enumerate(fragments, 1):
+            item["id"] = f"{target_ref}:d1:{index}"
+        if not fragments:
+            diagnostics.append({"code": "d1.function_comparison_requirement_not_located", "target_ref": target_ref})
+        return {"fragments": fragments, "diagnostics": diagnostics}
     if values.get("goal", {}).get("kind") in ("find_domain", "match_domain") and domain.get("structure_supported"):
         # Require one matching function/argument identity, then bind its exact
         # arithmetic tree; cancellation or an unrelated RHS cannot pass.

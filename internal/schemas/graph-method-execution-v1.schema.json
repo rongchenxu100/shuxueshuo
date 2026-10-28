@@ -177,14 +177,42 @@
                 },
                 "source_scope": {
                   "type": "object",
-                  "oneOf": [{"required": ["step"]}, {"required": ["steps"]}],
+                  "oneOf": [
+                    {
+                      "required": [
+                        "step"
+                      ]
+                    },
+                    {
+                      "required": [
+                        "steps"
+                      ]
+                    }
+                  ],
                   "additionalProperties": false,
                   "properties": {
-                    "step": {"type": "string", "minLength": 1},
-                    "steps": {"type": "array", "minItems": 1, "uniqueItems": true,
-                              "items": {"type": "string", "minLength": 1}},
-                    "actions": {"type": "array", "minItems": 1, "uniqueItems": true,
-                                "items": {"type": "string", "minLength": 1}}
+                    "step": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "steps": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "actions": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
                   }
                 },
                 "guard": {
@@ -236,6 +264,45 @@
                     }
                   }
                 }
+              }
+            }
+          },
+          "options": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "source",
+              "binding",
+              "through",
+              "collect",
+              "outputs",
+              "entry"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "binding": {
+                "type": "string",
+                "minLength": 1
+              },
+              "through": {
+                "type": "string",
+                "minLength": 1
+              },
+              "collect": {
+                "type": "string",
+                "minLength": 1
+              },
+              "outputs": {
+                "type": "object",
+                "minProperties": 1
+              },
+              "entry": {
+                "$ref": "#/properties/steps/items"
               }
             }
           }

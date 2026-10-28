@@ -239,7 +239,6 @@ def test_local_syntax_repair_does_not_touch_other_question(tmp_path):
 def test_outside_changes_rejected_atomically_without_expanding_permissions(tmp_path):
     base = candidate(["t>0"], children=[{"facts": ["s=2"]}])
     bad = candidate(["t>0", "t>1"], children=[{"facts": ["s=9"]}])
-    good = candidate(["t>0", "t>1"], children=[{"facts": ["s=2"]}])
     model = Sequence(base, finding(), bad, OK)
     result = run(tmp_path, model)
     assert result["status"] == "reviewed_candidate", result
@@ -458,7 +457,8 @@ def test_review_contract_meanings_and_enums_follow_candidate_schema():
     summary = candidate_contract_summary()
     scope = source["$defs"]["Scope"]
     assert summary["scope"] == scope["description"]
-    variants = scope["properties"]["goals"]["items"]["oneOf"]
+    variants = [source["$defs"][goal["$ref"].rsplit("/", 1)[1]] if "$ref" in goal else goal
+                for goal in scope["properties"]["goals"]["items"]["oneOf"]]
     assert {goal["kind"] for goal in summary["goal_kinds"]} == {
         goal["properties"]["kind"]["const"] for goal in variants
     }
@@ -470,6 +470,23 @@ def test_review_contract_meanings_and_enums_follow_candidate_schema():
             if field in goal["properties"]:
                 assert meaning == goal["properties"][field]["description"]
     assert len(json.dumps(summary)) < len(json.dumps(source)) / 3
+
+
+def test_review_contract_resolves_referenced_goal_and_local_reference_chains(monkeypatch):
+    from shuxueshuo_server.problem_understanding import review_contract
+
+    source = schema()
+    source["$defs"]["GoalAlias"] = {"$ref": "#/$defs/CompareFunctionsGoal"}
+    variants = source["$defs"]["Scope"]["properties"]["goals"]["items"]["oneOf"]
+    variants[-1] = {"$ref": "#/$defs/GoalAlias"}
+    monkeypatch.setattr(review_contract, "schema", lambda: source)
+    comparison = next(goal for goal in candidate_contract_summary()["goal_kinds"]
+                      if goal["kind"] == "compare_functions")
+    assert comparison["required"] == source["$defs"]["CompareFunctionsGoal"]["required"]
+    assert "selection_mode" in comparison["required"]
+    source["$defs"]["GoalAlias"] = {"$ref": "#/$defs/GoalAlias"}
+    with pytest.raises(ValueError, match="review.invalid_schema_reference"):
+        candidate_contract_summary()
 
 
 @pytest.mark.parametrize(

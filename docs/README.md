@@ -29,12 +29,17 @@
 
 ## 函数题型与验收范围
 
+- [T3 抽象函数的定义域问题：题型开发设计](abstract-function-domain-problem-type-design.md)
 - [T2 具体函数的定义域问题：题型与代表题设计](function-domain-problem-type-design.md)
 - [函数定义域 Q01：零次幂与约分前限制验收](function-domain-q01-acceptance.md)
 - [函数的概念 Q04：定义域求参扩题验收](function-domain-q04-acceptance.md)
 - [函数的概念 Q12：根式分母的定义域求参](function-domain-q12-acceptance.md)
 - [函数定义域 Q15：实现范围与验收记录](function-domain-q15-acceptance.md)
 - [函数的概念 Q23（2）：独立的定义域求参问题](function-domain-q23b-acceptance.md)
+- [T1 判断是否为相同函数：题型开发设计](function-equality-problem-type-design.md)
+- [T1 第20题：同一函数判定与两层交互验收](function-equality-q20-acceptance.md)
+- [T4 求函数值：题型开发设计](function-evaluation-problem-type-design.md)
+- [T5 求函数的值域：题型开发设计](function-range-problem-type-design.md)
 
 ## 拍题与交互课程
 

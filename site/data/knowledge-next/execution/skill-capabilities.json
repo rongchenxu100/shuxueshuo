@@ -15,7 +15,8 @@
     ],
     "skill-simplify": [
       "simplify_expression",
-      "reorder_by_variable"
+      "reorder_by_variable",
+      "compare_function_pair"
     ],
     "skill-quadratic-sign": [
       "quadratic_sign_condition",
@@ -64,6 +65,9 @@
       "submethod"
     ],
     "method-separation": [
+      "submethod"
+    ],
+    "method-domain-intersection": [
       "submethod"
     ]
   },
@@ -120,6 +124,15 @@
     ],
     "intersect_domain": [
       "method-domain-intersection#intersect"
+    ],
+    "prepare_function_comparisons": [
+      "method-function-equality#prepare"
+    ],
+    "prepare_function_pair": [
+      "method-function-equality#options"
+    ],
+    "collect_function_comparisons": [
+      "method-function-equality#collect"
     ]
   }
 }

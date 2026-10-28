@@ -28,7 +28,8 @@
     "admission": {
       "enum": [
         "function_domain",
-        "function_domain_routes"
+        "function_domain_routes",
+        "function_equality"
       ]
     },
     "routes": {
@@ -78,7 +79,10 @@
       },
       "properties": {
         "admission": {
-          "const": "function_domain"
+          "enum": [
+            "function_domain",
+            "function_equality"
+          ]
         }
       }
     },

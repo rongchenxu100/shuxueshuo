@@ -406,8 +406,10 @@ def _affine_restore_view(values):
 # mathematical objects. They contain no prose and never perform solving.
 from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
+from .equality_presentation import view as equality_view
 
 PREPARERS = {
+    'equality_view': equality_view,
     "domain_view": domain_presentation,
     "domain_parameter_view": domain_parameter_view,
     "normalize_view": _normalize_view,
@@ -433,6 +435,13 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    'equality_view': {
+        'equality_explanation', 'option_label', 'left_name', 'right_name',
+        'left_math', 'right_math', 'left_domain', 'right_domain',
+        'domain_connector', 'correspondence_connector', 'relation_connector',
+        'left_value_math', 'right_value_math', 'correspondence_caption',
+        'verdict_result', 'domain_relation_result',
+    },
     "domain_view": {"domain_lines", "domain_explanation"},
     "domain_parameter_view": {"domain_lines", "domain_explanation"},
     "normalize_view": {"normalization_chain", "normalization_relations"},
@@ -601,9 +610,10 @@ def render_highlight(specification, bindings, *, has_case=False):
         items.extend({key: text for key, text in ((key, _render(node, scope)) for key, node in fields.items()) if text}
                      for scope in scopes)
     rendered = {"caption": _render(highlight["caption"], values), "items": items}
-    for key in ("connector", "layout"):
-        if key in highlight:
-            rendered[key] = highlight[key]
+    if "connector" in highlight:
+        rendered["connector"] = _render(highlight["connector"], values)
+    if "layout" in highlight:
+        rendered["layout"] = highlight["layout"]
     if result := _render(highlight.get("result", ""), values):
         rendered["result"] = result
         if highlight.get("show_result"):

@@ -1,7 +1,7 @@
 /** Safe mathematical card DOM shared by completed/read steps and debug views.
  * This module never controls progress, transport, or interaction availability.
  */
-import {matchedOriginalChoice} from './original-choice.mjs?v=20261022-original-choice';
+import {matchedOriginalChoice} from './original-choice.mjs?v=20261027-function-equality';
 
 const expressionText = value => typeof value === 'string' ? value : value?.latex || '';
 const text = (document, tag, value, className) => {
@@ -12,6 +12,11 @@ const text = (document, tag, value, className) => {
 };
 
 export function routeAnswerSummary(answer = {}) {
+  if (answer.kind === 'compare_functions' && answer.status === 'complete' &&
+      Array.isArray(answer.option_verdicts) && answer.option_verdicts.length &&
+      answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
+    return {label: '各项比较已完成', formula: ''};
+  }
   if (['find_range', 'find_domain'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
     return formula ? {label: answer.kind === 'find_domain' ? '定义域：' : '参数范围：', formula} : null;
@@ -210,7 +215,18 @@ export function createRouteCompletion(document, payload, options = {}) {
   const answerStatus = summary ? answer.status : 'unknown';
   node.dataset.answerStatus = answerStatus;
   const choice = complete && matchedOriginalChoice(payload);
-  if (choice) node.append(text(document, 'strong', `答案：${choice.correct_labels[0]}　`, 'stage-three-choice-answer'));
+  if (choice) node.append(text(document, 'strong', `答案：${choice.correct_labels.join('、') || '无符合项'}　`, 'stage-three-choice-answer'));
+  if (choice?.kind === 'multiple_choice') {
+    const board = document.createElement('ul');
+    board.className = 'gw-option-verdict-board';
+    const reasons = {domains_differ: '定义域不同', outputs_differ: '存在同一个输入，两式的函数值不同',
+      same_domain_and_correspondence: '定义域相同，且每个输入对应的函数值都相同'};
+    for (const row of choice.option_verdicts) {
+      const item = text(document, 'li', `${row.label}　${row.verdict === 'equal' ? '相同' : '不同'}：${reasons[row.reason] || row.reason}`);
+      item.dataset.mathText = 'true'; board.append(item);
+    }
+    node.append(board);
+  }
   node.append(text(document, 'span', summary?.label || '目标答案尚未确定。'));
   if (summary?.formula) {
     const formula = text(document, 'span', summary.formula, 'stage-three-answer');

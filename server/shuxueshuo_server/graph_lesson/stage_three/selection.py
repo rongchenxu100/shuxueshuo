@@ -112,9 +112,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('function_domain', 'function_domain_routes'):
+        if admission not in ('function_domain', 'function_domain_routes', 'function_equality'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
+        from .equality_runtime import admitted as admitted_equality
         from .function_domain import admitted, admitted_parameter
         context = build_context(candidate, target_ref)
         # Re-read the candidate. A supplied type/feature/method override never
@@ -122,8 +123,12 @@ def evaluate_goal(candidate, target_ref, features, primary):
         checks = {
             'function_domain': admitted,
             'function_domain_parameter': admitted_parameter,
+            'function_equality': admitted_equality,
         }
-        if admission == 'function_domain':
+        if admission == 'function_equality':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '同一函数判定法'}]
+        elif admission == 'function_domain':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': 'function_domain', 'label': '列条件求交集法'}]
         else:
@@ -154,6 +159,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
+            '逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。'
+            if chosen['admission'] == 'function_equality' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
             if chosen['admission'] == 'function_domain_parameter'
             else '按原式列出有意义的条件，分别求解，再取交集。'
@@ -164,6 +171,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         d4 = {'id': 'D4', 'title': '解题路线', 'options': [{
             'route_id': branch['route_id'], 'branch': 'direct', 'method': branch['target'],
             'recommendation': 'preferred', 'route_plan': branch['route_plan'], 'message': '开始解题'}]}
+        if admission == 'function_equality':
+            workspaces = [{key: row[key] for key in ('option_id', 'label', 'text')}
+                          for row in context['comparison_goal']['options']]
+            d4['options'][0]['option_workspaces'] = workspaces
         return {'status': 'no_verified_route', 'selection': selection,
                 'd3': d3, 'd4': d4, 'diagnostics': []}
     selected = [row for row in features if row.get("target_ref") == target_ref]

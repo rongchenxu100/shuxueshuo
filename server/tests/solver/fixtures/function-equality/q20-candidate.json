@@ -1,0 +1,85 @@
+{
+  "original_text": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+  "root": {
+    "goals": [
+      {
+        "kind": "compare_functions",
+        "mode": "groups",
+        "select_relation": "equal",
+        "selection_mode": "multiple",
+        "completeness": "complete",
+        "shared_functions": [],
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$",
+            "functions": [
+              {
+                "id": "f",
+                "definition": "f(x)=x"
+              },
+              {
+                "id": "g",
+                "definition": "g(x)=(sqrt(x))^2"
+              }
+            ],
+            "left": "local:f",
+            "right": "local:g"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "$f(x)=x^2$，$g(x)=(x+1)^2$",
+            "functions": [
+              {
+                "id": "f",
+                "definition": "f(x)=x^2"
+              },
+              {
+                "id": "g",
+                "definition": "g(x)=(x+1)^2"
+              }
+            ],
+            "left": "local:f",
+            "right": "local:g"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$",
+            "functions": [
+              {
+                "id": "f",
+                "definition": "f(x)=sqrt(x^2)"
+              },
+              {
+                "id": "g",
+                "definition": "g(x)=abs(x)"
+              }
+            ],
+            "left": "local:f",
+            "right": "local:g"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+            "functions": [
+              {
+                "id": "f",
+                "definition": "f(x)=3*x^2-2*x+3"
+              },
+              {
+                "id": "g",
+                "definition": "g(t)=3*t^2-2*t+3"
+              }
+            ],
+            "left": "local:f",
+            "right": "local:g"
+          }
+        ]
+      }
+    ]
+  }
+}

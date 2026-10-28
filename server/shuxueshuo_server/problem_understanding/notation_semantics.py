@@ -286,6 +286,11 @@ class Canonical:
         for g in scope["goals"]:
             from .notation_compile import typecheck
 
+            if g['kind'] == 'compare_functions':
+                from .notation_function_comparison import canonical_comparison
+
+                goals.append(canonical_comparison(g))
+                continue
             target = (
                 self.math(g["target"])
                 if typecheck(g["target"]) in ("scalar", "length", "angle", "area")

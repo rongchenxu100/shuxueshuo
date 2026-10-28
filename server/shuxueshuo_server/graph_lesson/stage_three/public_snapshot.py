@@ -9,7 +9,7 @@ from copy import deepcopy
 from .revision_manifest import manifest_ref
 
 _ROUTE_FIELDS = ("target_ref", "route_id", "status", "phase", "commit_id", "last_seq")
-_STEP_FIELDS = ("seq", "method", "step", "case_path")
+_STEP_FIELDS = ("seq", "method", "step", "case_path", 'option_context')
 _CALL_FIELDS = ("public_ref", "rule_ref", "branch", "used_basis", "case_path")
 
 

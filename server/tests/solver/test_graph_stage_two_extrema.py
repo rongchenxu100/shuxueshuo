@@ -35,7 +35,9 @@ def test_parameter_extrema_keep_kind_and_quadratic_branch(kind, quantifier, fact
     value = candidate(kind, quantifier + fact, symbol)
     before = deepcopy(value)
     extracted = extract_features(value)
-    assert extracted["ok"] and all(f["status"] == "known" for f in extracted["features"])
+    assert extracted["ok"]
+    assert all(f["status"] == ("unknown" if f["feature_id"] in {"function_domain", "function_comparison"} else "known")
+               for f in extracted["features"])
     goal = next(f for f in extracted["features"] if f["feature_id"] == "goal")
     assert goal["value"] == {"kind": kind, "symbol": symbol}
     schema = json.loads(FEATURE_VALUES_PATH.read_text())

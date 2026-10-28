@@ -60,6 +60,8 @@ def input_set(description):
     if ast == ["real"]:
         return sp.S.Reals
     variable = sp.Symbol(description["variable"], real=True)
+    if ast[0] == "set" and len(ast) == 2:
+        return sp.FiniteSet(expression(ast[1], variable))
     return sp.Interval(
         expression(ast[3], variable),
         expression(ast[4], variable),
@@ -356,6 +358,16 @@ def prepare_domain_conditions(constraints, variable):
             ):
                 raise CapabilityGap("domain.sqrt_guard_missing")
             condition = sp.Ne(radial, 0, evaluate=False)
+            ast = ast[2]
+            operations.append("domain_condition_normalization")
+        # The source converter deliberately keeps powers unevaluated. Rebuild
+        # admitted condition polynomials exactly before the shared solver so
+        # constants such as 0**2 and (-3)**2 are rational coefficients too.
+        coefficients = _fixed_poly(ast, max_degree=MAX_RADICAND_DEGREE)
+        canonical = sum((sp.Rational(c.numerator, c.denominator) * variable**i
+                         for i, c in enumerate(coefficients)), sp.S.Zero)
+        if condition.lhs != canonical:
+            condition = condition.func(canonical, 0, evaluate=False)
             operations.append("domain_condition_normalization")
         conditions.append(condition)
         checks.append(
@@ -660,6 +672,9 @@ def _evaluate(ast, point):
         if not defined or _is_negative(value):
             return False, None
         return True, sp.Integer(0) if _is_zero(value) else sp.sqrt(value)
+    if ast[:2] == ["call", "abs"]:
+        defined, value = _evaluate(ast[2], point)
+        return defined, sp.Abs(value) if defined else None
     if ast[0] == "^":
         defined, value = _evaluate(ast[1], point)
         exponent = _integer_exponent(ast[2])
@@ -833,7 +848,7 @@ def verify_domain(candidate, target_ref, context, proposed):
         result_value.update(
             status="verified" if mismatch is None else "math_failed",
             proof={
-                "category": "original-fixed-affine-function-domain/v3",
+                "category": "original-fixed-affine-function-domain/v4",
                 "source_refs": [description["source_ref"]],
                 "expression_ast": description["expression_ast"],
                 "critical_polynomials": roots,

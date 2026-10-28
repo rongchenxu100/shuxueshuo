@@ -18,7 +18,7 @@ from types import SimpleNamespace
 import sympy as sp
 from jsonschema import Draft202012Validator, ValidationError
 
-from . import domain_borrow, domain_interaction, domain_visuals
+from . import domain_borrow, domain_interaction, domain_visuals, equality_presentation
 from . import interaction_graph_contract as graph_contract
 from . import interaction_graphs as drawing
 from .capabilities import CapabilityGap
@@ -52,7 +52,8 @@ CHUNK_SCHEMA = ROOT / "internal/schemas/graph-step-interaction-v1.schema.json"
 # Interaction-only code, revisioned apart from the mathematical fingerprint.
 ENGINE_FILES = (Path(__file__).resolve(), Path(drawing.__file__).resolve(),
                 Path(graph_contract.__file__).resolve(), Path(domain_borrow.__file__).resolve(),
-                Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(), CHUNK_SCHEMA)
+                Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(),
+                Path(equality_presentation.__file__).resolve(), CHUNK_SCHEMA)
 MAX_REPRESENTATIVES = 12
 # Policies can need exact equality witnesses outside the generic constant grid.
 MAX_POLICY_REPRESENTATIVES = 2 * MAX_REPRESENTATIVES
@@ -214,6 +215,7 @@ def merge_match(registry, first, second):
     if (first["route_id"] != second["route_id"] or first["target_ref"] != second["target_ref"]
             or first["case_path"] != second["case_path"]
             or first.get("branch_id") != second.get("branch_id")
+            or first.get('option_context') != second.get('option_context')
             or second["ordinal"] != first["ordinal"] + 1):
         return None
     units = [first["display_unit"], second["display_unit"]]
@@ -1646,6 +1648,8 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     """
     if rule.get("compiler") == "function_domain":
         return domain_interaction.compile_domain(seeds, interaction_id)
+    if rule.get('compiler') == 'function_equality':
+        return equality_presentation.compile_equality(seeds, interaction_id)
     first_values = decode_value(seeds[0]["values"])
     if rule.get("compiler") == "separated_read":
         before, after = first_values.get("before"), first_values.get("after")
@@ -1743,6 +1747,11 @@ def build_chunk(seeds, registry, context, *, revision=None):
         if rule.get("fold") and seeds[0]["case_path"]:
             raise NotInteractive("folded")
         compiled = compile_interaction(seeds, rule, context, interaction_id=interaction_id)
+        if seeds[0].get('option_context'):
+            if any(seed.get('option_context') != seeds[0]['option_context'] for seed in seeds):
+                raise ValueError('interaction.mixed_option_context')
+            for part in compiled['parts']:
+                part['option_context'] = deepcopy(seeds[0]['option_context'])
         chunk.update(status="interactive", parts=compiled["parts"])
         diagnostics = compiled["diagnostics"]
     except NotInteractive as exc:

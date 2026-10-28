@@ -38,9 +38,27 @@ export function renderTopicIndex(topics) {
   }).join('\n');
 }
 
+function choiceStemParts(text) {
+  const lines = String(text).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const options = [];
+  const prompt = [];
+  for (const line of lines) {
+    if (/^[A-D][.、．]/.test(line)) options.push(line);
+    else if (options.length) options[options.length - 1] += ` ${line}`;
+    else prompt.push(line);
+  }
+  return options.length >= 2 ? {prompt: prompt.join(' '), options} : null;
+}
+
 function problemStem(problem, position) {
   const text = problem.statement || problem.label;
-  return `<span class="problem-number">${String(position).padStart(2, '0')}</span><span class="problem-stem"><span class="visually-hidden">第 ${position} 题：</span>${textHtml(text)}</span><span class="problem-go" aria-hidden="true">→</span>`;
+  const choice = choiceStemParts(text);
+  const body = choice
+    ? `<span class="problem-prompt">${textHtml(choice.prompt)}</span><span class="problem-options">${
+      choice.options.map(option => `<span class="problem-option">${textHtml(option)}</span>`).join('')
+    }</span>`
+    : textHtml(text);
+  return `<span class="problem-number">${String(position).padStart(2, '0')}</span><span class="problem-stem"><span class="visually-hidden">第 ${position} 题：</span>${body}</span><span class="problem-go" aria-hidden="true">→</span>`;
 }
 
 export function renderTopicOverview(topic, nodes) {
@@ -61,7 +79,7 @@ export function renderTopicOverview(topic, nodes) {
   <meta name="description" content="${h(topic.introduction)}">
   <link rel="canonical" href="https://shuxueshuo.com${topicPath(topic)}">
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
-  <link rel="stylesheet" href="/1/chapter.css?v=20261005a">
+  <link rel="stylesheet" href="/1/chapter.css?v=20261028-choice-stem">
   <link rel="stylesheet" href="/topics/topics.css?v=20261026c">
   <link rel="stylesheet" href="${SITE_HEADER_CSS}">
   <script type="module" src="/assets/auth/site-auth.js?v=4"></script>

@@ -1,0 +1,943 @@
+{
+  "status": "reviewed_candidate",
+  "source_reviewed": true,
+  "output_contract": "search-problem-extraction/v1",
+  "public_candidate": {
+    "original_text": "【变式】（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "groups",
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "completeness": "complete",
+          "shared_functions": [],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=(sqrt(x))^2"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$f(x)=x^2$，$g(x)=(x+1)^2$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x^2"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=(x+1)^2"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(x^2)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=abs(x)"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=3*x^2-2*x+3"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(t)=3*t^2-2*t+3"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "（多选）下列四组函数中表示同一个函数的是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "multiple",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+                },
+                {
+                  "label": "B",
+                  "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+                },
+                {
+                  "label": "C",
+                  "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+                },
+                {
+                  "label": "D",
+                  "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": "06570aa8a08a278d398d0c32a02ee96def54a16485e540feb0226536e68a3524",
+  "candidate": {
+    "original_text": "【变式】（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "compare_functions",
+          "mode": "groups",
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "completeness": "complete",
+          "shared_functions": [],
+          "options": [
+            {
+              "id": "option_a",
+              "label": "A",
+              "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=(sqrt(x))^2"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_b",
+              "label": "B",
+              "text": "$f(x)=x^2$，$g(x)=(x+1)^2$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=x^2"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=(x+1)^2"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_c",
+              "label": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=sqrt(x^2)"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(x)=abs(x)"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            },
+            {
+              "id": "option_d",
+              "label": "D",
+              "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+              "functions": [
+                {
+                  "id": "left",
+                  "definition": "f(x)=3*x^2-2*x+3"
+                },
+                {
+                  "id": "right",
+                  "definition": "g(t)=3*t^2-2*t+3"
+                }
+              ],
+              "left": "local:left",
+              "right": "local:right"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    }
+  },
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "compare_functions",
+        "mode": "groups",
+        "select_relation": "equal",
+        "selection_mode": "multiple"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "compare_functions",
+        "target": [
+          "comparison_task",
+          "/root/goals/0"
+        ],
+        "target_ref": "/root/goals/0",
+        "mode": "groups",
+        "select_relation": "equal",
+        "selection_mode": "multiple",
+        "completeness": "complete",
+        "options": [
+          {
+            "option_id": "option_a",
+            "label": "A",
+            "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$",
+            "source_ref": "/root/goals/0/options/0",
+            "left": {
+              "function_ref": "/root/goals/0/options/option_a/functions/left",
+              "function_name": "f",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/0/functions/0/definition",
+              "expression": "x",
+              "expression_ast": [
+                "bound",
+                "function_argument"
+              ],
+              "expression_latex": "x",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "polynomial"
+            },
+            "right": {
+              "function_ref": "/root/goals/0/options/option_a/functions/right",
+              "function_name": "g",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/0/functions/1/definition",
+              "expression": "(sqrt(x))^2",
+              "expression_ast": [
+                "^",
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              "expression_latex": "\\sqrt{x}^{2}",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "square_root_squared"
+            }
+          },
+          {
+            "option_id": "option_b",
+            "label": "B",
+            "text": "$f(x)=x^2$，$g(x)=(x+1)^2$",
+            "source_ref": "/root/goals/0/options/1",
+            "left": {
+              "function_ref": "/root/goals/0/options/option_b/functions/left",
+              "function_name": "f",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/1/functions/0/definition",
+              "expression": "x^2",
+              "expression_ast": [
+                "^",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              "expression_latex": "x^{2}",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "polynomial"
+            },
+            "right": {
+              "function_ref": "/root/goals/0/options/option_b/functions/right",
+              "function_name": "g",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/1/functions/1/definition",
+              "expression": "(x+1)^2",
+              "expression_ast": [
+                "^",
+                [
+                  "+",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              "expression_latex": "(x+1)^{2}",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "polynomial"
+            }
+          },
+          {
+            "option_id": "option_c",
+            "label": "C",
+            "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$",
+            "source_ref": "/root/goals/0/options/2",
+            "left": {
+              "function_ref": "/root/goals/0/options/option_c/functions/left",
+              "function_name": "f",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/2/functions/0/definition",
+              "expression": "sqrt(x^2)",
+              "expression_ast": [
+                "call",
+                "sqrt",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              "expression_latex": "\\sqrt{x^{2}}",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "square_root_square"
+            },
+            "right": {
+              "function_ref": "/root/goals/0/options/option_c/functions/right",
+              "function_name": "g",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/2/functions/1/definition",
+              "expression": "abs(x)",
+              "expression_ast": [
+                "call",
+                "abs",
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ],
+              "expression_latex": "\\left|x\\right|",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "absolute_affine"
+            }
+          },
+          {
+            "option_id": "option_d",
+            "label": "D",
+            "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+            "source_ref": "/root/goals/0/options/3",
+            "left": {
+              "function_ref": "/root/goals/0/options/option_d/functions/left",
+              "function_name": "f",
+              "variable": "x",
+              "source_ref": "/root/goals/0/options/3/functions/0/definition",
+              "expression": "3*x^2-2*x+3",
+              "expression_ast": [
+                "+",
+                [
+                  "-",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              "expression_latex": "3\\cdot x^{2}-2\\cdot x+3",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "polynomial"
+            },
+            "right": {
+              "function_ref": "/root/goals/0/options/option_d/functions/right",
+              "function_name": "g",
+              "variable": "t",
+              "source_ref": "/root/goals/0/options/3/functions/1/definition",
+              "expression": "3*t^2-2*t+3",
+              "expression_ast": [
+                "+",
+                [
+                  "-",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              "expression_latex": "3\\cdot t^{2}-2\\cdot t+3",
+              "input_domain_ast": [
+                "real"
+              ],
+              "explicit_domain": false,
+              "input_domain_source_ref": "",
+              "structure_supported": true,
+              "reason": "",
+              "family": "polynomial"
+            }
+          }
+        ],
+        "structure_supported": true,
+        "reason": "",
+        "structure_version": "function-comparison-options/v1"
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0",
+        "/root/goals/0/options/0/functions/0/definition",
+        "/root/goals/0/options/0/functions/1/definition",
+        "/root/goals/0/options/1/functions/0/definition",
+        "/root/goals/0/options/1/functions/1/definition",
+        "/root/goals/0/options/2/functions/0/definition",
+        "/root/goals/0/options/2/functions/1/definition",
+        "/root/goals/0/options/3/functions/0/definition",
+        "/root/goals/0/options/3/functions/1/definition"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-comparison-options/v1",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "fixed-affine-function-domain/v4",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_quantified_comparison_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": true,
+  "feature_diagnostics": [],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "f8dff3893c7ad6b667da52fb2bd5ae5920b7d25a3fb9c0892d7d61df75df7e8c",
+  "sent_image_sha256": [
+    "f8dff3893c7ad6b667da52fb2bd5ae5920b7d25a3fb9c0892d7d61df75df7e8c"
+  ],
+  "elapsed_seconds": 33.375
+}

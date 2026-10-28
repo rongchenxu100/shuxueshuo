@@ -125,4 +125,7 @@ def build_context(candidate, target_ref):
     elif goal['kind'] == 'match_domain':
         from ..stage_one.function_domain_parameter import inspect_match_domain_target
         context['domain_goal'] = inspect_match_domain_target(candidate, target_ref)
+    elif goal['kind'] == 'compare_functions':
+        from ..stage_one.function_equality import inspect_comparison_target
+        context['comparison_goal'] = inspect_comparison_target(candidate, target_ref)
     return context

@@ -1,0 +1,199 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-q20-v2",
+  "label": "判断是否为同一函数 · Q20",
+  "path": "/topics/function-concepts/q20/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-q20-v2.json",
+  "types": [
+    "type-function-equality"
+  ],
+  "statement": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+  "routes": {
+    "function-equality": {
+      "label": "同一函数判定法",
+      "methods": [
+        "method-function-equality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-equality"
+          ]
+        },
+        "8f409a973b6373cc98be6a98#1": {
+          "title": "① 两边的定义域",
+          "position": 4,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "946ecc02e50f253a9b8cbf5d#1": {
+          "title": "选项 A",
+          "position": 5,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "fa5baf3fa85381d90e8c5e31#1": {
+          "title": "① 两边的定义域",
+          "position": 6,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "fa5baf3fa85381d90e8c5e31#2": {
+          "title": "② 对应关系",
+          "position": 7,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "43fdf67a2b46e2bf8b21179b#1": {
+          "title": "选项 B",
+          "position": 8,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "d438115dc5c006523efa066c#1": {
+          "title": "① 两边的定义域",
+          "position": 9,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ]
+        },
+        "d438115dc5c006523efa066c#2": {
+          "title": "② 对应关系",
+          "position": 10,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ]
+        },
+        "8ef7303de68dd8d65991d1ab#1": {
+          "title": "选项 C",
+          "position": 11,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ]
+        },
+        "0437b48d9c2216cbebb90e99#1": {
+          "title": "① 两边的定义域",
+          "position": 12,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "0437b48d9c2216cbebb90e99#2": {
+          "title": "② 对应关系",
+          "position": 13,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "808b8f4ec1f0201a767b600e#1": {
+          "title": "选项 D",
+          "position": 14,
+          "refs": [
+            "method-function-equality#compare",
+            "skill-simplify",
+            "function-concept#identity"
+          ]
+        },
+        "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"637a02419746ce650a062116ae85425fb463197c58f29c1edf3304ab4a04fa13\"]": {
+          "title": "选择原题答案",
+          "position": 15,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/"
+  ],
+  "content_version": "b3f342397ca3f8ee8be47f38d409ee5886d1b4da7ab8606c5c93dce29ac5754f"
+}

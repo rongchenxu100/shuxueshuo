@@ -334,7 +334,9 @@ def validate_contract(contract, nodes=None, *, available_methods=None):
     index = 0
     while index < len(contract["steps"]):
         step, node = contract["steps"][index], public[index]
-        cases = step.get("cases")
+        if step.get('cases') and step.get('options'):
+            raise ValueError('execution.ambiguous_iteration_scope')
+        cases = step.get("cases") or step.get('options')
         outer_refs, allowed_refs = validate_step(step, node, environment, partial=bool(cases))
         if not cases:
             index += 1
@@ -359,7 +361,7 @@ def validate_contract(contract, nodes=None, *, available_methods=None):
         if outer_refs | entry_refs != allowed_refs:
             raise ValueError("execution.missing_public_call")
         for child_index in range(index + 1, end + 1):
-            if contract["steps"][child_index].get("cases"):
+            if contract["steps"][child_index].get("cases") or contract['steps'][child_index].get('options'):
                 raise ValueError("execution.nested_case_span")
             validate_step(contract["steps"][child_index], public[child_index], child)
         _require(references(cases["outputs"]), child)
@@ -403,6 +405,7 @@ def load_contracts():
             for call in [
                 *step["calls"],
                 *step.get("cases", {}).get("entry", {}).get("calls", []),
+                *step.get('options', {}).get('entry', {}).get('calls', []),
             ]:
                 if call["capability"] == "submethod":
                     child = contracts[call["public_ref"]]

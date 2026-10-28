@@ -316,6 +316,25 @@ test('domain completion labels the verified set as the domain', () => {
   assert.equal(find('stage-three-answer', value.node)[0].textContent, '[1,2)\\cup(2,+\\infty)');
 });
 
+test('comparison conclusion board explains verified reason codes in student language', () => {
+  const {document, find} = documentFixture();
+  const options = ['A', 'B', 'C', 'D'].map(label => ({option_id: label, label, text: `比较 ${label} 的两个函数`}));
+  const option_verdicts = options.map((option, index) => ({option_id: option.option_id, label: option.label,
+    verdict: index < 2 ? 'different' : 'equal',
+    reason: ['domains_differ', 'outputs_differ', 'same_domain_and_correspondence', '两式仅自变量名称不同'][index]}));
+  const payload = {status: 'verified', target_ref: '/root/goals/0',
+    answer: {kind: 'compare_functions', status: 'complete', option_verdicts},
+    original_choice: {status: 'matched', kind: 'multiple_choice', selection_mode: 'multiple', target_ref: '/root/goals/0',
+      select_relation: 'equal', options, correct_labels: ['C', 'D'], option_verdicts}};
+  const before = structuredClone(payload);
+  const value = createRouteCompletion(document, payload);
+  assert.deepEqual(find('gw-option-verdict-board', value.node)[0].children.map(row => row.textContent), [
+    'A　不同：定义域不同', 'B　不同：存在同一个输入，两式的函数值不同',
+    'C　相同：定义域相同，且每个输入对应的函数值都相同', 'D　相同：两式仅自变量名称不同',
+  ]);
+  assert.deepEqual(payload, before, 'presentation does not rewrite verified mathematical results');
+});
+
 for (const [kind, status, field, label, formula] of [
   ['find_minimum', 'attained', 'value', '最小值：', '-5/2'],
   ['find_maximum', 'attained', 'value', '最大值：', '5/2'],

@@ -14,6 +14,7 @@ from shuxueshuo_server.graph_lesson.stage_three.checkpoint import (
     identity_from_seed,
     validate_checkpoint,
 )
+from shuxueshuo_server.graph_lesson.stage_three.handoff import verified_route_hash
 from shuxueshuo_server.graph_lesson.stage_three.public_snapshot import project_snapshot
 from shuxueshuo_server.graph_lesson.stage_three.revision_manifest import math_step_hash
 from shuxueshuo_server.problem_understanding.identity import revision
@@ -84,10 +85,10 @@ def export_course(directory, problem_id):
             final = checkpoint["finalization"]
             frozen_steps = [{name: step[name] for name in ("step_id", "ordinal", "math_step_sha256")}
                             for step in snapshot["math_steps"] if (step["target_ref"], step["route_id"]) == key]
-            route_hash = revision({"route": _read(route_path), "verification": final["verification"],
-                                   "feasible_set": final["feasible_set"], "answer": final["answer"],
-                                   "math_steps": frozen_steps, "revisions": frozen,
-                                   **({"original_choice": final["original_choice"]} if "original_choice" in final else {})})
+            route_hash = verified_route_hash(
+                route=_read(route_path), verification=final["verification"],
+                feasible_set=final.get("feasible_set"), answer=final["answer"],
+                math_steps=frozen_steps, revisions=frozen, original_choice=final.get("original_choice"))
             _require(handoff.get("available") is True and handoff["run_id"] == identity["run_id"]
                      and handoff["lesson_version"] == identity["lesson_version"]
                      and handoff["verified_route_sha256"] == checkpoint["verified_route_sha256"] == route_hash
@@ -102,7 +103,7 @@ def export_course(directory, problem_id):
         stage_one = inputs["stage_one"]
         lesson = present_lesson(inputs["stage_two"], stage_one["features"],
                                 stage_one["candidate"]["original_text"], problem_id,
-                                candidate=stage_one["candidate"])
+                                candidate=stage_one["candidate"], display_text=stage_one.get("public_statement"))
         return {"schemaVersion": 1, "provenance": {
             **identity, "checkpoint_sha256": manifest["checkpoint"]["sha256"],
             "result_sha256": revision(result),

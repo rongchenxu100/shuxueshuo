@@ -69,7 +69,7 @@ def record_seed(state, fragment, *, template, values, frame_bindings=None):
             "step_id", "math_step_sha256", "ordinal", "display_unit", "method_ref", "case_path")},
         "template": template,
     }
-    for key in ("branch_id", "branch_condition"):
+    for key in ("branch_id", "branch_condition", 'option_context'):
         if key in fragment:
             seed[key] = deepcopy(fragment[key])
     try:
@@ -102,6 +102,7 @@ def make_fragment(
     premise_refs=(),
     highlight=None,
     title=None,
+    option_context=None,
 ):
     settings = read("presentation-registry")["templates"][template]
     ordinal = len(state["fragments"]) + 1
@@ -135,6 +136,8 @@ def make_fragment(
         value["branch_id"] = branch_id
     if branch_condition is not None:
         value["branch_condition"] = math_value(branch_condition)
+    if option_context is not None:
+        value['option_context'] = deepcopy(option_context)
     # Conclusion lives elsewhere (e.g. case pictures); the card only carries the derivation.
     if settings.get("derivation") is True:
         value["derivation"] = True
@@ -163,6 +166,12 @@ def render_unit(state, frame, step, unit, bindings, source_refs, used_basis, pre
     # A multi-step source scope adds evidence without changing the card's own
     # method step. The legacy single-step scope explicitly re-anchors it.
     method_step = unit.get("source_scope", {}).get("step", step["id"])
+    option_context = deepcopy(frame.get('option_context'))
+    if option_context:
+        # Domain (+ correspondence when same-domain) stay evidence; a separate
+        # verdict card always closes the option workspace.
+        option_context['phase'] = (
+            'verdict' if unit['template'] == 'equality_verdict' else 'evidence')
     fragment = make_fragment(
         state, unit_id=unit["id"], method_ref=frame["method"] + "#" + method_step,
         template=unit["template"], before=before, after=after, source_refs=source_refs,
@@ -173,6 +182,7 @@ def render_unit(state, frame, step, unit, bindings, source_refs, used_basis, pre
                           constant_true_condition(branch["condition"]) else None),
         highlight=highlight,
         title=render_title(specification, bindings, has_case=bool(case_path)),
+        option_context=option_context,
     )
     return fragment, values
 

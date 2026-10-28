@@ -13,11 +13,23 @@ from shuxueshuo_server.problem_understanding.identity import revision
 from .events import _dump, goal_unavailable
 
 
+def verified_route_hash(*, route, verification, feasible_set, answer, math_steps, revisions,
+                        original_choice=None):
+    """One canonical publication identity for live and offline typed results."""
+    choice_fields = {"original_choice": original_choice} if original_choice is not None else {}
+    return revision({"route": route, "verification": verification, "feasible_set": feasible_set,
+                     "answer": answer, "math_steps": math_steps, "revisions": revisions,
+                     **choice_fields})
+
+
 def validate_original_choice(choice, target):
     if choice is None:
         return
     if not isinstance(choice, dict) or choice.get("target_ref") != target:
         raise ValueError("handoff.invalid_original_choice")
+    if choice.get('selection_mode') in ('multiple', 'single'):
+        _validate_comparison_choice(choice)
+        return
     if choice.get("status") == "unavailable":
         if (set(choice) != {"status", "target_ref", "reason"}
                 or not isinstance(choice.get("reason"), str) or not choice["reason"].strip()):
@@ -41,11 +53,44 @@ def validate_original_choice(choice, target):
         raise ValueError("handoff.invalid_original_choice")
 
 
+def _validate_comparison_choice(choice):
+    expected = {'status', 'kind', 'selection_mode', 'target_ref', 'select_relation',
+                'options', 'correct_labels', 'option_verdicts'}
+    if (set(choice) != expected or choice['status'] != 'matched'
+            or choice['kind'] != ('multiple_choice' if choice['selection_mode'] == 'multiple' else 'single_choice')
+            or choice['select_relation'] not in ('equal', 'different')):
+        raise ValueError('handoff.invalid_original_choice')
+    options, rows, correct = choice['options'], choice['option_verdicts'], choice['correct_labels']
+    if (not isinstance(options, list) or not options or not isinstance(rows, list)
+            or len(rows) != len(options) or not isinstance(correct, list)):
+        raise ValueError('handoff.invalid_original_choice')
+    ids, labels, expected_labels = [], [], []
+    for option, row in zip(options, rows, strict=True):
+        if (not isinstance(option, dict) or set(option) != {'option_id', 'label', 'text'}
+                or any(not isinstance(value, str) or not value.strip() for value in option.values())
+                or not isinstance(row, dict) or set(row) != {'option_id', 'label', 'verdict', 'reason'}
+                or any(row[key] != option[key] for key in ('option_id', 'label'))
+                or row['verdict'] not in ('equal', 'different')
+                or not isinstance(row['reason'], str) or not row['reason']):
+            raise ValueError('handoff.invalid_original_choice')
+        ids.append(option['option_id'])
+        labels.append(option['label'])
+        if row['verdict'] == choice['select_relation']:
+            expected_labels.append(row['label'])
+    if (len(set(ids)) != len(ids) or len(set(labels)) != len(labels) or correct != expected_labels
+            or (choice['selection_mode'] == 'single' and len(correct) != 1)):
+        raise ValueError('handoff.invalid_original_choice')
+
+
 def complete_route(store, checkpoint, *, route, verification, feasible_set, answer, commit_id,
                    consistency="consistent", original_choice=None, before_commit=None, after_commit=None):
     if verification.get("status") != "verified" or route.get("status") != "verified":
         raise ValueError("handoff.route_not_verified")
-    if checkpoint["status"] != "verified" or answer is None or feasible_set is None:
+    comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
+    if (checkpoint["status"] != "verified" or answer is None
+            or (feasible_set is None and not comparison)
+            or (comparison and (feasible_set is not None or answer.get('status') != 'complete'
+                                or 'comparison_result' not in (route.get('result') or {})))):
         raise ValueError("handoff.incomplete_finalization")
     if consistency not in {"consistent", "conflict", "unknown"}:
         raise ValueError("handoff.invalid_consistency")
@@ -64,9 +109,9 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
         if store._checkpoint(db, target, route_id) is None or not steps:
             raise ValueError("handoff.missing_committed_math")
         frozen_steps = [{key: step[key] for key in ("step_id", "ordinal", "math_step_sha256")} for step in steps]
-        route_hash = revision({"route": route, "verification": verification, "feasible_set": feasible_set,
-                               "answer": answer, "math_steps": frozen_steps, "revisions": store.identity["revisions"],
-                               **choice_fields})
+        route_hash = verified_route_hash(route=route, verification=verification, feasible_set=feasible_set,
+                                        answer=answer, math_steps=frozen_steps, revisions=store.identity["revisions"],
+                                        original_choice=original_choice)
         saved = store._execute(db, 'SELECT value FROM lesson_handoffs WHERE run_id=:run_id AND target=:target AND route=:route',
                                target=target, route=route_id).fetchone()
         if saved:

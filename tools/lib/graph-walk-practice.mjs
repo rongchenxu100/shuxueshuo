@@ -7,7 +7,9 @@ const copy = value => structuredClone(value);
 export function nativePracticeContract(bundle) {
   const decision = value => {
     const contract = Object.fromEntries(['id', 'title', 'question', 'interaction', 'expected_answer',
-      'feedback', 'route_by_answer', 'source_regions', 'stream_steps', 'condition_number_lines', 'completion_number_line', 'endpoint_checks'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
+      'feedback', 'route_by_answer', 'source_regions', 'stream_steps', 'condition_number_lines', 'completion_number_line', 'endpoint_checks',
+      'option_context', 'target_ref', 'require_complete_options', 'select_relation'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
+    if (value.interaction.type === 'original_choice_exact_set') contract.source = value.source;
     // Keep valid unexpanded choices in the server grading contract without
     // changing the frozen identity of courses that have no such alternatives.
     if (Object.keys(value.alternatives || {}).length) contract.alternatives = copy(value.alternatives);

@@ -135,6 +135,21 @@
       "function-concept#elements",
       "quantifiers#universal",
       "square-root-expression#meaning"
+    ],
+    "function_comparison_scope": [
+      "function-concept#identity"
+    ],
+    "absolute_value_on_sign_cell": [
+      "absolute-value-concept#rules"
+    ],
+    "square_of_real_square_root": [
+      "square-root-expression#meaning"
+    ],
+    "function_identity_comparison": [
+      "function-concept#identity"
+    ],
+    "function_comparison_collection": [
+      "function-concept#identity"
     ]
   }
 }

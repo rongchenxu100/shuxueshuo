@@ -315,6 +315,13 @@ def square_extremum(expression, variable, domain, square, coefficient, vertex, v
     )
 
 
+from ..function_domain import (
+    extract_domain_conditions,
+    extract_domain_parameter_conditions,
+    intersect_domain,
+    prepare_domain_conditions,
+    reduce_domain_equality_to_universal,
+)
 from .cases import (
     combine_condition_solutions,
     degenerate_case_check,
@@ -353,14 +360,6 @@ from .variable_swap import (
     reorder_by_variable,
     solve_affine_condition,
     solve_variable_conditions,
-)
-
-from ..function_domain import (
-    extract_domain_conditions,
-    extract_domain_parameter_conditions,
-    prepare_domain_conditions,
-    intersect_domain,
-    reduce_domain_equality_to_universal,
 )
 
 REGISTRY = {
@@ -411,6 +410,19 @@ REGISTRY = {
         merge_variable_cases,
     )
 }
+
+
+def _comparison_operation(name):
+    def invoke(**inputs):
+        from .. import equality_runtime
+        return getattr(equality_runtime, name)(**inputs)
+    return invoke
+
+
+REGISTRY.update({name: _comparison_operation(name) for name in (
+    'prepare_function_comparisons', 'prepare_function_pair', 'compare_function_pair',
+    'collect_function_comparisons',
+)})
 PLANNED = frozenset(
     {
         "elimination",

@@ -940,6 +940,11 @@ class NotationValidator:
         goals = []
         for index, goal in enumerate(source["goals"]):
             try:
+                if goal['kind'] == 'compare_functions':
+                    from .notation_function_comparison import compile_comparison
+
+                    goals.append(compile_comparison(goal, f'{path}.goals[{index}]'))
+                    continue
                 target = next(
                     k for k in ("expression", "object", "symbol") if k in goal
                 )
@@ -993,7 +998,7 @@ class NotationValidator:
             except (NotationError, RecursionError) as exc:
                 report.issues.append(
                     {
-                        "path": f"{path}.goals[{index}]",
+                        "path": getattr(exc, 'path', None) or f"{path}.goals[{index}]",
                         "source": goal,
                         "code": "notation.goal",
                         "reason_code": getattr(exc, "code", "internal.exception"),

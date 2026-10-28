@@ -29,34 +29,113 @@
       "uniqueItems": true
     },
     "goal": {
-      "type": "object",
-      "required": [
-        "kind",
-        "symbol"
-      ],
-      "properties": {
-        "kind": {
-          "enum": [
-            "find_range",
-            "find_minimum",
-            "find_maximum",
-            "find_domain",
-            "match_domain"
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "symbol"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_range",
+                "find_minimum",
+                "find_maximum",
+                "find_domain",
+                "match_domain"
+              ]
+            },
+            "symbol": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "object": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "match_domain 时的函数符号；其他目标可省略。"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "mode",
+            "select_relation",
+            "selection_mode"
+          ],
+          "properties": {
+            "kind": {
+              "const": "compare_functions"
+            },
+            "mode": {
+              "enum": [
+                "pair",
+                "groups",
+                "shared_baseline"
+              ]
+            },
+            "select_relation": {
+              "enum": [
+                "equal",
+                "different",
+                "unknown",
+                null
+              ]
+            },
+            "selection_mode": {
+              "enum": [
+                "single",
+                "multiple",
+                "none"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "mode": {
+                    "const": "pair"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "select_relation": {
+                    "type": "null"
+                  },
+                  "selection_mode": {
+                    "const": "none"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "select_relation": {
+                    "enum": [
+                      "equal",
+                      "different",
+                      "unknown"
+                    ]
+                  },
+                  "selection_mode": {
+                    "enum": [
+                      "single",
+                      "multiple"
+                    ]
+                  }
+                }
+              }
+            }
           ]
-        },
-        "symbol": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "\\S"
-        },
-        "object": {
-          "type": "string",
-          "minLength": 1,
-          "pattern": "\\S",
-          "description": "match_domain 时的函数符号；其他目标可省略。"
         }
-      },
-      "additionalProperties": false
+      ]
     },
     "domain": {
       "type": "object",
@@ -459,11 +538,277 @@
           "type": "string"
         },
         "parameter_family": {
-          "enum": ["halfline_root_ratio"],
+          "enum": [
+            "halfline_root_ratio"
+          ],
           "description": "M6 半轴根式比值契约；缺省沿用全实数根式契约。"
         }
       },
       "additionalProperties": false
+    },
+    "function_comparison": {
+      "type": "object",
+      "required": [
+        "kind",
+        "target",
+        "target_ref",
+        "mode",
+        "select_relation",
+        "selection_mode",
+        "completeness",
+        "options",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "kind": {
+          "const": "compare_functions"
+        },
+        "target": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "comparison_task"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "target_ref": {
+          "type": "string",
+          "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+        },
+        "mode": {
+          "enum": [
+            "pair",
+            "groups",
+            "shared_baseline"
+          ]
+        },
+        "select_relation": {
+          "enum": [
+            "equal",
+            "different",
+            "unknown",
+            null
+          ]
+        },
+        "selection_mode": {
+          "enum": [
+            "single",
+            "multiple",
+            "none"
+          ]
+        },
+        "completeness": {
+          "enum": [
+            "complete",
+            "incomplete"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/function_comparison/$defs/option"
+          }
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "function-comparison-options/v1"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "ast": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "prefixItems": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          ],
+          "items": {
+            "anyOf": [
+              {
+                "type": [
+                  "string",
+                  "boolean",
+                  "integer"
+                ]
+              },
+              {
+                "$ref": "#/$defs/function_comparison/$defs/ast"
+              }
+            ]
+          }
+        },
+        "function": {
+          "type": "object",
+          "required": [
+            "function_ref",
+            "function_name",
+            "variable",
+            "source_ref",
+            "expression",
+            "expression_latex",
+            "input_domain_source_ref",
+            "expression_ast",
+            "input_domain_ast",
+            "explicit_domain"
+          ],
+          "properties": {
+            "function_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "function_name": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "expression_latex": {
+              "type": "string"
+            },
+            "input_domain_source_ref": {
+              "type": "string"
+            },
+            "expression_ast": {
+              "$ref": "#/$defs/function_comparison/$defs/ast"
+            },
+            "input_domain_ast": {
+              "$ref": "#/$defs/function_comparison/$defs/ast"
+            },
+            "explicit_domain": {
+              "type": "boolean"
+            },
+            "structure_supported": {
+              "type": "boolean"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "family": {
+              "enum": [
+                "polynomial",
+                "absolute_affine",
+                "square_root_square",
+                "square_root_squared"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "option": {
+          "type": "object",
+          "required": [
+            "option_id",
+            "label",
+            "text",
+            "source_ref",
+            "left",
+            "right"
+          ],
+          "properties": {
+            "option_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source_ref": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "left": {
+              "$ref": "#/$defs/function_comparison/$defs/function"
+            },
+            "right": {
+              "$ref": "#/$defs/function_comparison/$defs/function"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "pair"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "select_relation": {
+                "type": "null"
+              },
+              "selection_mode": {
+                "const": "none"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "select_relation": {
+                "enum": [
+                  "equal",
+                  "different",
+                  "unknown"
+                ]
+              },
+              "selection_mode": {
+                "enum": [
+                  "single",
+                  "multiple"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

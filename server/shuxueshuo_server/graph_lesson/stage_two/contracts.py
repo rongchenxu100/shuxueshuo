@@ -46,6 +46,19 @@ def _visible_sources(candidate):
         for index in range(len(scope.get("goals", []))):
             target = f"{path}/goals/{index}"
             visible[target] = own[path] | inherited | {target}
+            goal = scope['goals'][index]
+            if goal['kind'] == 'compare_functions':
+                for fi, function in enumerate(goal['shared_functions']):
+                    prefix = f'{target}/shared_functions/{fi}'
+                    visible[target].add(prefix + '/definition')
+                    if 'domain' in function:
+                        visible[target].add(prefix + '/domain')
+                for oi, option in enumerate(goal['options']):
+                    for fi, function in enumerate(option['functions']):
+                        prefix = f'{target}/options/{oi}/functions/{fi}'
+                        visible[target].add(prefix + '/definition')
+                        if 'domain' in function:
+                            visible[target].add(prefix + '/domain')
     return visible
 
 
@@ -144,11 +157,12 @@ def validate_input(value, admission="acceptance"):
         # feature is mandatory for that new goal, but cannot invalidate older
         # reviewed goals that never used it. Present rows still receive every
         # ordinary shape/source check above.
-        required = (
-            registry
-            if expected[target]["goal"]["kind"] in ("find_domain", "match_domain")
-            else registry - {"function_domain"}
-        )
+        kind = expected[target]['goal']['kind']
+        required = registry - {'function_domain', 'function_comparison'}
+        if kind in ('find_domain', 'match_domain'):
+            required.add('function_domain')
+        elif kind == 'compare_functions':
+            required.add('function_comparison')
         if missing := required - found:
             issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))
     return {"ok": not diagnostics, "diagnostics": diagnostics}

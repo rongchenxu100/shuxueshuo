@@ -11,7 +11,7 @@ from math import isqrt
 
 from ...problem_understanding.notation_parser import NotationError, definition
 
-VERSION = "fixed-affine-function-domain/v3"
+VERSION = "fixed-affine-function-domain/v4"
 ARGUMENT = ["bound", "function_argument"]
 # Match the canonical notation service's existing single-exponent bound.
 MAX_INTEGER_EXPONENT = 12
@@ -222,6 +222,12 @@ def _inspect_expression(ast):
                 counts["has_quadratic_condition"] = True
             walk(value[2], depth + 1, power_weight)
             return
+        if kind == "call" and value[1] == "abs":
+            # Q20 needs affine absolute values now; quadratic absolute values
+            # belong to the later equality extension and remain unadmitted.
+            _affine(value[2])
+            walk(value[2], depth + 1, power_weight)
+            return
         if kind == "/":
             counts["has_division"] = True
             divisor = value[2]
@@ -237,6 +243,11 @@ def _inspect_expression(ast):
 
 def _input_domain(ast):
     if ast == ["real"]:
+        return
+    if ast[0] == "set" and len(ast) == 2:
+        slope, _ = _affine(ast[1])
+        if slope:
+            raise NotationError("domain.fixed_interval_required")
         return
     if ast[0] != "interval":
         raise NotationError("domain.explicit_interval_required")
@@ -271,6 +282,8 @@ def expression_latex(ast, variable, parent=_PREC_SUM, names=None):
         return f"({body})" if parent > _PREC_SUM else body
     if ast[:2] == ["call", "sqrt"]:
         return r"\sqrt{" + expression_latex(ast[2], variable, _PREC_SUM, names) + "}"
+    if ast[:2] == ["call", "abs"]:
+        return r"\left|" + expression_latex(ast[2], variable, _PREC_SUM, names) + r"\right|"
     if ast[0] == "/":
         return (
             r"\frac{"
@@ -281,6 +294,8 @@ def expression_latex(ast, variable, parent=_PREC_SUM, names=None):
         )
     if ast[0] == "^":
         base = expression_latex(ast[1], variable, _PREC_POW + 1, names)
+        if ast[1][:2] == ["call", "sqrt"]:
+            base = r"\left(" + base + r"\right)"
         expo = expression_latex(ast[2], variable, _PREC_SUM, names)
         body = f"{base}^{{{expo}}}"
         return f"({body})" if parent > _PREC_POW else body

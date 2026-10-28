@@ -1,0 +1,3037 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q20",
+  "graphVersion": "b70d2e0e8de3b032ad2a90f8be7efcb379cc2ba45f5abed4de65a9061f6053ce",
+  "problem": {
+    "text": "（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "题目要求我们判断并选出什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "逐项判断，再选出表示不相同函数的选项",
+            "feedback": "再看题目要求：要选的是表示相同函数的选项。"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "逐项判断，再选出表示相同函数的选项"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o1"
+        ]
+      },
+      "feedback": {
+        "answer": "再看题目要求：要选的是表示相同函数的选项。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-function-equality",
+        "type-function-domain",
+        "type-abstract-function-domain",
+        "type-function-evaluation",
+        "type-function-range"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "判断同一函数，要先比较定义域，再比较整个定义域上的对应关系。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-equality",
+            "label": "判断是否为相同函数"
+          },
+          {
+            "value": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "feedback": "只要求求出合法输入的集合"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-equality"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-equality",
+        "type-function-domain"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-equality"
+        ],
+        "edges": [
+          "type-function-equality|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：题目给出一对或多组函数，目标是判断它们是否表示同一函数；先比较定义域，再比较整个定义域上的对应关系。"
+        ],
+        "log": "作答判断：选择主要题型「判断是否为相同函数」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "同一函数判定法",
+            "target": "method-function-equality",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "function-equality"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-equality",
+        "op": "methods"
+      },
+      "question": "使用同一函数判定法：逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。",
+      "submit_label": "用同一函数判定法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-function-equality"
+      ],
+      "effects": {
+        "nodes": [
+          "method-function-equality"
+        ],
+        "edges": [
+          "type-function-equality|candidate|method-function-equality"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "function-equality"
+      }
+    }
+  ],
+  "routes": {
+    "function-equality": {
+      "id": "function-equality",
+      "method": "method-function-equality",
+      "label": "同一函数判定法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "expected_answer": {
+            "terms": [
+              "o0",
+              "o0"
+            ]
+          },
+          "feedback": {
+            "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+          },
+          "id": "ac0a3b28a7b620f22ba161c0#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "f(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              },
+              {
+                "label": "g(x)",
+                "options": [
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              }
+            ],
+            "title": "两边的定义域",
+            "type": "checklist"
+          },
+          "option_context": {
+            "label": "A",
+            "left_ref": "/root/goals/0/options/A/functions/f",
+            "option_id": "A",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/A/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。分别选出两边的定义域。",
+          "submit_label": "确认定义域",
+          "title": "① 两边的定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "56f228caadf4fc05c82349825373b49bdf7070dbd937f317030e8315bf21f909",
+              "step_id": "39e5646dcb-function-equality-001-equality_domains"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "ac0a3b28a7b620f22ba161c0",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "比较本项定义域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：① 两边的定义域"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "different"
+            ]
+          },
+          "feedback": {
+            "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+          },
+          "id": "05a48454c78220d6078392a9#1",
+          "interaction": {
+            "field": "function_relation",
+            "options": [
+              {
+                "label": "相同",
+                "value": "equal"
+              },
+              {
+                "label": "不同",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "A",
+            "left_ref": "/root/goals/0/options/A/functions/f",
+            "option_id": "A",
+            "phase": "verdict",
+            "right_ref": "/root/goals/0/options/A/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。结合已经比较的定义域，本项两个函数是否相同？",
+          "submit_label": "确认本项结论",
+          "title": "选项 A",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "2a095dfb3faed5975570bd091e37badf67b07806886e83bde912585640a66f26",
+              "step_id": "39e5646dcb-function-equality-002-equality_verdict"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "05a48454c78220d6078392a9",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "选项 A 的结论",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "本项结论：不同"
+            ],
+            "log": "完成判断：选项 A"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "o0",
+              "o0"
+            ]
+          },
+          "feedback": {
+            "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+          },
+          "id": "f4e203f8f70e67d06589c86a#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "f(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              },
+              {
+                "label": "g(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              }
+            ],
+            "title": "两边的定义域",
+            "type": "checklist"
+          },
+          "option_context": {
+            "label": "B",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/B/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。分别选出两边的定义域。",
+          "submit_label": "确认定义域",
+          "title": "① 两边的定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+              "step_id": "39e5646dcb-function-equality-003-equality_domains"
+            },
+            {
+              "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+              "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f4e203f8f70e67d06589c86a",
+          "stream_part_index": 0,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：① 两边的定义域"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "different"
+            ]
+          },
+          "feedback": {
+            "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+          },
+          "id": "f4e203f8f70e67d06589c86a#2",
+          "interaction": {
+            "field": "correspondence",
+            "options": [
+              {
+                "label": "等价",
+                "value": "equal"
+              },
+              {
+                "label": "不等价",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "B",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/B/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "两边定义域相同。对应关系是否等价？",
+          "submit_label": "确认对应关系",
+          "title": "② 对应关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+              "step_id": "39e5646dcb-function-equality-003-equality_domains"
+            },
+            {
+              "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+              "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f4e203f8f70e67d06589c86a",
+          "stream_part_index": 1,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：② 对应关系"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "different"
+            ]
+          },
+          "feedback": {
+            "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+          },
+          "id": "7aafbfed21f20aefccff0b31#1",
+          "interaction": {
+            "field": "function_relation",
+            "options": [
+              {
+                "label": "相同",
+                "value": "equal"
+              },
+              {
+                "label": "不同",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "B",
+            "left_ref": "/root/goals/0/options/B/functions/f",
+            "option_id": "B",
+            "phase": "verdict",
+            "right_ref": "/root/goals/0/options/B/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+          "submit_label": "确认本项结论",
+          "title": "选项 B",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bd9d74bdfa6ea67a322b9bf06cc4560af63284502fe51094111288cfe3f472fb",
+              "step_id": "39e5646dcb-function-equality-005-equality_verdict"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "7aafbfed21f20aefccff0b31",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "选项 B 的结论",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "本项结论：不同"
+            ],
+            "log": "完成判断：选项 B"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "o0",
+              "o0"
+            ]
+          },
+          "feedback": {
+            "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+          },
+          "id": "1a117868cbfd0a542606e920#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "f(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              },
+              {
+                "label": "g(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              }
+            ],
+            "title": "两边的定义域",
+            "type": "checklist"
+          },
+          "option_context": {
+            "label": "C",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/C/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。分别选出两边的定义域。",
+          "submit_label": "确认定义域",
+          "title": "① 两边的定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+              "step_id": "39e5646dcb-function-equality-006-equality_domains"
+            },
+            {
+              "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+              "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "1a117868cbfd0a542606e920",
+          "stream_part_index": 0,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：① 两边的定义域"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "equal"
+            ]
+          },
+          "feedback": {
+            "answer": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。"
+          },
+          "id": "1a117868cbfd0a542606e920#2",
+          "interaction": {
+            "field": "correspondence",
+            "options": [
+              {
+                "label": "等价",
+                "value": "equal"
+              },
+              {
+                "label": "不等价",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "C",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/C/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "两边定义域相同。对应关系是否等价？",
+          "submit_label": "确认对应关系",
+          "title": "② 对应关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+              "step_id": "39e5646dcb-function-equality-006-equality_domains"
+            },
+            {
+              "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+              "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "1a117868cbfd0a542606e920",
+          "stream_part_index": 1,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：② 对应关系"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "equal"
+            ]
+          },
+          "feedback": {
+            "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+          },
+          "id": "3994b93e77c3fe862530a6b5#1",
+          "interaction": {
+            "field": "function_relation",
+            "options": [
+              {
+                "label": "相同",
+                "value": "equal"
+              },
+              {
+                "label": "不同",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "C",
+            "left_ref": "/root/goals/0/options/C/functions/f",
+            "option_id": "C",
+            "phase": "verdict",
+            "right_ref": "/root/goals/0/options/C/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+          "submit_label": "确认本项结论",
+          "title": "选项 C",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "0c6d786318de5f964cf80740e8ab071fa8555e2d877442afef8fc1453113bf30",
+              "step_id": "39e5646dcb-function-equality-008-equality_verdict"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "3994b93e77c3fe862530a6b5",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "选项 C 的结论",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "本项结论：相同"
+            ],
+            "log": "完成判断：选项 C"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "o0",
+              "o0"
+            ]
+          },
+          "feedback": {
+            "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+          },
+          "id": "69da1c5fe9176a5f28f9aee8#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "f(x)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              },
+              {
+                "label": "g(t)",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "o0"
+                  },
+                  {
+                    "label": "$\\left[0, \\infty\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, \\infty\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 0\\right]$",
+                    "value": "o3"
+                  },
+                  {
+                    "label": "$\\varnothing$",
+                    "value": "o4"
+                  }
+                ]
+              }
+            ],
+            "title": "两边的定义域",
+            "type": "checklist"
+          },
+          "option_context": {
+            "label": "D",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/D/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。分别选出两边的定义域。",
+          "submit_label": "确认定义域",
+          "title": "① 两边的定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+              "step_id": "39e5646dcb-function-equality-009-equality_domains"
+            },
+            {
+              "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+              "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "69da1c5fe9176a5f28f9aee8",
+          "stream_part_index": 0,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：① 两边的定义域"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "equal"
+            ]
+          },
+          "feedback": {
+            "answer": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。"
+          },
+          "id": "69da1c5fe9176a5f28f9aee8#2",
+          "interaction": {
+            "field": "correspondence",
+            "options": [
+              {
+                "label": "等价",
+                "value": "equal"
+              },
+              {
+                "label": "不等价",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "D",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
+            "phase": "evidence",
+            "right_ref": "/root/goals/0/options/D/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "两边定义域相同。对应关系是否等价？",
+          "submit_label": "确认对应关系",
+          "title": "② 对应关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+              "step_id": "39e5646dcb-function-equality-009-equality_domains"
+            },
+            {
+              "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+              "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "69da1c5fe9176a5f28f9aee8",
+          "stream_part_index": 1,
+          "stream_part_count": 2,
+          "stream_group_title": "比较本项定义域 · 比较本项对应关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：② 对应关系"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "equal"
+            ]
+          },
+          "feedback": {
+            "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+          },
+          "id": "0dd915b5dfe02bdf6eec2ba7#1",
+          "interaction": {
+            "field": "function_relation",
+            "options": [
+              {
+                "label": "相同",
+                "value": "equal"
+              },
+              {
+                "label": "不同",
+                "value": "different"
+              }
+            ],
+            "type": "choice"
+          },
+          "option_context": {
+            "label": "D",
+            "left_ref": "/root/goals/0/options/D/functions/f",
+            "option_id": "D",
+            "phase": "verdict",
+            "right_ref": "/root/goals/0/options/D/functions/g",
+            "target_ref": "/root/goals/0"
+          },
+          "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+          "submit_label": "确认本项结论",
+          "title": "选项 D",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "544fda9c4ff74024719462a2d5e67acbf390da88a3233579685a80da50a9504d",
+              "step_id": "39e5646dcb-function-equality-011-equality_verdict"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "0dd915b5dfe02bdf6eec2ba7",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "选项 D 的结论",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "本项结论：相同"
+            ],
+            "log": "完成判断：选项 D"
+          }
+        },
+        {
+          "id": "[\"original-choice\",\"/root/goals/0\",\"function-equality\",\"2a73486b416419bbf76dfd324a21b97325ea98bf501adf136eb461852ab4dbec\"]",
+          "source": "original_choice",
+          "title": "选择原题答案",
+          "question": "已完成各项判断，请按原题要求选择，并确认答案。",
+          "target_ref": "/root/goals/0",
+          "require_complete_options": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "select_relation": "equal",
+          "interaction": {
+            "type": "original_choice_exact_set",
+            "field": "original_choice",
+            "options": [
+              {
+                "value": "A",
+                "label": "A. $f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+              },
+              {
+                "value": "B",
+                "label": "B. $f(x)=x^2$，$g(x)=(x+1)^2$"
+              },
+              {
+                "value": "C",
+                "label": "C. $f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
+              },
+              {
+                "value": "D",
+                "label": "D. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "correct_labels": [
+              "C",
+              "D"
+            ],
+            "option_labels": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "submit_label": "确认答案",
+          "feedback": {
+            "answer": "请检查原题问的是相同还是不同，必要时点进度标签回看理由，再检查是否漏选或多选。"
+          },
+          "stream_steps": [],
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "已确认原题选项答案。"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "correct_labels": [
+            "C",
+            "D"
+          ],
+          "kind": "compare_functions",
+          "mode": "groups",
+          "option_verdicts": [
+            {
+              "label": "A",
+              "option_id": "A",
+              "reason": "domains_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "B",
+              "option_id": "B",
+              "reason": "outputs_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "C",
+              "option_id": "C",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            },
+            {
+              "label": "D",
+              "option_id": "D",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            }
+          ],
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "math_steps": [
+          {
+            "math_step_sha256": "56f228caadf4fc05c82349825373b49bdf7070dbd937f317030e8315bf21f909",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-equality-001-equality_domains"
+          },
+          {
+            "math_step_sha256": "2a095dfb3faed5975570bd091e37badf67b07806886e83bde912585640a66f26",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-equality-002-equality_verdict"
+          },
+          {
+            "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-equality-003-equality_domains"
+          },
+          {
+            "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "bd9d74bdfa6ea67a322b9bf06cc4560af63284502fe51094111288cfe3f472fb",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-function-equality-005-equality_verdict"
+          },
+          {
+            "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-function-equality-006-equality_domains"
+          },
+          {
+            "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "0c6d786318de5f964cf80740e8ab071fa8555e2d877442afef8fc1453113bf30",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-function-equality-008-equality_verdict"
+          },
+          {
+            "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-function-equality-009-equality_domains"
+          },
+          {
+            "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+            "ordinal": 10,
+            "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "544fda9c4ff74024719462a2d5e67acbf390da88a3233579685a80da50a9504d",
+            "ordinal": 11,
+            "step_id": "39e5646dcb-function-equality-011-equality_verdict"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "C",
+            "D"
+          ],
+          "kind": "multiple_choice",
+          "option_verdicts": [
+            {
+              "label": "A",
+              "option_id": "A",
+              "reason": "domains_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "B",
+              "option_id": "B",
+              "reason": "outputs_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "C",
+              "option_id": "C",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            },
+            {
+              "label": "D",
+              "option_id": "D",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            }
+          ],
+          "options": [
+            {
+              "label": "A",
+              "option_id": "A",
+              "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+            },
+            {
+              "label": "B",
+              "option_id": "B",
+              "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+            },
+            {
+              "label": "C",
+              "option_id": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
+            },
+            {
+              "label": "D",
+              "option_id": "D",
+              "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+            }
+          ],
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "62a530e922f2dbcbde83a31f1fd277eed4af173839f6a54574124e82285064f7",
+        "verified_route_sha256": "2a73486b416419bbf76dfd324a21b97325ea98bf501adf136eb461852ab4dbec"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-concepts/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-function-equality",
+        "kind": "method",
+        "label": "同一函数判定法",
+        "summary": "逐项比较定义域和对应关系，形成有依据的相同或不同判定。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "prepare",
+            "title": "整理比较对象",
+            "calls": []
+          },
+          {
+            "id": "options",
+            "title": "进入本组选项",
+            "calls": []
+          },
+          {
+            "id": "left-domain",
+            "title": "确定第一个函数的定义域",
+            "calls": [
+              "method-domain-intersection"
+            ]
+          },
+          {
+            "id": "right-domain",
+            "title": "确定第二个函数的定义域",
+            "calls": [
+              "method-domain-intersection"
+            ]
+          },
+          {
+            "id": "compare",
+            "title": "比较定义域与对应关系",
+            "calls": [
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "collect",
+            "title": "收集各项判定",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验完整比较结果",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "absolute-value-concept",
+        "kind": "knowledge",
+        "label": "绝对值的概念与运算",
+        "summary": "绝对值表示数轴上到原点的距离，按被取绝对值的数的正负确定表达式。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-function-equality|calls|skill-simplify",
+        "from": "method-function-equality",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "compare",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|candidate|method-function-equality",
+        "from": "type-function-equality",
+        "to": "method-function-equality",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-simplify",
+          "absolute-value-concept"
+        ]
+      }
+    ]
+  },
+  "option_workspaces": [
+    {
+      "option_id": "A",
+      "label": "A",
+      "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+    },
+    {
+      "option_id": "B",
+      "label": "B",
+      "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+    },
+    {
+      "option_id": "C",
+      "label": "C",
+      "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
+    },
+    {
+      "option_id": "D",
+      "label": "D",
+      "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+    }
+  ],
+  "bundleVersion": "[\"stream\",\"caa6e88ed25d11297bdcfb0f4e012e5b4d0d30284980525c179fe98c42611af9\",\"28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf\",\"21ce3b1284934f41bf8c3aad0eb6a5bf\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+    "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+    "stream_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "caa6e88ed25d11297bdcfb0f4e012e5b4d0d30284980525c179fe98c42611af9",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-function-equality",
+        "op": "methods"
+      },
+      "question": "逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。",
+      "submit_label": "用同一函数判定法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-function-equality",
+          "option_workspaces": [
+            {
+              "label": "A",
+              "option_id": "A",
+              "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+            },
+            {
+              "label": "B",
+              "option_id": "B",
+              "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+            },
+            {
+              "label": "C",
+              "option_id": "C",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=\\lvert x\\rvert$"
+            },
+            {
+              "label": "D",
+              "option_id": "D",
+              "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+            }
+          ],
+          "recommendation": "preferred",
+          "route_id": "function-equality",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\left[0, \\infty\\right)$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\left[0, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "56f228caadf4fc05c82349825373b49bdf7070dbd937f317030e8315bf21f909",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "A",
+          "left_ref": "/root/goals/0/options/A/functions/f",
+          "option_id": "A",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/A/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/13/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-001-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=x"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=\\left(\\sqrt{x}\\right)^{2}"
+            }
+          ],
+          "result": "本项结论：不同",
+          "show_result": true
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "2a095dfb3faed5975570bd091e37badf67b07806886e83bde912585640a66f26",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "A",
+          "left_ref": "/root/goals/0/options/A/functions/f",
+          "option_id": "A",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/A/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/13/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-002-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 A 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/B/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-003-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。",
+        "highlight": {
+          "caption": "输入 0 时的输出",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(0)",
+              "math": "0"
+            },
+            {
+              "label": "g(0)",
+              "math": "1"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/B/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-004-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=x^{2}"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=(x+1)^{2}"
+            }
+          ],
+          "result": "本项结论：不同",
+          "show_result": true
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "bd9d74bdfa6ea67a322b9bf06cc4560af63284502fe51094111288cfe3f472fb",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/B/functions/f",
+          "option_id": "B",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/B/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-005-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 B 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/C/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-006-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。",
+        "highlight": {
+          "caption": "对应关系等价",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\sqrt{x^{2}}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\left|x\\right|"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/C/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-007-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=\\sqrt{x^{2}}"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=\\left|x\\right|"
+            }
+          ],
+          "result": "本项结论：相同",
+          "show_result": true
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "0c6d786318de5f964cf80740e8ab071fa8555e2d877442afef8fc1453113bf30",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/C/functions/f",
+          "option_id": "C",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/C/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 8,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-008-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 C 的结论",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(t)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/D/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 9,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-009-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。",
+        "highlight": {
+          "caption": "对应关系等价",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "3\\cdot x^{2}-2\\cdot x+3"
+            },
+            {
+              "label": "g(t)",
+              "math": "3\\cdot t^{2}-2\\cdot t+3"
+            }
+          ]
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/D/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 10,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-010-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=3\\cdot x^{2}-2\\cdot x+3"
+            },
+            {
+              "label": "g(t)",
+              "math": "g(t)=3\\cdot t^{2}-2\\cdot t+3"
+            }
+          ],
+          "result": "本项结论：相同",
+          "show_result": true
+        },
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "local_check": "passed",
+        "math_step_sha256": "544fda9c4ff74024719462a2d5e67acbf390da88a3233579685a80da50a9504d",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/D/functions/f",
+          "option_id": "D",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/D/functions/g",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 11,
+        "premise_refs": [],
+        "revisions_ref": "d0bd01e54e5fb5bd18a8b7c956d3630e43675023f3bcda8cff94fe22cb4355e0",
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-011-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 D 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"function-equality\",\"39e5646dcb-function-equality-001-equality_domains\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/13/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-002-equality_verdict\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/13/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-003-equality_domains\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/25/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-004-equality_correspondence\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/25/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-005-equality_verdict\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/25/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-006-equality_domains\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ],
+          "source": "/steps/37/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-007-equality_correspondence\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ],
+          "source": "/steps/37/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-008-equality_verdict\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "absolute-value-concept#rules",
+            "function-concept#identity"
+          ],
+          "source": "/steps/37/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-009-equality_domains\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/49/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-010-equality_correspondence\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/49/calls/0"
+        }
+      ],
+      "[\"function-equality\",\"39e5646dcb-function-equality-011-equality_verdict\"]": [
+        {
+          "method": "method-function-equality",
+          "step": "compare",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "function-concept#identity"
+          ],
+          "source": "/steps/49/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-001-equality_domains",
+        "ordinal": 1,
+        "math_step_sha256": "56f228caadf4fc05c82349825373b49bdf7070dbd937f317030e8315bf21f909",
+        "status": "interactive",
+        "interaction_id": "ac0a3b28a7b620f22ba161c0"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-002-equality_verdict",
+        "ordinal": 2,
+        "math_step_sha256": "2a095dfb3faed5975570bd091e37badf67b07806886e83bde912585640a66f26",
+        "status": "interactive",
+        "interaction_id": "05a48454c78220d6078392a9"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-003-equality_domains",
+        "ordinal": 3,
+        "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+        "status": "interactive",
+        "interaction_id": "f4e203f8f70e67d06589c86a"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-004-equality_correspondence",
+        "ordinal": 4,
+        "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+        "status": "interactive",
+        "interaction_id": "f4e203f8f70e67d06589c86a"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-005-equality_verdict",
+        "ordinal": 5,
+        "math_step_sha256": "bd9d74bdfa6ea67a322b9bf06cc4560af63284502fe51094111288cfe3f472fb",
+        "status": "interactive",
+        "interaction_id": "7aafbfed21f20aefccff0b31"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-006-equality_domains",
+        "ordinal": 6,
+        "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+        "status": "interactive",
+        "interaction_id": "1a117868cbfd0a542606e920"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-007-equality_correspondence",
+        "ordinal": 7,
+        "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+        "status": "interactive",
+        "interaction_id": "1a117868cbfd0a542606e920"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-008-equality_verdict",
+        "ordinal": 8,
+        "math_step_sha256": "0c6d786318de5f964cf80740e8ab071fa8555e2d877442afef8fc1453113bf30",
+        "status": "interactive",
+        "interaction_id": "3994b93e77c3fe862530a6b5"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-009-equality_domains",
+        "ordinal": 9,
+        "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+        "status": "interactive",
+        "interaction_id": "69da1c5fe9176a5f28f9aee8"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-010-equality_correspondence",
+        "ordinal": 10,
+        "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+        "status": "interactive",
+        "interaction_id": "69da1c5fe9176a5f28f9aee8"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-011-equality_verdict",
+        "ordinal": 11,
+        "math_step_sha256": "544fda9c4ff74024719462a2d5e67acbf390da88a3233579685a80da50a9504d",
+        "status": "interactive",
+        "interaction_id": "0dd915b5dfe02bdf6eec2ba7"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ac0a3b28a7b620f22ba161c0",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "d0e2136c3f075d2212639c882e12148d1aae4b3611e7077a12416857eb58dbdf",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+            },
+            "id": "ac0a3b28a7b620f22ba161c0#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/A/functions/f",
+              "option_id": "A",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/A/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "56f228caadf4fc05c82349825373b49bdf7070dbd937f317030e8315bf21f909",
+            "step_id": "39e5646dcb-function-equality-001-equality_domains"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "05a48454c78220d6078392a9",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "0e0f65f5c65a832474f3cfcc993f4e0811088cf2052e7ed414f69d987ede7959",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+            },
+            "id": "05a48454c78220d6078392a9#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/A/functions/f",
+              "option_id": "A",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/A/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。结合已经比较的定义域，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 A"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2a095dfb3faed5975570bd091e37badf67b07806886e83bde912585640a66f26",
+            "step_id": "39e5646dcb-function-equality-002-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f4e203f8f70e67d06589c86a",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "6c27ea5f36dc294aac3ae33259eb7ec7e49a62f62c4217e4633e2baddf9aec2d",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "f4e203f8f70e67d06589c86a#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/B/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+            },
+            "id": "f4e203f8f70e67d06589c86a#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/B/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "4664bc0b45eeed6a74697987aea362ebad34f2a5cb335903f9dd8935a1af8037",
+            "step_id": "39e5646dcb-function-equality-003-equality_domains"
+          },
+          {
+            "math_step_sha256": "ba8ad0373e5e793d43204c90539b3b2899a44f865e8aa52738a85dd34158de23",
+            "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "7aafbfed21f20aefccff0b31",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "1a45a59fefc13f2cbb53fbb33a3d0daee5d5ce9bb9eaaad37493269e22f92248",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+            },
+            "id": "7aafbfed21f20aefccff0b31#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/B/functions/f",
+              "option_id": "B",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/B/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 B"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bd9d74bdfa6ea67a322b9bf06cc4560af63284502fe51094111288cfe3f472fb",
+            "step_id": "39e5646dcb-function-equality-005-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1a117868cbfd0a542606e920",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "7deca4577bf05a5f22931aa36653ee493c0c8212ef1246da4acc599108a34e27",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "1a117868cbfd0a542606e920#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/C/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。"
+            },
+            "id": "1a117868cbfd0a542606e920#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/C/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3292b8dd4afdbe2feb5533fb433936698315140218373c8f4f00b5653a4aa5d1",
+            "step_id": "39e5646dcb-function-equality-006-equality_domains"
+          },
+          {
+            "math_step_sha256": "2084078e297577a391f9fe6af8279233ad89678c6365250a4a7425fd5f34c62a",
+            "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "3994b93e77c3fe862530a6b5",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "cb2b488a6a5d7418e389657b652e899024f2bb15a61ec7434f79a25d5ea5e63d",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+            },
+            "id": "3994b93e77c3fe862530a6b5#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/C/functions/f",
+              "option_id": "C",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/C/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 C"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "0c6d786318de5f964cf80740e8ab071fa8555e2d877442afef8fc1453113bf30",
+            "step_id": "39e5646dcb-function-equality-008-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "69da1c5fe9176a5f28f9aee8",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "117e6ba07b6d7d3c40c263a28ef972542a2742234a144d6a415090b27240a7a2",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "69da1c5fe9176a5f28f9aee8#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(t)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/D/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。"
+            },
+            "id": "69da1c5fe9176a5f28f9aee8#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/D/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "4f576c96c8b0ab834e959ad0c100bdca7013e67132e01aee94ad5adbb4c2e179",
+            "step_id": "39e5646dcb-function-equality-009-equality_domains"
+          },
+          {
+            "math_step_sha256": "6393e29a0e8c5110cb564d2544d153958e371fb0f8c3b9804d1f66e469e2ce01",
+            "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0dd915b5dfe02bdf6eec2ba7",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "93aebfc45aa3583e45084cf6a9df18b7c6427d8c884e33121512a6eba29e4864",
+        "lesson_version": "28826fa92d67c8760fdab4d0dd5911b73722dd0c89761343da01260bc3cfd0cf",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+            },
+            "id": "0dd915b5dfe02bdf6eec2ba7#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/D/functions/f",
+              "option_id": "D",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/D/functions/g",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 D"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "21ce3b1284934f41bf8c3aad0eb6a5bf",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "544fda9c4ff74024719462a2d5e67acbf390da88a3233579685a80da50a9504d",
+            "step_id": "39e5646dcb-function-equality-011-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

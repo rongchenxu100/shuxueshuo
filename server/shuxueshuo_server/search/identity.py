@@ -53,6 +53,18 @@ def public_structure_errors(candidate):
     expected = list(scopes(candidate["root"]))
     public_scopes = candidate["public_content"]["scopes"]
     errors = []
+
+    def option_surfaces(options, location):
+        values = []
+        for index, option in enumerate(options):
+            try:
+                value = _surface(option['text'])
+            except IdentityUnavailable:
+                errors.append((f'{location}/{index}/text', '选项中的公式须使用成对且内容非空的 $…$ 标记。'))
+                value = None
+            values.append((option['label'], value))
+        return values
+
     if "root_label_role" in candidate["public_content"] and not candidate["root"].get("label", "").strip():
         errors.append(("/public_content/root_label_role", "只有实际存在顶层标签时才能声明其角色。"))
     if [item["scope_ref"] for item in public_scopes] != [path for path, _, _ in expected]:
@@ -75,6 +87,19 @@ def public_structure_errors(candidate):
                 or any(not option["text"].strip() or not option["label"].strip() for option in options)
             ):
                 errors.append((f"{location}/{number}", "完整选项需要至少两项、不重复的标签和非空内容。"))
+            goals = scope.get('goals', [])
+            if number < len(goals) and goals[number]['kind'] == 'compare_functions':
+                goal = goals[number]
+                if goal['mode'] == 'pair':
+                    if choice['status'] != 'none':
+                        errors.append((f'{location}/{number}', '直接比较一对函数没有原题选择项。'))
+                else:
+                    previous_errors = len(errors)
+                    shown = option_surfaces(options, f'{location}/{number}/options')
+                    original = option_surfaces(goal['options'], f'{path}/goals/{number}/options')
+                    if (len(errors) == previous_errors
+                            and (choice['selection_mode'] != goal['selection_mode'] or shown != original)):
+                        errors.append((f'{location}/{number}', '公开选项须与函数比较目标的标签、顺序和原文一致。'))
     return errors
 
 
@@ -124,11 +149,20 @@ def _surface(text):
 
 
 def _root(scope, *, exclude_label=False):
+    def goal_content(goal):
+        if goal['kind'] == 'compare_functions':
+            from ..problem_understanding.notation_function_comparison import (
+                canonical_comparison, compile_comparison,
+            )
+
+            return canonical_comparison(compile_comparison(goal, 'r.goals[0]'))
+        return {key: [_math(item) for item in content] if isinstance(content, list) else _math(content)
+                for key, content in goal.items()}
+
     value = {
         "definitions": [_math(text) for text in scope.get("definitions", [])],
         "facts": [_math(text) for text in scope.get("facts", [])],
-        "goals": [{key: [_math(item) for item in content] if isinstance(content, list) else _math(content)
-                   for key, content in goal.items()} for goal in scope.get("goals", [])],
+        "goals": [goal_content(goal) for goal in scope.get("goals", [])],
         "children": [_root(child) for child in scope.get("children", [])],
     }
     if not exclude_label and scope.get("label"):

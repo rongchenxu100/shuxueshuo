@@ -1,0 +1,3602 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "26f372c5027045848b8d254c08112fca",
+    "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+    "input_sha256": "f03c855522384dbc9daa41af2db369a0fa27ce76d4ea6f793a7bde6474d71507",
+    "checkpoint_sha256": "153ec79a576970808969209c734e9c79211276de377732051877403be6be088a",
+    "result_sha256": "8d48f966b869d5230077b9002ff69f88c7fa28f50b75fc5ef31a95dd4c5c397d",
+    "stage_one_sha256": "e97efd2571d3cda638a15bed6809f32fd540f1f746bf1c0d19d3ecaf9aace2b8",
+    "stage_two_sha256": "d6d875f3d98fadeb77fc04a87627e87add880b432ff3347dcb42d617668bcf4d"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-equality",
+        "supported": [
+          "type-function-equality"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 15,
+                  "end": 22,
+                  "text": "表示同一个函数"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements",
+                "function-concept#identity"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/goals/0/options/0/functions/0/definition",
+                "/root/goals/0/options/0/functions/1/definition",
+                "/root/goals/0/options/1/functions/0/definition",
+                "/root/goals/0/options/1/functions/1/definition",
+                "/root/goals/0/options/2/functions/0/definition",
+                "/root/goals/0/options/2/functions/1/definition",
+                "/root/goals/0/options/3/functions/0/definition",
+                "/root/goals/0/options/3/functions/1/definition"
+              ],
+              "options": [
+                {
+                  "text": "逐项判断，再选出表示不相同函数的选项",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "再看题目要求：要选的是表示相同函数的选项。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "逐项判断，再选出表示相同函数的选项",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "8505b4c384c4cb04"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目要求我们判断并选出什么？",
+          "feedback": "再看题目要求：要选的是表示相同函数的选项。",
+          "summary": "判断同一函数，要先比较定义域，再比较整个定义域上的对应关系。"
+        },
+        "option_workspaces": [
+          {
+            "option_id": "option_a",
+            "label": "A",
+            "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+          },
+          {
+            "option_id": "option_b",
+            "label": "B",
+            "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+          },
+          {
+            "option_id": "option_c",
+            "label": "C",
+            "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+          },
+          {
+            "option_id": "option_d",
+            "label": "D",
+            "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+          }
+        ],
+        "d2": [
+          {
+            "type_id": "type-function-equality",
+            "label": "判断是否为相同函数",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出一对或多组函数，目标是判断它们是否表示同一函数。",
+              "先比较定义域，再比较整个定义域上的对应关系。"
+            ]
+          },
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "只要求求出合法输入的集合",
+            "reasons": []
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#identity",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "同一函数的判定"
+          },
+          {
+            "ref": "function-concept#elements",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "函数的三要素"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-function-equality",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#identity",
+              "function-concept#elements"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-q20//root/goals/0",
+            "graphVersion": "b70d2e0e8de3b032ad2a90f8be7efcb379cc2ba45f5abed4de65a9061f6053ce",
+            "problem": {
+              "text": "【变式】（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目要求我们判断并选出什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "逐项判断，再选出表示不相同函数的选项",
+                      "feedback": "再看题目要求：要选的是表示相同函数的选项。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "逐项判断，再选出表示相同函数的选项"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再看题目要求：要选的是表示相同函数的选项。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-function-equality",
+                  "type-function-domain",
+                  "type-abstract-function-domain",
+                  "type-function-evaluation",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断同一函数，要先比较定义域，再比较整个定义域上的对应关系。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-equality",
+                      "label": "判断是否为相同函数"
+                    },
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "feedback": "只要求求出合法输入的集合"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-equality"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-equality",
+                  "type-function-domain"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-equality"
+                  ],
+                  "edges": [
+                    "type-function-equality|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出一对或多组函数，目标是判断它们是否表示同一函数；先比较定义域，再比较整个定义域上的对应关系。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断是否为相同函数」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-function-equality",
+                  "kind": "method",
+                  "label": "同一函数判定法",
+                  "summary": "逐项比较定义域和对应关系，形成有依据的相同或不同判定。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "整理比较对象",
+                      "calls": []
+                    },
+                    {
+                      "id": "options",
+                      "title": "进入本组选项",
+                      "calls": []
+                    },
+                    {
+                      "id": "left-domain",
+                      "title": "确定第一个函数的定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "right-domain",
+                      "title": "确定第二个函数的定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "比较定义域与对应关系",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "collect",
+                      "title": "收集各项判定",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整比较结果",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|candidate|method-function-equality",
+                  "from": "type-function-equality",
+                  "to": "method-function-equality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "option_workspaces": [
+              {
+                "option_id": "option_a",
+                "label": "A",
+                "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+              },
+              {
+                "option_id": "option_b",
+                "label": "B",
+                "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+              },
+              {
+                "option_id": "option_c",
+                "label": "C",
+                "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+              },
+              {
+                "option_id": "option_d",
+                "label": "D",
+                "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+              }
+            ],
+            "bundleVersion": "8aa2517e2896fde2080e9870334cbb88966e72e740fe24699f01a90eb85afd09"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-q20//root/goals/0",
+            "bundleVersion": "8aa2517e2896fde2080e9870334cbb88966e72e740fe24699f01a90eb85afd09",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "判断同一函数，要先比较定义域，再比较整个定义域上的对应关系。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-equality",
+                "reason": "选「判断是否为相同函数」：题目给出一对或多组函数，目标是判断它们是否表示同一函数；先比较定义域，再比较整个定义域上的对应关系。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "26f372c5027045848b8d254c08112fca",
+    "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+    "input_sha256": "f03c855522384dbc9daa41af2db369a0fa27ce76d4ea6f793a7bde6474d71507",
+    "stream_id": "26f372c5027045848b8d254c08112fca",
+    "last_seq": 49,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\left[0, \\infty\\right)$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\left[0, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "349e57c28711beaee97ddee094c118c72d2483ab0613771e1c9dcd9f1c314b6e",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "A",
+          "left_ref": "/root/goals/0/options/option_a/functions/left",
+          "option_id": "option_a",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_a/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/13/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-001-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=x"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=\\left(\\sqrt{x}\\right)^{2}"
+            }
+          ],
+          "result": "本项结论：不同",
+          "show_result": true
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "31a4f997dedbbe21316f48a9c79430637bf132d2b8aaabce29365e4250bee466",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "A",
+          "left_ref": "/root/goals/0/options/option_a/functions/left",
+          "option_id": "option_a",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/option_a/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/13/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-002-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 A 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "62b9f337d26319b1b58b7ebb23a27b89c2dc61a3e9e10159f0bcefac00454206",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/option_b/functions/left",
+          "option_id": "option_b",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-003-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。",
+        "highlight": {
+          "caption": "输入 0 时的输出",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(0)",
+              "math": "0"
+            },
+            {
+              "label": "g(0)",
+              "math": "1"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "d471b5cf55e0b229ce1f355de99ed14e1b5c904e093f2552850bd74bc787af75",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/option_b/functions/left",
+          "option_id": "option_b",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-004-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "≠",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=x^{2}"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=(x+1)^{2}"
+            }
+          ],
+          "result": "本项结论：不同",
+          "show_result": true
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "2b9b603a7a23c7e92c1f396159da9f6478c579703edda2cae6f8b4388def238b",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "B",
+          "left_ref": "/root/goals/0/options/option_b/functions/left",
+          "option_id": "option_b",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/option_b/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-005-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 B 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "82700308dc3a008b74e557cee01e038a0326d7376687e1539ec7ce1d6b92afef",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/option_c/functions/left",
+          "option_id": "option_c",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-006-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。",
+        "highlight": {
+          "caption": "对应关系等价",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\sqrt{x^{2}}"
+            },
+            {
+              "label": "g(x)",
+              "math": "\\left|x\\right|"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "0746988b644b8f01f350515c470d796078cc81054fa3fbe8ea3af19cc85d79e4",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/option_c/functions/left",
+          "option_id": "option_c",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-007-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=\\sqrt{x^{2}}"
+            },
+            {
+              "label": "g(x)",
+              "math": "g(x)=\\left|x\\right|"
+            }
+          ],
+          "result": "本项结论：相同",
+          "show_result": true
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "fbfc7c2f3809f5315ca0923b46a284c7f0da9c2ac3f97d8f2cc83d9184fc5c5e",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "C",
+          "left_ref": "/root/goals/0/options/option_c/functions/left",
+          "option_id": "option_c",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/option_c/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 8,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/37/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-008-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 C 的结论",
+        "used_basis": [
+          "absolute-value-concept#rules",
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_domains",
+        "explanation": "两个定义域分别为 $\\mathbb{R}$、$\\mathbb{R}$",
+        "highlight": {
+          "caption": "定义域",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "\\mathbb{R}"
+            },
+            {
+              "label": "g(t)",
+              "math": "\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "ec844657da38fe51d0e68ed1b68a374d21bcdaed083f6bb6e35404089017d4e0",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/option_d/functions/left",
+          "option_id": "option_d",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 9,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-009-equality_domains",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项定义域",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_correspondence",
+        "explanation": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。",
+        "highlight": {
+          "caption": "对应关系等价",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "3\\cdot x^{2}-2\\cdot x+3"
+            },
+            {
+              "label": "g(t)",
+              "math": "3\\cdot t^{2}-2\\cdot t+3"
+            }
+          ]
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "b29a14c8270fda59138539bac4fe6f6f4e7d7faa1fe47b18ad106afa1cb0f001",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/option_d/functions/left",
+          "option_id": "option_d",
+          "phase": "evidence",
+          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 10,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-010-equality_correspondence",
+        "target_ref": "/root/goals/0",
+        "title": "比较本项对应关系",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "equality_verdict",
+        "explanation": "结合本项已经完成的定义域与对应关系比较，判断两个函数是否相同。",
+        "highlight": {
+          "caption": "本项比较",
+          "conclusion_only": true,
+          "connector": "=",
+          "items": [
+            {
+              "label": "f(x)",
+              "math": "f(x)=3\\cdot x^{2}-2\\cdot x+3"
+            },
+            {
+              "label": "g(t)",
+              "math": "g(t)=3\\cdot t^{2}-2\\cdot t+3"
+            }
+          ],
+          "result": "本项结论：相同",
+          "show_result": true
+        },
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "local_check": "passed",
+        "math_step_sha256": "2afd0e41b161eb05b200686a3761bd5530e443f913e7e5b40ca42d8cacab39d6",
+        "method_ref": "method-function-equality#compare",
+        "option_context": {
+          "label": "D",
+          "left_ref": "/root/goals/0/options/option_d/functions/left",
+          "option_id": "option_d",
+          "phase": "verdict",
+          "right_ref": "/root/goals/0/options/option_d/functions/right",
+          "target_ref": "/root/goals/0"
+        },
+        "ordinal": 11,
+        "premise_refs": [],
+        "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "source_refs": [
+          "/steps/49/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-equality-011-equality_verdict",
+        "target_ref": "/root/goals/0",
+        "title": "选项 D 的结论",
+        "used_basis": [
+          "function-concept#identity"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "correct_labels": [
+            "C",
+            "D"
+          ],
+          "kind": "compare_functions",
+          "mode": "groups",
+          "option_verdicts": [
+            {
+              "label": "A",
+              "option_id": "option_a",
+              "reason": "domains_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "B",
+              "option_id": "option_b",
+              "reason": "outputs_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "C",
+              "option_id": "option_c",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            },
+            {
+              "label": "D",
+              "option_id": "option_d",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            }
+          ],
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "status": "complete"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "correct_labels": [
+            "C",
+            "D"
+          ],
+          "kind": "compare_functions",
+          "mode": "groups",
+          "option_verdicts": [
+            {
+              "label": "A",
+              "option_id": "option_a",
+              "reason": "domains_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "B",
+              "option_id": "option_b",
+              "reason": "outputs_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "C",
+              "option_id": "option_c",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            },
+            {
+              "label": "D",
+              "option_id": "option_d",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            }
+          ],
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "math_steps": [
+          {
+            "math_step_sha256": "349e57c28711beaee97ddee094c118c72d2483ab0613771e1c9dcd9f1c314b6e",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-equality-001-equality_domains"
+          },
+          {
+            "math_step_sha256": "31a4f997dedbbe21316f48a9c79430637bf132d2b8aaabce29365e4250bee466",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-equality-002-equality_verdict"
+          },
+          {
+            "math_step_sha256": "62b9f337d26319b1b58b7ebb23a27b89c2dc61a3e9e10159f0bcefac00454206",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-equality-003-equality_domains"
+          },
+          {
+            "math_step_sha256": "d471b5cf55e0b229ce1f355de99ed14e1b5c904e093f2552850bd74bc787af75",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "2b9b603a7a23c7e92c1f396159da9f6478c579703edda2cae6f8b4388def238b",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-function-equality-005-equality_verdict"
+          },
+          {
+            "math_step_sha256": "82700308dc3a008b74e557cee01e038a0326d7376687e1539ec7ce1d6b92afef",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-function-equality-006-equality_domains"
+          },
+          {
+            "math_step_sha256": "0746988b644b8f01f350515c470d796078cc81054fa3fbe8ea3af19cc85d79e4",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "fbfc7c2f3809f5315ca0923b46a284c7f0da9c2ac3f97d8f2cc83d9184fc5c5e",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-function-equality-008-equality_verdict"
+          },
+          {
+            "math_step_sha256": "ec844657da38fe51d0e68ed1b68a374d21bcdaed083f6bb6e35404089017d4e0",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-function-equality-009-equality_domains"
+          },
+          {
+            "math_step_sha256": "b29a14c8270fda59138539bac4fe6f6f4e7d7faa1fe47b18ad106afa1cb0f001",
+            "ordinal": 10,
+            "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+          },
+          {
+            "math_step_sha256": "2afd0e41b161eb05b200686a3761bd5530e443f913e7e5b40ca42d8cacab39d6",
+            "ordinal": 11,
+            "step_id": "39e5646dcb-function-equality-011-equality_verdict"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "C",
+            "D"
+          ],
+          "kind": "multiple_choice",
+          "option_verdicts": [
+            {
+              "label": "A",
+              "option_id": "option_a",
+              "reason": "domains_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "B",
+              "option_id": "option_b",
+              "reason": "outputs_differ",
+              "verdict": "different"
+            },
+            {
+              "label": "C",
+              "option_id": "option_c",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            },
+            {
+              "label": "D",
+              "option_id": "option_d",
+              "reason": "same_domain_and_correspondence",
+              "verdict": "equal"
+            }
+          ],
+          "options": [
+            {
+              "label": "A",
+              "option_id": "option_a",
+              "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+            },
+            {
+              "label": "B",
+              "option_id": "option_b",
+              "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+            },
+            {
+              "label": "C",
+              "option_id": "option_c",
+              "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+            },
+            {
+              "label": "D",
+              "option_id": "option_d",
+              "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+            }
+          ],
+          "select_relation": "equal",
+          "selection_mode": "multiple",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "2eef9d9e1d49a50e1617e3de97e8ea0bd7dd63382f53feb43f344dd87b65cf0e",
+        "verified_route_sha256": "3588a261935db345e3ce2d72f566cd833d10c2078bf6dc356f0e1fee15222cf7"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-function-equality",
+            "op": "methods"
+          },
+          "question": "逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。",
+          "submit_label": "用同一函数判定法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-function-equality",
+              "option_workspaces": [
+                {
+                  "label": "A",
+                  "option_id": "option_a",
+                  "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+                },
+                {
+                  "label": "B",
+                  "option_id": "option_b",
+                  "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+                },
+                {
+                  "label": "C",
+                  "option_id": "option_c",
+                  "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+                },
+                {
+                  "label": "D",
+                  "option_id": "option_d",
+                  "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+                }
+              ],
+              "recommendation": "preferred",
+              "route_id": "function-equality",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-001-equality_domains",
+        "ordinal": 1,
+        "math_step_sha256": "349e57c28711beaee97ddee094c118c72d2483ab0613771e1c9dcd9f1c314b6e",
+        "status": "interactive",
+        "interaction_id": "9ed345a915f182868a968e7b"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-002-equality_verdict",
+        "ordinal": 2,
+        "math_step_sha256": "31a4f997dedbbe21316f48a9c79430637bf132d2b8aaabce29365e4250bee466",
+        "status": "interactive",
+        "interaction_id": "0f6a362a0a0a61554ed5b90d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-003-equality_domains",
+        "ordinal": 3,
+        "math_step_sha256": "62b9f337d26319b1b58b7ebb23a27b89c2dc61a3e9e10159f0bcefac00454206",
+        "status": "interactive",
+        "interaction_id": "32c0fe0989288452733653da"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-004-equality_correspondence",
+        "ordinal": 4,
+        "math_step_sha256": "d471b5cf55e0b229ce1f355de99ed14e1b5c904e093f2552850bd74bc787af75",
+        "status": "interactive",
+        "interaction_id": "32c0fe0989288452733653da"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-005-equality_verdict",
+        "ordinal": 5,
+        "math_step_sha256": "2b9b603a7a23c7e92c1f396159da9f6478c579703edda2cae6f8b4388def238b",
+        "status": "interactive",
+        "interaction_id": "6d141f661cd3f56741c26636"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-006-equality_domains",
+        "ordinal": 6,
+        "math_step_sha256": "82700308dc3a008b74e557cee01e038a0326d7376687e1539ec7ce1d6b92afef",
+        "status": "interactive",
+        "interaction_id": "e2833d890d97819c84b0299f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-007-equality_correspondence",
+        "ordinal": 7,
+        "math_step_sha256": "0746988b644b8f01f350515c470d796078cc81054fa3fbe8ea3af19cc85d79e4",
+        "status": "interactive",
+        "interaction_id": "e2833d890d97819c84b0299f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-008-equality_verdict",
+        "ordinal": 8,
+        "math_step_sha256": "fbfc7c2f3809f5315ca0923b46a284c7f0da9c2ac3f97d8f2cc83d9184fc5c5e",
+        "status": "interactive",
+        "interaction_id": "2fc2f08168cb79b63656bc61"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-009-equality_domains",
+        "ordinal": 9,
+        "math_step_sha256": "ec844657da38fe51d0e68ed1b68a374d21bcdaed083f6bb6e35404089017d4e0",
+        "status": "interactive",
+        "interaction_id": "b1ecb0d34598d5ef00ebbfbb"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-010-equality_correspondence",
+        "ordinal": 10,
+        "math_step_sha256": "b29a14c8270fda59138539bac4fe6f6f4e7d7faa1fe47b18ad106afa1cb0f001",
+        "status": "interactive",
+        "interaction_id": "b1ecb0d34598d5ef00ebbfbb"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "step_id": "39e5646dcb-function-equality-011-equality_verdict",
+        "ordinal": 11,
+        "math_step_sha256": "2afd0e41b161eb05b200686a3761bd5530e443f913e7e5b40ca42d8cacab39d6",
+        "status": "interactive",
+        "interaction_id": "a8c5f69fcfe528ec33a9f8a8"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "fa6c73de3d5dbff540528f7f887b3f4c7407118cdd8fc560b38a1fba57dbe4ae",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-equality:complete",
+        "last_seq": 49
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-equality",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-equality",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-equality",
+            "step": "options",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 3,
+            "method": "method-function-equality",
+            "step": "options",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-function-equality",
+            "step": "left-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 8,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 9,
+            "method": "method-function-equality",
+            "step": "right-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 10,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 11,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 12,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 13,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 14,
+            "method": "method-function-equality",
+            "step": "compare",
+            "case_path": [],
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 15,
+            "method": "method-function-equality",
+            "step": "options",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 16,
+            "method": "method-function-equality",
+            "step": "left-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 17,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 18,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 19,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 20,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 21,
+            "method": "method-function-equality",
+            "step": "right-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 22,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 23,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 24,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 25,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 26,
+            "method": "method-function-equality",
+            "step": "compare",
+            "case_path": [],
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 27,
+            "method": "method-function-equality",
+            "step": "options",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 28,
+            "method": "method-function-equality",
+            "step": "left-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 29,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 30,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "quadratic-inequality#signs",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 31,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 32,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 33,
+            "method": "method-function-equality",
+            "step": "right-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 34,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 35,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 36,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 37,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 38,
+            "method": "method-function-equality",
+            "step": "compare",
+            "case_path": [],
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "absolute-value-concept#rules",
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 39,
+            "method": "method-function-equality",
+            "step": "options",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 40,
+            "method": "method-function-equality",
+            "step": "left-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 41,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 42,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 43,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 44,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 45,
+            "method": "method-function-equality",
+            "step": "right-domain",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 46,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 47,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 48,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 49,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": []
+          },
+          {
+            "seq": 50,
+            "method": "method-function-equality",
+            "step": "compare",
+            "case_path": [],
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "calls": [
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 51,
+            "method": "method-function-equality",
+            "step": "collect",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 52,
+            "method": "method-function-equality",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9ed345a915f182868a968e7b",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "03aa636856d8b495d65b6e4b177319c770eab045d2cd1aa4933fd0fc2f1b6067",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+            },
+            "id": "9ed345a915f182868a968e7b#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "349e57c28711beaee97ddee094c118c72d2483ab0613771e1c9dcd9f1c314b6e",
+            "step_id": "39e5646dcb-function-equality-001-equality_domains"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0f6a362a0a0a61554ed5b90d",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "8ab9af9a123a71b02a81dce26e4c477cd8db721d58af5aa0018b6039d88cba6a",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域不同。例如输入 $-1$ 只属于其中一个函数的定义域；化简不能补回原式不允许的输入。"
+            },
+            "id": "0f6a362a0a0a61554ed5b90d#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "A",
+              "left_ref": "/root/goals/0/options/option_a/functions/left",
+              "option_id": "option_a",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/option_a/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x$；$g(x)=\\left(\\sqrt{x}\\right)^{2}$。结合已经比较的定义域，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 A"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "31a4f997dedbbe21316f48a9c79430637bf132d2b8aaabce29365e4250bee466",
+            "step_id": "39e5646dcb-function-equality-002-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "32c0fe0989288452733653da",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "7c8ebfaba89a7008bbdfa1d01d8d669816c82e74c5adeb9d767706bacaa71045",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "32c0fe0989288452733653da#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+            },
+            "id": "32c0fe0989288452733653da#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "62b9f337d26319b1b58b7ebb23a27b89c2dc61a3e9e10159f0bcefac00454206",
+            "step_id": "39e5646dcb-function-equality-003-equality_domains"
+          },
+          {
+            "math_step_sha256": "d471b5cf55e0b229ce1f355de99ed14e1b5c904e093f2552850bd74bc787af75",
+            "step_id": "39e5646dcb-function-equality-004-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6d141f661cd3f56741c26636",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "6cf4ca1542e9e7ceeeb333a1eef51d41c244431df9aefa7c4efbed57c694c305",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "different"
+              ]
+            },
+            "feedback": {
+              "answer": "输入 $0$ 时，两个输出分别为 $0$、$1$，因此对应关系不同。"
+            },
+            "id": "6d141f661cd3f56741c26636#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "B",
+              "left_ref": "/root/goals/0/options/option_b/functions/left",
+              "option_id": "option_b",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/option_b/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=x^{2}$；$g(x)=(x+1)^{2}$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 B"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2b9b603a7a23c7e92c1f396159da9f6478c579703edda2cae6f8b4388def238b",
+            "step_id": "39e5646dcb-function-equality-005-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e2833d890d97819c84b0299f",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "94245f21f1bc0cef3778631990fedc5f0e04f20b0762788fcc192fa55068fd88",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "e2833d890d97819c84b0299f#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "用 $u$ 表示共同定义域内的同一个输入。当 $u\\in \\left(-\\infty, 0\\right)$ 时，两式都等于 $- u$；当 $u\\in \\left\\{0\\right\\}$ 时，两式都等于 $0$；当 $u\\in \\left(0, \\infty\\right)$ 时，两式都等于 $u$。这些范围覆盖整个共同定义域。"
+            },
+            "id": "e2833d890d97819c84b0299f#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "82700308dc3a008b74e557cee01e038a0326d7376687e1539ec7ce1d6b92afef",
+            "step_id": "39e5646dcb-function-equality-006-equality_domains"
+          },
+          {
+            "math_step_sha256": "0746988b644b8f01f350515c470d796078cc81054fa3fbe8ea3af19cc85d79e4",
+            "step_id": "39e5646dcb-function-equality-007-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2fc2f08168cb79b63656bc61",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "2c5c060ccac4d6e9def368d97b1fa82835d07d2e0d5d148546d5178a48c5cd22",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+            },
+            "id": "2fc2f08168cb79b63656bc61#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "C",
+              "left_ref": "/root/goals/0/options/option_c/functions/left",
+              "option_id": "option_c",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/option_c/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=\\sqrt{x^{2}}$；$g(x)=\\left|x\\right|$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 C"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "fbfc7c2f3809f5315ca0923b46a284c7f0da9c2ac3f97d8f2cc83d9184fc5c5e",
+            "step_id": "39e5646dcb-function-equality-008-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b1ecb0d34598d5ef00ebbfbb",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "3af83bfd26d9170eb3eb099662029e7d11577cce22c7bf31d8d76cc67a70f34a",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "o0",
+                "o0"
+              ]
+            },
+            "feedback": {
+              "answer": "比较的是全部允许输入的集合，不能只比较化简后的式子。"
+            },
+            "id": "b1ecb0d34598d5ef00ebbfbb#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "f(x)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                },
+                {
+                  "label": "g(t)",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "o0"
+                    },
+                    {
+                      "label": "$\\left[0, \\infty\\right)$",
+                      "value": "o1"
+                    },
+                    {
+                      "label": "$\\left(0, \\infty\\right)$",
+                      "value": "o2"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 0\\right]$",
+                      "value": "o3"
+                    },
+                    {
+                      "label": "$\\varnothing$",
+                      "value": "o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "两边的定义域",
+              "type": "checklist"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。分别选出两边的定义域。",
+            "submit_label": "确认定义域",
+            "title": "① 两边的定义域"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "将两边的自变量 $x$、$t$ 统一记为 $u$，比较同一个输入对应的函数值。当 $u\\in \\mathbb{R}$ 时，两式都等于 $3 u^{2} - 2 u + 3$。这些范围覆盖整个共同定义域。"
+            },
+            "id": "b1ecb0d34598d5ef00ebbfbb#2",
+            "interaction": {
+              "field": "correspondence",
+              "options": [
+                {
+                  "label": "等价",
+                  "value": "equal"
+                },
+                {
+                  "label": "不等价",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "evidence",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "两边定义域相同。对应关系是否等价？",
+            "submit_label": "确认对应关系",
+            "title": "② 对应关系"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ec844657da38fe51d0e68ed1b68a374d21bcdaed083f6bb6e35404089017d4e0",
+            "step_id": "39e5646dcb-function-equality-009-equality_domains"
+          },
+          {
+            "math_step_sha256": "b29a14c8270fda59138539bac4fe6f6f4e7d7faa1fe47b18ad106afa1cb0f001",
+            "step_id": "39e5646dcb-function-equality-010-equality_correspondence"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a8c5f69fcfe528ec33a9f8a8",
+        "interaction_revision": "850d306ef54d2d81810cc55fea3bcaa447904e19661583b3d432731274bad822",
+        "interaction_sha256": "5267d42837da15712c94914a4785a9a12da08c8141d598cce73c574d7d19fda7",
+        "lesson_version": "a2a688c56e0d8e05c56420acb0276cca812f4de2ad84a535c1f1a4baffc96ed0",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "equal"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域相同，并且对这个定义域内的每一个输入，两式的输出都相同。自变量使用什么字母不影响对应关系。"
+            },
+            "id": "a8c5f69fcfe528ec33a9f8a8#1",
+            "interaction": {
+              "field": "function_relation",
+              "options": [
+                {
+                  "label": "相同",
+                  "value": "equal"
+                },
+                {
+                  "label": "不同",
+                  "value": "different"
+                }
+              ],
+              "type": "choice"
+            },
+            "option_context": {
+              "label": "D",
+              "left_ref": "/root/goals/0/options/option_d/functions/left",
+              "option_id": "option_d",
+              "phase": "verdict",
+              "right_ref": "/root/goals/0/options/option_d/functions/right",
+              "target_ref": "/root/goals/0"
+            },
+            "question": "$f(x)=3\\cdot x^{2}-2\\cdot x+3$；$g(t)=3\\cdot t^{2}-2\\cdot t+3$。结合已经比较的定义域与对应关系，本项两个函数是否相同？",
+            "submit_label": "确认本项结论",
+            "title": "选项 D"
+          }
+        ],
+        "route_id": "function-equality",
+        "run_id": "26f372c5027045848b8d254c08112fca",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2afd0e41b161eb05b200686a3761bd5530e443f913e7e5b40ca42d8cacab39d6",
+            "step_id": "39e5646dcb-function-equality-011-equality_verdict"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

@@ -318,6 +318,54 @@
       "fragment_kinds": [
         "expression"
       ]
+    },
+    {
+      "rule_id": "function-comparison-identity",
+      "ref": "function-concept#identity",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "compare_functions"
+          },
+          {
+            "feature_id": "function_comparison",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "goal",
+        "expression"
+      ]
+    },
+    {
+      "rule_id": "function-comparison-elements",
+      "ref": "function-concept#elements",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "compare_functions"
+          },
+          {
+            "feature_id": "function_comparison",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "goal",
+        "expression"
+      ]
     }
   ]
 }

@@ -132,12 +132,18 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic lists six domain courses with distinct formulas and shared domain grouping', async () => {
+test('real topic keeps six domain courses and adds Q20 in its own equality group', async () => {
   const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
-  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids].sort());
+  const comparison = 'function-concepts-q20-v2';
+  assert.deepEqual(currentTopic.groups.find(group => group.id === 'equality').problems, [comparison]);
+  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 6);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 7);
+  const equality = page.slice(page.indexOf('data-problem-id="function-concepts-q20-v2"'));
+  assert.doesNotMatch(equality.slice(0, 1200), /【变式】/);
+  assert.match(equality.slice(0, 1200), /class="problem-options"/);
+  assert.match(equality.slice(0, 2500), /class="problem-option"/);
   assert.ok(page.indexOf(`data-problem-id="${ids[0]}"`) < page.indexOf(`data-problem-id="${ids[1]}"`));
   assert.ok(page.indexOf(`data-problem-id="${ids[1]}"`) < page.indexOf(`data-problem-id="${ids[2]}"`));
   assert.ok(page.indexOf(`data-problem-id="${ids[2]}"`) < page.indexOf(`data-problem-id="${ids[3]}"`));
@@ -151,8 +157,12 @@ test('real topic lists six domain courses with distinct formulas and shared doma
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
   assert.match(page, /kx\^\{2\}/);
-  assert.match(page, /5 个题型 · 6 道题/);
-  assert.ok(currentTopic.groups.filter(group => group.id !== 'domain').every(group => group.problems.length === 0));
+  assert.match(page, /5 个题型 · 7 道题/);
+  assert.match(page, /href="\/topics\/function-concepts\/q20\/"/);
+  assert.match(page, /表示同一个函数/);
+  assert.equal(currentTopic.problems[comparison].runtime, 'graph-walk');
+  assert.deepEqual(currentTopic.problems[comparison].types, ['type-function-equality']);
+  assert.ok(currentTopic.groups.filter(group => !['domain', 'equality'].includes(group.id)).every(group => group.problems.length === 0));
 });
 
 test('topic builder is deterministic and check mode reports staleness without writing', async t => {

@@ -270,7 +270,7 @@ def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
     assert "仅部分目标" in schema()["$defs"]["Scope"]["description"]
 
 
-def test_model_output_shape_removes_goal_state_and_adds_only_original_text():
+def test_model_output_shape_preserves_scalar_contract_with_domain_and_comparison_goals():
     def shape(value):
         if isinstance(value, dict):
             return {k: shape(v) for k, v in value.items() if k != "description"}
@@ -287,4 +287,14 @@ def test_model_output_shape_removes_goal_state_and_adds_only_original_text():
     assert current["properties"].pop("original_text") == {
         "type": "string", "minLength": 1, "maxLength": 32768, "pattern": r"\S"
     }
+    variants = current["$defs"]["Scope"]["properties"]["goals"]["items"]["oneOf"]
+    assert variants.pop() == {"$ref": "#/$defs/CompareFunctionsGoal"}
+    domain_goals = [goal for goal in variants if goal["properties"]["kind"]["const"] in {"find_domain", "match_domain"}]
+    assert {goal["properties"]["kind"]["const"] for goal in domain_goals} == {"find_domain", "match_domain"}
+    for goal in domain_goals:
+        assert goal["additionalProperties"] is False
+        variants.remove(goal)
+    assert current["$defs"].pop("CompareFunctionsGoal")["properties"]["kind"]["const"] == "compare_functions"
+    assert current["$defs"].pop("ComparisonOption")["additionalProperties"] is False
+    assert current["$defs"].pop("ComparisonFunction")["additionalProperties"] is False
     assert current == obsolete

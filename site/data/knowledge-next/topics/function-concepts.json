@@ -42,7 +42,9 @@
       "label": "判断是否为同一函数",
       "type": "type-function-equality",
       "description": "比较定义域与对应关系，保留原式的输入限制。",
-      "problems": []
+      "problems": [
+        "function-concepts-q20-v2"
+      ]
     },
     {
       "id": "abstract-domain",
@@ -119,6 +121,15 @@
       "bundle": "/data/graph-walk/function-concepts-q23b.json",
       "types": [
         "type-function-domain"
+      ]
+    },
+    "function-concepts-q20-v2": {
+      "label": "判断是否为同一函数 · Q20",
+      "path": "/topics/function-concepts/q20/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q20-v2.json",
+      "types": [
+        "type-function-equality"
       ]
     }
   }

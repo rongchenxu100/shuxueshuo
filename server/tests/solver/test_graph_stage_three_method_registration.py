@@ -176,14 +176,15 @@ def test_discriminant_admission_uses_quantified_reals_without_retired_checks():
     assert not quantified_reals("unknown", sp.S.Reals)
 
 
-def test_current_milestones_keep_their_existing_method_sets():
+def test_current_milestone_adds_function_methods_without_changing_earlier_sets():
     base = {"method-discriminant", "method-separation"}
     interval = base | {"method-interval-extremum"}
     all_methods = interval | {"method-variable-swap"}
+    function_methods = {"method-domain-intersection", "method-domain-parameter", "method-function-equality"}
     assert execution_contracts.default_milestone() == "6"
     assert execution_contracts.milestones() == ("1a", "1b-1", "1b", "2", "3", "4", "5", "6")
     expected = {"1a": set(), "1b-1": {"method-discriminant"}, "1b": base, "2": base,
-                "3": interval, "4": interval, "5": all_methods, "6": all_methods}
+                "3": interval, "4": interval, "5": all_methods, "6": all_methods | function_methods}
     assert {key: execution_contracts.allowed_methods(key) for key in expected} == expected
     with pytest.raises(ValueError, match="execution.unknown_milestone"):
         execution_contracts.allowed_methods("no-such-version")

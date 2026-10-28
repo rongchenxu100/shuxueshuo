@@ -56,7 +56,7 @@ from shuxueshuo_server.solver.extraction.request_guard import (
 from . import stage_three
 from .admission import SearchLimits
 from .identity import IdentityUnavailable, build_identity
-from .lesson import present_lesson, run_stage_two
+from .lesson import present_lesson, public_problem_text, run_stage_two
 from .ocr_client import OcrClient, OcrWorkerError
 from .page_orientation import rotate_clockwise
 from .question_image import question_png
@@ -562,7 +562,7 @@ def create_search_router(root, *, stage_three_hooks=None):
             return {"status": "error", "message": error or "stage_two.missing"}
         presented = present_lesson(stage_two, result.get("features", []),
                                    (result.get("candidate") or {}).get("original_text", ""), search_id,
-                                   candidate=result.get("candidate"))
+                                   candidate=result.get("candidate"), display_text=public_problem_text(result))
         presented.update(stage_three.presentation(directory, search_id, running=running, attempt=attempt))
         if error:
             presented["execution_error"] = error

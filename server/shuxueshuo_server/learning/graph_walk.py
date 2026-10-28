@@ -7,6 +7,91 @@ AI playback never submits to this adapter: only student answer events are graded
 from fastapi import HTTPException
 
 SCHEMA = 'graph-walk-practice/v1'
+EXACT_CHOICE = 'original_choice_exact_set'
+
+
+def exact_choice_contract(decision):
+    """Original exam answers never inherit step-multi's optional choices."""
+    expected = decision.get('expected_answer')
+    options = decision.get('interaction', {}).get('options', [])
+    if (decision.get('source') != 'original_choice'
+            or decision.get('interaction', {}).get('type') != EXACT_CHOICE
+            or not isinstance(expected, dict) or set(expected) != {'correct_labels', 'option_labels'}
+            or not isinstance(options, list)):
+        raise ValueError('invalid original-choice exact-set contract')
+    labels = [item.get('value') for item in options if isinstance(item, dict)]
+    for values in (labels, expected['correct_labels'], expected['option_labels']):
+        if (not isinstance(values, list) or any(not isinstance(item, str) or not item for item in values)
+                or len(set(values)) != len(values)):
+            raise ValueError('invalid original-choice labels')
+    if (len(labels) != len(options) or not labels or set(labels) != set(expected['option_labels'])
+            or not set(expected['correct_labels']) <= set(labels)):
+        raise ValueError('invalid original-choice label mapping')
+    return expected
+
+
+def option_requirements(contract, route, decision):
+    """Validate a complete comparison lesson and return all prerequisite step ids."""
+    required = decision.get('require_complete_options')
+    if (not isinstance(required, list) or not required
+            or any(not isinstance(item, str) or not item for item in required)
+            or len(set(required)) != len(required) or decision.get('select_relation') not in {'equal', 'different'}
+            or not isinstance(decision.get('target_ref'), str) or not decision['target_ref']):
+        raise ValueError('invalid option-completion requirements')
+    groups = {}
+    prerequisites = []
+    last = None
+    for step in route_steps(contract, route):
+        if step['id'] == decision['id']:
+            break
+        prerequisites.append(step['id'])
+        context = step.get('option_context')
+        if context is None:
+            continue
+        if (not isinstance(context, dict) or any(not isinstance(context.get(key), str) or not context[key]
+                for key in ('option_id', 'label', 'target_ref', 'left_ref', 'right_ref'))
+                or context.get('phase') not in {'evidence', 'verdict'} or context['target_ref'] != decision['target_ref']):
+            raise ValueError('invalid comparison option context')
+        option = context['option_id']
+        if option not in required or option in groups and option != last:
+            raise ValueError('invalid comparison option ordering')
+        group = groups.setdefault(option, [])
+        if group and (group[-1]['option_context']['phase'] == 'verdict' or any(
+                group[0]['option_context'][key] != context[key]
+                for key in ('label', 'target_ref', 'left_ref', 'right_ref'))):
+            raise ValueError('invalid comparison option scope')
+        group.append(step)
+        last = option
+    if list(groups) != required:
+        raise ValueError('missing comparison options')
+    correct = []
+    labels = []
+    for group in groups.values():
+        final = group[-1]
+        if (len(group) < 2 or final['option_context']['phase'] != 'verdict'
+                or final['interaction']['type'] != 'choice'
+                or final['expected_answer'].get('one_of') not in (['equal'], ['different'])
+                or {item['value'] for item in final['interaction']['options']} != {'equal', 'different'}):
+            raise ValueError('comparison option needs evidence and a single verdict choice')
+        label = final['option_context']['label']
+        labels.append(label)
+        if final['expected_answer']['one_of'][0] == decision['select_relation']:
+            correct.append(label)
+    expected = exact_choice_contract(decision)
+    if labels != expected['option_labels'] or set(correct) != set(expected['correct_labels']):
+        raise ValueError('comparison verdicts disagree with original-choice polarity')
+    return prerequisites
+
+
+def ensure_option_prerequisites(contract, route, decision, passed_ids):
+    if decision.get('interaction', {}).get('type') != EXACT_CHOICE:
+        return
+    try:
+        required = option_requirements(contract, route, decision)
+    except ValueError as error:
+        raise HTTPException(409, '本题判断记录不完整，请重新开始练习。') from error
+    if not set(required) <= set(passed_ids):
+        raise HTTPException(409, '请先完成每个选项的证据步骤和判断，再提交原题答案。')
 
 
 def snapshot(attempt):
@@ -26,10 +111,17 @@ def validate_contract(contract, problem_id):
         if not steps or len({step['id'] for step in steps}) != len(steps):
             raise ValueError('invalid graph-walk practice steps')
         for step in steps:
-            if step['interaction']['type'] not in {'read', 'choice', 'multi', 'checklist', 'fill', 'plane', 'grid'}:
+            if ((step.get('require_complete_options') or step.get('source') == 'original_choice'
+                 and step['interaction']['type'] == 'multi') and step['interaction']['type'] != EXACT_CHOICE):
+                raise ValueError('original multiple choice requires its independent grader')
+            if step['interaction']['type'] not in {'read', 'choice', 'multi', 'checklist', 'fill', 'plane', 'grid', EXACT_CHOICE}:
                 raise ValueError('unsupported graph-walk interaction')
             if 'expected_answer' not in step:
                 raise ValueError('graph-walk step has no grading contract')
+            if step['interaction']['type'] == EXACT_CHOICE:
+                if step is not steps[-1]:
+                    raise ValueError('original-choice exact answer must finish the route')
+                option_requirements(contract, route, step)
 
 
 def grade(decision, answer, route):
@@ -39,6 +131,9 @@ def grade(decision, answer, route):
     value = answer['value']
     component, expected = decision['interaction'], decision['expected_answer']
     kind = component['type']
+    if ((decision.get('require_complete_options') or decision.get('source') == 'original_choice' and kind == 'multi')
+            and kind != EXACT_CHOICE):
+        raise HTTPException(422, '原题多选必须使用独立的精确评分。')
     if kind == 'read':
         passed = value == 'read'
         if decision.get('route_by_answer'):
@@ -49,6 +144,15 @@ def grade(decision, answer, route):
         passed = value in expected['one_of']
         if decision.get('route_by_answer'):
             passed = passed and decision['route_by_answer'].get(value) == route
+    elif kind == EXACT_CHOICE:
+        try:
+            expected = exact_choice_contract(decision)
+        except ValueError as error:
+            raise HTTPException(422, '原题多选评分契约无效。') from error
+        if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+            raise HTTPException(422, '请提交原题选择的标签数组。')
+        passed = (len(set(value)) == len(value) and set(value) <= set(expected['option_labels'])
+                  and set(value) == set(expected['correct_labels']))
     elif kind == 'multi':
         if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
             raise HTTPException(422, '请提交本步选择的各项。')

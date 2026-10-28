@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-equality",
+  "admission": "function_equality",
+  "method": "method-function-equality",
+  "route_id": "function-equality"
+}

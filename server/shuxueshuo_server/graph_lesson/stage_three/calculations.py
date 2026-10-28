@@ -64,14 +64,42 @@ def consistency(feasible, answer, previous):
     return "consistent"
 
 
+def _advance_visible(state, contracts):
+    """Commit a folded M1 child as one bounded operation, retaining its proof.
+
+    Only an explicitly folded domain child inside an option is eligible. Each
+    ordinary driver action still checks its budget and records its full trace;
+    the surrounding calculation worker bounds the whole batch. A visible card,
+    child return or failure always ends the batch before another option action.
+    """
+    updated = driver.advance(state, contracts=contracts)
+    for _ in range(64):
+        frames = updated.get('frames') or []
+        frame = frames[-1] if frames else {}
+        context = frame.get('bindings', {}).get('context', {})
+        if (updated['status'] != 'running' or len(updated['fragments']) != len(state['fragments'])
+                or frame.get('method') != 'method-domain-intersection'
+                or not frame.get('option_context') or context.get('suppress_domain_display') is not True):
+            break
+        updated = driver.advance(updated, contracts=contracts)
+    return updated
+
+
 def dispatch(payload):
     operation = payload["operation"]
+    if operation == 'verify_comparisons':
+        from .equality_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],
+                             payload['comparison_result_exact'])
+    if operation == 'finish_comparisons':
+        from .equality_runtime import finish
+        return finish(payload['state'], payload['previous'])
     if operation == "initialize":
         arguments = payload["arguments"]
         revisions = arguments.get("revisions") or execution_contracts.revisions()
         return driver.create_state(contracts=_contracts({"revisions": revisions}), **arguments)
     if operation == "advance":
-        return driver.advance(payload["state"], contracts=_contracts(payload["state"]))
+        return _advance_visible(payload["state"], _contracts(payload["state"]))
     if operation == "interaction":
         from . import interaction
 

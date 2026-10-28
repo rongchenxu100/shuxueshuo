@@ -198,7 +198,7 @@ def test_verifier_rejects_tampered_context_and_ignores_forged_features():
 
 @pytest.mark.parametrize(
     "expression",
-    ["sqrt(a*x-1)/(x-2)", "sqrt(x^3-1)", "sqrt(1/(x-1))", "abs(x)", "(x^2-1)^0"],
+    ["sqrt(a*x-1)/(x-2)", "sqrt(x^3-1)", "sqrt(1/(x-1))", "abs(x^2)", "(x^2-1)^0"],
 )
 def test_direct_type_and_method_overrides_cannot_bypass_admission(expression):
     c = candidate(expression)

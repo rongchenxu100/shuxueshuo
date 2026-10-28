@@ -1,5 +1,5 @@
 {
-  "contentVersion": "52644daf8998e28bbcb1671423497ae3afa94874a69372431bde1395c63d9ee2",
+  "contentVersion": "b3f342397ca3f8ee8be47f38d409ee5886d1b4da7ab8606c5c93dce29ac5754f",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 16,
+    "method": 17,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -52,6 +52,7 @@
     "method-domain-parameter/index.html",
     "method-elimination/index.html",
     "method-fraction-split/index.html",
+    "method-function-equality/index.html",
     "method-homogeneous/index.html",
     "method-interval-extremum/index.html",
     "method-matching/index.html",

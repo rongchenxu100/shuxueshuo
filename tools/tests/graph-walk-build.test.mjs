@@ -21,7 +21,13 @@ async function fixture(t) {
     await fs.mkdir(path.dirname(path.join(root, relative)), {recursive: true});
     await fs.cp(path.join(repoRoot, relative), path.join(root, relative), {recursive: true});
   };
-  for (const relative of ['server', 'internal', 'site/1']) await link(relative);
+  for (const relative of ['server', 'internal', 'site/1', 'site/topics']) await link(relative);
+  // Teaching now includes native graph-walk courses. Keep their verified inputs
+  // available while leaving this compiler's own output absent for ownership tests.
+  for (const name of await fs.readdir(path.join(repoRoot, 'site/data/graph-walk'))) {
+    const relative = `site/data/graph-walk/${name}`;
+    if (![SOURCE_PATH, BUNDLE_PATH].includes(relative)) await link(relative);
+  }
   for (const name of await fs.readdir(path.join(repoRoot, 'site/2'))) {
     if (name === 'q01') await copy(`site/2/${name}`);
     else await link(`site/2/${name}`);
@@ -61,6 +67,7 @@ test('real notation compiles without matching metadata or derived answers in the
 test('candidate traversal retains real directions and applicability separate from implemented routes', () => {
   const [d1, d2, d3] = bundle.intro;
   assert.deepEqual(d1.candidates, [
+    {id: 'type-function-domain', coverage: 2},
     {id: 'type-quantified-quadratic', coverage: 2},
     {id: 'type-amgm-quantified', coverage: 1},
     {id: 'type-parameter-quadratic-solve', coverage: 1},
@@ -68,7 +75,12 @@ test('candidate traversal retains real directions and applicability separate fro
     {id: 'type-rational-inequality', coverage: 1},
     {id: 'type-solution-parameters', coverage: 1},
   ]);
-  assert.equal(d2.interaction.options.length, 3);
+  assert.equal(d2.interaction.options.length, 6);
+  for (const id of ['type-function-domain', 'type-abstract-function-domain', 'type-function-range']) {
+    assert.equal(d2.verdicts[id].value, 'unfit');
+    assert.ok(d2.verdicts[id].message);
+    assert.equal(d2.expected_answer.one_of.includes(id), false);
+  }
   assert.ok(d2.alternatives['type-amgm-quantified'].href.startsWith('/knowledge/'));
   assert.equal(bundle.intro.length, 3);
   assert.equal(d3.interaction.type, 'plane');

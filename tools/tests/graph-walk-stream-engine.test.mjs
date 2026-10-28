@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import * as stateAPI from '../../site/assets/graph-walk/walk-state.mjs';
 import * as mathDOM from '../../site/assets/graph-walk/stream-math-dom.mjs';
 import {buildStreamReplay} from '../../site/assets/graph-walk/walk-replay.mjs';
+import * as optionWorkspace from '../../site/assets/graph-walk/option-workspace.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -201,7 +202,7 @@ function documentFixture() {
 function engine(value = fixture()) {
   const {document, roots} = documentFixture(), storage = new Map();
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL, structuredClone,
-    setTimeout, clearTimeout, ...stateAPI, ...mathDOM, buildStreamReplay,
+    setTimeout, clearTimeout, ...stateAPI, ...mathDOM, ...optionWorkspace, buildStreamReplay,
     PracticeMath: {render(node, text) { node.textContent = text; }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, text) => storage.set(key, text)}});
   context.window = context;
@@ -219,6 +220,66 @@ function engine(value = fixture()) {
     render = () => {renderCount++; const current = currentDecision(bundle,state); if (current) ensureDraft(current); park();};`);
   return {context, roots, run, storage, value};
 }
+
+function equalityEngineFixture() {
+  const value = fixture({readonly: true});
+  const options = ['A', 'B', 'C', 'D'].map(label => ({option_id: label, label, text: `选项 ${label} 的两个函数`}));
+  const option_verdicts = options.map(row => ({...row, verdict: 'CD'.includes(row.label) ? 'equal' : 'different', reason: `reason-${row.label}`}));
+  const completion = {...identity, status: 'verified', target_ref: target, route_id: routes[0], verified_route_sha256: 'equality-hash',
+    answer: {kind: 'compare_functions', status: 'complete', option_verdicts},
+    original_choice: {status: 'matched', kind: 'multiple_choice', selection_mode: 'multiple', target_ref: target,
+      select_relation: 'equal', options, option_verdicts, correct_labels: ['C', 'D']}};
+  const steps = options.flatMap(row => {
+    const option_context = {option_id: row.option_id, label: row.label, target_ref: target, left_ref: `${row.label}/f`, right_ref: `${row.label}/g`};
+    return [{id: `${row.label}-evidence`, source: 'page', title: `${row.label} 的证据`, question: '已验证的依据',
+      option_context: {...option_context, phase: 'evidence'}, interaction: {type: 'read'}, expected_answer: {}},
+    {id: `${row.label}-verdict`, source: 'page', title: `${row.label} 的结论`, question: '是否相同？',
+      option_context: {...option_context, phase: 'verdict'}, interaction: {type: 'choice', field: 'verdict',
+        options: [{value: 'equal', label: '相同'}, {value: 'different', label: '不同'}]},
+      expected_answer: {one_of: ['CD'.includes(row.label) ? 'equal' : 'different']}}];
+  });
+  value.bundle.option_workspaces = options;
+  Object.assign(value.bundle.routes[routes[0]], {completion, steps: [...steps, stateAPI.originalChoiceDecision(completion, target, routes[0])]});
+  return value;
+}
+
+test('equality workspace shows only current option, locks old work, and accepts an explicit empty final draft', () => {
+  const {run, roots} = engine(equalityEngineFixture());
+  run(`state = submitAnswer(bundle, state, {decision:'A-evidence',answer:'read'});
+    state = submitAnswer(bundle, state, {decision:'A-verdict',answer:'different'});
+    realRender({scroll:false});`);
+  let html = roots.get('#gw-steps').innerHTML;
+  assert.match(html, /A ✓/);
+  assert.match(html, /data-option-workspace="B"/);
+  assert.doesNotMatch(html, /data-completed-decision="A-verdict"/);
+  assert.equal(roots.get('#gw-undo').disabled, true);
+  const position = run('state.run.completed.length');
+  run(`reviewOption='A'; realRender({scroll:false});`);
+  html = roots.get('#gw-steps').innerHTML;
+  assert.match(html, /只读回看/);
+  assert.match(html, /data-completed-decision="A-verdict"/);
+  assert.doesNotMatch(html, /id="gw-active"/);
+  assert.equal(run('state.run.completed.length'), position);
+  run(`reviewOption=null;
+    while(currentDecision(bundle,state).source!=='original_choice') {
+      const d=currentDecision(bundle,state); state=submitAnswer(bundle,state,{decision:d.id,answer:d.interaction.type==='read'?'read':d.expected_answer.one_of[0]});
+    }
+    realRender({scroll:false});`);
+  html = roots.get('#gw-steps').innerHTML;
+  assert.match(html, /A ✓.*B ✓.*C ✓.*D ✓/s);
+  assert.doesNotMatch(html, /reason-[ABCD]|data-completed-decision="[ABCD]-verdict"/);
+  assert.equal(run('ready(currentDecision(bundle,state))'), true);
+  assert.deepEqual(Array.from(run('draft')), []);
+  assert.equal(roots.get('#gw-completion').innerHTML, '');
+  run(`const final=currentDecision(bundle,state); state=submitAnswer(bundle,state,{decision:final.id,answer:[]}); realRender({scroll:false});`);
+  assert.equal(run('state.done'), false);
+  assert.equal(roots.get('#gw-completion').innerHTML, '');
+  run(`state=submitAnswer(bundle,state,{decision:currentDecision(bundle,state).id,answer:['D','C']}); realRender({scroll:false});`);
+  assert.equal(run('state.done'), true);
+  const board = roots.get('#gw-completion [data-stream-completion]').querySelector('.gw-option-verdict-board');
+  assert.ok(board);
+  assert.deepEqual(board.children.map(row => row.textContent), ['A　不同：reason-A', 'B　不同：reason-B', 'C　相同：reason-C', 'D　相同：reason-D']);
+});
 
 function caseFixture({previousPath = ['constant-case'], currentPath = ['quadratic-case'], condition = 'c\\ne\\frac{1}{3}',
   previousBranch, currentBranch, branchCondition} = {}) {

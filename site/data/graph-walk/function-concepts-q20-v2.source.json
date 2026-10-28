@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q20-v2",
+  "title": "判断是否为同一函数 · Q20",
+  "page": "/topics/function-concepts/q20/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-concepts-q20-v2.evidence.json"
+}

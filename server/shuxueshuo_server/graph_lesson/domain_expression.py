@@ -23,6 +23,8 @@ def expression(ast, variable, symbols=None):
         return -expression(ast[1], variable, symbols)
     if kind == "call" and ast[1] == "sqrt":
         return sp.Pow(expression(ast[2], variable, symbols), sp.Rational(1, 2), evaluate=False)
+    if kind == "call" and ast[1] == "abs":
+        return sp.Abs(expression(ast[2], variable, symbols), evaluate=False)
     left, right = (expression(a, variable, symbols) for a in ast[1:])
     return {
         "+": lambda: left + right,

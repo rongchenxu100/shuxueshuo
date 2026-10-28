@@ -1,0 +1,45 @@
+{
+  "contract": "browser-photo-lesson-verification/v1",
+  "stage_three_result_sha256": "084e5519be4e4acbbc1cefde346ea8b35a898948b49bb987f8ae6fdd5386c2b1",
+  "run_id": "af3a4d9f68024ef996c4ff109645e1f9",
+  "status": "completed",
+  "target_ref": "/root/goals/0",
+  "goal_status": "solved",
+  "answer": {
+    "correct_labels": [
+      "C",
+      "D"
+    ],
+    "kind": "compare_functions",
+    "mode": "groups",
+    "option_verdicts": [
+      {
+        "label": "A",
+        "option_id": "option_a",
+        "reason": "domains_differ",
+        "verdict": "different"
+      },
+      {
+        "label": "B",
+        "option_id": "option_b",
+        "reason": "outputs_differ",
+        "verdict": "different"
+      },
+      {
+        "label": "C",
+        "option_id": "option_c",
+        "reason": "same_domain_and_correspondence",
+        "verdict": "equal"
+      },
+      {
+        "label": "D",
+        "option_id": "option_d",
+        "reason": "same_domain_and_correspondence",
+        "verdict": "equal"
+      }
+    ],
+    "select_relation": "equal",
+    "selection_mode": "multiple",
+    "status": "complete"
+  }
+}

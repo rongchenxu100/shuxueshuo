@@ -134,7 +134,10 @@ def candidate_contract_summary():
     """Derive field meanings from the actual contract, without its repeated rules."""
     contract = schema()
     scope = contract["$defs"]["Scope"]
-    variants = scope["properties"]["goals"]["items"]["oneOf"]
+    variants = [
+        _resolve_schema_node(contract, variant)
+        for variant in scope["properties"]["goals"]["items"]["oneOf"]
+    ]
     shared_fields = ("in_terms_of", "variables")
     return {
         "original_text": contract["properties"]["original_text"]["description"],
@@ -160,6 +163,21 @@ def candidate_contract_summary():
         },
         "match": contract["properties"]["match_status"]["description"],
     }
+
+
+def _resolve_schema_node(contract, node):
+    """Follow local schema references for contract descriptions, with cycle checks."""
+    seen = set()
+    while "$ref" in node:
+        ref = node["$ref"]
+        if not ref.startswith("#/") or ref in seen:
+            raise ValueError(f"review.invalid_schema_reference:{ref}")
+        seen.add(ref)
+        target = contract
+        for segment in ref[2:].split("/"):
+            target = target[segment.replace("~1", "/").replace("~0", "~")]
+        node = {**target, **{key: value for key, value in node.items() if key != "$ref"}}
+    return node
 
 
 def code_validation_summary(base, candidate, registry, validation):

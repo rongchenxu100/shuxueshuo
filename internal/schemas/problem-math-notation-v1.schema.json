@@ -354,6 +354,9 @@
                 },
                 "additionalProperties": false,
                 "description": "已知定义域恰为给定集合时反求参数；domain转录题设定义域，symbol为所求参数。"
+              },
+              {
+                "$ref": "#/$defs/CompareFunctionsGoal"
               }
             ]
           },
@@ -401,6 +404,195 @@
           "description": "可省略；没有不确定性时为空。问题放在对应作用域，整题共用的问题放root。missing_figure会阻断后续处理；不猜图，也不把定义/题型不熟悉误报为缺图。 核对所有输入图片；提到图不代表图已提供，即使文字足以推理也须报告被引用但未提供的图。图已提供不能误报；模糊或遮挡使用相应类型。"
         }
       }
+    },
+    "ComparisonFunction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "definition"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "原函数定义的受控字符串，例如 f(x)=(sqrt(x))^2；不化简，不输出AST。"
+        },
+        "domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅题面明确给定的定义域，如 [0,1]、[0,0]、{0}、ℝ；未给出时省略，不填写推导所得自然域。"
+        }
+      }
+    },
+    "ComparisonOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "text",
+        "functions",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "\\S"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S"
+        },
+        "functions": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/ComparisonFunction"
+          }
+        },
+        "left": {
+          "type": "string",
+          "pattern": "^(local|shared):[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        },
+        "right": {
+          "type": "string",
+          "pattern": "^(local|shared):[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        }
+      }
+    },
+    "CompareFunctionsGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "mode",
+        "select_relation",
+        "selection_mode",
+        "completeness",
+        "shared_functions",
+        "options"
+      ],
+      "properties": {
+        "kind": {
+          "const": "compare_functions",
+          "description": "判断所给函数是否为同一函数，或按题面要求汇总各选项的比较结论。"
+        },
+        "mode": {
+          "enum": [
+            "pair",
+            "groups",
+            "shared_baseline"
+          ],
+          "description": "pair为一对函数的直接判断，groups为各项独立给出一对函数，shared_baseline为公共基准与各项候选比较。"
+        },
+        "select_relation": {
+          "enum": [
+            "equal",
+            "different",
+            "unknown",
+            null
+          ],
+          "description": "选择题按原文填写要选相同equal或不同different；无法辨认用unknown。直接一对比较用null。"
+        },
+        "selection_mode": {
+          "enum": [
+            "single",
+            "multiple",
+            "none"
+          ],
+          "description": "原题单选用single、多选用multiple；直接比较一对函数用none，不凭求解结论推测单选或多选。"
+        },
+        "completeness": {
+          "enum": [
+            "complete",
+            "incomplete"
+          ],
+          "description": "题干、选项和参与比较的函数均可完整转写时为complete；有缺失或不可辨认时为incomplete。"
+        },
+        "shared_functions": {
+          "type": "array",
+          "description": "公共基准函数，仅在shared_baseline模式中定义一次；每个选项通过shared引用，不能重复为局部定义。",
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/ComparisonFunction"
+          }
+        },
+        "options": {
+          "type": "array",
+          "description": "按原题顺序保留每组选项的标签、原文、局部函数定义与左右引用；直接一对比较也保留一个工作项，不填写判断结果。",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/ComparisonOption"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "pair"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "select_relation": {
+                "type": "null"
+              },
+              "selection_mode": {
+                "const": "none"
+              },
+              "options": {
+                "maxItems": 1
+              },
+              "shared_functions": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "select_relation": {
+                "enum": [
+                  "equal",
+                  "different",
+                  "unknown"
+                ]
+              },
+              "selection_mode": {
+                "enum": [
+                  "single",
+                  "multiple"
+                ]
+              },
+              "options": {
+                "minItems": 2
+              }
+            }
+          }
+        }
+      ],
+      "description": "比较函数的数学主目标。每组选项独立作用域，不能作为children小问；共享基准只定义一次并显式引用。模型不输出真假或正确标签。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

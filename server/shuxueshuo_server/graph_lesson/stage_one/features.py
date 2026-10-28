@@ -18,6 +18,8 @@ from .function_domain import VERSION as DOMAIN_VERSION
 from .function_domain import describe_domain_goal
 from .function_domain_parameter import VERSION as DOMAIN_PARAMETER_VERSION
 from .function_domain_parameter import describe_match_domain_goal
+from .function_equality import VERSION as COMPARISON_VERSION
+from .function_equality import describe_comparison_goal
 
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
@@ -39,6 +41,13 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec(
+        'function_comparison', ('goal',), 'function_comparison',
+        ('function-concept#identity',), '比较各函数的定义域和对应关系',
+        version=COMPARISON_VERSION,
+        supported_structures=('option_scoped_function_comparison',),
+        computation_boundary='original scoped expression and declared-domain syntax only; no solving',
+    ),
     FeatureSpec(
         "function_domain", ("goal",), "function_domain",
         ("function-concept#elements",), "具体函数的原始输入结构为 {value}",
@@ -426,6 +435,23 @@ def _scope_features(report, candidate, scope, ancestors, features):
             features.append(feature)
 
         goal_ast = goal["target"]
+        if goal['kind'] == 'compare_functions':
+            add('goal', {'kind': 'compare_functions', 'mode': goal['mode'],
+                         'select_relation': goal['select_relation'],
+                         'selection_mode': goal['selection_mode']}, source_refs=[target_ref])
+            produced['goal']['knowledge_refs'] = ['function-concept#identity']
+            try:
+                description = describe_comparison_goal(report, scope, ancestors, goal_index)
+                refs = [target_ref, *(f[side]['source_ref'] for f in description['options']
+                                     for side in ('left', 'right'))]
+                add('function_comparison', description, source_refs=refs)
+            except (NotationError, ValueError, TypeError) as exc:
+                add('function_comparison', diagnostic={'code': getattr(exc, 'code', 'comparison.invalid_structure')},
+                    source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_quantified_comparison_goal'}, source_refs=[target_ref])
+            continue
         if goal["kind"] == "find_domain":
             add("goal", {"kind": "find_domain", "symbol": objects[goal_ast[1]]["name"]}, source_refs=[target_ref])
             produced["goal"]["knowledge_refs"] = ["function-concept#elements"]

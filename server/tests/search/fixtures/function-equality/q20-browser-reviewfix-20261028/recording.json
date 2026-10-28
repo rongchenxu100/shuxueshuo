@@ -1,0 +1,80 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q20/manifest.json",
+  "source_kind": "browser_album_upload_product_full_image_crop",
+  "recorded_date": "2026-10-28",
+  "search_id": "0be5a6148fec",
+  "upload_source": "internal/senior-high/source-images/function-concepts-q20/source-question.png",
+  "upload_source_sha256": "314d54c75ff9f1e6750720a099f178a4bf99b264b95ca4e1880302d9d2093c68",
+  "product_crop": {
+    "box": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "page_size": [
+      825,
+      240
+    ],
+    "crop_size": [
+      825,
+      240
+    ]
+  },
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "accepted_attempt": ".",
+  "attempts": [
+    {
+      "path": ".",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "elapsed_seconds": 37.745
+    }
+  ],
+  "notes": "代码审查修复后，从正常浏览器相册重新上传归档原题裁片并使用整张图。真实 extract 与 review 各一次通过；图像仅经产品正常预处理，模型候选和响应文本均未改写。求解摘要仅来自本次 search_id 的 completed/solved 运行；不包含先前 d93c4e5d83d5 的启动器失败，也不代表学生或 AI 交互已验收。",
+  "sanitization": {
+    "removed": "provider file/request identifiers and signed transport URLs only; no account/session data copied",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id",
+      "workflow/calls/02-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/02-review/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "question.png": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+    "result.json": "4e40aca588441e03ac61079bbd3ec4bf26a3d1c39350fc102b327a094581e738",
+    "workflow/candidate.json": "13f2422e1fd9aabebca1bd4bac16a9cc8c42b7a02cc7b8e8317498d21792a570",
+    "workflow/latest-review.json": "f17183d6d32ed4f783242317289e58bd45f04c23cb8ff774cdda860363ae77d3",
+    "workflow/ledger.json": "402bd1f4ee9d91a11f4bc30b6a1583a23e5f2c099ef556123fa99fe8e739b30f",
+    "workflow/calls/01-extract/request.json": "13069ef39160b237552a1e3304671de7f99969dd6a0e834a9fb625be36d8413f",
+    "workflow/calls/01-extract/response.json": "bb2c4f5802f5a9eb1edb9bcc0203cb068e93210168782f04a69668b0607f98ce",
+    "workflow/calls/02-review/request.json": "77aba6e5fd982738db2c710c070e7f6bf21a36db1b079c91b9df4306ee683fcd",
+    "workflow/calls/02-review/response.json": "6282d4ac8f4a6971659f3493457f481a1a9395f6ccd16e06bd017e4e63f6ff35",
+    "original.png": "ddbfbbabc038693dcad75c9104680944c53eb07437c81a53c1a0e0962f20488e"
+  },
+  "files": {
+    "lesson-verification.json": "a75606263ccaf73c18bb410fbdf62ab0a58a2b38877356cfa9d7c12a36f8962b",
+    "question.png": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+    "result.json": "25a566a0fa80f346048495d94f5fcf86b502701c893c5adfcddb0e45e67e06a8",
+    "workflow/calls/01-extract/request.json": "d324e2f053b46cc5c14f4045801943e8b67206c187c5d02b89a64aa48deccdce",
+    "workflow/calls/01-extract/response.json": "e16f059fb8e74918de0a4bce64c998ef5a5ea0c93e42d47540ff97846eed43e0",
+    "workflow/calls/02-review/request.json": "f52a0b2cbe8f1cd310c6e2da4fe028173ed67580501878c302bf8fcb342434ad",
+    "workflow/calls/02-review/response.json": "0cc7fe8d949d5f0c2892b32884c744a124d4ae649f12dcf79f823947dbf1467e",
+    "workflow/candidate.json": "498e1d13b25187093687491fc1ed8ea6b04bb91fd02e8cdf65699d4fc1b00fa4",
+    "workflow/latest-review.json": "9d936de53190de71ee664f1d37d0f65692b9cd5ed749a77dcb2e2f4e4a59f0b8",
+    "workflow/ledger.json": "a2d5c74a35f3764a4705b57d57fe07b71a4b0de23e935ac336d2da2bf2484241",
+    "original.png": "ddbfbbabc038693dcad75c9104680944c53eb07437c81a53c1a0e0962f20488e"
+  },
+  "product_crop_source": {
+    "file": "original.png",
+    "sha256": "ddbfbbabc038693dcad75c9104680944c53eb07437c81a53c1a0e0962f20488e",
+    "processing": "正常相册导入在浏览器 canvas 中以 JPEG 重编码，再由服务端转 RGB 并按 full-image box 裁切；这是当次服务端保存的原裁片，不是重新合成的图片。"
+  }
+}

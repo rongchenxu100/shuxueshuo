@@ -1,0 +1,73 @@
+{
+  "problem_id": "function-concepts-q20",
+  "source": "用户上传的高中数学必修一（RJA版）第82页：例5变式1（多选）",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "msg_01a16d08-d6da-78c1-85ca-2c36c45d03e2",
+  "source_message_timestamp": "2026-10-24T08:30:58.271Z",
+  "source_attachment_index": 2,
+  "original_filename": "codex-clipboard-01e4eb66-3994-4008-99a4-fc81e67c5736.png",
+  "original_path": "/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/codex-clipboard-01e4eb66-3994-4008-99a4-fc81e67c5736.png",
+  "page": {
+    "file": "source-page.jpg",
+    "size": [
+      1279,
+      1706
+    ],
+    "media_type": "image/jpeg",
+    "sha256": "631134d28f2d4ae3a62b39c255adf0ac0027cfe5b3b216af9df6175d3aa09014"
+  },
+  "proposed_product_crop_xyxy": [
+    250,
+    115,
+    1075,
+    355
+  ],
+  "processing": "原上传临时文件已逐字节复制，未重新编码；原文件扩展名为.png，实际内容为JPEG，归档扩展名据此采用.jpg。完整原页保留印刷解析与答案。按crop.xyxy矩形裁出source-question.png，后续仅执行产品正常相册导入（浏览器canvas JPEG重编码）、上传、裁题和question_png预处理，未遮罩、拼接、重绘。边缘带入的解析碎片按共享提取规则忽略；历次实际送模图与哈希分别保存在关联录制中。",
+  "verified_statement": "（多选）下列四组函数中表示同一个函数的是：A. f(x)=x，g(x)=(sqrt(x))^2；B. f(x)=x^2，g(x)=(x+1)^2；C. f(x)=sqrt(x^2)，g(x)=abs(x)；D. f(x)=3*x^2-2*x+3，g(t)=3*t^2-2*t+3。",
+  "original_printed_answer": "CD",
+  "acceptance_status": "accepted: original_source_archived; live_photo_extraction_reviewed; shared_api_solved; topic_published",
+  "crop": {
+    "file": "source-question.png",
+    "xyxy": [
+      250,
+      115,
+      1075,
+      355
+    ],
+    "normalized_box": [
+      0.19546520719311963,
+      0.06740914419695193,
+      0.8405003909304144,
+      0.20808909730363423
+    ],
+    "sha256": "314d54c75ff9f1e6750720a099f178a4bf99b264b95ca4e1880302d9d2093c68"
+  },
+  "model_image": {
+    "file": "question.png",
+    "sha256": "f8dff3893c7ad6b667da52fb2bd5ae5920b7d25a3fb9c0892d7d61df75df7e8c",
+    "pipeline": "search.dev_api.start_problem rectangle crop + search.question_image.question_png"
+  },
+  "recordings": [
+    {
+      "manifest": "server/tests/search/fixtures/function-equality/q20-recorded-20261028/recording.json",
+      "kind": "first_live_extract_review",
+      "elapsed_seconds": 33.375,
+      "model_image_sha256": "f8dff3893c7ad6b667da52fb2bd5ae5920b7d25a3fb9c0892d7d61df75df7e8c"
+    },
+    {
+      "manifest": "server/tests/search/fixtures/function-equality/q20-browser-recorded-20261028/recording.json",
+      "kind": "normal_browser_album_upload_extract_review",
+      "elapsed_seconds": 37.754,
+      "model_image_sha256": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+      "lesson_status": "solved"
+    },
+    {
+      "manifest": "server/tests/search/fixtures/function-equality/q20-browser-reviewfix-20261028/recording.json",
+      "kind": "normal_browser_upload_after_review_fixes",
+      "elapsed_seconds": 37.745,
+      "model_image_sha256": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+      "lesson_status": "solved",
+      "run_id": "dcf84a05df8a4a628d850cedeb1ec26e"
+    }
+  ]
+}

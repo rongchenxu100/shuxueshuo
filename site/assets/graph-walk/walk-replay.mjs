@@ -6,6 +6,7 @@ export function replayAnswer(decision, route) {
     case 'read': answer = 'read'; break;
     case 'choice': answer = expected.one_of?.[0]; break;
     case 'multi': answer = expected.required; break;
+    case 'original_choice_exact_set': answer = expected.correct_labels; break;
     case 'fill':
     case 'checklist': answer = expected.terms; break;
     case 'grid': answer = expected.cell; break;

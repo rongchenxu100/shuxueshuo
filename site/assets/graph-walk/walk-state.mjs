@@ -1,6 +1,7 @@
 // One local decision engine for the student UI, model recorder and replay.
 import '../practice/context.js?v=15';
-import {matchedOriginalChoice} from './original-choice.mjs?v=20261022-original-choice';
+import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261027-function-equality';
+import {optionPrerequisitesPassed, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
 
 const copy = value => structuredClone(value);
 const nodeId = ref => ref.split('#')[0];
@@ -42,8 +43,12 @@ export function gradeDecision(decision, answer) {
   }
   const component = decision.interaction;
   try {
+    if ((decision.require_complete_options || decision.source === 'original_choice' && component.type === 'multi') &&
+        component.type !== 'original_choice_exact_set') throw new Error('原题多选需要独立的精确评分，请重新加载。');
     if (component.type === 'read') {
       if (answer !== 'read') throw new Error('请确认已经读完这一步。');
+    } else if (component.type === 'original_choice_exact_set') {
+      if (!exactOriginalAnswer(decision, answer)) throw new Error(decision.feedback?.answer || '请按原题要求选择，检查是否漏选或多选。');
     } else if (component.type === 'multi') {
       const {required, allowed} = decision.expected_answer;
       if (!Array.isArray(answer) || new Set(answer).size !== answer.length ||
@@ -145,7 +150,7 @@ export function submitAnswer(bundle, state, action) {
   checkVersion(bundle, state);
   const next = copy(state);
   const decision = currentDecision(bundle, state);
-  const feedback = decision && action?.decision === decision.id
+  const feedback = decision && action?.decision === decision.id && optionPrerequisitesPassed(bundle, state, decision)
     ? gradeDecision(decision, action.answer)
     : {status: 'wrong', message: '作答步骤已改变，请回答当前显示的问题。'};
   next.lastFeedback = {...feedback, decision: decision?.id || null};
@@ -272,6 +277,8 @@ export function switchRoute(bundle, state, route) {
 
 export function undo(bundle, state) {
   checkVersion(bundle, state);
+  // T1 options are locked once accepted. Navigation is read-only; reset starts a new practice.
+  if (hasOptionWorkspaces(bundle, state)) return copy(state);
   if (bundle.stream && state.introCompleted.length >= bundle.intro.length && state.run.route) {
     const next = copy(state);
     saveStreamRoute(bundle, next);
@@ -335,7 +342,7 @@ export function projectDecision(bundle, state) {
         ? {decision: decision.id, answer: ['横轴 x 选项的 value', '纵轴 y 选项的 value', '覆盖这一格的一种方法的 value'], reason: '简短说明'}
         : interaction.type === 'grid'
           ? {decision: decision.id, answer: ['横轴 x 选项的 value', '纵轴 y 选项的 value'], reason: '简短说明'}
-        : {decision: decision.id, answer: interaction.type === 'multi' ? ['选中选项的 value；无顺序要求'] : ['按位置依次填写每一项的 value'], reason: '简短说明'},
+        : {decision: decision.id, answer: ['multi', 'original_choice_exact_set'].includes(interaction.type) ? ['选中选项的 value；无顺序要求'] : ['按位置依次填写每一项的 value'], reason: '简短说明'},
     ...(state.lastFeedback?.decision === decision.id && state.lastFeedback.status !== 'passed'
       ? {previousFeedback: state.lastFeedback.message} : {}),
   };
@@ -548,6 +555,7 @@ function streamDecisions(cards, states, chunks, enabled, final) {
   const carried = card => card.highlight?.result ? [card.highlight.result] : [];
   const read = (card, interactionId = null) => ({id: card.step_id, source: 'stream', title: card.title,
     question: '', interaction: {type: 'read'}, expected_answer: 'read', submit_label: '读完了，下一步',
+    ...(card.option_context ? {option_context: copy(card.option_context)} : {}),
     stream_steps: [{step_id: card.step_id, math_step_sha256: card.math_step_sha256}],
     stream_last_part: true, stream_interaction_id: interactionId,
     effects: {nodes: [], edges: [], calls: [], results: carried(card), log: `已阅读：${card.title}`}});
@@ -584,6 +592,9 @@ function streamDecisions(cards, states, chunks, enabled, final) {
           decision.math_step_sha256 !== ref.math_step_sha256) throw new Error('stream.invalid_interaction');
       return member;
     });
+    if (members.some(member => member.option_context?.option_id !== card.option_context?.option_id) ||
+        chunk.parts.some(part => part.option_context && ['option_id', 'label', 'target_ref', 'left_ref', 'right_ref', 'phase']
+          .some(key => part.option_context[key] !== card.option_context?.[key]))) throw new Error('stream.option_scope_mismatch');
     for (const member of members) covered.add(member.step_id);
     if (chunk.status === 'readonly' && chunk.reason === 'folded') {
       held.push(...chunk.steps.map(ref => ({...copy(ref), interaction_id: chunk.interaction_id})));
@@ -591,6 +602,7 @@ function streamDecisions(cards, states, chunks, enabled, final) {
       push(members.map(member => read(member, chunk.interaction_id)));
     } else if (chunk.status === 'interactive') {
       push(chunk.parts.map((part, index) => ({...copy(part), source: 'stream',
+        ...(part.option_context || card.option_context ? {option_context: copy(part.option_context || card.option_context)} : {}),
         stream_steps: copy(chunk.steps), stream_last_part: index === chunk.parts.length - 1,
         stream_interaction_id: chunk.interaction_id, stream_part_index: index, stream_part_count: chunk.parts.length,
         stream_group_title: members.map(member => member.title).join(' · '),
@@ -651,15 +663,20 @@ function originalChoiceLabel(option) {
   return marked ? option.text : `${option.label}. ${option.text}`;
 }
 
-function originalChoiceDecision(completion, target, route) {
+export function originalChoiceDecision(completion, target, route) {
   const choice = matchedOriginalChoice(completion, target);
   if (!choice || typeof completion.verified_route_sha256 !== 'string' || !completion.verified_route_sha256) return null;
+  const multiple = choice.kind === 'multiple_choice';
   return {id: JSON.stringify(['original-choice', target, route, completion.verified_route_sha256]),
-    source: 'original_choice', title: '选择原题答案', question: '根据求得的结果，原题应选择哪一项？',
-    interaction: {type: 'choice', field: 'original_choice', options: choice.options.map(option => ({
+    source: 'original_choice', title: '选择原题答案', question: multiple
+      ? '已完成各项判断，请按原题要求选择，并确认答案。' : '根据求得的结果，原题应选择哪一项？',
+    ...(multiple ? {target_ref: target, require_complete_options: choice.options.map(option => option.option_id), select_relation: choice.select_relation} : {}),
+    interaction: {type: multiple ? 'original_choice_exact_set' : 'choice', field: 'original_choice', options: choice.options.map(option => ({
       value: option.label, label: originalChoiceLabel(option)}))},
-    expected_answer: {one_of: copy(choice.correct_labels)}, submit_label: '确认答案',
-    feedback: {answer: '请把求得的结果与原题各选项比较，注意边界是否包含。'},
+    expected_answer: multiple ? {correct_labels: copy(choice.correct_labels), option_labels: choice.options.map(option => option.label)}
+      : {one_of: copy(choice.correct_labels)}, submit_label: '确认答案',
+    feedback: {answer: multiple ? '请检查原题问的是相同还是不同，必要时点进度标签回看理由，再检查是否漏选或多选。'
+      : '请把求得的结果与原题各选项比较，注意边界是否包含。'},
     stream_steps: [], effects: {nodes: [], edges: [], calls: [], results: [], log: '已确认原题选项答案。'}};
 }
 
@@ -771,9 +788,14 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
     const final = routeState.status === 'verified' || failedStreamRoute(routeState.status);
     const decisions = streamDecisions(cards, interactionStates, interactions, interactionProtocol !== null, final);
     const resolved = new Set(decisions.flatMap(decision => decision.stream_steps.map(ref => ref.step_id)));
+    let originalReady = true;
     if (routeState.math_complete && cards.length > 0 && resolved.size === cards.length) {
       const choice = originalChoiceDecision(routeState.completion, targetRef, id);
       if (choice) decisions.push(choice);
+      if (routeState.completion?.original_choice?.kind === 'multiple_choice' ||
+          routeState.completion?.answer?.kind === 'compare_functions' && routeState.completion.answer.selection_mode !== 'none') {
+        originalReady = Boolean(choice);
+      }
     }
     for (const decision of decisions) {
       const paths = planeSelectionPaths(decision, nodes, edges);
@@ -787,7 +809,7 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
       if (JSON.stringify(previous.steps[index]) !== JSON.stringify(decisions[index])) throw new Error('stream.immutable_decision');
     }
     Object.assign(route, routeState, {steps: decisions,
-      interactions_complete: cards.length > 0 && resolved.size === cards.length,
+      interactions_complete: cards.length > 0 && resolved.size === cards.length && originalReady,
       pending_count: cards.length - resolved.size});
   }
   bundle.graph = {...bundle.graph, nodes: [...ids].map(id => copy(nodes.get(id))),

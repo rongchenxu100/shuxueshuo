@@ -110,6 +110,18 @@
           "value": "fit",
           "message": "这是直接描述本题的主要任务。"
         },
+        "type-function-domain": {
+          "value": "unfit",
+          "message": "本题已明确要求二次不等式对所有实数成立，没有给出函数定义域条件；直接按含参二次不等式恒成立求参数。"
+        },
+        "type-abstract-function-domain": {
+          "value": "unfit",
+          "message": "题目没有已知函数定义域或复合自变量关系，而是要求不等式对每个实数成立。"
+        },
+        "type-function-range": {
+          "value": "unfit",
+          "message": "函数最值可以帮助解题，但原题要求的是参数范围，不是某个函数的值域。"
+        },
         "type-parameter-quadratic-solve": {
           "value": "unfit",
           "message": "该任务讨论参数取值后求 $x$ 的解集，与本题目标不同。"

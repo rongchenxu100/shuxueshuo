@@ -4,17 +4,53 @@
   "title": "Stage-three step interaction result",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contract", "run_id", "lesson_version", "target_ref", "route_id", "interaction_id", "status",
-               "steps", "interaction_revision", "interaction_sha256", "parts"],
+  "required": [
+    "contract",
+    "run_id",
+    "lesson_version",
+    "target_ref",
+    "route_id",
+    "interaction_id",
+    "status",
+    "steps",
+    "interaction_revision",
+    "interaction_sha256",
+    "parts"
+  ],
   "properties": {
-    "contract": {"const": "graph-step-interaction/v1"},
-    "run_id": {"type": "string", "minLength": 1},
-    "lesson_version": {"type": "string", "minLength": 1},
-    "target_ref": {"type": "string", "minLength": 1},
-    "route_id": {"type": "string", "minLength": 1},
-    "interaction_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
-    "status": {"enum": ["interactive", "readonly"]},
-    "reason": {"type": "string", "pattern": "^[a-z][a-z_]*$"},
+    "contract": {
+      "const": "graph-step-interaction/v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lesson_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{24}$"
+    },
+    "status": {
+      "enum": [
+        "interactive",
+        "readonly"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "pattern": "^[a-z][a-z_]*$"
+    },
     "steps": {
       "type": "array",
       "minItems": 1,
@@ -22,43 +58,107 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["step_id", "math_step_sha256"],
+        "required": [
+          "step_id",
+          "math_step_sha256"
+        ],
         "properties": {
-          "step_id": {"type": "string", "minLength": 1},
-          "math_step_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          "step_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "math_step_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
         }
       }
     },
-    "interaction_revision": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "interaction_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "parts": {"type": "array", "items": {"$ref": "#/$defs/part"}}
+    "interaction_revision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "interaction_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/part"
+      }
+    }
   },
   "allOf": [
     {
-      "if": {"properties": {"status": {"const": "interactive"}}},
-      "then": {"properties": {"parts": {"minItems": 1}}, "not": {"required": ["reason"]}},
-      "else": {"required": ["reason"], "properties": {"parts": {"maxItems": 0}}}
+      "if": {
+        "properties": {
+          "status": {
+            "const": "interactive"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "parts": {
+            "minItems": 1
+          }
+        },
+        "not": {
+          "required": [
+            "reason"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "parts": {
+            "maxItems": 0
+          }
+        }
+      }
     }
   ],
   "$defs": {
-    "text": {"type": "string", "minLength": 1},
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
     "planeAxis": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["label", "options"],
+      "required": [
+        "label",
+        "options"
+      ],
       "properties": {
-        "label": {"$ref": "#/$defs/text"},
+        "label": {
+          "$ref": "#/$defs/text"
+        },
         "options": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["value", "label"],
+            "required": [
+              "value",
+              "label"
+            ],
             "properties": {
-              "value": {"type": "string", "minLength": 1},
-              "label": {"$ref": "#/$defs/text"},
-              "note": {"type": "string"}
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "note": {
+                "type": "string"
+              }
             }
           }
         }
@@ -67,12 +167,24 @@
     "option": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["value", "label"],
+      "required": [
+        "value",
+        "label"
+      ],
       "properties": {
-        "value": {"type": "string", "pattern": "^(o|s[0-9]+o)[0-9]+$"},
-        "label": {"$ref": "#/$defs/text"},
-        "feedback": {"$ref": "#/$defs/text"},
-        "graph": {"$ref": "#/$defs/graph"}
+        "value": {
+          "type": "string",
+          "pattern": "^(?:(o|s[0-9]+o)[0-9]+|equal|different)$"
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "feedback": {
+          "$ref": "#/$defs/text"
+        },
+        "graph": {
+          "$ref": "#/$defs/graph"
+        }
       }
     },
     "graphPoint": {
@@ -309,20 +421,41 @@
         "constant_by_axis": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["linear", "quadratic"],
+          "required": [
+            "linear",
+            "quadratic"
+          ],
           "properties": {
-            "linear": {"type": "number"},
-            "quadratic": {"type": "number"}
+            "linear": {
+              "type": "number"
+            },
+            "quadratic": {
+              "type": "number"
+            }
           }
         },
         "parameter": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["name", "scale", "offset"],
+          "required": [
+            "name",
+            "scale",
+            "offset"
+          ],
           "properties": {
-            "name": {"$ref": "#/$defs/text", "minLength": 1},
-            "scale": {"type": "number", "not": {"const": 0}},
-            "offset": {"type": "number"}
+            "name": {
+              "$ref": "#/$defs/text",
+              "minLength": 1
+            },
+            "scale": {
+              "type": "number",
+              "not": {
+                "const": 0
+              }
+            },
+            "offset": {
+              "type": "number"
+            }
           }
         },
         "axis": {
@@ -776,19 +909,60 @@
     "part": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "question", "interaction", "expected_answer", "feedback", "submit_label"],
+      "required": [
+        "id",
+        "title",
+        "question",
+        "interaction",
+        "expected_answer",
+        "feedback",
+        "submit_label"
+      ],
       "properties": {
-        "id": {"type": "string", "pattern": "^[0-9a-f]{24}#[0-9]+$"},
-        "title": {"$ref": "#/$defs/text"},
-        "question": {"$ref": "#/$defs/text"},
-        "submit_label": {"$ref": "#/$defs/text"},
-        "graph": {"$ref": "#/$defs/graph"},
-        "completion_graph": {"$ref": "#/$defs/graph"},
-        "completion_graphs": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/graph"}},
-        "completion_group": {"$ref": "#/$defs/text"},
-        "condition_number_lines": {"type": "array", "items": {"$ref": "#/$defs/domainNumberLine"}},
-        "completion_number_line": {"$ref": "#/$defs/domainNumberLine"},
-        "endpoint_checks": {"type": "array", "items": {"$ref": "#/$defs/domainEndpointCheck"}},
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{24}#[0-9]+$"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "question": {
+          "$ref": "#/$defs/text"
+        },
+        "submit_label": {
+          "$ref": "#/$defs/text"
+        },
+        "graph": {
+          "$ref": "#/$defs/graph"
+        },
+        "completion_graph": {
+          "$ref": "#/$defs/graph"
+        },
+        "completion_graphs": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/graph"
+          }
+        },
+        "completion_group": {
+          "$ref": "#/$defs/text"
+        },
+        "condition_number_lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/domainNumberLine"
+          }
+        },
+        "completion_number_line": {
+          "$ref": "#/$defs/domainNumberLine"
+        },
+        "endpoint_checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/domainEndpointCheck"
+          }
+        },
         "source_regions": {
           "type": "object",
           "additionalProperties": false,
@@ -805,7 +979,16 @@
             "expression_ast": {
               "type": "array"
             },
-            "bound_symbols": {"type": "object", "required": ["function_argument"], "additionalProperties": {"type": "string", "minLength": 1}},
+            "bound_symbols": {
+              "type": "object",
+              "required": [
+                "function_argument"
+              ],
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
             "regions": {
               "type": "array",
               "items": {
@@ -854,10 +1037,21 @@
         "stem_board": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["caption", "lines"],
+          "required": [
+            "caption",
+            "lines"
+          ],
           "properties": {
-            "caption": {"$ref": "#/$defs/text"},
-            "lines": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+            "caption": {
+              "$ref": "#/$defs/text"
+            },
+            "lines": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/text"
+              }
+            }
           }
         },
         "feedback": {
@@ -865,12 +1059,24 @@
           "additionalProperties": false,
           "minProperties": 1,
           "properties": {
-            "answer": {"type": "string"},
-            "terms": {"type": "string"},
-            "x": {"type": "string"},
-            "y": {"type": "string"},
-            "method": {"type": "string"},
-            "method_choice": {"type": "string"}
+            "answer": {
+              "type": "string"
+            },
+            "terms": {
+              "type": "string"
+            },
+            "x": {
+              "type": "string"
+            },
+            "y": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "method_choice": {
+              "type": "string"
+            }
           }
         },
         "alternatives": {
@@ -878,10 +1084,18 @@
           "additionalProperties": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["message", "href"],
+            "required": [
+              "message",
+              "href"
+            ],
             "properties": {
-              "message": {"$ref": "#/$defs/text"},
-              "href": {"type": "string", "pattern": "^/knowledge/[a-z][a-z0-9-]*/$"}
+              "message": {
+                "$ref": "#/$defs/text"
+              },
+              "href": {
+                "type": "string",
+                "pattern": "^/knowledge/[a-z][a-z0-9-]*/$"
+              }
             }
           }
         },
@@ -889,14 +1103,22 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "log": {"$ref": "#/$defs/text"},
+            "log": {
+              "$ref": "#/$defs/text"
+            },
             "nodes": {
               "type": "array",
-              "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              }
             },
             "edges": {
               "type": "array",
-              "items": {"type": "string", "minLength": 1}
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
@@ -905,56 +1127,131 @@
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type"],
-              "properties": {"type": {"const": "read"}}
-            },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["type", "field", "options"],
+              "required": [
+                "type"
+              ],
               "properties": {
-                "type": {"const": "choice"},
-                "field": {"type": "string"},
-                "options": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/option"}}
+                "type": {
+                  "const": "read"
+                }
               }
             },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "options"],
+              "required": [
+                "type",
+                "field",
+                "options"
+              ],
               "properties": {
-                "type": {"const": "multi"},
-                "options": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/option"}}
+                "type": {
+                  "const": "choice"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "$ref": "#/$defs/option"
+                  }
+                }
               }
             },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "terms", "term_labels", "slot_labels"],
+              "required": [
+                "type",
+                "options"
+              ],
               "properties": {
-                "type": {"const": "fill"},
-                "terms": {"type": "array", "minItems": 2, "items": {"type": "string", "pattern": "^t[0-9]+$"}},
-                "term_labels": {"type": "object", "additionalProperties": {"$ref": "#/$defs/text"}},
-                "slot_labels": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+                "type": {
+                  "const": "multi"
+                },
+                "options": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "$ref": "#/$defs/option"
+                  }
+                }
               }
             },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "title", "slots"],
+              "required": [
+                "type",
+                "terms",
+                "term_labels",
+                "slot_labels"
+              ],
               "properties": {
-                "type": {"const": "checklist"},
-                "title": {"$ref": "#/$defs/text"},
+                "type": {
+                  "const": "fill"
+                },
+                "terms": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^t[0-9]+$"
+                  }
+                },
+                "term_labels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/$defs/text"
+                  }
+                },
+                "slot_labels": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "title",
+                "slots"
+              ],
+              "properties": {
+                "type": {
+                  "const": "checklist"
+                },
+                "title": {
+                  "$ref": "#/$defs/text"
+                },
                 "slots": {
                   "type": "array",
                   "minItems": 1,
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["label", "options"],
+                    "required": [
+                      "label",
+                      "options"
+                    ],
                     "properties": {
-                      "label": {"$ref": "#/$defs/text"},
-                      "options": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/option"}}
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "options": {
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                          "$ref": "#/$defs/option"
+                        }
+                      }
                     }
                   }
                 }
@@ -963,34 +1260,69 @@
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["type", "title", "x", "y", "methods"],
+              "required": [
+                "type",
+                "title",
+                "x",
+                "y",
+                "methods"
+              ],
               "properties": {
-                "type": {"const": "plane"},
-                "title": {"$ref": "#/$defs/text"},
-                "x": {"$ref": "#/$defs/planeAxis"},
-                "y": {"$ref": "#/$defs/planeAxis"},
+                "type": {
+                  "const": "plane"
+                },
+                "title": {
+                  "$ref": "#/$defs/text"
+                },
+                "x": {
+                  "$ref": "#/$defs/planeAxis"
+                },
+                "y": {
+                  "$ref": "#/$defs/planeAxis"
+                },
                 "methods": {
                   "type": "array",
                   "minItems": 1,
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["value", "label", "cells"],
+                    "required": [
+                      "value",
+                      "label",
+                      "cells"
+                    ],
                     "properties": {
-                      "value": {"type": "string", "minLength": 1},
-                      "label": {"$ref": "#/$defs/text"},
-                      "target": {"type": "string", "minLength": 1},
+                      "value": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "target": {
+                        "type": "string",
+                        "minLength": 1
+                      },
                       "cells": {
                         "type": "array",
                         "items": {
                           "type": "array",
                           "minItems": 2,
                           "maxItems": 2,
-                          "items": {"type": "string", "minLength": 1}
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
                         }
                       },
-                      "route": {"type": "string", "minLength": 1},
-                      "route_plan": {"type": "string", "minLength": 1}
+                      "route": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "route_plan": {
+                        "type": "string",
+                        "minLength": 1
+                      }
                     }
                   }
                 }
@@ -1000,27 +1332,159 @@
         },
         "expected_answer": {
           "oneOf": [
-            {"type": "object", "maxProperties": 0},
-            {"type": "object", "additionalProperties": false, "required": ["one_of"],
-             "properties": {"one_of": {"type": "array", "minItems": 1, "items": {"type": "string"}}}},
-            {"type": "object", "additionalProperties": false, "required": ["required", "allowed"],
-             "properties": {"required": {"type": "array", "items": {"type": "string"}},
-                            "allowed": {"type": "array", "items": {"type": "string"}}}},
-            {"type": "object", "additionalProperties": false, "required": ["terms"],
-             "properties": {"terms": {"type": "array", "minItems": 1, "items": {"type": "string"}}}},
-            {"type": "object", "additionalProperties": false, "required": ["cell", "method"],
-             "properties": {
-               "cell": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "string", "minLength": 1}},
-               "method": {"type": "string", "minLength": 1}
-             }}
+            {
+              "type": "object",
+              "maxProperties": 0
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "one_of"
+              ],
+              "properties": {
+                "one_of": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "required",
+                "allowed"
+              ],
+              "properties": {
+                "required": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "allowed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "terms"
+              ],
+              "properties": {
+                "terms": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "cell",
+                "method"
+              ],
+              "properties": {
+                "cell": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "method": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
           ]
+        },
+        "option_context": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "option_id",
+            "label",
+            "target_ref",
+            "left_ref",
+            "right_ref",
+            "phase"
+          ],
+          "properties": {
+            "option_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "left_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "right_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "phase": {
+              "enum": [
+                "evidence",
+                "verdict"
+              ]
+            }
+          }
         }
       },
-      "allOf": [{
-        "if": {"properties": {"interaction": {"properties": {"type": {"const": "read"}}}}},
-        "then": {"properties": {"expected_answer": {"maxProperties": 0}}},
-        "else": {"properties": {"expected_answer": {"minProperties": 1}}}
-      }]
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "interaction": {
+                "properties": {
+                  "type": {
+                    "const": "read"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expected_answer": {
+                "maxProperties": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "expected_answer": {
+                "minProperties": 1
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

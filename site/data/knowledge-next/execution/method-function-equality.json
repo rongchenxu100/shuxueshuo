@@ -1,0 +1,272 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-equality",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_comparisons",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "options": "options",
+            "comparison_goal": "comparison_goal"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "options",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "options": {
+        "source": "options",
+        "binding": "option",
+        "through": "compare",
+        "collect": "comparisons",
+        "outputs": {
+          "comparison": "$comparison"
+        },
+        "entry": {
+          "id": "options",
+          "calls": [
+            {
+              "id": "pair",
+              "capability": "prepare_function_pair",
+              "public_ref": null,
+              "inputs": {
+                "option": "$option",
+                "comparison_goal": "$comparison_goal"
+              },
+              "outputs": {
+                "left_context": "left_context",
+                "right_context": "right_context",
+                "option": "option",
+                "needs_borrow": "needs_borrow",
+                "domain_density": "domain_density"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": [
+            {
+              "id": "equality_borrow",
+              "after": "pair",
+              "template": "equality_borrow",
+              "bindings": {
+                "before": [],
+                "after": [],
+                "option": "$option",
+                "phase": "borrow"
+              },
+              "depends_on": [
+                "option"
+              ],
+              "guard": {
+                "ref": "needs_borrow",
+                "equals": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "left-domain",
+      "calls": [
+        {
+          "id": "left",
+          "capability": "submethod",
+          "public_ref": "method-domain-intersection",
+          "inputs": {
+            "context": "$left_context"
+          },
+          "outputs": {
+            "left_domain": "candidate_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "right-domain",
+      "calls": [
+        {
+          "id": "right",
+          "capability": "submethod",
+          "public_ref": "method-domain-intersection",
+          "inputs": {
+            "context": "$right_context"
+          },
+          "outputs": {
+            "right_domain": "candidate_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "compare",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "compare_function_pair",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "option": "$option",
+            "left_domain": "$left_domain",
+            "right_domain": "$right_domain"
+          },
+          "outputs": {
+            "comparison": "comparison",
+            "same_domain": "same_domain",
+            "merge_verdict": "merge_verdict"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "equality_domains",
+          "after": "compare",
+          "template": "equality_domains",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "option": "$option",
+            "phase": "domains",
+            "comparison": "$comparison",
+            "same_domain": "$same_domain",
+            "domain_density": "$domain_density",
+            "merge_verdict": "$merge_verdict"
+          },
+          "depends_on": [
+            "option",
+            "comparison",
+            "same_domain",
+            "domain_density",
+            "merge_verdict"
+          ]
+        },
+        {
+          "id": "equality_correspondence",
+          "after": "compare",
+          "template": "equality_correspondence",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "option": "$option",
+            "phase": "correspondence",
+            "comparison": "$comparison",
+            "same_domain": "$same_domain",
+            "merge_verdict": "$merge_verdict"
+          },
+          "depends_on": [
+            "option",
+            "comparison",
+            "same_domain",
+            "merge_verdict"
+          ],
+          "guard": {
+            "ref": "same_domain",
+            "equals": true
+          }
+        },
+        {
+          "id": "equality_verdict",
+          "after": "compare",
+          "template": "equality_verdict",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "option": "$option",
+            "phase": "verdict",
+            "comparison": "$comparison",
+            "same_domain": "$same_domain",
+            "merge_verdict": "$merge_verdict"
+          },
+          "depends_on": [
+            "option",
+            "comparison",
+            "same_domain",
+            "merge_verdict"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collect",
+      "calls": [
+        {
+          "id": "collect",
+          "capability": "collect_function_comparisons",
+          "public_ref": null,
+          "inputs": {
+            "comparison_goal": "$comparison_goal",
+            "comparisons": "$comparisons"
+          },
+          "outputs": {
+            "comparison_result": "comparison_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "comparison_result": "$comparison_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_equality",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

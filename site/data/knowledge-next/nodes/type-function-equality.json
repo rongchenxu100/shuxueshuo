@@ -1,13 +1,17 @@
 {
   "id": "type-function-equality",
   "kind": "problem_type",
-  "status": "planned",
+  "status": "active",
   "label": "判断是否为相同函数",
   "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
   "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
   "features": [
-    "题目给出两个函数或若干候选表示，目标是判断是否为同一函数。",
-    "需要同时比较定义域和整个定义域上的对应关系，不能只看表达式外观、变量字母或值域。"
+    {
+      "cue": "题目给出一对或多组函数，目标是判断它们是否表示同一函数。"
+    },
+    {
+      "cue": "先比较定义域，再比较整个定义域上的对应关系。"
+    }
   ],
   "confuse": [
     {
@@ -18,7 +22,20 @@
   "knowledge": [
     "function-concept"
   ],
-  "methods": [],
+  "methods": [
+    "method-function-equality"
+  ],
   "rules": [],
-  "examples": []
+  "examples": [
+    {
+      "title": "逐组判断同一函数",
+      "prompt": "下列哪些组表示同一函数？A：$f(x)=x$ 与 $g(x)=(\\sqrt{x})^2$；B：$f(x)=x^2$ 与 $g(x)=(x+1)^2$；C：$f(x)=\\sqrt{x^2}$ 与 $g(x)=|x|$；D：$f(x)=3x^2-2x+3$ 与 $g(t)=3t^2-2t+3$。",
+      "solution": [
+        "A 的定义域不同；B 在输入 0 时的输出不同，所以这两组不是同一函数。",
+        "C 在全体实数上有 $\\sqrt{x^2}=|x|$；D 仅自变量字母不同，因此选择 C、D。"
+      ],
+      "source": "3.1 知识图谱设计第 20 题；function-concepts-q20"
+    }
+  ],
+  "sample": "逐组选出表示同一函数的选项。"
 }

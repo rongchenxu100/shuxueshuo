@@ -91,7 +91,7 @@ def _d1(goal, clues, shown, best):
         decision.update(question="\n\n".join([*givens, goal["d1"]["question"]]),
                         interaction={"type": "choice", "field": "reading", "options": slot["options"]},
                         expected_answer={"one_of": [answer]},
-                        feedback={"answer": "再想一想，定义域描述的是输入还是输出的取值范围。"})
+                        feedback={"answer": goal["d1"].get("feedback", "再想一想，定义域描述的是输入还是输出的取值范围。")})
     return decision, answer
 
 
@@ -188,6 +188,8 @@ def walk(goal, text, problem_id):
     }
     if goal["d1"].get("givens"):
         bundle["problem"]["givens"] = goal["d1"]["givens"]
+    if goal.get("option_workspaces"):
+        bundle["option_workspaces"] = goal["option_workspaces"]
     if transformation:
         bundle["problem"].update(source_text=text, source_meaning=transformation["source_meaning"],
                                  normalized_text=transformation["normalized_text"],

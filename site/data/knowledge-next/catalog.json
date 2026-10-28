@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 16,
+    "method": 17,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -441,7 +441,8 @@
     "case-merge": "method-parameter-quadratic-cases#merge",
     "homogeneous-expression": "method-homogeneous#degree",
     "symmetric-polynomial": "method-sum-product#identities",
-    "method-reciprocal": "skill-inequality-transform#reciprocal"
+    "method-reciprocal": "skill-inequality-transform#reciprocal",
+    "method-function-equality": "method-function-equality"
   },
   "legacyIdentityNotes": [
     "同一操作沿用 method-* 身份，kind 改为 skill；类型始终读取 kind。",

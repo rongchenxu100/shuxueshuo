@@ -386,10 +386,16 @@ const goalLine = goal => (GOALS[goal.kind]?.(goal) ?? escape(goal.expression || 
 
 function meaningBlocks(scope, title, blocks) {
   const known = [...(scope.definitions || []), ...(scope.facts || [])].map(knownLine);
-  const goals = (scope.goals || []).map(goalLine);
+  const goals = (scope.goals || []).map(goal => {
+    if (goal.kind !== 'compare_functions') return `求 ${goalLine(goal)}`;
+    if (goal.mode === 'pair') return '判断题给的两个函数是否为同一函数';
+    const relation = {equal: '表示同一函数', different: '表示不同函数'}[goal.select_relation];
+    if (!relation) return '逐项比较两个函数的定义域与对应关系，确认原题的选择要求';
+    return `逐项判断两个函数是否相同，再选出${relation}的${goal.selection_mode === 'multiple' ? '全部' : ''}选项`;
+  });
   const bits = [];
   if (known.length) bits.push(known.join('；'));
-  if (goals.length) bits.push(`求 ${goals.join('、')}`);
+  if (goals.length) bits.push(goals.join('；'));
   if (bits.length) blocks.push(`<p>${title ? `<b>${escape(title)}</b>` : ''}<span>${bits.join('。')}</span></p>`);
   for (const child of scope.children || []) {
     const label = child.label || '';
@@ -480,7 +486,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261026-domain-powers';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261028-completed-feedback';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;

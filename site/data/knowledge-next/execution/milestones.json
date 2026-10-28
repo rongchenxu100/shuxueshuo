@@ -36,7 +36,8 @@
       "method-interval-extremum",
       "method-variable-swap",
       "method-domain-intersection",
-      "method-domain-parameter"
+      "method-domain-parameter",
+      "method-function-equality"
     ]
   }
 }

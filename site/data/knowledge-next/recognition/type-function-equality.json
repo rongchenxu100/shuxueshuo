@@ -1,0 +1,29 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-equality",
+  "branches": [
+    {
+      "branch_id": "supported-real-function-comparison",
+      "checks": [
+        {
+          "id": "comparison-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "compare_functions",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "complete-supported-comparison",
+          "feature_id": "function_comparison",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 1
+        }
+      ]
+    }
+  ]
+}

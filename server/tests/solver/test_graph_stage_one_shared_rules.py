@@ -81,3 +81,21 @@ def test_shared_review_guidance_distinguishes_existing_and_missing_goal_authorit
     assert "仅授权在该作用域追加遗漏目标，不能改写已有目标或其他条件" in rules
     assert "missing_condition 应指向所在作用域或已有 facts/definitions 数组" in rules
     assert "wrong_scope 仅授权在所指范围内整理分问层次、顺序和移动已有内容" in rules
+
+
+@pytest.mark.parametrize("contract_type", [GraphStageOneContract, SearchStageOneContract])
+def test_comparison_admission_dependencies_change_the_workflow_fingerprint(monkeypatch, contract_type):
+    from pathlib import Path
+
+    read_bytes = Path.read_bytes
+    contract = contract_type()
+    before = contract.frozen_files()
+    for relative in ("graph_lesson/function_equality.py", "graph_lesson/domain_expression.py"):
+        path = contracts.ROOT / "server/shuxueshuo_server" / relative
+        key = str(path.relative_to(contracts.ROOT))
+        assert key in before
+        with monkeypatch.context() as patch:
+            patch.setattr(Path, "read_bytes", lambda item: read_bytes(item) + (b"\n# changed\n" if item == path else b""))
+            after = contract.frozen_files()
+        assert after[key] != before[key]
+        assert {name for name in before if before[name] != after[name]} == {key}

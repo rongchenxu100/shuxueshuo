@@ -1,0 +1,27 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q20/manifest.json",
+  "source_kind": "user_photograph_original_page_product_rectangle_crop",
+  "recorded_date": "2026-10-28",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "accepted_attempt": ".",
+  "attempts": [
+    {
+      "path": ".",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "elapsed_seconds": 33.375
+    }
+  ],
+  "notes": "归档原照片的矩形裁片，经产品question_png预处理。首次联网extract+review即确认；此前沙箱阻断图片上传，未获得模型候选。不裁改候选、不使用答案生成判定。",
+  "files": {
+    "question.png": "f8dff3893c7ad6b667da52fb2bd5ae5920b7d25a3fb9c0892d7d61df75df7e8c",
+    "result.json": "55c3592039d7cd4ef796150e961ec2e1cb5a4f13502263f758b2c08a57087a13",
+    "workflow/ledger.json": "4c084d6c8f8329af788c7e784d5fb341b883dfdff26f24f0c6b587fa108f7e9b",
+    "workflow/calls/01-extract/response.json": "3b981086fbacfa61cd095af8ca4768e873cc28280d1dc30de49f34d40e14f042",
+    "workflow/calls/01-extract/request.json": "800c555acc59f24e820ec11bacdb3e35b7a1611ee805cd0d695a251c4ea94e07",
+    "workflow/calls/02-review/response.json": "2fc91965ae911ee391dedfaa5f995d372da53c59e2a2881feb6b4b24fa06d11b",
+    "workflow/calls/02-review/request.json": "1f9e1535732c696c1d9b6b24fc38ec67ea03b30ecd4f39f8157d1153a72dffa6"
+  }
+}

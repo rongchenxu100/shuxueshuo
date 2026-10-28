@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "problemId": "quadratic-always-q01",
-  "bundleVersion": "1b2417e602cfbbb45d00c37f5eec8492beefc5d7b688e7c318c15647d33366c4",
-  "graphVersion": "e985e92b9fedfead99932a962d8482681aca8a7e3d6d0484bdd318fbad846b5e",
+  "bundleVersion": "b02135ab5b5aa7373251c20e754eb6373b48856043afc1441960035b2f737953",
+  "graphVersion": "b3f342397ca3f8ee8be47f38d409ee5886d1b4da7ab8606c5c93dce29ac5754f",
   "problem": {
     "text": "若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。",
     "root": {
@@ -216,6 +216,7 @@
       "candidateNodes": [
         "quantifiers",
         "quadratic-inequality",
+        "type-function-domain",
         "type-quantified-quadratic",
         "type-amgm-quantified",
         "type-parameter-quadratic-solve",
@@ -224,6 +225,10 @@
         "type-solution-parameters"
       ],
       "candidates": [
+        {
+          "id": "type-function-domain",
+          "coverage": 2
+        },
         {
           "id": "type-quantified-quadratic",
           "coverage": 2
@@ -259,7 +264,7 @@
         "results": [
           "合起来：关于 $x$ 的二次不等式对所有实数 $x$ 都成立，求参数 $a$ 的取值范围。"
         ],
-        "log": "图谱查询：从 2 个知识线索反查，找到 6 个相关题型；最高覆盖 2/2。"
+        "log": "图谱查询：从 2 个知识线索反查，找到 7 个相关题型；最高覆盖 2/2。"
       }
     },
     {
@@ -276,8 +281,20 @@
         "field": "problem_type",
         "options": [
           {
+            "value": "type-function-domain",
+            "label": "具体函数的定义域问题"
+          },
+          {
             "value": "type-quantified-quadratic",
             "label": "含参一元二次不等式的恒成立与存在成立问题"
+          },
+          {
+            "value": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题"
+          },
+          {
+            "value": "type-function-range",
+            "label": "求函数的值域"
           },
           {
             "value": "type-parameter-quadratic-solve",
@@ -302,6 +319,18 @@
           "value": "fit",
           "message": "这是直接描述本题的主要任务。"
         },
+        "type-function-domain": {
+          "value": "unfit",
+          "message": "本题已明确要求二次不等式对所有实数成立，没有给出函数定义域条件；直接按含参二次不等式恒成立求参数。"
+        },
+        "type-abstract-function-domain": {
+          "value": "unfit",
+          "message": "题目没有已知函数定义域或复合自变量关系，而是要求不等式对每个实数成立。"
+        },
+        "type-function-range": {
+          "value": "unfit",
+          "message": "函数最值可以帮助解题，但原题要求的是参数范围，不是某个函数的值域。"
+        },
         "type-parameter-quadratic-solve": {
           "value": "unfit",
           "message": "该任务讨论参数取值后求 $x$ 的解集，与本题目标不同。"
@@ -315,7 +344,10 @@
       "submit_label": "确认题型",
       "source": "authored",
       "candidateNodes": [
+        "type-function-domain",
         "type-quantified-quadratic",
+        "type-abstract-function-domain",
+        "type-function-range",
         "type-parameter-quadratic-solve",
         "type-amgm-quantified"
       ],
@@ -335,7 +367,7 @@
         ],
         "calls": [],
         "results": [],
-        "log": "作答判断：选择主要题型「含参一元二次不等式的恒成立与存在成立问题」；另外 2 个题型保留为对照。"
+        "log": "作答判断：选择主要题型「含参一元二次不等式的恒成立与存在成立问题」；另外 5 个题型保留为对照。"
       }
     },
     {
@@ -1474,6 +1506,8 @@
             "skill-linear-range",
             "skill-reciprocal-range",
             "method-square-extremum",
+            "skill-inequality-transform",
+            "method-substitution",
             "method-complete-square"
           ],
           "skippedCalls": [
@@ -2232,18 +2266,18 @@
         "id": "method-discriminant",
         "kind": "method",
         "label": "判别式法",
-        "summary": "x 取全体实数时，要二次式恒正（或恒负），就看开口方向和判别式；x² 的系数含参数时，先单独看它等于 0 的情况。",
+        "summary": "量词变量取全体实数时，用开口方向和判别式判断二次不等式恒成立还是至少有一个解；二次项系数可能为 0 时，先处理一次式或常数。",
         "source": "人教 A 版必修第一册第二章",
-        "input": "含参数的二次式要对所有实数 $x$ 恒 $>0$（或恒 $<0$、恒 $\\ge0$、恒 $\\le0$），求参数，例如 $x^2-2x+a\\ge0$ 对一切实数 $x$ 成立，求 $a$。",
+        "input": "含参数的二次式在全部实数上恒成立，或存在实数使它成立；关系可以是 $>0$、$\\ge0$、$<0$、$\\le0$。例如要求存在 $x\\in\\mathbb R$ 使 $x^2-2x+m\\le0$，求 $m$。",
         "output": "参数的取值范围。$x^2$ 的系数为 $0$ 和不为 $0$ 两种情况分别求出，再合在一起。",
-        "conditions": "只能用在 $x$ 取全体实数的题，$x$ 只在某个区间上时不能套判别式；不带等号的「$>0$」要 $\\Delta<0$，带等号的「$\\ge0$」才是 $\\Delta\\le0$。",
+        "conditions": "下列判别条件用于量词变量取全体实数的情形；只在某个区间内取值时，不能直接套用。先分清全称与存在、严格与非严格关系，再结合开口方向判断；二次项系数为 $0$ 时不用二次判别式。",
         "steps": [
           {
             "id": "degree",
             "title": "先看 x² 的系数能不能是 0",
             "body": [
-              "$x^2$ 的系数含参数时，先把它等于 $0$ 的情况单独拿出来：这时式子变成一次式或常数，直接看是否对所有 $x$ 成立。例如 $kx^2+2kx-(k+2)<0$ 中 $k=0$ 时变成 $-2<0$，恒成立，$k=0$ 符合。",
-              "一次式 $bx+c$（$b\\ne0$）不会对所有 $x$ 恒正或恒负，遇到这种情况直接排除。"
+              "设式子为 $ax^2+bx+c$。若 $a$ 可能为 $0$，先单独讨论。此时 $b\\ne0$ 的一次式取遍全体实数：四种正负关系都至少有一个解，但都不会对所有实数成立。",
+              "若 $a=b=0$，式子是常数。全称与存在都直接检查 $c>0$、$c\\ge0$、$c<0$ 或 $c\\le0$，因为定义域 $\\mathbb R$ 非空。例如 $kx^2+2kx-(k+2)<0$ 在 $k=0$ 时变成 $-2<0$，两种量词都成立。"
             ]
           },
           {
@@ -2266,13 +2300,15 @@
             "id": "conditions",
             "title": "写出开口和判别式的条件",
             "body": [
-              "系数不为 $0$ 时看图像：恒 $>0$ 就是抛物线整条在 $x$ 轴上方，要开口向上且和 $x$ 轴没有交点，即 $a>0$，$\\Delta<0$。",
-              "恒 $\\ge0$ 允许碰到 $x$ 轴，即 $a>0$，$\\Delta\\le0$。开口向下时同理：恒 $<0$ 要 $a<0$，$\\Delta<0$；恒 $\\le0$ 要 $a<0$，$\\Delta\\le0$。"
+              "以下先设 $a\\ne0$，$\\Delta=b^2-4ac$。全称要求整条图像满足关系：恒 $>0$ 要 $a>0$ 且 $\\Delta<0$；恒 $\\ge0$ 要 $a>0$ 且 $\\Delta\\le0$；恒 $<0$ 要 $a<0$ 且 $\\Delta<0$；恒 $\\le0$ 要 $a<0$ 且 $\\Delta\\le0$。",
+              "存在只要求找到一个点。要 $f(x)>0$ 有解，$a>0$ 时总能找到；$a<0$ 时需要 $\\Delta>0$。要 $f(x)\\ge0$ 有解，$a>0$ 时仍总能找到；$a<0$ 时需要 $\\Delta\\ge0$，相切时那个零点就是一个解。",
+              "要 $f(x)<0$ 有解，$a<0$ 时总能找到；$a>0$ 时需要 $\\Delta>0$。要 $f(x)\\le0$ 有解，$a<0$ 时仍总能找到；$a>0$ 时需要 $\\Delta\\ge0$。开口朝着所需正负方向时，不必再限制判别式。",
+              "也可以先把关系统一写成 $F(x)>0$ 或 $F(x)\\ge0$，记其二次项系数为 $A\\ne0$：全称分别是 $A>0$ 且 $\\Delta<0$、$A>0$ 且 $\\Delta\\le0$；存在分别是 $A>0$ 或 $\\Delta>0$、$A>0$ 或 $\\Delta\\ge0$。这里的“且”和“或”不能混用。"
             ],
             "calls": [
               {
                 "ref": "skill-quadratic-sign",
-                "when": "把「恒正、恒负」翻译成开口方向和交点个数时"
+                "when": "把全称或存在的正负要求翻译成开口方向与交点条件时"
               },
               {
                 "ref": "skill-simplify",
@@ -2288,7 +2324,8 @@
             "id": "solve",
             "title": "解出参数",
             "body": [
-              "算出判别式，把开口条件和判别式条件联立，取公共部分。例子中 $k\\ne0$ 时要 $k<0$ 且 $\\Delta=4k^2+4k(k+2)=8k(k+1)<0$，后者得 $-1<k<0$，与 $k<0$ 取公共部分得 $-1<k<0$。"
+              "把每个“且”连接的条件取交集，把“或”连接的可行分支取并集，再与本情况的前提取交集。不能把存在型的“或”当作全称型的“且”。",
+              "例如 $kx^2+2kx-(k+2)<0$ 恒成立时，$k\\ne0$ 分支要求 $k<0$ 且 $\\Delta=8k(k+1)<0$，得 $-1<k<0$。若改为存在型，$k<0$ 时总有解；$k>0$ 时要求 $\\Delta>0$，这里也总满足。"
             ],
             "calls": [
               {
@@ -2308,7 +2345,8 @@
             "title": "把各种情况合起来，检查边界",
             "body": [
               "每种情况的结果先和这种情况本身的前提取公共部分，再把各种情况合起来。例子中 $k=0$ 和 $-1<k<0$ 合起来是 $-1<k\\le0$。",
-              "最后把边界代回原不等式检查：$k=-1$ 时原式为 $-(x+1)^2<0$，$x=-1$ 时左边等于 $0$，不成立，所以 $k=-1$ 不取。"
+              "最后把边界代回原不等式检查：$k=-1$ 时原式为 $-(x+1)^2<0$，$x=-1$ 时左边等于 $0$，不成立，所以 $k=-1$ 不取。",
+              "检验存在型边界时，只要有一个符合条件的 $x$ 就保留，不能因另一个 $x$ 不符合而排除。例如 $-(x+1)^2<0$ 在 $x=-1$ 时不成立，但在 $x=0$ 时成立，因此对存在型是有解的。"
             ]
           }
         ],
@@ -2334,6 +2372,25 @@
             ],
             "source": "一元二次不等式专题 Q02",
             "url": "/2/q02/"
+          },
+          {
+            "title": "存在型允许相切",
+            "prompt": "存在 $x\\in\\mathbb R$ 使 $x^2-2x+m\\le0$，求 $m$。",
+            "solution": [
+              "二次项系数为 $1>0$。要至少有一点不高于横轴，需要图像与横轴相交或相切。",
+              "$\\Delta=4-4m\\ge0$，所以 $m\\le1$。",
+              "边界 $m=1$ 时，$x=1$ 使 $(x-1)^2=0\\le0$，因此保留。若关系改为 $<0$，则要 $\\Delta>0$，得到 $m<1$。"
+            ],
+            "source": "本页说明例"
+          },
+          {
+            "title": "开口方向已经保证有解",
+            "prompt": "存在 $x\\in\\mathbb R$ 使 $x^2+m>0$，求 $m$。",
+            "solution": [
+              "开口向上，$|x|$ 足够大时函数值为正，所以任意实数 $m$ 都有解。",
+              "例如 $m=1$ 时 $\\Delta=-4<0$，但 $x=0$ 已使不等式成立。存在型并不总要求 $\\Delta\\ge0$。"
+            ],
+            "source": "本页说明例"
           }
         ],
         "pitfalls": [
@@ -2357,6 +2414,16 @@
               "$x+\\frac1x$ 在 $[1,2]$ 上递增，最小值为 $x=1$ 时的 $2$，所以 $a<2$。"
             ],
             "see": "method-separation"
+          },
+          {
+            "id": "pitfall-existential-discriminant",
+            "title": "把有解误当成一定有零点",
+            "wrong": "要求存在实数 $x$ 使 $x^2+m>0$，直接加上 $\\Delta=-4m>0$，得到 $m<0$。",
+            "why": "有一个点在横轴上方，不等于图像必须穿过横轴。开口向上时，两端函数值没有上界，任意 $m$ 都能找到正值。",
+            "fix": [
+              "先看量词和关系，再看开口。该题 $a=1>0$ 已保证存在正值，答案为 $m\\in\\mathbb R$。",
+              "只有开口向下且要求存在正值时，才还需要 $\\Delta>0$；要求存在非负值时对应 $\\Delta\\ge0$。"
+            ]
           }
         ],
         "resources": [
@@ -2563,6 +2630,7 @@
             "title": "求另一边函数在区间上的最值",
             "body": [
               "按 $g(x)$ 的样子选算法：二次函数看对称轴，一次函数看两端，$x+\\frac{k}{x}$ 看转折点 $x=\\sqrt{k}$。",
+              "分母形如 $ax+b$ 时，可以令 $t=ax+b$（$a\\ne0$），把函数和区间一起换成新变量，再用已有技能求值域；若 $a<0$，新区间两端及开闭性要交换。算完后由 $x=\\frac{t-b}{a}$ 还原取等点。",
               "二次式也可以先配方，再利用平方的非负性与变量范围求最值；配方与根据顶点求值是可选择的不同路径。",
               "本例 $g(x)=x+\\frac{1}{x}$ 的转折点是 $x=1$，在 $[1,2]$ 上递增，最大值是 $g(2)=\\frac{5}{2}$，在 $x=2$ 时取到。"
             ],
@@ -2582,6 +2650,14 @@
               {
                 "ref": "method-square-extremum",
                 "when": "另一边可配成常数加减平方，并能验证取等或区间边界时"
+              },
+              {
+                "ref": "skill-inequality-transform",
+                "when": "另一边是符号确定函数的倒数，先求分母范围，再取倒数时"
+              },
+              {
+                "ref": "method-substitution",
+                "when": "另一边的线性分母可设为新变量，并能将函数化为已有的求值域形式时；同步转换区间并回代取等点"
               }
             ]
           },
@@ -2792,19 +2868,13 @@
         "source": "人教 A 版必修第一册第二章",
         "input": "给出范围的字母不是要求的 $x$，例如「对所有 $m\\in[1,3]$，$(x^2-x+1)m-6<0$ 恒成立，求 $x$」，并且按这个字母整理后是一次式（或常数）。",
         "output": "要求的那个字母的取值范围，上例中是 $x$ 的范围。",
-        "conditions": "先看清「对谁恒成立」：在给定范围里变化的字母才是主角，不能对 $x$ 用判别式；整理后的一次项系数正负不定时，区间两端都要代。",
+        "conditions": "先看清量词约束哪个字母，再判断按该字母整理后的一次项系数。符号固定时直接求解；符号随参数变化时，按正、零、负中实际存在的情况分别讨论，再取并集。",
         "steps": [
           {
-            "id": "roles",
-            "title": "分清谁在变、谁是要求的",
-            "body": [
-              "「对所有 $m\\in[1,3]$」说明 $m$ 在区间里变化，它是主角；$x$ 是要求的量，求解时先把它当作一个固定的数。"
-            ]
-          },
-          {
             "id": "reorder",
-            "title": "按主角整理成一次式",
+            "title": "更换主元",
             "body": [
+              "「对所有 $m\\in[1,3]$」说明 $m$ 在区间里变化，它是主角；$x$ 是要求的量，求解时先把它当作一个固定的数。",
               "把含 $m$ 的项合在一起，写成「系数 $\\times m$ + 常数」。例如 $mx^2-mx-6+m$ 合并含 $m$ 的三项，得 $f(m)=(x^2-x+1)m-6$，系数是 $x^2-x+1$，常数项是 $-6$。"
             ],
             "calls": [
@@ -2830,7 +2900,8 @@
             "title": "由系数正负找最值在哪一端",
             "body": [
               "一次函数在闭区间上的最值总在两端取到。本例系数 $x^2-x+1=\\left(x-\\frac{1}{2}\\right)^2+\\frac{3}{4}>0$，$f(m)$ 随 $m$ 增大而增大，最大值是 $f(3)$。",
-              "系数正负不确定时不必分类：恒成立 $f(m)<0$ 就要求两端 $f(1)<0$ 且 $f(3)<0$ 同时成立。"
+              "一次项系数的符号不固定时，先分为大于零、等于零、小于零的情况；不可能的情况不单列。同号的参数范围即使不连续，也归入同一种情况。",
+              "每种情况先看函数图像确定所需最值的位置，再计算端点值。系数为零时按常数函数判断。开区间或半开区间还要区分确界能否取得。"
             ],
             "calls": [
               {
@@ -2843,7 +2914,7 @@
             "title": "解出要求的字母",
             "body": [
               "$f(3)=3(x^2-x+1)-6<0$，化简得 $x^2-x-1<0$。两根为 $\\frac{1\\pm\\sqrt5}{2}$，开口向上，取两根之间：$\\frac{1-\\sqrt5}{2}<x<\\frac{1+\\sqrt5}{2}$。",
-              "两端都要满足时，分别解出再取交集；最后看题目是「$<$」还是「$\\le$」，决定端点要不要。"
+              "每种情况内，先根据量词、比较方向和确界可达性写出条件，求解后与本情况的参数范围取交集。"
             ],
             "calls": [
               {
@@ -2853,6 +2924,13 @@
                 "ref": "quadratic-inequality-solve",
                 "when": "得到关于要求字母的二次不等式时"
               }
+            ]
+          },
+          {
+            "id": "merge",
+            "title": "合并各情况的结果",
+            "body": [
+              "把各情况已求出的范围取并集。斜率为零的参数点已经按常数是否满足原关系单独判断，不能因为开端点取不到而把它误加进去。"
             ]
           }
         ],
@@ -3244,7 +3322,10 @@
             "title": "全实数上的符号条件",
             "type": "性质",
             "body": [
-              "$f(x)>0$ 对所有实数成立等价于 $a>0,\\Delta<0$；$f(x)\\ge0$ 等价于 $a>0,\\Delta\\le0$。恒负与恒非正分别为 $a<0,\\Delta<0$ 与 $a<0,\\Delta\\le0$。"
+              "$f(x)>0$ 对所有实数成立等价于 $a>0,\\Delta<0$；$f(x)\\ge0$ 等价于 $a>0,\\Delta\\le0$。恒负与恒非正分别为 $a<0,\\Delta<0$ 与 $a<0,\\Delta\\le0$。",
+              "存在实数使 $f(x)>0$，等价于 $a>0$ 或（$a<0$ 且 $\\Delta>0$）；存在实数使 $f(x)\\ge0$，等价于 $a>0$ 或（$a<0$ 且 $\\Delta\\ge0$）。",
+              "存在实数使 $f(x)<0$，等价于 $a<0$ 或（$a>0$ 且 $\\Delta>0$）；存在实数使 $f(x)\\le0$，等价于 $a<0$ 或（$a>0$ 且 $\\Delta\\ge0$）。",
+              "全称检查整个解集是否为 $\\mathbb R$；存在检查解集是否非空。特别是 $\\Delta=0$ 时，唯一零点足够满足相应的非严格存在关系，却不能满足严格的异号关系。"
             ],
             "conditions": "仅用于 $a\\ne0$ 且研究范围是全部实数；$a=0$ 需单独处理。"
           }
@@ -3423,12 +3504,12 @@
         "subtype": "method_selection",
         "input": "一道含参数的二次不等式题该用哪种方法：判别式法、区间最值法、分离参数法，还是更换主元法。",
         "output": "每种方法在这道题里能不能用；能用的往往不止一种，挑最顺手的做。",
-        "conditions": "先看清在范围里变化的是哪个字母，范围是全体实数还是某个区间；全体实数时优先用判别式法；二次项系数含参数时，系数为 $0$ 的情况要单独讨论。",
+        "conditions": "先看清在范围里变化的是哪个字母，范围是全体实数还是某个区间，要求是对所有取值成立还是至少一个取值成立。全实数上的二次不等式，两种量词都可用判别式法；二次项系数为 $0$ 时单独处理。",
         "branches": [
           {
             "id": "discriminant",
-            "title": "对全体实数 x 恒成立",
-            "condition": "要求对所有实数 $x$ 成立，式子关于 $x$ 是二次的；二次项系数含参数时，先单独看系数为 $0$ 的情况。",
+            "title": "全体实数上的恒成立或有解",
+            "condition": "量词变量取全体实数，式子关于它是二次的，要求恒成立或存在实数使其成立；四种关系 $>$、$\\ge$、$<$、$\\le$ 都要结合量词和开口判断。二次项系数含参数时，先单独处理系数为 $0$ 的情况。",
             "target": "method-discriminant"
           },
           {
@@ -3458,6 +3539,15 @@
               "$x$ 取全体实数，二次项系数是 $1$，可以用判别式法：$\\Delta=4-4a\\le0$，得 $a\\ge1$。",
               "也可以分离参数：$a\\ge2x-x^2$ 恒成立，而 $2x-x^2=1-(x-1)^2$ 的最大值是 $1$，同样得 $a\\ge1$。",
               "两种方法都能用，挑顺手的即可；一种方法能用，不代表别的方法就不能用。"
+            ],
+            "source": "本页说明例"
+          },
+          {
+            "title": "存在型也可选择判别式法",
+            "prompt": "存在 $x\\in\\mathbb R$ 使 $x^2-2x+m\\le0$，求 $m$。",
+            "solution": [
+              "变量范围是全体实数，二次项系数为 $1$，可以用判别式法。这里要求至少一个点不高于横轴，因此 $\\Delta=4-4m\\ge0$，得 $m\\le1$。",
+              "也可看最小值：$x^2-2x+m=(x-1)^2+m-1$，存在非正值等价于最小值 $m-1\\le0$。"
             ],
             "source": "本页说明例"
           }
@@ -3622,10 +3712,10 @@
         "id": "skill-quadratic-sign",
         "kind": "skill",
         "label": "根据开口与零点判断二次式的正负",
-        "summary": "知道二次函数开口朝上还是朝下、和 x 轴交在哪里，就能说出 x 在哪些范围时式子为正、为零、为负。",
+        "summary": "由开口方向与零点判断二次式正、零、负的取值范围，再判断指定关系对所有实数成立，还是至少有一个实数解。",
         "source": "人教 A 版必修第一册第二章",
-        "input": "要解一元二次不等式，或判断二次式 $ax^2+bx+c$ 什么时候大于 $0$、小于 $0$，看到根已经求出（或知道没有实根）、$a$ 的正负也清楚。例如解 $x^2-5x+6\\le0$，已经得到根 $2$ 和 $3$，开口向上。",
-        "output": "三部分：使式子为正的 $x$ 的范围、使它为零的 $x$（就是根）、使它为负的 $x$ 的范围。对照不等号，就能直接写出解集。",
+        "input": "要解一元二次不等式，或判断二次式 $ax^2+bx+c$ 什么时候大于 $0$、小于 $0$，看到根已经求出（或知道没有实根）、$a$ 的正负也清楚。例如解 $x^2-5x+6\\le0$，已经得到根 $2$ 和 $3$，开口向上。也可用于含参数二次式在全实数上的全称或存在条件：先分清要整条图像满足，还是只要一个点满足。",
+        "output": "三部分：使式子为正的 $x$ 的范围、使它为零的 $x$（就是根）、使它为负的 $x$ 的范围。对照不等号，就能直接写出解集。若研究全实数上的量词条件，解集是 $\\mathbb R$ 表示全称成立，解集非空表示存在成立。",
         "conditions": "先确认 $a\\ne0$，否则不是二次式；两根相等或没有实根时，不能照搬「两根之间、两根之外」的分法，这时除了根以外，式子处处和 $a$ 符号相同。",
         "basis": [
           "quadratic-inequality#signs",
@@ -3654,6 +3744,15 @@
             "body": [
               "零点处 $f(x)=0$。不等号是 $>$ 或 $<$ 时，零点不在解集里；是 $\\ge$ 或 $\\le$ 时，要把零点加进去。"
             ]
+          },
+          {
+            "id": "quantified",
+            "title": "从符号范围判断全称或存在",
+            "body": [
+              "对所有实数成立，要指定关系的解集等于 $\\mathbb R$；存在实数使其成立，只要这个解集非空。",
+              "开口向上时，总能找到正值，但要找到负值必须 $\\Delta>0$，要找到非正值只需 $\\Delta\\ge0$；开口向下时，总能找到负值，但要找到正值必须 $\\Delta>0$，要找到非负值只需 $\\Delta\\ge0$。",
+              "如果题目把变量限制在某个区间，应先把解集与该区间取交集，再判断是否覆盖整个区间或是否非空。"
+            ]
           }
         ],
         "examples": [
@@ -3662,6 +3761,15 @@
             "prompt": "$f(x)=x^2-5x+6$ 的零点是 $2,3$，判断符号。",
             "solution": [
               "开口向上：$x<2$ 或 $x>3$ 时正，$2<x<3$ 时负，$x=2,3$ 时零。"
+            ],
+            "source": "本页说明例"
+          },
+          {
+            "title": "同一图像对应不同量词",
+            "prompt": "$f(x)=(x-1)^2$。判断 $f(x)\\le0$ 与 $f(x)<0$ 是否存在实数解。",
+            "solution": [
+              "$f(x)\\le0$ 的解集为 $\\{1\\}$，非空，所以存在实数解；$f(x)<0$ 的解集为空，所以不存在实数解。",
+              "开口向上且 $\\Delta=0$：允许等号时，唯一零点足够满足存在型，但这不表示 $f(x)\\le0$ 对所有实数成立。"
             ],
             "source": "本页说明例"
           }
@@ -3923,15 +4031,42 @@
         ]
       },
       {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "status": "planned",
+        "label": "抽象函数的定义域问题",
+        "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+        "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+        "features": [
+          "未给出完整解析式，而是给出函数或某种复合形式的定义域。",
+          "目标是让交给函数的完整输入落在已知允许范围内；反推原函数定义域时必须有足够的输入覆盖条件。",
+          "目标表达式同时含分母、根式等结构时，还要保留各部分自身的合法条件。"
+        ],
+        "confuse": [
+          {
+            "text": "已知具体解析式并直接由原式确定合法输入",
+            "ref": "type-function-domain"
+          }
+        ],
+        "knowledge": [
+          "function-concept",
+          "interval-notation",
+          "set-intersection-union"
+        ],
+        "methods": [],
+        "rules": [],
+        "examples": []
+      },
+      {
         "id": "type-amgm-quantified",
         "kind": "problem_type",
         "label": "应用基本不等式的恒成立与存在成立问题",
-        "summary": "不等式要对所有取值（或某个取值）成立，求参数范围；参数另一边式子的最值用基本不等式求，再看最值取不取得到。",
+        "summary": "不等式要对所有取值（或某个取值）成立，求参数范围、最小值或最大值；参数另一边式子的最值用基本不等式求，再看最值取不取得到。",
         "source": "人教 A 版必修第一册第二章",
         "sample": "已知 $x,y>0$，$(x-1)(y-2)=2$。若 $3x+2y>m$ 对所有满足条件的 $x,y$ 都成立，求 $m$ 的取值范围。",
         "features": [
           {
-            "cue": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围。",
+            "cue": "有「恒成立」「对所有……都成立」或「存在……使得成立」这样的话，要求的是参数的范围、最小值或最大值。",
             "example": "「$3x+2y>m$ 对所有满足条件的 $x,y$ 都成立」，求 $m$ 的取值范围。"
           },
           {
@@ -3979,6 +4114,97 @@
             "source": "补充练习第 2 页第 2 题"
           }
         ]
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "status": "active",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+        "sample": "求函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域；或已知 $f(x)=\\sqrt{kx^{2}+2x+1}$ 的定义域为 $\\mathbb R$，求 $k$。",
+        "features": [
+          {
+            "cue": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。",
+            "example": "题目问 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域，就是找出使这个原式有意义的全部实数 $x$。"
+          },
+          {
+            "cue": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+          },
+          {
+            "cue": "实际问题可以先建立函数关系，再根据表达式和情境共同确定定义域。"
+          }
+        ],
+        "confuse": [
+          {
+            "text": "只知道抽象函数的输入范围，要求新复合表达式的定义域",
+            "ref": "type-abstract-function-domain"
+          },
+          {
+            "text": "要求的是全部实际输出，而非合法输入",
+            "ref": "type-function-range"
+          }
+        ],
+        "knowledge": [
+          "function-concept",
+          "interval-notation",
+          "set-intersection-union",
+          "rational-expression",
+          "square-root-expression",
+          "integer-power",
+          "quantifiers",
+          "quadratic-inequality"
+        ],
+        "methods": [
+          "method-domain-intersection",
+          "method-domain-parameter"
+        ],
+        "rules": [],
+        "examples": [
+          {
+            "title": "根式与分母条件同时满足",
+            "prompt": "求函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域。",
+            "solution": [
+              "根式要求 $x-1\\ge0$，分母要求 $x-2\\ne0$，即 $x\\ge1$ 且 $x\\ne2$。",
+              "将两个条件的解集取交集，得到 $[1,2)\\cup(2,+\\infty)$。$x=1$ 时分子为零且分母非零，允许；$x=2$ 使分母为零，必须排除。"
+            ],
+            "source": "3.1 知识图谱设计第 15 题；function-concepts-q15"
+          }
+        ]
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "status": "planned",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+        "features": [
+          "目标是函数的全部输出，输入可能由解析式、抽象关系、有限集合或指定区间给出。",
+          "值域必须同时说明输出不能超出的范围以及范围内输出的可达性，不能只给一个界或某个最值。",
+          "换元、周期关系和参数等结构属于选法条件，不能因结构相近就忽略原定义域。"
+        ],
+        "confuse": [
+          {
+            "text": "要求原式有意义的全部输入",
+            "ref": "type-function-domain"
+          },
+          {
+            "text": "只求指定输入的输出或函数值组合",
+            "ref": "type-function-evaluation"
+          }
+        ],
+        "knowledge": [
+          "function-concept",
+          "interval-notation",
+          "set-intersection-union",
+          "absolute-value-function",
+          "reciprocal-function",
+          "quadratic-function-properties"
+        ],
+        "methods": [],
+        "rules": [],
+        "examples": []
       },
       {
         "id": "type-parameter-quadratic-solve",
@@ -4102,7 +4328,7 @@
         "id": "type-quantified-quadratic",
         "kind": "problem_type",
         "label": "含参一元二次不等式的恒成立与存在成立问题",
-        "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围。",
+        "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围、最小值或最大值。",
         "source": "人教 A 版必修第一册第二章",
         "sample": "若对所有 $x\\in[2,3]$，都有 $(x-1)^2+2\\le m$，求 $m$ 的取值范围。",
         "features": [
@@ -4111,7 +4337,7 @@
             "example": "「对所有 $x\\in[2,3]$」：变量是 $x$，范围是 $[2,3]$。"
           },
           {
-            "cue": "不等式里有二次式，要求的是参数的范围，不是 $x$ 的解集。",
+            "cue": "不等式里有二次式，要求的是参数的范围、最小值或最大值。",
             "example": "$(x-1)^2+2$ 是二次式，要求的是 $m$。"
           },
           {
@@ -4335,7 +4561,7 @@
         "occurrences": [
           {
             "step": "conditions",
-            "when": "把「恒正、恒负」翻译成开口方向和交点个数时"
+            "when": "把全称或存在的正负要求翻译成开口方向与交点条件时"
           }
         ]
       },
@@ -4410,6 +4636,18 @@
         ]
       },
       {
+        "id": "method-separation|calls|method-substitution",
+        "from": "method-separation",
+        "to": "method-substitution",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "range",
+            "when": "另一边的线性分母可设为新变量，并能将函数化为已有的求值域形式时；同步转换区间并回代取等点"
+          }
+        ]
+      },
+      {
         "id": "method-separation|calls|quadratic-inequality-solve",
         "from": "method-separation",
         "to": "quadratic-inequality-solve",
@@ -4454,6 +4692,10 @@
           {
             "step": "separate",
             "when": ""
+          },
+          {
+            "step": "range",
+            "when": "另一边是符号确定函数的倒数，先求分母范围，再取倒数时"
           },
           {
             "step": "restore",
@@ -4715,7 +4957,7 @@
         "occurrences": [
           {
             "branch": "discriminant",
-            "condition": "要求对所有实数 $x$ 成立，式子关于 $x$ 是二次的；二次项系数含参数时，先单独看系数为 $0$ 的情况。"
+            "condition": "量词变量取全体实数，式子关于它是二次的，要求恒成立或存在实数使其成立；四种关系 $>$、$\\ge$、$<$、$\\le$ 都要结合量词和开口判断。二次项系数含参数时，先单独处理系数为 $0$ 的情况。"
           }
         ]
       },
@@ -4922,6 +5164,33 @@
         ]
       },
       {
+        "id": "type-function-domain|involves|quadratic-inequality",
+        "from": "type-function-domain",
+        "to": "quadratic-inequality",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|quantifiers",
+        "from": "type-function-domain",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|quadratic-function-properties",
+        "from": "type-function-range",
+        "to": "quadratic-function-properties",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-parameter-quadratic-solve|involves|quadratic-equation",
         "from": "type-parameter-quadratic-solve",
         "to": "quadratic-equation",
@@ -5095,9 +5364,18 @@
           "w": 196,
           "h": 40
         },
+        "type-abstract-function-domain": {
+          "x": 360,
+          "y": 198,
+          "lines": [
+            "抽象函数的定义域问题"
+          ],
+          "w": 196,
+          "h": 40
+        },
         "type-rational-inequality": {
           "x": 360,
-          "y": 276,
+          "y": 250,
           "lines": [
             "一元分式不等式求解问题"
           ],
@@ -5106,7 +5384,7 @@
         },
         "type-quadratic-solve": {
           "x": 360,
-          "y": 328,
+          "y": 302,
           "lines": [
             "不含参数的一元二次不等式",
             "求解问题"
@@ -5114,9 +5392,18 @@
           "w": 196,
           "h": 56
         },
+        "type-function-domain": {
+          "x": 360,
+          "y": 370,
+          "lines": [
+            "具体函数的定义域问题"
+          ],
+          "w": 196,
+          "h": 40
+        },
         "type-parameter-quadratic-solve": {
           "x": 360,
-          "y": 396,
+          "y": 422,
           "lines": [
             "含参数的一元二次不等式求",
             "解问题"
@@ -5126,7 +5413,7 @@
         },
         "type-solution-parameters": {
           "x": 360,
-          "y": 464,
+          "y": 490,
           "lines": [
             "由一元二次不等式的解集求",
             "参数"
@@ -5136,7 +5423,7 @@
         },
         "type-quantified-quadratic": {
           "x": 360,
-          "y": 532,
+          "y": 558,
           "lines": [
             "含参一元二次不等式的恒成",
             "立与存在成立问题"
@@ -5144,9 +5431,18 @@
           "w": 196,
           "h": 56
         },
+        "type-function-range": {
+          "x": 360,
+          "y": 626,
+          "lines": [
+            "求函数的值域"
+          ],
+          "w": 196,
+          "h": 40
+        },
         "type-amgm-quantified": {
           "x": 360,
-          "y": 600,
+          "y": 678,
           "lines": [
             "应用基本不等式的恒成立与",
             "存在成立问题"
@@ -5200,27 +5496,9 @@
           "w": 196,
           "h": 40
         },
-        "method-substitution": {
-          "x": 1332,
-          "y": 68,
-          "lines": [
-            "换元"
-          ],
-          "w": 196,
-          "h": 40
-        },
-        "method-elimination": {
-          "x": 1332,
-          "y": 120,
-          "lines": [
-            "消元"
-          ],
-          "w": 196,
-          "h": 40
-        },
         "method-complete-square": {
           "x": 1332,
-          "y": 172,
+          "y": 68,
           "lines": [
             "配方"
           ],
@@ -5229,7 +5507,7 @@
         },
         "skill-simplify": {
           "x": 1332,
-          "y": 224,
+          "y": 120,
           "lines": [
             "代数式化简"
           ],
@@ -5238,16 +5516,25 @@
         },
         "quadratic-inequality-solve": {
           "x": 1332,
-          "y": 276,
+          "y": 172,
           "lines": [
             "二次函数图像法"
           ],
           "w": 196,
           "h": 40
         },
+        "method-elimination": {
+          "x": 1332,
+          "y": 224,
+          "lines": [
+            "消元"
+          ],
+          "w": 196,
+          "h": 40
+        },
         "skill-quadratic-sign": {
           "x": 1332,
-          "y": 328,
+          "y": 276,
           "lines": [
             "根据开口与零点判断二次式",
             "的正负"
@@ -5255,18 +5542,9 @@
           "w": 196,
           "h": 56
         },
-        "skill-equality-transform": {
-          "x": 1332,
-          "y": 396,
-          "lines": [
-            "等式变形与推导"
-          ],
-          "w": 196,
-          "h": 40
-        },
         "skill-inequality-transform": {
           "x": 1332,
-          "y": 448,
+          "y": 344,
           "lines": [
             "不等式变形与推导"
           ],
@@ -5275,9 +5553,27 @@
         },
         "skill-solve-quadratic": {
           "x": 1332,
-          "y": 500,
+          "y": 396,
           "lines": [
             "求解一元二次方程"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "skill-equality-transform": {
+          "x": 1332,
+          "y": 448,
+          "lines": [
+            "等式变形与推导"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "method-substitution": {
+          "x": 1332,
+          "y": 500,
+          "lines": [
+            "换元"
           ],
           "w": 196,
           "h": 40
@@ -5331,18 +5627,9 @@
           "w": 196,
           "h": 56
         },
-        "equality-properties": {
-          "x": 1656,
-          "y": 316,
-          "lines": [
-            "等式的性质"
-          ],
-          "w": 196,
-          "h": 40
-        },
         "square-nonnegative": {
           "x": 1656,
-          "y": 368,
+          "y": 316,
           "lines": [
             "平方的非负性"
           ],
@@ -5351,9 +5638,18 @@
         },
         "inequality-properties": {
           "x": 1656,
-          "y": 420,
+          "y": 368,
           "lines": [
             "不等式的性质"
+          ],
+          "w": 196,
+          "h": 40
+        },
+        "equality-properties": {
+          "x": 1656,
+          "y": 420,
+          "lines": [
+            "等式的性质"
           ],
           "w": 196,
           "h": 40
@@ -5401,7 +5697,7 @@
         },
         {
           "label": "题型",
-          "count": 6,
+          "count": 9,
           "x": 342,
           "y": 18,
           "w": 232,
@@ -5448,6 +5744,6 @@
   "provenance": {
     "judgments": "authored",
     "queries": "computed",
-    "compilerVersion": "02b9dbcc24eb5e40ea23f9232f7eabf1e9e0dace1c06cda21a5cea482a9ec4c0"
+    "compilerVersion": "fbd76174e321f78fdae89a7ec0e296b124fa7a66e4e5ee0576399ffbe88a0b9c"
   }
 }

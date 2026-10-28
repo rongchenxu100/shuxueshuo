@@ -114,7 +114,13 @@ def _function_domain_parameter(context):
     return admitted_parameter(context)
 
 
+def _function_equality(context):
+    from .equality_runtime import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    "function_equality": _function_equality,
     "function_domain": _function_domain,
     "function_domain_parameter": _function_domain_parameter,
     "quantifier": _quantifier,

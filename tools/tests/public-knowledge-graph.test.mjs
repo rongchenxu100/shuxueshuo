@@ -15,7 +15,7 @@ const clone=()=>structuredClone(nodes);
 const byId=id=>nodes.find(n=>n.id===id);
 
 test('substantive originals retain explicit lifecycle states and curriculum or collection membership',()=>{
-  assert.equal(nodes.length,94);assert.equal(Object.keys(KINDS).length,9);
+  assert.equal(nodes.length,95);assert.equal(Object.keys(KINDS).length,9);
   const whole=scopeMembers(graph,'chapter-quadratic-equations-inequalities');
   assert.equal(whole.size,63);
   for(const id of ['quantifiers','function-monotonicity','function-range-extrema'])assert.ok(whole.has(id),`${id} 仍由 2.3 拓展引用`);

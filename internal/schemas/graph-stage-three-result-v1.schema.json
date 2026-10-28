@@ -516,15 +516,42 @@
           },
           "then": {
             "properties": {
-              "feasible_set": {
-                "not": {
-                  "type": "null"
-                }
-              },
+              "feasible_set": {},
               "answer": {
                 "type": "object"
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "answer": {
+                      "properties": {
+                        "kind": {
+                          "const": "compare_functions"
+                        }
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "feasible_set": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "feasible_set": {
+                      "not": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "else": {
             "properties": {
@@ -929,6 +956,90 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "mode",
+            "selection_mode",
+            "select_relation",
+            "correct_labels",
+            "option_verdicts"
+          ],
+          "properties": {
+            "kind": {
+              "const": "compare_functions"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "mode": {
+              "enum": [
+                "groups",
+                "shared_baseline",
+                "pair"
+              ]
+            },
+            "selection_mode": {
+              "enum": [
+                "multiple",
+                "single",
+                "none"
+              ]
+            },
+            "select_relation": {
+              "enum": [
+                "equal",
+                "different",
+                null
+              ]
+            },
+            "correct_labels": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "option_verdicts": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "option_id",
+                  "label",
+                  "verdict",
+                  "reason"
+                ],
+                "properties": {
+                  "option_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verdict": {
+                    "enum": [
+                      "equal",
+                      "different"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     }

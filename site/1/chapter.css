@@ -95,11 +95,17 @@ html { scroll-behavior: smooth; }
 
 .problem-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .problem-card { display: flex; align-items: center; gap: 16px; padding: 16px 16px 16px 18px; border: 1px solid #d3e2dd; border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(20, 50, 45, .05), 0 6px 16px -12px rgba(20, 60, 55, .3); cursor: pointer; transition: border-color .15s, background .15s, box-shadow .15s, transform .15s; }
+.problem-card:has(.problem-options) { align-items: flex-start; }
 .problem-card:hover { border-color: #8fc8bc; background: #fbfefd; box-shadow: 0 14px 28px -18px rgba(8, 127, 121, .6); transform: translateY(-1px); }
 .problem-card:active { background: #f2f9f7; box-shadow: 0 1px 2px rgba(20, 50, 45, .06); transform: none; }
 .problem-number { flex-shrink: 0; display: grid; place-items: center; width: 44px; height: 44px; border: 1.5px solid #c7d6d1; border-radius: 50%; background: #fff; color: var(--ink-soft); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; transition: background .15s, border-color .15s, color .15s; }
+.problem-card:has(.problem-options) .problem-number,
+.problem-card:has(.problem-options) .problem-go { margin-top: 2px; }
 .problem-card:hover .problem-number { border-color: var(--teal); background: var(--teal); color: #fff; }
 .problem-stem { flex: 1; min-width: 0; color: var(--ink); font-size: 16px; line-height: 1.7; }
+.problem-prompt { display: block; }
+.problem-options { display: grid; gap: 6px; margin-top: 10px; }
+.problem-option { display: block; padding-left: 0.1em; }
 .problem-go { flex-shrink: 0; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--teal-soft); color: var(--teal); transition: background .15s, color .15s, transform .15s; }
 .problem-go svg { display: block; }
 .problem-card:hover .problem-go { background: var(--teal); color: #fff; transform: translateX(2px); }

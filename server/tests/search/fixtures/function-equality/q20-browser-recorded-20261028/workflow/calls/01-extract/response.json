@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式】（多选）下列四组函数中表示同一个函数的是\\nA. $f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\\nC. $f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"root\":{\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=(sqrt(x))^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2\"},{\"id\":\"right\",\"definition\":\"g(x)=(x+1)^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x^2)\"},{\"id\":\"right\",\"definition\":\"g(x)=abs(x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=3*x^2-2*x+3\"},{\"id\":\"right\",\"definition\":\"g(t)=3*t^2-2*t+3\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）下列四组函数中表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"},{\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\"},{\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\"},{\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"}]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3223,
+      "prompt_tokens": 12133,
+      "total_tokens": 15356,
+      "prompt_cache_hit_tokens": 11776,
+      "prompt_cache_miss_tokens": 357
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1675,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 24826,
+        "expires_at": 1793204922,
+        "uploaded_at": 1793118522.163311
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "ab183d8d44cdec09c2b2260931c81255a77a4a33bb7daa295812002570f19c96",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793204922,
+        "elapsed_ms": 635
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 17179,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3223,
+          "prompt_tokens": 12133,
+          "total_tokens": 15356,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2543
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 11776
+          },
+          "prompt_cache_hit_tokens": 11776,
+          "prompt_cache_miss_tokens": 357
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3223,
+            "prompt_tokens": 12133,
+            "total_tokens": 15356,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2543
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 11776
+            },
+            "prompt_cache_hit_tokens": 11776,
+            "prompt_cache_miss_tokens": 357
+          },
+          "created": 1793118522,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式】（多选）下列四组函数中表示同一个函数的是\\nA. $f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\\nC. $f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"root\":{\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=(sqrt(x))^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2\"},{\"id\":\"right\",\"definition\":\"g(x)=(x+1)^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x^2)\"},{\"id\":\"right\",\"definition\":\"g(x)=abs(x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=3*x^2-2*x+3\"},{\"id\":\"right\",\"definition\":\"g(t)=3*t^2-2*t+3\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）下列四组函数中表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"},{\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\"},{\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\"},{\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"}]}]}]}}",
+                "reasoning_content": "We need answer JSON only per schema. Need extract problem from image. Need carefully transcribe original_text full题干, not handwritten/printed solution. Image shows a multiple-choice variant (多选): \"【变式】（多选）下列四组函数中表示同一个函数的是\" with options A-D. There is bottom printed解析/答案? It includes text \"的定义域为R，因为要使√x有意义，应有x≥0，所以g(x)=(√x)^2的定义域是[0,+∞)，故A项错误；... 故B项错误；...\" This is printed solution/explanation likely crop at bottom, must not include in original_text. Need parse options exactly.\n\nImage text:\nTop header partially: \"中数学一本通·必修一（RJA版）\" maybe source? Not题目? Cropped header. Could omit? original_text should complete题干. We should not include header maybe okay. The problem:\n\n【变式】（多选）下列四组函数中表示同一个函数的是\nA. f(x)=x，g(x)=(√x)^2\nB. f(x)=x^2，g(x)=(x+1)^2\nC. f(x)=√(x^2)，g(x)=|x|\nD. f(x)=3x^2-2x+3，g(t)=3t^2-2t+3\n\nNeed check option B in image: B. f(x)=x^2, g(x)=(x+1)^2. Yes.\n\nC. f(x)=√x^2? Image shows f(x)=√x² maybe \\sqrt{x^2} (sqrt over x^2). It appears f(x)=√x², g(x)=|x|. Need preserve sqrt(x^2). In original_text LaTeX can write $f(x)=\\sqrt{x^2}$; $g(x)=|x|$. Need JSON escape backslash. The schema original_text string allow LaTeX. Need in JSON backslash escaped as \\\\.\n\nNeed choose math root. This is compare_functions goal. Need root facts? Maybe just goals with compare_functions, options. Definitions? For compare_functions, no root definitions. Root label? None? We might not use label. root has goals [compare_functions]. Need fields: kind compare_functions, mode groups, select_relation equal, selection_mode multiple, completeness complete, shared_functions [], options list with ids labels text functions left/right. Functions definitions original structures, no domain unless explicit (none). Need preserve f(x)=x, g(x)=(sqrt(x))^2 for A. In math_expression_catalog definitions string: use sqrt(表达式) maybe f(x)=x, g(x)=(sqrt(x))^2. Original_text LaTeX uses (\\sqrt{x})^2. For root options text perhaps text strings with $...$? public_content choices text likely formulas $...$. The compare function option text likely also can include $...$? The schema text is string, not explicitly no $ but examples use \"$f(u)=...$\". For option functions definitions no $ per example \"f(u)=u+2\". We'll follow example: text with LaTeX \"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"? In JSON, backslash needs double. But maybe we can use Unicode sqrt? The controlled math expression catalog accepts sqrt(...) for root definitions, not option text. For public_content statement formulas use $…$ and LaTeX? It says formula use $…$; LaTeX backslash escaped. For simplicity and exactness, use LaTeX in original_text and public_content, root uses plain controlled math.\n\nNeed public_content scopes: root only (no children). statement should be the root's own problem text without options? \"（多选）下列四组函数中表示同一个函数的是\" maybe include \"【变式】\"? Public content should exclude source/题号. \"【变式】\" could be a label? It might be a printed label not source but variant label; could omit? The rules: public_content.scopes statement only keep own题干, conditions,所求. \"【变式】\" might be a label, not mathematical condition. Avoid include. The choices for target. Root has one goal. choices target_ref \"/root/goals/0\", status complete, selection_mode multiple, options four labels A-D texts. Need option text maybe \"A\"? No labels separate. Text should be \"f(x)=x，g(x)=(√x)^2\" with math? The schema choices text \"公式用$…$\"? It says statement formula use $…$, choices likely options should preserve formulas. I'll include full formulas in `$...$`.\n\nNeed completeness: complete? The image includes full question and options. Even though printed solution below visible, not part of problem. We can mark complete. Privacy: There's header \"中数学一本通·必修一（RJA版）\" possibly source/book, but not in public statement. Original_text? We can exclude header from original_text? It says original_text complete题干; header not题干. Student photo not handwritten. privacy separated? The root content doesn't include header, no personal info. But original_text has no source title. We can set separated. Figure not_required. root_label_role? root.label absent, omit. uncertainties: none? There is bottom explanation crop, but not uncertain. Could mention no? no.\n\nNeed ensure original_text not include solution. Need maybe include \"（多选）下列四组函数中表示同一个函数的是\" plus options. The \"【变式】\" maybe include? It is part of item label but not required? original_text \"完整题干原文\" include \"【变式】（多选）...\" maybe yes. But public_content excludes label? Hmm. Original_text can retain source/题号; \"【变式】\" is likely variant label not source, maybe keep. public_content statement maybe no \"【变式】\"? It says public_content excludes source,题号; \"【变式】\" could be a label like \"variant\". Could remove to be safe. But \"题目正文\" maybe \"下列四组...\" is enough. Root.label absent. Good.\n\nNeed root compare_functions: options fields. Need function id const stable. For each option local functions ids left/right. Definition strings:\nA: left \"f(x)=x\"; right \"g(x)=(sqrt(x))^2\". Note original has g(x)=(√x)^2, so use (sqrt(x))^2. Keep unsimplified. No domain.\nB: left \"f(x)=x^2\"; right \"g(x)=(x+1)^2\".\nC: left \"f(x)=sqrt(x^2)\"; right \"g(x)=abs(x)\" or \"g(x)=|x|\"? Example says abs. The catalog says abs preferred. But \"preserve original structure\", |x| equivalent. Use \"g(x)=abs(x)\"? If root definitions should use controlled string; abs is allowed. But option text original uses |x|. The function definition can use abs(x) while text uses |x| perhaps okay? The instructions: preserve sqrt(x^2), (sqrt(x))^2, abs(x) original structure, can't simplify. Original is |x| not abs? The example uses abs. Catalog says abs(表达式)；|表达式|, either. To be safe definition \"g(x)=abs(x)\"? But original structure is |x|. However \"保留 sqrt(x^2)、(sqrt(x))^2、abs(x) 的原始结构\" suggests abs(x) is acceptable. In original_text and public_content use |x|.\nD: left \"f(x)=3*x^2-2*x+3\"; right \"g(t)=3*t^2-2*t+3\". Note function names f and g with different variables; compare functions maybe equality as functions requires same? Actually function equality includes domain and rule; variable names irrelevant. But task doesn't judge. Definition keep. Use * for multiplication. No domain.\n\nNeed selection_mode multiple from (多选). select_relation equal (表示同一个函数). completeness complete.\n\nPotential issue: compare_functions mode groups means four groups independent as options, yes. shared_functions empty. options ids option_a etc. left/right \"local:left\" etc.\n\nNeed public_content choices target_ref for goal. Since goal kind compare_functions includes options. Public choices status complete selection_mode multiple options all A-D. target_ref /root/goals/0.\n\nNeed \"choices\" in root itself? Scope schema doesn't have choices, only public_content. root goals. Good.\n\nNeed original_text LaTeX with proper escaping. Since we output JSON, need string with backslashes double. Let's craft:\n\n\"【变式】（多选）下列四组函数中表示同一个函数的是\\nA. $f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\\nC. $f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"\n\nNeed in JSON the backslash for sqrt is \"\\\\sqrt\". Good. Use Chinese comma \"，\".\n\nNeed public_content scopes statement \"（多选）下列四组函数中表示同一个函数的是\" with math? no formula. Maybe full? \"（多选）下列四组函数中表示同一个函数的是\" Fine. Could include \"【变式】\"? I'd omit. Choices text:\nA \"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"\nB \"$f(x)=x^2$，$g(x)=(x+1)^2$\"\nC \"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\"\nD \"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"\n\nNeed privacy separated. figure not_required. completeness complete. No uncertainties.\n\nNeed root fields: goals, maybe no facts/definitions. Could omit definitions/facts? Schema requires only label? Scope has optional definitions/facts/goals/children/uncertainties. For root, goals needed. Could include \"definitions\":[]? Not necessary but okay. They said don't output extra fields; these are valid. Use only goals. root has no label. Good.\n\nNeed ensure root compare_functions options `functions` maxItems 2 each. Good. `selection_mode` in compare functions is multiple. `mode` groups. `select_relation` equal. shared_functions [].\n\nPotential nuance: Option C f(x)=sqrt(x^2); g(x)=|x|. This is actually same function? We don't judge. Good. Option D f(x)=3x^2-2x+3 and g(t)=3t^2-2t+3: same function. Option A no? f domain ℝ, g [0,∞), different. B no. C same. D same. Multiple select likely C,D. But we don't output answer. Good.\n\nNeed possible issue in original_text: The header at top \"中数学一本通·必修一（RJA版）\" maybe source; don't include. Bottom printed solution not include. Good.\n\nNow output JSON only. Ensure valid. Use Unicode. Need include backslashes escaped. Let's write compact.\n\nDouble-check `original_text` pattern requires nonspace, okay. Max length okay.\n\nOne concern: original_text should preserve \"【变式】（多选）...\" and choices. Does \"【变式】\" count source? It's part of textbook label maybe; but original_text can keep. public excludes. Fine.\n\nNo \"root.label\". no root_label_role.\n\nNeed maybe public_content scopes statement include \"（多选）下列四组函数中表示同一个函数的是\" without \"【变式】\". Good.\n\nLet's final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 17824
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式】（多选）下列四组函数中表示同一个函数的是\\nA. $f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\\nC. $f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"root\":{\"goals\":[{\"kind\":\"compare_functions\",\"mode\":\"groups\",\"select_relation\":\"equal\",\"selection_mode\":\"multiple\",\"completeness\":\"complete\",\"shared_functions\":[],\"options\":[{\"id\":\"option_a\",\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x\"},{\"id\":\"right\",\"definition\":\"g(x)=(sqrt(x))^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_b\",\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=x^2\"},{\"id\":\"right\",\"definition\":\"g(x)=(x+1)^2\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_c\",\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=sqrt(x^2)\"},{\"id\":\"right\",\"definition\":\"g(x)=abs(x)\"}],\"left\":\"local:left\",\"right\":\"local:right\"},{\"id\":\"option_d\",\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\",\"functions\":[{\"id\":\"left\",\"definition\":\"f(x)=3*x^2-2*x+3\"},{\"id\":\"right\",\"definition\":\"g(t)=3*t^2-2*t+3\"}],\"left\":\"local:left\",\"right\":\"local:right\"}]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"（多选）下列四组函数中表示同一个函数的是\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"complete\",\"selection_mode\":\"multiple\",\"options\":[{\"label\":\"A\",\"text\":\"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"},{\"label\":\"B\",\"text\":\"$f(x)=x^2$，$g(x)=(x+1)^2$\"},{\"label\":\"C\",\"text\":\"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\"},{\"label\":\"D\",\"text\":\"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"}]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need answer JSON only per schema. Need extract problem from image. Need carefully transcribe original_text full题干, not handwritten/printed solution. Image shows a multiple-choice variant (多选): \"【变式】（多选）下列四组函数中表示同一个函数的是\" with options A-D. There is bottom printed解析/答案? It includes text \"的定义域为R，因为要使√x有意义，应有x≥0，所以g(x)=(√x)^2的定义域是[0,+∞)，故A项错误；... 故B项错误；...\" This is printed solution/explanation likely crop at bottom, must not include in original_text. Need parse options exactly.\n\nImage text:\nTop header partially: \"中数学一本通·必修一（RJA版）\" maybe source? Not题目? Cropped header. Could omit? original_text should complete题干. We should not include header maybe okay. The problem:\n\n【变式】（多选）下列四组函数中表示同一个函数的是\nA. f(x)=x，g(x)=(√x)^2\nB. f(x)=x^2，g(x)=(x+1)^2\nC. f(x)=√(x^2)，g(x)=|x|\nD. f(x)=3x^2-2x+3，g(t)=3t^2-2t+3\n\nNeed check option B in image: B. f(x)=x^2, g(x)=(x+1)^2. Yes.\n\nC. f(x)=√x^2? Image shows f(x)=√x² maybe \\sqrt{x^2} (sqrt over x^2). It appears f(x)=√x², g(x)=|x|. Need preserve sqrt(x^2). In original_text LaTeX can write $f(x)=\\sqrt{x^2}$; $g(x)=|x|$. Need JSON escape backslash. The schema original_text string allow LaTeX. Need in JSON backslash escaped as \\\\.\n\nNeed choose math root. This is compare_functions goal. Need root facts? Maybe just goals with compare_functions, options. Definitions? For compare_functions, no root definitions. Root label? None? We might not use label. root has goals [compare_functions]. Need fields: kind compare_functions, mode groups, select_relation equal, selection_mode multiple, completeness complete, shared_functions [], options list with ids labels text functions left/right. Functions definitions original structures, no domain unless explicit (none). Need preserve f(x)=x, g(x)=(sqrt(x))^2 for A. In math_expression_catalog definitions string: use sqrt(表达式) maybe f(x)=x, g(x)=(sqrt(x))^2. Original_text LaTeX uses (\\sqrt{x})^2. For root options text perhaps text strings with $...$? public_content choices text likely formulas $...$. The compare function option text likely also can include $...$? The schema text is string, not explicitly no $ but examples use \"$f(u)=...$\". For option functions definitions no $ per example \"f(u)=u+2\". We'll follow example: text with LaTeX \"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"? In JSON, backslash needs double. But maybe we can use Unicode sqrt? The controlled math expression catalog accepts sqrt(...) for root definitions, not option text. For public_content statement formulas use $…$ and LaTeX? It says formula use $…$; LaTeX backslash escaped. For simplicity and exactness, use LaTeX in original_text and public_content, root uses plain controlled math.\n\nNeed public_content scopes: root only (no children). statement should be the root's own problem text without options? \"（多选）下列四组函数中表示同一个函数的是\" maybe include \"【变式】\"? Public content should exclude source/题号. \"【变式】\" could be a label? It might be a printed label not source but variant label; could omit? The rules: public_content.scopes statement only keep own题干, conditions,所求. \"【变式】\" might be a label, not mathematical condition. Avoid include. The choices for target. Root has one goal. choices target_ref \"/root/goals/0\", status complete, selection_mode multiple, options four labels A-D texts. Need option text maybe \"A\"? No labels separate. Text should be \"f(x)=x，g(x)=(√x)^2\" with math? The schema choices text \"公式用$…$\"? It says statement formula use $…$, choices likely options should preserve formulas. I'll include full formulas in `$...$`.\n\nNeed completeness: complete? The image includes full question and options. Even though printed solution below visible, not part of problem. We can mark complete. Privacy: There's header \"中数学一本通·必修一（RJA版）\" possibly source/book, but not in public statement. Original_text? We can exclude header from original_text? It says original_text complete题干; header not题干. Student photo not handwritten. privacy separated? The root content doesn't include header, no personal info. But original_text has no source title. We can set separated. Figure not_required. root_label_role? root.label absent, omit. uncertainties: none? There is bottom explanation crop, but not uncertain. Could mention no? no.\n\nNeed ensure original_text not include solution. Need maybe include \"（多选）下列四组函数中表示同一个函数的是\" plus options. The \"【变式】\" maybe include? It is part of item label but not required? original_text \"完整题干原文\" include \"【变式】（多选）...\" maybe yes. But public_content excludes label? Hmm. Original_text can retain source/题号; \"【变式】\" is likely variant label not source, maybe keep. public_content statement maybe no \"【变式】\"? It says public_content excludes source,题号; \"【变式】\" could be a label like \"variant\". Could remove to be safe. But \"题目正文\" maybe \"下列四组...\" is enough. Root.label absent. Good.\n\nNeed root compare_functions: options fields. Need function id const stable. For each option local functions ids left/right. Definition strings:\nA: left \"f(x)=x\"; right \"g(x)=(sqrt(x))^2\". Note original has g(x)=(√x)^2, so use (sqrt(x))^2. Keep unsimplified. No domain.\nB: left \"f(x)=x^2\"; right \"g(x)=(x+1)^2\".\nC: left \"f(x)=sqrt(x^2)\"; right \"g(x)=abs(x)\" or \"g(x)=|x|\"? Example says abs. The catalog says abs preferred. But \"preserve original structure\", |x| equivalent. Use \"g(x)=abs(x)\"? If root definitions should use controlled string; abs is allowed. But option text original uses |x|. The function definition can use abs(x) while text uses |x| perhaps okay? The instructions: preserve sqrt(x^2), (sqrt(x))^2, abs(x) original structure, can't simplify. Original is |x| not abs? The example uses abs. Catalog says abs(表达式)；|表达式|, either. To be safe definition \"g(x)=abs(x)\"? But original structure is |x|. However \"保留 sqrt(x^2)、(sqrt(x))^2、abs(x) 的原始结构\" suggests abs(x) is acceptable. In original_text and public_content use |x|.\nD: left \"f(x)=3*x^2-2*x+3\"; right \"g(t)=3*t^2-2*t+3\". Note function names f and g with different variables; compare functions maybe equality as functions requires same? Actually function equality includes domain and rule; variable names irrelevant. But task doesn't judge. Definition keep. Use * for multiplication. No domain.\n\nNeed selection_mode multiple from (多选). select_relation equal (表示同一个函数). completeness complete.\n\nPotential issue: compare_functions mode groups means four groups independent as options, yes. shared_functions empty. options ids option_a etc. left/right \"local:left\" etc.\n\nNeed public_content choices target_ref for goal. Since goal kind compare_functions includes options. Public choices status complete selection_mode multiple options all A-D. target_ref /root/goals/0.\n\nNeed \"choices\" in root itself? Scope schema doesn't have choices, only public_content. root goals. Good.\n\nNeed original_text LaTeX with proper escaping. Since we output JSON, need string with backslashes double. Let's craft:\n\n\"【变式】（多选）下列四组函数中表示同一个函数的是\\nA. $f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\\nC. $f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"\n\nNeed in JSON the backslash for sqrt is \"\\\\sqrt\". Good. Use Chinese comma \"，\".\n\nNeed public_content scopes statement \"（多选）下列四组函数中表示同一个函数的是\" with math? no formula. Maybe full? \"（多选）下列四组函数中表示同一个函数的是\" Fine. Could include \"【变式】\"? I'd omit. Choices text:\nA \"$f(x)=x$，$g(x)=(\\\\sqrt{x})^2$\"\nB \"$f(x)=x^2$，$g(x)=(x+1)^2$\"\nC \"$f(x)=\\\\sqrt{x^2}$，$g(x)=|x|$\"\nD \"$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$\"\n\nNeed privacy separated. figure not_required. completeness complete. No uncertainties.\n\nNeed root fields: goals, maybe no facts/definitions. Could omit definitions/facts? Schema requires only label? Scope has optional definitions/facts/goals/children/uncertainties. For root, goals needed. Could include \"definitions\":[]? Not necessary but okay. They said don't output extra fields; these are valid. Use only goals. root has no label. Good.\n\nNeed ensure root compare_functions options `functions` maxItems 2 each. Good. `selection_mode` in compare functions is multiple. `mode` groups. `select_relation` equal. shared_functions [].\n\nPotential nuance: Option C f(x)=sqrt(x^2); g(x)=|x|. This is actually same function? We don't judge. Good. Option D f(x)=3x^2-2x+3 and g(t)=3t^2-2t+3: same function. Option A no? f domain ℝ, g [0,∞), different. B no. C same. D same. Multiple select likely C,D. But we don't output answer. Good.\n\nNeed possible issue in original_text: The header at top \"中数学一本通·必修一（RJA版）\" maybe source; don't include. Bottom printed solution not include. Good.\n\nNow output JSON only. Ensure valid. Use Unicode. Need include backslashes escaped. Let's write compact.\n\nDouble-check `original_text` pattern requires nonspace, okay. Max length okay.\n\nOne concern: original_text should preserve \"【变式】（多选）...\" and choices. Does \"【变式】\" count source? It's part of textbook label maybe; but original_text can keep. public excludes. Fine.\n\nNo \"root.label\". no root_label_role.\n\nNeed maybe public_content scopes statement include \"（多选）下列四组函数中表示同一个函数的是\" without \"【变式】\". Good.\n\nLet's final."
+        }
+      }
+    ],
+    "created": 1793118522,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3223,
+      "prompt_tokens": 12133,
+      "total_tokens": 15356,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2543,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 11776
+      },
+      "prompt_cache_hit_tokens": 11776,
+      "prompt_cache_miss_tokens": 357
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 17.827
+}

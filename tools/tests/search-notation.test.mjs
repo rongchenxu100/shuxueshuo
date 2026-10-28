@@ -25,6 +25,17 @@ test('domain goal renders the input question and preserves an explicitly given r
   assert.match(limited.join(''), /求 \$g\$ 的定义域（题设范围 \$\[0,1\]\$）/);
 });
 
+test('comparison meaning preserves selection polarity without flattening option scopes or revealing answers', () => {
+  for (const [polarity, wording] of [['equal', '同一'], ['different', '不同']]) {
+    const blocks = context.meaningBlocks({goals: [{kind: 'compare_functions', mode: 'groups',
+      select_relation: polarity, selection_mode: 'multiple', options: [{label: 'A'}, {label: 'B'}]}]}, '', []).join('');
+    assert.ok(blocks.includes(`再选出表示${wording}函数的全部选项`));
+    assert.doesNotMatch(blocks, /undefined|求 <|CD/);
+  }
+  const pair = context.meaningBlocks({goals: [{kind: 'compare_functions', mode: 'pair'}]}, '', []).join('');
+  assert.match(pair, /判断题给的两个函数是否为同一函数/);
+});
+
 for (const [expression, expected] of [
   ['2sqrt(4)=a', '2\\sqrt{4}=a'],
   ['2 sqrt(4)=a', '2\\sqrt{4}=a'],

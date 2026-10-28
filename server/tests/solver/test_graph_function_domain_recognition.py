@@ -96,6 +96,9 @@ def test_source_paths_point_to_original_radical_and_divisor_even_if_redundant():
 
 @pytest.mark.parametrize("expression,latex", [
     ("sqrt(x-1)/(x-2)", r"\frac{\sqrt{x-1}}{x-2}"),
+    ("(sqrt(x))^2", r"\left(\sqrt{x}\right)^{2}"),
+    ("sqrt(x^2)", r"\sqrt{x^{2}}"),
+    ("(sqrt(x-1))^0", r"\left(\sqrt{x-1}\right)^{0}"),
     ("(2*x+1)/sqrt(3-2*x-x^2)+(2*x-1)^0",
      r"\frac{2\cdot x+1}{\sqrt{3-2\cdot x-x^{2}}}+(2\cdot x-1)^{0}"),
     ("(x+4)^0*(x^2-1)/(x-1)", r"\frac{(x+4)^{0}\cdot (x^{2}-1)}{x-1}"),
@@ -106,7 +109,7 @@ def test_expression_latex_uses_precedence_not_universal_wrapping(expression, lat
 
 @pytest.mark.parametrize("expression", [
     "sqrt(m*x-1)/(x-2)",
-    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x)/(x-1)",
+    "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x^2)/(x-1)",
     "1/(x*x-1)", "1/(sqrt(x)+1)", "(x^2-1)^0", "1/(x^2-1)",
     "sqrt(x^3-1)", "sqrt(1/(x-1))",
     "sqrt(x^2+x-1)", "sqrt(x^2-2)", "1/sqrt(x^2+x-1)",
@@ -291,7 +294,7 @@ def test_zero_power_feature_and_knowledge_follow_original_syntax(expression, exp
     ("(x^9)^8", "domain.nested_power_limit"),
     ("(sqrt(x-1))^0", "domain.fixed_affine_condition_required"),
     ("(x^2-1)^0", "domain.fixed_affine_condition_required"),
-    ("abs(x)", "domain.unsupported_expression"),
+    ("abs(x^2)", "domain.fixed_affine_condition_required"),
 ])
 def test_power_limits_and_unsupported_reasons_remain_explicit(expression, reason):
     value = candidate(expression)

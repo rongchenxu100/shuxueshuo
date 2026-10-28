@@ -231,6 +231,8 @@ def _display_sources(state, frame, *, start=0, scope=None, exclude=()):
 
 
 def _publish(state, frame, step, action, bindings):
+    if frame['method'] == 'method-domain-intersection' and bindings.get('context', {}).get('suppress_domain_display'):
+        return
     action_trace = None
     for unit in step["display_units"]:
         if unit["after"] != action["id"] or not _guard(unit.get("guard"), bindings):
@@ -320,6 +322,8 @@ def _case_frame(parent, descriptor, specification, step_index, end_index):
     child["binding_sources"][specification["binding"]] = parent["binding_sources"][
         specification["source"]
     ]
+    if parent.get('option_context'):
+        child['option_context'] = deepcopy(parent['option_context'])
     return child
 
 
@@ -374,10 +378,56 @@ def _finish_case(state, frame, bindings, contracts):
     )
 
 
+def _option_frame(parent, descriptor, specification, step_index, end_index):
+    bindings = decode_value(parent['bindings'])
+    bindings[specification['binding']] = descriptor
+    child = _frame(parent['method'], bindings, None)
+    child.update(step_index=step_index, option_start=step_index, option_end=end_index,
+                 option_specification=deepcopy(specification), descriptor=encode_value(descriptor),
+                 binding_sources=deepcopy(parent['binding_sources']),
+                 case_path=deepcopy(parent['case_path']),
+                 case_source_refs=sorted(_binding_sources(parent, {specification['source']})))
+    child['binding_sources'][specification['binding']] = parent['binding_sources'][specification['source']]
+    child['option_context'] = {
+        'option_id': descriptor['option_id'], 'label': descriptor['label'],
+        'target_ref': bindings['comparison_goal']['target_ref'],
+        'left_ref': descriptor['left']['function_ref'], 'right_ref': descriptor['right']['function_ref'],
+        'phase': 'evidence',
+    }
+    return child
+
+
+def _finish_option(state, frame, bindings):
+    specification = frame['option_specification']
+    descriptor = decode_value(frame['descriptor'])
+    outputs = _resolve(specification['outputs'], bindings)
+    refs = sorted(_binding_sources(frame, execution_contracts.references(specification['outputs'])))
+    state['frames'].pop()
+    parent = state['frames'][-1]
+    pending = parent['pending_options']
+    pending['results'].append(encode_value({'option_id': descriptor['option_id'],
+                                            'outputs': outputs, 'source_refs': refs}))
+    pending['index'] += 1
+    if pending['index'] < len(pending['descriptors']):
+        descriptor = decode_value(pending['descriptors'][pending['index']])
+        state['frames'].append(_option_frame(parent, descriptor, specification, pending['start'], pending['end']))
+        return
+    values = decode_value(parent['bindings'])
+    values[specification['collect']] = [decode_value(item) for item in pending['results']]
+    parent['bindings'] = encode_value(values)
+    trace = state['trajectory']['steps'][parent['step_trace']]
+    trace['option_results'] = trace_value(values[specification['collect']])
+    parent['binding_sources'][specification['collect']] = f"/steps/{parent['step_trace']}/option_results"
+    parent.update(step_index=pending['end'] + 1, call_index=0, step_trace=None, pending_options=None)
+
+
 def _advance(state, contracts):
     frame = state["frames"][-1]
     contract = contracts[frame["method"]]
     bindings = decode_value(frame["bindings"])
+    if 'option_end' in frame and frame['step_index'] > frame['option_end']:
+        _finish_option(state, frame, bindings)
+        return
     if "case_end" in frame and frame["step_index"] > frame["case_end"]:
         _finish_case(state, frame, bindings, contracts)
         return
@@ -412,6 +462,8 @@ def _advance(state, contracts):
     step = contract["steps"][frame["step_index"]]
     if frame.get("case_start") == frame["step_index"]:
         step = dict(step["cases"]["entry"], id=step["id"])
+    if frame.get('option_start') == frame['step_index']:
+        step = dict(step['options']['entry'], id=step['id'])
     if frame["step_trace"] is None:
         frame["step_trace"] = len(state["trajectory"]["steps"])
         state["trajectory"]["steps"].append(
@@ -428,6 +480,8 @@ def _advance(state, contracts):
                 "merges": [],
             }
         )
+        if frame.get('option_context'):
+            state['trajectory']['steps'][-1]['option_context'] = deepcopy(frame['option_context'])
     if not _guard(step.get("guard"), bindings):
         guard_refs = execution_contracts.guard_references(step.get("guard"))
         trace = state["trajectory"]["steps"][frame["step_trace"]]
@@ -452,6 +506,16 @@ def _advance(state, contracts):
         return
     actions = execution_contracts.actions(step)
     if frame["call_index"] >= len(actions):
+        if step.get('options'):
+            specification = step['options']
+            descriptors = bindings[specification['source']]
+            if not descriptors or len({item['option_id'] for item in descriptors}) != len(descriptors):
+                raise ValueError('execution.invalid_option_manifest')
+            end = next(i for i, item in enumerate(contract['steps']) if item['id'] == specification['through'])
+            frame['pending_options'] = {'descriptors': encode_value(descriptors), 'index': 0,
+                                        'results': [], 'start': frame['step_index'], 'end': end}
+            state['frames'].append(_option_frame(frame, descriptors[0], specification, frame['step_index'], end))
+            return True
         if step.get("cases"):
             specification = step["cases"]
             descriptors = bindings[specification["source"]]
@@ -603,6 +667,8 @@ def _advance(state, contracts):
             child = _frame(action["public_ref"], inputs, seq)
             child["case_path"] = deepcopy(frame["case_path"])
             child["case_source_refs"] = deepcopy(frame.get("case_source_refs", []))
+            if frame.get('option_context'):
+                child['option_context'] = deepcopy(frame['option_context'])
             for name, value in action["inputs"].items():
                 input_sources = _binding_sources(frame, execution_contracts.references(value))
                 if input_sources:

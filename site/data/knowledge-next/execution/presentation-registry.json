@@ -2351,6 +2351,123 @@
           }
         ]
       }
+    },
+    "equality_entry": {
+      "title": "选项 {option_label}：比较对象",
+      "explanation": "逐项核对定义域与对应关系。",
+      "required_bindings": [
+        "before",
+        "after",
+        "option",
+        "phase"
+      ],
+      "prepare": "equality_view",
+      "render": "{equality_explanation}"
+    },
+    "equality_borrow": {
+      "title": "借用列条件求交集法",
+      "explanation": "逐项核对定义域与对应关系。",
+      "required_bindings": [
+        "before",
+        "after",
+        "option",
+        "phase"
+      ],
+      "prepare": "equality_view",
+      "render": "{equality_explanation}"
+    },
+    "equality_domains": {
+      "title": "比较本项定义域",
+      "explanation": "逐项核对定义域与对应关系。",
+      "required_bindings": [
+        "before",
+        "after",
+        "option",
+        "phase",
+        "comparison",
+        "same_domain",
+        "domain_density",
+        "merge_verdict"
+      ],
+      "prepare": "equality_view",
+      "render": "{equality_explanation}",
+      "highlight": {
+        "caption": "定义域",
+        "connector": "{domain_connector}",
+        "items": [
+          {
+            "label": "{left_name}",
+            "math": "{left_domain}"
+          },
+          {
+            "label": "{right_name}",
+            "math": "{right_domain}"
+          }
+        ],
+        "conclusion_only": true
+      }
+    },
+    "equality_correspondence": {
+      "title": "比较本项对应关系",
+      "explanation": "逐项核对定义域与对应关系。",
+      "required_bindings": [
+        "before",
+        "after",
+        "option",
+        "phase",
+        "comparison",
+        "same_domain",
+        "merge_verdict"
+      ],
+      "prepare": "equality_view",
+      "render": "{equality_explanation}",
+      "highlight": {
+        "caption": "{correspondence_caption}",
+        "connector": "{correspondence_connector}",
+        "items": [
+          {
+            "label": "{left_name}",
+            "math": "{left_value_math}"
+          },
+          {
+            "label": "{right_name}",
+            "math": "{right_value_math}"
+          }
+        ],
+        "conclusion_only": true
+      }
+    },
+    "equality_verdict": {
+      "title": "选项 {option_label} 的结论",
+      "explanation": "逐项核对定义域与对应关系。",
+      "required_bindings": [
+        "before",
+        "after",
+        "option",
+        "phase",
+        "comparison",
+        "same_domain",
+        "merge_verdict"
+      ],
+      "prepare": "equality_view",
+      "render": "{equality_explanation}",
+      "highlight": {
+        "caption": "本项比较",
+        "connector": "{relation_connector}",
+        "items": [
+          {
+            "label": "{left_name}",
+            "math": "{left_math}"
+          },
+          {
+            "label": "{right_name}",
+            "math": "{right_math}"
+          }
+        ],
+        "result": "{verdict_result}",
+        "show_result": true,
+        "conclusion_only": true
+      }
     }
   },
   "boundary_steps": {
@@ -2359,7 +2476,8 @@
     "method-interval-extremum": "verify",
     "method-variable-swap": "merge",
     "method-domain-intersection": "verify",
-    "method-domain-parameter": "verify"
+    "method-domain-parameter": "verify",
+    "method-function-equality": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

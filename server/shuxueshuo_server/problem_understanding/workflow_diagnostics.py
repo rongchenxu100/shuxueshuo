@@ -22,6 +22,12 @@ REPAIRABLE = frozenset(
         "binding.call_arity",
         "binding.endpoint_pair",
         "binding.quantifier_domain",
+        # Option-local IDs/references are extraction bookkeeping, not unknown
+        # mathematics. The comparison compiler locates these at the exact
+        # id/label/left/right field; no option body or goal-wide grant is given.
+        "comparison.duplicate_function_id",
+        "comparison.duplicate_option",
+        "comparison.unresolved_function_ref",
         "type.goal_target",
         "type.point_arguments",
         "type.call_arguments",

@@ -116,7 +116,8 @@ def test_contract_annotations_and_no_old_fact_schema_in_actual_request(tmp_path)
 def test_schema_documents_each_goal_and_uncertainty_kind():
     value = schema()
     fields = value["$defs"]["Scope"]["properties"]
-    goals = fields["goals"]["items"]["oneOf"]
+    goals = [value["$defs"][goal["$ref"].rsplit("/", 1)[1]] if "$ref" in goal else goal
+             for goal in fields["goals"]["items"]["oneOf"]]
     assert {g["properties"]["kind"]["const"] for g in goals} == {
         "find_value",
         "find_coordinates",
@@ -125,6 +126,8 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_maximum",
         "find_range",
         "find_domain",
+        "match_domain",
+        "compare_functions",
     }
     for goal in goals:
         assert goal["description"]

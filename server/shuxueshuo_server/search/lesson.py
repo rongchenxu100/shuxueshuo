@@ -15,6 +15,7 @@ from pathlib import Path
 from shuxueshuo_server.graph_lesson.stage_two.contracts import ROOT
 from shuxueshuo_server.graph_lesson.stage_two.runner import run_result
 
+from .identity import IdentityUnavailable, build_identity
 from .proposition import transformation
 from .walk import walk
 
@@ -26,7 +27,7 @@ BREAKS = re.compile(r"[，,。；;：:]")
 
 def stage_one_result(result, problem_id):
     """The stage-two input for a student upload: no gold, so no evaluation claim."""
-    return {
+    value = {
         "contract": "graph-stage-one-result/v2",
         "run_id": problem_id,
         "candidate": result.get("candidate"),
@@ -39,6 +40,20 @@ def stage_one_result(result, problem_id):
             "admission": "student_upload",
         },
     }
+    if (statement := public_problem_text(result)) is not None:
+        # Bind the reviewed display projection to the same immutable input as
+        # the mathematics so static export never reads an unbound side file.
+        value["public_statement"] = statement
+    return value
+
+
+def public_problem_text(result):
+    """Reuse the verified public formatter, keeping source text for D1 offsets."""
+    try:
+        return build_identity(result)["statement"]
+    except IdentityUnavailable:
+        # Legacy/private mathematical inputs may have no public projection.
+        return None
 
 
 def attempts(directory):
@@ -77,7 +92,7 @@ def knowledge_label(ref):
     return {"ref": ref, "node": node_id, "label": node.get("label", node_id), "title": entry.get("title", "")}
 
 
-def present_lesson(stage_two, features, text, problem_id="problem", *, candidate=None):
+def present_lesson(stage_two, features, text, problem_id="problem", *, candidate=None, display_text=None):
     """``lesson`` for GET status: one section per goal, in authored order.
 
     A resolved goal also carries ``walk``: its graph-walk bundle and AI replay.
@@ -96,7 +111,7 @@ def present_lesson(stage_two, features, text, problem_id="problem", *, candidate
             else:
                 seen[row["signature"]] = row["id"]
     for goal in goals:
-        goal["walk"] = walk(goal, text, problem_id)
+        goal["walk"] = walk(goal, text if display_text is None else display_text, problem_id)
     return {"status": stage_two["status"], "goals": goals}
 
 
@@ -109,6 +124,15 @@ def _goal(goal, features, text, candidate=None):
         return section
     known = {key: row["value"] for key, row in features.items() if row.get("status") == "known"}
     section["d1"] = d1_rows(goal["target_ref"], goal["d1"]["fragments"], known, text, candidate=candidate)
+    if known.get("goal", {}).get("kind") == "compare_functions":
+        comparison = known.get("function_comparison", {})
+        section["option_workspaces"] = [
+            {key: option[key] for key in ("option_id", "label", "text")}
+            for option in comparison.get("options", [])
+        ]
+        diagnostics = goal["d1"].get("diagnostics", [])
+        if diagnostics:
+            section["d1"]["diagnostics"] = diagnostics
     if known.get("goal", {}).get("kind") in ("find_domain", "match_domain"):
         # The domain locator proves the original arithmetic tree separately
         # from the generic polynomial reader (which can reject valid \frac).
@@ -376,6 +400,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get("goal", {}).get("kind") == "compare_functions":
+        return _comparison_d1_rows(target, fragments, known, text)
     if known.get("goal", {}).get("kind") == "find_domain":
         return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
     if known.get("goal", {}).get("kind") == "match_domain":
@@ -443,6 +469,37 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _comparison_d1_rows(target, fragments, known, text):
+    """Understand the requested relation without revealing any option verdict."""
+    comparison = known.get("function_comparison") or {}
+    selected = [fragment for fragment in fragments if fragment["fragment_kind"] == "goal"]
+    if not comparison.get("structure_supported") or not selected:
+        return {"rows": [], "summary": ""}
+    mode, relation = comparison["mode"], comparison["select_relation"]
+    if mode == "pair":
+        correct = "比较这两个函数的定义域和对应关系，判断是否为同一函数"
+        opposite = "只比较表达式的外观，不需要检查定义域"
+        feedback = "同一函数要求定义域相同，并且每个输入对应的输出都相同。"
+    else:
+        noun, other = ("不相同", "相同") if relation == "different" else ("相同", "不相同")
+        correct = f"逐项判断，再选出表示{noun}函数的选项"
+        opposite = f"逐项判断，再选出表示{other}函数的选项"
+        feedback = f"再看题目要求：要选的是表示{noun}函数的选项。"
+    row_id = f"{target}:goal"
+    spans = [_spans([fragment], text) for fragment in selected]
+    options = [_option(correct), _option(opposite, "goal", feedback)]
+    row = {"id": row_id, "kind": "goal", "quote": spans,
+           "fragment_ids": [fragment["id"] for fragment in selected],
+           "knowledge_refs": list(dict.fromkeys(ref for fragment in selected for ref in fragment["knowledge_refs"])),
+           "source_refs": list(dict.fromkeys(ref for fragment in selected for ref in fragment.get("source_refs", []))),
+           "options": _shuffle(row_id, options),
+           "signature": sha256(json.dumps([spans, comparison], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {"rows": [row], "givens": [], "interaction": "choice",
+            "question": "题目要求我们判断并选出什么？" if mode != "pair" else "题目要求我们判断什么？",
+            "feedback": feedback,
+            "summary": "判断同一函数，要先比较定义域，再比较整个定义域上的对应关系。"}
 
 
 def _domain_d1_rows(target, fragments, known, text, *, candidate=None):

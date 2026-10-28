@@ -1,0 +1,121 @@
+{
+  "original_text": "【变式】（多选）下列四组函数中表示同一个函数的是\nA. $f(x)=x$，$g(x)=(\\sqrt{x})^2$\nB. $f(x)=x^2$，$g(x)=(x+1)^2$\nC. $f(x)=\\sqrt{x^2}$，$g(x)=|x|$\nD. $f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+  "root": {
+    "goals": [
+      {
+        "kind": "compare_functions",
+        "mode": "groups",
+        "select_relation": "equal",
+        "selection_mode": "multiple",
+        "completeness": "complete",
+        "shared_functions": [],
+        "options": [
+          {
+            "id": "option_a",
+            "label": "A",
+            "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=x"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=(sqrt(x))^2"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_b",
+            "label": "B",
+            "text": "$f(x)=x^2$，$g(x)=(x+1)^2$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=x^2"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=(x+1)^2"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_c",
+            "label": "C",
+            "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=sqrt(x^2)"
+              },
+              {
+                "id": "right",
+                "definition": "g(x)=abs(x)"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          },
+          {
+            "id": "option_d",
+            "label": "D",
+            "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$",
+            "functions": [
+              {
+                "id": "left",
+                "definition": "f(x)=3*x^2-2*x+3"
+              },
+              {
+                "id": "right",
+                "definition": "g(t)=3*t^2-2*t+3"
+              }
+            ],
+            "left": "local:left",
+            "right": "local:right"
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "（多选）下列四组函数中表示同一个函数的是",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "multiple",
+            "options": [
+              {
+                "label": "A",
+                "text": "$f(x)=x$，$g(x)=(\\sqrt{x})^2$"
+              },
+              {
+                "label": "B",
+                "text": "$f(x)=x^2$，$g(x)=(x+1)^2$"
+              },
+              {
+                "label": "C",
+                "text": "$f(x)=\\sqrt{x^2}$，$g(x)=|x|$"
+              },
+              {
+                "label": "D",
+                "text": "$f(x)=3x^2-2x+3$，$g(t)=3t^2-2t+3$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

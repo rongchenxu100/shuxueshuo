@@ -31,6 +31,17 @@
 .gw-lesson .meaning-panel { margin-top: 16px; }
 .gw-lesson .meaning-row dd { font-size: 16px; }
 #gw-problem { margin: 0; font-size: 18px; line-height: 1.95; }
+#gw-problem .problem-prompt,
+.gw-problem-bar-text .problem-prompt,
+.gw-player-problem .problem-prompt { display: block; }
+#gw-problem .problem-options,
+.gw-problem-bar-text .problem-options,
+.gw-player-problem .problem-options { display: grid; gap: 6px; margin-top: 10px; }
+#gw-problem .problem-option,
+.gw-problem-bar-text .problem-option,
+.gw-player-problem .problem-option { display: block; padding-left: .1em; }
+.gw-problem-bar-text .problem-options { gap: 4px; margin-top: 6px; }
+.gw-problem-bar-text .problem-option { font-size: 13px; line-height: 1.55; }
 .gw-actor-panel { margin: 0 0 22px; }
 .gw-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .gw-toolbar button, .gw-history-controls button, .gw-error button, .gw-graph-controls button {
@@ -501,17 +512,36 @@
   .gw3-stage .gw-caption-kicker, .gw3-stage .gw-caption-next { font-size: 10px; }
   .gw-modal-open { overflow: hidden; }
 
-  /* Doing it yourself: a small live graph pinned under the path bar; a tap opens the full graph. */
-  .gw-page[data-actor="student"] { --gw-mini-h: max(150px, 24dvh); }
-  .gw-page[data-actor="student"] .gw-path-toggle { margin-bottom: 0; border-radius: 10px 10px 0 0; }
-  .gw-page[data-actor="student"] .gw-layout { display: flex; flex-direction: column; align-items: stretch; }
-  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) { display: block; order: -1; position: sticky; z-index: 9; top: 44px; margin: 0 0 14px; padding: 0; overflow: hidden; border-radius: 0 0 12px 12px; border-top: 0; cursor: zoom-in; }
+  /* Doing it yourself: graph is a decorative floating preview; tap (or path bar) opens the full graph. */
+  .gw-page[data-actor="student"] { --gw-mini-h: 96px; --gw-mini-w: 132px; }
+  .gw-page[data-actor="student"] .gw-path-toggle { margin-bottom: 14px; border-radius: 10px; }
+  .gw-page[data-actor="student"] .gw-layout { display: block; }
+  .gw-page[data-actor="student"] .gw-lesson::after { height: 18vh; }
+  .gw-page[data-actor="student"][data-graph="hidden"] .gw-graph-panel:not(.is-open) { display: none; }
+  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) {
+    display: block; position: fixed; z-index: 45;
+    top: max(56px, calc(env(safe-area-inset-top) + 48px)); left: auto;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: auto;
+    width: var(--gw-mini-w); height: var(--gw-mini-h);
+    margin: 0; padding: 0; overflow: hidden;
+    border: 1px solid rgba(16, 48, 56, .28); border-radius: 16px;
+    background: #0b1a26; box-shadow: 0 12px 32px rgba(7, 18, 28, .38);
+    cursor: zoom-in;
+  }
+  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open)::after {
+    content: '图谱'; position: absolute; z-index: 2; left: 8px; bottom: 7px;
+    padding: 2px 7px; border-radius: 999px; background: rgba(255, 255, 255, .88);
+    color: #24403a; font-size: 10px; font-weight: 650; letter-spacing: .04em;
+    pointer-events: none;
+  }
   .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) > :not(#gw-graph),
   .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) :is(.gw-graph-controls, .gw-caption, .gw3-legend, .gw3-hint) { display: none; }
   .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) :is(#gw-graph, #gw-graph *) { pointer-events: none; }
-  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) :is(.gw3-stage, .gw-svg) { height: var(--gw-mini-h); min-height: 0; border: 0; border-radius: 0; }
-  .gw-page[data-actor="student"] .gw-problem-dock { top: calc(52px + var(--gw-mini-h)); }
-  .gw-page[data-actor="student"] :is(.gw-active, .gw-completed, .gw-completion, .gw-part-stepper) { scroll-margin-top: calc(70px + var(--gw-mini-h) + var(--gw-bar-h, 0px)); }
+  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) #gw-graph { height: 100%; }
+  .gw-page[data-actor="student"] .gw-graph-panel:not(.is-open) :is(.gw3-stage, .gw-svg) { height: 100%; min-height: 0; border: 0; border-radius: 0; }
+  .gw-page[data-actor="student"] .gw-problem-dock { top: 40px; }
+  .gw-page[data-actor="student"] :is(.gw-active, .gw-completed, .gw-completion, .gw-part-stepper) { scroll-margin-top: calc(56px + var(--gw-bar-h, 0px)); }
 
   /* Watching the AI: the graph fills the screen like a player; the step cards wait in a bottom sheet. */
   .gw-page[data-actor="replay"] { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
@@ -617,3 +647,14 @@
 .gw-domain-parallel > div {display: grid; gap: 6px; min-width: 0;}
 .gw-number-line-fallback {margin: 12px 0; padding: 12px; border-radius: 10px; background: #f4f8f6;}
 .gw-number-line-fallback > p:last-child {font-size: 13px; color: #526e64;}
+/* Independent comparisons share one lesson; navigation never edits a passed verdict. */
+.gw-option-progress {display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;padding:12px;border:1px solid var(--line,#c9dedb);border-radius:14px;background:#fff}
+.gw-option-progress button {min-width:48px;padding:9px 15px;border:1px solid #c9dedb;border-radius:9px;background:#fff;color:#315c58;font:inherit;cursor:pointer}
+.gw-option-progress button[aria-current="step"] {border-color:#00877e;background:#e8f5f1;color:#00695f;font-weight:700}
+.gw-option-progress button:disabled {opacity:.45;cursor:default}
+.gw-option-heading {margin:12px 0;padding:18px 20px;border-left:4px solid #00877e;border-radius:10px;background:#eef7f4}
+.gw-option-heading h2 {margin:0 0 8px;font-size:1.1rem}
+.gw-option-heading p {margin:0;line-height:1.75}
+.gw-option-heading button {margin-top:12px;padding:8px 12px;border:1px solid #aecfca;border-radius:8px;background:white;color:#13695f;font:inherit;cursor:pointer}
+.gw-option-ready {padding:16px;background:#eef7f4;border-radius:10px;color:#315c58}
+.gw-option-verdict-board {padding-left:1.4em;line-height:1.9;color:#315c58}

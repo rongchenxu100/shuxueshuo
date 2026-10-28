@@ -1698,6 +1698,31 @@
       "repeat": "always",
       "compiler": "function_domain",
       "parts": []
+    },
+    "equality_entry": {
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
+    },
+    "equality_borrow": {
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
+    },
+    "equality_domains": {
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
+    },
+    "equality_correspondence": {
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
+    },
+    "equality_verdict": {
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
     }
   },
   "overrides": {
@@ -1755,6 +1780,17 @@
     }
   },
   "merges": [
+    {
+      "id": "equality-evidence",
+      "display_units": [
+        "equality_domains",
+        "equality_correspondence"
+      ],
+      "title": "比较定义域与对应关系",
+      "repeat": "always",
+      "compiler": "function_equality",
+      "parts": []
+    },
     {
       "id": "boundary-goal",
       "display_units": [

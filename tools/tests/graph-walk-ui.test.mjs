@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {RELATIONS, createWalkGraph, laneMembers, nodeHref, panoramaLayout, treeLayout} from '../../site/assets/graph-walk/walk-graph.mjs';
-import {createState, replayState, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
+import {createState, currentDecision, replayState, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
-import {buildStreamReplay} from '../../site/assets/graph-walk/walk-replay.mjs';
+import {buildStreamReplay, replayAnswer} from '../../site/assets/graph-walk/walk-replay.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
 const bundle = JSON.parse(fs.readFileSync(new URL('../../site/data/graph-walk/quadratic-always-q01.json', import.meta.url), 'utf8'));
+const equalityBundle = JSON.parse(fs.readFileSync(new URL('../../site/data/graph-walk/function-concepts-q20-v2.json', import.meta.url), 'utf8'));
 
 function viewContext() {
   const nodes = new Map();
@@ -26,6 +27,79 @@ function viewContext() {
   vm.runInContext('bundle = fixture; state = {run: {id: 1}, events: [], lastFeedback: null};', context);
   return {context, nodes, run: code => vm.runInContext(code, context)};
 }
+
+test('comparison original text renders a prompt and separate options without splitting formulas', () => {
+  const {context, nodes, run} = viewContext();
+  const element = tagName => ({tagName, childNodes: [], append(...items) { this.childNodes.push(...items); },
+    replaceChildren(...items) { this.childNodes = items; }, setAttribute(key, value) { this[key] = value; }});
+  context.document.createElement = element;
+  const host = context.document.querySelector('#gw-problem');
+  Object.assign(host, element('p'));
+  const rendered = [];
+  context.PracticeMath = {render(host, text) {
+    rendered.push({host, text}); host.source = text;
+    host.childNodes = [{tagName: 'span', className: 'katex', childNodes: [{data: 'formula\ncontent'}]}];
+  }};
+  context.statement = equalityBundle.problem.text;
+  run(`renderProblemText(document.querySelector('#gw-problem'), statement);`);
+  const [prompt, options] = nodes.get('#gw-problem').childNodes;
+  const [stem, ...originalOptions] = equalityBundle.problem.text.split('\n');
+  assert.equal(prompt.className, 'problem-prompt');
+  assert.equal(prompt.source, stem);
+  assert.equal(options.className, 'problem-options');
+  assert.equal(options.role, 'list');
+  assert.equal(options.childNodes.length, 4);
+  assert.deepEqual(options.childNodes.map(option => option.source), originalOptions);
+  assert.ok(options.childNodes.every(option => option.className === 'problem-option' && option.role === 'listitem'));
+  assert.deepEqual(rendered.map(item => item.text), [stem, ...originalOptions], 'each complete mathematical option renders once');
+  assert.ok(rendered.every(({host}) => host.childNodes[0].childNodes[0].data === 'formula\ncontent'),
+    'layout does not modify rendered formula descendants');
+  rendered.length = 0;
+  context.statement = '求函数 $f(x)=x^2$ 的定义域。';
+  run(`renderProblemText(document.querySelector('#gw-problem'), statement);`);
+  assert.equal(rendered.length, 1);
+  assert.equal(rendered[0].host, host, 'ordinary problem text retains the direct renderer');
+  assert.equal(host.source, context.statement);
+});
+
+for (const label of ['C', 'D']) test(`Q20 ${label} preserves completed proof feedback in student, replay and read-only cards`, () => {
+  const route = Object.keys(equalityBundle.routes)[0];
+  const parts = equalityBundle.routes[route].steps.filter(step => step.option_context?.label === label &&
+    step.option_context.phase === 'evidence');
+  assert.equal(parts.length, 2);
+  assert.equal(parts[0].stream_interaction_id, parts[1].stream_interaction_id);
+  const proof = parts[1].feedback.answer;
+  assert.match(proof, label === 'C' ? /整个共同定义域/ : /统一记为 \$u\$/);
+  const actions = [];
+  let student = createState(equalityBundle);
+  while (currentDecision(equalityBundle, student)?.id !== parts[1].id) {
+    const decision = currentDecision(equalityBundle, student);
+    assert.ok(decision, 'the correspondence decision must be reachable');
+    const action = {decision: decision.id, answer: replayAnswer(decision, route)};
+    actions.push(action); student = submitAnswer(equalityBundle, student, action);
+    assert.equal(student.lastFeedback.status, 'passed');
+  }
+  const {context, run} = viewContext();
+  Object.assign(context, {fixture: structuredClone(equalityBundle), progress: student, group: parts[1].stream_interaction_id});
+  run('bundle = fixture; state = progress;');
+  assert.equal(run('stepUnits().units.some(unit => unit.group === group)'), false, 'unfinished group is not a completed card');
+  assert.equal(run('stepUnits().open.records.length'), 1);
+  assert.ok(!run('partRowsHTML(stepUnits().open.records)').includes(proof), 'the pending correspondence answer does not leak');
+  const action = {decision: parts[1].id, answer: replayAnswer(parts[1], route)};
+  actions.push(action); student = submitAnswer(equalityBundle, student, action);
+  const recording = {schemaVersion: 2, problemId: equalityBundle.problemId, bundleVersion: equalityBundle.bundleVersion,
+    routes: [route], actions};
+  for (const mode of ['student', 'replay', 'review']) {
+    context.progress = mode === 'replay' ? replayState(equalityBundle, recording) : student;
+    context.mode = mode; context.option = label;
+    run("state = progress; actor = mode === 'replay' ? 'replay' : 'student'; reviewOption = mode === 'review' ? option : null;");
+    const html = run('groupCompletedHTML(stepUnits().units.find(unit => unit.group === group), 7)');
+    assert.ok(html.includes(proof), `${mode} retains the verified correspondence explanation`);
+    for (const part of parts) assert.ok(html.includes(part.feedback.answer), `${mode} keeps each part's feedback`);
+    assert.match(html, /data-stream-completed=/, 'the existing conclusion board remains mounted');
+    assert.doesNotMatch(html, /本项结论：相同|gw-option-verdict-board|答案：C/, 'later verdict and final answers stay unpublished');
+  }
+});
 
 test('direct-method live replay enters the route without a judgment plane', () => {
   const {run, context} = viewContext();
