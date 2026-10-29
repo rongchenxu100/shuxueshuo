@@ -50,6 +50,7 @@ def fingerprint():
         *Path(__file__).parent.parent.joinpath("stage_two").glob("*.py"),
         Path(__file__).parent.parent / "domain_expression.py",
         Path(__file__).parent.parent / 'function_equality.py',
+        Path(__file__).parent.parent / 'function_evaluation.py',
         Path(__file__).parent / 'equality_presentation.py',
         *(ROOT / "site/data/knowledge-next/selection").glob("*.json"),
         *(ROOT / "site/data/knowledge-next/execution").glob("*.json"),

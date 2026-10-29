@@ -38,7 +38,8 @@
       "method-domain-intersection",
       "method-domain-parameter",
       "method-function-equality",
-      "method-input-domain-correspondence"
+      "method-input-domain-correspondence",
+      "method-function-evaluation"
     ]
   }
 }

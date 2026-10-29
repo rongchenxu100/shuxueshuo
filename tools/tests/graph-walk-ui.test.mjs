@@ -129,6 +129,35 @@ test('completed direct-method card shows the method name, not a bare read receip
   assert.doesNotMatch(reviewed, />已阅读</);
 });
 
+test('a later function goal renders its mathematical heading in completed review and carry', () => {
+  const {context, run} = viewContext();
+  const evaluation = JSON.parse(fs.readFileSync(new URL('../../site/data/graph-walk/function-concepts-q28a.json', import.meta.url), 'utf8'));
+  const route = Object.keys(evaluation.routes)[0];
+  const goal = evaluation.routes[route].steps.find(step => step.title === '求 $g(1)$');
+  assert.ok(goal, 'the second goal has an authored formula title');
+  context.fixture = evaluation;
+  Object.assign(context, {goal, route});
+  run(`bundle = {intro: [], routes: {[route]: {steps: [goal]}}}; state = {introCompleted: [], run: {id: 1, route,
+    completed: [{decision: goal.id, answer: goal.expected_answer.one_of?.[0] || 'read', results: ['已读懂本目标']}]}};`);
+  const completed = run('completedHTML(state.run.completed[0], 7, 1, route)');
+  const carry = run('carryHTML()');
+  assert.match(completed, /<span class="gw-step-title" data-math-text>求 \$g\(1\)\$<\/span>/);
+  assert.match(carry, /<p class="gw-carry-label" data-math-text>接第 1 步 · 求 \$g\(1\)\$<\/p>/);
+  const labels = [completed, carry].map(html => {
+    const text = /class="gw-(?:step-title|carry-label)" data-math-text>([^<]+)</.exec(html)[1];
+    return {textContent: text, dataset: {}};
+  });
+  const rendered = [];
+  context.PracticeMath = {render(node, text) { rendered.push(text); node.textContent = text.replaceAll('$', ''); }};
+  context.headingRoot = {querySelectorAll(selector) {
+    assert.equal(selector, '[data-math-text]:not([data-math-rendered])');
+    return labels.filter(node => !node.dataset.mathRendered);
+  }};
+  run('renderMath(headingRoot); renderMath(headingRoot);');
+  assert.deepEqual(rendered, ['求 $g(1)$', '接第 1 步 · 求 $g(1)$']);
+  assert.ok(labels.every(label => label.dataset.mathRendered === 'true'));
+});
+
 test('AI completion never claims student practice completion', () => {
   const {run} = viewContext();
   run(`bundle.stream = {}; state.run.route = 'discriminant'; actor = 'replay';`);
@@ -429,8 +458,8 @@ test('the parts of one streamed interaction share a card, a step number and one 
   // Partway through the card, the carry still points at the step before it, numbered by whole steps.
   assert.match(run('carryHTML()'), /接第 2 步 · 整理不等式[\s\S]*整理结果/);
   const stepper = run(`partStepperHTML(bundle.routes.separation.steps[2])`);
-  assert.match(stepper, /data-state="done"[^>]*><span aria-hidden="true">✓<\/span>移项[\s\S]*data-state="current" aria-current="step"><span aria-hidden="true">2<\/span>判断除数符号与不等号方向[\s\S]*data-state="todo"><span aria-hidden="true">3<\/span>分离参数/);
-  assert.match(run('partRowsHTML(stepUnits().open.records)'), /✓<\/span>移项[\s\S]*ax\\ge -x\^2-1/);
+  assert.match(stepper, /data-state="done"[^>]*><span aria-hidden="true">✓<\/span><span data-math-text>移项[\s\S]*data-state="current" aria-current="step"><span aria-hidden="true">2<\/span><span data-math-text>判断除数符号与不等号方向[\s\S]*data-state="todo"><span aria-hidden="true">3<\/span><span data-math-text>分离参数/);
+  assert.match(run('partRowsHTML(stepUnits().open.records)'), /✓<\/span><span data-math-text>移项[\s\S]*ax\\ge -x\^2-1/);
   run(`state.run.completed.push({decision: 'sep#2', answer: ['positive', 'keep'], results: []}, {decision: 'sep#3', answer: 'right', results: []});`);
   const {units, open} = JSON.parse(run('JSON.stringify(stepUnits())'));
   assert.equal(open, null);

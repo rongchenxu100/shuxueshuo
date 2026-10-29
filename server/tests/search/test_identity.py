@@ -256,3 +256,23 @@ def test_compiler_unicode_aliases_do_not_rename_identity_variables(first, second
     changed["root"]["facts"] = [text.replace(first, second) for text in changed["root"]["facts"]]
     changed["root"]["goals"][0]["symbol"] = second
     assert identity(candidate)["fingerprint"] != identity(changed)["fingerprint"]
+
+
+def test_finite_sum_identity_retains_bounds_order_and_duplicate_occurrences():
+    fixture = Path(__file__).parents[1] / 'solver/fixtures/function-evaluation/q29b-candidate.json'
+    candidate = json.loads(fixture.read_text())
+    baseline = identity(candidate)
+    terms = baseline['identity']['root']['goals'][1]['terms']
+    assert terms[0]['lower'] == 1 and terms[0]['upper'] == 101
+    for mutate in (
+        lambda rows: rows[0].update(upper=100),
+        lambda rows: rows.append(deepcopy(rows[0])),
+        lambda rows: rows.reverse(),
+        lambda rows: rows[0].update(expression='f(n+1)'),
+    ):
+        changed = deepcopy(candidate)
+        mutate(changed['root']['goals'][1]['terms'])
+        assert identity(changed)['fingerprint'] != baseline['fingerprint']
+    spaced = deepcopy(candidate)
+    spaced['root']['goals'][1]['terms'][0]['expression'] = ' f( n ) '
+    assert identity(spaced)['fingerprint'] == baseline['fingerprint']

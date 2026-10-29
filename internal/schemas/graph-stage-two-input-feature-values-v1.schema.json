@@ -167,6 +167,22 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_value",
+                "check_constant",
+                "finite_sum"
+              ]
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -1206,6 +1222,106 @@
         "structure_supported",
         "calls"
       ],
+      "additionalProperties": false
+    },
+    "function_evaluation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "target_ref",
+        "expression_ast",
+        "functions",
+        "terms",
+        "variable_ref",
+        "variable",
+        "input_domain_ast",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "find_value",
+            "check_constant",
+            "finite_sum"
+          ]
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "expression_ast": {
+          "type": "array"
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "function_ref",
+              "source_ref",
+              "expression_ast",
+              "input_domain_ast",
+              "explicit_domain"
+            ],
+            "properties": {
+              "function_ref": {
+                "type": "string"
+              },
+              "function_name": {
+                "type": "string"
+              },
+              "variable": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_ref": {
+                "type": "string"
+              },
+              "expression_ast": {
+                "type": "array"
+              },
+              "input_domain_ast": {
+                "type": "array"
+              },
+              "explicit_domain": {
+                "type": "boolean"
+              },
+              "input_domain_source_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "variable_ref": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "input_domain_ast": {
+          "type": "array"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     }
   }

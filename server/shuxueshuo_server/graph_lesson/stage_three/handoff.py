@@ -112,10 +112,13 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
     if verification.get("status") != "verified" or route.get("status") != "verified":
         raise ValueError("handoff.route_not_verified")
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
+    evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not comparison)
+            or (feasible_set is None and not (comparison or evaluation))
             or (comparison and (feasible_set is not None or answer.get('status') != 'complete'
-                                or 'comparison_result' not in (route.get('result') or {})))):
+                                or 'comparison_result' not in (route.get('result') or {})))
+            or (evaluation and (feasible_set is not None or answer.get('status') != 'complete'
+                                or 'evaluation_result' not in (route.get('result') or {})))):
         raise ValueError("handoff.incomplete_finalization")
     if consistency not in {"consistent", "conflict", "unknown"}:
         raise ValueError("handoff.invalid_consistency")

@@ -372,22 +372,64 @@
       "ref": "function-concept#elements",
       "conditions": {
         "all": [
-          {"feature_id": "goal", "op": "eq", "path": "kind", "expected": "find_abstract_domain"},
-          {"feature_id": "abstract_function_domain", "op": "eq", "path": "structure_supported", "expected": true}
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_abstract_domain"
+          },
+          {
+            "feature_id": "abstract_function_domain",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
         ]
       },
-      "fragment_kinds": ["goal", "expression", "given_domain"]
+      "fragment_kinds": [
+        "goal",
+        "expression",
+        "given_domain"
+      ]
     },
     {
       "rule_id": "abstract-domain-complete-input",
       "ref": "function-concept#composite-domain",
       "conditions": {
         "all": [
-          {"feature_id": "goal", "op": "eq", "path": "kind", "expected": "find_abstract_domain"},
-          {"feature_id": "abstract_function_domain", "op": "eq", "path": "structure_supported", "expected": true}
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_abstract_domain"
+          },
+          {
+            "feature_id": "abstract_function_domain",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
         ]
       },
-      "fragment_kinds": ["goal", "expression", "given_domain"]
+      "fragment_kinds": [
+        "goal",
+        "expression",
+        "given_domain"
+      ]
+    },
+    {
+      "rule_id": "function-evaluation-input-output",
+      "ref": "function-concept#definition",
+      "conditions": {
+        "feature_id": "function_evaluation",
+        "op": "eq",
+        "path": "structure_supported",
+        "expected": true
+      },
+      "fragment_kinds": [
+        "goal",
+        "expression"
+      ]
     }
   ]
 }

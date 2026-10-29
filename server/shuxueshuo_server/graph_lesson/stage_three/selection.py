@@ -113,10 +113,11 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain'):
+                             'abstract_function_domain', 'function_evaluation'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
+        from .evaluation_runtime import admitted as admitted_evaluation
         from .function_domain import admitted, admitted_parameter
         from .method_admission import _abstract_function_domain as admitted_abstract
         context = build_context(candidate, target_ref)
@@ -126,9 +127,13 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_domain': admitted,
             'function_domain_parameter': admitted_parameter,
             'function_equality': admitted_equality,
+            'function_evaluation': admitted_evaluation,
             'abstract_function_domain': admitted_abstract,
         }
-        if admission == 'function_equality':
+        if admission == 'function_evaluation':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '代入法'}]
+        elif admission == 'function_equality':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '同一函数判定法'}]
         elif admission == 'function_domain':
@@ -167,6 +172,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
+            '把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。'
+            '这里用代入法；换元则是引入新变量来转换问题。'
+            if chosen['admission'] == 'function_evaluation' else
             '逐项比较定义域，再比较对应关系，完成各项判断后按原题要求作答。'
             if chosen['admission'] == 'function_equality' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'

@@ -176,6 +176,9 @@ function documentFixture() {
         if (match[1] === 'completed' && completed.has(match[2])) continue;
         const node = new Element(); node.dataset[dataKey(`stream-${match[1]}`)] = match[2] || ''; this.append(node);
       }
+      for (const match of value.matchAll(/<div data-completion-board="([^"]*)"><\/div>/g)) {
+        const node = new Element(); node.dataset.completionBoard = decode(match[1]); this.append(node);
+      }
       if (value.includes('<div data-derivation-board>')) {
         const node = new Element(); node.dataset.derivationBoard = ''; this.append(node);
       }
@@ -1539,4 +1542,71 @@ test('an AI following the end keeps playing into steps that arrive later', async
   await run('updateStreamSelection(finalView)');
   assert.ok(run('replay.actions.length') > end);
   assert.equal(run('replayPosition'), end + 1, 'the next step is played, not skipped to the end');
+});
+
+function sequentialGoalsFixture() {
+  const value = fixture({parts: [part('goal-one')]});
+  const route = value.bundle.routes[routes[0]], secondTarget = '/root/goals/1';
+  route.steps[0].target_ref = target;
+  const firstCompletion = structuredClone(route.completion);
+  const secondCompletion = {...firstCompletion, target_ref: secondTarget, verified_route_sha256: 'goal-two-verified'};
+  const firstMath = value.bundle.stream.math_steps.find(step => step.route_id === routes[0]);
+  const secondMath = {...structuredClone(firstMath), target_ref: secondTarget, step_id: 'second-goal-math',
+    math_step_sha256: 'second-goal-math-hash', title: '第二目标数学步骤', after: [{latex: 'second-secret-answer'}]};
+  const second = {...structuredClone(route.steps[0]), id: 'goal-two', target_ref: secondTarget,
+    stream_interaction_id: 'second-goal-interaction', stream_steps: [{step_id: secondMath.step_id, math_step_sha256: secondMath.math_step_sha256}]};
+  route.steps.push(second);
+  route.goal_completions = [firstCompletion, secondCompletion];
+  route.completion = {...firstCompletion, composition: 'sequential_goals', target_refs: [target, secondTarget],
+    answer: {kind: 'goal_group', status: 'complete', answers: [firstCompletion, secondCompletion].map((item, index) =>
+      ({target_ref: item.target_ref, title: `目标 ${index + 1}`, answer: item.answer}))}};
+  delete route.completion.verified_route_sha256;
+  value.bundle.stream.target_refs = [target, secondTarget];
+  value.bundle.stream.math_steps.push(secondMath);
+  value.secondMath = secondMath;
+  return value;
+}
+
+test('sequential targets retain second-goal cards and its own QA certificate without early completion', () => {
+  const value = sequentialGoalsFixture();
+  const {run, context, roots} = engine(value);
+  context.secondChunk = {...value.secondMath, verified_route_sha256: 'goal-two-verified', qa: {questions: ['第二目标的解释']}};
+  run(`state = studentState = submitAnswer(bundle,state,{decision:'goal-one',answer:'yes'});`);
+  assert.equal(run('state.done'), false);
+  assert.equal(run('currentDecision(bundle,state).id'), 'goal-two');
+  assert.equal(run('streamCards.size'), 0, 'future second-goal formulas remain hidden');
+  const studentPrefix = run('JSON.stringify(studentState)');
+  run(`const ai = replayState(bundle, buildStreamReplay(bundle,{currentRoute:'discriminant',actions:state.introCompleted.filter(row=>row.decision!=='D3').map(({decision,answer})=>({decision,answer}))}));`);
+  assert.equal(run('JSON.stringify(studentState)'), studentPrefix, 'AI completion does not finish the student target');
+  run(`state = studentState = submitAnswer(bundle,state,{decision:'goal-two',answer:'yes'});
+    document.querySelector('#gw-steps').innerHTML=completedHTML(state.run.completed.at(-1),6,1,'discriminant');
+    mountCompletedMath(); attachStreamQA(secondChunk);`);
+  assert.equal(run('state.done'), true);
+  const rendered = roots.get('#gw-steps').querySelector('.stage-three-math-step');
+  assert.equal(rendered.dataset.targetRef, '/root/goals/1');
+  assert.match(rendered.textContent, /second-secret-answer/);
+  assert.match(rendered.querySelector('.stage-three-qa').textContent, /第二目标的解释/);
+  assert.equal(run("streamCompletion('discriminant','/root/goals/1').verified_route_sha256"), 'goal-two-verified');
+  assert.equal(run("streamCompletion('discriminant').verified_route_sha256"), undefined);
+});
+
+test('a multi-part derivation reveals only confirmed local completion boards', () => {
+  const board = (label, output) => ({layout: 'derivation', caption: label, connector: '⇒',
+    items: [{label: '输入', math: '1'}, {label: '输出', math: output}]});
+  const first = {...part('trial-one'), completion_board: board('第一次试算', 'first-result')};
+  const second = {...part('trial-two'), completion_board: board('第二次试算', 'second-result')};
+  const {run, roots} = engine(fixture({parts: [first, second]}));
+  run(`document.querySelector('#gw-steps').innerHTML='<div data-completion-board="trial-one"></div><div data-completion-board="trial-two"></div>';
+    mountCompletionBoards(document.querySelector('#gw-steps'));`);
+  assert.equal(roots.get('#gw-steps').textContent, '');
+  run(`state = studentState = submitAnswer(bundle,state,{decision:'trial-one',answer:'yes'});
+    mountCompletionBoards(document.querySelector('#gw-steps'));`);
+  assert.match(roots.get('#gw-steps').textContent, /first-result/);
+  assert.doesNotMatch(roots.get('#gw-steps').textContent, /second-result/);
+  assert.equal(run('state.done'), false);
+  run(`state = studentState = submitAnswer(bundle,state,{decision:'trial-two',answer:'yes'});
+    document.querySelector('#gw-steps').innerHTML=groupCompletedHTML(stepUnits().units.at(-1),5);
+    mountCompletedMath();`);
+  assert.match(roots.get('#gw-steps').textContent, /first-result/);
+  assert.match(roots.get('#gw-steps').textContent, /second-result/);
 });

@@ -170,3 +170,18 @@ test('the stage-one expression catalog renders with the bundled KaTeX', () => {
     if (!/[\u4e00-\u9fff]/.test(expression)) assert.doesNotThrow(() => render(expression), expression);
   }
 });
+
+test('function evaluation names constant judgment and finite sum as two same-scope targets', () => {
+  const root = {definitions: ['f(x)=(x+2)/(x+1)'], goals: [
+    {kind: 'check_constant', expression: 'f(x)+f(1/x)'},
+    {kind: 'finite_sum', terms: [{expression: 'f(n)', index: 'n', lower: 1, upper: 101},
+      {expression: 'f(1/n)', index: 'n', lower: 2, upper: 101}]},
+  ]};
+  const html = context.meaningBlocks(root, '', []).join('');
+  assert.match(html, /判断.*是否为定值/);
+  assert.match(html, /\\sum_\{n=1\}\^\{101\}/);
+  assert.match(html, /\\sum_\{n=2\}\^\{101\}/);
+  assert.doesNotMatch(html, /undefined|第.*问|求.*求/);
+  const formulas = [...html.matchAll(/\$([^$]+)\$/g)].map(match => match[1]);
+  for (const formula of formulas) assert.doesNotThrow(() => katex.renderToString(formula, {throwOnError: true}));
+});

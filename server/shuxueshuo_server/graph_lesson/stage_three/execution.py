@@ -198,6 +198,38 @@ def _finish_comparison(state, candidate, goal, store, calculator, previous, hook
     return state
 
 
+def _finish_evaluation(state, candidate, goal, store, calculator, previous, hooks):
+    state.setdefault('evaluation_result_exact', deepcopy(state['result']['evaluation_result']))
+    finalization = state.setdefault('finalization', [])
+    if 'verification' not in state:
+        if hooks and hooks.get('before_verification'):
+            hooks['before_verification'](state, store)
+        state['verification'] = calculator.call('independent_evaluation_verification', {
+            'operation': 'verify_evaluation', 'candidate': candidate, 'target_ref': goal['target_ref'],
+            'context': goal['constraint_context'], 'evaluation_result_exact': state['evaluation_result_exact'],
+        }, bucket='verification')
+        finalization.append({'capability': 'independent_function_evaluation_verification', **state['verification']})
+        calculator.sync_state(state)
+        _commit(store, state, 'evaluation-verification', phase='verification', hooks=hooks)
+    if state['verification']['status'] != 'verified':
+        state['status'] = state['verification']['status']
+        state.setdefault('diagnostics', []).extend(state['verification'].get('diagnostics', []))
+        return state
+    if not state.get('goal_finalized'):
+        result = calculator.call('evaluation_goal_finalize', {
+            'operation': 'finish_evaluation', 'state': state, 'context': goal['constraint_context'],
+            'previous': list(previous),
+        }, bucket='verification')
+        state = _accept_state(state, result['state'])
+        state['verified_result'] = {'evaluation_result': result['evaluation_result_exact'], 'answer': result['answer']}
+        state['consistency'] = result['consistency']
+        state['goal_finalized'] = True
+        calculator.sync_state(state)
+        _commit(store, state, 'evaluation-goal-finalization', phase='finalization', hooks=hooks)
+    state['status'] = 'verified'
+    return state
+
+
 def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=None,
                   solve_budget_seconds=10, verification_budget_seconds=20, calculator=None, prepared=None):
     """Resume at a durable boundary, reusing receipts for completed computations."""
@@ -232,6 +264,8 @@ def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=
                             "trajectory": _trajectory_changes(
                                 previous_trajectory, state["trajectory"]["steps"],
                             )})], hooks=hooks)
+            if state['status'] == 'method_complete' and goal['goal']['kind'] in ('find_value', 'check_constant', 'finite_sum'):
+                state = _finish_evaluation(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and goal['goal']['kind'] == 'compare_functions':
                 state = _finish_comparison(state, candidate, goal, store, calculator, previous, hooks)
             if state["status"] == "method_complete":
@@ -315,7 +349,9 @@ def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=
     if store.checkpoint(ref, route_id)["status"] not in TERMINAL:
         route = _artifact(state, goal["constraint_context"], folder)
         if state["status"] == "verified":
-            if goal['goal']['kind'] == 'compare_functions':
+            if goal['goal']['kind'] in ('find_value', 'check_constant', 'finite_sum'):
+                original_choice = None
+            elif goal['goal']['kind'] == 'compare_functions':
                 from .equality_runtime import original_choice as comparison_choice
                 original_choice = comparison_choice(goal['constraint_context'], state['verified_result']['answer'])
                 # This is the primary goal, so invalid closure is never an

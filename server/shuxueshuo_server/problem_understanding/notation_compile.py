@@ -20,6 +20,7 @@ from .notation_parser import (
 )
 
 ARITY = {
+    "Dom": 1,
     "sqrt": 1,
     "abs": 1,
     "sum": 1,
@@ -504,6 +505,11 @@ class Scope:
                 self.reference(ast[1], "function"),
                 self.bind(ast[3], {ast[2]: "function_argument"}, depth + 1),
             )
+        if kind == '=' and any(side[:2] == ['call', 'Dom'] for side in ast[1:]):
+            sides = [bind(side) for side in ast[1:]]
+            sides = [node('interval', False, False, *side[1:]) if side[0] == 'tuple' else side
+                     for side in sides]
+            return node('=', *sides)
         if kind in ("quantifier", "set_builder"):
             *head, name, domain, body = ast[1:]
             domain = bind(domain)
@@ -692,6 +698,7 @@ def typecheck(ast):
                 "segment": "locus",
             }.get(name, "boolean")
         required = {
+            "Dom": "function",
             "axis": "curve",
             "vertex": "curve",
             "x": "point",
@@ -708,6 +715,7 @@ def typecheck(ast):
         if any(t != required for t in types):
             raise NotationError("type.call_arguments", name)
         return {
+            "Dom": "domain",
             "axis": "locus",
             "vertex": "point",
             "area": "area",
@@ -763,6 +771,7 @@ def typecheck(ast):
             or {a, b} <= {"scalar", "length", "angle", "area"}
             or {a, b} == {"point", "coordinates"}
             or {a, b} == {"locus", "point_set"}
+            or {a, b} <= {"domain", "set"}
         )
         if not compatible or (
             kind not in ("=", "!=")
@@ -967,6 +976,11 @@ class NotationValidator:
         goals = []
         for index, goal in enumerate(source["goals"]):
             try:
+                if goal['kind'] == 'finite_sum':
+                    from .notation_evaluation import compile_finite_sum
+
+                    goals.append(compile_finite_sum(goal, f'{path}.goals[{index}]', env))
+                    continue
                 if goal['kind'] == 'compare_functions':
                     from .notation_function_comparison import compile_comparison
 

@@ -220,6 +220,42 @@ def test_real_static_course_replay_values_grade_with_the_server_contract():
         assert graph_walk.grade(decisions[action['decision']], {'value': action['answer']}, route) == 'passed'
 
 
+@pytest.mark.parametrize(('suffix', 'target_count'), [('q28a', 2), ('q28b', 2), ('q28c', 2), ('q28d', 1), ('q29b', 2)])
+def test_function_evaluation_course_all_targets_grade_with_native_server_contract(suffix, target_count):
+    root = Path(__file__).resolve().parents[3]
+    pid = f'function-concepts-{suffix}'
+    bundle = json.loads((root / f'site/data/graph-walk/{pid}.json').read_text())
+    replay = json.loads((root / f'site/data/graph-walk/{pid}.replay.json').read_text())
+    code = """import fs from 'node:fs';
+import {nativePracticeContract} from './tools/lib/graph-walk-practice.mjs';
+console.log(JSON.stringify(nativePracticeContract(JSON.parse(fs.readFileSync(0, 'utf8')))));"""
+    contract = json.loads(subprocess.check_output(
+        ['node', '--input-type=module', '-e', code], input=json.dumps(bundle), text=True, cwd=root,
+    ))
+    graph_walk.validate_contract(contract, pid)
+    route, = replay['routes']
+    steps = graph_walk.route_steps(contract, route)
+    assert [step['id'] for step in steps] == [action['decision'] for action in replay['actions']]
+    targets = bundle['stream'].get('target_refs', [bundle['stream']['target_ref']])
+    assert len(targets) == target_count
+    if target_count > 1:
+        assert {step['target_ref'] for step in steps} == set(targets)
+        second = next(index for index, step in enumerate(steps) if step['target_ref'] == targets[1])
+        assert 0 < second < len(steps)
+        assert steps[second]['id'] != 'D1'
+        assert all(step['target_ref'] == targets[0] for step in steps[:second])
+        assert all(step['target_ref'] == targets[1] for step in steps[second:])
+    for decision, action in zip(steps, replay['actions'], strict=True):
+        assert graph_walk.grade(decision, {'value': action['answer']}, route) == 'passed'
+        if decision['interaction']['type'] == 'choice':
+            wrong = next((option['value'] for option in decision['interaction']['options']
+                          if option['value'] not in decision['expected_answer']['one_of']), None)
+            if wrong is not None:
+                assert graph_walk.grade(decision, {'value': wrong}, route) == 'wrong'
+    with pytest.raises(HTTPException):
+        graph_walk.grade(steps[-1], {'value': replay['actions'][-1]['answer'], 'passed': True}, route)
+
+
 def test_native_attempt_reads_its_frozen_version_without_loading_legacy_teacher(monkeypatch):
     contract = {'schema': graph_walk.SCHEMA, 'problemId': 'function-concepts-q15', 'bundleVersion': 'v1',
         'intro': [{'id': 'D3', 'interaction': {'type': 'read'}, 'expected_answer': {}}],

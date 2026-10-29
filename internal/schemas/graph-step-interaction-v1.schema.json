@@ -1122,8 +1122,34 @@
                 },
                 "interval_explorer": {
                   "$ref": "#/$defs/interval_explorer"
+                },
+                "condition_groups": {
+                  "$ref": "#/$defs/condition_groups"
+                },
+                "pairing_diagram": {
+                  "$ref": "#/$defs/pairing_diagram"
                 }
-              }
+              },
+              "allOf": [
+                {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "pairing_diagram",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "pairing_diagram",
+                          "interval_explorer"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           ]
         },
@@ -1527,6 +1553,126 @@
               ]
             }
           }
+        },
+        "completion_board": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "caption",
+                "lines"
+              ],
+              "properties": {
+                "caption": {
+                  "$ref": "#/$defs/text"
+                },
+                "lines": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "layout",
+                "caption",
+                "items",
+                "connector"
+              ],
+              "properties": {
+                "layout": {
+                  "const": "derivation"
+                },
+                "caption": {
+                  "$ref": "#/$defs/text"
+                },
+                "connector": {
+                  "const": "⇒"
+                },
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "label",
+                      "math"
+                    ],
+                    "properties": {
+                      "label": {
+                        "$ref": "#/$defs/text"
+                      },
+                      "math": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "minLength": 1
+                      },
+                      "note": {
+                        "$ref": "#/$defs/text"
+                      }
+                    }
+                  },
+                  "prefixItems": [
+                    {
+                      "properties": {
+                        "math": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "math": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "interval_explorer": {
+                  "$ref": "#/$defs/interval_explorer"
+                },
+                "condition_groups": {
+                  "$ref": "#/$defs/condition_groups"
+                },
+                "pairing_diagram": {
+                  "$ref": "#/$defs/pairing_diagram"
+                }
+              },
+              "allOf": [
+                {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "pairing_diagram",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "pairing_diagram",
+                          "interval_explorer"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       },
       "allOf": [
@@ -1705,6 +1851,115 @@
             "type": "string",
             "pattern": "^-?(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
           }
+        }
+      }
+    },
+    "condition_groups": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "math"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "math": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "pairing_diagram": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "focus",
+        "pair_value",
+        "pairs",
+        "omitted_pairs",
+        "leftovers",
+        "omitted_leftovers"
+      ],
+      "properties": {
+        "focus": {
+          "enum": [
+            "pairs",
+            "leftovers"
+          ]
+        },
+        "pair_value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pairs": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "left_id",
+              "right_id",
+              "left_math",
+              "right_math"
+            ],
+            "properties": {
+              "left_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "right_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "left_math": {
+                "type": "string",
+                "minLength": 1
+              },
+              "right_math": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "omitted_pairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "leftovers": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "math"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "math": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "omitted_leftovers": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     }

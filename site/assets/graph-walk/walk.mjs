@@ -1,6 +1,6 @@
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261028-domain-overlap';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261028-domain-overlap';
+import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261030-pairing-diagram';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
 import {buildStreamReplay} from './walk-replay.mjs?v=20261027-function-equality';
@@ -428,7 +428,7 @@ function completedHTML(record, number, runId, route) {
   const methodNote = decision.interaction.type === 'read' && decision.question && decision.question !== summary
     ? `<p class="gw-result" data-math-text>${escapeHTML(decision.question.replace(/^使用[^：]+：/, ''))}</p>` : '';
   const body = decision.source === 'stream' && decision.stream_last_part
-    ? `${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
+    ? `${completionBoardHTML(decision)}${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
     : decision.display ? template(decision.display, uid)
     : decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, record.answer)
@@ -436,7 +436,7 @@ function completedHTML(record, number, runId, route) {
     : `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${methodNote}`;
   const results = decision.source !== 'stream' && !decision.display ? (record.results || []).map(resultText).filter(Boolean).map(text => `<p class="gw-result" data-math-text>${escapeHTML(text)}</p>`).join('') : '';
   const figure = completionFiguresHTML(decision, `${uid}-done`, record.answer);
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title">${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figure}${body}${results}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figure}${body}${results}</div></details>`;
 }
 
 /* The parts of one streamed interaction are one step: they share a card and a step number,
@@ -457,7 +457,12 @@ function stepUnits() {
 
 const groupParts = decision => bundle.routes[state.run.route].steps.filter(item => item.stream_interaction_id === decision.stream_interaction_id);
 
+function completionBoardHTML(decision) {
+  return decision.completion_board ? `<div data-completion-board="${escapeHTML(decision.id)}"></div>` : '';
+}
+
 function partAnswerHTML(decision, answer) {
+  if (decision.completion_board) return completionBoardHTML(decision);
   return decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, answer)
     : `<p class="gw-answer" data-math-text>${escapeHTML(answerSummary(decision, answer))}</p>`;
 }
@@ -465,7 +470,7 @@ function partAnswerHTML(decision, answer) {
 function partRowsHTML(records) {
   return records.map(record => {
     const decision = decisionById(record.decision, state.run.route);
-    return `<div class="gw-part-row"><p class="gw-part-label"><span aria-hidden="true">✓</span>${escapeHTML(decision.title || '')}</p>${partAnswerHTML(decision, record.answer)}</div>`;
+    return `<div class="gw-part-row"><p class="gw-part-label"><span aria-hidden="true">✓</span><span data-math-text>${escapeHTML(decision.title || '')}</span></p>${partAnswerHTML(decision, record.answer)}</div>`;
   }).join('');
 }
 
@@ -476,9 +481,9 @@ function groupCompletedHTML(unit, number) {
   // conclusion-only math boards. Preserve that explanation after all parts pass.
   const feedback = decisions.map(decision => {
     const explanation = completedFeedbackHTML(decision);
-    return explanation ? `<div class="gw-part-row"><p class="gw-part-label">${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
+    return explanation ? `<div class="gw-part-row"><p class="gw-part-label" data-math-text>${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
   }).join('');
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title">${escapeHTML(last.stream_group_title || last.title)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figures}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(last.stream_group_title || last.title)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figures}${decisions.map(completionBoardHTML).join('')}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
 }
 
 /* Within the card: every part as a numbered stop, the answered ones folded into rows above the current one. */
@@ -486,7 +491,7 @@ function partStepperHTML(decision) {
   const parts = groupParts(decision);
   return `<ol class="gw-part-stepper" aria-label="这一步的小问">${parts.map((part, index) => {
     const status = index < decision.stream_part_index ? 'done' : index === decision.stream_part_index ? 'current' : 'todo';
-    return `<li data-state="${status}"${status === 'current' ? ' aria-current="step"' : ''}><span aria-hidden="true">${status === 'done' ? '✓' : index + 1}</span>${escapeHTML(part.title || '')}</li>`;
+    return `<li data-state="${status}"${status === 'current' ? ' aria-current="step"' : ''}><span aria-hidden="true">${status === 'done' ? '✓' : index + 1}</span><span data-math-text>${escapeHTML(part.title || '')}</span></li>`;
   }).join('')}</ol>`;
 }
 
@@ -633,7 +638,7 @@ function carryHTML() {
   const lines = results.length ? results : [carrySummary(decision, record.answer)].filter(Boolean);
   if (!lines.length) return '';
   const number = (state.introCompleted?.length || 0) + units.length;
-  return `<div class="gw-carry"><p class="gw-carry-label">接第 ${number} 步 · ${escapeHTML(decision.stream_group_title || decision.title || '')}</p>${lines.map(text => `<p data-math-text>${escapeHTML(text)}</p>`).join('')}</div>`;
+  return `<div class="gw-carry"><p class="gw-carry-label" data-math-text>接第 ${number} 步 · ${escapeHTML(decision.stream_group_title || decision.title || '')}</p>${lines.map(text => `<p data-math-text>${escapeHTML(text)}</p>`).join('')}</div>`;
 }
 
 function carrySummary(decision, answer) {
@@ -652,13 +657,14 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const {units, open} = stepUnits(), grouped = Boolean(groupOf(decision));
   const number = (state.introCompleted?.length || 0) + units.length + 1;
   const title = grouped ? decision.stream_group_title || decision.title : decision.title || '当前判断';
-  const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1">${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
+  const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
-  const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1">第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
+  const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
   host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.source === 'stream' && decision.stem_board ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
   // Frozen before formulas are derivation inputs, not necessarily givens: they can be
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
   // or the completed-step carry above; only read cards reveal the mathematical record.
+  mountCompletionBoards(host);
   const context = pending == null && host.querySelector('[data-stream-context]');
   const derivation = pending == null && host.querySelector('[data-derivation-board]');
   if (derivation) {
@@ -869,12 +875,12 @@ function renderStory(shown, view) {
   if (key !== caption.dataset.key) {
     caption.dataset.key = key;
     caption.dataset.status = text.status || '';
-    caption.querySelector('.gw-caption-kicker').textContent = text.kicker;
-    const body = caption.querySelector('.gw-caption-text');
-    body.textContent = text.text;
-    body.removeAttribute('data-math-rendered');
-    body.setAttribute('data-math-text', '');
-    caption.querySelector('.gw-caption-next').textContent = text.next;
+    for (const [selector, value] of [['.gw-caption-kicker', text.kicker], ['.gw-caption-text', text.text], ['.gw-caption-next', text.next]]) {
+      const label = caption.querySelector(selector);
+      label.textContent = value;
+      label.removeAttribute('data-math-rendered');
+      label.setAttribute('data-math-text', '');
+    }
     renderMath(caption);
     if (!reduced.matches) caption.animate([{opacity: 0, transform: 'translateY(12px)'}, {opacity: 1, transform: 'none'}], {duration: 480, easing: 'cubic-bezier(.2,.7,.2,1)'});
   }
@@ -883,7 +889,8 @@ function renderStory(shown, view) {
   if (current) list.push({label: current.title, time: -1, status: 'next', future: true});
   const ol = timeline.querySelector('ol');
   const focused = ol.contains(document.activeElement) ? document.activeElement.dataset.time : null;
-  ol.innerHTML = list.map(point => `<li><button type="button" data-time="${point.time}" data-status="${point.status}"${point.time === -1 ? ' disabled' : ''}${point.time === index ? ' aria-current="step"' : ''}${point.future ? ' class="is-future"' : ''}><b>${point.time === -1 ? '下一步' : `T${point.time}`}</b><span>${escapeHTML(point.label)}</span></button></li>`).join('');
+  ol.innerHTML = list.map(point => `<li><button type="button" data-time="${point.time}" data-status="${point.status}"${point.time === -1 ? ' disabled' : ''}${point.time === index ? ' aria-current="step"' : ''}${point.future ? ' class="is-future"' : ''}><b>${point.time === -1 ? '下一步' : `T${point.time}`}</b><span data-math-text>${escapeHTML(point.label)}</span></button></li>`).join('');
+  renderMath(ol);
   if (focused != null) ol.querySelector(`[data-time="${CSS.escape(focused)}"]`)?.focus({preventScroll: true});
   scrollTimeline();
   updatePlayButton();
@@ -1108,7 +1115,7 @@ function waitingHTML(number) {
     : bundle.stream && state.run?.route ? {title: '正在恢复解题路线', text: '已保存的练习进度会随步骤一起恢复。'} : bundle.pending;
   if (!next) return '';
   const retained = route?.available === false ? '<div class="gw-stream-retained" data-stream-retained></div>' : '';
-  return `<section class="gw-active gw-waiting" aria-labelledby="gw-current-title"><header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1">${escapeHTML(next.title)}</h2><span class="status">${escapeHTML(next.status || '准备中')}</span></header>${carryHTML()}<p class="gw-ai-status"><span class="gw-ai-dot" aria-hidden="true"></span><span data-math-text>${escapeHTML(next.text || '')}</span></p>${retained}</section>`;
+  return `<section class="gw-active gw-waiting" aria-labelledby="gw-current-title"><header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(next.title)}</h2><span class="status">${escapeHTML(next.status || '准备中')}</span></header>${carryHTML()}<p class="gw-ai-status"><span class="gw-ai-dot" aria-hidden="true"></span><span data-math-text>${escapeHTML(next.text || '')}</span></p>${retained}</section>`;
 }
 
 function streamRouteTabsHTML() {
@@ -1460,23 +1467,25 @@ const streamQAKey = chunk => JSON.stringify([streamCardKey(chunk), chunk.verifie
 function decisionMathSteps(decision) {
   const route = state.run?.route;
   return (decision.stream_steps || []).map(ref => bundle.stream.math_steps.find(step =>
-    step.target_ref === bundle.stream.target_ref && step.route_id === route && step.step_id === ref.step_id &&
+    step.target_ref === (decision.target_ref || bundle.stream.target_ref) && step.route_id === route && step.step_id === ref.step_id &&
     step.math_step_sha256 === ref.math_step_sha256)).filter(Boolean);
 }
 
-function streamCompletion(route) {
-  const goal = streamView?.goals?.[bundle.stream.target_ref];
+function streamCompletion(route, targetRef = null) {
+  const target = targetRef || bundle.stream.target_ref;
+  const goal = streamView?.goals?.[target];
   if (goal && (goal.available === false || goal.status === 'conflict' || goal.reason === 'route_consistency_undecidable')) return null;
-  const current = bundle.routes[route], completion = current?.completion;
+  const current = bundle.routes[route], completion = targetRef && current?.goal_completions
+    ? current.goal_completions.find(value => value.target_ref === targetRef) : current?.completion;
   if (current?.available === false || !current?.math_complete || completion?.status !== 'verified' ||
       completion.available === false || completion.run_id !== bundle.stream.run_id ||
       completion.lesson_version !== bundle.stream.lesson_version ||
-      completion.target_ref !== bundle.stream.target_ref || completion.route_id !== route) return null;
+      completion.target_ref !== target || completion.route_id !== route) return null;
   return completion;
 }
 
 function availableQA(step) {
-  const completion = streamCompletion(step.route_id);
+  const completion = streamCompletion(step.route_id, step.target_ref);
   return completion?.verified_route_sha256 ? streamQA.get(streamQAKey({...step, verified_route_sha256: completion.verified_route_sha256})) : null;
 }
 
@@ -1488,7 +1497,19 @@ function mountCardQA(card, chunk) {
   } else card.qa.hidden = false;
 }
 
+function mountCompletionBoards(root) {
+  const completed = new Set((state.run?.completed || []).map(record => record.decision));
+  for (const host of root.querySelectorAll('[data-completion-board]')) {
+    const id = host.dataset.completionBoard;
+    const decision = decisionById(id, state.run?.route);
+    if (!completed.has(id) || !decision?.completion_board) continue;
+    host.replaceChildren(createDerivationBoard(document, decision.completion_board));
+    renderStreamMath(host);
+  }
+}
+
 function mountCompletedMath() {
+  mountCompletionBoards($('#gw-steps'));
   visibleStreamCards = new Set();
   if (!bundle.stream) return;
   for (const host of $('#gw-steps').querySelectorAll('[data-stream-completed]')) {
@@ -1509,6 +1530,7 @@ function mountCompletedMath() {
       if (!card) { card = createMathCard(document, step, {renderMath: renderStreamMath}); streamCards.set(key, card); }
       setMathCardLayout(card, {embedded: true, parentTitle: folded.has(step.step_id) ? '' : parentTitle,
         externalConclusion: !folded.has(step.step_id) && externalConclusion});
+      if (decision.completion_board && card.conclusion) card.conclusion.hidden = true;
       const qa = availableQA(step);
       if (qa) mountCardQA(card, qa);
       else card.qa.hidden = true;
@@ -1537,7 +1559,7 @@ function mountRetainedMath() {
     const decision = decisionById(record.decision, route);
     if (decision?.stream_last_part) for (const ref of decision.stream_steps) shown.add(ref.step_id);
   }
-  const retained = bundle.stream.math_steps.filter(step => step.target_ref === bundle.stream.target_ref &&
+  const retained = bundle.stream.math_steps.filter(step => (bundle.stream.target_refs || [bundle.stream.target_ref]).includes(step.target_ref) &&
     step.route_id === route && !shown.has(step.step_id)).sort((left, right) => left.ordinal - right.ordinal);
   for (const step of retained) {
     const key = streamCardKey(step);
@@ -1893,13 +1915,14 @@ export function chooseStreamRoute(route) {
 /** QA never advances practice or replaces a mathematical card. */
 export function attachStreamQA(chunk) {
   if (streamParked || !bundle?.stream || chunk.run_id !== bundle.stream.run_id ||
-      chunk.lesson_version !== bundle.stream.lesson_version || chunk.target_ref !== bundle.stream.target_ref) return;
+      chunk.lesson_version !== bundle.stream.lesson_version ||
+      !(bundle.stream.target_refs || [bundle.stream.target_ref]).includes(chunk.target_ref)) return;
   const step = bundle.stream.math_steps.find(value => streamCardKey(value) === streamCardKey(chunk));
   if (!step) return;
   const key = streamQAKey(chunk), previous = streamQA.get(key);
   if (previous && JSON.stringify(previous) !== JSON.stringify(chunk)) throw new Error('stream.immutable_qa');
   const cardKey = streamCardKey(chunk), card = streamCards.get(cardKey);
-  const completion = streamCompletion(chunk.route_id);
+  const completion = streamCompletion(chunk.route_id, chunk.target_ref);
   if (visibleStreamCards.has(cardKey) && card && completion?.verified_route_sha256 === chunk.verified_route_sha256) {
     mountCardQA(card, chunk);
   }

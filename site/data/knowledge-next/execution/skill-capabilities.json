@@ -13,19 +13,22 @@
       "solve_abstract_domain_parameter"
     ],
     "skill-equality-transform": [
-      "separation_division"
+      "separation_division",
+      "verify_evaluation_identities"
     ],
     "skill-simplify": [
       "simplify_expression",
       "reorder_by_variable",
-      "compare_function_pair"
+      "compare_function_pair",
+      "simplify_evaluation_expressions"
     ],
     "skill-quadratic-sign": [
       "quadratic_sign_condition",
       "quadratic_sign_pattern"
     ],
     "skill-solve-quadratic": [
-      "solve_quadratic"
+      "solve_quadratic",
+      "check_evaluation_quadratic_conditions"
     ],
     "skill-quantified-range": [
       "select_quantifier_policy"
@@ -62,7 +65,8 @@
     "skill-expression-defined": [
       "extract_domain_conditions",
       "extract_domain_parameter_conditions",
-      "extract_abstract_concrete_conditions"
+      "extract_abstract_concrete_conditions",
+      "extract_evaluation_conditions"
     ],
     "method-discriminant": [
       "submethod"
@@ -142,6 +146,12 @@
     ],
     "solve_abstract_domain_parameter": [
       "method-input-domain-correspondence#solve"
+    ],
+    "solve_function_evaluation": [
+      "method-function-evaluation#evaluate"
+    ],
+    "resolve_evaluation_domain": [
+      "method-function-evaluation#evaluate"
     ]
   }
 }

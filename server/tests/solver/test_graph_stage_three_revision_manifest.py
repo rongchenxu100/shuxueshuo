@@ -8,10 +8,13 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
 
-from shuxueshuo_server.graph_lesson import domain_expression
+from shuxueshuo_server.graph_lesson import domain_expression, function_evaluation
 from shuxueshuo_server.graph_lesson.stage_three import (
     calculations,
     driver,
+    evaluation_algebra,
+    evaluation_presentation,
+    evaluation_runtime,
     execution_contracts,
     runner,
 )
@@ -138,3 +141,18 @@ def test_fingerprint_freezes_new_contracts_and_manifest_hash_implementation():
 def test_fingerprint_freezes_shared_domain_expression_implementation():
     source = Path(domain_expression.__file__).resolve()
     assert runner.fingerprint()[str(source.relative_to(ROOT))] == sha256(source.read_bytes()).hexdigest()
+
+
+def test_fingerprint_freezes_function_evaluation_math_runtime_and_presentation():
+    frozen = runner.fingerprint()
+    direct = execution_contracts.revisions()
+    for name, module in (
+        ('function_evaluation', function_evaluation),
+        ('evaluation_runtime', evaluation_runtime),
+        ('evaluation_presentation', evaluation_presentation),
+        ('evaluation_algebra', evaluation_algebra),
+    ):
+        source = Path(module.__file__).resolve()
+        digest = sha256(source.read_bytes()).hexdigest()
+        assert frozen[str(source.relative_to(ROOT))] == digest
+        assert direct[name] == digest

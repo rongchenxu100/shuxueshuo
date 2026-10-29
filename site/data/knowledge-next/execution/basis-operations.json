@@ -182,6 +182,13 @@
       "interval-notation#finite",
       "inequality-properties#addition",
       "inequality-properties#multiplication"
+    ],
+    "function_evaluation": [
+      "function-concept#definition",
+      "function-concept#elements"
+    ],
+    "function_evaluation_input_domain": [
+      "function-concept#elements"
     ]
   }
 }

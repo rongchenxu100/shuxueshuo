@@ -455,3 +455,16 @@ def execute(capability, inputs):
     if capability in PLANNED:
         raise CapabilityGap(capability)
     return REGISTRY[capability](**inputs)
+
+
+def _function_evaluation_operation(name):
+    def run(**inputs):
+        from .. import evaluation_runtime
+        return getattr(evaluation_runtime, name)(**inputs)
+    return run
+
+
+for _name in ('solve_function_evaluation', 'extract_evaluation_conditions',
+              'resolve_evaluation_domain', 'check_evaluation_quadratic_conditions',
+              'simplify_evaluation_expressions', 'verify_evaluation_identities'):
+    REGISTRY[_name] = _function_evaluation_operation(_name)

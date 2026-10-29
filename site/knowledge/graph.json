@@ -713,6 +713,30 @@
       ]
     },
     {
+      "id": "method-function-evaluation",
+      "kind": "method",
+      "label": "代入法",
+      "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "evaluate",
+          "title": "代入并计算",
+          "calls": [
+            "skill-expression-defined",
+            "skill-simplify",
+            "skill-equality-transform",
+            "skill-solve-quadratic"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验原式与目标结果",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-homogeneous",
       "kind": "skill",
       "label": "配齐次式",
@@ -1534,9 +1558,9 @@
       "id": "type-function-evaluation",
       "kind": "problem_type",
       "label": "求函数值",
-      "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+      "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -2184,6 +2208,54 @@
       "occurrences": [
         {
           "step": "compare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-evaluation|calls|skill-equality-transform",
+      "from": "method-function-evaluation",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-evaluation|calls|skill-expression-defined",
+      "from": "method-function-evaluation",
+      "to": "skill-expression-defined",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-evaluation|calls|skill-simplify",
+      "from": "method-function-evaluation",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-evaluation|calls|skill-solve-quadratic",
+      "from": "method-function-evaluation",
+      "to": "skill-solve-quadratic",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
           "when": ""
         }
       ]
@@ -4403,6 +4475,15 @@
       "from": "type-function-equality",
       "to": "function-concept",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-evaluation|candidate|method-function-evaluation",
+      "from": "type-function-evaluation",
+      "to": "method-function-evaluation",
+      "type": "candidate",
       "occurrences": [
         {}
       ]

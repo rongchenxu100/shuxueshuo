@@ -1,0 +1,352 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-evaluation",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "evaluate",
+      "calls": [
+        {
+          "id": "evaluate",
+          "capability": "solve_function_evaluation",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "raw_evaluation_result": "evaluation_result",
+            "has_input": "has_input",
+            "has_inner": "has_inner",
+            "has_substitute": "has_substitute",
+            "has_domain": "has_domain",
+            "has_conclusion": "has_conclusion",
+            "has_trial": "has_trial",
+            "has_constant": "has_constant",
+            "has_pairing": "has_pairing",
+            "has_leftovers": "has_leftovers",
+            "has_sum": "has_sum"
+          },
+          "order": 0
+        },
+        {
+          "id": "conditions",
+          "capability": "extract_evaluation_conditions",
+          "public_ref": "skill-expression-defined",
+          "inputs": {
+            "description": "$description",
+            "evaluation_result": "$raw_evaluation_result"
+          },
+          "outputs": {
+            "evaluation_conditions": "conditions",
+            "evaluation_substitutions": "substitutions",
+            "evaluation_raw_terms": "raw_terms",
+            "evaluation_quadratic_conditions": "quadratic_conditions",
+            "evaluation_has_quadratic_conditions": "has_quadratic_conditions"
+          },
+          "order": 1
+        },
+        {
+          "id": "domain",
+          "capability": "resolve_evaluation_domain",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "conditions": "$evaluation_conditions",
+            "evaluation_result": "$raw_evaluation_result"
+          },
+          "outputs": {
+            "domain_evaluation_result": "evaluation_result"
+          },
+          "order": 2
+        },
+        {
+          "id": "quadratic_conditions",
+          "capability": "check_evaluation_quadratic_conditions",
+          "public_ref": "skill-solve-quadratic",
+          "inputs": {
+            "quadratic_conditions": "$evaluation_quadratic_conditions",
+            "evaluation_result": "$domain_evaluation_result"
+          },
+          "outputs": {
+            "evaluation_root_checks": "root_checks"
+          },
+          "order": 3,
+          "guard": {
+            "ref": "evaluation_has_quadratic_conditions",
+            "equals": true
+          }
+        },
+        {
+          "id": "simplify",
+          "capability": "simplify_evaluation_expressions",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "substitutions": "$evaluation_substitutions",
+            "raw_terms": "$evaluation_raw_terms",
+            "evaluation_result": "$domain_evaluation_result"
+          },
+          "outputs": {
+            "simplified_evaluation_result": "evaluation_result"
+          },
+          "order": 4
+        },
+        {
+          "id": "identities",
+          "capability": "verify_evaluation_identities",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description",
+            "evaluation_result": "$simplified_evaluation_result"
+          },
+          "outputs": {
+            "evaluation_result": "evaluation_result"
+          },
+          "order": 5
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "evaluation_input",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "input"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_input",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_inner",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "inner"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_inner",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_substitute",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "substitute"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_substitute",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_domain",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "domain"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_domain",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_conclusion",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "conclusion"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_conclusion",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_trial",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "trial"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_trial",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_constant",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "constant"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_constant",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_pairing",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "pairing"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_pairing",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_leftovers",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "leftovers"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_leftovers",
+            "equals": true
+          }
+        },
+        {
+          "id": "evaluation_sum",
+          "after": "identities",
+          "template": "function_evaluation_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "evaluation_result": "$evaluation_result",
+            "phase": "sum"
+          },
+          "depends_on": [
+            "description",
+            "evaluation_result"
+          ],
+          "guard": {
+            "ref": "has_sum",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "evaluation_result": "$evaluation_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_evaluation",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

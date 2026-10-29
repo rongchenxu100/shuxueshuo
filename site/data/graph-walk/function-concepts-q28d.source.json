@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q28d",
+  "title": "复合表达式求值 · Q28（4）",
+  "page": "/topics/function-concepts/q28d/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/children/0/goals/0"
+  ],
+  "targetTitles": [
+    "求 $f(g(x))$"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-q28d.evidence.json",
+  "statement": "已知 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求 $f(g(x))$。"
+}

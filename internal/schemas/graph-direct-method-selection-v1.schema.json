@@ -30,7 +30,8 @@
         "function_domain",
         "function_domain_routes",
         "function_equality",
-        "abstract_function_domain"
+        "abstract_function_domain",
+        "function_evaluation"
       ]
     },
     "routes": {
@@ -83,7 +84,8 @@
           "enum": [
             "function_domain",
             "function_equality",
-            "abstract_function_domain"
+            "abstract_function_domain",
+            "function_evaluation"
           ]
         }
       }

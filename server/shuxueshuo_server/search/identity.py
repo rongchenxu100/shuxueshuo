@@ -149,6 +149,15 @@ def _surface(text):
 
 
 def _root(scope, *, exclude_label=False):
+    def goal_value(value):
+        # Structured goals retain occurrence order, bounds and local indices.
+        # Normalizing text must never stringify an entire term or drop repeats.
+        if isinstance(value, dict):
+            return {key: goal_value(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [goal_value(item) for item in value]
+        return _math(value) if isinstance(value, str) else value
+
     def goal_content(goal):
         if goal['kind'] == 'compare_functions':
             from ..problem_understanding.notation_function_comparison import (
@@ -156,8 +165,7 @@ def _root(scope, *, exclude_label=False):
             )
 
             return canonical_comparison(compile_comparison(goal, 'r.goals[0]'))
-        return {key: [_math(item) for item in content] if isinstance(content, list) else _math(content)
-                for key, content in goal.items()}
+        return goal_value(goal)
 
     value = {
         "definitions": [_math(text) for text in scope.get("definitions", [])],

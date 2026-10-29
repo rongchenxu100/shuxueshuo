@@ -51,6 +51,7 @@ PREC = {
 }
 RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "⟂", "∥", *SUBSET_RELATIONS}
 BUILTINS = {
+    "Dom",
     "sqrt",
     "abs",
     "sum",

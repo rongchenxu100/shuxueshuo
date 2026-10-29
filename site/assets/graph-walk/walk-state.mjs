@@ -465,7 +465,7 @@ export function graphState(bundle, state) {
 
 const streamStepKey = step => JSON.stringify([step.route_id, step.step_id]);
 const sameStream = (identity, value) => identity.run_id === value.run_id &&
-  identity.lesson_version === value.lesson_version && identity.target_ref === value.target_ref;
+  identity.lesson_version === value.lesson_version && (identity.target_refs || [identity.target_ref]).includes(value.target_ref);
 
 /** A confirmed conversion changes the teaching context, never the original problem.
  * The accepted context is authored by the server; a student's chosen text is not data.
@@ -847,7 +847,7 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
 export function streamStepGraph(bundle, passed) {
   const result = {nodes: [], edges: [], usedBasis: [], calls: [], logs: []};
   if (!bundle.stream || !passed || !sameStream(bundle.stream, passed)) return result;
-  const key = streamStepKey(passed), step = bundle.stream.math_steps.find(value => streamStepKey(value) === key);
+  const key = streamStepKey(passed), step = bundle.stream.math_steps.find(value => streamStepKey(value) === key && value.target_ref === passed.target_ref);
   if (!step || passed.math_step_sha256 !== step.math_step_sha256) return result;
   const nodes = new Set(), edges = new Set(), used = new Set();
   const graphNodes = new Map(bundle.graph.nodes.map(node => [node.id, node]));
@@ -892,7 +892,7 @@ export function streamGraphState(bundle, state) {
     if (entry.source !== 'stream' || !entry.stream_last_part || decision?.source !== 'stream' ||
         !decision.stream_last_part || JSON.stringify(entry.stream_steps) !== JSON.stringify(decision.stream_steps)) continue;
     for (const ref of entry.stream_steps) {
-      const passed = {...bundle.stream, route_id: state.run.route, ...ref};
+      const passed = {...bundle.stream, target_ref: decision.target_ref || bundle.stream.target_ref, route_id: state.run.route, ...ref};
       const key = streamStepKey(passed);
       if (seen.has(key)) continue;
       seen.add(key);

@@ -32,7 +32,7 @@ export function projectGraphWalkTeaching(bundle, nodes) {
     const refs = new Set();
     for (const id of decision.effects?.nodes || []) if (['knowledge', 'skill', 'method'].includes(byId.get(id)?.kind)) refs.add(id);
     for (const ref of decision.stream_steps || []) {
-      const math = bundle.stream.math_steps.find(step => step.target_ref === bundle.stream.target_ref && step.route_id === routeId
+      const math = bundle.stream.math_steps.find(step => step.target_ref === (decision.target_ref || bundle.stream.target_ref) && step.route_id === routeId
         && step.step_id === ref.step_id && step.math_step_sha256 === ref.math_step_sha256);
       assert(math?.local_check === 'passed', `交互没有已验证数学来源：${decision.id}`);
       if (math.method_ref) refs.add(math.method_ref);

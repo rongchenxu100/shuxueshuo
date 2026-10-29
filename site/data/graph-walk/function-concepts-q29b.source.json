@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q29b",
+  "title": "验证定值与配对求和 · Q29（2）",
+  "page": "/topics/function-concepts/q29b/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/children/0/goals/0",
+    "/root/children/0/goals/1"
+  ],
+  "targetTitles": [
+    "判断是否为定值",
+    "求有限和"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-q29b.evidence.json",
+  "statement": "已知函数 $f(x)=\\frac{x+2}{x+1}$。判断 $f(x)+f\\left(\\frac{1}{x}\\right)$ 是否为定值，并求 $f(1)+f(2)+\\cdots+f(101)+f\\left(\\frac{1}{2}\\right)+f\\left(\\frac{1}{3}\\right)+\\cdots+f\\left(\\frac{1}{101}\\right)$。"
+}

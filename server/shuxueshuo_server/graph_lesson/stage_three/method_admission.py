@@ -128,7 +128,13 @@ def _abstract_function_domain(context):
     return admitted(context)
 
 
+def _function_evaluation(context):
+    from .evaluation_runtime import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    "function_evaluation": _function_evaluation,
     "function_equality": _function_equality,
     "abstract_function_domain": _abstract_function_domain,
     "function_domain": _function_domain,

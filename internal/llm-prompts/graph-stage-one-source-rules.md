@@ -1,5 +1,13 @@
 提取、复核、修复共用以下题意表示规则；阶段变化不改变这些规则。
 
+独立小问的完整性以当前图片实际呈现的任务为准。图片含共同函数定义及“（2）”所求，但未含“（1）”，不意味着当前题目缺失；编号不是数学依赖。当前所求需要的已知条件已经齐全、没有“利用上一问结论”等明确依赖时，提取、复核和修复均把当前可见小问作为完整独立题保留，不添加 occluded/missing_condition/ambiguous_symbol，不要求补拍上一问，也不虚构或补入未出现的小问。只有当前所求真正依赖的条件或明确引用的前问结果未出现在图中，才按实际缺口报告 uncertainty。原编号可保留在 original_text，公开题面按公开内容规则省略来源编号；不得为了消除误报而后处理删除已有 uncertainty，须在提取/复核时依据原图作出判断。
+
+求函数数值、含变量表达式或复合输入的输出，均使用 find_value，expression 保留原调用，例如 f(g(0))、g(1/x-1)，不得提前算成数值或化简；一个题目同时求 f(1)、g(1) 时保留两个平级 goals，不虚造 children。函数定义仍放在所属 scope.definitions，并在各目标中引用可见函数；函数体的绑定自变量与目标外层变量、求和索引分别绑定。函数显式定义域使用所属 scope.facts 中 Dom(f)=[0,2] 或 Dom(g)=ℝ∖{-2}；只记题给完整域，不把自然域计算结果或输入限制补成题设。目标另有明确外层范围才填 input_domain。代入法是把完整输入放进已有函数规则，不是引入新变量转换问题的换元法。
+
+判断函数值组合是否为定值，使用 {"kind":"check_constant","expression":"f(x)+f(1/x)"}，可带题给 input_domain；不能预写定值结果、成立范围或真假。该任务同时要求求一个有限和时，再保留独立 finite_sum 目标，不能把两所求合为一个目标或删除未算出的所求。finite_sum 的 terms 依原顺序保留每个单列项 {"expression":"f(1)"} 和闭区间整数索引块 {"expression":"f(n)","index":"n","lower":2,"upper":101}；索引局部绑定，重复项按出现次数保留，不能去重、预求和或擅自缩短末项。例 f(1)+f(2)+⋯+f(101)+f(1/2)+⋯+f(1/101) 表示两个块：f(n), n=1..101；f(1/n), n=2..101。有限列表逐项转录，不强行补出未出现的配对项。省略号上下限确实不清时记 uncertainty，不能按常见题型猜 101。
+
+复核、修复分别对函数定义、显式域、各目标的 expression 和每个求和块的 expression/index/lower/upper 核对原图；不从旁边印刷解答添加等式、配对规律、答案或合法条件。拍到原整题时完整保留其全部所求；已知输出反求输入仍照原文保存关系及目标，不为进入当前正向求值能力删去该目标或改题。
+
 比较函数是否相同的题目使用 compare_functions 目标。四组选项是同一道题内的局部比较，不是 children 小问。每个 options 条目有稳定 id、原标签 label、原选项 text、局部 functions 及 left/right 引用；functions 中保留原函数名、自变量和未化简 definition，题面显式指定定义域才填写 domain。同名 f、g 可以在不同选项重复，不能提升到 root.definitions，不能串用其他选项的函数。局部引用写 local:本项函数id；共同基准写在 shared_functions，引用 shared:基准id，候选仍在各项局部作用域。无基准的多组比较 mode=groups，共同基准 mode=shared_baseline，直接比较两个函数 mode=pair（只有一个 options 条目，selection_mode=none，select_relation=null）。共同基准模式每项必须恰有一侧 shared、一侧 local，建议 left=shared:基准id、right=local:候选id；同一函数判定是对称关系，反向引用同样合法，不仅因左右方向要求修复。编译时只规范展示角色为基准在左、候选在右，不修改候选原文、引用字段或源函数身份。
 
 compare_functions 的 select_relation 按题面分别取 equal（选相同）或 different（选不同）。题面明确多选或不定项选择时 selection_mode=multiple，明确单选时为 single；groups/shared_baseline 中题面未明示选择模式时保留 unspecified。系统对未注明选择模式的比较题默认按不定项选择处理：选出全部符合题意的项，项数不预设，最终按精确标签集合评分；这是答题默认规则，提取、复核和修复仍保留来源 unspecified，不把默认规则当成原图明确写了多选。不能仅凭“下列……的是”、选项数量、常见考试形式或求解后的正确项数量反推单选或多选，也不能从猜测的正确标签反推极性。选择模式未明示不等于题目缺失，不因此添加 uncertainty 或改 completeness；选相同还是不同确实看不清时才记 select_relation=unknown 并报告 uncertainty。选项不全用 completeness=incomplete，否则 complete。不能将判定结果、反例、自然定义域或正确标签写进这些字段。保留 sqrt(x^2)、(sqrt(x))^2、abs(x) 的原始结构，不能提前化简成相同写法。original_text、public_content.choices 与 options 的标签、顺序和完整公式必须一致；public_content 对应 choices 的 selection_mode 必须与 compare_functions 目标一致，包括 unspecified。复核若发现两处选择模式错误，须分别指出目标和公开选项的 selection_mode 精确 path，修复也须在各自授权字段同步修正，不能仅改一处后再为通过schema恢复错误猜测。复核和修复必须使用含选项索引的精确 path，修复 A 项不授权更改 B 项或把局部函数移到 root。

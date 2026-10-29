@@ -350,7 +350,8 @@
             "function_domain",
             "separated_read",
             "function_equality",
-            "abstract_function_domain"
+            "abstract_function_domain",
+            "function_evaluation"
           ]
         },
         "parts": {

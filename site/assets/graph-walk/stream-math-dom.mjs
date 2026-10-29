@@ -12,6 +12,100 @@ const text = (document, tag, value, className) => {
   return node;
 };
 
+function derivationCell(document, item, role) {
+  const cell = document.createElement('div');
+  cell.className = 'gw-derivation-cell';
+  cell.dataset.role = role;
+  const label = text(document, 'div', item.label, 'gw-derivation-label');
+  label.dataset.mathText = 'true';
+  cell.append(label);
+  if (item.math === null) {
+    const unknown = text(document, 'div', '?', 'gw-derivation-unknown');
+    unknown.setAttribute('role', 'img');
+    unknown.setAttribute('aria-label', '待求');
+    cell.append(unknown);
+  } else {
+    const formula = text(document, 'div', `\\displaystyle ${item.math}`, 'gw-derivation-formula');
+    formula.dataset.mathFormula = 'true';
+    cell.append(formula);
+  }
+  if (item.note) {
+    const note = text(document, 'div', item.note, 'gw-derivation-note');
+    note.dataset.mathText = 'true';
+    cell.append(note);
+  }
+  return cell;
+}
+
+function pairingTerm(document, value, id) {
+  const term = text(document, 'div', `\\displaystyle ${value}`, 'gw-pairing-term');
+  term.dataset.mathFormula = 'true';
+  term.dataset.occurrenceId = id;
+  return term;
+}
+
+/** Keep the same occurrence layout as attention moves from pairs to leftovers. */
+function pairingDiagram(document, diagram) {
+  const figure = document.createElement('figure');
+  figure.className = 'gw-pairing-diagram';
+  figure.dataset.focus = diagram.focus;
+  figure.append(text(document, 'figcaption', '按互为倒数的输入对齐', 'gw-pairing-caption'));
+  const viewport = document.createElement('div');
+  viewport.className = 'gw-pairing-scroll';
+  viewport.setAttribute('tabindex', '0');
+  viewport.setAttribute('role', 'group');
+  viewport.setAttribute('aria-label', '上下两项配成一对，未配对项列在左侧');
+  const sequence = document.createElement('div');
+  sequence.className = 'gw-pairing-sequence';
+  const columns = [];
+  const blank = () => text(document, 'span', '', 'gw-pairing-blank');
+  const appendColumn = (column, paired) => {
+    if (columns.length) {
+      const plus = document.createElement('div');
+      plus.className = 'gw-pairing-separator';
+      plus.setAttribute('aria-hidden', 'true');
+      plus.append(text(document, 'span', '+'), blank(),
+        text(document, 'span', paired && columns.at(-1).paired ? '+' : ''));
+      sequence.append(plus);
+    }
+    columns.push({paired});
+    sequence.append(column);
+  };
+  const ellipsis = paired => {
+    const column = document.createElement('div');
+    column.className = 'gw-pairing-ellipsis';
+    column.dataset.kind = paired ? 'pair' : 'leftover';
+    column.setAttribute('aria-label', paired ? '省略中间的配对项' : '省略中间的未配对项');
+    column.append(text(document, 'span', '⋯'), blank(), text(document, 'span', paired ? '⋯' : ''));
+    appendColumn(column, paired);
+  };
+  diagram.leftovers.forEach((item, index) => {
+    if (diagram.omitted_leftovers > 0 && index === diagram.leftovers.length - 1) ellipsis(false);
+    const column = document.createElement('div');
+    column.className = 'gw-pairing-leftover';
+    column.append(pairingTerm(document, item.math, item.id), blank(), blank());
+    appendColumn(column, false);
+  });
+  diagram.pairs.forEach((pair, index) => {
+    if (diagram.omitted_pairs > 0 && index === diagram.pairs.length - 1) ellipsis(true);
+    const column = document.createElement('div');
+    column.className = 'gw-pairing-pair';
+    const link = document.createElement('div');
+    link.className = 'gw-pairing-link';
+    const arrow = text(document, 'span', '↕', 'gw-pairing-link-arrow');
+    arrow.setAttribute('aria-hidden', 'true');
+    const sum = text(document, 'span', `\\text{和}=${diagram.pair_value}`, 'gw-pairing-value');
+    sum.dataset.mathFormula = 'true';
+    link.append(arrow, sum);
+    column.append(pairingTerm(document, pair.left_math, pair.left_id), link,
+      pairingTerm(document, pair.right_math, pair.right_id));
+    appendColumn(column, true);
+  });
+  viewport.append(sequence);
+  figure.append(viewport);
+  return figure;
+}
+
 /** One local deduction, shared by its unanswered and verified states.
  * Labels and formulas always enter as text; null alone marks an unknown.
  */
@@ -21,6 +115,34 @@ export function createDerivationBoard(document, board) {
   node.dataset.state = board.items[1].math === null ? 'pending' : 'complete';
   node.setAttribute('aria-label', board.caption);
   node.append(text(document, 'div', board.caption, 'gw-derivation-caption'));
+  if (board.pairing_diagram) {
+    node.dataset.layout = 'pairing';
+    const arrow = text(document, 'div', '↓', 'gw-pairing-result-arrow');
+    arrow.setAttribute('aria-hidden', 'true');
+    node.append(pairingDiagram(document, board.pairing_diagram), arrow,
+      derivationCell(document, board.items[1], 'result'));
+    return node;
+  }
+  if (board.condition_groups) {
+    node.dataset.layout = 'parallel-conditions';
+    node.append(derivationCell(document, board.items[0], 'target'));
+    const groups = document.createElement('div');
+    groups.className = 'gw-domain-conditions';
+    groups.setAttribute('role', 'group');
+    groups.setAttribute('aria-label', '需要同时满足的两个条件');
+    board.condition_groups.forEach((item, index) => {
+      const condition = derivationCell(document, item, 'condition');
+      const number = text(document, 'span', String(index + 1), 'gw-domain-condition-number');
+      number.setAttribute('aria-hidden', 'true');
+      condition.append(number);
+      groups.append(condition);
+    });
+    const join = document.createElement('div');
+    join.className = 'gw-domain-condition-join';
+    join.append(text(document, 'span', '同时满足', 'gw-domain-condition-join-label'));
+    node.append(groups, join, derivationCell(document, board.items[1], 'result'));
+    return node;
+  }
   const row = document.createElement('div');
   row.className = 'gw-derivation-row';
   board.items.forEach((item, index) => {
@@ -29,28 +151,7 @@ export function createDerivationBoard(document, board) {
       arrow.setAttribute('aria-hidden', 'true');
       row.append(arrow);
     }
-    const cell = document.createElement('div');
-    cell.className = 'gw-derivation-cell';
-    cell.dataset.role = index ? 'result' : 'given';
-    const label = text(document, 'div', item.label, 'gw-derivation-label');
-    label.dataset.mathText = 'true';
-    cell.append(label);
-    if (item.math === null) {
-      const unknown = text(document, 'div', '?', 'gw-derivation-unknown');
-      unknown.setAttribute('role', 'img');
-      unknown.setAttribute('aria-label', '待求');
-      cell.append(unknown);
-    } else {
-      const formula = text(document, 'div', `\\displaystyle ${item.math}`, 'gw-derivation-formula');
-      formula.dataset.mathFormula = 'true';
-      cell.append(formula);
-    }
-    if (item.note) {
-      const note = text(document, 'div', item.note, 'gw-derivation-note');
-      note.dataset.mathText = 'true';
-      cell.append(note);
-    }
-    row.append(cell);
+    row.append(derivationCell(document, item, index ? 'result' : 'given'));
   });
   if (board.interval_explorer) node.append(createIntervalOverlapExplorer(document, board.interval_explorer));
   node.append(row);
@@ -58,6 +159,31 @@ export function createDerivationBoard(document, board) {
 }
 
 export function routeAnswerSummary(answer = {}) {
+  if (answer.kind === 'goal_group' && answer.status === 'complete') {
+    const rows = answer.answers;
+    if (!Array.isArray(rows) || !rows.length || new Set(rows.map(row => row.target_ref)).size !== rows.length) return null;
+    const items = rows.map(row => ({title: row.title || '', summary: routeAnswerSummary(row.answer)}));
+    return items.every(item => item.summary) ? {label: '本题全部目标已完成', formula: '', items} : null;
+  }
+  if (['find_value', 'check_constant', 'finite_sum'].includes(answer.kind) && answer.status === 'complete') {
+    if (answer.defined === false) return {label: answer.result_type === 'constant_check'
+      ? '没有合法输入，不能确定唯一的定值。' : '原目标无定义。', formula: ''};
+    if (answer.defined !== true) return null;
+    if (answer.result_type === 'constant_check') {
+      if (answer.is_constant === false) return {label: '不是定值。', formula: '', domain: expressionText(answer.domain)};
+      if (answer.is_constant !== true || !expressionText(answer.value)) return null;
+      return {label: '定值：', formula: expressionText(answer.value), domain: expressionText(answer.domain)};
+    }
+    if (answer.result_type === 'expression_with_domain') {
+      const formula = expressionText(answer.expression), domain = expressionText(answer.domain);
+      return formula && domain ? {label: '函数值表达式：', formula, domain} : null;
+    }
+    if (['scalar_value', 'finite_sum'].includes(answer.result_type)) {
+      const formula = expressionText(answer.value);
+      return formula ? {label: answer.result_type === 'finite_sum' ? '总和：' : '函数值：', formula} : null;
+    }
+    return null;
+  }
   if (answer.kind === 'compare_functions' && answer.status === 'complete' &&
       Array.isArray(answer.option_verdicts) && answer.option_verdicts.length &&
       answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
@@ -278,6 +404,20 @@ export function createRouteCompletion(document, payload, options = {}) {
   if (summary?.formula) {
     const formula = text(document, 'span', summary.formula, 'stage-three-answer');
     formula.dataset.mathFormula = 'true'; node.append(formula);
+  }
+  if (summary?.domain) {
+    const domain = text(document, 'span', `　合法输入范围：$${summary.domain}$`, 'stage-three-answer-domain');
+    domain.dataset.mathText = 'true'; node.append(domain);
+  }
+  if (summary?.items) {
+    const list = document.createElement('ul');
+    list.className = 'stage-three-goal-answers';
+    for (const item of summary.items) {
+      const row = text(document, 'li', `${item.title}　${item.summary.label}${item.summary.formula ? `$${item.summary.formula}$` : ''}`
+        + (item.summary.domain ? `，合法输入范围：$${item.summary.domain}$` : ''));
+      row.dataset.mathText = 'true'; list.append(row);
+    }
+    node.append(list);
   }
   options.renderMath?.(node);
   return {node, complete, answerStatus, statusText: complete ? '本路线已完成数学验证。'

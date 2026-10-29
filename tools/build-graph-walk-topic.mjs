@@ -15,15 +15,21 @@ const json = async file => JSON.parse(await fs.readFile(file, 'utf8'));
 const SOURCE = 'site/data/graph-walk/function-concepts-q15.source.json';
 const h = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
 
-export function compileCourse(source, evidence, graph, nodes) {
+function compileTarget(source, evidence, graph, nodes, targetRef) {
   assert(source.schemaVersion === 1 && /^[a-z][a-z0-9-]*$/.test(source.problemId), 'Invalid course source');
   assert(/^\/topics\/[a-z][a-z0-9-]*\/(?:q\d+[a-z]?|variant\d+)\/$/.test(source.page), 'Invalid topic problem path');
   assert(typeof source.title === 'string' && source.title.trim(), 'Missing course title');
   assert(/^\/topics\/[a-z][a-z0-9-]*\/$/.test(source.topicHref) && source.page.startsWith(source.topicHref), 'Invalid course topic');
-  const goal = evidence.lesson?.goals?.find(item => item.target_ref === source.targetRef);
+  const goal = evidence.lesson?.goals?.find(item => item.target_ref === targetRef);
   assert(goal?.walk?.bundle && evidence.stream, 'Missing real lesson projection or committed stream');
   const base = structuredClone(goal.walk.bundle);
   base.problemId = source.problemId;
+  // Independently published questions may omit the source's example/subquestion
+  // labels. Keep that authored wording separate from the recorded evidence.
+  if (source.statement !== undefined) {
+    assert(typeof source.statement === 'string' && source.statement.trim(), 'Invalid course statement');
+    base.problem.text = source.statement;
+  }
   base.completion = {...base.completion, back: {href: source.topicHref, label: '返回专题'}};
   // Attach authored choice hints from current type nodes so rebuilt courses get
   // student-facing notes without re-recording every D2 evidence snapshot.
@@ -43,8 +49,69 @@ export function compileCourse(source, evidence, graph, nodes) {
   // when a shared method later gains another supported branch.
   const capturedNodes = new Map(base.graph.nodes.map(node => [node.id, node]));
   const courseGraph = {...graph, nodes: graph.nodes.map(node => capturedNodes.get(node.id) || node)};
-  const bundle = extendStreamBundle(base, evidence.stream, source.targetRef, courseGraph);
+  const bundle = extendStreamBundle(base, evidence.stream, targetRef, courseGraph);
   projectGraphWalkTeaching(bundle, nodes);
+  return bundle;
+}
+
+// Compose independently verified goals in order. Their mathematical identities
+// and completion hashes remain attached to their original goal, never rewritten.
+export function compileCourse(source, evidence, graph, nodes) {
+  const targets = source.targetRefs || [source.targetRef];
+  assert(targets.length && new Set(targets).size === targets.length, 'Invalid course targets');
+  const parts = targets.map(ref => compileTarget(source, evidence, graph, nodes, ref));
+  const bundle = parts[0];
+  if (parts.length > 1) {
+    const [routeId] = Object.keys(bundle.routes);
+    const route = bundle.routes[routeId];
+    assert(parts.every(part => Object.keys(part.routes).length === 1 && part.routes[routeId]?.method === route.method),
+      'Sequential goals require the same verified method route');
+    const completions = parts.map((part, index) => ({...structuredClone(part.routes[routeId].completion),
+      title: source.targetTitles?.[index] || `目标 ${index + 1}`}));
+    for (const [index, part] of parts.entries()) {
+      for (const step of [...part.intro, ...part.routes[routeId].steps]) step.target_ref = targets[index];
+      if (!index) continue;
+      const read = structuredClone(part.intro.find(step => step.id === 'D1'));
+      assert(read, 'Missing next-goal reading');
+      read.id = `goal-${index + 1}-D1`;
+      read.title = source.targetTitles?.[index] || `目标 ${index + 1}：读题`;
+      route.steps.push(read, ...part.routes[routeId].steps);
+      bundle.stream.math_steps.push(...part.stream.math_steps);
+      Object.assign(bundle.stream.step_calls, part.stream.step_calls);
+      bundle.stream.interaction_states.push(...part.stream.interaction_states);
+      bundle.stream.interactions.push(...part.stream.interactions);
+    }
+    // Each target projection contains only its own used graph. Union these
+    // captured nodes/edges so a later target can introduce a new basis or skill.
+    const mergeGraphEntries = key => {
+      const merged = new Map();
+      for (const part of parts) for (const entry of part.graph[key]) {
+        const previous = merged.get(entry.id);
+        assert(!previous || digest(previous) === digest(entry), `Conflicting captured graph ${key}: ${entry.id}`);
+        if (!previous) merged.set(entry.id, structuredClone(entry));
+      }
+      return [...merged.values()];
+    };
+    const lanes = new Map();
+    for (const part of parts) for (const lane of part.graph.lanes || []) {
+      const key = JSON.stringify([lane.label, lane.kind || null]);
+      if (!lanes.has(key)) lanes.set(key, structuredClone(lane));
+      else if (lane.ids) lanes.get(key).ids = [...new Set([...(lanes.get(key).ids || []), ...lane.ids])];
+    }
+    bundle.graph = {...bundle.graph, nodes: mergeGraphEntries('nodes'), edges: mergeGraphEntries('edges'), lanes: [...lanes.values()]};
+    delete bundle.graph.layout;
+    bundle.stream.target_refs = targets;
+    route.goal_completions = completions;
+    route.completion = {
+      status: 'verified', available: true, composition: 'sequential_goals',
+      run_id: bundle.stream.run_id, lesson_version: bundle.stream.lesson_version,
+      target_ref: targets[0], target_refs: targets, route_id: routeId,
+      answer: {kind: 'goal_group', status: 'complete', answers: completions.map(value =>
+        ({target_ref: value.target_ref, title: value.title, answer: value.answer}))},
+    };
+    bundle.bundleVersion = digest(bundle);
+    projectGraphWalkTeaching(bundle, nodes);
+  }
   const routeIds = Object.keys(bundle.routes);
   assert(routeIds.length === 1, 'Static first representative requires one verified route');
   const actions = [];
@@ -82,9 +149,9 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
     .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261028-domain-overlap"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261030-pairing-diagram"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261028-domain-overlap"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261030-pairing-diagram"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)

@@ -162,13 +162,15 @@ def validate_input(value, admission="acceptance"):
         # reviewed goals that never used it. Present rows still receive every
         # ordinary shape/source check above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain'}
+        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation'}
         if kind in ('find_domain', 'match_domain'):
             required.add('function_domain')
         elif kind == 'compare_functions':
             required.add('function_comparison')
         elif kind in ('find_abstract_domain', 'find_abstract_domain_parameter'):
             required.add('abstract_function_domain')
+        elif kind in ('find_value', 'check_constant', 'finite_sum'):
+            required.add('function_evaluation')
         if missing := required - found:
             issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))
     return {"ok": not diagnostics, "diagnostics": diagnostics}

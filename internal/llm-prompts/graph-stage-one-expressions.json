@@ -17,7 +17,11 @@
       "id": "restricted_input_domain_difference",
       "syntax": "ℝ∖{a,b}；[a,b]∖{c}；(a,b) setminus {c}；{a}∖{b}",
       "meaning": "集合差表示原题显式输入范围去掉所列有限点，∖与ASCII setminus同义，不是算术减法。保留原始基域和去点列表，不预先删去重复点或区间外点。比较函数本批执行仅开放实数域、区间或单点域减1至16个固定有理点，一层集合差；超出此范围保留真实题意，交由准入报告能力缺口。只有原题明确给出时才填写 comparison function 的 domain，不从分母非零推导后反填题设。",
-      "examples": ["ℝ∖{-2,1/3}", "[-3,3]∖{0}", "(0,2) setminus {1}"]
+      "examples": [
+        "ℝ∖{-2,1/3}",
+        "[-3,3]∖{0}",
+        "(0,2) setminus {1}"
+      ]
     },
     {
       "id": "finite_set",
@@ -74,20 +78,47 @@
         {
           "input": "函数y=√(a*t^2+2*a*t+5)中t的取值范围为R，求a的取值范围。",
           "output": {
-            "definitions": ["f(t)=sqrt(a*t^2+2*a*t+5)"],
+            "definitions": [
+              "f(t)=sqrt(a*t^2+2*a*t+5)"
+            ],
             "facts": [],
-            "goals": [{"kind": "match_domain", "object": "f", "domain": "ℝ", "symbol": "a"}]
+            "goals": [
+              {
+                "kind": "match_domain",
+                "object": "f",
+                "domain": "ℝ",
+                "symbol": "a"
+              }
+            ]
           },
           "explanation": "只表示给定定义域，尚未求解；内部f是题面y对应关系的别名，不改写公开题干。"
         },
         {
           "input": "对任意t∈R，a*t^2+2*a*t+5≥0恒成立，求a的取值范围。",
           "output": {
-            "facts": ["∀t∈ℝ: a*t^2+2*a*t+5 ≥ 0"],
-            "goals": [{"kind": "find_range", "symbol": "a"}]
+            "facts": [
+              "∀t∈ℝ: a*t^2+2*a*t+5 ≥ 0"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "symbol": "a"
+              }
+            ]
           },
           "explanation": "这是题面直接给出的量词不等式，保留原条件；不添加函数定义或改成match_domain。"
         }
+      ]
+    },
+    {
+      "id": "explicit_function_evaluation",
+      "syntax": "f(u)=3*u^2-1；Dom(f)=[0,2]；find_value / check_constant / finite_sum",
+      "meaning": "定义放definitions，题给函数完整域放facts的Dom(f)=集合。数值、含变量表达式与复合调用均用find_value.expression，是否定值用check_constant.expression；有限和用finite_sum.terms，单列项expression，索引块再附index/lower/upper。绑定替换只发生在后续求解，提取保留原输入及原函数体，不约分、去重、代入或补解答条件。",
+      "examples": [
+        "Dom(f)=[0,2]",
+        "Dom(g)=ℝ∖{-2}",
+        "f(g(x))",
+        "g(1/x-1)"
       ]
     }
   ]

@@ -22,6 +22,8 @@ from .function_domain_parameter import VERSION as DOMAIN_PARAMETER_VERSION
 from .function_domain_parameter import describe_match_domain_goal
 from .function_equality import VERSION as COMPARISON_VERSION
 from .function_equality import describe_comparison_goal
+from .function_evaluation import VERSION as EVALUATION_VERSION
+from .function_evaluation import describe_evaluation_goal
 
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
@@ -43,6 +45,13 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec(
+        'function_evaluation', ('goal',), 'function_evaluation',
+        ('function-concept#definition', 'function-concept#elements'),
+        '将完整输入放进已有函数规则', version=EVALUATION_VERSION,
+        supported_structures=('explicit_function_forward_evaluation',),
+        computation_boundary='original bound calls, complete visible definitions and shared structural budgets only',
+    ),
     FeatureSpec(
         'function_comparison', ('goal',), 'function_comparison',
         ('function-concept#identity',), '比较各函数的定义域和对应关系',
@@ -445,6 +454,22 @@ def _scope_features(report, candidate, scope, ancestors, features):
             features.append(feature)
 
         goal_ast = goal["target"]
+        if goal['kind'] in ('find_value', 'check_constant', 'finite_sum'):
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            produced['goal']['knowledge_refs'] = ['function-concept#definition', 'function-concept#elements']
+            try:
+                description = describe_evaluation_goal(report, scope, ancestors, goal_index)
+                source_refs = [target_ref, *(f['source_ref'] for f in description['functions'])]
+                source_refs += [f['input_domain_source_ref'] for f in description['functions']
+                                if f.get('input_domain_source_ref')]
+                add('function_evaluation', description, source_refs=source_refs)
+            except (NotationError, ValueError, TypeError) as exc:
+                add('function_evaluation', diagnostic={'code': getattr(exc, 'code', 'evaluation.invalid_structure')},
+                    source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_evaluation_goal'}, source_refs=[target_ref])
+            continue
         if goal['kind'] == 'compare_functions':
             add('goal', {'kind': 'compare_functions', 'mode': goal['mode'],
                          'select_relation': goal['select_relation'],

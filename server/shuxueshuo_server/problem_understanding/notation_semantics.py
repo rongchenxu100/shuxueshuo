@@ -286,6 +286,11 @@ class Canonical:
         for g in scope["goals"]:
             from .notation_compile import typecheck
 
+            from .notation_evaluation import canonical_evaluation, is_evaluation_goal
+
+            if is_evaluation_goal(g):
+                goals.append(canonical_evaluation(g, self.aliases))
+                continue
             if g['kind'] == 'compare_functions':
                 from .notation_function_comparison import canonical_comparison
 

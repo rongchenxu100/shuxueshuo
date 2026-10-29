@@ -1,0 +1,163 @@
+{
+  "source": "用户上传教材第86页：共同题干与选定小问",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "msg_01a16d08-d6da-78c1-85ca-2c36c45d03e2",
+  "source_message_timestamp": "2026-10-24T08:30:58.271Z",
+  "source_attachment_index": 5,
+  "original_filename": "codex-clipboard-f0c603b8-4fb0-4916-9ac5-48366a9b315f.png",
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "4a75ea07d9e6faea65c3e50a73a73a4576bab8b8296cf08c1d4087758206ee89"
+  },
+  "questions": [
+    {
+      "problem_id": "function-concepts-q28a",
+      "original_part": "1",
+      "file": "source-question-a.png",
+      "size": [
+        454,
+        163
+      ],
+      "sha256": "85e3921f1bcc744f3779048c62084a672df52671437a6ab039365cf6837290dc",
+      "regions": [
+        {
+          "crop_xyxy": [
+            196,
+            516,
+            618,
+            586
+          ],
+          "paste_xy": [
+            16,
+            16
+          ]
+        },
+        {
+          "crop_xyxy": [
+            202,
+            596,
+            450,
+            641
+          ],
+          "paste_xy": [
+            16,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "problem_id": "function-concepts-q28b",
+      "original_part": "2",
+      "file": "source-question-b.png",
+      "size": [
+        454,
+        161
+      ],
+      "sha256": "93598de95e20bcc781b68e08ce47d432c03f8e7e239790f0e59c7b3cb4d7190e",
+      "regions": [
+        {
+          "crop_xyxy": [
+            196,
+            516,
+            618,
+            586
+          ],
+          "paste_xy": [
+            16,
+            16
+          ]
+        },
+        {
+          "crop_xyxy": [
+            198,
+            648,
+            525,
+            691
+          ],
+          "paste_xy": [
+            16,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "problem_id": "function-concepts-q28c",
+      "original_part": "3",
+      "file": "source-question-c.png",
+      "size": [
+        454,
+        187
+      ],
+      "sha256": "f757e138322b60ae72fcfc68b5faf6d514070b1efc8c312f26b56f4767e17d75",
+      "regions": [
+        {
+          "crop_xyxy": [
+            196,
+            516,
+            618,
+            586
+          ],
+          "paste_xy": [
+            16,
+            16
+          ]
+        },
+        {
+          "crop_xyxy": [
+            194,
+            697,
+            482,
+            766
+          ],
+          "paste_xy": [
+            16,
+            102
+          ]
+        }
+      ]
+    },
+    {
+      "problem_id": "function-concepts-q28d",
+      "original_part": "4",
+      "file": "source-question-d.png",
+      "size": [
+        454,
+        158
+      ],
+      "sha256": "1dbc24a92b4b0e7f76bde9df231dc2bbc5aa30e61a2333734abdf75f8fff359f",
+      "regions": [
+        {
+          "crop_xyxy": [
+            196,
+            516,
+            618,
+            586
+          ],
+          "paste_xy": [
+            16,
+            16
+          ]
+        },
+        {
+          "crop_xyxy": [
+            190,
+            774,
+            384,
+            814
+          ],
+          "paste_xy": [
+            16,
+            102
+          ]
+        }
+      ]
+    }
+  ],
+  "processing": "历史附件内嵌JPEG解码为PNG；每题由公共题干与指定小问的原像素裁片拼接，保留原小问编号，去除其他小问和原书解答，未改字或重排数学内容。组合图并非一次独立上传照片。"
+}

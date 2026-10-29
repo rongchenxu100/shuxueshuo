@@ -1733,6 +1733,11 @@
       "repeat": "always",
       "compiler": "abstract_function_domain",
       "parts": []
+    },
+    "function_evaluation_derivation": {
+      "repeat": "always",
+      "compiler": "function_evaluation",
+      "parts": []
     }
   },
   "overrides": {

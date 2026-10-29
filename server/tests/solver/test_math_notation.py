@@ -130,6 +130,8 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_abstract_domain",
         "find_abstract_domain_parameter",
         "find_abstract_range",
+        "check_constant",
+        "finite_sum",
     }
     for goal in goals:
         assert goal["description"]

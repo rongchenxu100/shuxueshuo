@@ -533,6 +533,21 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
+    if values.get('function_evaluation', {}).get('structure_supported'):
+        from .evaluation_surface import evaluation_source_spans
+
+        spans = evaluation_source_spans(candidate, target_ref, ranges,
+                                        values['function_evaluation'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{
+                'code': 'd1.function_evaluation_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'function_evaluation'])
+            fragments[-1]['source_refs'] = refs
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if (values.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter")
             and values.get("abstract_function_domain", {}).get("structure_supported")):
         locator = (_abstract_parameter_source_spans

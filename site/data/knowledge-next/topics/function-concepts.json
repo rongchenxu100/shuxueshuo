@@ -63,8 +63,14 @@
       "id": "evaluation",
       "label": "求函数值",
       "type": "type-function-evaluation",
-      "description": "根据定义和对应关系求值，处理逐层代入与输入输出关系。",
-      "problems": []
+      "description": "把完整输入代入函数规则，逐层求值，保留输入限制，并验证定值与配对求和。",
+      "problems": [
+        "function-concepts-q28a",
+        "function-concepts-q28b",
+        "function-concepts-q28c",
+        "function-concepts-q28d",
+        "function-concepts-q29b"
+      ]
     },
     {
       "id": "range",
@@ -181,6 +187,51 @@
       "bundle": "/data/graph-walk/function-concepts-parameter-variant02.json",
       "types": [
         "type-abstract-function-domain"
+      ]
+    },
+    "function-concepts-q28a": {
+      "label": "直接代入求函数值 · Q28（1）",
+      "path": "/topics/function-concepts/q28a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q28a.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-concepts-q28b": {
+      "label": "逐层代入求函数值 · Q28（2）",
+      "path": "/topics/function-concepts/q28b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q28b.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-concepts-q28c": {
+      "label": "表达式代入与合法范围 · Q28（3）",
+      "path": "/topics/function-concepts/q28c/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q28c.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-concepts-q28d": {
+      "label": "复合表达式求值 · Q28（4）",
+      "path": "/topics/function-concepts/q28d/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q28d.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
+    "function-concepts-q29b": {
+      "label": "验证定值与配对求和 · Q29（2）",
+      "path": "/topics/function-concepts/q29b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q29b.json",
+      "types": [
+        "type-function-evaluation"
       ]
     }
   }

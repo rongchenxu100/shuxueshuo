@@ -378,6 +378,10 @@ const GOALS = {
   find_abstract_domain_parameter: g => `${math(g.parameter)} 的取值范围`,
   find_range: g => `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
+  check_constant: g => `${math(g.expression)} 是否为定值`,
+  finite_sum: g => (g.terms || []).map(term => term.index
+    ? `$\\sum_{${escape(tex(term.index))}=${escape(String(term.lower))}}^{${escape(String(term.upper))}} ${escape(tex(term.expression))}$`
+    : math(term.expression)).join(' + ') + ' 的和',
   find_count: g => `满足条件的集合 ${math(g.symbol)} 的个数`,
   find_minimum: g => `${math(g.expression)} 的最小值`,
   find_maximum: g => `${math(g.expression)} 的最大值`,
@@ -403,6 +407,7 @@ function meaningBlocks(scope, title, blocks) {
       }
       return `${prefix}求 ${goalLine(goal)}`;
     }
+    if (goal.kind === 'check_constant') return `判断 ${goalLine(goal)}`;
     if (goal.kind !== 'compare_functions') return `求 ${goalLine(goal)}`;
     if (goal.mode === 'pair') return '判断题给的两个函数是否为同一函数';
     const relation = {equal: '表示同一函数', different: '表示不同函数'}[goal.select_relation];
@@ -502,7 +507,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261028-domain-overlap';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261030-pairing-diagram';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;
@@ -596,7 +601,7 @@ function goalTitle(goal) {
   const siblings = goals().filter(other => other.scope === goal.scope);
   if (siblings.length < 2) return part;
   const authored = authoredGoal(goal.target_ref);
-  const what = authored ? `求 ${goalLine(authored)}` : `目标 ${siblings.indexOf(goal) + 1}`;
+  const what = authored ? `${authored.kind === 'check_constant' ? '判断' : '求'} ${goalLine(authored)}` : `目标 ${siblings.indexOf(goal) + 1}`;
   return part ? `${part} · ${what}` : what;
 }
 

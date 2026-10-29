@@ -1,0 +1,236 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-q29b",
+  "label": "验证定值与配对求和 · Q29（2）",
+  "path": "/topics/function-concepts/q29b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-q29b.json",
+  "types": [
+    "type-function-evaluation"
+  ],
+  "statement": "已知函数 $f(x)=\\frac{x+2}{x+1}$。判断 $f(x)+f\\left(\\frac{1}{x}\\right)$ 是否为定值，并求 $f(1)+f(2)+\\cdots+f(101)+f\\left(\\frac{1}{2}\\right)+f\\left(\\frac{1}{3}\\right)+\\cdots+f\\left(\\frac{1}{101}\\right)$。",
+  "routes": {
+    "function-evaluation": {
+      "label": "代入法",
+      "methods": [
+        "method-function-evaluation"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-evaluation"
+          ]
+        },
+        "ebcec3823a44ccaede1f7bd6#1": {
+          "title": "明确完整输入",
+          "position": 4,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "a9d203aef381e55b5723d16e#1": {
+          "title": "代入试算",
+          "position": 5,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "a9d203aef381e55b5723d16e#2": {
+          "title": "代入试算",
+          "position": 6,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "a9d203aef381e55b5723d16e#3": {
+          "title": "观察试算结果",
+          "position": 7,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "c3624e576cb9b2549a8ab160#1": {
+          "title": "验证定值",
+          "position": 8,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "求有限和",
+          "position": 9,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "cb9a3fdbababb79427bfd328#1": {
+          "title": "配对计数",
+          "position": 10,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "43fdbd0e86aaee0513799b00#1": {
+          "title": "计算剩余项",
+          "position": 11,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "c4142de870d75d8eaef9c458#1": {
+          "title": "合计",
+          "position": 12,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/"
+  ],
+  "content_version": "b45e3a1304c8e77859995a2332a5a6669e25fdb6493e8d005b5436b1ca73b7e7"
+}

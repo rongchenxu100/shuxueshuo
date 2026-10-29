@@ -106,6 +106,12 @@
                     },
                     "maxItems": 128,
                     "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "input_domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅题面明确另限外层自由变量范围时填写；不能填自然域或答案。"
                   }
                 },
                 "additionalProperties": false,
@@ -366,6 +372,12 @@
               },
               {
                 "$ref": "#/$defs/FindAbstractRangeGoal"
+              },
+              {
+                "$ref": "#/$defs/CheckConstantGoal"
+              },
+              {
+                "$ref": "#/$defs/FiniteSumGoal"
               }
             ]
           },
@@ -788,6 +800,99 @@
         }
       },
       "description": "抽象函数完整值域目标。保留已知调用的定义域和值域及目标原式，和同题定义域目标分别记录。known_range必须有明确题面归属；缺少时报告不确定，不编造事实。"
+    },
+    "CheckConstantGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expression"
+      ],
+      "properties": {
+        "kind": {
+          "const": "check_constant",
+          "description": "判断是否为定值"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "原题要求判断是否为定值的完整表达式，不提前代入、化简或输出结论。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "题面明确的外层变量范围；不填推导范围。"
+        }
+      },
+      "description": "判断给定表达式是否在其合法范围内恒为定值，保留原式不输出结论。"
+    },
+    "FiniteSumGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "terms"
+      ],
+      "properties": {
+        "kind": {
+          "const": "finite_sum",
+          "description": "求有限函数值之和"
+        },
+        "terms": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expression"
+            ],
+            "properties": {
+              "expression": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "description": "一个出现项或索引块的原表达式，保留原函数调用，不填答案。"
+              },
+              "index": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "description": "仅此块的整数索引符号，不捕获外层同名变量。"
+              },
+              "lower": {
+                "type": "integer",
+                "minimum": -1000000,
+                "maximum": 1000000
+              },
+              "upper": {
+                "type": "integer",
+                "minimum": -1000000,
+                "maximum": 1000000
+              }
+            },
+            "dependentRequired": {
+              "index": [
+                "lower",
+                "upper"
+              ],
+              "lower": [
+                "index",
+                "upper"
+              ],
+              "upper": [
+                "index",
+                "lower"
+              ]
+            }
+          },
+          "description": "按原出现顺序保留单列项和闭区间整数索引块，重复项不去重。"
+        }
+      },
+      "description": "保留单列出现项以及闭区间整数索引块。重复项不去重，不预先展开长和式；上下限不明报告uncertainty。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

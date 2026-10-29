@@ -18,7 +18,7 @@ from types import SimpleNamespace
 import sympy as sp
 from jsonschema import Draft202012Validator, ValidationError
 
-from . import domain_borrow, domain_interaction, domain_visuals, equality_presentation
+from . import domain_borrow, domain_interaction, domain_visuals, equality_presentation, evaluation_presentation
 from . import interaction_graph_contract as graph_contract
 from . import interaction_graphs as drawing
 from .capabilities import CapabilityGap
@@ -1648,6 +1648,8 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     their exact thresholds and the fixed grid feed representatives; later cards
     are never read.
     """
+    if rule.get("compiler") == "function_evaluation":
+        return evaluation_presentation.compile_evaluation(seeds, interaction_id)
     if rule.get("compiler") == "function_domain":
         return domain_interaction.compile_domain(seeds, interaction_id)
     if rule.get('compiler') == 'function_equality':

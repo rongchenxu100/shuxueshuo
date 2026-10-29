@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-evaluation",
+  "admission": "function_evaluation",
+  "method": "method-function-evaluation",
+  "route_id": "function-evaluation"
+}

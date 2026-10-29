@@ -141,7 +141,7 @@ def _goal(goal, features, text, candidate=None):
                                            "d1.function_definition_not_uniquely_located"}]
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
-    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter"):
+    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_value", "check_constant", "finite_sum"):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -404,6 +404,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('function_evaluation', {}).get('structure_supported'):
+        return _evaluation_d1_rows(target, fragments, known, text)
     if known.get("goal", {}).get("kind") == "compare_functions":
         return _comparison_d1_rows(target, fragments, known, text)
     if known.get("goal", {}).get("kind") == "find_domain":
@@ -475,6 +477,42 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _evaluation_d1_rows(target, fragments, known, text):
+    """Read the current output task without computing or hinting its answer."""
+    evaluation = known.get('function_evaluation') or {}
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not evaluation.get('structure_supported') or not selected:
+        return {'rows': [], 'summary': ''}
+    kind = evaluation['kind']
+    if kind == 'check_constant':
+        correct = '判断整个表达式在合法输入范围内是否始终保持同一个值'
+        opposite = '选一个输入算出函数值，就能确定它是否为定值'
+        feedback = '一个输入只能得到一次结果；定值判断需要检查整个合法输入范围。'
+        summary = '先按函数规则代入，再验证表达式是否在完整合法范围上恒定。'
+    elif kind == 'finite_sum':
+        correct = '把题中列出的各次函数值相加，重复出现的项分别计入'
+        opposite = '找到一对函数值的和，就已经求出了整个和式'
+        feedback = '配对只是整理过程；原和式的每一次出现都必须计入，还要处理剩余项。'
+        summary = '按原和式逐项计数，可用已验证的配对关系整理，再合计全部项。'
+    else:
+        correct = (f'求出代入后的表达式，并注明自变量 ${evaluation["variable"]}$ 的取值范围'
+                   if evaluation.get('variable_ref') else '把题目指定的输入代入对应函数，求出输出值')
+        opposite = '收集函数在整个定义域上的所有输出，求出值域'
+        feedback = '这里求的是给定输入对应的输出；值域才是全部输入产生的输出集合。'
+        summary = '代入是把完整输入放进已有函数规则；复合函数从内向外依次代入。'
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [fragment['id'] for fragment in selected],
+           'knowledge_refs': list(dict.fromkeys(ref for fragment in selected for ref in fragment['knowledge_refs'])),
+           'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option(opposite, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, evaluation], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '本问要求处理 ' + '、'.join(span['text'] for span in spans) + '。需要完成什么任务？',
+            'feedback': feedback, 'summary': summary}
 
 
 def _comparison_d1_rows(target, fragments, known, text):

@@ -1,0 +1,44 @@
+{
+  "original_text": "已知函数 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求$f(1)$、$g(1)$。",
+  "root": {
+    "definitions": [
+      "f(x)=3*x^2-1",
+      "g(x)=1/(x+2)"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(1)"
+      },
+      {
+        "kind": "find_value",
+        "expression": "g(1)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求$f(1)$、$g(1)$。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

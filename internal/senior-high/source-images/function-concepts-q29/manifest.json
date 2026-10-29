@@ -1,0 +1,67 @@
+{
+  "source": "用户上传教材第87页：共同题干与选定小问",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "msg_01a16d08-d6da-78c1-85ca-2c36c45d03e2",
+  "source_message_timestamp": "2026-10-24T08:30:58.271Z",
+  "source_attachment_index": 6,
+  "original_filename": "codex-clipboard-1133f4e3-73cc-4861-bdbe-69567d924732.png",
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "46174da19a8afd31f38964b680e22ce3ad2e554e2171b448f2b36bb86f903006"
+  },
+  "questions": [
+    {
+      "problem_id": "function-concepts-q29b",
+      "original_part": "2",
+      "file": "source-question-b.png",
+      "size": [
+        1084,
+        225
+      ],
+      "sha256": "5ade81aa58ccff8a78fc5551b683e778eb40cf9823f3cc41f6d9c0e8a1e9f0df",
+      "regions": [
+        {
+          "crop_xyxy": [
+            128,
+            465,
+            475,
+            542
+          ],
+          "paste_xy": [
+            16,
+            16
+          ]
+        },
+        {
+          "crop_xyxy": [
+            128,
+            625,
+            515,
+            704
+          ],
+          "paste_xy": [
+            16,
+            130
+          ]
+        },
+        {
+          "crop_xyxy": [
+            515,
+            604,
+            1180,
+            704
+          ],
+          "paste_xy": [
+            403,
+            109
+          ]
+        }
+      ]
+    }
+  ],
+  "processing": "历史附件内嵌JPEG解码为PNG；每题由公共题干与指定小问的原像素裁片拼接，保留原小问编号，去除其他小问和原书解答，未改字或重排数学内容。组合图并非一次独立上传照片。 第(2)问因原页倾斜采用左右相接裁片，保留原布局并避开第(1)问末尾。"
+}

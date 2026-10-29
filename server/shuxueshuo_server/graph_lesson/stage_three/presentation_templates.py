@@ -412,8 +412,10 @@ from .abstract_parameter_presentation import (
 from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
 from .equality_presentation import view as equality_view
+from .evaluation_presentation import presentation as evaluation_presentation
 
 PREPARERS = {
+    'function_evaluation_view': evaluation_presentation,
     'equality_view': equality_view,
     'abstract_domain_view': abstract_domain_presentation,
     'abstract_domain_parameter_view': abstract_parameter_presentation,
@@ -442,6 +444,11 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    'function_evaluation_view': {
+        'evaluation_title', 'evaluation_explanation', 'derivation_caption',
+        'derivation_left_label', 'derivation_left_math', 'derivation_left_note',
+        'derivation_right_label', 'derivation_right_math', 'condition_groups', 'pairing_diagram',
+    },
     'abstract_domain_parameter_view': {
         'domain_explanation', 'derivation_caption', 'derivation_left_label',
         'derivation_left_math', 'derivation_left_note', 'derivation_right_label',
@@ -558,7 +565,7 @@ def validate_registry(registry):
 def _validate_highlight(highlight, names):
     if (not isinstance(highlight, dict)
             or not {"caption", "items"} <= set(highlight)
-            <= {"caption", "items", "connector", "result", "conclusion_only", "layout", "replace_with_graph", "show_result", "interval_explorer"}
+            <= {"caption", "items", "connector", "result", "conclusion_only", "layout", "replace_with_graph", "show_result", "interval_explorer", "condition_groups", "pairing_diagram"}
             or not isinstance(highlight.get("connector", ""), str)
             or highlight.get("layout", "merge") not in ("merge", "derivation")
             or (highlight.get("layout") == "merge" and "result" not in highlight)
@@ -571,6 +578,14 @@ def _validate_highlight(highlight, names):
         if highlight.get("layout") != "derivation":
             raise ValueError("presentation.invalid_interval_explorer_layout")
         _validate_path(highlight["interval_explorer"], names)
+    if "condition_groups" in highlight:
+        if highlight.get("layout") != "derivation":
+            raise ValueError("presentation.invalid_condition_groups_layout")
+        _validate_path(highlight["condition_groups"], names)
+    if "pairing_diagram" in highlight:
+        if highlight.get("layout") != "derivation":
+            raise ValueError("presentation.invalid_pairing_diagram_layout")
+        _validate_path(highlight["pairing_diagram"], names)
     if isinstance(highlight.get("replace_with_graph"), str):
         _validate_path(highlight["replace_with_graph"], names)
     _validate_node(highlight["caption"], names)
@@ -645,6 +660,21 @@ def render_highlight(specification, bindings, *, has_case=False):
             if not isinstance(explorer, dict):
                 raise ValueError("presentation.invalid_interval_explorer")
             rendered["interval_explorer"] = deepcopy(explorer)
+    if "condition_groups" in highlight:
+        groups = _lookup(values, highlight["condition_groups"])
+        if groups is not None:
+            if (not isinstance(groups, list) or len(groups) != 2 or any(
+                    not isinstance(group, dict) or set(group) != {'label', 'math'}
+                    or not all(isinstance(value, str) and value for value in group.values())
+                    for group in groups)):
+                raise ValueError("presentation.invalid_condition_groups")
+            rendered["condition_groups"] = deepcopy(groups)
+    if "pairing_diagram" in highlight:
+        diagram = _lookup(values, highlight["pairing_diagram"])
+        if diagram is not None:
+            if not isinstance(diagram, dict):
+                raise ValueError("presentation.invalid_pairing_diagram")
+            rendered["pairing_diagram"] = deepcopy(diagram)
     if result := _render(highlight.get("result", ""), values):
         rendered["result"] = result
         if highlight.get("show_result"):

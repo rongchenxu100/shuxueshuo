@@ -463,6 +463,72 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "result_type",
+            "defined",
+            "domain",
+            "value",
+            "expression",
+            "is_constant"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_value",
+                "check_constant",
+                "finite_sum"
+              ]
+            },
+            "status": {
+              "const": "complete"
+            },
+            "result_type": {
+              "enum": [
+                "scalar_value",
+                "expression_with_domain",
+                "constant_check",
+                "finite_sum"
+              ]
+            },
+            "defined": {
+              "type": "boolean"
+            },
+            "domain": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "expression": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "is_constant": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
         }
       ]
     }

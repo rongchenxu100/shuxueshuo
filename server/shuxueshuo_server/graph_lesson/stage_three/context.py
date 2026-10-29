@@ -119,7 +119,10 @@ def build_context(candidate, target_ref):
         "processing": {"status": "pending", "unprocessed_source_refs": [entry["source_ref"] for entry in entries]},
     }
 
-    if goal['kind'] == 'find_domain':
+    if goal['kind'] in ('find_value', 'check_constant', 'finite_sum'):
+        from ..stage_one.function_evaluation import inspect_evaluation_target
+        context['evaluation_goal'] = inspect_evaluation_target(candidate, target_ref)
+    elif goal['kind'] == 'find_domain':
         from ..stage_one.function_domain import inspect_domain_target
         context['domain_goal'] = inspect_domain_target(candidate, target_ref)
     elif goal['kind'] == 'match_domain':

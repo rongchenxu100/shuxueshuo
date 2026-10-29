@@ -92,6 +92,97 @@ test('deduction labels, notes, captions and formulas are inserted as text, never
   }
 });
 
+test('domain conditions remain parallel while only the final unknown becomes the verified domain', () => {
+  const {document, find} = documentFixture();
+  const board = {layout: 'derivation', caption: '确定定义域', connector: '⇒', items: [
+    {label: '目标函数', math: 'g(\\frac1x-1)'}, {label: '定义域（$x$ 的取值范围）', math: null}],
+  condition_groups: [
+    {label: '输入表达式有意义', math: '\\frac1x-1\\text{ 有意义}\\iff x\\ne0'},
+    {label: '输入属于 $g$ 的定义域', math: '\\frac1x-1\\ne-2'}]};
+  const pending = createDerivationBoard(document, board);
+  assert.equal(pending.dataset.layout, 'parallel-conditions');
+  const groups = find('gw-domain-conditions', pending)[0];
+  assert.equal(groups.children.length, 2);
+  assert.equal(groups['aria-label'], '需要同时满足的两个条件');
+  assert.deepEqual(groups.children.map(node => node.dataset.role), ['condition', 'condition']);
+  assert.deepEqual(find('gw-derivation-label', groups).map(node => node.textContent), board.condition_groups.map(group => group.label));
+  assert.equal(find('gw-derivation-arrow', pending).length, 0, 'parallel conditions have no sequential arrow');
+  assert.equal(find('gw-domain-condition-join-label', pending)[0].textContent, '同时满足');
+  assert.equal(find('gw-derivation-unknown', pending).length, 1);
+  const completed = createMathCard(document, {...step, highlight: {...board,
+    items: [board.items[0], {...board.items[1], math: '\\mathbb R\\setminus\\{-1,0\\}'}]}});
+  assert.equal(completed.conclusion.dataset.state, 'complete');
+  assert.deepEqual(find('gw-derivation-formula', find('gw-domain-conditions', completed.node)[0]).map(node => node.textContent),
+    find('gw-derivation-formula', groups).map(node => node.textContent));
+  assert.equal(find('gw-derivation-unknown', completed.node).length, 0);
+  assert.equal(find('gw-derivation-formula', completed.conclusion).at(-1).textContent, '\\displaystyle \\mathbb R\\setminus\\{-1,0\\}');
+});
+
+test('parallel condition labels and formulas stay inert text and retain math rendering markers', () => {
+  const {document, find} = documentFixture();
+  const source = '<img src=x onerror=alert(1)>', formula = '\\text{<svg/onload=alert(1)>}';
+  const board = createDerivationBoard(document, {layout: 'derivation', caption: '定义域', connector: '⇒',
+    items: [{label: '目标', math: 'g(x)'}, {label: '结果', math: null}],
+    condition_groups: [{label: source, math: formula}, {label: '输入属于 $g$ 的定义域', math: 'x\\ne0'}]});
+  const groups = find('gw-domain-conditions', board)[0];
+  assert.equal(find('gw-derivation-label', groups)[0].textContent, source);
+  assert.equal(find('gw-derivation-formula', groups)[0].textContent, `\\displaystyle ${formula}`);
+  assert.ok(find('gw-derivation-label', groups).every(node => node.dataset.mathText === 'true' && !node.children.length));
+  assert.ok(find('gw-derivation-formula', groups).every(node => node.dataset.mathFormula === 'true' && !node.children.length));
+});
+
+test('pairing preserves occurrences and the same arrangement when leftovers become the focus', () => {
+  const {document, find} = documentFixture();
+  const diagram = {focus: 'pairs', pair_value: '3', omitted_pairs: 97, omitted_leftovers: 0,
+    pairs: [
+      {left_id: 't2', right_id: 'r2', left_math: 'f(2)', right_math: 'f(\\frac12)'},
+      {left_id: 't3', right_id: 'r3', left_math: 'f(3)', right_math: 'f(\\frac13)'},
+      {left_id: 't101', right_id: 'r101', left_math: 'f(101)', right_math: 'f(\\frac1{101})'}],
+    leftovers: [{id: 't1', math: 'f(1)'}, {id: 'duplicate-t1', math: 'f(1)'}]};
+  const board = {layout: 'derivation', caption: '配对计数', connector: '⇒', pairing_diagram: diagram,
+    items: [{label: '旧示例卡不应出现', math: '2\\leftrightarrow\\frac12'}, {label: '配对与单列项', math: null}]};
+  const pending = createDerivationBoard(document, board);
+  assert.equal(pending.dataset.layout, 'pairing');
+  assert.equal(find('gw-derivation-unknown', pending).length, 1);
+  assert.deepEqual(find('gw-derivation-label', pending).map(node => node.textContent), ['配对与单列项']);
+  const figure = find('gw-pairing-diagram', pending)[0];
+  assert.equal(figure.dataset.focus, 'pairs');
+  assert.equal(find('gw-pairing-scroll', figure)[0].tabindex, '0');
+  const terms = find('gw-pairing-term', figure);
+  assert.deepEqual(terms.map(node => node.dataset.occurrenceId), ['t1', 'duplicate-t1', 't2', 'r2', 't3', 'r3', 't101', 'r101']);
+  assert.deepEqual(terms.slice(0, 2).map(node => node.textContent), ['\\displaystyle f(1)', '\\displaystyle f(1)']);
+  assert.equal(find('gw-pairing-pair', figure).length, 3);
+  assert.equal(find('gw-pairing-ellipsis', figure).length, 1);
+  assert.equal(find('gw-pairing-link-arrow', figure).length, 3);
+  assert.deepEqual(find('gw-pairing-value', figure).map(node => node.textContent), Array(3).fill('\\text{和}=3'));
+  const texts = node => [node.textContent, ...node.children.flatMap(texts)];
+  assert.ok(!texts(figure).some(value => /97|100|201|3\/2/.test(value)), 'the picture does not disclose the counting or leftover result');
+  const completed = createDerivationBoard(document, {...board,
+    pairing_diagram: {...diagram, focus: 'leftovers'}, items: [board.items[0], {label: '单列项之和', math: '3'}]});
+  const leftoverFigure = find('gw-pairing-diagram', completed)[0];
+  assert.equal(leftoverFigure.dataset.focus, 'leftovers');
+  assert.deepEqual(find('gw-pairing-term', leftoverFigure).map(node => [node.dataset.occurrenceId, node.textContent]),
+    terms.map(node => [node.dataset.occurrenceId, node.textContent]));
+  assert.equal(find('gw-derivation-unknown', completed).length, 0);
+  assert.equal(find('gw-derivation-formula', completed)[0].textContent, '\\displaystyle 3');
+});
+
+test('pairing formulas and occurrence IDs remain inert source text', () => {
+  const {document, find} = documentFixture();
+  const untrusted = '<img src=x onerror=alert(1)>';
+  const node = createDerivationBoard(document, {layout: 'derivation', caption: '配对', connector: '⇒',
+    items: [{label: '输入', math: 'f(x)'}, {label: '结果', math: null}],
+    pairing_diagram: {focus: 'leftovers', pair_value: untrusted, omitted_pairs: 0, omitted_leftovers: 0,
+      pairs: [{left_id: untrusted, right_id: 'r', left_math: untrusted, right_math: 'f(1)'}],
+      leftovers: [{id: 'l', math: untrusted}]}});
+  assert.equal(find('gw-pairing-term', node)[1].dataset.occurrenceId, untrusted);
+  assert.equal(find('gw-pairing-term', node)[0].textContent, `\\displaystyle ${untrusted}`);
+  assert.equal(find('gw-pairing-value', node)[0].textContent, `\\text{和}=${untrusted}`);
+  for (const name of ['gw-pairing-term', 'gw-pairing-value']) {
+    assert.ok(find(name, node).every(term => term.dataset.mathFormula === 'true' && term.children.length === 0));
+  }
+});
+
 test('shared card preserves identity, formula structure and a separate empty QA region', () => {
   const {document, find} = documentFixture(), rendered = [];
   const card = createMathCard(document, step, {renderMath: node => rendered.push(node)});
@@ -470,4 +561,33 @@ test('verified original option appears alongside the mathematical answer, with n
     {...payload.original_choice, target_ref: '/wrong'}, {...payload.original_choice, correct_labels: ['A', 'B']}]) {
     assert.equal(find('stage-three-choice-answer', createRouteCompletion(document, {...payload, original_choice}).node).length, 0);
   }
+});
+
+test('M9 typed completion retains expression domain and treats nonconstant separately', () => {
+  const {document, find} = documentFixture();
+  const answer = {kind: 'find_value', status: 'complete', result_type: 'expression_with_domain',
+    defined: true, expression: {latex: '\\frac{x}{x+1}'}, domain: {latex: '\\mathbb{R}\\setminus\\{-1,0\\}'}};
+  const view = createRouteCompletion(document, {answer});
+  assert.equal(view.complete, true);
+  assert.match(find('stage-three-answer-domain', view.node)[0].textContent, /-1,0/);
+  assert.equal(createRouteCompletion(document, {answer: {...answer, domain: null}}).complete, false);
+  const negative = createRouteCompletion(document, {answer: {kind: 'check_constant', status: 'complete',
+    result_type: 'constant_check', defined: true, is_constant: false, value: null}});
+  assert.equal(negative.complete, true);
+  assert.equal(negative.node.children[0].textContent, '不是定值。');
+  assert.equal(find('stage-three-answer', negative.node).length, 0);
+});
+
+test('M9 grouped completion requires every target and shows each original result', () => {
+  const {document, find} = documentFixture();
+  const answers = [{target_ref: '/root/goals/0', title: '求 f(1)', answer: {kind: 'find_value', status: 'complete',
+    result_type: 'scalar_value', defined: true, value: {latex: '2'}}},
+  {target_ref: '/root/goals/1', title: '求 g(1)', answer: {kind: 'find_value', status: 'complete',
+    result_type: 'scalar_value', defined: true, value: {latex: '\\frac13'}}}];
+  const answer = {kind: 'goal_group', status: 'complete', answers};
+  const view = createRouteCompletion(document, {answer});
+  assert.equal(view.complete, true);
+  assert.equal(find('stage-three-goal-answers', view.node)[0].children.length, 2);
+  assert.equal(createRouteCompletion(document, {answer: {...answer, answers: []}}).complete, false);
+  assert.equal(createRouteCompletion(document, {answer: {...answer, answers: [answers[0], {...answers[1], answer: {status: 'pending'}}]}}).complete, false);
 });

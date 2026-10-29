@@ -55,6 +55,7 @@ def frozen_files():
     paths = [
         *Path(__file__).parent.glob("*.py"),
         package / "graph_lesson/function_equality.py",
+        package / "graph_lesson/function_evaluation.py",
         package / "graph_lesson/domain_expression.py",
         *(package / "problem_understanding").glob("*.py"),
         package / "solver/extraction/multimodal_provider.py",
@@ -137,6 +138,9 @@ def _alias_policy(scope, scope_path, related):
         if path != scope_path and scope_path not in ancestors:
             continue
         for goal in item.get("goals", []):
+            if goal['kind'] == 'finite_sum':
+                # Sum index binders belong to their own term blocks.
+                continue
             if goal['kind'] == 'compare_functions':
                 # The dedicated compiler owns option-local function binders;
                 # these are not global scalar aliases or parameter targets.

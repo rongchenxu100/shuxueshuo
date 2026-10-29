@@ -2541,6 +2541,37 @@
         "connector": "⇒",
         "interval_explorer": "interval_explorer"
       }
+    },
+    "function_evaluation_derivation": {
+      "title": "{evaluation_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "before",
+        "after",
+        "description",
+        "evaluation_result",
+        "phase"
+      ],
+      "prepare": "function_evaluation_view",
+      "render": "{evaluation_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒",
+        "condition_groups": "condition_groups",
+        "pairing_diagram": "pairing_diagram"
+      }
     }
   },
   "boundary_steps": {
@@ -2551,7 +2582,8 @@
     "method-domain-intersection": "verify",
     "method-domain-parameter": "verify",
     "method-function-equality": "verify",
-    "method-input-domain-correspondence": "solve"
+    "method-input-domain-correspondence": "solve",
+    "method-function-evaluation": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

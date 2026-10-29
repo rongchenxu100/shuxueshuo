@@ -1,4 +1,4 @@
-import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261028-domain-overlap';
+import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261030-pairing-diagram';
 import {createRecorder} from '../learning/practice-records.js?v=20261026-domain-powers';
 import {isPreview} from '../practice/learning-mode.mjs';
 
