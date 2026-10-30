@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-range",
+  "branches": [
+    {
+      "branch_id": "explicit-polynomial-interval-range",
+      "checks": [
+        {
+          "id": "supported-function-range",
+          "feature_id": "function_range",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

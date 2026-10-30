@@ -1,14 +1,26 @@
 {
   "id": "type-function-range",
   "kind": "problem_type",
-  "status": "planned",
+  "status": "active",
   "label": "求函数的值域",
   "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
   "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
   "features": [
-    "目标是函数的全部输出，输入可能由解析式、抽象关系、有限集合或指定区间给出。",
-    "值域必须同时说明输出不能超出的范围以及范围内输出的可达性，不能只给一个界或某个最值。",
-    "换元、周期关系和参数等结构属于选法条件，不能因结构相近就忽略原定义域。"
+    {
+      "cue": "已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+    },
+    {
+      "cue": "目标是函数的全部输出，输入可能由解析式、抽象关系、有限集合或指定区间给出。"
+    },
+    {
+      "cue": "值域必须同时说明输出不能超出的范围以及范围内输出的可达性，不能只给一个界或某个最值。"
+    },
+    {
+      "cue": "换元、周期关系和参数等结构属于选法条件，不能因结构相近就忽略原定义域。"
+    },
+    {
+      "cue": "首批识别和执行仅开放有理常系数至多二次多项式在单一区间或单点上的值域，其余结构仍 planned。"
+    }
   ],
   "confuse": [
     {
@@ -26,9 +38,23 @@
     "set-intersection-union",
     "absolute-value-function",
     "reciprocal-function",
-    "quadratic-function-properties"
+    "quadratic-function-properties",
+    "function-range-extrema"
   ],
-  "methods": [],
+  "methods": [
+    "method-quadratic-interval-range"
+  ],
   "rules": [],
-  "examples": []
+  "examples": [
+    {
+      "title": "顶点在闭区间内",
+      "prompt": "求 $f(x)=x^2-2x+2$ 在 $[0,3]$ 上的值域。",
+      "solution": [
+        "$f(x)=(x-1)^2+1$，顶点横坐标 $1\\in[0,3]$。",
+        "$f(0)=2$，$f(1)=1$，$f(3)=5$，值域为 $[1,5]$。"
+      ],
+      "source": "函数的概念 Q3"
+    }
+  ],
+  "choice_hint": "求给定定义域内的全部函数值"
 }

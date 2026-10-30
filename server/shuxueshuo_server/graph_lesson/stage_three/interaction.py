@@ -1650,6 +1650,9 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     """
     if rule.get("compiler") == "function_evaluation":
         return evaluation_presentation.compile_evaluation(seeds, interaction_id)
+    if rule.get('compiler') == 'function_range':
+        from .range_presentation import compile_range
+        return compile_range(seeds, interaction_id)
     if rule.get("compiler") == "function_domain":
         return domain_interaction.compile_domain(seeds, interaction_id)
     if rule.get('compiler') == 'function_equality':

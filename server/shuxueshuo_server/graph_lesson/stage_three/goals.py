@@ -75,6 +75,8 @@ def finalize_goal_with_evidence(goal, feasible_set):
         raise TypeError("goal_finalize.expected_set")
     if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"):
         answer = {"kind": kind, "status": "set", "set": math_value(feasible_set)}
+        if kind == "find_range" and "object" in goal:
+            answer["object"] = goal["object"]
         check_kind = (
             "domain_identity" if kind == "find_domain"
             else "domain_parameter_identity" if kind == "match_domain"
@@ -164,10 +166,15 @@ def equivalent_answers(first, second):
     if (kind, status) != (second.get("kind"), second.get("status")):
         return False
     if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter") and status == "set":
-        if not all(set(answer) == {"kind", "status", "set"}
-                   and isinstance(answer["set"], dict) for answer in (first, second)):
-            raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
-        return True
+        for answer in (first, second):
+            fields = {"kind", "status", "set"}
+            if "object" in answer:
+                if kind != "find_range" or not isinstance(answer["object"], str) or not answer["object"].strip():
+                    raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
+                fields.add("object")
+            if set(answer) != fields or not isinstance(answer["set"], dict):
+                raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
+        return first.get("object") == second.get("object")
     if kind not in ("find_minimum", "find_maximum"):
         raise _InvalidGoalAnswer("goal_finalize.unsupported_answer_kind")
     allowed = {"attained", "not_attained", "empty_feasible_set",

@@ -31,7 +31,8 @@
         "function_domain_routes",
         "function_equality",
         "abstract_function_domain",
-        "function_evaluation"
+        "function_evaluation",
+        "function_range"
       ]
     },
     "routes": {
@@ -85,7 +86,8 @@
             "function_domain",
             "function_equality",
             "abstract_function_domain",
-            "function_evaluation"
+            "function_evaluation",
+            "function_range"
           ]
         }
       }

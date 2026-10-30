@@ -999,7 +999,7 @@ class NotationValidator:
                 expected = {
                     "find_coordinates": ("point",),
                     "find_equation": ("curve", "function"),
-                    "find_range": ("scalar",),
+                    "find_range": ("function",) if target == "object" else ("scalar",),
                     "find_domain": ("function",),
                     "match_domain": ("function",),
                     "find_count": ("set",),

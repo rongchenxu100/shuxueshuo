@@ -413,8 +413,10 @@ from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
 from .equality_presentation import view as equality_view
 from .evaluation_presentation import presentation as evaluation_presentation
+from .range_presentation import presentation as range_presentation
 
 PREPARERS = {
+    'function_range_view': range_presentation,
     'function_evaluation_view': evaluation_presentation,
     'equality_view': equality_view,
     'abstract_domain_view': abstract_domain_presentation,
@@ -444,6 +446,10 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    'function_range_view': {
+        'range_title', 'range_explanation', 'derivation_caption', 'derivation_left_label',
+        'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math',
+    },
     'function_evaluation_view': {
         'evaluation_title', 'evaluation_explanation', 'derivation_caption',
         'derivation_left_label', 'derivation_left_math', 'derivation_left_note',

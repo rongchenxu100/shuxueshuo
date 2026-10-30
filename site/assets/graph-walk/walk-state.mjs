@@ -791,7 +791,9 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
         edges: [...edges.values()].filter(edge => edge.from === d3.query.from && edge.type === 'candidate' && edge.to === runnable[0].target).map(edge => edge.id),
         calls: [], results: [], log: '本题可直接使用这条已验证的方法路线。'};
     }
-    bundle.intro = [...bundle.intro.filter(item => !['D3', 'D4'].includes(item.id)), selection];
+    const prerequisites = (d3.prerequisites || []).map(item => ({...copy(item), source: 'authored'}));
+    const selectionIds = new Set(['D3', 'D4', ...prerequisites.map(item => item.id)]);
+    bundle.intro = [...bundle.intro.filter(item => !selectionIds.has(item.id)), ...prerequisites, selection];
     bundle.routes = Object.fromEntries(options.map(option => [option.route_id, {
       id: option.route_id, method: option.method, label: nodes.get(option.method)?.label || option.method,
       streaming: true, route_plan: option.route_plan, steps: [], takeaway: '',

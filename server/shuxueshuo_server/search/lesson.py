@@ -141,7 +141,9 @@ def _goal(goal, features, text, candidate=None):
                                            "d1.function_definition_not_uniquely_located"}]
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
-    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_value", "check_constant", "finite_sum"):
+    source_goal = known.get("goal", {})
+    if (source_goal.get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_value", "check_constant", "finite_sum")
+            or source_goal.get("kind") == "find_range" and "object" in source_goal):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -404,6 +406,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('function_range', {}).get('structure_supported'):
+        return _range_d1_rows(target, fragments, known, text)
     if known.get('function_evaluation', {}).get('structure_supported'):
         return _evaluation_d1_rows(target, fragments, known, text)
     if known.get("goal", {}).get("kind") == "compare_functions":
@@ -477,6 +481,26 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _range_d1_rows(target, fragments, known, text):
+    selected = [row for row in fragments if row['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in selected]
+    feedback = '定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-concept#elements'], 'source_refs': [target],
+           'options': _shuffle(row_id, [
+               _option('求给定输入范围内，全部函数值组成的集合'),
+               _option('求自变量的取值范围', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, known['function_range']], sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '题目要求求值域，需要确定什么？', 'feedback': feedback,
+            'summary': '先确定定义域，再求全部实际能取到的函数值。'}
 
 
 def _evaluation_d1_rows(target, fragments, known, text):

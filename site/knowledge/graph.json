@@ -877,6 +877,39 @@
       ]
     },
     {
+      "id": "method-quadratic-interval-range",
+      "kind": "method",
+      "label": "二次函数区间值域法",
+      "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "domain",
+          "title": "确定定义域",
+          "calls": []
+        },
+        {
+          "id": "square",
+          "title": "配方，判断顶点位置",
+          "calls": [
+            "method-complete-square"
+          ]
+        },
+        {
+          "id": "range",
+          "title": "求区间值域",
+          "calls": [
+            "quadratic-interval-extremum"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-rational-inequality",
       "kind": "method",
       "label": "分式不等式转化法",
@@ -1569,7 +1602,7 @@
       "label": "求函数的值域",
       "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -2436,6 +2469,30 @@
         {
           "step": "prepare",
           "when": "需要展开和合并同类项时"
+        }
+      ]
+    },
+    {
+      "id": "method-quadratic-interval-range|calls|method-complete-square",
+      "from": "method-quadratic-interval-range",
+      "to": "method-complete-square",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "square",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-quadratic-interval-range|calls|quadratic-interval-extremum",
+      "from": "method-quadratic-interval-range",
+      "to": "quadratic-interval-extremum",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "range",
+          "when": ""
         }
       ]
     },
@@ -4498,6 +4555,15 @@
       ]
     },
     {
+      "id": "type-function-range|candidate|method-quadratic-interval-range",
+      "from": "type-function-range",
+      "to": "method-quadratic-interval-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-range|involves|absolute-value-function",
       "from": "type-function-range",
       "to": "absolute-value-function",
@@ -4510,6 +4576,15 @@
       "id": "type-function-range|involves|function-concept",
       "from": "type-function-range",
       "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|function-range-extrema",
+      "from": "type-function-range",
+      "to": "function-range-extrema",
       "type": "involves",
       "occurrences": [
         {}

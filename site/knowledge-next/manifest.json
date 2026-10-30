@@ -1,5 +1,5 @@
 {
-  "contentVersion": "b45e3a1304c8e77859995a2332a5a6669e25fdb6493e8d005b5436b1ca73b7e7",
+  "contentVersion": "855d3aa57f7fd3701e42f9dc18078849de51702073cfe874c74483cd25bd6892",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 19,
+    "method": 20,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -60,6 +60,7 @@
     "method-matching/index.html",
     "method-parameter-quadratic-cases/index.html",
     "method-quadratic-extremum/index.html",
+    "method-quadratic-interval-range/index.html",
     "method-rational-inequality/index.html",
     "method-reciprocal/index.html",
     "method-separation/index.html",

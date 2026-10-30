@@ -51,6 +51,18 @@ test('stream replay stops at an incomplete answer contract and resumes when it a
   ]);
 });
 
+test('stream replay cannot skip an incomplete prerequisite before method selection', () => {
+  const bundle = direct();
+  bundle.intro.unshift({id: 'prerequisite', interaction: {type: 'choice'}, expected_answer: {}});
+  const pending = buildStreamReplay(bundle);
+  assert.deepEqual(pending.actions, []);
+  assert.deepEqual(pending.routes, []);
+  bundle.intro[0].expected_answer = {one_of: ['confirmed']};
+  assert.deepEqual(buildStreamReplay(bundle).actions, [
+    {decision: 'prerequisite', answer: 'confirmed'}, {decision: 'D3', answer: 'read'},
+  ]);
+});
+
 test('nested method identity takes precedence over the parent route and replay answers are detached', () => {
   const decision = {interaction: {type: 'plane', methods: [{value: 'parent', route: 'domain'}]},
     expected_answer: {cell: ['real', 'free'], method: 'discriminant'}};

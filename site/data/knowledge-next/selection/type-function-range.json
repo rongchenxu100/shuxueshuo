@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-range",
+  "admission": "function_range",
+  "method": "method-quadratic-interval-range",
+  "route_id": "quadratic-interval-range"
+}

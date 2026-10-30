@@ -77,7 +77,9 @@
       "label": "求函数的值域",
       "type": "type-function-range",
       "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
-      "problems": []
+      "problems": [
+        "function-concepts-range-q03"
+      ]
     }
   ],
   "problems": {
@@ -232,6 +234,15 @@
       "bundle": "/data/graph-walk/function-concepts-q29b.json",
       "types": [
         "type-function-evaluation"
+      ]
+    },
+    "function-concepts-range-q03": {
+      "label": "二次函数区间值域 · Q3",
+      "path": "/topics/function-concepts/q03r/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q03.json",
+      "types": [
+        "type-function-range"
       ]
     }
   }

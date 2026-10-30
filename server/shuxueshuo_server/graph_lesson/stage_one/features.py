@@ -25,6 +25,8 @@ from .function_equality import describe_comparison_goal
 from .function_evaluation import VERSION as EVALUATION_VERSION
 from .function_evaluation import describe_evaluation_goal
 
+from .function_range import VERSION as RANGE_VERSION, describe_range_goal
+
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
 
@@ -45,6 +47,11 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('function_range', ('goal',), 'function_range',
+                ('function-concept#elements', 'function-range-extrema#attainability'),
+                '确定给定输入范围内的全部函数输出', version=RANGE_VERSION,
+                supported_structures=('fixed_polynomial_interval_image',),
+                computation_boundary='original function, interval sources and bounded coefficients only'),
     FeatureSpec(
         'function_evaluation', ('goal',), 'function_evaluation',
         ('function-concept#definition', 'function-concept#elements'),
@@ -454,6 +461,20 @@ def _scope_features(report, candidate, scope, ancestors, features):
             features.append(feature)
 
         goal_ast = goal["target"]
+        if goal['kind'] == 'find_range' and goal_ast[:1] == ['ref'] and goal_ast[2] == 'function':
+            add('goal', {'kind': 'find_range', 'object': goal_ast[1].rsplit(':', 1)[-1]}, source_refs=[target_ref])
+            try:
+                description = describe_range_goal(report, scope, ancestors, goal_index)
+                refs = [target_ref, description['source_ref'], description['declared_domain_source_ref'],
+                        description['input_domain_source_ref'], *(r['source_ref'] for r in description['restriction_facts'])]
+                add('function_range', description, source_refs=list(dict.fromkeys(
+                    target_ref if ref.startswith(target_ref + '/') else ref for ref in refs if ref)))
+            except (NotationError, ValueError, TypeError) as exc:
+                add('function_range', diagnostic={'code': getattr(exc, 'code', 'range.invalid_structure')}, source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_function_range_goal'}, source_refs=[target_ref])
+            continue
         if goal['kind'] in ('find_value', 'check_constant', 'finite_sum'):
             add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
             produced['goal']['knowledge_refs'] = ['function-concept#definition', 'function-concept#elements']

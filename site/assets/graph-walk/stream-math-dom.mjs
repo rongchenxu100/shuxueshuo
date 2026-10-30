@@ -191,7 +191,9 @@ export function routeAnswerSummary(answer = {}) {
   }
   if (['find_range', 'find_domain', 'find_abstract_domain', 'find_abstract_domain_parameter'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
-    return formula ? {label: ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：' : '参数范围：', formula} : null;
+    const label = ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：'
+      : answer.kind === 'find_range' && typeof answer.object === 'string' && answer.object.trim() ? '值域：' : '参数范围：';
+    return formula ? {label, formula} : null;
   }
   if (!['find_minimum', 'find_maximum'].includes(answer.kind)) return null;
   const minimum = answer.kind === 'find_minimum', name = minimum ? '最小值' : '最大值';

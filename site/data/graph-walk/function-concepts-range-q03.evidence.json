@@ -1,0 +1,1557 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "b55bfece602b49949f624caf7ef1aa79",
+    "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+    "input_sha256": "2414e9469e890eb6e2b0b414befe1cbe34debda3dcf30ca9a73b3aff0114953a",
+    "checkpoint_sha256": "0ecb02828fc1346caaf12a84802ee1b3f0a6b184216903998725d0aa7157f526",
+    "result_sha256": "a37f011726eae922b093fc164ff4fcbbbc2464f6ae7a0a18d94c849d45095e99",
+    "stage_one_sha256": "b60783c679318f80e4aed3a5c80195d3aba926414d376d256dd006742e0a8477",
+    "stage_two_sha256": "90cbfb67152c9dad73ab6ecffc1b8f0eadc88beefabeaa01cc8268f623e0939e"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-range",
+        "supported": [
+          "type-function-range"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 40,
+                  "end": 42,
+                  "text": "值域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求给定输入范围内，全部函数值组成的集合",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求自变量的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "52255de903361fab"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目要求求值域，需要确定什么？",
+          "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+          "summary": "先确定定义域，再求全部实际能取到的函数值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "要求原式有意义的全部输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          },
+          {
+            "type_id": "type-function-range",
+            "label": "求函数的值域",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+            ],
+            "choice_hint": "求给定定义域内的全部函数值"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-range-q03//root/goals/0",
+            "graphVersion": "324d84bb5ed5c6d4f42be5bd3cf53df0599e664beec85f5017a454dc265a9969",
+            "problem": {
+              "text": "已知函数 $f(x)=x^2-2x+2$，$x∈[0,3]$，则函数的值域为 ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目要求求值域，需要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求给定输入范围内，全部函数值组成的集合"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求自变量的取值范围",
+                      "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-function-domain",
+                  "type-function-range",
+                  "type-abstract-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "先确定定义域，再求全部实际能取到的函数值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "要求原式有意义的全部输入"
+                    },
+                    {
+                      "value": "type-function-range",
+                      "label": "求函数的值域",
+                      "note": "求给定定义域内的全部函数值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-range"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-range"
+                  ],
+                  "edges": [
+                    "type-function-range|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-quadratic-interval-range",
+                  "kind": "method",
+                  "label": "二次函数区间值域法",
+                  "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "配方，判断顶点位置",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求区间值域",
+                      "calls": [
+                        "quadratic-interval-extremum"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-quadratic-interval-range",
+                  "from": "type-function-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "0beefcea6e7bf593a6e570eb581c9fb8ed9250d3c88054c9d5306228b363fe44"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-range-q03//root/goals/0",
+            "bundleVersion": "0beefcea6e7bf593a6e570eb581c9fb8ed9250d3c88054c9d5306228b363fe44",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "先确定定义域，再求全部实际能取到的函数值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-range",
+                "reason": "选「求函数的值域」：已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "b55bfece602b49949f624caf7ef1aa79",
+    "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+    "input_sha256": "2414e9469e890eb6e2b0b414befe1cbe34debda3dcf30ca9a73b3aff0114953a",
+    "stream_id": "b55bfece602b49949f624caf7ef1aa79",
+    "last_seq": 21,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_square",
+        "explanation": "$f(x)=x^{2}-2\\cdot x+2=\\left(x - 1\\right)^{2} + 1$",
+        "highlight": {
+          "caption": "配方",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数",
+              "math": "f(x)=x^{2}-2\\cdot x+2"
+            },
+            {
+              "label": "顶点式",
+              "math": "f(x)=\\left(x - 1\\right)^{2} + 1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "local_check": "passed",
+        "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+        "method_ref": "method-quadratic-interval-range#square",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-quadratic-interval-range-001-range_square",
+        "target_ref": "/root/goals/0",
+        "title": "配方",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_position",
+        "explanation": "$1\\in\\left[0, 3\\right]$",
+        "highlight": {
+          "caption": "判断顶点位置",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围与顶点",
+              "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(1,1\\right)\\end{gathered}"
+            },
+            {
+              "label": "顶点位置",
+              "math": "1\\in\\left[0, 3\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "local_check": "passed",
+        "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+        "method_ref": "method-quadratic-interval-range#square",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-quadratic-interval-range-002-range_position",
+        "target_ref": "/root/goals/0",
+        "title": "判断顶点位置",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_values",
+        "explanation": "$f(0)=2$\n$f(3)=5$\n$f(1)=1$",
+        "highlight": {
+          "caption": "比较函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围",
+              "math": "x\\in\\left[0, 3\\right]"
+            },
+            {
+              "label": "端点与顶点",
+              "math": "\\begin{gathered}f(0)=2\\\\f(3)=5\\\\f(1)=1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "local_check": "passed",
+        "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+        "method_ref": "method-quadratic-interval-range#range",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-quadratic-interval-range-003-range_values",
+        "target_ref": "/root/goals/0",
+        "title": "比较函数值",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_image",
+        "explanation": "$f(x)\\in\\left[1, 5\\right]$",
+        "highlight": {
+          "caption": "写出值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "函数值的边界",
+              "math": "\\begin{gathered}f(0)=2\\\\f(3)=5\\\\f(1)=1\\end{gathered}"
+            },
+            {
+              "label": "值域",
+              "math": "\\left[1, 5\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "local_check": "passed",
+        "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+        "method_ref": "method-quadratic-interval-range#range",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-quadratic-interval-range-004-range_image",
+        "target_ref": "/root/goals/0",
+        "title": "写出值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval(1, 5)",
+            "latex": "\\left[1, 5\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(1, 5)",
+          "latex": "\\left[1, 5\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval(1, 5)",
+            "latex": "\\left[1, 5\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(1, 5)",
+          "latex": "\\left[1, 5\\right]"
+        },
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "math_steps": [
+          {
+            "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-quadratic-interval-range-001-range_square"
+          },
+          {
+            "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-quadratic-interval-range-002-range_position"
+          },
+          {
+            "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-quadratic-interval-range-003-range_values"
+          },
+          {
+            "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-quadratic-interval-range-004-range_image"
+          }
+        ],
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "c5199438ef7f6c20230a1d5ff249a6a7eea3147b1bec10d1fce4da6b4551b419",
+        "verified_route_sha256": "33e45cdb535eb6f97a9eae6e206dc7b58ddb0acbd8b235f58436e546fe112e3f"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "prerequisites": [
+            {
+              "effects": {
+                "calls": [],
+                "edges": [],
+                "log": "已确定本题的有效输入范围。",
+                "nodes": [],
+                "results": []
+              },
+              "expected_answer": {},
+              "id": "D3-domain",
+              "interaction": {
+                "type": "read"
+              },
+              "question": "先确定本次求值域使用的输入范围：$x\\in\\left[0, 3\\right]$",
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0"
+              ],
+              "submit_label": "在这个范围内选择方法",
+              "summary": "$x\\in\\left[0, 3\\right]$",
+              "title": "确定定义域"
+            }
+          ],
+          "query": {
+            "from": "type-function-range",
+            "op": "methods"
+          },
+          "question": "先确认输入范围，再结合顶点与区间边界，确定全部能取到的函数值。",
+          "submit_label": "用二次函数区间值域法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-quadratic-interval-range",
+              "recommendation": "preferred",
+              "route_id": "quadratic-interval-range",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "step_id": "39e5646dcb-quadratic-interval-range-001-range_square",
+        "ordinal": 1,
+        "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+        "status": "interactive",
+        "interaction_id": "83d6764789fb12e29af7840c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "step_id": "39e5646dcb-quadratic-interval-range-002-range_position",
+        "ordinal": 2,
+        "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+        "status": "interactive",
+        "interaction_id": "f763f669f5d27b29cb051e33"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "step_id": "39e5646dcb-quadratic-interval-range-003-range_values",
+        "ordinal": 3,
+        "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+        "status": "interactive",
+        "interaction_id": "45dbb0fb20113ec43c7592d0"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "step_id": "39e5646dcb-quadratic-interval-range-004-range_image",
+        "ordinal": 4,
+        "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+        "status": "interactive",
+        "interaction_id": "dc402f4340f66ba0b3f7947c"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:quadratic-interval-range:complete",
+        "last_seq": 17
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "quadratic-interval-range",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-quadratic-interval-range",
+            "step": "domain",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-quadratic-interval-range",
+            "step": "square",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "square-nonnegative#nonnegative"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-quadratic-interval-range",
+            "step": "range",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "quadratic-interval-extremum",
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-quadratic-interval-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "83d6764789fb12e29af7840c",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "d7ef91bd6c4d832b4a29cc646e03654a9f2409586d70be9a22f375a059a54105",
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x^{2}-2\\cdot x+2"
+                },
+                {
+                  "label": "顶点式",
+                  "math": "f(x)=\\left(x - 1\\right)^{2} + 1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)=x^{2}-2\\cdot x+2=\\left(x - 1\\right)^{2} + 1$"
+            },
+            "id": "83d6764789fb12e29af7840c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^{2}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^{2} + 2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^{2} + 1$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把函数式写成顶点式。",
+            "stem_board": {
+              "caption": "配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x^{2}-2\\cdot x+2"
+                },
+                {
+                  "label": "顶点式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "配方"
+          }
+        ],
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+            "step_id": "39e5646dcb-quadratic-interval-range-001-range_square"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f763f669f5d27b29cb051e33",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "f8ac010147b5b01c41d80e7b2dff6f47974d256b6efd15e86943c316668d18e0",
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(1,1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": "1\\in\\left[0, 3\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.0,
+                  6.0
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.0,
+                  1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$1\\in\\left[0, 3\\right]$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.0,
+                  6.0
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.0,
+                  1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "id": "f763f669f5d27b29cb051e33#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "顶点在区间左侧或左侧开端点处",
+                  "value": "o2"
+                },
+                {
+                  "label": "顶点在定义域中，可以取到顶点值",
+                  "value": "o1"
+                },
+                {
+                  "label": "顶点在区间右侧或右侧开端点处",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "抛物线开口向上。结合定义域，顶点能否取到？",
+            "stem_board": {
+              "caption": "判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(1,1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "判断顶点位置"
+          }
+        ],
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+            "step_id": "39e5646dcb-quadratic-interval-range-002-range_position"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "45dbb0fb20113ec43c7592d0",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "dd453025810b0b83f1c308a8d0a827b7f602135b94795a7083d0fd70c1cb2f24",
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[0, 3\\right]"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": "\\begin{gathered}f(0)=2\\\\f(3)=5\\\\f(1)=1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.0,
+                  6.0
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.0,
+                  1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(0)=2$\n$f(3)=5$\n$f(1)=1$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.0,
+                  6.0
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.0,
+                  1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "id": "45dbb0fb20113ec43c7592d0#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "最小值：$2$；最大值：$5$",
+                  "value": "o2"
+                },
+                {
+                  "label": "最小值：$1$；最大值：$5$",
+                  "value": "o1"
+                },
+                {
+                  "label": "最小值：$1$；最大值：$6$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "比较区间端点的值或极限，以及区间内的顶点值。",
+            "stem_board": {
+              "caption": "比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[0, 3\\right]"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "比较函数值"
+          }
+        ],
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+            "step_id": "39e5646dcb-quadratic-interval-range-003-range_values"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "dc402f4340f66ba0b3f7947c",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "b555d49c94aadf25e2ce4a995f5a176475a267942af07911bae4bd503b3601eb",
+        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}f(0)=2\\\\f(3)=5\\\\f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": "\\left[1, 5\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.75,
+                    -1.0,
+                    6.0
+                  ],
+                  "coefficient": 1.0,
+                  "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                  "interval": [
+                    0.0,
+                    3.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "points": [
+                    {
+                      "x": 0.0
+                    },
+                    {
+                      "x": 3.0
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "f 在 [0, 3] 上的图像",
+                  "variable": "x",
+                  "vertex": [
+                    1.0,
+                    1.0
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ],
+                    [
+                      1.0,
+                      "1"
+                    ]
+                  ],
+                  "yLabel": "1"
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    0.0,
+                    6.0
+                  ],
+                  "description": "y 的取值集合：[1, 5]",
+                  "pieces": [
+                    {
+                      "from": 1.0,
+                      "left_closed": true,
+                      "right_closed": true,
+                      "to": 5.0
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      1.0,
+                      "1"
+                    ],
+                    [
+                      5.0,
+                      "5"
+                    ]
+                  ],
+                  "title": "值域",
+                  "variable": "y"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)\\in\\left[1, 5\\right]$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.0,
+                  6.0
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 2（实心点）；x=3 处函数值为 5（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.0,
+                  1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "id": "dc402f4340f66ba0b3f7947c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(1, 5\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[1, 5\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[1, 5\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "结合连续的图像和边界能否取到，值域是什么？",
+            "stem_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}f(0)=2\\\\f(3)=5\\\\f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出值域"
+          }
+        ],
+        "route_id": "quadratic-interval-range",
+        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+            "step_id": "39e5646dcb-quadratic-interval-range-004-range_image"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

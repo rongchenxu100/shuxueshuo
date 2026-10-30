@@ -183,6 +183,23 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "object"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_range"
+            },
+            "object": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -1320,6 +1337,96 @@
         },
         "structure_version": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "function_range": {
+      "type": "object",
+      "required": [
+        "function_ref",
+        "function_name",
+        "variable",
+        "source_ref",
+        "target_ref",
+        "expression_latex",
+        "declared_domain_source_ref",
+        "input_domain_source_ref",
+        "structure_version",
+        "reason",
+        "expression_ast",
+        "declared_domain_ast",
+        "input_domain_ast",
+        "degree",
+        "structure_supported",
+        "restriction_facts"
+      ],
+      "properties": {
+        "function_ref": {
+          "type": "string"
+        },
+        "function_name": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "expression_latex": {
+          "type": "string"
+        },
+        "declared_domain_source_ref": {
+          "type": "string"
+        },
+        "input_domain_source_ref": {
+          "type": "string"
+        },
+        "structure_version": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "expression_ast": {
+          "type": "array"
+        },
+        "declared_domain_ast": {
+          "type": "array"
+        },
+        "input_domain_ast": {
+          "type": "array"
+        },
+        "degree": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "restriction_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "domain_ast",
+              "source_ref"
+            ],
+            "properties": {
+              "domain_ast": {
+                "type": "array"
+              },
+              "source_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false

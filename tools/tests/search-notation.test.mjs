@@ -17,6 +17,18 @@ const context = vm.createContext({
 vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'utf8'), context);
 const tex = expression => context.tex(expression);
 
+test('photographed function-range goals render without assuming a scalar symbol', () => {
+  const candidate = JSON.parse(fs.readFileSync(new URL('server/tests/solver/fixtures/function-range/q03-candidate.json', base), 'utf8'));
+  const text = context.meaningBlocks(candidate.root, '', []).join('');
+  assert.match(text, /求 \$f\$ 的值域/);
+  assert.match(text, /题设输入范围 \$\[0,3\]\$/);
+  assert.doesNotMatch(text, /undefined|参数/);
+  const unrestricted = context.meaningBlocks({goals: [{kind: 'find_range', object: 'g'}]}, '', []).join('');
+  assert.match(unrestricted, /求 \$g\$ 的值域/);
+  const parameter = context.meaningBlocks({goals: [{kind: 'find_range', symbol: 'a'}]}, '', []).join('');
+  assert.match(parameter, /求 \$a\$ 的取值范围/);
+});
+
 test('abstract-domain meaning preserves the given call and requested outer expression', () => {
   const goal = {kind: 'find_abstract_domain', known_call: 'f(t)', known_domain: '[-3,2]',
     strength: 'exact', target_call: 'f(2*x-1)'};

@@ -133,7 +133,13 @@ def _function_evaluation(context):
     return admitted(context)
 
 
+def _function_range(context):
+    from .function_range import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    'function_range': _function_range,
     "function_evaluation": _function_evaluation,
     "function_equality": _function_equality,
     "abstract_function_domain": _abstract_function_domain,

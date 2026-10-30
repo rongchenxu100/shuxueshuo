@@ -2572,6 +2572,44 @@
         "condition_groups": "condition_groups",
         "pairing_diagram": "pairing_diagram"
       }
+    },
+    "function_range_derivation": {
+      "title": "{range_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "before",
+        "after",
+        "description",
+        "function",
+        "variable",
+        "domain",
+        "phase",
+        "square",
+        "vertex",
+        "value",
+        "coefficient",
+        "range",
+        "endpoint_values",
+        "critical_points"
+      ],
+      "prepare": "function_range_view",
+      "render": "{range_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
     }
   },
   "boundary_steps": {
@@ -2583,7 +2621,8 @@
     "method-domain-parameter": "verify",
     "method-function-equality": "verify",
     "method-input-domain-correspondence": "solve",
-    "method-function-evaluation": "verify"
+    "method-function-evaluation": "verify",
+    "method-quadratic-interval-range": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

@@ -376,7 +376,9 @@ const GOALS = {
   find_abstract_domain: g => `${math(g.target_call)} 的定义域${g.input_domain ? `（题设另限外层自变量范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_range: g => `${math(g.target_call)} 的值域`,
   find_abstract_domain_parameter: g => `${math(g.parameter)} 的取值范围`,
-  find_range: g => `${math(g.symbol)} 的取值范围`,
+  find_range: g => g.object
+    ? `${math(g.object)} 的值域${g.input_domain ? `（题设输入范围 ${math(g.input_domain)}）` : ''}`
+    : `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
   check_constant: g => `${math(g.expression)} 是否为定值`,
   finite_sum: g => (g.terms || []).map(term => term.index

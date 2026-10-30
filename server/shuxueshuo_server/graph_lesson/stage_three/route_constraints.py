@@ -256,6 +256,9 @@ def apply_visible_constraints(constraint_context, feasible_set):
                 "status": "abstract_domain_identity",
             }
         ]
+    if 'range_goal' in constraint_context:
+        from .function_range import process_context
+        return process_context(constraint_context, feasible_set)
     algebra = _RouteArithmetic(constraint_context)
     atoms = _context_atoms(constraint_context)
     quantified = [ast for _, ast in atoms if ast[0] == "quantifier"]

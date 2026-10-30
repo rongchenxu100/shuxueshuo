@@ -216,6 +216,10 @@ def append_boundary(state, evidence, *, feasible_set=None):
     records.append(operation)
     updated["trajectory"]["finalization"] = deepcopy(records)
     goal_kind = updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind")
+    if 'range_goal' in updated['trajectory'].get('constraint_context', {}):
+        # The image card already displays endpoint attainment. Keep independent
+        # evidence here without adding a duplicate parameter-boundary lesson.
+        return updated
     if goal_kind == "find_domain":
         operation["used_basis"] = ["function-concept#elements", "interval-notation#finite"]
         records[index] = deepcopy(operation)

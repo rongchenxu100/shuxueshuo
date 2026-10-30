@@ -120,6 +120,33 @@
         "f(g(x))",
         "g(1/x-1)"
       ]
+    },
+    {
+      "id": "explicit_function_range",
+      "syntax": "f(x)=x^2-2*x+2；目标 {\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[0,3]\"}",
+      "meaning": "求具体函数的完整值域；保留原函数及题给输入范围，不提前配方或求解。object 引用函数，参数范围目标继续使用 symbol；完整定义域声明写 Dom(f)=D。",
+      "examples": [
+        "f(x)=x^2-2*x+2",
+        "Dom(f)=[0,3]"
+      ],
+      "few_shots": [
+        {
+          "input": "已知函数f(x)=x^2-2x+2，x∈[0,3]，求值域。",
+          "output": {
+            "definitions": [
+              "f(x)=x^2-2*x+2"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "object": "f",
+                "input_domain": "[0,3]"
+              }
+            ]
+          },
+          "explanation": "保留函数和题给输入范围，尚未计算输出集合。"
+        }
+      ]
     }
   ]
 }

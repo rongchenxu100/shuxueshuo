@@ -3,7 +3,7 @@ import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
 import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261030-pairing-diagram';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
-import {buildStreamReplay} from './walk-replay.mjs?v=20261027-function-equality';
+import {buildStreamReplay} from './walk-replay.mjs?v=20261030-range-prerequisite';
 import {optionProgress, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';

@@ -113,9 +113,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain', 'function_evaluation'):
+                             'abstract_function_domain', 'function_evaluation', 'function_range'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
+        from .function_range import admitted as admitted_range
         from .equality_runtime import admitted as admitted_equality
         from .evaluation_runtime import admitted as admitted_evaluation
         from .function_domain import admitted, admitted_parameter
@@ -128,9 +129,13 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_domain_parameter': admitted_parameter,
             'function_equality': admitted_equality,
             'function_evaluation': admitted_evaluation,
+            'function_range': admitted_range,
             'abstract_function_domain': admitted_abstract,
         }
-        if admission == 'function_evaluation':
+        if admission == 'function_range':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '二次函数区间值域法'}]
+        elif admission == 'function_evaluation':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '代入法'}]
         elif admission == 'function_equality':
@@ -172,6 +177,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
+            '先确认输入范围，再结合顶点与区间边界，确定全部能取到的函数值。'
+            if chosen['admission'] == 'function_range' else
             '把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。'
             '这里用代入法；换元则是引入新变量来转换问题。'
             if chosen['admission'] == 'function_evaluation' else
@@ -188,6 +195,24 @@ def evaluate_goal(candidate, target_ref, features, primary):
         d3 = {'id': 'D3', 'title': '选择解题方法', 'question': question,
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
               'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
+        if admission == 'function_range':
+            from .function_range import inputs as range_inputs
+            from .abstract_domain_presentation import _set_latex
+            _, variable, domain = range_inputs(context['range_goal'])
+            domain_math = f'${variable}\\in{_set_latex(domain)}$'
+            # Domain is a common prerequisite, before the route is selected.
+            # R0's polynomial source and explicit interval need no extra quiz.
+            d3['prerequisites'] = [{
+                'id': 'D3-domain', 'title': '确定定义域',
+                'question': f'先确定本次求值域使用的输入范围：{domain_math}',
+                'summary': domain_math, 'interaction': {'type': 'read'},
+                'expected_answer': {}, 'submit_label': '在这个范围内选择方法',
+                'source_refs': [context['range_goal']['source_ref'], target_ref],
+                'effects': {'nodes': [], 'edges': [], 'calls': [], 'results': [], 'log': '已确定本题的有效输入范围。'},
+            }]
+            branch['checks'] = [{'check_id': 'original_function_range', 'status': 'holds'},
+                                {'check_id': 'effective_input_domain', 'status': 'holds',
+                                 'domain': str(domain)}]
         d4 = {'id': 'D4', 'title': '解题路线', 'options': [{
             'route_id': branch['route_id'], 'branch': 'direct', 'method': branch['target'],
             'recommendation': 'preferred', 'route_plan': branch['route_plan'], 'message': '开始解题'}]}

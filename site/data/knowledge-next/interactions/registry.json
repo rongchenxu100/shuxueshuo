@@ -1738,6 +1738,11 @@
       "repeat": "always",
       "compiler": "function_evaluation",
       "parts": []
+    },
+    "function_range_derivation": {
+      "repeat": "always",
+      "compiler": "function_range",
+      "parts": []
     }
   },
   "overrides": {

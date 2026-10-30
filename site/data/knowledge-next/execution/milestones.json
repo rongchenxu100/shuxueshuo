@@ -39,7 +39,8 @@
       "method-domain-parameter",
       "method-function-equality",
       "method-input-domain-correspondence",
-      "method-function-evaluation"
+      "method-function-evaluation",
+      "method-quadratic-interval-range"
     ]
   }
 }

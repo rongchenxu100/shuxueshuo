@@ -270,8 +270,7 @@
               {
                 "type": "object",
                 "required": [
-                  "kind",
-                  "symbol"
+                  "kind"
                 ],
                 "properties": {
                   "kind": {
@@ -294,10 +293,67 @@
                     },
                     "maxItems": 128,
                     "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "求具体函数的完整值域时填写已定义函数名，如 f；不是自变量、解析式或答案。"
+                  },
+                  "input_domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "函数值域目标的额外输入范围，仅转录题给范围；完整定义域声明写入 Dom(f)=D。"
                   }
                 },
                 "additionalProperties": false,
-                "description": "求一个参数的取值范围。symbol填写参数名，不输出解出的区间。"
+                "description": "symbol 求参数可行范围；object 求具体函数全部输出集合，两者严格互斥。",
+                "oneOf": [
+                  {
+                    "required": [
+                      "symbol"
+                    ],
+                    "not": {
+                      "required": [
+                        "object"
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "object"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "symbol"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "in_terms_of"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "input_domain"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "object"
+                      ]
+                    }
+                  }
+                ]
               },
               {
                 "type": "object",

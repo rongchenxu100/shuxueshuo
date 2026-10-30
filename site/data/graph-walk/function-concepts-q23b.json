@@ -2168,6 +2168,15 @@
         ]
       },
       {
+        "id": "type-function-range|involves|function-range-extrema",
+        "from": "type-function-range",
+        "to": "function-range-extrema",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-parameter-quadratic-solve|involves|quadratic-equation",
         "from": "type-parameter-quadratic-solve",
         "to": "quadratic-equation",

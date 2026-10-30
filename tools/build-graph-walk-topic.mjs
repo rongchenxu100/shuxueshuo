@@ -75,7 +75,10 @@ export function compileCourse(source, evidence, graph, nodes) {
       assert(read, 'Missing next-goal reading');
       read.id = `goal-${index + 1}-D1`;
       read.title = source.targetTitles?.[index] || `目标 ${index + 1}：读题`;
-      route.steps.push(read, ...part.routes[routeId].steps);
+      const prerequisites = part.intro.filter(step => step.id === 'D3-domain').map(step => ({
+        ...structuredClone(step), id: `goal-${index + 1}-${step.id}`,
+      }));
+      route.steps.push(read, ...prerequisites, ...part.routes[routeId].steps);
       bundle.stream.math_steps.push(...part.stream.math_steps);
       Object.assign(bundle.stream.step_calls, part.stream.step_calls);
       bundle.stream.interaction_states.push(...part.stream.interaction_states);

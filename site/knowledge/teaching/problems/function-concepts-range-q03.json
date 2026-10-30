@@ -1,0 +1,144 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-range-q03",
+  "label": "二次函数区间值域 · Q3",
+  "path": "/topics/function-concepts/q03r/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-range-q03.json",
+  "types": [
+    "type-function-range"
+  ],
+  "statement": "已知函数 $f(x)=x^2-2x+2$，$x\\in[0,3]$，求函数的值域。",
+  "routes": {
+    "quadratic-interval-range": {
+      "label": "二次函数区间值域法",
+      "methods": [
+        "method-quadratic-interval-range"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3-domain": {
+          "title": "确定定义域",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 4,
+          "refs": [
+            "method-quadratic-interval-range"
+          ]
+        },
+        "83d6764789fb12e29af7840c#1": {
+          "title": "配方",
+          "position": 5,
+          "refs": [
+            "method-quadratic-interval-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "f763f669f5d27b29cb051e33#1": {
+          "title": "判断顶点位置",
+          "position": 6,
+          "refs": [
+            "method-quadratic-interval-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "45dbb0fb20113ec43c7592d0#1": {
+          "title": "比较函数值",
+          "position": 7,
+          "refs": [
+            "method-quadratic-interval-range#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "dc402f4340f66ba0b3f7947c#1": {
+          "title": "写出值域",
+          "position": 8,
+          "refs": [
+            "method-quadratic-interval-range#range",
+            "quadratic-interval-extremum"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/"
+  ],
+  "content_version": "855d3aa57f7fd3701e42f9dc18078849de51702073cfe874c74483cd25bd6892"
+}

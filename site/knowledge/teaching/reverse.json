@@ -1756,6 +1756,20 @@
       }
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "83d6764789fb12e29af7840c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "f763f669f5d27b29cb051e33#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "extremum",
@@ -1814,6 +1828,20 @@
       "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "45dbb0fb20113ec43c7592d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "dc402f4340f66ba0b3f7947c#1",
       "conditions": {}
     },
     {
@@ -2041,6 +2069,20 @@
       "problem": "basic-inequality-q30",
       "route": "symmetric",
       "step": "equality",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "83d6764789fb12e29af7840c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "f763f669f5d27b29cb051e33#1",
       "conditions": {}
     },
     {
@@ -4272,6 +4314,13 @@
       "problem": "function-concepts-q29b",
       "route": "function-evaluation",
       "step": "goal-2-D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "D1",
       "conditions": {}
     }
   ],
@@ -7376,6 +7425,20 @@
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "83d6764789fb12e29af7840c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "f763f669f5d27b29cb051e33#1",
+      "conditions": {}
     }
   ],
   "skill-quadratic-sign": [
@@ -9718,6 +9781,53 @@
       "problem": "function-concepts-q29b",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    }
+  ],
+  "type-function-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03"
+    }
+  ],
+  "method-quadratic-interval-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-quadratic-interval-range#square": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "83d6764789fb12e29af7840c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "f763f669f5d27b29cb051e33#1",
+      "conditions": {}
+    }
+  ],
+  "method-quadratic-interval-range#range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "45dbb0fb20113ec43c7592d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "dc402f4340f66ba0b3f7947c#1",
       "conditions": {}
     }
   ],

@@ -1,0 +1,252 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-quadratic-interval-range",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "domain",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_range",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "function": "function",
+            "variable": "variable",
+            "domain": "domain",
+            "degree": "degree",
+            "quadratic": "quadratic"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "square",
+      "calls": [
+        {
+          "id": "square",
+          "capability": "complete_square",
+          "public_ref": "method-complete-square",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$variable"
+          },
+          "outputs": {
+            "square": "square",
+            "coefficient": "coefficient",
+            "vertex": "vertex",
+            "value": "value"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "range_square",
+          "after": "square",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "square",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "square": "$square",
+            "vertex": "$vertex",
+            "value": "$value",
+            "coefficient": "$coefficient",
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "square",
+            "vertex",
+            "value",
+            "coefficient"
+          ],
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        },
+        {
+          "id": "range_position",
+          "after": "square",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "position",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "vertex": "$vertex",
+            "value": "$value",
+            "coefficient": "$coefficient",
+            "square": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "vertex",
+            "value",
+            "coefficient"
+          ],
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "range",
+      "calls": [
+        {
+          "id": "image",
+          "capability": "polynomial_image",
+          "public_ref": "quadratic-interval-extremum",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "range": "range",
+            "endpoint_values": "endpoint_values",
+            "critical_points": "critical_points",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "range_values",
+          "after": "image",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "values",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ]
+        },
+        {
+          "id": "range_image",
+          "after": "image",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "image",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_range",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

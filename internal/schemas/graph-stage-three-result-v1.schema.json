@@ -686,6 +686,72 @@
               }
             }
           }
+        },
+        "prerequisites": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "title",
+              "question",
+              "summary",
+              "interaction",
+              "expected_answer",
+              "submit_label",
+              "source_refs",
+              "effects"
+            ],
+            "properties": {
+              "id": {
+                "const": "D3-domain"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "interaction": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "read"
+                  }
+                }
+              },
+              "expected_answer": {
+                "type": "object",
+                "maxProperties": 0
+              },
+              "submit_label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "effects": {
+                "type": "object"
+              }
+            }
+          }
         }
       }
     },
@@ -816,9 +882,29 @@
             },
             "set": {
               "$ref": "#/$defs/mathValue"
+            },
+            "object": {
+              "type": "string",
+              "minLength": 1
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "object"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "kind": {
+                    "const": "find_range"
+                  }
+                }
+              }
+            }
+          ]
         },
         {
           "type": "object",

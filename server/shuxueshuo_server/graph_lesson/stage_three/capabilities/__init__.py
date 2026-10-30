@@ -468,3 +468,14 @@ for _name in ('solve_function_evaluation', 'extract_evaluation_conditions',
               'resolve_evaluation_domain', 'check_evaluation_quadratic_conditions',
               'simplify_evaluation_expressions', 'verify_evaluation_identities'):
     REGISTRY[_name] = _function_evaluation_operation(_name)
+
+
+def _function_range_operation(name):
+    def run(**inputs):
+        from .. import function_range
+        return getattr(function_range, name)(**inputs)
+    return run
+
+
+for _name in ('prepare_function_range', 'polynomial_image'):
+    REGISTRY[_name] = _function_range_operation(_name)

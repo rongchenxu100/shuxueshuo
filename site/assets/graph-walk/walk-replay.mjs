@@ -28,6 +28,14 @@ export function buildStreamReplay(bundle, {actions: initialActions = [], replayR
   const method = route && selection?.interaction.methods?.find(item => item.route === route);
   const selectionAnswer = method ? replayAnswer(selection, route) : null;
   if (selectionAnswer !== null) {
+    // Stage two supplies the reading/type prefix. Stage three may insert
+    // prerequisites before method selection (for example the effective domain).
+    for (const decision of bundle.intro.slice(actions.length, bundle.intro.indexOf(selection))) {
+      const answer = replayAnswer(decision, route);
+      if (answer === null) return {schemaVersion: 2, problemId: bundle.problemId,
+        bundleVersion: bundle.bundleVersion, status: 'partial', routes: [], actions};
+      actions.push({decision: decision.id, answer});
+    }
     actions.push({decision: selection.id, answer: selectionAnswer});
     for (const decision of bundle.routes[route].steps || []) {
       const answer = replayAnswer(decision, route);

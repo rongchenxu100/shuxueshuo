@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 19,
+    "method": 20,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -445,7 +445,8 @@
     "method-function-equality": "method-function-equality",
     "method-input-domain-correspondence": "method-input-domain-correspondence",
     "type-abstract-function-domain": "type-abstract-function-domain",
-    "method-function-evaluation": "method-function-evaluation"
+    "method-function-evaluation": "method-function-evaluation",
+    "method-quadratic-interval-range": "method-quadratic-interval-range"
   },
   "legacyIdentityNotes": [
     "同一操作沿用 method-* 身份，kind 改为 skill；类型始终读取 kind。",

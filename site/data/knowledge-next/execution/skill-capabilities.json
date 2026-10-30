@@ -39,7 +39,8 @@
     "quadratic-interval-extremum": [
       "quadratic_interval_range",
       "endpoint_values_extremum",
-      "parametric_interval_extremum"
+      "parametric_interval_extremum",
+      "polynomial_image"
     ],
     "skill-linear-range": [
       "linear_range",
@@ -152,6 +153,9 @@
     ],
     "resolve_evaluation_domain": [
       "method-function-evaluation#evaluate"
+    ],
+    "prepare_function_range": [
+      "method-quadratic-interval-range#domain"
     ]
   }
 }
