@@ -408,13 +408,13 @@ class Scope:
         intersection = point_intersection_pair(ast)
         if intersection:
             self.declare(intersection[0][1], "point")
-        if kind in ("curve_definition", "function_definition"):
+        if kind in ("curve_definition", "function_definition", "function_input_relation"):
             self.declare(
                 ast[1],
                 "curve" if kind == "curve_definition" else "function",
                 local=True,
             )
-            if kind == "function_definition":
+            if kind in ("function_definition", "function_input_relation"):
                 self.functions[ast[1]] = ast
             return
         if kind == "role":
@@ -505,6 +505,10 @@ class Scope:
                 self.reference(ast[1], "function"),
                 self.bind(ast[3], {ast[2]: "function_argument"}, depth + 1),
             )
+        if kind == 'function_input_relation':
+            return node(kind, self.reference(ast[1], 'function'),
+                        self.bind(ast[3], {ast[2]: 'function_argument'}, depth + 1),
+                        self.bind(ast[4], {ast[2]: 'function_argument'}, depth + 1))
         if kind == '=' and any(side[:2] == ['call', 'Dom'] for side in ast[1:]):
             sides = [bind(side) for side in ast[1:]]
             sides = [node('interval', False, False, *side[1:]) if side[0] == 'tuple' else side
@@ -644,6 +648,10 @@ def typecheck(ast):
         if typecheck(ast[2]) != "scalar":
             raise NotationError("type.function_body")
         return "boolean"
+    if kind == 'function_input_relation':
+        if typecheck(ast[2]) != 'scalar' or typecheck(ast[3]) != 'scalar':
+            raise NotationError('type.function_relation')
+        return 'boolean'
     if kind == "function_call":
         if typecheck(ast[2]) != "scalar":
             raise NotationError("type.function_argument")

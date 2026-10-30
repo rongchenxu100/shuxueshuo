@@ -57,6 +57,7 @@ def frozen_files():
         package / "graph_lesson/function_equality.py",
         package / "graph_lesson/function_evaluation.py",
         package / "graph_lesson/domain_expression.py",
+        package / "graph_lesson/range_syntax.py",
         *(package / "problem_understanding").glob("*.py"),
         package / "solver/extraction/multimodal_provider.py",
         package / "solver/extraction/deepseek_files.py",

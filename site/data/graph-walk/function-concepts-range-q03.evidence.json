@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "b55bfece602b49949f624caf7ef1aa79",
-    "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
-    "input_sha256": "2414e9469e890eb6e2b0b414befe1cbe34debda3dcf30ca9a73b3aff0114953a",
-    "checkpoint_sha256": "0ecb02828fc1346caaf12a84802ee1b3f0a6b184216903998725d0aa7157f526",
-    "result_sha256": "a37f011726eae922b093fc164ff4fcbbbc2464f6ae7a0a18d94c849d45095e99",
+    "run_id": "a012db6c90104f6c9a100c4419c0dbba",
+    "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
+    "input_sha256": "86f8fdd0a84477adb4de253c20b68820e7df198f1ee7b7f7a34bc00dca70aa1a",
+    "checkpoint_sha256": "39db93d8878d18342c12c23cb490adadf2ed5b4134b7e9d6de7be3ec3e761752",
+    "result_sha256": "f6a3e4e3d168f758e4c81b56d409a2f5853fb7bbf171ce90eeddd780b4804153",
     "stage_one_sha256": "b60783c679318f80e4aed3a5c80195d3aba926414d376d256dd006742e0a8477",
-    "stage_two_sha256": "90cbfb67152c9dad73ab6ecffc1b8f0eadc88beefabeaa01cc8268f623e0939e"
+    "stage_two_sha256": "88e71058bf13b208b92ab0efef272bec514762e68d0c888859b29fc19fd4bb8b"
   },
   "lesson": {
     "status": "completed",
@@ -93,7 +93,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-concepts-range-q03//root/goals/0",
-            "graphVersion": "324d84bb5ed5c6d4f42be5bd3cf53df0599e664beec85f5017a454dc265a9969",
+            "graphVersion": "d5985d191a225adf731bbb053cc023141282f25d00c9bb03a59086b3ae3b249b",
             "problem": {
               "text": "已知函数 $f(x)=x^2-2x+2$，$x∈[0,3]$，则函数的值域为 ______。"
             },
@@ -276,6 +276,37 @@
                   "home": "compulsory-1-ch3"
                 },
                 {
+                  "id": "method-direct-range",
+                  "kind": "method",
+                  "label": "直接求值域法",
+                  "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "range",
+                      "title": "确定基本范围",
+                      "calls": [
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
                   "id": "method-quadratic-interval-range",
                   "kind": "method",
                   "label": "二次函数区间值域法",
@@ -302,6 +333,46 @@
                       ]
                     },
                     {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range",
+                  "kind": "method",
+                  "label": "换元求值域法",
+                  "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "substitute",
+                      "title": "换元并确定范围",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求新变量下的值域",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "回到原函数值域",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
                       "id": "verify",
                       "title": "核验完整值域",
                       "calls": []
@@ -310,6 +381,18 @@
                 }
               ],
               "edges": [
+                {
+                  "id": "method-substitution-range|calls|method-quadratic-interval-range",
+                  "from": "method-substitution-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
                 {
                   "id": "type-abstract-function-domain|involves|function-concept",
                   "from": "type-abstract-function-domain",
@@ -347,9 +430,27 @@
                   ]
                 },
                 {
+                  "id": "type-function-range|candidate|method-direct-range",
+                  "from": "type-function-range",
+                  "to": "method-direct-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
                   "id": "type-function-range|candidate|method-quadratic-interval-range",
                   "from": "type-function-range",
                   "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-substitution-range",
+                  "from": "type-function-range",
+                  "to": "method-substitution-range",
                   "type": "candidate",
                   "occurrences": [
                     {}
@@ -386,12 +487,12 @@
                 }
               ]
             },
-            "bundleVersion": "0beefcea6e7bf593a6e570eb581c9fb8ed9250d3c88054c9d5306228b363fe44"
+            "bundleVersion": "e2afbfa727292549a112c665d6e006b70d10bb9a7ea43a985dfe16cbcef64256"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-concepts-range-q03//root/goals/0",
-            "bundleVersion": "0beefcea6e7bf593a6e570eb581c9fb8ed9250d3c88054c9d5306228b363fe44",
+            "bundleVersion": "e2afbfa727292549a112c665d6e006b70d10bb9a7ea43a985dfe16cbcef64256",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -412,11 +513,11 @@
     ]
   },
   "stream": {
-    "run_id": "b55bfece602b49949f624caf7ef1aa79",
-    "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
-    "input_sha256": "2414e9469e890eb6e2b0b414befe1cbe34debda3dcf30ca9a73b3aff0114953a",
-    "stream_id": "b55bfece602b49949f624caf7ef1aa79",
-    "last_seq": 21,
+    "run_id": "a012db6c90104f6c9a100c4419c0dbba",
+    "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
+    "input_sha256": "86f8fdd0a84477adb4de253c20b68820e7df198f1ee7b7f7a34bc00dca70aa1a",
+    "stream_id": "a012db6c90104f6c9a100c4419c0dbba",
+    "last_seq": 22,
     "minimum_seq": 1,
     "math_steps": [
       {
@@ -441,15 +542,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "local_check": "passed",
-        "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+        "math_step_sha256": "6af47f1698902cfc835db357108a4dd6377992a2e370a80084a930aafa729754",
         "method_ref": "method-quadratic-interval-range#square",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -483,15 +584,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "local_check": "passed",
-        "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+        "math_step_sha256": "7d1acc903f67c5c7cca14c91b4ac88e3e6613d4711d2614d7b3f6e841d7be643",
         "method_ref": "method-quadratic-interval-range#square",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -525,15 +626,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "local_check": "passed",
-        "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+        "math_step_sha256": "e73fac8d9493baa44d35ab6be2f4481fa7464f8bbc7c7f7f2a141d4cb4900750",
         "method_ref": "method-quadratic-interval-range#range",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -566,15 +667,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "local_check": "passed",
-        "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+        "math_step_sha256": "556ccc1048a1e283aa780991759f84d2695589b699e9d8fbf26da610fb29c6a6",
         "method_ref": "method-quadratic-interval-range#range",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -622,35 +723,35 @@
           "expression": "Interval(1, 5)",
           "latex": "\\left[1, 5\\right]"
         },
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "math_steps": [
           {
-            "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+            "math_step_sha256": "6af47f1698902cfc835db357108a4dd6377992a2e370a80084a930aafa729754",
             "ordinal": 1,
             "step_id": "39e5646dcb-quadratic-interval-range-001-range_square"
           },
           {
-            "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+            "math_step_sha256": "7d1acc903f67c5c7cca14c91b4ac88e3e6613d4711d2614d7b3f6e841d7be643",
             "ordinal": 2,
             "step_id": "39e5646dcb-quadratic-interval-range-002-range_position"
           },
           {
-            "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+            "math_step_sha256": "e73fac8d9493baa44d35ab6be2f4481fa7464f8bbc7c7f7f2a141d4cb4900750",
             "ordinal": 3,
             "step_id": "39e5646dcb-quadratic-interval-range-003-range_values"
           },
           {
-            "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+            "math_step_sha256": "556ccc1048a1e283aa780991759f84d2695589b699e9d8fbf26da610fb29c6a6",
             "ordinal": 4,
             "step_id": "39e5646dcb-quadratic-interval-range-004-range_image"
           }
         ],
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "c5199438ef7f6c20230a1d5ff249a6a7eea3147b1bec10d1fce4da6b4551b419",
-        "verified_route_sha256": "33e45cdb535eb6f97a9eae6e206dc7b58ddb0acbd8b235f58436e546fe112e3f"
+        "task_id": "a42ed837540ef232282f23bf7d407a83ee8d87267b688f7ed495157e32d61eb8",
+        "verified_route_sha256": "762e7327fd75caacd7760c4b1829197f294ce42ea74d3aaca8026c9f1819f1ae"
       }
     ],
     "qa": [],
@@ -676,7 +777,7 @@
               "interaction": {
                 "type": "read"
               },
-              "question": "先确定本次求值域使用的输入范围：$x\\in\\left[0, 3\\right]$",
+              "question": "题设函数关系 $f(x)=x^{2}-2\\cdot x+2$。先确定本次求值域使用的输入范围：$x\\in\\left[0, 3\\right]$",
               "source_refs": [
                 "/root/definitions/0",
                 "/root/goals/0"
@@ -690,7 +791,7 @@
             "from": "type-function-range",
             "op": "methods"
           },
-          "question": "先确认输入范围，再结合顶点与区间边界，确定全部能取到的函数值。",
+          "question": "结合顶点与区间边界，确定全部能取到的函数值。",
           "submit_label": "用二次函数区间值域法解题",
           "title": "选择解题方法",
           "verdicts": {}
@@ -724,40 +825,40 @@
         "route_id": "quadratic-interval-range",
         "step_id": "39e5646dcb-quadratic-interval-range-001-range_square",
         "ordinal": 1,
-        "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+        "math_step_sha256": "6af47f1698902cfc835db357108a4dd6377992a2e370a80084a930aafa729754",
         "status": "interactive",
-        "interaction_id": "83d6764789fb12e29af7840c"
+        "interaction_id": "5631d976b1f65407162ea7ec"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "quadratic-interval-range",
         "step_id": "39e5646dcb-quadratic-interval-range-002-range_position",
         "ordinal": 2,
-        "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+        "math_step_sha256": "7d1acc903f67c5c7cca14c91b4ac88e3e6613d4711d2614d7b3f6e841d7be643",
         "status": "interactive",
-        "interaction_id": "f763f669f5d27b29cb051e33"
+        "interaction_id": "7b507c7ad8049a5c7a8e875d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "quadratic-interval-range",
         "step_id": "39e5646dcb-quadratic-interval-range-003-range_values",
         "ordinal": 3,
-        "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+        "math_step_sha256": "e73fac8d9493baa44d35ab6be2f4481fa7464f8bbc7c7f7f2a141d4cb4900750",
         "status": "interactive",
-        "interaction_id": "45dbb0fb20113ec43c7592d0"
+        "interaction_id": "2f69884e2612728930283cf6"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "quadratic-interval-range",
         "step_id": "39e5646dcb-quadratic-interval-range-004-range_image",
         "ordinal": 4,
-        "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+        "math_step_sha256": "556ccc1048a1e283aa780991759f84d2695589b699e9d8fbf26da610fb29c6a6",
         "status": "interactive",
-        "interaction_id": "dc402f4340f66ba0b3f7947c"
+        "interaction_id": "a3667f53d19e75a62706ba29"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "4625286c9d254b3dcd04d5ac036442746505ca8014c098cfc5d1f160b5c2557c",
+    "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -765,7 +866,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:quadratic-interval-range:complete",
-        "last_seq": 17
+        "last_seq": 18
       }
     ],
     "trajectories": [
@@ -781,7 +882,9 @@
             "calls": [
               {
                 "public_ref": null,
-                "used_basis": [],
+                "used_basis": [
+                  "function-concept#elements"
+                ],
                 "case_path": [],
                 "postconditions": [
                   {
@@ -841,6 +944,24 @@
           {
             "seq": 4,
             "method": "method-quadratic-interval-range",
+            "step": "transform",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-quadratic-interval-range",
             "step": "verify",
             "case_path": [],
             "calls": []
@@ -879,10 +1000,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "83d6764789fb12e29af7840c",
+        "interaction_id": "5631d976b1f65407162ea7ec",
         "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
-        "interaction_sha256": "d7ef91bd6c4d832b4a29cc646e03654a9f2409586d70be9a22f375a059a54105",
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "interaction_sha256": "5e3dbded7ddec83f4f7e5fdebde851958f358c23af40ffe376fac77f90946bab",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "parts": [
           {
             "completion_board": {
@@ -908,17 +1029,17 @@
             "feedback": {
               "answer": "$f(x)=x^{2}-2\\cdot x+2=\\left(x - 1\\right)^{2} + 1$"
             },
-            "id": "83d6764789fb12e29af7840c#1",
+            "id": "5631d976b1f65407162ea7ec#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f(x)=\\left(x - 1\\right)^{2}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$f(x)=\\left(x - 1\\right)^{2} + 2$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^{2}$",
+                  "value": "o3"
                 },
                 {
                   "label": "$f(x)=\\left(x - 1\\right)^{2} + 1$",
@@ -948,11 +1069,11 @@
           }
         ],
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "857e003b11c60163c718282ec318f77927ce88ef1ee6576bad6238a9226c911f",
+            "math_step_sha256": "6af47f1698902cfc835db357108a4dd6377992a2e370a80084a930aafa729754",
             "step_id": "39e5646dcb-quadratic-interval-range-001-range_square"
           }
         ],
@@ -960,10 +1081,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f763f669f5d27b29cb051e33",
+        "interaction_id": "7b507c7ad8049a5c7a8e875d",
         "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
-        "interaction_sha256": "f8ac010147b5b01c41d80e7b2dff6f47974d256b6efd15e86943c316668d18e0",
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "interaction_sha256": "574ad82e0165f6364ec26e7afafdfe24f7b5995712b91386964752da79cbb275",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "parts": [
           {
             "completion_board": {
@@ -1095,7 +1216,7 @@
                 "yLabel": "1"
               }
             },
-            "id": "f763f669f5d27b29cb051e33#1",
+            "id": "7b507c7ad8049a5c7a8e875d#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1104,17 +1225,17 @@
                   "value": "o2"
                 },
                 {
-                  "label": "顶点在定义域中，可以取到顶点值",
-                  "value": "o1"
-                },
-                {
                   "label": "顶点在区间右侧或右侧开端点处",
                   "value": "o3"
+                },
+                {
+                  "label": "顶点在定义域中，可以取到顶点值",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "抛物线开口向上。结合定义域，顶点能否取到？",
+            "question": "当前函数 $f(x)=x^{2}-2\\cdot x+2$。抛物线开口向上。结合定义域，顶点能否取到？",
             "stem_board": {
               "caption": "判断顶点位置",
               "connector": "⇒",
@@ -1135,11 +1256,11 @@
           }
         ],
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d2212ee5bfdd64377cde6985d8215e678599c1cb40f04b4346a8d80dec823656",
+            "math_step_sha256": "7d1acc903f67c5c7cca14c91b4ac88e3e6613d4711d2614d7b3f6e841d7be643",
             "step_id": "39e5646dcb-quadratic-interval-range-002-range_position"
           }
         ],
@@ -1147,10 +1268,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "45dbb0fb20113ec43c7592d0",
+        "interaction_id": "2f69884e2612728930283cf6",
         "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
-        "interaction_sha256": "dd453025810b0b83f1c308a8d0a827b7f602135b94795a7083d0fd70c1cb2f24",
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "interaction_sha256": "152d1d5ccf79f207726e3afb062bd98f759a03e88007fb1f27a104ccda5eaf7d",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "parts": [
           {
             "completion_board": {
@@ -1282,10 +1403,14 @@
                 "yLabel": "1"
               }
             },
-            "id": "45dbb0fb20113ec43c7592d0#1",
+            "id": "2f69884e2612728930283cf6#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "最小值：$1$；最大值：$6$",
+                  "value": "o3"
+                },
                 {
                   "label": "最小值：$2$；最大值：$5$",
                   "value": "o2"
@@ -1293,15 +1418,11 @@
                 {
                   "label": "最小值：$1$；最大值：$5$",
                   "value": "o1"
-                },
-                {
-                  "label": "最小值：$1$；最大值：$6$",
-                  "value": "o3"
                 }
               ],
               "type": "choice"
             },
-            "question": "比较区间端点的值或极限，以及区间内的顶点值。",
+            "question": "当前函数 $f(x)=x^{2}-2\\cdot x+2$。比较区间端点的值或极限，以及区间内的顶点值。",
             "stem_board": {
               "caption": "比较函数值",
               "connector": "⇒",
@@ -1322,11 +1443,11 @@
           }
         ],
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d92ba16323ddfd12649f6b21e0ebf3f1005e50f657a344a7768b2a39643f4db2",
+            "math_step_sha256": "e73fac8d9493baa44d35ab6be2f4481fa7464f8bbc7c7f7f2a141d4cb4900750",
             "step_id": "39e5646dcb-quadratic-interval-range-003-range_values"
           }
         ],
@@ -1334,10 +1455,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "dc402f4340f66ba0b3f7947c",
+        "interaction_id": "a3667f53d19e75a62706ba29",
         "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
-        "interaction_sha256": "b555d49c94aadf25e2ce4a995f5a176475a267942af07911bae4bd503b3601eb",
-        "lesson_version": "7113c7f673141dbdaf25ff8ecf79719f4686b211a80a4ed239731a8c6e186092",
+        "interaction_sha256": "3b6f5eb065a5dae233daef9714e22b09692dd8f91b2cead08ad72fe386494819",
+        "lesson_version": "6bc0c44bb1fab1936d2b88157ae2cc3f74deaacd9ed70435e817c09ce9467829",
         "parts": [
           {
             "completion_board": {
@@ -1436,7 +1557,7 @@
                       "5"
                     ]
                   ],
-                  "title": "值域",
+                  "title": "输出范围",
                   "variable": "y"
                 }
               }
@@ -1502,7 +1623,7 @@
                 "yLabel": "1"
               }
             },
-            "id": "dc402f4340f66ba0b3f7947c#1",
+            "id": "a3667f53d19e75a62706ba29#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1511,17 +1632,17 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$\\left[1, 5\\right]$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\left[1, 5\\right)$",
                   "value": "o3"
+                },
+                {
+                  "label": "$\\left[1, 5\\right]$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
             },
-            "question": "结合连续的图像和边界能否取到，值域是什么？",
+            "question": "当前函数 $f(x)=x^{2}-2\\cdot x+2$。结合图像和边界能否取到，确定全部取值。",
             "stem_board": {
               "caption": "写出值域",
               "connector": "⇒",
@@ -1542,11 +1663,11 @@
           }
         ],
         "route_id": "quadratic-interval-range",
-        "run_id": "b55bfece602b49949f624caf7ef1aa79",
+        "run_id": "a012db6c90104f6c9a100c4419c0dbba",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0ae0d69c76cc5d4e9fd506b2440089ce3b9a204338054fef7b91aa46e8a78761",
+            "math_step_sha256": "556ccc1048a1e283aa780991759f84d2695589b699e9d8fbf26da610fb29c6a6",
             "step_id": "39e5646dcb-quadratic-interval-range-004-range_image"
           }
         ],

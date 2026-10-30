@@ -1427,6 +1427,67 @@
             },
             "additionalProperties": false
           }
+        },
+        "radical": {
+          "type": "boolean"
+        },
+        "inner_ast": {
+          "type": "array"
+        },
+        "scale": {
+          "type": "string"
+        },
+        "shift": {
+          "type": "string"
+        },
+        "relation_input_ast": {
+          "type": "array"
+        },
+        "substitution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "atom_kind",
+            "argument_ast",
+            "coefficients",
+            "slope",
+            "intercept"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "sqrt",
+                "abs",
+                "affine",
+                "constant"
+              ]
+            },
+            "atom_kind": {
+              "enum": [
+                "sqrt",
+                "abs",
+                "affine"
+              ]
+            },
+            "argument_ast": {
+              "type": "array"
+            },
+            "coefficients": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "type": "string"
+              }
+            },
+            "slope": {
+              "type": "string"
+            },
+            "intercept": {
+              "type": "string"
+            }
+          }
         }
       },
       "additionalProperties": false

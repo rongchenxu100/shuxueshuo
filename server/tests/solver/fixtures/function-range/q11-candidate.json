@@ -1,0 +1,34 @@
+{
+  "original_text": "11. 函数 $f(2x-1)=x^2+2$，则 $f(x)$ 的值域为____。",
+  "root": {
+    "definitions": [
+      "f(2*x-1)=x^2+2"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(2x-1)=x^2+2$，则 $f(x)$ 的值域为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

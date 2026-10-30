@@ -477,5 +477,6 @@ def _function_range_operation(name):
     return run
 
 
-for _name in ('prepare_function_range', 'polynomial_image'):
+for _name in ('prepare_function_range', 'polynomial_image', 'transform_function_range',
+              'prepare_range_substitution', 'return_range_substitution'):
     REGISTRY[_name] = _function_range_operation(_name)

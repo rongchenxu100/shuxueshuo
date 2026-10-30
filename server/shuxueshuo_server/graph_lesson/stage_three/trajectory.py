@@ -10,6 +10,7 @@ _CONSTRUCTORS = {
         "Add",
         "Mul",
         "Pow",
+        "Abs",
         "Interval",
         "Union",
         "Intersection",

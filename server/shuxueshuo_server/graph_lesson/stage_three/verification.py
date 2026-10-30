@@ -89,8 +89,8 @@ def collect_original(candidate, target_ref):
         # driver's recursive collection function.
         binders = []
         for node, path in _walk(ast):
-            if node[0] in ("quantifier", "set_builder", "function_definition"):
-                function = node[0] == "function_definition"
+            if node[0] in ("quantifier", "set_builder", "function_definition", "function_input_relation"):
+                function = node[0] in ("function_definition", "function_input_relation")
                 i = 2 if node[0] == "quantifier" else 1
                 ref = entry["source_ref"] + ("#function_argument" if function
                                                else "#" + "/".join(map(str, (*path, i))))

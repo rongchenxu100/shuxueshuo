@@ -1,0 +1,2447 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "631094b73ce34f23bab441f43c4291b8",
+    "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+    "input_sha256": "249db848782d43cf76347c4f660c623202c64f7ccd15e4a1c37d00a24217c5b5",
+    "checkpoint_sha256": "bf2524a09da3a88d6dde51dd0fa98b596e0f510bb7785472b9ad0662ac7a056f",
+    "result_sha256": "6f77b96a058268eaa50f862617ea12cc0e44e7a206c75d75534662b6ca640281",
+    "stage_one_sha256": "a390cc5ea25baab3e6c3b5ec8d8e8fbd6db98c86866d12cc0d98e9e2e3cf7562",
+    "stage_two_sha256": "7c6401bd9655f6511cd946b6f40c8196a51a24a3d5e14944fc4ecfcc6a429bb0"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-range",
+        "supported": [
+          "type-function-range"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 32,
+                  "end": 34,
+                  "text": "值域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求给定输入范围内，全部函数值组成的集合",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求自变量的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "ae69b761c53c4108"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目要求求值域，需要确定什么？",
+          "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+          "summary": "先确定定义域，再求全部实际能取到的函数值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "要求原式有意义的全部输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          },
+          {
+            "type_id": "type-function-range",
+            "label": "求函数的值域",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+            ],
+            "choice_hint": "求给定定义域内的全部函数值"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-range-q08//root/goals/0",
+            "graphVersion": "d5985d191a225adf731bbb053cc023141282f25d00c9bb03a59086b3ae3b249b",
+            "problem": {
+              "text": "函数 $y=x+\\sqrt{1-x}(-8<x<1)$ 的值域是 ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目要求求值域，需要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求给定输入范围内，全部函数值组成的集合"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求自变量的取值范围",
+                      "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-function-domain",
+                  "type-function-range",
+                  "type-abstract-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "先确定定义域，再求全部实际能取到的函数值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "要求原式有意义的全部输入"
+                    },
+                    {
+                      "value": "type-function-range",
+                      "label": "求函数的值域",
+                      "note": "求给定定义域内的全部函数值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-range"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-range"
+                  ],
+                  "edges": [
+                    "type-function-range|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-direct-range",
+                  "kind": "method",
+                  "label": "直接求值域法",
+                  "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "range",
+                      "title": "确定基本范围",
+                      "calls": [
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quadratic-interval-range",
+                  "kind": "method",
+                  "label": "二次函数区间值域法",
+                  "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "配方，判断顶点位置",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求区间值域",
+                      "calls": [
+                        "quadratic-interval-extremum"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range",
+                  "kind": "method",
+                  "label": "换元求值域法",
+                  "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "substitute",
+                      "title": "换元并确定范围",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求新变量下的值域",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "回到原函数值域",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-substitution-range|calls|method-quadratic-interval-range",
+                  "from": "method-substitution-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-direct-range",
+                  "from": "type-function-range",
+                  "to": "method-direct-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-quadratic-interval-range",
+                  "from": "type-function-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-substitution-range",
+                  "from": "type-function-range",
+                  "to": "method-substitution-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "89d01abe3760fd0faf0f76ed32b56ecfdbe943e91ab269a881171cabe7ab4c9a"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-range-q08//root/goals/0",
+            "bundleVersion": "89d01abe3760fd0faf0f76ed32b56ecfdbe943e91ab269a881171cabe7ab4c9a",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "先确定定义域，再求全部实际能取到的函数值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-range",
+                "reason": "选「求函数的值域」：已知具体函数及输入范围，要求所有实际能取到的函数值组成的集合。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "631094b73ce34f23bab441f43c4291b8",
+    "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+    "input_sha256": "249db848782d43cf76347c4f660c623202c64f7ccd15e4a1c37d00a24217c5b5",
+    "stream_id": "631094b73ce34f23bab441f43c4291b8",
+    "last_seq": 36,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "substitution_define",
+        "explanation": "$t=\\sqrt{- x + 1}$",
+        "highlight": {
+          "caption": "设新变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数",
+              "math": "f(x)=x+\\sqrt{1-x}"
+            },
+            {
+              "label": "新变量",
+              "math": "t=\\sqrt{- x + 1}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "826f768046054a53229b1302538ff3b6acdccb04fca093341e2b8b105e1c2541",
+        "method_ref": "method-substitution-range#substitute",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-001-substitution_define",
+        "target_ref": "/root/goals/0",
+        "title": "设新变量",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "substitution_domain",
+        "explanation": "$x\\in\\left(-8, 1\\right)$\n$t=\\sqrt{- x + 1}$\n$t\\in\\left(0, 3\\right)$",
+        "highlight": {
+          "caption": "确定新变量范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原输入与换元关系",
+              "math": "\\begin{gathered}x\\in\\left(-8, 1\\right)\\\\t=\\sqrt{- x + 1}\\end{gathered}"
+            },
+            {
+              "label": "新变量范围",
+              "math": "t\\in\\left(0, 3\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "3e3cd297a806faec92f4b078f47a528eb2a4f98eb212276d9b4f8e0175f1c2f3",
+        "method_ref": "method-substitution-range#substitute",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-002-substitution_domain",
+        "target_ref": "/root/goals/0",
+        "title": "确定新变量范围",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "substitution_rewrite",
+        "explanation": "$x=1 - t^{2}$\n$h(t)=- t^{2} + t + 1$\n$t\\in\\left(0, 3\\right)$",
+        "highlight": {
+          "caption": "改写为新变量的函数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "换元与回代",
+              "math": "\\begin{gathered}t=\\sqrt{- x + 1}\\\\x=1 - t^{2}\\end{gathered}"
+            },
+            {
+              "label": "新函数",
+              "math": "h(t)=- t^{2} + t + 1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "d9e9c841691aea0d524fe29218db673b7beb3679e57b47daa95dd4678e773284",
+        "method_ref": "method-substitution-range#substitute",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-003-substitution_rewrite",
+        "target_ref": "/root/goals/0",
+        "title": "改写为新变量的函数",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "substitution_borrow",
+        "explanation": "$h(t)=- t^{2} + t + 1$\n$t\\in\\left(0, 3\\right)$",
+        "highlight": {
+          "caption": "求新函数的值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "新函数",
+              "math": "h(t)=- t^{2} + t + 1"
+            },
+            {
+              "label": "输入范围",
+              "math": "t\\in\\left(0, 3\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "1911e68ae58cbab5ce80a167f0040111e1ea739673c6af8270a141172a63155d",
+        "method_ref": "method-substitution-range#substitute",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-004-substitution_borrow",
+        "target_ref": "/root/goals/0",
+        "title": "求新函数的值域",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_square",
+        "explanation": "$h(t)=- t^{2} + t + 1=\\frac{5}{4} - \\left(t - \\frac{1}{2}\\right)^{2}$",
+        "highlight": {
+          "caption": "配方",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数",
+              "math": "h(t)=- t^{2} + t + 1"
+            },
+            {
+              "label": "顶点式",
+              "math": "h(t)=\\frac{5}{4} - \\left(t - \\frac{1}{2}\\right)^{2}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "96ae5f50dcc11a77020df1b4c20e52705d5b0a76c132703bdc8e5d862cd0e553",
+        "method_ref": "method-quadratic-interval-range#square",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-005-range_square",
+        "target_ref": "/root/goals/0",
+        "title": "配方",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_position",
+        "explanation": "$\\frac{1}{2}\\in\\left(0, 3\\right)$",
+        "highlight": {
+          "caption": "判断顶点位置",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围与顶点",
+              "math": "\\begin{gathered}t\\in\\left(0, 3\\right)\\\\P\\left(\\frac{1}{2},\\frac{5}{4}\\right)\\end{gathered}"
+            },
+            {
+              "label": "顶点位置",
+              "math": "\\frac{1}{2}\\in\\left(0, 3\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "1cc0ef25ea46083d45d22ff4944c18b4472904907d0acb8177116f2dce3f48f7",
+        "method_ref": "method-quadratic-interval-range#square",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-006-range_position",
+        "target_ref": "/root/goals/0",
+        "title": "判断顶点位置",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_values",
+        "explanation": "$\\lim_{t\\to0^+}h(t)=1$\n$\\lim_{t\\to3^-}h(t)=-5$\n$h(\\frac{1}{2})=\\frac{5}{4}$",
+        "highlight": {
+          "caption": "比较函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围",
+              "math": "t\\in\\left(0, 3\\right)"
+            },
+            {
+              "label": "端点与顶点",
+              "math": "\\begin{gathered}\\lim_{t\\to0^+}h(t)=1\\\\\\lim_{t\\to3^-}h(t)=-5\\\\h(\\frac{1}{2})=\\frac{5}{4}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "795f3dd2ddcd0fffe298c0a5dad5ab51c6ec2fa69d4886718d812feaae7860b7",
+        "method_ref": "method-quadratic-interval-range#range",
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-007-range_values",
+        "target_ref": "/root/goals/0",
+        "title": "比较函数值",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_image",
+        "explanation": "$h(t)\\in\\left(-5, \\frac{5}{4}\\right]$",
+        "highlight": {
+          "caption": "写出值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "函数值的边界",
+              "math": "\\begin{gathered}\\lim_{t\\to0^+}h(t)=1\\\\\\lim_{t\\to3^-}h(t)=-5\\\\h(\\frac{1}{2})=\\frac{5}{4}\\end{gathered}"
+            },
+            {
+              "label": "值域",
+              "math": "\\left(-5, \\frac{5}{4}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "d5c02146f705531a560d91eab008809a96800c0671eb2e7de28af86d5b869efc",
+        "method_ref": "method-quadratic-interval-range#range",
+        "ordinal": 8,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-008-range_image",
+        "target_ref": "/root/goals/0",
+        "title": "写出值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "substitution_return",
+        "explanation": "$t=\\sqrt{- x + 1}$\n$t\\in\\left(0, 3\\right)$\n$f(x)\\in\\left(-5, \\frac{5}{4}\\right]$",
+        "highlight": {
+          "caption": "回到原函数值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "新函数的完整范围",
+              "math": "h(t)\\in\\left(-5, \\frac{5}{4}\\right]"
+            },
+            {
+              "label": "原函数值域",
+              "math": "\\left(-5, \\frac{5}{4}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "local_check": "passed",
+        "math_step_sha256": "b8e75d953b939c04493e98233b3aed58ec85eafb727bb46a77d3082e6961d710",
+        "method_ref": "method-substitution-range#restore",
+        "ordinal": 9,
+        "premise_refs": [],
+        "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "source_refs": [
+          "/steps/7/calls/0"
+        ],
+        "step_id": "39e5646dcb-substitution-range-009-substitution_return",
+        "target_ref": "/root/goals/0",
+        "title": "回到原函数值域",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval.Lopen(-5, 5/4)",
+            "latex": "\\left(-5, \\frac{5}{4}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval.Lopen(-5, 5/4)",
+          "latex": "\\left(-5, \\frac{5}{4}\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval.Lopen(-5, 5/4)",
+            "latex": "\\left(-5, \\frac{5}{4}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval.Lopen(-5, 5/4)",
+          "latex": "\\left(-5, \\frac{5}{4}\\right]"
+        },
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "math_steps": [
+          {
+            "math_step_sha256": "826f768046054a53229b1302538ff3b6acdccb04fca093341e2b8b105e1c2541",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-substitution-range-001-substitution_define"
+          },
+          {
+            "math_step_sha256": "3e3cd297a806faec92f4b078f47a528eb2a4f98eb212276d9b4f8e0175f1c2f3",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-substitution-range-002-substitution_domain"
+          },
+          {
+            "math_step_sha256": "d9e9c841691aea0d524fe29218db673b7beb3679e57b47daa95dd4678e773284",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-substitution-range-003-substitution_rewrite"
+          },
+          {
+            "math_step_sha256": "1911e68ae58cbab5ce80a167f0040111e1ea739673c6af8270a141172a63155d",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-substitution-range-004-substitution_borrow"
+          },
+          {
+            "math_step_sha256": "96ae5f50dcc11a77020df1b4c20e52705d5b0a76c132703bdc8e5d862cd0e553",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-substitution-range-005-range_square"
+          },
+          {
+            "math_step_sha256": "1cc0ef25ea46083d45d22ff4944c18b4472904907d0acb8177116f2dce3f48f7",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-substitution-range-006-range_position"
+          },
+          {
+            "math_step_sha256": "795f3dd2ddcd0fffe298c0a5dad5ab51c6ec2fa69d4886718d812feaae7860b7",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-substitution-range-007-range_values"
+          },
+          {
+            "math_step_sha256": "d5c02146f705531a560d91eab008809a96800c0671eb2e7de28af86d5b869efc",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-substitution-range-008-range_image"
+          },
+          {
+            "math_step_sha256": "b8e75d953b939c04493e98233b3aed58ec85eafb727bb46a77d3082e6961d710",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-substitution-range-009-substitution_return"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "47bd77fab4257e8ad31625886631ab0b1b666aa6c94c036d4962c1559ec8b7f2",
+        "verified_route_sha256": "f4b755f444fa9e63d2698bc279a1d121b8acca7c09dbf265cc1ebf18c5f0044d"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "prerequisites": [
+            {
+              "completion_board": {
+                "caption": "确定定义域",
+                "connector": "⇒",
+                "items": [
+                  {
+                    "label": "原式有意义的条件",
+                    "math": "\\begin{gathered}- x + 1\\ge0\\\\x\\in\\left(-8, 1\\right)\\end{gathered}"
+                  },
+                  {
+                    "label": "定义域",
+                    "math": "x\\in\\left(-8, 1\\right)"
+                  }
+                ],
+                "layout": "derivation"
+              },
+              "effects": {
+                "calls": [],
+                "edges": [],
+                "log": "已确定本题的有效输入范围。",
+                "nodes": [],
+                "results": []
+              },
+              "expected_answer": {
+                "one_of": [
+                  "o1"
+                ]
+              },
+              "feedback": {
+                "answer": "$- x + 1\\ge0$\n$x\\in\\left(-8, 1\\right)$\n$x\\in\\left(-8, 1\\right)$"
+              },
+              "id": "D3-domain",
+              "interaction": {
+                "field": "answer",
+                "options": [
+                  {
+                    "label": "$\\left(-8, 1\\right)$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left[-8, 1\\right)$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left(-8, 1\\right]$",
+                    "value": "o3"
+                  }
+                ],
+                "type": "choice"
+              },
+              "question": "题设函数关系 $f(x)=x+\\sqrt{1-x}$。被开方数必须非负。结合题给的输入限制，定义域是什么？",
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0",
+                "/root/goals/0/input_domain"
+              ],
+              "stem_board": {
+                "caption": "确定定义域",
+                "connector": "⇒",
+                "items": [
+                  {
+                    "label": "原式有意义的条件",
+                    "math": "\\begin{gathered}- x + 1\\ge0\\\\x\\in\\left(-8, 1\\right)\\end{gathered}"
+                  },
+                  {
+                    "label": "定义域",
+                    "math": null
+                  }
+                ],
+                "layout": "derivation"
+              },
+              "submit_label": "在这个范围内选择方法",
+              "summary": "$x\\in\\left(-8, 1\\right)$",
+              "title": "确定定义域"
+            }
+          ],
+          "query": {
+            "from": "type-function-range",
+            "op": "methods"
+          },
+          "question": "设新变量，确定它的准确范围，再改写函数并求完整值域。",
+          "submit_label": "用换元求值域法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-substitution-range",
+              "recommendation": "preferred",
+              "route_id": "substitution-range",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-001-substitution_define",
+        "ordinal": 1,
+        "math_step_sha256": "826f768046054a53229b1302538ff3b6acdccb04fca093341e2b8b105e1c2541",
+        "status": "interactive",
+        "interaction_id": "9f29ee8408b4ceb690b37710"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-002-substitution_domain",
+        "ordinal": 2,
+        "math_step_sha256": "3e3cd297a806faec92f4b078f47a528eb2a4f98eb212276d9b4f8e0175f1c2f3",
+        "status": "interactive",
+        "interaction_id": "a053bd8e1007a6119ee9c288"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-003-substitution_rewrite",
+        "ordinal": 3,
+        "math_step_sha256": "d9e9c841691aea0d524fe29218db673b7beb3679e57b47daa95dd4678e773284",
+        "status": "interactive",
+        "interaction_id": "da0c2bf8546b2e6be06de6a1"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-004-substitution_borrow",
+        "ordinal": 4,
+        "math_step_sha256": "1911e68ae58cbab5ce80a167f0040111e1ea739673c6af8270a141172a63155d",
+        "status": "interactive",
+        "interaction_id": "aa94e35f64c5ed149fd7b008"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-005-range_square",
+        "ordinal": 5,
+        "math_step_sha256": "96ae5f50dcc11a77020df1b4c20e52705d5b0a76c132703bdc8e5d862cd0e553",
+        "status": "interactive",
+        "interaction_id": "e96f60420067c81d6292acf8"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-006-range_position",
+        "ordinal": 6,
+        "math_step_sha256": "1cc0ef25ea46083d45d22ff4944c18b4472904907d0acb8177116f2dce3f48f7",
+        "status": "interactive",
+        "interaction_id": "8da45bf6421322b023e7d957"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-007-range_values",
+        "ordinal": 7,
+        "math_step_sha256": "795f3dd2ddcd0fffe298c0a5dad5ab51c6ec2fa69d4886718d812feaae7860b7",
+        "status": "interactive",
+        "interaction_id": "5d03a80bdfa774ecdf9902cc"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-008-range_image",
+        "ordinal": 8,
+        "math_step_sha256": "d5c02146f705531a560d91eab008809a96800c0671eb2e7de28af86d5b869efc",
+        "status": "interactive",
+        "interaction_id": "12134617cfdb7cee7503b721"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "step_id": "39e5646dcb-substitution-range-009-substitution_return",
+        "ordinal": 9,
+        "math_step_sha256": "b8e75d953b939c04493e98233b3aed58ec85eafb727bb46a77d3082e6961d710",
+        "status": "interactive",
+        "interaction_id": "e64e4b81186411d9c272306a"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "a205d2867810073550a2102f091673e8a469f1b10db4b516efff21003cc35aad",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:substitution-range:complete",
+        "last_seq": 36
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "substitution-range",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-substitution-range",
+            "step": "substitute",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-substitution",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "function-range-extrema#attainability",
+                  "method-substitution#range"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-substitution-range",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-quadratic-interval-range",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-quadratic-interval-range",
+            "step": "domain",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-quadratic-interval-range",
+            "step": "square",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "square-nonnegative#nonnegative"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-quadratic-interval-range",
+            "step": "range",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "quadratic-interval-extremum",
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-quadratic-interval-range",
+            "step": "transform",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-quadratic-interval-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 8,
+            "method": "method-substitution-range",
+            "step": "restore",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-substitution",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "function-range-extrema#attainability",
+                  "method-substitution#range"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 9,
+            "method": "method-substitution-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9f29ee8408b4ceb690b37710",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "a9ecf5807f70a56a446d4fdd1d438c63e4170c42379b1e7cbda72802dd897022",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "设新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x+\\sqrt{1-x}"
+                },
+                {
+                  "label": "新变量",
+                  "math": "t=\\sqrt{- x + 1}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$t=\\sqrt{- x + 1}$"
+            },
+            "id": "9f29ee8408b4ceb690b37710#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$t=\\sqrt{- x + 1}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$t=- x + 1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将根式 $\\sqrt{- x + 1}$ 整体设为新变量 $t$，应怎样写？",
+            "stem_board": {
+              "caption": "设新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x+\\sqrt{1-x}"
+                },
+                {
+                  "label": "新变量",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "设新变量"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "826f768046054a53229b1302538ff3b6acdccb04fca093341e2b8b105e1c2541",
+            "step_id": "39e5646dcb-substitution-range-001-substitution_define"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a053bd8e1007a6119ee9c288",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "4e4d237369cc3b9c3e69037fb8d7256f0934935002f48ecf2c27703d35cf60ff",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "确定新变量范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原输入与换元关系",
+                  "math": "\\begin{gathered}x\\in\\left(-8, 1\\right)\\\\t=\\sqrt{- x + 1}\\end{gathered}"
+                },
+                {
+                  "label": "新变量范围",
+                  "math": "t\\in\\left(0, 3\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$x\\in\\left(-8, 1\\right)$\n$t=\\sqrt{- x + 1}$\n$t\\in\\left(0, 3\\right)$"
+            },
+            "id": "a053bd8e1007a6119ee9c288#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[0, 3\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left(0, 3\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(0, 3\\right]$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题设函数关系 $f(x)=x+\\sqrt{1-x}$。在原输入范围内，新变量能取遍哪个集合？",
+            "stem_board": {
+              "caption": "确定新变量范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原输入与换元关系",
+                  "math": "\\begin{gathered}x\\in\\left(-8, 1\\right)\\\\t=\\sqrt{- x + 1}\\end{gathered}"
+                },
+                {
+                  "label": "新变量范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "确定新变量范围"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3e3cd297a806faec92f4b078f47a528eb2a4f98eb212276d9b4f8e0175f1c2f3",
+            "step_id": "39e5646dcb-substitution-range-002-substitution_domain"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "da0c2bf8546b2e6be06de6a1",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "ee4c7487d7b51223764a27ea01b8f232969a9d7ec0bcbb825c7156915c64c824",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "改写为新变量的函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与回代",
+                  "math": "\\begin{gathered}t=\\sqrt{- x + 1}\\\\x=1 - t^{2}\\end{gathered}"
+                },
+                {
+                  "label": "新函数",
+                  "math": "h(t)=- t^{2} + t + 1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$x=1 - t^{2}$\n$h(t)=- t^{2} + t + 1$\n$t\\in\\left(0, 3\\right)$"
+            },
+            "id": "da0c2bf8546b2e6be06de6a1#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$h(t)=- t^{2} + t$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$h(t)=- t^{2} + t + 1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$h(t)=- t^{2} + t + 2$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题设函数关系 $f(x)=x+\\sqrt{1-x}$。用新变量表示整个函数，结果是什么？",
+            "stem_board": {
+              "caption": "改写为新变量的函数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与回代",
+                  "math": "\\begin{gathered}t=\\sqrt{- x + 1}\\\\x=1 - t^{2}\\end{gathered}"
+                },
+                {
+                  "label": "新函数",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "改写为新变量的函数"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d9e9c841691aea0d524fe29218db673b7beb3679e57b47daa95dd4678e773284",
+            "step_id": "39e5646dcb-substitution-range-003-substitution_rewrite"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "aa94e35f64c5ed149fd7b008",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "5a7e92422cea1e41c4f996bf0443ae3f05765a05d3fd0424295398fc3f3a4f2c",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求新函数的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "新函数",
+                  "math": "h(t)=- t^{2} + t + 1"
+                },
+                {
+                  "label": "输入范围",
+                  "math": "t\\in\\left(0, 3\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$h(t)=- t^{2} + t + 1$\n$t\\in\\left(0, 3\\right)$"
+            },
+            "id": "aa94e35f64c5ed149fd7b008#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "新变量范围已确定，接下来结合顶点和区间边界求全部输出。",
+            "stem_board": {
+              "caption": "求新函数的值域",
+              "lines": [
+                "$h(t)=- t^{2} + t + 1$",
+                "$t\\in\\left(0, 3\\right)$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "求新函数的值域"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1911e68ae58cbab5ce80a167f0040111e1ea739673c6af8270a141172a63155d",
+            "step_id": "39e5646dcb-substitution-range-004-substitution_borrow"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e96f60420067c81d6292acf8",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "03c4a2fccc06024a594cf8757b8627cae843840b84ce2a26330f8b63f2ef966e",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "h(t)=- t^{2} + t + 1"
+                },
+                {
+                  "label": "顶点式",
+                  "math": "h(t)=\\frac{5}{4} - \\left(t - \\frac{1}{2}\\right)^{2}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$h(t)=- t^{2} + t + 1=\\frac{5}{4} - \\left(t - \\frac{1}{2}\\right)^{2}$"
+            },
+            "id": "e96f60420067c81d6292acf8#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$h(t)=\\frac{9}{4} - \\left(t - \\frac{1}{2}\\right)^{2}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$h(t)=\\frac{1}{4} - \\left(t - \\frac{1}{2}\\right)^{2}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$h(t)=\\frac{5}{4} - \\left(t - \\frac{1}{2}\\right)^{2}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把函数式写成顶点式。",
+            "stem_board": {
+              "caption": "配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "h(t)=- t^{2} + t + 1"
+                },
+                {
+                  "label": "顶点式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "配方"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "96ae5f50dcc11a77020df1b4c20e52705d5b0a76c132703bdc8e5d862cd0e553",
+            "step_id": "39e5646dcb-substitution-range-005-range_square"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8da45bf6421322b023e7d957",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "7d7c4466cc0a674bea8ada68a2db04661d71c2dc3abaeec1dd7912fc5e50aeb2",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}t\\in\\left(0, 3\\right)\\\\P\\left(\\frac{1}{2},\\frac{5}{4}\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": "\\frac{1}{2}\\in\\left(0, 3\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -6.5,
+                  2.5
+                ],
+                "coefficient": -1.0,
+                "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0.0
+                  },
+                  {
+                    "open": true,
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "h 在 (0, 3) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.5,
+                  1.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "5/4"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\frac{1}{2}\\in\\left(0, 3\\right)$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -6.5,
+                  2.5
+                ],
+                "coefficient": -1.0,
+                "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0.0
+                  },
+                  {
+                    "open": true,
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "h 在 (0, 3) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.5,
+                  1.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "5/4"
+              }
+            },
+            "id": "8da45bf6421322b023e7d957#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "顶点在区间左侧或左侧开端点处",
+                  "value": "o2"
+                },
+                {
+                  "label": "顶点在区间右侧或右侧开端点处",
+                  "value": "o3"
+                },
+                {
+                  "label": "顶点在定义域中，可以取到顶点值",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当前函数 $h(t)=- t^{2} + t + 1$。抛物线开口向下。结合定义域，顶点能否取到？",
+            "stem_board": {
+              "caption": "判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}t\\in\\left(0, 3\\right)\\\\P\\left(\\frac{1}{2},\\frac{5}{4}\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "判断顶点位置"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1cc0ef25ea46083d45d22ff4944c18b4472904907d0acb8177116f2dce3f48f7",
+            "step_id": "39e5646dcb-substitution-range-006-range_position"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "5d03a80bdfa774ecdf9902cc",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "d22d072998d0b30dfa88f94500f81fdbca8ed86efefe7c46b0d3afa21d6414df",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "t\\in\\left(0, 3\\right)"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": "\\begin{gathered}\\lim_{t\\to0^+}h(t)=1\\\\\\lim_{t\\to3^-}h(t)=-5\\\\h(\\frac{1}{2})=\\frac{5}{4}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -6.5,
+                  2.5
+                ],
+                "coefficient": -1.0,
+                "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0.0
+                  },
+                  {
+                    "open": true,
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "h 在 (0, 3) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.5,
+                  1.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "5/4"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\lim_{t\\to0^+}h(t)=1$\n$\\lim_{t\\to3^-}h(t)=-5$\n$h(\\frac{1}{2})=\\frac{5}{4}$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -6.5,
+                  2.5
+                ],
+                "coefficient": -1.0,
+                "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0.0
+                  },
+                  {
+                    "open": true,
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "h 在 (0, 3) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.5,
+                  1.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "5/4"
+              }
+            },
+            "id": "5d03a80bdfa774ecdf9902cc#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "下界（取不到）：$-5$；最大值：$\\frac{9}{4}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "下界（取不到）：$-4$；最大值：$\\frac{5}{4}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "下界（取不到）：$-5$；最大值：$\\frac{5}{4}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当前函数 $h(t)=- t^{2} + t + 1$。比较区间端点的值或极限，以及区间内的顶点值。",
+            "stem_board": {
+              "caption": "比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "t\\in\\left(0, 3\\right)"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "比较函数值"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "795f3dd2ddcd0fffe298c0a5dad5ab51c6ec2fa69d4886718d812feaae7860b7",
+            "step_id": "39e5646dcb-substitution-range-007-range_values"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "12134617cfdb7cee7503b721",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "7011ef38108e35da53ac7903bd31e5712ca31e2b225cf9268a77e57c048418d5",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}\\lim_{t\\to0^+}h(t)=1\\\\\\lim_{t\\to3^-}h(t)=-5\\\\h(\\frac{1}{2})=\\frac{5}{4}\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": "\\left(-5, \\frac{5}{4}\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.75,
+                    -6.5,
+                    2.5
+                  ],
+                  "coefficient": -1.0,
+                  "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                  "interval": [
+                    0.0,
+                    3.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "points": [
+                    {
+                      "open": true,
+                      "x": 0.0
+                    },
+                    {
+                      "open": true,
+                      "x": 3.0
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "h 在 (0, 3) 上的图像",
+                  "variable": "t",
+                  "vertex": [
+                    0.5,
+                    1.25
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ],
+                    [
+                      0.5,
+                      "1/2"
+                    ]
+                  ],
+                  "yLabel": "5/4"
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -6.5625,
+                    2.8125
+                  ],
+                  "description": "y 的取值集合：(-5, 5/4]",
+                  "pieces": [
+                    {
+                      "from": -5.0,
+                      "left_closed": false,
+                      "right_closed": true,
+                      "to": 1.25
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      -5.0,
+                      "-5"
+                    ],
+                    [
+                      1.25,
+                      "5/4"
+                    ]
+                  ],
+                  "title": "输出范围",
+                  "variable": "y"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$h(t)\\in\\left(-5, \\frac{5}{4}\\right]$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -6.5,
+                  2.5
+                ],
+                "coefficient": -1.0,
+                "description": "t=0 取不到，函数值趋近 1（空心点）；t=3 取不到，函数值趋近 -5（空心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0.0
+                  },
+                  {
+                    "open": true,
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "h 在 (0, 3) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.5,
+                  1.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "5/4"
+              }
+            },
+            "id": "12134617cfdb7cee7503b721#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(-5, \\frac{5}{4}\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(-5, \\frac{5}{4}\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[-5, \\frac{5}{4}\\right]$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当前函数 $h(t)=- t^{2} + t + 1$。结合图像和边界能否取到，确定全部取值。",
+            "stem_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}\\lim_{t\\to0^+}h(t)=1\\\\\\lim_{t\\to3^-}h(t)=-5\\\\h(\\frac{1}{2})=\\frac{5}{4}\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出值域"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d5c02146f705531a560d91eab008809a96800c0671eb2e7de28af86d5b869efc",
+            "step_id": "39e5646dcb-substitution-range-008-range_image"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e64e4b81186411d9c272306a",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "4762f5b58738043e13d31efefd873d0ed8a5b4f71f614e2898b30bd237e359f7",
+        "lesson_version": "662e8804791ba4ce4b57d906d5d5aa36708e9e7dfb8bd732256fe7711783e799",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "回到原函数值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "新函数的完整范围",
+                  "math": "h(t)\\in\\left(-5, \\frac{5}{4}\\right]"
+                },
+                {
+                  "label": "原函数值域",
+                  "math": "\\left(-5, \\frac{5}{4}\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$t=\\sqrt{- x + 1}$\n$t\\in\\left(0, 3\\right)$\n$f(x)\\in\\left(-5, \\frac{5}{4}\\right]$"
+            },
+            "id": "e64e4b81186411d9c272306a#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "题设函数关系 $f(x)=x+\\sqrt{1-x}$。新变量取遍上述范围，两种表示产生相同的全部函数值。",
+            "stem_board": {
+              "caption": "回到原函数值域",
+              "lines": [
+                "$h(t)\\in\\left(-5, \\frac{5}{4}\\right]$",
+                "$\\left(-5, \\frac{5}{4}\\right]$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "回到原函数值域"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "631094b73ce34f23bab441f43c4291b8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b8e75d953b939c04493e98233b3aed58ec85eafb727bb46a77d3082e6961d710",
+            "step_id": "39e5646dcb-substitution-range-009-substitution_return"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

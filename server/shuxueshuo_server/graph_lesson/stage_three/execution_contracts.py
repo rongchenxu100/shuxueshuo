@@ -452,6 +452,7 @@ def revisions():
     result["evaluation_algebra"] = hashlib.sha256((folder / "evaluation_algebra.py").read_bytes()).hexdigest()
     for name in ('function_range', 'range_presentation'):
         result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
+    result['range_syntax'] = hashlib.sha256((folder.parent / 'range_syntax.py').read_bytes()).hexdigest()
     result["selection"] = hashlib.sha256(b"".join(
         path.name.encode() + b"\0" + path.read_bytes() for path in sorted((DATA / "selection").glob("*.json"))
     )).hexdigest()

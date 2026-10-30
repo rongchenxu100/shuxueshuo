@@ -57,7 +57,11 @@
       "type": "type-function-range",
       "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
       "problems": [
-        "function-concepts-range-q03"
+        "function-concepts-range-q03",
+        "function-concepts-range-q05",
+        "function-concepts-range-q08",
+        "function-concepts-range-q11",
+        "function-concepts-range-q16"
       ]
     }
   ],
@@ -2451,7 +2455,7 @@
                 "method-quadratic-interval-range"
               ]
             },
-            "83d6764789fb12e29af7840c#1": {
+            "5631d976b1f65407162ea7ec#1": {
               "title": "配方",
               "position": 5,
               "refs": [
@@ -2461,7 +2465,7 @@
                 "square-nonnegative#nonnegative"
               ]
             },
-            "f763f669f5d27b29cb051e33#1": {
+            "7b507c7ad8049a5c7a8e875d#1": {
               "title": "判断顶点位置",
               "position": 6,
               "refs": [
@@ -2471,7 +2475,7 @@
                 "square-nonnegative#nonnegative"
               ]
             },
-            "45dbb0fb20113ec43c7592d0#1": {
+            "2f69884e2612728930283cf6#1": {
               "title": "比较函数值",
               "position": 7,
               "refs": [
@@ -2479,7 +2483,7 @@
                 "quadratic-interval-extremum"
               ]
             },
-            "dc402f4340f66ba0b3f7947c#1": {
+            "a3667f53d19e75a62706ba29#1": {
               "title": "写出值域",
               "position": 8,
               "refs": [
@@ -2490,9 +2494,511 @@
           }
         }
       }
+    },
+    "function-concepts-range-q05": {
+      "label": "二次根式的值域 · Q5",
+      "path": "/topics/function-concepts/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q05.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "函数 $y=\\sqrt{-x^2-6x-5}$ 的值域为 ______。",
+      "routes": {
+        "quadratic-interval-range": {
+          "label": "二次函数区间值域法",
+          "methods": [
+            "method-quadratic-interval-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-quadratic-interval-range"
+              ]
+            },
+            "e17c76268dd291ed9cfca98e#1": {
+              "title": "配方",
+              "position": 5,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "2e9a8b70e1181d4e96d00d64#1": {
+              "title": "判断顶点位置",
+              "position": 6,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "98acd0f7f46d04ceb49b81c0#1": {
+              "title": "比较函数值",
+              "position": 7,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "075b4a9d2bb1329fa67a708b#1": {
+              "title": "确定被开方数范围",
+              "position": 8,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "428bf1d37b65b1a73717d124#1": {
+              "title": "写出原函数值域",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#transform",
+                "function-range-extrema#attainability",
+                "square-root-expression#range"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q08": {
+      "label": "根式换元求值域 · Q8",
+      "path": "/topics/function-concepts/q08/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q08.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "函数 $y=x+\\sqrt{1-x}(-8<x<1)$ 的值域是 ______。",
+      "routes": {
+        "substitution-range": {
+          "label": "换元求值域法",
+          "methods": [
+            "method-substitution-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-substitution-range"
+              ]
+            },
+            "9f29ee8408b4ceb690b37710#1": {
+              "title": "设新变量",
+              "position": 5,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "a053bd8e1007a6119ee9c288#1": {
+              "title": "确定新变量范围",
+              "position": 6,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "da0c2bf8546b2e6be06de6a1#1": {
+              "title": "改写为新变量的函数",
+              "position": 7,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "aa94e35f64c5ed149fd7b008#1": {
+              "title": "求新函数的值域",
+              "position": 8,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "e96f60420067c81d6292acf8#1": {
+              "title": "配方",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "8da45bf6421322b023e7d957#1": {
+              "title": "判断顶点位置",
+              "position": 10,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "5d03a80bdfa774ecdf9902cc#1": {
+              "title": "比较函数值",
+              "position": 11,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "12134617cfdb7cee7503b721#1": {
+              "title": "写出值域",
+              "position": 12,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "e64e4b81186411d9c272306a#1": {
+              "title": "回到原函数值域",
+              "position": 13,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q11": {
+      "label": "仿射输入关系求值域 · Q11",
+      "path": "/topics/function-concepts/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q11.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "函数 $f(2x-1)=x^2+2$，则 $f(x)$ 的值域为____。",
+      "routes": {
+        "substitution-range": {
+          "label": "换元求值域法",
+          "methods": [
+            "method-substitution-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-substitution-range"
+              ]
+            },
+            "5278ca6a49cf74e7ef670c8c#1": {
+              "title": "设新变量",
+              "position": 5,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "91dcebc08c874f5cfa6820b8#1": {
+              "title": "确定新变量范围",
+              "position": 6,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "8742a76220abe2378cdd63dc#1": {
+              "title": "改写为新变量的函数",
+              "position": 7,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "7c2525f27fba98294ef50288#1": {
+              "title": "求新函数的值域",
+              "position": 8,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "4b63e351f8b9f7c3deef065d#1": {
+              "title": "配方",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "872a990d95cf74254fb5cfe3#1": {
+              "title": "判断顶点位置",
+              "position": 10,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "0d3aa21e0385615830f00b05#1": {
+              "title": "比较函数值",
+              "position": 11,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "7795775bc5ee5d04404268ce#1": {
+              "title": "写出值域",
+              "position": 12,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "4c27595fd013123276160520#1": {
+              "title": "回到原函数值域",
+              "position": 13,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q16": {
+      "label": "绝对值换元求值域 · Q16",
+      "path": "/topics/function-concepts/q16/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q16.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "已知函数 $f(x)=x^2+2|x|-1$，则函数 $f(x)$ 的值域是____。",
+      "routes": {
+        "substitution-range": {
+          "label": "换元求值域法",
+          "methods": [
+            "method-substitution-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-substitution-range"
+              ]
+            },
+            "c62dc5b52cf7b636ff47d773#1": {
+              "title": "设新变量",
+              "position": 5,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "736cab33bc239a2de0258e97#1": {
+              "title": "确定新变量范围",
+              "position": 6,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "99d7fb053446f45b4af08311#1": {
+              "title": "改写为新变量的函数",
+              "position": 7,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "e6d4d38772dda1d066ec87f6#1": {
+              "title": "求新函数的值域",
+              "position": 8,
+              "refs": [
+                "method-substitution-range#substitute",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            },
+            "a61b969e03978dffd431ea97#1": {
+              "title": "配方",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "379704a7b3263327e33b5b86#1": {
+              "title": "判断顶点位置",
+              "position": 10,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "b807fe514f6f6b06c36d100b#1": {
+              "title": "比较函数值",
+              "position": 11,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "e64def311d14e845793f0959#1": {
+              "title": "写出值域",
+              "position": 12,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c22b6a9a0ff88c29673a932#1": {
+              "title": "回到原函数值域",
+              "position": 13,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "equality-properties#identity",
+                "function-range-extrema#attainability",
+                "method-substitution#range"
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "content_version": "855d3aa57f7fd3701e42f9dc18078849de51702073cfe874c74483cd25bd6892"
+  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22"
 }

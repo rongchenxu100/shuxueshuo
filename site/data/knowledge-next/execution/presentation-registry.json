@@ -2622,7 +2622,9 @@
     "method-function-equality": "verify",
     "method-input-domain-correspondence": "solve",
     "method-function-evaluation": "verify",
-    "method-quadratic-interval-range": "verify"
+    "method-quadratic-interval-range": "verify",
+    "method-direct-range": "verify",
+    "method-substitution-range": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

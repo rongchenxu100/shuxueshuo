@@ -1,0 +1,203 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-range-q11",
+  "label": "仿射输入关系求值域 · Q11",
+  "path": "/topics/function-concepts/q11/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-range-q11.json",
+  "types": [
+    "type-function-range"
+  ],
+  "statement": "函数 $f(2x-1)=x^2+2$，则 $f(x)$ 的值域为____。",
+  "routes": {
+    "substitution-range": {
+      "label": "换元求值域法",
+      "methods": [
+        "method-substitution-range"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3-domain": {
+          "title": "确定定义域",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 4,
+          "refs": [
+            "method-substitution-range"
+          ]
+        },
+        "5278ca6a49cf74e7ef670c8c#1": {
+          "title": "设新变量",
+          "position": 5,
+          "refs": [
+            "method-substitution-range#substitute",
+            "method-substitution",
+            "equality-properties#identity",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        },
+        "91dcebc08c874f5cfa6820b8#1": {
+          "title": "确定新变量范围",
+          "position": 6,
+          "refs": [
+            "method-substitution-range#substitute",
+            "method-substitution",
+            "equality-properties#identity",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        },
+        "8742a76220abe2378cdd63dc#1": {
+          "title": "改写为新变量的函数",
+          "position": 7,
+          "refs": [
+            "method-substitution-range#substitute",
+            "method-substitution",
+            "equality-properties#identity",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        },
+        "7c2525f27fba98294ef50288#1": {
+          "title": "求新函数的值域",
+          "position": 8,
+          "refs": [
+            "method-substitution-range#substitute",
+            "method-substitution",
+            "equality-properties#identity",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        },
+        "4b63e351f8b9f7c3deef065d#1": {
+          "title": "配方",
+          "position": 9,
+          "refs": [
+            "method-quadratic-interval-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "872a990d95cf74254fb5cfe3#1": {
+          "title": "判断顶点位置",
+          "position": 10,
+          "refs": [
+            "method-quadratic-interval-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "0d3aa21e0385615830f00b05#1": {
+          "title": "比较函数值",
+          "position": 11,
+          "refs": [
+            "method-quadratic-interval-range#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "7795775bc5ee5d04404268ce#1": {
+          "title": "写出值域",
+          "position": 12,
+          "refs": [
+            "method-quadratic-interval-range#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "4c27595fd013123276160520#1": {
+          "title": "回到原函数值域",
+          "position": 13,
+          "refs": [
+            "method-substitution-range#restore",
+            "method-substitution",
+            "equality-properties#identity",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/"
+  ],
+  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22"
+}

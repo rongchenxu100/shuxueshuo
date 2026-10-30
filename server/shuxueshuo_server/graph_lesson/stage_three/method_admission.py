@@ -133,9 +133,9 @@ def _function_evaluation(context):
     return admitted(context)
 
 
-def _function_range(context):
+def _function_range(context, method=None):
     from .function_range import admitted
-    return admitted(context)
+    return admitted(context, method)
 
 
 CHECKS = {

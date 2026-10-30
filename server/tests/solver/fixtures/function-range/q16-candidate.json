@@ -1,0 +1,35 @@
+{
+  "original_text": "16. 已知函数 $f(x)=x^2+2|x|-1$，则函数 $f(x)$ 的值域是____。",
+  "root": {
+    "definitions": [
+      "f(x)=x^2+2*abs(x)-1"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=x^2+2|x|-1$，则函数 $f(x)$ 的值域是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

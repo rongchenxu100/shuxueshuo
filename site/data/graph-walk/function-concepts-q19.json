@@ -1444,6 +1444,15 @@
         "occurrences": [
           {}
         ]
+      },
+      {
+        "id": "type-function-range|involves|square-root-expression",
+        "from": "type-function-range",
+        "to": "square-root-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
       }
     ],
     "lanes": [

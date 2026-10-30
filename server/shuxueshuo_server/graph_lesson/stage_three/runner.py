@@ -49,6 +49,7 @@ def fingerprint():
         *Path(__file__).parent.parent.joinpath("stage_one").glob("*.py"),
         *Path(__file__).parent.parent.joinpath("stage_two").glob("*.py"),
         Path(__file__).parent.parent / "domain_expression.py",
+        Path(__file__).parent.parent / "range_syntax.py",
         Path(__file__).parent.parent / 'function_equality.py',
         Path(__file__).parent.parent / 'function_evaluation.py',
         Path(__file__).parent / 'equality_presentation.py',

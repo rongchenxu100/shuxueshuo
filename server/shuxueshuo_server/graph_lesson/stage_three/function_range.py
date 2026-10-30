@@ -5,46 +5,98 @@ from itertools import pairwise
 
 import sympy as sp
 
+from ..range_syntax import coefficients_ast, range_domain, range_expression
 from ..stage_one.function_domain import _fixed_poly
 from ..stage_one.function_range import inspect_range_target
-from .capabilities import CapabilityGap, LocalCheckFailed, result
+from .capabilities import (
+    CapabilityGap,
+    LocalCheckFailed,
+    quadratic_sign_pattern,
+    result,
+    solve_quadratic,
+)
 from .capabilities.ranges import quadratic_interval_range
-from .function_domain import input_set
 from .math_values import math_value
 
 METHOD_ID = 'method-quadratic-interval-range'
+DIRECT_METHOD = 'method-direct-range'
+SUBSTITUTION_METHOD = 'method-substitution-range'
+
+
+def _inner(description):
+    variable = sp.Symbol(description['variable'], real=True)
+    if description.get('substitution'):
+        if description['substitution']['kind'] == 'affine':
+            return sum((sp.Rational(c)*variable**i for i, c in
+                        enumerate(description['substitution']['coefficients'])), sp.S.Zero), variable
+        return range_expression(description['expression_ast'], variable), variable
+    coefficients = [sp.Rational(v.numerator, v.denominator)
+                    for v in _fixed_poly(description['inner_ast'], max_degree=2)]
+    return sum((v * variable**i for i, v in enumerate(coefficients)), sp.S.Zero), variable
+
+
+def natural_domain(description):
+    substitution = description.get('substitution')
+    if substitution:
+        if substitution['atom_kind'] != 'sqrt':
+            return sp.S.Reals
+        variable = sp.Symbol(description['variable'], real=True)
+        inner = range_expression(substitution['argument_ast'], variable)
+        roots = solve_quadratic(inner, variable)['outputs']
+        return quadratic_sign_pattern(inner, variable, **roots, strict=False)['outputs']['solution']
+    if not description['radical']:
+        return sp.S.Reals
+    inner, variable = _inner(description)
+    roots = solve_quadratic(inner, variable)['outputs']
+    return quadratic_sign_pattern(inner, variable, **roots, strict=False)['outputs']['solution']
+
+
+def components(domain):
+    if isinstance(domain, sp.Union):
+        return list(domain.args)
+    if isinstance(domain, (sp.Interval, sp.FiniteSet)):
+        return [domain]
+    raise CapabilityGap('range.interval_components_required')
 
 
 def inputs(description):
     if not description.get('structure_supported'):
         raise CapabilityGap(description.get('reason') or 'range.input_class_unavailable')
-    variable = sp.Symbol(description['variable'], real=True)
-    coefficients = [sp.Rational(v.numerator, v.denominator)
-                    for v in _fixed_poly(description['expression_ast'], max_degree=2)]
-    expression = sum((v * variable**i for i, v in enumerate(coefficients)), sp.S.Zero)
-    declared = input_set({**description, 'input_domain_ast': description['declared_domain_ast']})
-    domain = declared & input_set(description)
+    expression, variable = _inner(description)
+    natural = natural_domain(description)
+    declared = range_domain(description['declared_domain_ast'])
+    if description['declared_domain_source_ref'] and declared.is_subset(natural) is not True:
+        raise CapabilityGap('range.declared_domain_conflict')
+    domain = natural & declared & range_domain(description['input_domain_ast'])
     for row in description['restriction_facts']:
-        domain &= input_set({**description, 'input_domain_ast': row['domain_ast']})
+        domain &= range_domain(row['domain_ast'])
     if domain is sp.S.EmptySet:
         raise CapabilityGap('range.empty_input')
     if domain is sp.S.Reals:
         domain = sp.Interval(-sp.oo, sp.oo)
-    if not isinstance(domain, sp.Interval) and not (isinstance(domain, sp.FiniteSet) and len(domain) == 1):
-        raise CapabilityGap('range.single_interval_required')
+    if len(components(domain)) > 2:
+        raise CapabilityGap('range.component_budget')
     return expression, variable, domain
 
 
-def admitted(context):
+def admitted(context, method=None):
     if not (context.get('goal', {}).get('kind') == 'find_range'
             and 'object' in context['goal']
             and context.get('range_goal', {}).get('structure_supported') is True):
         return False
     try:
         inputs(context['range_goal'])
+        if context['range_goal'].get('substitution'):
+            _prepare_range_substitution(context)
     except (CapabilityGap, ValueError):
         return False
-    return True
+    if context['range_goal'].get('substitution'):
+        selected = SUBSTITUTION_METHOD
+    else:
+        selected = DIRECT_METHOD if context['range_goal']['degree'] <= 1 else METHOD_ID
+    if context.get('range_subproblem') and method == METHOD_ID and not context['range_goal'].get('substitution'):
+        return True
+    return method is None or method == selected
 
 
 def prepare_function_range(context):
@@ -55,14 +107,112 @@ def prepare_function_range(context):
     degree = int(max(0, sp.degree(expression, variable)))
     return result({'description': description, 'function': expression, 'variable': variable,
                    'domain': domain, 'degree': degree, 'quadratic': degree == 2,
-                   'natural_domain': sp.S.Reals}, [],
-                  [{'kind': 'original_polynomial_domain', 'passed': True,
-                    'natural_domain': sp.S.Reals,
-                    'declared_domain': input_set({**description, 'input_domain_ast': description['declared_domain_ast']}),
+                   'radical': description['radical'],
+                   'rescale': description['radical'] and (description['scale'], description['shift']) != ('1', '0'),
+                   'natural_domain': natural_domain(description)},
+                  ['radical_range_domain' if description['radical'] else 'function_range_domain'],
+                  [{'kind': 'original_function_domain', 'passed': True,
+                    'natural_domain': natural_domain(description),
+                    'declared_domain': range_domain(description['declared_domain_ast']),
                     'effective_domain': domain}])
 
 
+def prepare_range_substitution(context):
+    if not admitted(context, SUBSTITUTION_METHOD):
+        raise CapabilityGap('range.substitution_input_required')
+    return _prepare_range_substitution(context)
+
+
+def _prepare_range_substitution(context):
+    description = deepcopy(context['range_goal'])
+    source, x, domain = inputs(description)
+    spec = description['substitution']
+    kind = spec['kind']
+    t = sp.Symbol('t' if x.name != 't' else 'u', real=True)
+    a, b = sp.Rational(spec['slope']), sp.Rational(spec['intercept'])
+    argument = range_expression(spec['argument_ast'], x)
+    polynomial = sum((sp.Rational(c)*t**i for i, c in enumerate(spec['coefficients'])), sp.S.Zero)
+    branches = []
+    if kind == 'constant':
+        forward, preimages, new_domain = x, [t], domain
+        branches = [{'original_domain': domain, 'image': domain}]
+    else:
+        argument_image = polynomial_image(argument, x, domain)['outputs']['feasible_set']
+        if kind == 'sqrt':
+            forward, preimages = sp.sqrt(argument), [(t**2-b)/a]
+            new_domain = _map_image(argument_image, sp.sqrt)
+            branches = [{'original_domain': domain, 'image': new_domain}]
+        elif kind == 'abs':
+            forward, preimages = sp.Abs(argument), [(t-b)/a, (-t-b)/a]
+            for sign, region in ((1, sp.Interval(0, sp.oo)), (-1, sp.Interval(-sp.oo, 0))):
+                segment = argument_image & region
+                if segment is not sp.S.EmptySet:
+                    branches.append({'argument_domain': segment,
+                                     'image': _map_image(segment, lambda v, sign=sign: sign*v, increasing=sign > 0)})
+            new_domain = sp.Union(*(row['image'] for row in branches))
+        else:
+            forward, preimages, new_domain = argument, [(t-b)/a], argument_image
+            branches = [{'original_domain': domain, 'image': new_domain}]
+    original_relation = range_expression(description['expression_ast'], x) if kind == 'affine' else source
+    identity = sp.simplify(polynomial.subs(t, forward) - original_relation) == 0
+    if not identity or new_domain is sp.S.EmptySet:
+        raise LocalCheckFailed('range.substitution_identity_failed')
+    mapping = {'kind': kind, 'original_variable': x, 'original_domain': domain,
+               'forward': forward, 'variable': t, 'domain': new_domain,
+               'function': polynomial, 'preimages': preimages, 'coverage': branches}
+    child_description = {**description, 'variable': t.name,
+                         'function_name': description['function_name'] if kind == 'affine' else 'h',
+                         'function_ref': description['function_ref'],
+                         'expression_ast': coefficients_ast(spec['coefficients']),
+                         'inner_ast': coefficients_ast(spec['coefficients']),
+                         'expression_latex': sp.latex(polynomial),
+                         'declared_domain_ast': ['real'], 'declared_domain_source_ref': '',
+                         'input_domain_source_ref': '', 'restriction_facts': [],
+                         'radical': False, 'scale': '1', 'shift': '0'}
+    # Keep a typed exact interval; display LaTeX is not a notation input.
+    from ...problem_understanding.notation_parser import parse
+    def endpoint_ast(value):
+        return parse(str(value).replace('**', '^').replace('oo', '∞'))
+    child_description['input_domain_ast'] = (
+        ['set', endpoint_ast(next(iter(new_domain)))] if isinstance(new_domain, sp.FiniteSet) else
+        ['interval', not new_domain.left_open, not new_domain.right_open,
+         endpoint_ast(new_domain.start), endpoint_ast(new_domain.end)])
+    for field in ('substitution', 'relation_input_ast'):
+        child_description.pop(field, None)
+    # Admission must cover the child domain as well: e.g. a supported surd
+    # endpoint can become an unsupported nested radical after substitution.
+    inputs(child_description)
+    child_context = {**deepcopy(context), 'range_goal': child_description, 'range_subproblem': True}
+    description['mapping'] = mapping
+    return result({'description': description, 'function': source, 'variable': x,
+                   'domain': domain, 'mapping': mapping, 'child_context': child_context},
+                  ['function_range_substitution'],
+                  [{'kind': 'substitution_identity', 'passed': identity},
+                   {'kind': 'substitution_complete_input_image', 'passed': True,
+                    'original_domain': domain, 'image': new_domain, 'cover': branches,
+                    'inverse_branches': preimages}])
+
+
+def return_range_substitution(context, mapping, image):
+    checked = prepare_range_substitution(context)['outputs']['mapping']
+    if mapping != checked:
+        raise LocalCheckFailed('range.substitution_mapping_mismatch')
+    expected, _ = monotone_cover(mapping['function'], mapping['variable'], mapping['domain'])
+    if image != expected:
+        raise LocalCheckFailed('range.substitution_child_image_mismatch')
+    return result({'range': _bounds(image), 'feasible_set': image}, ['function_range_substitution'],
+                  [{'kind': 'substitution_complete_output_transport', 'passed': True,
+                    'image': image, 'input_cover': mapping['coverage']}])
+
+
 def polynomial_image(expression, variable, domain):
+    if isinstance(domain, sp.Union):
+        parts = [polynomial_image(expression, variable, part) for part in components(domain)]
+        image = sp.Union(*(part['outputs']['feasible_set'] for part in parts))
+        return result({'range': _bounds(image), 'feasible_set': image,
+                       'endpoint_values': [row for part in parts for row in part['outputs']['endpoint_values']],
+                       'critical_points': [row for part in parts for row in part['outputs']['critical_points']]},
+                      ['interval_extrema'], [check for part in parts for check in part['checks']])
     if isinstance(domain, sp.FiniteSet) and len(domain) == 1:
         point = next(iter(domain))
         value = expression.subs(variable, point)
@@ -80,6 +230,41 @@ def polynomial_image(expression, variable, domain):
     return computed
 
 
+def _bounds(image):
+    low, high = image.inf, image.sup
+    return {'inf': low, 'sup': high, 'inf_attained': image.contains(low) is sp.true,
+            'sup_attained': image.contains(high) is sp.true, 'set': image}
+
+
+def _map_image(image, transform, *, increasing=True):
+    if isinstance(image, sp.Union):
+        return sp.Union(*(_map_image(part, transform, increasing=increasing) for part in image.args))
+    if isinstance(image, sp.FiniteSet):
+        return sp.FiniteSet(*(sp.simplify(transform(point)) for point in image))
+    left, right = sp.simplify(transform(image.start)), sp.simplify(transform(image.end))
+    return (sp.Interval(left, right, left_open=image.left_open, right_open=image.right_open) if increasing else
+            sp.Interval(right, left, left_open=image.right_open, right_open=image.left_open))
+
+
+def transform_function_range(description, image):
+    if not description['radical']:
+        return result({'inner_range': _bounds(image), 'root_range': _bounds(image),
+                       'range': _bounds(image), 'feasible_set': image}, [],
+                      [{'kind': 'original_polynomial_image', 'passed': True}])
+    if image is sp.S.EmptySet or image.is_subset(sp.Interval(0, sp.oo)) is not True:
+        raise LocalCheckFailed('range.nonnegative_image_required')
+    root = _map_image(image, sp.sqrt)
+    scale, shift = sp.Rational(description['scale']), sp.Rational(description['shift'])
+    output = (sp.FiniteSet(shift) if scale == 0 else
+              _map_image(root, lambda value: scale*value+shift, increasing=scale > 0))
+    return result({'inner_range': _bounds(image), 'root_range': _bounds(root),
+                   'range': _bounds(output), 'feasible_set': output},
+                  ['function_range_transform'],
+                  [{'kind': 'square_root_bijection', 'passed': True, 'source': image, 'image': root},
+                   {'kind': 'affine_image', 'passed': True, 'scale': scale, 'shift': shift,
+                    'source': root, 'image': output}])
+
+
 def _limit(expression, variable, endpoint):
     if endpoint not in (-sp.oo, sp.oo):
         return expression.subs(variable, endpoint)
@@ -94,6 +279,9 @@ def monotone_cover(expression, variable, domain):
     upper/lower containment bound and a proof that every intermediate value is
     attained. Union retains a boundary if any other legal preimage attains it.
     """
+    if isinstance(domain, sp.Union):
+        parts = [monotone_cover(expression, variable, part) for part in domain.args]
+        return sp.Union(*(part[0] for part in parts)), [row for part in parts for row in part[1]]
     if isinstance(domain, sp.FiniteSet):
         point = next(iter(domain))
         image = sp.FiniteSet(expression.subs(variable, point))
@@ -138,7 +326,43 @@ def independent_verify(candidate, target_ref, context, proposed):
     from .verification import check_context, collect_original
     check_context(collect_original(candidate, target_ref), context)
     expression, variable, domain = inputs(description)
-    expected, pieces = monotone_cover(expression, variable, domain)
+    if description.get('substitution'):
+        spec = description['substitution']
+        if spec['kind'] == 'affine':
+            # The original relation holds on all reals and its input map is
+            # onto: analyze its original RHS, independently of the new formula.
+            original = range_expression(description['expression_ast'], variable)
+            expected, pieces = monotone_cover(original, variable, sp.S.Reals)
+        elif spec['kind'] == 'abs':
+            argument = range_expression(spec['argument_ast'], variable)
+            images, pieces = [], []
+            for sign in (1, -1):
+                roots = solve_quadratic(sign*argument, variable)['outputs']
+                region = domain & quadratic_sign_pattern(sign*argument, variable, **roots, strict=False)['outputs']['solution']
+                if region is sp.S.EmptySet:
+                    continue
+                original = expression.xreplace({sp.Abs(argument): sign*argument})
+                image, rows = monotone_cover(sp.expand(original), variable, region)
+                images.append(image)
+                pieces.extend(rows)
+            expected = sp.Union(*images)
+        else:
+            from sympy.calculus.util import function_range
+            expected = (sp.FiniteSet(*(expression.subs(variable, p) for p in domain)) if isinstance(domain, sp.FiniteSet)
+                        else function_range(expression, variable, domain))
+            pieces = [{'domain': domain, 'image': expected, 'reason': 'original_function_complete_image'}]
+    else:
+        expected, pieces = monotone_cover(expression, variable, domain)
+    if description['radical']:
+        # Independent analysis of the original function on each exact input
+        # component, not the solver's transformed endpoints or flags.
+        from sympy.calculus.util import function_range
+        target = sp.Rational(description['shift']) + sp.Rational(description['scale'])*sp.sqrt(expression)
+        images = [(sp.FiniteSet(*(target.subs(variable, p) for p in part)) if isinstance(part, sp.FiniteSet)
+                   else function_range(target, variable, part)) for part in components(domain)]
+        expected = sp.Union(*images)
+        pieces = [{'domain': part, 'image': image, 'reason': 'original_function_complete_image'}
+                  for part, image in zip(components(domain), images, strict=True)]
     passed = proposed == expected
     return {'status': 'verified' if passed else 'math_failed',
             'proof': {'kind': 'complete_function_image', 'passed': passed,
@@ -150,13 +374,17 @@ def independent_verify(candidate, target_ref, context, proposed):
 
 
 def image_endpoints(candidate, target_ref, image):
-    expression, variable, domain = inputs(inspect_range_target(candidate, target_ref))
+    desc = inspect_range_target(candidate, target_ref)
+    expression, variable, domain = inputs(desc)
+    if desc['radical']:
+        expression = sp.Rational(desc['shift']) + sp.Rational(desc['scale'])*sp.sqrt(expression)
     rows = []
     for point in sorted(image.boundary):
         if sp.diff(expression, variable) == 0:
-            witnesses = [next(iter(domain)) if isinstance(domain, sp.FiniteSet) else
-                         (domain.start + domain.end)/2 if domain.start.is_finite and domain.end.is_finite else
-                         domain.start+1 if domain.start.is_finite else domain.end-1 if domain.end.is_finite else sp.S.Zero]
+            part = components(domain)[0]
+            witnesses = [next(iter(part)) if isinstance(part, sp.FiniteSet) else
+                         (part.start + part.end)/2 if part.start.is_finite and part.end.is_finite else
+                         part.start+1 if part.start.is_finite else part.end-1 if part.end.is_finite else sp.S.Zero]
             witnesses = [v for v in witnesses if expression == point]
         else:
             witnesses = [v for v in sp.solve(expression-point, variable)

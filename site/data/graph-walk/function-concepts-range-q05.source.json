@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q05",
+  "title": "二次根式的值域 · Q5",
+  "page": "/topics/function-concepts/q05/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q05.evidence.json",
+  "statement": "函数 $y=\\sqrt{-x^2-6x-5}$ 的值域为 ______。"
+}

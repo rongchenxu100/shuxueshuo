@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q11",
+  "title": "仿射输入关系求值域 · Q11",
+  "page": "/topics/function-concepts/q11/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q11.evidence.json",
+  "statement": "函数 $f(2x-1)=x^2+2$，则 $f(x)$ 的值域为____。"
+}

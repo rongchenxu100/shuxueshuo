@@ -90,7 +90,7 @@ def test_comparison_admission_dependencies_change_the_workflow_fingerprint(monke
     read_bytes = Path.read_bytes
     contract = contract_type()
     before = contract.frozen_files()
-    for relative in ("graph_lesson/function_equality.py", "graph_lesson/domain_expression.py"):
+    for relative in ("graph_lesson/function_equality.py", "graph_lesson/domain_expression.py", "graph_lesson/range_syntax.py"):
         path = contracts.ROOT / "server/shuxueshuo_server" / relative
         key = str(path.relative_to(contracts.ROOT))
         assert key in before

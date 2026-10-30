@@ -1,0 +1,35 @@
+{
+  "original_text": "5. 函数 $y=\\sqrt{-x^2-6x-5}$ 的值域为 ______．",
+  "root": {
+    "definitions": [
+      "f(x)=sqrt(-x^2-6*x-5)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $y=\\sqrt{-x^2-6x-5}$ 的值域为 ______．",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

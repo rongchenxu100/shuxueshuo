@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q08",
+  "title": "根式换元求值域 · Q8",
+  "page": "/topics/function-concepts/q08/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q08.evidence.json",
+  "statement": "函数 $y=x+\\sqrt{1-x}(-8<x<1)$ 的值域是 ______。"
+}

@@ -534,6 +534,37 @@
       ]
     },
     {
+      "id": "method-direct-range",
+      "kind": "method",
+      "label": "直接求值域法",
+      "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "domain",
+          "title": "确定定义域",
+          "calls": []
+        },
+        {
+          "id": "range",
+          "title": "确定基本范围",
+          "calls": [
+            "skill-linear-range"
+          ]
+        },
+        {
+          "id": "transform",
+          "title": "传递到原函数值域",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-discriminant",
       "kind": "method",
       "label": "判别式法",
@@ -903,6 +934,11 @@
           ]
         },
         {
+          "id": "transform",
+          "title": "传递到原函数值域",
+          "calls": []
+        },
+        {
           "id": "verify",
           "title": "核验完整值域",
           "calls": []
@@ -1060,6 +1096,41 @@
         {
           "id": "verify",
           "title": "定方向，写最值，回代检查",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-substitution-range",
+      "kind": "method",
+      "label": "换元求值域法",
+      "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "substitute",
+          "title": "换元并确定范围",
+          "calls": [
+            "method-substitution"
+          ]
+        },
+        {
+          "id": "solve",
+          "title": "求新变量下的值域",
+          "calls": [
+            "method-quadratic-interval-range"
+          ]
+        },
+        {
+          "id": "restore",
+          "title": "回到原函数值域",
+          "calls": [
+            "method-substitution"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
           "calls": []
         }
       ]
@@ -2069,6 +2140,18 @@
       ]
     },
     {
+      "id": "method-direct-range|calls|skill-linear-range",
+      "from": "method-direct-range",
+      "to": "skill-linear-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "range",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-discriminant|calls|quadratic-inequality-solve",
       "from": "method-discriminant",
       "to": "quadratic-inequality-solve",
@@ -2741,6 +2824,34 @@
         {
           "step": "range",
           "when": "化成一个字母的二次函数，且这个字母有范围限制时"
+        }
+      ]
+    },
+    {
+      "id": "method-substitution-range|calls|method-quadratic-interval-range",
+      "from": "method-substitution-range",
+      "to": "method-quadratic-interval-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-substitution-range|calls|method-substitution",
+      "from": "method-substitution-range",
+      "to": "method-substitution",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "substitute",
+          "when": ""
+        },
+        {
+          "step": "restore",
+          "when": ""
         }
       ]
     },
@@ -4555,9 +4666,27 @@
       ]
     },
     {
+      "id": "type-function-range|candidate|method-direct-range",
+      "from": "type-function-range",
+      "to": "method-direct-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-range|candidate|method-quadratic-interval-range",
       "from": "type-function-range",
       "to": "method-quadratic-interval-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|candidate|method-substitution-range",
+      "from": "type-function-range",
+      "to": "method-substitution-range",
       "type": "candidate",
       "occurrences": [
         {}
@@ -4621,6 +4750,15 @@
       "id": "type-function-range|involves|set-intersection-union",
       "from": "type-function-range",
       "to": "set-intersection-union",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|square-root-expression",
+      "from": "type-function-range",
+      "to": "square-root-expression",
       "type": "involves",
       "occurrences": [
         {}

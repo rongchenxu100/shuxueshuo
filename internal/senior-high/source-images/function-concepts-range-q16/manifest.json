@@ -1,0 +1,21 @@
+{
+  "problem_id": "function-concepts-range-q16",
+  "source": "用户上传《函数的概念与性质小条》第16题",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "01a167f4-e8df-7a40-a519-b8eaf1f58b7d",
+  "page": {
+    "file": "../function-concepts-q15/source-page.png",
+    "sha256": "fd2bdcae07a11c0bd117edf4736f9e5c7959514e3dbb14cf3d302360b3e573ee"
+  },
+  "question": {
+    "file": "source-question.png",
+    "crop_xyxy": [
+      145,
+      1072,
+      787,
+      1135
+    ],
+    "sha256": "f2ded9b5c9dfc0ac446697dca515157b8a690f2b01644ec22e3c4de9c628f614"
+  },
+  "processing": "仅裁取原上传图中的印刷题面，保留原图手写痕迹；提取时忽略手写解答。未重绘或修改题面。"
+}

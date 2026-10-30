@@ -45,7 +45,8 @@
     "skill-linear-range": [
       "linear_range",
       "parameter_linear_range",
-      "parameter_linear_case_range"
+      "parameter_linear_case_range",
+      "polynomial_image"
     ],
     "skill-reciprocal-range": [
       "reciprocal_range"
@@ -55,7 +56,9 @@
     ],
     "method-substitution": [
       "substitution",
-      "restore_substitution_range"
+      "restore_substitution_range",
+      "prepare_range_substitution",
+      "return_range_substitution"
     ],
     "quadratic-inequality-solve": [
       "submethod"
@@ -76,6 +79,9 @@
       "submethod"
     ],
     "method-domain-intersection": [
+      "submethod"
+    ],
+    "method-quadratic-interval-range": [
       "submethod"
     ]
   },
@@ -155,7 +161,12 @@
       "method-function-evaluation#evaluate"
     ],
     "prepare_function_range": [
-      "method-quadratic-interval-range#domain"
+      "method-quadratic-interval-range#domain",
+      "method-direct-range#domain"
+    ],
+    "transform_function_range": [
+      "method-quadratic-interval-range#transform",
+      "method-direct-range#transform"
     ]
   }
 }

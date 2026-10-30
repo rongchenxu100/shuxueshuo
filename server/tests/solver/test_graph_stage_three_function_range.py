@@ -20,6 +20,12 @@ from tools.export_graph_walk_course import export_course
     ('-3*x+2', '(-∞,-1)', sp.Interval.open(5, sp.oo)),
     ('x^2', '[0,1+1/2]', sp.Interval(0, sp.Rational(9, 4))),
     ('(x-1)^2+2', '[2,3]', sp.Interval(3, 6)),
+    ('sqrt(-x^2-6*x-5)', '(-∞,+∞)', sp.Interval(0, 2)),
+    ('sqrt(x)-1', '(-∞,+∞)', sp.Interval(-1, sp.oo)),
+    ('3-2*sqrt(1-x)', '(0,1]', sp.Interval.Lopen(1, 3)),
+    ('0*sqrt(x-1)', '(1,3)', sp.FiniteSet(0)),
+    ('sqrt(2-x^2)', '(-sqrt(2),sqrt(2))', sp.Interval.Lopen(0, sp.sqrt(2))),
+    ('2-sqrt(x^2-2)', '[-2,2]', sp.Interval(2-sp.sqrt(2), 2)),
 ])
 def test_range_lesson_completes_with_exact_image_and_graphs(tmp_path, expression, domain, expected):
     upstream = constructed_upstream(tmp_path, candidate(expression, domain))

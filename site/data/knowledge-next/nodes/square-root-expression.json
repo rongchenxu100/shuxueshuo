@@ -15,7 +15,19 @@
         "$\\sqrt{u}$ 表示非负的算术平方根。对于 $u\\ge0$，$\\sqrt{u}=0$ 当且仅当 $u=0$；若根式作为分母，还须满足该分母不为 $0$，因此要求 $u>0$。"
       ],
       "conditions": "$u$ 是在当前输入下可以计算的实数表达式；其内部运算也必须有意义。",
-      "references": ["rational-expression#meaning"]
+      "references": [
+        "rational-expression#meaning"
+      ]
+    },
+    {
+      "id": "range",
+      "title": "平方根的取值范围",
+      "type": "性质",
+      "body": [
+        "平方根函数在 $[0,+\\infty)$ 上连续且严格递增，并取遍 $[0,+\\infty)$。",
+        "非负量取遍区间时，对端点开平方得到完整输出区间，保留端点取舍；反过来可用平方得到每个输出的原像。"
+      ],
+      "conditions": "被开方数的完整取值集合已确定，且均为非负实数。"
     }
   ],
   "examples": []

@@ -1,7 +1,25 @@
 {
   "schema_version": "graph-direct-method-selection/v1",
   "type": "type-function-range",
-  "admission": "function_range",
-  "method": "method-quadratic-interval-range",
-  "route_id": "quadratic-interval-range"
+  "admission": "function_range_routes",
+  "routes": [
+    {
+      "method": "method-direct-range",
+      "route_id": "direct-range",
+      "admission": "function_range_direct",
+      "label": "直接求值域法"
+    },
+    {
+      "method": "method-quadratic-interval-range",
+      "route_id": "quadratic-interval-range",
+      "admission": "function_range_quadratic",
+      "label": "二次函数区间值域法"
+    },
+    {
+      "method": "method-substitution-range",
+      "route_id": "substitution-range",
+      "admission": "function_range_substitution",
+      "label": "换元求值域法"
+    }
+  ]
 }

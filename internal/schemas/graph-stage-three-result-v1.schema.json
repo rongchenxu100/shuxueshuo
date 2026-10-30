@@ -721,20 +721,85 @@
                 "minLength": 1
               },
               "interaction": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "read"
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "read"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "type",
+                      "field",
+                      "options"
+                    ],
+                    "properties": {
+                      "type": {
+                        "const": "choice"
+                      },
+                      "field": {
+                        "const": "answer"
+                      },
+                      "options": {
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "value",
+                            "label"
+                          ],
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
-                }
+                ]
               },
               "expected_answer": {
-                "type": "object",
-                "maxProperties": 0
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "maxProperties": 0
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "one_of"
+                    ],
+                    "properties": {
+                      "one_of": {
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                ]
               },
               "submit_label": {
                 "type": "string",
@@ -749,6 +814,103 @@
               },
               "effects": {
                 "type": "object"
+              },
+              "stem_board": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "layout",
+                  "caption",
+                  "items",
+                  "connector"
+                ],
+                "properties": {
+                  "layout": {
+                    "const": "derivation"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "connector": {
+                    "const": "⇒"
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "label",
+                        "math"
+                      ],
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "math": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "completion_board": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "layout",
+                  "caption",
+                  "items",
+                  "connector"
+                ],
+                "properties": {
+                  "layout": {
+                    "const": "derivation"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "connector": {
+                    "const": "⇒"
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "label",
+                        "math"
+                      ],
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "math": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "feedback": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "answer": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }

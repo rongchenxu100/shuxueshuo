@@ -383,6 +383,18 @@ def definition(text, known_functions=()):
         if function[1] in BUILTINS or function[1] in known_functions:
             return parse(text)
         return node("function_definition", function[1], function[2], parse(function[3]))
+    # A relation defining f through a nontrivial input keeps that input intact.
+    # Its single displayed variable binds both sides over the real numbers.
+    relation = re.fullmatch(r"([A-Za-z][\w]*)\((.+)\)\s*=\s*(.+)", text)
+    if relation and relation[1] not in BUILTINS and relation[1] not in known_functions:
+        argument, body = parse(relation[2]), parse(relation[3])
+        def names(ast):
+            if ast[0] == 'name':
+                return {ast[1]}
+            return set().union(*(names(child) for child in ast[1:] if isinstance(child, list)))
+        variables = names(argument) | names(body)
+        if len(variables) == 1:
+            return node('function_input_relation', relation[1], next(iter(variables)), argument, body)
     if re.search("[\u4e00-\u9fff]", text):
         roles = []
         for part in re.split("[；;。]", text):

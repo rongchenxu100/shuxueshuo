@@ -75,7 +75,7 @@ def test_complete_polynomial_image(expression, domain, expected):
         assert independent_verify(value, TARGET, context, expected-sp.FiniteSet(witness))['status'] == 'math_failed'
 
 
-@pytest.mark.parametrize('expression', ['(x^2-1)/(x-1)', '(x-1)^0+x', 'sqrt(x)', 'x^3', '1/x', 'm*x^2'])
+@pytest.mark.parametrize('expression', ['(x^2-1)/(x-1)', '(x-1)^0+x', 'x^2+sqrt(1-x)', 'sqrt(x)+sqrt(x+1)', 'x^3', '1/x', 'm*x^2'])
 def test_future_or_originally_restricted_syntax_is_not_admitted(expression):
     value = candidate(expression)
     desc = inspect_range_target(value, TARGET)

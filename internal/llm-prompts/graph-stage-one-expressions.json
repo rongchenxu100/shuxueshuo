@@ -1,5 +1,5 @@
 {
-  "version": "graph-stage-one-expressions/v6",
+  "version": "graph-stage-one-expressions/v7",
   "base": "problem-math-notation-expressions.json",
   "overrides": {
     "domain_and_interval": {
@@ -145,6 +145,31 @@
             ]
           },
           "explanation": "保留函数和题给输入范围，尚未计算输出集合。"
+        }
+      ]
+    },
+    {
+      "id": "full_real_function_input_relation",
+      "syntax": "f(a*x+b)=P(x)；目标 {\"kind\":\"find_range\",\"object\":\"f\"}",
+      "meaning": "函数输入关系在 definitions 中按原式记录。未另限变量时按教材约定对实数 x 成立；a、b 是题给固定常数。不得先换元求解析式，不能将 f(a*x+b)=P(x) 写成 f(x)=P(x)。原题明确限制变量时照实保留，不擅自扩域。",
+      "examples": [
+        "f(3*x+2)=x^2-1"
+      ],
+      "few_shots": [
+        {
+          "input": "已知 f(3x+2)=x²-1，求 f(x) 的值域。",
+          "output": {
+            "definitions": [
+              "f(3*x+2)=x^2-1"
+            ],
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_range",
+                "object": "f"
+              }
+            ]
+          }
         }
       ]
     }

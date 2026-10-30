@@ -23,7 +23,9 @@
             "variable": "variable",
             "domain": "domain",
             "degree": "degree",
-            "quadratic": "quadratic"
+            "quadratic": "quadratic",
+            "radical": "radical",
+            "rescale": "rescale"
           },
           "order": 0
         }
@@ -214,6 +216,97 @@
       ]
     },
     {
+      "id": "transform",
+      "calls": [
+        {
+          "id": "transform",
+          "capability": "transform_function_range",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "image": "$feasible_set"
+          },
+          "outputs": {
+            "root_range": "root_range",
+            "range": "range",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "range_root",
+          "after": "transform",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "root",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$root_range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "root_range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "guard": {
+            "ref": "radical",
+            "equals": true
+          }
+        },
+        {
+          "id": "range_affine",
+          "after": "transform",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "affine",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "guard": {
+            "ref": "rescale",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
       "id": "verify",
       "calls": [],
       "judgments": [],
@@ -244,7 +337,8 @@
       {
         "function": "function_range",
         "inputs": {
-          "context": "$context"
+          "context": "$context",
+          "method": "method-quadratic-interval-range"
         }
       }
     ]

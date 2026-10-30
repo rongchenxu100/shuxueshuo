@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {RELATIONS, createWalkGraph, laneMembers, nodeHref, panoramaLayout, treeLayout} from '../../site/assets/graph-walk/walk-graph.mjs';
-import {createState, currentDecision, replayState, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
+import {createState, currentDecision, replayState, streamDraft, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
 import {buildStreamReplay, replayAnswer} from '../../site/assets/graph-walk/walk-replay.mjs';
 
@@ -127,6 +127,39 @@ test('completed direct-method card shows the method name, not a bare read receip
   assert.match(reviewed, /列条件求交集法/);
   assert.match(reviewed, /按原式列出有意义的条件/);
   assert.doesNotMatch(reviewed, />已阅读</);
+});
+
+test('Q5 domain prerequisite mounts its pending board and reveals the result only after acceptance', () => {
+  const {context, nodes, run} = viewContext();
+  const range = JSON.parse(fs.readFileSync(new URL('../../site/data/graph-walk/function-concepts-range-q05.json', import.meta.url), 'utf8'));
+  const domain = range.intro.find(step => step.id === 'D3-domain');
+  let progress = createState(range);
+  while (currentDecision(range, progress).id !== domain.id) {
+    const step = currentDecision(range, progress);
+    progress = submitAnswer(range, progress, {decision: step.id, answer: replayAnswer(step)});
+  }
+  const boardHost = {children: [], append(node) { this.children.push(node); }, querySelectorAll() { return []; }};
+  const completedHost = {dataset: {completionBoard: domain.id}, children: [],
+    replaceChildren(node) { this.children = [node]; }, querySelectorAll() { return []; }};
+  const active = {dataset: {}, innerHTML: '', querySelectorAll() { return []; }, querySelector(selector) {
+    return selector === '[data-derivation-board]' && this.innerHTML.includes('data-derivation-board') ? boardHost : null;
+  }};
+  nodes.set('#gw-active', active);
+  Object.assign(context, {fixture: range, progress, currentDecision, streamDraft,
+    createDerivationBoard: (_document, board) => structuredClone(board), renderStreamMath: () => {},
+    completedRoot: {querySelectorAll: () => [completedHost]}});
+  run('bundle = fixture; state = progress; renderInteraction(currentDecision(bundle, state));');
+  assert.equal(boardHost.children.length, 1, 'the original-domain premise must be visible in the active card');
+  assert.deepEqual(boardHost.children[0], domain.stem_board);
+  assert.equal(boardHost.children[0].items.at(-1).math, null, 'the result remains a question mark');
+  run('mountCompletionBoards(completedRoot);');
+  assert.equal(completedHost.children.length, 0, 'a result placeholder cannot reveal an unanswered prerequisite');
+  context.progress = submitAnswer(range, progress, {decision: domain.id, answer: replayAnswer(domain)});
+  run('state = progress;');
+  assert.match(run('completedHTML(state.introCompleted.at(-1), 3, "intro", null)'), /data-completion-board="D3-domain"/);
+  run('mountCompletionBoards(completedRoot);');
+  assert.deepEqual(completedHost.children, [domain.completion_board]);
+  assert.ok(completedHost.children[0].items.every(item => typeof item.math === 'string'));
 });
 
 test('a later function goal renders its mathematical heading in completed review and carry', () => {

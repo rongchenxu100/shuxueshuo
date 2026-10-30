@@ -1,24 +1,21 @@
-"""Original function image requests; R0 admits bounded quadratic syntax only."""
+"""Original function image requests with bounded polynomial and radical syntax."""
 
 from copy import deepcopy
 
 from ...problem_understanding.notation_compile import NotationValidator
 from ...problem_understanding.notation_parser import NotationError, definition
+from ..range_syntax import expression_family, range_domain, substitution_family
 from . import contracts
 from .function_domain import (
-    _fixed_poly,
-    _input_domain,
     expression_latex,
     source_pointer,
 )
 
-VERSION = 'function-range-polynomial/v1'
+VERSION = 'function-range-substitution/v3'
 
 
 def _domain(ast):
-    if ast[0] not in ('real', 'interval', 'set') or ast[0] == 'set' and len(ast) != 2:
-        raise NotationError('range.single_interval_required')
-    _input_domain(ast)
+    range_domain(ast)
 
 
 def _budget(ast, depth=0, count=None):
@@ -37,13 +34,15 @@ def describe_range_goal(report, scope, ancestors, goal_index):
         raise NotationError('range.function_goal_required')
     visible = [*ancestors, scope]
     records = [row for item in visible for row in report.scope_facts.get(item['scope'], [])]
-    definitions = [row for row in records if row['value'][:2] == ['function_definition', goal['target']]]
+    definitions = [row for row in records if row['value'][0] in ('function_definition', 'function_input_relation')
+                   and row['value'][1] == goal['target']]
     if len(definitions) != 1:
         raise NotationError('range.single_function_definition_required')
     source = definitions[0]
     name, variable = definition(source['source'])[1:3]
     target_ref = f"{source_pointer(scope['scope'])}/goals/{goal_index}"
-    body = source['value'][2]
+    relation = source['value'][0] == 'function_input_relation'
+    body = source['value'][3 if relation else 2]
     value = {'function_ref': goal['target'][1], 'function_name': name, 'variable': variable,
              'source_ref': source_pointer(source['path']), 'target_ref': target_ref,
              'expression_ast': deepcopy(body), 'expression_latex': expression_latex(body, variable),
@@ -56,8 +55,15 @@ def describe_range_goal(report, scope, ancestors, goal_index):
         if any(item.get('uncertainties') for item in visible):
             raise NotationError('range.unresolved_source')
         _budget(body)
-        coeffs = _fixed_poly(body, max_degree=2)
-        value['degree'] = len(coeffs)-1
+        if relation:
+            value.update(substitution_family(body, relation_input=source['value'][2]))
+            value['relation_input_ast'] = deepcopy(source['value'][2])
+        else:
+            try:
+                family = expression_family(body)
+            except NotationError:
+                family = substitution_family(body)
+            value.update(family)
         for row in records:
             if row is source:
                 continue
@@ -74,6 +80,9 @@ def describe_range_goal(report, scope, ancestors, goal_index):
             else:
                 raise NotationError('range.additional_conditions_unsupported')
         _domain(value['input_domain_ast'])
+        if relation and (value['declared_domain_ast'] != ['real'] or value['input_domain_ast'] != ['real']
+                         or value['restriction_facts']):
+            raise NotationError('range.full_real_input_relation_required')
         value['structure_supported'] = True
     except (NotationError, ValueError, ZeroDivisionError) as exc:
         value['reason'] = getattr(exc, 'code', 'range.invalid_structure')

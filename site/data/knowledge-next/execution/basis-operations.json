@@ -189,6 +189,22 @@
     ],
     "function_evaluation_input_domain": [
       "function-concept#elements"
+    ],
+    "function_range_domain": [
+      "function-concept#elements"
+    ],
+    "radical_range_domain": [
+      "square-root-expression#meaning",
+      "function-concept#elements"
+    ],
+    "function_range_transform": [
+      "square-root-expression#range",
+      "function-range-extrema#attainability"
+    ],
+    "function_range_substitution": [
+      "method-substitution#range",
+      "equality-properties#identity",
+      "function-range-extrema#attainability"
     ]
   }
 }

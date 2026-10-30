@@ -78,7 +78,11 @@
       "type": "type-function-range",
       "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
       "problems": [
-        "function-concepts-range-q03"
+        "function-concepts-range-q03",
+        "function-concepts-range-q05",
+        "function-concepts-range-q08",
+        "function-concepts-range-q11",
+        "function-concepts-range-q16"
       ]
     }
   ],
@@ -241,6 +245,42 @@
       "path": "/topics/function-concepts/q03r/",
       "runtime": "graph-walk",
       "bundle": "/data/graph-walk/function-concepts-range-q03.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q05": {
+      "label": "二次根式的值域 · Q5",
+      "path": "/topics/function-concepts/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q05.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q08": {
+      "label": "根式换元求值域 · Q8",
+      "path": "/topics/function-concepts/q08/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q08.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q11": {
+      "label": "仿射输入关系求值域 · Q11",
+      "path": "/topics/function-concepts/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q11.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q16": {
+      "label": "绝对值换元求值域 · Q16",
+      "path": "/topics/function-concepts/q16/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q16.json",
       "types": [
         "type-function-range"
       ]

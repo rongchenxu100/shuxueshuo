@@ -42,7 +42,7 @@
             "method-quadratic-interval-range"
           ]
         },
-        "83d6764789fb12e29af7840c#1": {
+        "5631d976b1f65407162ea7ec#1": {
           "title": "配方",
           "position": 5,
           "refs": [
@@ -52,7 +52,7 @@
             "square-nonnegative#nonnegative"
           ]
         },
-        "f763f669f5d27b29cb051e33#1": {
+        "7b507c7ad8049a5c7a8e875d#1": {
           "title": "判断顶点位置",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "square-nonnegative#nonnegative"
           ]
         },
-        "45dbb0fb20113ec43c7592d0#1": {
+        "2f69884e2612728930283cf6#1": {
           "title": "比较函数值",
           "position": 7,
           "refs": [
@@ -70,7 +70,7 @@
             "quadratic-interval-extremum"
           ]
         },
-        "dc402f4340f66ba0b3f7947c#1": {
+        "a3667f53d19e75a62706ba29#1": {
           "title": "写出值域",
           "position": 8,
           "refs": [
@@ -125,8 +125,12 @@
     "/topics/function-concepts/q03/",
     "/topics/function-concepts/q03r/",
     "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q11/",
     "/topics/function-concepts/q12/",
     "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
     "/topics/function-concepts/q19/",
     "/topics/function-concepts/q20/",
     "/topics/function-concepts/q22/",
@@ -140,5 +144,5 @@
     "/topics/function-concepts/q29b/",
     "/topics/function-concepts/variant02/"
   ],
-  "content_version": "855d3aa57f7fd3701e42f9dc18078849de51702073cfe874c74483cd25bd6892"
+  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22"
 }

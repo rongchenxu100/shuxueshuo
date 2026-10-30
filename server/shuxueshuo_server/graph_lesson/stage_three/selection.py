@@ -20,7 +20,7 @@ def load_contract(primary):
         schema = json.loads((DATA.parents[2] / "internal/schemas/graph-direct-method-selection-v1.schema.json").read_text())
         Draft202012Validator(schema).validate(contract)
         methods = nodes[primary].get('methods', [])
-        if contract.get('admission') == 'function_domain_routes':
+        if contract.get('admission') in ('function_domain_routes', 'function_range_routes'):
             route_methods = [row['method'] for row in contract.get('routes', [])]
             if (contract['type'] != primary or nodes[primary].get('rules')
                     or not route_methods or any(method not in methods for method in route_methods)):
@@ -113,13 +113,13 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain', 'function_evaluation', 'function_range'):
+                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
-        from .function_range import admitted as admitted_range
         from .equality_runtime import admitted as admitted_equality
         from .evaluation_runtime import admitted as admitted_evaluation
         from .function_domain import admitted, admitted_parameter
+        from .function_range import admitted as admitted_range
         from .method_admission import _abstract_function_domain as admitted_abstract
         context = build_context(candidate, target_ref)
         # Re-read the candidate. A supplied type/feature/method override never
@@ -130,6 +130,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_equality': admitted_equality,
             'function_evaluation': admitted_evaluation,
             'function_range': admitted_range,
+            'function_range_direct': lambda context: admitted_range(context, 'method-direct-range'),
+            'function_range_quadratic': lambda context: admitted_range(context, 'method-quadratic-interval-range'),
+            'function_range_substitution': lambda context: admitted_range(context, 'method-substitution-range'),
             'abstract_function_domain': admitted_abstract,
         }
         if admission == 'function_range':
@@ -177,8 +180,13 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
-            '先确认输入范围，再结合顶点与区间边界，确定全部能取到的函数值。'
-            if chosen['admission'] == 'function_range' else
+            '设新变量，确定它的准确范围，再改写函数并求完整值域。'
+            if chosen['admission'] == 'function_range_substitution' else
+            '依据一次函数或平方根的性质确定基本范围，再作比例和平移，得到原函数的值域。'
+            if chosen['admission'] == 'function_range_direct' else
+            ('先求被开方数在定义域上的完整范围，再开平方并完成比例和平移。'
+             if context['range_goal']['radical'] else '结合顶点与区间边界，确定全部能取到的函数值。')
+            if chosen['admission'] in ('function_range', 'function_range_quadratic') else
             '把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。'
             '这里用代入法；换元则是引入新变量来转换问题。'
             if chosen['admission'] == 'function_evaluation' else
@@ -195,21 +203,11 @@ def evaluate_goal(candidate, target_ref, features, primary):
         d3 = {'id': 'D3', 'title': '选择解题方法', 'question': question,
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
               'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
-        if admission == 'function_range':
+        if admission in ('function_range', 'function_range_routes'):
             from .function_range import inputs as range_inputs
-            from .abstract_domain_presentation import _set_latex
-            _, variable, domain = range_inputs(context['range_goal'])
-            domain_math = f'${variable}\\in{_set_latex(domain)}$'
-            # Domain is a common prerequisite, before the route is selected.
-            # R0's polynomial source and explicit interval need no extra quiz.
-            d3['prerequisites'] = [{
-                'id': 'D3-domain', 'title': '确定定义域',
-                'question': f'先确定本次求值域使用的输入范围：{domain_math}',
-                'summary': domain_math, 'interaction': {'type': 'read'},
-                'expected_answer': {}, 'submit_label': '在这个范围内选择方法',
-                'source_refs': [context['range_goal']['source_ref'], target_ref],
-                'effects': {'nodes': [], 'edges': [], 'calls': [], 'results': [], 'log': '已确定本题的有效输入范围。'},
-            }]
+            from .range_presentation import domain_prerequisite
+            _, _, domain = range_inputs(context['range_goal'])
+            d3['prerequisites'] = [domain_prerequisite(context['range_goal'])]
             branch['checks'] = [{'check_id': 'original_function_range', 'status': 'holds'},
                                 {'check_id': 'effective_input_domain', 'status': 'holds',
                                  'domain': str(domain)}]

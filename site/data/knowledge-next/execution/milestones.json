@@ -40,7 +40,9 @@
       "method-function-equality",
       "method-input-domain-correspondence",
       "method-function-evaluation",
-      "method-quadratic-interval-range"
+      "method-quadratic-interval-range",
+      "method-direct-range",
+      "method-substitution-range"
     ]
   }
 }

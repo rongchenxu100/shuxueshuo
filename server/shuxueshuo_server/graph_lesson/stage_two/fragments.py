@@ -23,6 +23,10 @@ def _domain_formula_body_matches(body, expected):
     """
     if max(len(body), len(expected)) > 4096:
         return False
+    body = re.sub(r'\\(?:left|right)\s*(?=\\(?:lvert|rvert|vert)|\|)', '', body)
+    body = re.sub(r'\\(?:lvert|rvert|vert)', '|', body)
+    body = re.sub(r'\|([^|]+)\|', r'abs(\1)', body)
+    body = re.sub(r'(?<=[\w)])\s*(?=abs\()', '*', body)
 
     def read(index=0, depth=0, grouped=False):
         if depth > 24:
@@ -45,11 +49,12 @@ def _domain_formula_body_matches(body, expected):
                 # Extracted original text may use canonical ASCII sqrt(...)
                 # instead of TeX. Keep that function token intact before the
                 # single-letter juxtaposition adapter below.
-                if re.match(r"sqrt\s*\(", body[index:]) and (
+                function_token = re.match(r"(sqrt|abs)\s*\(", body[index:])
+                if function_token and (
                     index == 0 or not body[index - 1].isalnum()
                 ):
-                    output.append("sqrt")
-                    index += 4
+                    output.append(function_token[1])
+                    index += len(function_token[1])
                     continue
                 mapped = {"−": "-", "（": "(", "）": ")"}.get(char, char)
                 # School TeX juxtaposes single-letter variables: kx or k x → k*x.

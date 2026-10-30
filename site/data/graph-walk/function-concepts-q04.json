@@ -2237,6 +2237,15 @@
         ]
       },
       {
+        "id": "type-function-range|involves|square-root-expression",
+        "from": "type-function-range",
+        "to": "square-root-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
         "id": "type-parameter-quadratic-solve|involves|quadratic-equation",
         "from": "type-parameter-quadratic-solve",
         "to": "quadratic-equation",

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q16",
+  "title": "绝对值换元求值域 · Q16",
+  "page": "/topics/function-concepts/q16/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q16.evidence.json",
+  "statement": "已知函数 $f(x)=x^2+2|x|-1$，则函数 $f(x)$ 的值域是____。"
+}

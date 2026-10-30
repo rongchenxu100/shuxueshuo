@@ -19,7 +19,7 @@
       "cue": "换元、周期关系和参数等结构属于选法条件，不能因结构相近就忽略原定义域。"
     },
     {
-      "cue": "首批识别和执行仅开放有理常系数至多二次多项式在单一区间或单点上的值域，其余结构仍 planned。"
+      "cue": "当前开放固定至多二次多项式及其开平方、比例和平移；根式、绝对值及可逆仿射输入关系可换元为至多二次式时也可求完整值域。分式及抽象已知值域传递仍 planned。"
     }
   ],
   "confuse": [
@@ -39,10 +39,13 @@
     "absolute-value-function",
     "reciprocal-function",
     "quadratic-function-properties",
-    "function-range-extrema"
+    "function-range-extrema",
+    "square-root-expression"
   ],
   "methods": [
-    "method-quadratic-interval-range"
+    "method-direct-range",
+    "method-quadratic-interval-range",
+    "method-substitution-range"
   ],
   "rules": [],
   "examples": [

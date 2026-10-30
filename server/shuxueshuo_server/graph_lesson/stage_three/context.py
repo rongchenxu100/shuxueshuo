@@ -42,7 +42,7 @@ def _lexical_records(ast, source_ref, scope, path=(), bindings=()):
         }
         bound.append(binder)
         nested = (*bindings, binder["ref"])
-    elif kind == "function_definition":
+    elif kind in ("function_definition", "function_input_relation"):
         binder = {"ref": source_ref + "#function_argument", "name": "function_argument",
                   "kind": "function_argument", "scope": scope, "source_ref": source_ref,
                   "domain": ["real"], "binding_path": list(path)}

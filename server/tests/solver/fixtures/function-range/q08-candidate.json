@@ -1,0 +1,36 @@
+{
+  "original_text": "8. 函数 $y=x+\\sqrt{1-x}(-8<x<1)$ 的值域是 ______。",
+  "root": {
+    "definitions": [
+      "f(x)=x+sqrt(1-x)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f",
+        "input_domain": "(-8,1)"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $y=x+\\sqrt{1-x}(-8<x<1)$ 的值域是 ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

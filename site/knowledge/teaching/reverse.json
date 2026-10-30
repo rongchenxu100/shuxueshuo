@@ -1759,14 +1759,70 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "83d6764789fb12e29af7840c#1",
+      "step": "5631d976b1f65407162ea7ec#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "f763f669f5d27b29cb051e33#1",
+      "step": "7b507c7ad8049a5c7a8e875d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "e17c76268dd291ed9cfca98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "2e9a8b70e1181d4e96d00d64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e96f60420067c81d6292acf8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "8da45bf6421322b023e7d957#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4b63e351f8b9f7c3deef065d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "872a990d95cf74254fb5cfe3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "a61b969e03978dffd431ea97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "379704a7b3263327e33b5b86#1",
       "conditions": {}
     },
     {
@@ -1834,14 +1890,70 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "45dbb0fb20113ec43c7592d0#1",
+      "step": "2f69884e2612728930283cf6#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "dc402f4340f66ba0b3f7947c#1",
+      "step": "a3667f53d19e75a62706ba29#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "98acd0f7f46d04ceb49b81c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "075b4a9d2bb1329fa67a708b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "5d03a80bdfa774ecdf9902cc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "12134617cfdb7cee7503b721#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "0d3aa21e0385615830f00b05#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7795775bc5ee5d04404268ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "b807fe514f6f6b06c36d100b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e64def311d14e845793f0959#1",
       "conditions": {}
     },
     {
@@ -1941,6 +2053,118 @@
       "problem": "basic-inequality-q30",
       "route": "symmetric",
       "step": "equality",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "428bf1d37b65b1a73717d124#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "9f29ee8408b4ceb690b37710#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "a053bd8e1007a6119ee9c288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "da0c2bf8546b2e6be06de6a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "aa94e35f64c5ed149fd7b008#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e64e4b81186411d9c272306a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "5278ca6a49cf74e7ef670c8c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "91dcebc08c874f5cfa6820b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "8742a76220abe2378cdd63dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7c2525f27fba98294ef50288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4c27595fd013123276160520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "c62dc5b52cf7b636ff47d773#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "736cab33bc239a2de0258e97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "99d7fb053446f45b4af08311#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e6d4d38772dda1d066ec87f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
     },
     {
@@ -2075,14 +2299,70 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "83d6764789fb12e29af7840c#1",
+      "step": "5631d976b1f65407162ea7ec#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "f763f669f5d27b29cb051e33#1",
+      "step": "7b507c7ad8049a5c7a8e875d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "e17c76268dd291ed9cfca98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "2e9a8b70e1181d4e96d00d64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e96f60420067c81d6292acf8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "8da45bf6421322b023e7d957#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4b63e351f8b9f7c3deef065d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "872a990d95cf74254fb5cfe3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "a61b969e03978dffd431ea97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "379704a7b3263327e33b5b86#1",
       "conditions": {}
     },
     {
@@ -3900,6 +4180,111 @@
       "route": "symmetric",
       "step": "construct",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "9f29ee8408b4ceb690b37710#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "a053bd8e1007a6119ee9c288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "da0c2bf8546b2e6be06de6a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "aa94e35f64c5ed149fd7b008#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e64e4b81186411d9c272306a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "5278ca6a49cf74e7ef670c8c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "91dcebc08c874f5cfa6820b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "8742a76220abe2378cdd63dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7c2525f27fba98294ef50288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4c27595fd013123276160520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "c62dc5b52cf7b636ff47d773#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "736cab33bc239a2de0258e97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "99d7fb053446f45b4af08311#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e6d4d38772dda1d066ec87f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "8c22b6a9a0ff88c29673a932#1",
+      "conditions": {}
     }
   ],
   "method-fraction-split": [
@@ -4320,6 +4705,34 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
       "step": "D1",
       "conditions": {}
     }
@@ -7430,14 +7843,175 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "83d6764789fb12e29af7840c#1",
+      "step": "5631d976b1f65407162ea7ec#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "f763f669f5d27b29cb051e33#1",
+      "step": "7b507c7ad8049a5c7a8e875d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "e17c76268dd291ed9cfca98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "2e9a8b70e1181d4e96d00d64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "9f29ee8408b4ceb690b37710#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "a053bd8e1007a6119ee9c288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "da0c2bf8546b2e6be06de6a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "aa94e35f64c5ed149fd7b008#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e96f60420067c81d6292acf8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "8da45bf6421322b023e7d957#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e64e4b81186411d9c272306a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "5278ca6a49cf74e7ef670c8c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "91dcebc08c874f5cfa6820b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "8742a76220abe2378cdd63dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7c2525f27fba98294ef50288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4b63e351f8b9f7c3deef065d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "872a990d95cf74254fb5cfe3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4c27595fd013123276160520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "c62dc5b52cf7b636ff47d773#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "736cab33bc239a2de0258e97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "99d7fb053446f45b4af08311#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e6d4d38772dda1d066ec87f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "a61b969e03978dffd431ea97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "379704a7b3263327e33b5b86#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
     }
   ],
@@ -9788,12 +10362,35 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16"
     }
   ],
   "method-quadratic-interval-range": [
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
+      "route": "quadratic-interval-range",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
       "route": "quadratic-interval-range",
       "step": "D3",
       "conditions": {}
@@ -9804,14 +10401,70 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "83d6764789fb12e29af7840c#1",
+      "step": "5631d976b1f65407162ea7ec#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "f763f669f5d27b29cb051e33#1",
+      "step": "7b507c7ad8049a5c7a8e875d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "e17c76268dd291ed9cfca98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "2e9a8b70e1181d4e96d00d64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e96f60420067c81d6292acf8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "8da45bf6421322b023e7d957#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4b63e351f8b9f7c3deef065d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "872a990d95cf74254fb5cfe3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "a61b969e03978dffd431ea97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "379704a7b3263327e33b5b86#1",
       "conditions": {}
     }
   ],
@@ -9820,14 +10473,327 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "45dbb0fb20113ec43c7592d0#1",
+      "step": "2f69884e2612728930283cf6#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q03",
       "route": "quadratic-interval-range",
-      "step": "dc402f4340f66ba0b3f7947c#1",
+      "step": "a3667f53d19e75a62706ba29#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "98acd0f7f46d04ceb49b81c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "075b4a9d2bb1329fa67a708b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "5d03a80bdfa774ecdf9902cc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "12134617cfdb7cee7503b721#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "0d3aa21e0385615830f00b05#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7795775bc5ee5d04404268ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "b807fe514f6f6b06c36d100b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e64def311d14e845793f0959#1",
+      "conditions": {}
+    }
+  ],
+  "method-quadratic-interval-range#transform": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "428bf1d37b65b1a73717d124#1",
+      "conditions": {}
+    }
+  ],
+  "square-root-expression#range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q05",
+      "route": "quadratic-interval-range",
+      "step": "428bf1d37b65b1a73717d124#1",
+      "conditions": {}
+    }
+  ],
+  "method-substitution-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-substitution-range#substitute": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "9f29ee8408b4ceb690b37710#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "a053bd8e1007a6119ee9c288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "da0c2bf8546b2e6be06de6a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "aa94e35f64c5ed149fd7b008#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "5278ca6a49cf74e7ef670c8c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "91dcebc08c874f5cfa6820b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "8742a76220abe2378cdd63dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7c2525f27fba98294ef50288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "c62dc5b52cf7b636ff47d773#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "736cab33bc239a2de0258e97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "99d7fb053446f45b4af08311#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e6d4d38772dda1d066ec87f6#1",
+      "conditions": {}
+    }
+  ],
+  "method-substitution#range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "9f29ee8408b4ceb690b37710#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "a053bd8e1007a6119ee9c288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "da0c2bf8546b2e6be06de6a1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "aa94e35f64c5ed149fd7b008#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e64e4b81186411d9c272306a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "5278ca6a49cf74e7ef670c8c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "91dcebc08c874f5cfa6820b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "8742a76220abe2378cdd63dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "7c2525f27fba98294ef50288#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4c27595fd013123276160520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "c62dc5b52cf7b636ff47d773#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "736cab33bc239a2de0258e97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "99d7fb053446f45b4af08311#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "e6d4d38772dda1d066ec87f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "8c22b6a9a0ff88c29673a932#1",
+      "conditions": {}
+    }
+  ],
+  "method-substitution-range#restore": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q08",
+      "route": "substitution-range",
+      "step": "e64e4b81186411d9c272306a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q11",
+      "route": "substitution-range",
+      "step": "4c27595fd013123276160520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
     }
   ],

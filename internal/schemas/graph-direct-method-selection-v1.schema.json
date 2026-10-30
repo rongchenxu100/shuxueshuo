@@ -32,7 +32,8 @@
         "function_equality",
         "abstract_function_domain",
         "function_evaluation",
-        "function_range"
+        "function_range",
+        "function_range_routes"
       ]
     },
     "routes": {
@@ -58,7 +59,10 @@
           "admission": {
             "enum": [
               "function_domain",
-              "function_domain_parameter"
+              "function_domain_parameter",
+              "function_range_quadratic",
+              "function_range_direct",
+              "function_range_substitution"
             ]
           },
           "label": {
@@ -112,7 +116,10 @@
       },
       "properties": {
         "admission": {
-          "const": "function_domain_routes"
+          "enum": [
+            "function_domain_routes",
+            "function_range_routes"
+          ]
         }
       }
     }
