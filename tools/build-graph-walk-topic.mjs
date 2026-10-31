@@ -50,6 +50,9 @@ function compileTarget(source, evidence, graph, nodes, targetRef) {
   const capturedNodes = new Map(base.graph.nodes.map(node => [node.id, node]));
   const courseGraph = {...graph, nodes: graph.nodes.map(node => capturedNodes.get(node.id) || node)};
   const bundle = extendStreamBundle(base, evidence.stream, targetRef, courseGraph);
+  // Unexpanded candidates remain selectable as uncovered alternatives in D3,
+  // but cannot become published practice routes without verified steps.
+  bundle.routes = Object.fromEntries(Object.entries(bundle.routes).filter(([, route]) => route.route_plan === 'planned'));
   projectGraphWalkTeaching(bundle, nodes);
   return bundle;
 }
@@ -116,7 +119,7 @@ export function compileCourse(source, evidence, graph, nodes) {
     projectGraphWalkTeaching(bundle, nodes);
   }
   const routeIds = Object.keys(bundle.routes);
-  assert(routeIds.length === 1, 'Static first representative requires one verified route');
+  assert(routeIds.length > 0, 'Static course requires a verified route');
   const actions = [];
   let state = createState(bundle);
   for (let step = currentDecision(bundle, state); step; step = currentDecision(bundle, state)) {
@@ -133,7 +136,7 @@ export function compileCourse(source, evidence, graph, nodes) {
   }
   assert(state.done, 'Course does not reach verified completion');
   const replay = {schemaVersion: 2, problemId: bundle.problemId, bundleVersion: bundle.bundleVersion,
-    status: 'completed', routes: routeIds, actions};
+    status: 'completed', routes: [routeIds[0]], actions};
   replayState(bundle, replay);
   return {bundle, replay};
 }
@@ -152,9 +155,9 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
     .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261030-pairing-diagram"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261031-derivation-stack"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261030-pairing-diagram"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261031-derivation-stack"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-range-q09",
+  "bundleVersion": "[\"stream\",\"3eaf17d3b156ededb19ef4fab4d3fec057fe30b40352d4f2179061383d65e073\",\"c15c3241d9689b34e8a19084fb37ed854391cd1be2ca703e973e97f7aa131c2b\",\"f2f52f17d579487fa29901291ebc89ff\",\"/root/goals/1\"]",
+  "status": "completed",
+  "routes": [
+    "fraction-split-range"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/1:goal:o1"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-range"
+    },
+    {
+      "decision": "D3-domain",
+      "answer": "o1"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [],
+        "method": "fraction",
+        "confirmed": 0
+      }
+    },
+    {
+      "decision": "8e072c6ceba8f6ebeec61e21#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "80a47acc0bba6b30b6fca48b#1",
+      "answer": "read"
+    },
+    {
+      "decision": "3bd4bc6c70313e331df0d538#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "e7b785a43070293553d6a97c#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "933b367163a4a3bb67b5ce9d#1",
+      "answer": "o1"
+    }
+  ]
+}

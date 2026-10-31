@@ -31,6 +31,7 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 markers = [
+  "stage_three_db: requires the isolated PostgreSQL executor fixture and per-test run cleanup",
   "solver_contract: medium-cost authority, retry, checkpoint, transaction, or recorded replay coverage",
   "solver_full: exhaustive generated matrices or other high-cost offline replay",
   "generated_gate: deterministic generated Solver authority coverage",

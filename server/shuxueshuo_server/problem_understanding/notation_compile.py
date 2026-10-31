@@ -596,6 +596,10 @@ class Scope:
             if base[0] == "tuple":
                 base = node("interval", False, False, *base[1:])
             return node(kind, base, bind(ast[2]))
+        if kind in SET_OPERATIONS:
+            parts = [bind(part) for part in ast[1:]]
+            return node(kind, *[node("interval", False, False, *part[1:])
+                                if part[0] == "tuple" else part for part in parts])
         return node(kind, *[bind(p) for p in ast[1:]])
 
 
@@ -744,6 +748,8 @@ def typecheck(ast):
         types = [typecheck(x) for x in ast[1:]]
         if all(t == "set" for t in types):
             return "set"
+        if all(t in ("domain", "set") for t in types):
+            return "domain"
         if kind == "∪":
             raise NotationError("type.set_operation")
         if any(t not in ("locus", "curve") for t in types):
@@ -984,6 +990,11 @@ class NotationValidator:
         goals = []
         for index, goal in enumerate(source["goals"]):
             try:
+                if goal['kind'] == 'find_translation_range':
+                    from .notation_translation_range import compile_translation_range
+
+                    goals.append(compile_translation_range(goal, f'{path}.goals[{index}]'))
+                    continue
                 if goal['kind'] == 'finite_sum':
                     from .notation_evaluation import compile_finite_sum
 

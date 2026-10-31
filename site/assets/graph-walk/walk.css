@@ -104,15 +104,21 @@
 /* A deduction retains its layout when the unknown becomes a verified result. */
 .gw-derivation-board { container: domain-derivation / inline-size; margin: 18px 0; min-width: 0; }
 .gw-derivation-caption { margin: 0 0 10px; color: #7a8e85; font-size: 11px; font-weight: 550; letter-spacing: .08em; }
-.gw-derivation-row { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 8px; align-items: stretch; }
-.gw-derivation-cell { display: flex; flex-direction: column; justify-content: center; gap: 13px; min-width: 0; padding: 19px 12px; border: 1px solid #dce8e1; border-radius: 14px; background: #f7faf8; text-align: center; }
+/* Default to a vertical given → result stack so Chinese labels and KaTeX keep a full-width card. */
+.gw-derivation-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-items: stretch; }
+.gw-derivation-cell { display: flex; flex-direction: column; justify-content: center; gap: 13px; min-width: 0; padding: 19px 16px; border: 1px solid #dce8e1; border-radius: 14px; background: #f7faf8; text-align: center; }
 .gw-derivation-cell[data-role="result"] { border-color: #a9cfc4; background: #eff8f4; }
 .gw-derivation-board[data-state="pending"] .gw-derivation-cell[data-role="result"] { border-style: dashed; background: #fcfefd; }
 .gw-derivation-label { color: #668277; font-size: 12px; font-weight: 500; line-height: 1.7; overflow-wrap: anywhere; }
 .gw-derivation-formula { min-width: 0; max-width: 100%; padding: 2px 0 4px; color: #164e42; font-size: 21px; line-height: 1.7; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: #c5d8d0 transparent; -webkit-overflow-scrolling: touch; }
 .gw-derivation-note { color: #7a8e85; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
-.gw-derivation-arrow { align-self: center; color: #3c8b79; font-size: 25px; font-weight: 400; text-align: center; }
+.gw-derivation-arrow { justify-self: center; align-self: center; color: #3c8b79; font-size: 25px; font-weight: 400; text-align: center; transform: rotate(90deg); line-height: 1; }
 .gw-derivation-unknown { display: grid; place-items: center; align-self: center; width: 44px; height: 44px; border-radius: 50%; background: #eaf4ef; color: #789d90; font-size: 27px; font-weight: 400; line-height: 1; }
+@container domain-derivation (min-width: 720px) {
+  .gw-derivation-row { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 8px; }
+  .gw-derivation-cell { padding: 19px 12px; }
+  .gw-derivation-arrow { transform: none; }
+}
 .gw-derivation-board + .stage-three-derivation { margin-top: 12px; }
 .gw-derivation-board[data-layout="parallel-conditions"] > .gw-derivation-cell[data-role="target"] { margin-bottom: 18px; padding: 3px 12px 10px; gap: 6px; border: 0; background: transparent; }
 .gw-domain-conditions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
@@ -153,11 +159,6 @@
   .gw-domain-condition-join::before { display: none; }
   .gw-domain-condition-join::after { top: 0; height: 20px; }
   .gw-domain-condition-join-label { top: 28px; }
-}
-@container domain-derivation (max-width: 370px) {
-  .gw-derivation-row { grid-template-columns: minmax(0, 1fr); gap: 5px; }
-  .gw-derivation-cell { padding: 15px 12px; gap: 9px; }
-  .gw-derivation-arrow { justify-self: center; transform: rotate(90deg); line-height: 1; }
 }
 .stage-three-conclusion .stage-three-after { margin: 8px 0; color: #1f5a4c; font-size: 18px; overflow-x: auto; overflow-y: hidden; }
 .stage-three-derivation .stage-three-before,
@@ -758,3 +759,21 @@
   .gw-interval-explorer { padding: 12px 9px; }
   .gw-interval-controls { grid-template-columns: 75px minmax(0, 1fr); gap: 8px; }
 }
+/* Method selection: confirmed premises, one local judgment, then route cards. */
+.gw-method-cards { display: grid; gap: 1rem; }
+.gw-method-facts { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+.gw-method-fact { padding: .7rem 1rem; border-radius: 12px; background: #f0f7f5; color: #24574e; overflow-x: auto; }
+.gw-method-check { padding: 1.2rem; border: 1px solid #d2e2df; border-radius: 16px; }
+.gw-method-check > p { margin: 0 0 1rem; font-weight: 650; }
+.gw-method-check > button { margin-top: 1rem; }
+.gw-method-evidence { display: flex; align-items: center; gap: .8rem; padding: 1rem; background: #edf7f3; border-radius: 12px; }
+.gw-method-evidence > span { color: #008078; font-weight: 700; }
+.gw-method-evidence > div { min-width: 0; overflow-x: auto; }
+.gw-method-picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 1rem; }
+.gw-method-picker > button { display: flex; flex-direction: column; gap: .65rem; padding: 1.25rem; border: 1px solid #c9ded9; border-radius: 16px; text-align: left; background: #fff; color: #193e38; cursor: pointer; }
+.gw-method-picker > button[aria-pressed="true"] { border-color: #008078; background: #eaf6f2; box-shadow: inset 0 0 0 1px #008078; }
+.gw-method-picker > button > span { color: #5c7771; font-size: .92em; line-height: 1.7; }
+.gw-method-picker > button:disabled { cursor: not-allowed; background: #f5f7f6; border-style: dashed; opacity: 1; }
+.gw-method-picker > button > .gw-method-availability { padding-top: .65rem; border-top: 1px solid #dbe8e4; color: #087c70; font-size: .86em; }
+.gw-method-picker > button > .gw-method-availability.is-blocked { color: #697773; }
+.gw-method-picked { font-weight: 650; color: #006e65; }

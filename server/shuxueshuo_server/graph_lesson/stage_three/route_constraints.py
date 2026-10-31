@@ -256,6 +256,16 @@ def apply_visible_constraints(constraint_context, feasible_set):
                 "status": "abstract_domain_identity",
             }
         ]
+    if constraint_context.get('goal', {}).get('kind') == 'find_translation_range':
+        from .translation_range import admitted
+        if not admitted(constraint_context):
+            raise VerificationGap('translation_range.context_not_admitted')
+        return feasible_set, [{'source_ref': constraint_context['target_ref'], 'status': 'translation_range_identity'}]
+    if constraint_context.get('goal', {}).get('kind') == 'find_abstract_range':
+        from .abstract_function_range import admitted
+        if not admitted(constraint_context):
+            raise VerificationGap('abstract_range.context_not_admitted')
+        return feasible_set, [{'source_ref': constraint_context['target_ref'], 'status': 'abstract_range_identity'}]
     if 'range_goal' in constraint_context:
         from .function_range import process_context
         return process_context(constraint_context, feasible_set)

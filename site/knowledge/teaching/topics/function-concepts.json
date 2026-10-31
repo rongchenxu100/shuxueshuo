@@ -55,13 +55,21 @@
       "id": "range",
       "label": "求函数的值域",
       "type": "type-function-range",
+      "groupBy": "method",
       "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
       "problems": [
         "function-concepts-range-q03",
         "function-concepts-range-q05",
+        "function-concepts-range-q06",
+        "function-concepts-range-q07",
         "function-concepts-range-q08",
+        "function-concepts-range-q09",
+        "function-concepts-range-q10",
         "function-concepts-range-q11",
-        "function-concepts-range-q16"
+        "function-concepts-range-q13",
+        "function-concepts-range-q16",
+        "function-concepts-range-q17",
+        "function-concepts-range-q18"
       ]
     }
   ],
@@ -2996,9 +3004,1052 @@
           }
         }
       }
+    },
+    "function-concepts-range-q07": {
+      "label": "分式分离求值域 · Q7",
+      "path": "/topics/function-concepts/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q07.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "函数 $f(x)=\\frac{2x^2-2x+1}{x^2-x+1}$ 的值域为 ________.",
+      "routes": {
+        "fraction-split-range": {
+          "label": "分式分离求值域法",
+          "methods": [
+            "method-fraction-split-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "8582e0985f0819d0237bea6a#1": {
+              "title": "分离分式",
+              "position": 5,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "04b41de5ac564a939458542b#1": {
+              "title": "求分母的范围",
+              "position": 6,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "3f134c4dbf39096b6f41ea5d#1": {
+              "title": "配方",
+              "position": 7,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "559659e8058f73fbc006d441#1": {
+              "title": "判断顶点位置",
+              "position": 8,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "b6cf161b5a21c56162df3dd5#1": {
+              "title": "比较函数值",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "60337571058e1fea1bbb8ee4#1": {
+              "title": "写出值域",
+              "position": 10,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "f5721f675186604489248ef7#1": {
+              "title": "分段取倒数",
+              "position": 11,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "03cf07116d7a70e27b4e05a9#1": {
+              "title": "还原原函数值域",
+              "position": 12,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            }
+          }
+        },
+        "equation-real-root-range": {
+          "label": "方程有实根法",
+          "methods": [
+            "method-equation-real-root-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "67dd255fad8e2cc9aa9d91cb#1": {
+              "title": "转为输入方程",
+              "position": 5,
+              "refs": [
+                "method-equation-real-root-range#equation",
+                "skill-equality-transform",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#meaning"
+              ]
+            },
+            "b941a7a4266af866accb2945#1": {
+              "title": "检查二次项系数为零的情况",
+              "position": 6,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "1ec438e63a1b2ef4ae7c0147#1": {
+              "title": "用判别式求二次分支",
+              "position": 7,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "15a2dde938043cfe7d386ca0#1": {
+              "title": "合并得到原函数值域",
+              "position": 8,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q09": {
+      "label": "分式分离求值域 · Q9",
+      "path": "/topics/function-concepts/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q09.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "求函数 $y=\\frac{x+1}{x-2}$ 的值域。",
+      "routes": {
+        "fraction-split-range": {
+          "label": "分式分离求值域法",
+          "methods": [
+            "method-fraction-split-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "8e072c6ceba8f6ebeec61e21#1": {
+              "title": "分离分式",
+              "position": 5,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "80a47acc0bba6b30b6fca48b#1": {
+              "title": "求分母的范围",
+              "position": 6,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "3bd4bc6c70313e331df0d538#1": {
+              "title": "写出值域",
+              "position": 7,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "e7b785a43070293553d6a97c#1": {
+              "title": "分段取倒数",
+              "position": 8,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "933b367163a4a3bb67b5ce9d#1": {
+              "title": "还原原函数值域",
+              "position": 9,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q10": {
+      "label": "分式分离求值域 · Q10",
+      "path": "/topics/function-concepts/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q10.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "已知函数 $y=\\frac{x^2-x}{x^2-x+1}$ 的，则其值域为 ______",
+      "routes": {
+        "fraction-split-range": {
+          "label": "分式分离求值域法",
+          "methods": [
+            "method-fraction-split-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "49e413f4517b2b6cc3f686fb#1": {
+              "title": "分离分式",
+              "position": 5,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "7779b0da7816fa1e051d4aaa#1": {
+              "title": "求分母的范围",
+              "position": 6,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "107badd7dbfc1f39039c5cc1#1": {
+              "title": "配方",
+              "position": 7,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "17809049f1b17094375dc1e8#1": {
+              "title": "判断顶点位置",
+              "position": 8,
+              "refs": [
+                "method-quadratic-interval-range#square",
+                "method-complete-square",
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ]
+            },
+            "76e48522d391364e4c3b53bf#1": {
+              "title": "比较函数值",
+              "position": 9,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "2920d51590e749ef817e70ed#1": {
+              "title": "写出值域",
+              "position": 10,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "daa2de5daae40170e4c317b1#1": {
+              "title": "分段取倒数",
+              "position": 11,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "3e4a670150cbc2e279d7e5a3#1": {
+              "title": "还原原函数值域",
+              "position": 12,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            }
+          }
+        },
+        "equation-real-root-range": {
+          "label": "方程有实根法",
+          "methods": [
+            "method-equation-real-root-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "f8979ec49e20454d037b7abf#1": {
+              "title": "转为输入方程",
+              "position": 5,
+              "refs": [
+                "method-equation-real-root-range#equation",
+                "skill-equality-transform",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#meaning"
+              ]
+            },
+            "7a6bd0cca02f1c6e6b5f64dc#1": {
+              "title": "检查二次项系数为零的情况",
+              "position": 6,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "fb68704c96e9d90115a545e8#1": {
+              "title": "用判别式求二次分支",
+              "position": 7,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "0e6d43b7720310aafb8f3e31#1": {
+              "title": "合并得到原函数值域",
+              "position": 8,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q17": {
+      "label": "分式分离求值域 · Q17",
+      "path": "/topics/function-concepts/q17/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q17.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "已知函数 $f(x)=\\frac{2-3x}{x-1}$，则函数的值域为 ______。",
+      "routes": {
+        "fraction-split-range": {
+          "label": "分式分离求值域法",
+          "methods": [
+            "method-fraction-split-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "3c5e691fbf5b93f38d440b8b#1": {
+              "title": "分离分式",
+              "position": 5,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "5990f8dc0f1b03142dfcc5c8#1": {
+              "title": "求分母的范围",
+              "position": 6,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "7a98e95eb0cc628b672d03be#1": {
+              "title": "写出值域",
+              "position": 7,
+              "refs": [
+                "method-quadratic-interval-range#range",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "418732025e17dd1edd24cd96#1": {
+              "title": "分段取倒数",
+              "position": 8,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "53aa2960ca844c1ef527fafb#1": {
+              "title": "还原原函数值域",
+              "position": 9,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q06": {
+      "label": "方程有实根求值域 · Q6",
+      "path": "/topics/function-concepts/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q06.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "函数 $f(x)=\\frac{2x^2+3x+2}{x^2+x+1}$ 的值域为____。",
+      "routes": {
+        "fraction-split-range": {
+          "label": "分式分离求值域法",
+          "methods": [
+            "method-fraction-split-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "a429012860426aa2d22ff743#1": {
+              "title": "分离常数",
+              "position": 5,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "method-substitution#range",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "477c53aa2afaf53bf057295b#1": {
+              "title": "检查同除的条件",
+              "position": 6,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "method-substitution#range",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "f82541879ae9c99472c310c6#1": {
+              "title": "分子分母同除",
+              "position": 7,
+              "refs": [
+                "method-fraction-split-range#separate",
+                "method-fraction-split",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "method-substitution#range",
+                "rational-expression#cancellation",
+                "rational-expression#meaning"
+              ]
+            },
+            "8d9b06396894414e82368127#1": {
+              "title": "对勾函数：$x\\in\\left(-\\infty, 0\\right)$",
+              "position": 8,
+              "refs": [
+                "method-fraction-split-range#solve",
+                "skill-reciprocal-range",
+                "reciprocal-sum-function"
+              ]
+            },
+            "8d9b06396894414e82368127#2": {
+              "title": "对勾函数：$x\\in\\left(0, \\infty\\right)$",
+              "position": 9,
+              "refs": [
+                "method-fraction-split-range#solve",
+                "skill-reciprocal-range",
+                "reciprocal-sum-function"
+              ]
+            },
+            "94710d402111ac26e5b0bd4b#1": {
+              "title": "求分母的范围",
+              "position": 10,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "2b239a3fd8ddf9831f09932d#1": {
+              "title": "分段取倒数",
+              "position": 11,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "ce09374f9e2e5d712184897d#1": {
+              "title": "还原非零分支的值域",
+              "position": 12,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            },
+            "73311f05bc82093fa9cfa835#1": {
+              "title": "合并原函数值域",
+              "position": 13,
+              "refs": [
+                "method-fraction-split-range#restore",
+                "skill-inequality-transform",
+                "function-monotonicity",
+                "function-range-extrema#attainability",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-inequality-transform#reciprocal"
+              ]
+            }
+          }
+        },
+        "equation-real-root-range": {
+          "label": "方程有实根法",
+          "methods": [
+            "method-equation-real-root-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "判断并选择求值域的方法",
+              "position": 4,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "947ffd28eab07b0d8b27993c#1": {
+              "title": "转为输入方程",
+              "position": 5,
+              "refs": [
+                "method-equation-real-root-range#equation",
+                "skill-equality-transform",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "rational-expression#meaning"
+              ]
+            },
+            "fe295014f84814ea11596d5d#1": {
+              "title": "检查二次项系数为零的情况",
+              "position": 6,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "6668d061e9671fe267501fb7#1": {
+              "title": "用判别式求二次分支",
+              "position": 7,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            },
+            "2520f28ed47070d5ff4e9e0a#1": {
+              "title": "合并得到原函数值域",
+              "position": 8,
+              "refs": [
+                "method-equation-real-root-range#solve",
+                "skill-solve-quadratic",
+                "equality-properties#identity",
+                "function-concept#elements",
+                "quadratic-equation#discriminant",
+                "quadratic-equation#roots",
+                "quadratic-inequality#signs",
+                "rational-expression#meaning",
+                "set-intersection-union#union"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q13": {
+      "label": "已知值域的换元传递 · Q13",
+      "path": "/topics/function-concepts/q13/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q13.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,\\frac12]$，求 $f(x+1)$ 的值域。",
+      "routes": {
+        "substitution-range": {
+          "label": "换元求值域法",
+          "methods": [
+            "method-substitution-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定定义域",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-substitution-range"
+              ]
+            },
+            "1f56a90bea291f4cc41be44f#1": {
+              "title": "求新变量的范围",
+              "position": 5,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ]
+            },
+            "9a17c78b96106dd43809d559#1": {
+              "title": "判断是否完整覆盖",
+              "position": 6,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ]
+            },
+            "e23cf2b826c70bb0ca049424#1": {
+              "title": "得到目标函数的值域",
+              "position": 7,
+              "refs": [
+                "method-substitution-range#restore",
+                "method-substitution",
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-concepts-range-q18": {
+      "label": "整段平移求值域 · Q18",
+      "path": "/topics/function-concepts/q18/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q18.json",
+      "types": [
+        "type-function-range"
+      ],
+      "statement": "设$g(x)$是定义在$\\mathbb{R}$上、以$1$为周期的函数，若$f(x)=x+g(x)$在$[3,4]$上的值域为$[-2,5]$，则$f(x)$在区间$[-10,10]$上的值域为________。",
+      "routes": {
+        "translation-range": {
+          "label": "整段平移求值域法",
+          "methods": [
+            "method-translation-range"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3-domain": {
+              "title": "确定本次求值区间",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 4,
+              "refs": [
+                "method-translation-range"
+              ]
+            },
+            "d4de94280e52f0e8987cbd96#1": {
+              "title": "写出平移后的函数值",
+              "position": 5,
+              "refs": [
+                "method-translation-range#translate",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "set-intersection-union#union"
+              ]
+            },
+            "fa1e2039536e73fae5b6d30b#1": {
+              "title": "用平移盖住输入范围",
+              "position": 6,
+              "refs": [
+                "method-translation-range#translate",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "set-intersection-union#union"
+              ]
+            },
+            "9e0e62290f842437ad0f5b6b#1": {
+              "title": "把各段值域合起来",
+              "position": 7,
+              "refs": [
+                "method-translation-range#translate",
+                "function-concept#elements",
+                "function-range-extrema#attainability",
+                "set-intersection-union#union"
+              ]
+            }
+          }
+        }
+      }
     }
   },
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22"
+  "content_version": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91"
 }

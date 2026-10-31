@@ -76,13 +76,21 @@
       "id": "range",
       "label": "求函数的值域",
       "type": "type-function-range",
+      "groupBy": "method",
       "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
       "problems": [
         "function-concepts-range-q03",
         "function-concepts-range-q05",
+        "function-concepts-range-q06",
+        "function-concepts-range-q07",
         "function-concepts-range-q08",
+        "function-concepts-range-q09",
+        "function-concepts-range-q10",
         "function-concepts-range-q11",
-        "function-concepts-range-q16"
+        "function-concepts-range-q13",
+        "function-concepts-range-q16",
+        "function-concepts-range-q17",
+        "function-concepts-range-q18"
       ]
     }
   ],
@@ -281,6 +289,69 @@
       "path": "/topics/function-concepts/q16/",
       "runtime": "graph-walk",
       "bundle": "/data/graph-walk/function-concepts-range-q16.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q07": {
+      "label": "分式分离求值域 · Q7",
+      "path": "/topics/function-concepts/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q07.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q09": {
+      "label": "分式分离求值域 · Q9",
+      "path": "/topics/function-concepts/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q09.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q10": {
+      "label": "分式分离求值域 · Q10",
+      "path": "/topics/function-concepts/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q10.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q17": {
+      "label": "分式分离求值域 · Q17",
+      "path": "/topics/function-concepts/q17/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q17.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q06": {
+      "label": "方程有实根求值域 · Q6",
+      "path": "/topics/function-concepts/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q06.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q13": {
+      "label": "已知值域的换元传递 · Q13",
+      "path": "/topics/function-concepts/q13/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q13.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-concepts-range-q18": {
+      "label": "整段平移求值域 · Q18",
+      "path": "/topics/function-concepts/q18/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-range-q18.json",
       "types": [
         "type-function-range"
       ]

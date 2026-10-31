@@ -17,6 +17,16 @@ const context = vm.createContext({
 vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'utf8'), context);
 const tex = expression => context.tex(expression);
 
+test('translation-range meaning retains both functions, the known image and the target interval', () => {
+  const candidate = JSON.parse(fs.readFileSync(new URL('server/tests/solver/fixtures/function-range/q18-candidate.json', base), 'utf8'));
+  const text = context.meaningBlocks(candidate.root, '', []).join('');
+  assert.match(text, /已知 \$f\(x\)=x\+g\(x\)\$/);
+  assert.match(text, /\$g\$ 定义在 .* 上、以 \$1\$ 为周期/);
+  assert.match(text, /基础区间 \$\[3,4\]\$ 上的值域为 \$\[-2,5\]\$/);
+  assert.match(text, /求 \$f\(x\)\$ 在 \$\[-10,10\]\$ 上的值域/);
+  assert.doesNotMatch(text, /undefined|-15|11|\$f\$ 定义在/);
+});
+
 test('photographed function-range goals render without assuming a scalar symbol', () => {
   const candidate = JSON.parse(fs.readFileSync(new URL('server/tests/solver/fixtures/function-range/q03-candidate.json', base), 'utf8'));
   const text = context.meaningBlocks(candidate.root, '', []).join('');

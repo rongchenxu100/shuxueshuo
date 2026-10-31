@@ -302,11 +302,7 @@ def function_frame(drawn, variable, domain, *, marks=(), show_vertex=False, extr
     return bounds, ticks(points, bounds[0], bounds[1])
 
 
-def function_graph(drawn, variable, domain, *, bounds, x_ticks, marks=(), show_vertex=False, mark_sign=None,
-                   strict=False, title, description, caption=None):
-    """One ``{kind, params}`` spec; ``marks`` are ``(point, attained)`` pairs on the curve."""
-    if not isinstance(domain, sp.Interval):
-        raise GraphUnavailable("domain_unsupported")
+def _check_function_marks(drawn, variable, bounds, marks):
     for point, _ in marks:
         if value_at(drawn, point, variable) is None:
             raise GraphUnavailable("mark_undefined")
@@ -317,6 +313,14 @@ def function_graph(drawn, variable, domain, *, bounds, x_ticks, marks=(), show_v
         second = mark_signature(drawn, variable, bounds, right, True)
         if hypot(first.x - second.x, first.y - second.y) < FUNCTION_MARK_GAP:
             raise GraphUnavailable("marks_overlap")
+
+
+def function_graph(drawn, variable, domain, *, bounds, x_ticks, marks=(), show_vertex=False, mark_sign=None,
+                   strict=False, title, description, caption=None):
+    """One ``{kind, params}`` spec; ``marks`` are ``(point, attained)`` pairs on the curve."""
+    if not isinstance(domain, sp.Interval):
+        raise GraphUnavailable("domain_unsupported")
+    _check_function_marks(drawn, variable, bounds, marks)
     params = {
         "bounds": bounds, "xTicks": x_ticks, "variable": str(variable),
         "interval": [_float(domain.start) if _finite(domain.start) else None,
@@ -346,6 +350,48 @@ def function_graph(drawn, variable, domain, *, bounds, x_ticks, marks=(), show_v
     if caption:
         graph["caption"] = caption
     return graph
+
+
+def reciprocal_image_graph(domain, *, source):
+    """One v=1/u picture, with every allowed denominator interval kept separate."""
+    if domain.contains(0) is not sp.false:
+        raise GraphUnavailable("reciprocal_input_contains_zero")
+    intervals, isolated = _pieces(domain)
+    marks = {point: True for point in isolated}
+    anchors = list(isolated)
+    for interval in intervals:
+        anchors.append(representative_parameter(interval))
+        for point, attained in domain_points(interval):
+            if point != 0:
+                marks[point] = marks.get(point, False) or attained
+                anchors.append(point)
+    if not anchors:
+        raise GraphUnavailable("reciprocal_input_empty")
+    # Reference samples on both sides keep the two branches recognisable even
+    # when this question uses just one of them. Do not bridge input holes.
+    reference = min(abs(value) for value in anchors)
+    anchors.extend([-2 * reference, 2 * reference])
+    bounds = window([_float(value) for value in anchors], [_float(1 / value) for value in anchors])
+    u = sp.Symbol('u', real=True)
+    drawn = family(1/u, u)
+    points = sorted(marks.items())
+    _check_function_marks(drawn, u, bounds, points)
+    if any(abs(_float(point)) < (bounds[1] - bounds[0]) / 400 for point in marks):
+        raise GraphUnavailable("reciprocal_endpoint_not_visible")
+    pieces = [{"from": _float(part.start) if _finite(part.start) else None,
+               "to": _float(part.end) if _finite(part.end) else None,
+               "left_closed": not part.left_open and _finite(part.start),
+               "right_closed": not part.right_open and _finite(part.end)} for part in intervals]
+    return {"kind": "reciprocal_sum", "params": {
+        "a": 0, "b": 1, "negative": False, "bounds": bounds,
+        "variable": "u", "outputVariable": "v", "interval": [None, None],
+        "interval_closed": [False, False], "pieces": pieces,
+        "points": [{"x": _float(point), **({"open": True} if not attained else {})}
+                   for point, attained in points],
+        "xTicks": ticks([sp.S.Zero, *marks], *bounds[:2]),
+        "yTicks": ticks([1/point for point in marks], *bounds[2:], width=PLOT_HEIGHT),
+        "title": "反比例函数 v=1/u", "description": f"u={source}，输入范围为 {plain(domain)}；深色曲线对应本题范围"},
+        "caption": rf'$u={source}$，$v=\frac{{1}}{{u}}$。深色为本题范围，浅色为参考；实心点可取，空心点不取。'}
 
 
 def _axis_reach(axis, parameter, allowed, step):

@@ -205,6 +205,41 @@
       "method-substitution#range",
       "equality-properties#identity",
       "function-range-extrema#attainability"
+    ],
+    "fraction_range_identity": [
+      "equality-properties#identity",
+      "function-concept#elements",
+      "rational-expression#meaning",
+      "rational-expression#cancellation"
+    ],
+    "fraction_range_transport": [
+      "inequality-properties#addition",
+      "inequality-properties#multiplication",
+      "function-range-extrema#attainability"
+    ],
+    "range_real_preimage_equivalence": [
+      "equality-properties#identity",
+      "rational-expression#meaning",
+      "function-concept#elements"
+    ],
+    "range_real_preimage_partition": [
+      "quadratic-equation#discriminant",
+      "set-intersection-union#union"
+    ],
+    "abstract_range_full_input_coverage": [
+      "function-concept#elements",
+      "function-concept#composite-domain"
+    ],
+    "finite_range_partition": [
+      "function-concept#elements"
+    ],
+    "finite_range_collection": [
+      "function-range-extrema#attainability"
+    ],
+    "integer_translation_full_coverage": [
+      "function-concept#elements",
+      "function-range-extrema#attainability",
+      "set-intersection-union#union"
     ]
   }
 }

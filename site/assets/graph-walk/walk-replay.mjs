@@ -1,3 +1,4 @@
+import {methodAnswer} from './method-cards.mjs?v=20261030-range-selection';
 // Static lessons and streamed AI playback answer the same verified decisions.
 export function replayAnswer(decision, route) {
   const component = decision.interaction, expected = decision.expected_answer || {};
@@ -10,6 +11,11 @@ export function replayAnswer(decision, route) {
     case 'fill':
     case 'checklist': answer = expected.terms; break;
     case 'grid': answer = expected.cell; break;
+    case 'method_cards': {
+      const method = component.methods?.find(item => item.route === route);
+      if (method) answer = methodAnswer(decision, method.value);
+      break;
+    }
     case 'plane': {
       // A nested method belongs to its parent route; its method value is explicit.
       const method = expected.method || component.methods?.find(item => item.route === route)?.value;

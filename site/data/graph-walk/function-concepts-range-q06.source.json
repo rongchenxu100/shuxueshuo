@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q06",
+  "title": "方程有实根求值域 · Q6",
+  "page": "/topics/function-concepts/q06/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q06.evidence.json",
+  "statement": "函数 $f(x)=\\frac{2x^2+3x+2}{x^2+x+1}$ 的值域为____。"
+}

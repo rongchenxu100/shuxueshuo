@@ -61,6 +61,31 @@ function problemStem(problem, position) {
   return `<span class="problem-number">${String(position).padStart(2, '0')}</span><span class="problem-stem"><span class="visually-hidden">第 ${position} 题：</span>${body}</span><span class="problem-go" aria-hidden="true">→</span>`;
 }
 
+function groupProblems(group, topic, byId) {
+  if (!group.problems.length) return '<p class="topic-group-empty">题目建设中</p>';
+  let position = 0;
+  const list = ids => `<ol class="problem-list"${position ? ` start="${position + 1}"` : ''}>${ids.map(id => {
+    const problem = topic.problems[id];
+    return `<li><a class="problem-card" href="${h(problem.path)}" data-problem-id="${h(id)}">${problemStem(problem, ++position)}</a></li>`;
+  }).join('')}</ol>`;
+  if (group.groupBy !== 'method') return list(group.problems);
+  const methods = new Map();
+  for (const id of group.problems) {
+    // The first course route is the default recommendation. Alternate routes
+    // remain on the question page instead of duplicating its overview card.
+    const method = Object.values(topic.problems[id].routes || {})[0]?.methods?.[0];
+    if (byId.get(method)?.kind !== 'method') throw Error(`题目缺少可用于分组的默认方法：${id}`);
+    if (!methods.has(method)) methods.set(method, []);
+    methods.get(method).push(id);
+  }
+  const order = byId.get(group.type)?.methods || [];
+  const rank = ref => order.includes(ref) ? order.indexOf(ref) : order.length;
+  return [...methods].sort(([a], [b]) => rank(a) - rank(b)).map(([ref, ids]) => {
+    const title = `title-${group.id}-${ref}`;
+    return `<section class="topic-method-group" aria-labelledby="${title}"><h4 class="topic-method-title" id="${title}">${h(byId.get(ref).label)}</h4>${list(ids)}</section>`;
+  }).join('\n');
+}
+
 export function renderTopicOverview(topic, nodes) {
   validateTopicSource(topic, nodes);
   const count = problemCount(topic), byId = new Map(nodes.map(node => [node.id, node]));
@@ -68,7 +93,7 @@ export function renderTopicOverview(topic, nodes) {
   const groups = topic.groups.map((group, index) => `<section class="type-group" id="group-${group.id}" aria-labelledby="title-${group.id}">
   <div class="type-heading"><span class="type-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><div class="type-title"><h3 id="title-${group.id}">${h(group.label)}</h3><p class="type-hint">${h(group.description || '')}</p></div></div>
   <a class="topic-type-link" href="${typeLink(group)}">了解题型 <span aria-hidden="true">→</span></a>
-  ${group.problems.length ? `<ol class="problem-list">${group.problems.map((id, position) => {const p = topic.problems[id]; return `<li><a class="problem-card" href="${h(p.path)}" data-problem-id="${h(id)}">${problemStem(p, position + 1)}</a></li>`;}).join('')}</ol>` : '<p class="topic-group-empty">题目建设中</p>'}
+  ${groupProblems(group, topic, byId)}
 </section>`).join('\n');
   return `<!doctype html>
 <html lang="zh-CN">
@@ -80,7 +105,7 @@ export function renderTopicOverview(topic, nodes) {
   <link rel="canonical" href="https://shuxueshuo.com${topicPath(topic)}">
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
   <link rel="stylesheet" href="/1/chapter.css?v=20261028-choice-stem">
-  <link rel="stylesheet" href="/topics/topics.css?v=20261026c">
+  <link rel="stylesheet" href="/topics/topics.css?v=20261031-method-groups">
   <link rel="stylesheet" href="${SITE_HEADER_CSS}">
   <script type="module" src="/assets/auth/site-auth.js?v=4"></script>
   ${count ? '<script type="module" src="/assets/learning/learning-marks.js?v=20261026-graph-walk"></script>' : ''}

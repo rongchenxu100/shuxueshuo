@@ -1,0 +1,206 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-finite-range",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_finite_range",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "function": "function",
+            "variable": "variable",
+            "domain": "domain",
+            "input_rows": "input_rows"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "inputs",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "cases": {
+        "source": "input_rows",
+        "binding": "row",
+        "through": "evaluate",
+        "collect": "evaluations",
+        "outputs": {
+          "evaluation_result": "$evaluation_result"
+        },
+        "entry": {
+          "id": "inputs",
+          "calls": [
+            {
+              "id": "prepare",
+              "capability": "prepare_finite_input",
+              "public_ref": null,
+              "inputs": {
+                "row": "$row"
+              },
+              "outputs": {
+                "child_context": "child_context"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": []
+        }
+      }
+    },
+    {
+      "id": "evaluate",
+      "calls": [
+        {
+          "id": "evaluate",
+          "capability": "submethod",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "context": "$child_context"
+          },
+          "outputs": {
+            "evaluation_result": "evaluation_result"
+          },
+          "order": 0,
+          "presentation": "fold"
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "collect",
+      "calls": [
+        {
+          "id": "collect",
+          "capability": "collect_finite_range",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context",
+            "evaluations": "$evaluations"
+          },
+          "outputs": {
+            "description": "description",
+            "function": "function",
+            "variable": "variable",
+            "domain": "domain",
+            "range": "range",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "finite_evaluate",
+          "after": "collect",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "finite_evaluate",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range"
+          ]
+        },
+        {
+          "id": "finite_collect",
+          "after": "collect",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "finite_collect",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_range",
+        "inputs": {
+          "context": "$context",
+          "method": "method-finite-range"
+        }
+      }
+    ]
+  }
+}

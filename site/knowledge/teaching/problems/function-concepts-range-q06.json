@@ -1,0 +1,319 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-range-q06",
+  "label": "方程有实根求值域 · Q6",
+  "path": "/topics/function-concepts/q06/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-range-q06.json",
+  "types": [
+    "type-function-range"
+  ],
+  "statement": "函数 $f(x)=\\frac{2x^2+3x+2}{x^2+x+1}$ 的值域为____。",
+  "routes": {
+    "fraction-split-range": {
+      "label": "分式分离求值域法",
+      "methods": [
+        "method-fraction-split-range"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3-domain": {
+          "title": "确定定义域",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "判断并选择求值域的方法",
+          "position": 4,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "a429012860426aa2d22ff743#1": {
+          "title": "分离常数",
+          "position": 5,
+          "refs": [
+            "method-fraction-split-range#separate",
+            "method-fraction-split",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "function-range-extrema#attainability",
+            "method-substitution#range",
+            "rational-expression#cancellation",
+            "rational-expression#meaning"
+          ]
+        },
+        "477c53aa2afaf53bf057295b#1": {
+          "title": "检查同除的条件",
+          "position": 6,
+          "refs": [
+            "method-fraction-split-range#separate",
+            "method-fraction-split",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "function-range-extrema#attainability",
+            "method-substitution#range",
+            "rational-expression#cancellation",
+            "rational-expression#meaning"
+          ]
+        },
+        "f82541879ae9c99472c310c6#1": {
+          "title": "分子分母同除",
+          "position": 7,
+          "refs": [
+            "method-fraction-split-range#separate",
+            "method-fraction-split",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "function-range-extrema#attainability",
+            "method-substitution#range",
+            "rational-expression#cancellation",
+            "rational-expression#meaning"
+          ]
+        },
+        "8d9b06396894414e82368127#1": {
+          "title": "对勾函数：$x\\in\\left(-\\infty, 0\\right)$",
+          "position": 8,
+          "refs": [
+            "method-fraction-split-range#solve",
+            "skill-reciprocal-range",
+            "reciprocal-sum-function"
+          ]
+        },
+        "8d9b06396894414e82368127#2": {
+          "title": "对勾函数：$x\\in\\left(0, \\infty\\right)$",
+          "position": 9,
+          "refs": [
+            "method-fraction-split-range#solve",
+            "skill-reciprocal-range",
+            "reciprocal-sum-function"
+          ]
+        },
+        "94710d402111ac26e5b0bd4b#1": {
+          "title": "求分母的范围",
+          "position": 10,
+          "refs": [
+            "method-fraction-split-range#restore",
+            "skill-inequality-transform",
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ]
+        },
+        "2b239a3fd8ddf9831f09932d#1": {
+          "title": "分段取倒数",
+          "position": 11,
+          "refs": [
+            "method-fraction-split-range#restore",
+            "skill-inequality-transform",
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ]
+        },
+        "ce09374f9e2e5d712184897d#1": {
+          "title": "还原非零分支的值域",
+          "position": 12,
+          "refs": [
+            "method-fraction-split-range#restore",
+            "skill-inequality-transform",
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ]
+        },
+        "73311f05bc82093fa9cfa835#1": {
+          "title": "合并原函数值域",
+          "position": 13,
+          "refs": [
+            "method-fraction-split-range#restore",
+            "skill-inequality-transform",
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ]
+        }
+      }
+    },
+    "equation-real-root-range": {
+      "label": "方程有实根法",
+      "methods": [
+        "method-equation-real-root-range"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3-domain": {
+          "title": "确定定义域",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "判断并选择求值域的方法",
+          "position": 4,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "947ffd28eab07b0d8b27993c#1": {
+          "title": "转为输入方程",
+          "position": 5,
+          "refs": [
+            "method-equation-real-root-range#equation",
+            "skill-equality-transform",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "rational-expression#meaning"
+          ]
+        },
+        "fe295014f84814ea11596d5d#1": {
+          "title": "检查二次项系数为零的情况",
+          "position": 6,
+          "refs": [
+            "method-equation-real-root-range#solve",
+            "skill-solve-quadratic",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "quadratic-equation#discriminant",
+            "quadratic-equation#roots",
+            "quadratic-inequality#signs",
+            "rational-expression#meaning",
+            "set-intersection-union#union"
+          ]
+        },
+        "6668d061e9671fe267501fb7#1": {
+          "title": "用判别式求二次分支",
+          "position": 7,
+          "refs": [
+            "method-equation-real-root-range#solve",
+            "skill-solve-quadratic",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "quadratic-equation#discriminant",
+            "quadratic-equation#roots",
+            "quadratic-inequality#signs",
+            "rational-expression#meaning",
+            "set-intersection-union#union"
+          ]
+        },
+        "2520f28ed47070d5ff4e9e0a#1": {
+          "title": "合并得到原函数值域",
+          "position": 8,
+          "refs": [
+            "method-equation-real-root-range#solve",
+            "skill-solve-quadratic",
+            "equality-properties#identity",
+            "function-concept#elements",
+            "quadratic-equation#discriminant",
+            "quadratic-equation#roots",
+            "quadratic-inequality#signs",
+            "rational-expression#meaning",
+            "set-intersection-union#union"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/"
+  ],
+  "content_version": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91"
+}

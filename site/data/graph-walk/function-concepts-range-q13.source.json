@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q13",
+  "title": "已知值域的换元传递 · Q13",
+  "page": "/topics/function-concepts/q13/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRef": "/root/goals/1",
+  "evidence": "site/data/graph-walk/function-concepts-range-q13.evidence.json",
+  "statement": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,\\frac12]$，求 $f(x+1)$ 的值域。"
+}

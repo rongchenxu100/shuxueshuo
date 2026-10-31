@@ -1,0 +1,56 @@
+{
+  "id": "method-equation-real-root-range",
+  "kind": "method",
+  "label": "方程有实根法",
+  "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计 M4",
+  "input": "全实数域、原分母全域非零的固定有理系数二次分式。",
+  "output": "全部存在合法原像的输出值组成的集合。",
+  "conditions": "分子至多二次，原分母恰为二次且无实根。先确认定义域，再按方程实际次数求解。",
+  "steps": [
+    {
+      "id": "equation",
+      "title": "转为输入方程",
+      "body": [
+        "设输出为 y，将 y=P(x)/Q(x) 等价改写为 yQ(x)-P(x)=0。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-equality-transform"
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "title": "分次数求有解条件",
+      "body": [
+        "二次项系数为零时单独判断一次、恒等或矛盾方程；其余输出用判别式不小于零，再合并。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-solve-quadratic"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "核验完整值域",
+      "body": [
+        "从原函数独立核验输出集合与边界合法原像。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "退化为一次方程的输出仍可取得",
+      "prompt": "求 $y=\\frac{2x^2+3x+2}{x^2+x+1}$ 的值域。",
+      "solution": [
+        "$(y-2)x^2+(y-3)x+(y-2)=0$。",
+        "$y=2$ 时 $x=0$；$y\\ne2$ 时 $-3y^2+10y-7\\ge0$，合并得 $[1,\\frac73]$。"
+      ],
+      "source": "函数的概念 Q6"
+    }
+  ],
+  "resources": []
+}

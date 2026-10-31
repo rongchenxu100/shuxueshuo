@@ -47,6 +47,7 @@ export function validateTopicSource(source, nodes) {
   for (const group of source.groups) {
     insist(typeof group.id === 'string' && /^[a-z][a-z0-9-]*$/.test(group.id) && typeof group.label === 'string' && group.label.trim(), `专题分组无效：${source.id}`);
     insist(Array.isArray(group.problems), `分组题目清单无效：${source.id}/${group.id}`);
+    insist(group.groupBy === undefined || group.groupBy === 'method', `未知题目分组方式：${source.id}/${group.id}`);
     if (group.type) checkRef(group.type, nodes, ['problem_type']);
   }
   equal([...new Set(source.groups.flatMap(g => g.problems))].sort(), Object.keys(source.problems).sort(), `训练分组未覆盖题目：${source.id}`);

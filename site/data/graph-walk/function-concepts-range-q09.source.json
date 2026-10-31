@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q09",
+  "title": "分式分离求值域 · Q9",
+  "page": "/topics/function-concepts/q09/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/1"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q09.evidence.json",
+  "statement": "求函数 $y=\\frac{x+1}{x-2}$ 的值域。"
+}

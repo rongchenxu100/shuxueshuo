@@ -1,0 +1,41 @@
+{
+  "original_text": "18. 设$g(x)$是定义在$\\mathbb{R}$上、以$1$为周期的函数，若$f(x)=x+g(x)$在$[3,4]$上的值域为$[-2,5]$，则$f(x)$在区间$[-10,10]$上的值域为________。",
+  "root": {
+    "label": "18",
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_translation_range",
+        "function_relation": "f(x)=x+g(x)",
+        "periodic_function": "g",
+        "period": "1",
+        "periodic_domain": "ℝ",
+        "known_domain": "[3,4]",
+        "known_range": "[-2,5]",
+        "input_domain": "[-10,10]"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设$g(x)$是定义在$\\mathbb{R}$上、以$1$为周期的函数，若$f(x)=x+g(x)$在$[3,4]$上的值域为$[-2,5]$，则$f(x)$在区间$[-10,10]$上的值域为________。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

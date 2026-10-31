@@ -82,6 +82,22 @@ def _graph(values):
 
 def phase_view(values):
     phase, desc = values['phase'], values['description']
+    if phase.startswith('translation_'):
+        from .translation_presentation import phase_view as translation_view
+        return translation_view(values)
+    if phase.startswith('finite_'):
+        from .finite_range import phase_view as finite_view
+        return _function_context(finite_view(values), _source_definition(desc, values['variable']))
+    if phase.startswith('abstract_'):
+        from .abstract_range_presentation import phase_view as abstract_view
+        return abstract_view(values)
+    if phase.startswith('equation_'):
+        return equation_view(values)
+    if phase.startswith('fraction_'):
+        if phase in ('fraction_zero', 'fraction_hook'):
+            return fraction_view(values)
+        from .fraction_range_presentation import current_definition
+        return _function_context(fraction_view(values), current_definition(values))
     if phase.startswith('substitution_'):
         view = substitution_view(values)
         if phase == 'substitution_borrow':
@@ -94,6 +110,115 @@ def phase_view(values):
         definition = rf'P({latex(values["variable"])})={latex(values["function"])}'
         label = '当前被开方数'
     return _function_context(view, definition, label)
+
+
+def equation_view(values):
+    desc, x = values['description'], values['variable']
+    mapping = desc['equation_mapping']
+    y, special = mapping['output_variable'], mapping['special_value']
+    grouped = sp.Add(sp.Mul(mapping['a'], x**2, evaluate=False),
+                     sp.Mul(mapping['b'], x, evaluate=False), mapping['c'], evaluate=False)
+    eq = rf'{latex(grouped)}=0'
+    equation_context = rf'当前关于 ${latex(x)}$ 的方程为 ${eq}$。'
+    if values['phase'] == 'equation_rearrange':
+        answer = rf'{eq}\text{{ 有实根}}'
+        interaction, expected = _choice(f'${answer}$', [rf'${eq}\text{{ 对一切实数恒成立}}$'])
+        return _card('转为输入方程', f'输出 ${latex(y)}$ 能取到，关于 ${latex(x)}$ 的方程需要满足什么条件？',
+                     '原函数及输入范围', _lines([_source_definition(desc, x), rf'{latex(x)}\in\mathbb R']),
+                     '输出可达的条件', answer,
+                     _math(rf'{latex(y)}={latex(values["function"])}\Longleftrightarrow {eq}',
+                           rf'\exists {latex(x)}\in\mathbb R:\ {eq}'), interaction, expected)
+    if values['phase'] == 'equation_degenerate':
+        reduced = sp.expand(mapping['degenerate_b']*x+mapping['degenerate_c'])
+        kind = mapping['degenerate_kind']
+        answer = (rf'{latex(x)}={latex(mapping["degenerate_witness"])}' if kind == 'linear'
+                  else r'\text{任意实数均为解}' if kind == 'identity' else r'\text{无解}')
+        output = rf'{latex(y)}={latex(special)}'
+        verdict = '不能取到' if kind == 'inconsistent' else '可以取到'
+        conclusion = rf'{output}\text{{{verdict}}}'
+        no_root = rf'方程无解，${output}$ 不能取到'
+        all_roots = rf'任意实数均为解，${output}$ 可以取到'
+        choice = (rf'${answer}$ 是方程的解，${output}$ 可以取到' if kind == 'linear'
+                  else all_roots if kind == 'identity' else no_root)
+        interaction, expected = _choice(choice, [no_root, all_roots])
+        return _card('检查二次项系数为零的情况',
+                     equation_context + rf'当 ${output}$ 时，方程有实根吗？这个输出值能否取到？',
+                     '退化后的方程', _lines([output, rf'{latex(reduced)}=0']),
+                     '输出值能否取到', _lines([answer, conclusion]),
+                     _math(rf'{output}:\ {latex(reduced)}=0', answer, conclusion), interaction, expected)
+    if values['phase'] == 'equation_discriminant':
+        image = mapping['quadratic_image']
+        interaction, expected = _image_choices(image, sp.S.Reals)
+        delta = mapping['discriminant']
+        view = _card('用判别式求二次分支',
+                     equation_context + rf'当 ${latex(y)}\ne{latex(special)}$ 时，哪些输出值使方程有实根？',
+                     '二次方程及实根条件', _lines([eq, rf'\Delta={latex(delta)}\ge0']),
+                     '本分支输出范围', rf'{latex(y)}\in{_set_latex(image)}',
+                     _math(rf'\Delta={latex(delta)}\ge0\Longleftrightarrow {latex(y)}\in{_set_latex(mapping["discriminant_image"])}',
+                           rf'{latex(y)}\ne{latex(special)}\Longrightarrow {latex(y)}\in{_set_latex(image)}'),
+                     interaction, expected)
+        graph_values = {**values, 'function': delta, 'variable': y, 'domain': sp.S.Reals,
+                        'description': {**desc, 'function_name': r'\Delta'}}
+        graph = _graph(graph_values)
+        if graph: view['graph'] = graph
+        return view
+    image = values['range']['set']
+    interaction, expected = _image_choices(image, sp.S.Reals)
+    left = _lines([rf'{latex(y)}={latex(special)}:\ {_set_latex(mapping["degenerate_image"])}',
+                   rf'{latex(y)}\ne{latex(special)}:\ {_set_latex(mapping["quadratic_image"])}'])
+    return _card('合并得到原函数值域', equation_context + '合并两种次数下能取得的输出，原函数的值域是什么？',
+                 '两个分支的输出范围', left, '原函数值域', _set_latex(image),
+                 _math(rf'{_set_latex(mapping["degenerate_image"])}\cup{_set_latex(mapping["quadratic_image"])}={_set_latex(image)}'),
+                 interaction, expected)
+
+
+def fraction_view(values):
+    from .function_range import _bounds, monotone_cover
+    desc, x, domain = values['description'], values['variable'], values['domain']
+    mapping = desc['fraction_mapping']
+    if mapping.get('linear'):
+        from .fraction_range_presentation import phase_view as linear_fraction_view
+        return linear_fraction_view(values)
+    denominator, shift, scale = (mapping[key] for key in ('function', 'shift', 'scale'))
+    call = rf'{desc["function_name"]}({latex(x)})'
+    q = rf'Q({latex(x)})'
+    separated = sp.Add(shift, sp.Mul(scale, sp.Pow(denominator, -1, evaluate=False), evaluate=False), evaluate=False)
+    if values['phase'] == 'fraction_separate':
+        answer = rf'{call}={latex(separated)}'
+        interaction, expected = _choice(f'${answer}$', [rf'${call}={latex(separated+1)}$', rf'${call}={latex(separated-1)}$'])
+        return _card('分离分式', '将原式写成常数与倒数项之和，结果是什么？',
+                     '原函数及定义域', _lines([_source_definition(desc, x), rf'{latex(x)}\in{_set_latex(domain)}']),
+                     '分离结果', answer, _math(rf'{_source_definition(desc,x)}={latex(separated)}'), interaction, expected)
+    if values['phase'] == 'fraction_borrow':
+        return _card('求分母的范围', '先在原定义域内求分母的完整范围。',
+                     '分离后的函数', rf'{call}={latex(separated)}', '本次求值域的函数与输入',
+                     _lines([rf'{q}={latex(denominator)}', rf'{latex(x)}\in{_set_latex(domain)}']),
+                     _math(rf'{q}={latex(denominator)}', rf'{latex(x)}\in{_set_latex(domain)}'))
+    image = values['range']['set']
+    denominator_image, _ = monotone_cover(denominator, x, domain)
+    if values['phase'] == 'fraction_reciprocal':
+        interaction, expected = _image_choices(image, denominator_image)
+        rows = []
+        from .capabilities.reciprocal import reciprocal_of_range
+        from .function_range import components
+        for part in components(denominator_image):
+            reciprocal = reciprocal_of_range(_bounds(part))['outputs']['range']['set']
+            rows.append(rf'{q}\in{_set_latex(part)}\Longrightarrow\frac1{{{q}}}\in{_set_latex(reciprocal)}')
+        return _card('分段取倒数', '在零的两侧分别取倒数，端点次序交换。倒数项能取到哪些值？',
+                     '分母的范围', rf'{q}\in{_set_latex(denominator_image)}', '倒数的范围',
+                     rf'\frac1{{{q}}}\in{_set_latex(image)}', _math(*rows), interaction, expected)
+    # The preceding reciprocal card supplies the source range; recompute from
+    # verified inputs, never infer it from the final output interval's hull.
+    from .capabilities.reciprocal import reciprocal_of_range
+    from .function_range import components
+    reciprocal = sp.Union(*(reciprocal_of_range(_bounds(part))['outputs']['range']['set']
+                            for part in components(denominator_image)))
+    interaction, expected = _image_choices(image, reciprocal)
+    from .fraction_range_presentation import current_definition
+    return _card('还原原函数值域', '根据分离后的表达式，写出原函数的值域。',
+                 '倒数范围与原函数', _lines([rf'\frac1{{{q}}}\in{_set_latex(reciprocal)}', current_definition(values)]),
+                 '原函数值域', _set_latex(image),
+                 _math(rf'\frac1{{{q}}}\in{_set_latex(reciprocal)}', rf'{call}\in{_set_latex(image)}'), interaction, expected)
 
 
 def _range_view(values):
@@ -191,6 +316,12 @@ def _range_view(values):
                      '输入范围', input_math, '端点与顶点', _lines(equations), _math(*equations), interaction, expected)
     interaction, expected = _image_choices(image, domain)
     title = '确定被开方数范围' if desc.get('radical') else '写出值域'
+    from .function_range import needs_value_comparison
+    if not needs_value_comparison(f, x, domain):
+        return _card(title, rf'在给定输入范围内，${call}$ 能取到哪些值？',
+                     '当前函数与输入范围', _lines([definition, input_math]),
+                     '被开方数范围' if desc.get('radical') else '值域', _set_latex(image),
+                     _math(rf'{call}\in{_set_latex(image)}'), interaction, expected)
     question = ('各个合法区间上的范围取并集，得到哪些值？' if isinstance(domain, sp.Union) else
                 '结合图像和边界能否取到，确定全部取值。')
     return _card(title, question,
@@ -278,6 +409,18 @@ def presentation(values):
 def compile_range(seeds, interaction_id):
     (seed,) = seeds
     values = decode_value(seed['values'])
+    if values['phase'] == 'fraction_hook':
+        compiled = [_compile_range_values({**values, 'hook_piece': row}, interaction_id)
+                    for row in values['description']['fraction_mapping']['pieces']]
+        parts = [part for entry in compiled for part in entry['parts']]
+        for index, part in enumerate(parts):
+            part['id'] = f'{interaction_id}#{index+1}'
+        return {'parts': parts,
+                'diagnostics': [item for entry in compiled for item in entry['diagnostics']]}
+    return _compile_range_values(values, interaction_id)
+
+
+def _compile_range_values(values, interaction_id):
     view = phase_view(values)
     board = deepcopy(view['derivation'])
     if view['interaction']['type'] == 'read':
@@ -293,6 +436,68 @@ def compile_range(seeds, interaction_id):
             'feedback': view['feedback'], 'submit_label': '继续' if interaction['type'] == 'read' else '确认判断',
             'stem_board': board, 'completion_board': deepcopy(view['derivation'])}
     diagnostics = []
+    if values['phase'] == 'fraction_hook':
+        from .fraction_range_presentation import hook_graph
+        try:
+            part['graph'] = hook_graph(values)
+            part['completion_graph'] = deepcopy(part['graph'])
+        except drawing.GraphUnavailable as exc:
+            diagnostics.append({'kind': 'graph_unavailable', 'reason': str(exc)})
+    if values['phase'] in ('translation_coverage', 'translation_union'):
+        data = values['description']['translation']
+        try:
+            if values['phase'] == 'translation_coverage':
+                # Stem shows what must be covered; completion also shows the known full segment.
+                stem = drawing.number_lines(
+                    [data['domain']], values['variable'], title='要求的输入范围')[0]
+                part['graph'] = stem
+                domains = [data['base']] if data['base'] == data['domain'] else [data['base'], data['domain']]
+                titles = (['已知区间'] if data['base'] == data['domain']
+                          else ['已知区间', '要求的输入范围'])
+                graphs = []
+                for domain, title in zip(domains, titles, strict=True):
+                    graphs.extend(drawing.number_lines([domain], values['variable'], title=title))
+            else:
+                # Stem shows the known image only; the union appears after the answer.
+                part['graph'] = drawing.number_lines(
+                    [data['known_image']], sp.Symbol('y'), title='已知区间上的值域')[0]
+                graphs = drawing.number_lines(
+                    [data['feasible_set']], sp.Symbol('y'), title='各段值域合起来')
+            part['completion_graphs'] = graphs
+            if len(graphs) == 1:
+                part['completion_graph'] = part.pop('completion_graphs')[0]
+        except drawing.GraphUnavailable as exc:
+            diagnostics.append({'kind': 'graph_unavailable', 'reason': str(exc)})
+    if values['phase'] == 'finite_collect':
+        try:
+            part['completion_graph'] = drawing.number_lines(
+                [values['range']['set']], sp.Symbol('y'), title='值域中的离散输出')[0]
+        except drawing.GraphUnavailable as exc:
+            diagnostics.append({'kind': 'graph_unavailable', 'reason': str(exc)})
+    if values['phase'] == 'fraction_reciprocal':
+        mapping = values['description']['fraction_mapping']
+        if mapping.get('linear'):
+            denominator_image, variable = mapping['denominator_image'], mapping['variable']
+        else:
+            from .function_range import monotone_cover
+            variable = values['variable']
+            denominator_image, _ = monotone_cover(mapping['function'], variable, values['domain'])
+        try:
+            part['graph'] = drawing.reciprocal_image_graph(denominator_image, source=rf'Q({latex(variable)})')
+            part['completion_graph'] = deepcopy(part['graph'])
+        except drawing.GraphUnavailable as exc:
+            diagnostics.append({'kind': 'graph_unavailable', 'reason': str(exc)})
+    if values['phase'] in ('fraction_return', 'fraction_nonzero', 'fraction_denominator'):
+        mapping = values['description'].get('fraction_mapping', {})
+        image = (mapping[{'fraction_return': 'image',
+                          'fraction_nonzero': 'nonzero_image', 'fraction_denominator': 'denominator_image'}[values['phase']]]
+                 if mapping.get('linear') else values['range']['set'])
+        try:
+            part['completion_graphs'] = drawing.number_lines([image], sp.Symbol('y'), title=view['title'])
+            if len(part['completion_graphs']) == 1:
+                part['completion_graph'] = part.pop('completion_graphs')[0]
+        except drawing.GraphUnavailable as exc:
+            diagnostics.append({'kind': 'graph_unavailable', 'reason': str(exc)})
     if values['phase'] in ('position', 'values', 'image', 'root', 'affine'):
         try:
             # Each disconnected input component gets its own restricted curve.
@@ -340,10 +545,12 @@ def domain_prerequisite(description):
                                                  rf'{latex(argument)}\in\mathbb{{R}}']),
                                          '原函数定义域', rf'D_{{{description["function_name"]}}}=\mathbb{{R}}')
         item['completion_board'] = deepcopy(item['stem_board'])
-    if description.get('radical') or substitution.get('atom_kind') == 'sqrt':
+    if description.get('radical') or substitution.get('atom_kind') == 'sqrt' or description.get('rational'):
         from ..range_syntax import range_expression
         radicand = (range_expression(substitution['argument_ast'], variable) if substitution else function)
-        conditions = [rf'{latex(radicand)}\ge0']
+        conditions = (list(dict.fromkeys(rf'{latex(range_expression(row["ast"], variable))}\ne0'
+                                        for row in description['rational']['denominators']))
+                      if description.get('rational') else [rf'{latex(radicand)}\ge0'])
         for field in ('declared_domain', 'input_domain'):
             if description[field + '_source_ref']:
                 item['source_refs'].append(description[field + '_source_ref'])
@@ -351,7 +558,8 @@ def domain_prerequisite(description):
         for row in description['restriction_facts']:
             item['source_refs'].append(row['source_ref'])
             conditions.append(rf'{latex(variable)}\in{_set_latex(range_domain(row["domain_ast"]))}')
-        item['question'] = '被开方数必须非负。结合题给的输入限制，定义域是什么？'
+        item['question'] = ('原式的每个分母都必须非零，约分前的限制也要保留。定义域是什么？'
+                            if description.get('rational') else '被开方数必须非负。结合题给的输入限制，定义域是什么？')
         item['interaction'], item['expected_answer'] = _image_choices(domain, sp.S.Reals)
         item['completion_board'] = _derivation('确定定义域', '原式有意义的条件', _lines(conditions),
                                                '定义域', rf'{latex(variable)}\in{_set_latex(domain)}')

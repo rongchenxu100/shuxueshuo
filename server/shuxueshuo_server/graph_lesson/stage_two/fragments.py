@@ -172,6 +172,8 @@ def _abstract_domain_source_spans(candidate, target_ref, ranges):
         for index, (start, stop, body) in enumerate(formulas):
             following = text[stop:formulas[index + 1][0] if index + 1 < len(formulas) else end]
             requirement = re.match(r"\s*的?\s*(?:值域\s*(?:和|与|及|、)\s*)?(?P<domain>定义域)", following)
+            if goal['kind'] == 'find_abstract_range':
+                requirement = re.match(r'\s*的?\s*(?:定义域\s*(?:为|是)?\s*[_＿—－]*\s*(?:和|与|及|、|，|,)\s*)?(?P<domain>值域)', following)
             is_given = False
             if index + 1 < len(formulas) and matches(body, goal["known_call"], call=True):
                 _next_start, next_stop, next_body = formulas[index + 1]
@@ -181,13 +183,14 @@ def _abstract_domain_source_spans(candidate, target_ref, ranges):
                     is_given = True
                     if 'known_range' in goal and index + 2 < len(formulas):
                         range_start, range_stop, range_body = formulas[index + 2]
-                        if (re.fullmatch(r"\s*[，,、]\s*(?:其)?值域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", text[next_stop:range_start])
+                        if (re.fullmatch(r"\s*[，,、]\s*(?:其)?值域\s*(?:恰好|恰)?\s*(?:是|为|等于)?\s*", text[next_stop:range_start])
                                 and matches(range_body, goal['known_range'])):
                             given_ranges.append((start, range_stop, 'given_range', ['known_call', 'known_range']))
                 if ('known_range' in goal
-                        and re.fullmatch(r"\s*的?\s*值域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following)
+                        and re.fullmatch(r"\s*的?\s*值域\s*(?:恰好|恰)?\s*(?:是|为|等于)?\s*", following)
                         and matches(next_body, goal['known_range'])):
                     given_ranges.append((start, next_stop, 'given_range', ['known_call', 'known_range']))
+                    is_given = True
                     if index + 2 < len(formulas):
                         domain_start, domain_stop, domain_body = formulas[index + 2]
                         if (re.fullmatch(r"\s*[，,、]\s*(?:其)?定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", text[next_stop:domain_start])
@@ -197,7 +200,7 @@ def _abstract_domain_source_spans(candidate, target_ref, ranges):
             # its call happens to equal target_call. Blank-answer wording has
             # no following value formula and remains a legitimate question.
             gives_value = (requirement is not None and index + 1 < len(formulas)
-                           and re.fullmatch(r"\s*的?\s*定义域\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following))
+                           and re.fullmatch(r"\s*的?\s*(?:定义域|值域)\s*(?:恰好|恰)?\s*(?:是|为|等于)\s*", following))
             if requirement and not is_given and not gives_value and matches(
                     body, goal["target_call"], call=True, target_alias=True):
                 targets.append((start, stop, "expression", ["target_call"]))
@@ -538,6 +541,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
+    if values.get('translation_range', {}).get('structure_supported'):
+        from .translation_surface import translation_source_spans
+        spans = translation_source_spans(candidate, target_ref, ranges,
+                                        values['translation_range'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.translation_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'translation_range'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-concept#elements', 'function-range-extrema#attainability']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('function_range', {}).get('structure_supported'):
         from .range_surface import range_source_spans
 
@@ -569,8 +586,10 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}
-    if (values.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter")
-            and values.get("abstract_function_domain", {}).get("structure_supported")):
+    abstract_feature = ('abstract_function_range' if values.get('goal', {}).get('kind') == 'find_abstract_range'
+                        else 'abstract_function_domain')
+    if (values.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range")
+            and values.get(abstract_feature, {}).get("structure_supported")):
         locator = (_abstract_parameter_source_spans
                    if values['goal']['kind'] == 'find_abstract_domain_parameter'
                    else _abstract_domain_source_spans)
@@ -581,7 +600,7 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             }]}
         for start, end, kind, fields in spans:
             surface = normalize_surface(text, start, end)
-            add(surface, 0, len(surface.text), kind, ["goal", "abstract_function_domain"])
+            add(surface, 0, len(surface.text), kind, ["goal", abstract_feature])
             fragments[-1]["source_refs"] = [f"{target_ref}/{field}" for field in fields]
         for index, item in enumerate(fragments, 1):
             item["id"] = f"{target_ref}:d1:{index}"

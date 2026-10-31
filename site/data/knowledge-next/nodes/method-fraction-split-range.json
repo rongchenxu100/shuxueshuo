@@ -1,0 +1,71 @@
+{
+  "id": "method-fraction-split-range",
+  "kind": "method",
+  "label": "分式分离求值域法",
+  "summary": "保留原定义域，分离常数；求分母或对勾函数的范围，再取倒数、还原并合并零点分支。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计 M5",
+  "input": "分离后商为常数、余项分子至多一次、分母至多二次的固定系数分式及准确输入范围。",
+  "output": "原函数的完整值域和边界取值证据。",
+  "conditions": "原式禁取点与端点开闭均保留。一次余项先处理零点，再按需换元、同除，分支求中间函数的准确范围。",
+  "steps": [
+    {
+      "id": "separate",
+      "title": "分离常数与整理分式",
+      "body": [
+        "验证分离恒等式；一次余项检查分子零点，按需换元，在非零分支分子分母同除。"
+      ],
+      "calls": [
+        {
+          "ref": "method-fraction-split"
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "title": "求中间函数的范围",
+      "body": [
+        "常数余项求分母范围；一次余项求对勾函数或退化中间函数的范围，按实际输入分段，核对端点与转折点。"
+      ],
+      "calls": [
+        {
+          "ref": "method-quadratic-interval-range"
+        },
+        {
+          "ref": "skill-reciprocal-range"
+        }
+      ]
+    },
+    {
+      "id": "restore",
+      "title": "取倒数并还原值域",
+      "body": [
+        "对分母各正负分量取倒数，再按比例和平移还原；合并同除时排除但原式合法的零点输出。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-inequality-transform"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "核验完整值域",
+      "body": [
+        "从原函数独立核验完整输出及边界的合法原像。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "一次分式",
+      "prompt": "求 $y=\\frac{x+1}{x-2}$ 的值域。",
+      "solution": [
+        "$x\\ne2$，$y=1+\\frac3{x-2}$。",
+        "$x-2\\ne0$，所以 $y\\ne1$，值域为 $\\mathbb R\\setminus\\{1\\}$。"
+      ],
+      "source": "函数的概念 Q9"
+    }
+  ],
+  "resources": []
+}

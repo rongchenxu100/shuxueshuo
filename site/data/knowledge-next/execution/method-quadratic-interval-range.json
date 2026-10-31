@@ -24,6 +24,7 @@
             "domain": "domain",
             "degree": "degree",
             "quadratic": "quadratic",
+            "compare_values": "compare_values",
             "radical": "radical",
             "rescale": "rescale"
           },
@@ -157,6 +158,10 @@
           "id": "range_values",
           "after": "image",
           "template": "function_range_derivation",
+          "guard": {
+            "ref": "compare_values",
+            "equals": true
+          },
           "bindings": {
             "before": [],
             "after": [],

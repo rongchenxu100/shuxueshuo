@@ -1,0 +1,45 @@
+{
+  "original_text": "9. 函数 $y=\\frac{x+1}{x-2}$ 的定义域为____，值域为____。",
+  "root": {
+    "definitions": [
+      "f(x)=(x+1)/(x-2)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_domain",
+        "object": "f"
+      },
+      {
+        "kind": "find_range",
+        "object": "f"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $y=\\frac{x+1}{x-2}$ 的定义域为____，值域为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

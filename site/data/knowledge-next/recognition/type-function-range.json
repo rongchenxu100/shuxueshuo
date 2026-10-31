@@ -15,6 +15,34 @@
           "student_cue": 0
         }
       ]
+    },
+    {
+      "branch_id": "known-range-affine-transfer",
+      "checks": [
+        {
+          "id": "supported-abstract-range",
+          "feature_id": "abstract_function_range",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "integer-translation-range",
+      "checks": [
+        {
+          "id": "supported-translation-range",
+          "feature_id": "translation_range",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
     }
   ]
 }

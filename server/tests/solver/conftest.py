@@ -22,7 +22,12 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
 @pytest.fixture(scope="module", autouse=True)
 def stage_three_storage(request, tmp_path_factory):
     name = Path(str(request.fspath)).name
-    if not name.startswith("test_graph_stage_three") and name != "test_interaction_scheduler_failures_store.py":
+    # Only selected tests opt mixed unit/integration modules into PostgreSQL.
+    # Keep module scope so recorded module fixtures also use the isolated store.
+    marked = any(item.path == request.node.path and item.get_closest_marker("stage_three_db")
+                 for item in request.session.items)
+    if not (name.startswith("test_graph_stage_three")
+            or name == "test_interaction_scheduler_failures_store.py" or marked):
         yield None
         return
     root = os.environ.get("PRODUCT_TEST_DATA_DIR")

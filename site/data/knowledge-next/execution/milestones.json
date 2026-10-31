@@ -42,7 +42,11 @@
       "method-function-evaluation",
       "method-quadratic-interval-range",
       "method-direct-range",
-      "method-substitution-range"
+      "method-substitution-range",
+      "method-fraction-split-range",
+      "method-equation-real-root-range",
+      "method-finite-range",
+      "method-translation-range"
     ]
   }
 }

@@ -4,21 +4,98 @@
   "description": "Only for verified set answers (find_range/find_domain/match_domain/find_abstract_domain/find_abstract_domain_parameter); never a compare_functions handoff. Labels are matched by exact set equality. Runtime additionally checks label uniqueness and membership. Unspecified mode uses exact multiple selection.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["status", "kind", "matching", "selection_mode", "target_ref", "options", "correct_labels"],
+  "required": [
+    "status",
+    "kind",
+    "matching",
+    "selection_mode",
+    "target_ref",
+    "options",
+    "correct_labels"
+  ],
   "properties": {
-    "status": {"const": "matched"},
-    "kind": {"enum": ["single_choice", "multiple_choice"]},
-    "matching": {"const": "set_equality"},
-    "selection_mode": {"enum": ["single", "multiple", "unspecified"]},
-    "target_ref": {"type": "string", "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"},
-    "options": {"type": "array", "minItems": 2, "maxItems": 32, "items": {
-      "type": "object", "additionalProperties": false, "required": ["label", "text"],
-      "properties": {"label": {"type": "string", "pattern": "\\S"}, "text": {"type": "string", "pattern": "\\S"}}
-    }},
-    "correct_labels": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "\\S"}}
+    "status": {
+      "const": "matched"
+    },
+    "kind": {
+      "enum": [
+        "single_choice",
+        "multiple_choice"
+      ]
+    },
+    "matching": {
+      "const": "set_equality"
+    },
+    "selection_mode": {
+      "enum": [
+        "single",
+        "multiple",
+        "unspecified"
+      ]
+    },
+    "target_ref": {
+      "type": "string",
+      "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "text"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "text": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        }
+      }
+    },
+    "correct_labels": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "\\S"
+      }
+    }
   },
-  "allOf": [{"if": {"properties": {"selection_mode": {"const": "single"}}},
-    "then": {"properties": {"kind": {"const": "single_choice"}, "correct_labels": {"minItems": 1, "maxItems": 1}}},
-    "else": {"properties": {"kind": {"const": "multiple_choice"}}}
-  }]
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selection_mode": {
+            "const": "single"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "kind": {
+            "const": "single_choice"
+          },
+          "correct_labels": {
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "kind": {
+            "const": "multiple_choice"
+          }
+        }
+      }
+    }
+  ]
 }

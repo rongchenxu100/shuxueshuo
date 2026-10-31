@@ -231,6 +231,8 @@ def _display_sources(state, frame, *, start=0, scope=None, exclude=()):
 
 
 def _publish(state, frame, step, action, bindings):
+    if frame.get('fold_display'):
+        return
     if frame['method'] == 'method-domain-intersection' and bindings.get('context', {}).get('suppress_domain_display'):
         return
     action_trace = None
@@ -313,6 +315,7 @@ def _case_frame(parent, descriptor, specification, step_index, end_index):
         case_end=end_index,
         case_specification=deepcopy(specification),
         descriptor=encode_value(descriptor),
+        fold_display=parent.get('fold_display', False),
         binding_sources=deepcopy(parent["binding_sources"]),
         case_source_refs=sorted(set(parent.get("case_source_refs", []))
                                 | _binding_sources(parent, {specification["source"]})),
@@ -665,6 +668,7 @@ def _advance(state, contracts):
                 "call_index": len(trace["calls"]) - 1,
             }
             child = _frame(action["public_ref"], inputs, seq)
+            child['fold_display'] = frame.get('fold_display', False) or action.get('presentation') == 'fold'
             child["case_path"] = deepcopy(frame["case_path"])
             child["case_source_refs"] = deepcopy(frame.get("case_source_refs", []))
             if frame.get('option_context'):

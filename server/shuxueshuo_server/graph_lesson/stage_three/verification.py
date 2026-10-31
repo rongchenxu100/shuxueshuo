@@ -998,6 +998,12 @@ def verify(candidate, target_ref, constraint_context, feasible_set):
             },
             "diagnostics": [],
         }
+    if _source(candidate, target_ref).get('kind') == 'find_translation_range':
+        from .translation_range import independent_verify
+        return independent_verify(candidate, target_ref, feasible_set)
+    if _source(candidate, target_ref).get('kind') == 'find_abstract_range':
+        from .abstract_function_range import independent_verify
+        return independent_verify(candidate, target_ref, feasible_set)
     if _source(candidate, target_ref).get('kind') == 'find_range' and 'object' in _source(candidate, target_ref):
         from .function_range import independent_verify
         return independent_verify(candidate, target_ref, constraint_context, feasible_set)
@@ -1090,6 +1096,12 @@ def endpoint_check(candidate, target_ref, feasible_set):
         from .abstract_function_domain import abstract_domain_endpoints
 
         return abstract_domain_endpoints(candidate, target_ref, feasible_set)
+    if _source(candidate, target_ref).get('kind') == 'find_translation_range':
+        from .translation_range import image_endpoints
+        return image_endpoints(candidate, target_ref, feasible_set)
+    if _source(candidate, target_ref).get('kind') == 'find_abstract_range':
+        from .abstract_function_range import image_endpoints
+        return image_endpoints(candidate, target_ref, feasible_set)
     if _source(candidate, target_ref).get('kind') == 'find_range' and 'object' in _source(candidate, target_ref):
         from .function_range import image_endpoints
         return image_endpoints(candidate, target_ref, feasible_set)

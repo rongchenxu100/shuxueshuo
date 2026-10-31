@@ -1,5 +1,5 @@
 {
-  "contentVersion": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22",
+  "contentVersion": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -8,9 +8,9 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 22,
+    "method": 26,
     "problem_type": 14,
-    "judgment_rule": 2,
+    "judgment_rule": 3,
     "collection": 1
   },
   "files": [
@@ -52,6 +52,9 @@
     "method-domain-intersection/index.html",
     "method-domain-parameter/index.html",
     "method-elimination/index.html",
+    "method-equation-real-root-range/index.html",
+    "method-finite-range/index.html",
+    "method-fraction-split-range/index.html",
     "method-fraction-split/index.html",
     "method-function-equality/index.html",
     "method-function-evaluation/index.html",
@@ -71,6 +74,7 @@
     "method-substitution/index.html",
     "method-sum-product-range/index.html",
     "method-sum-product/index.html",
+    "method-translation-range/index.html",
     "method-variable-swap/index.html",
     "nodes/index.html",
     "piecewise-function/index.html",
@@ -84,6 +88,7 @@
     "real-order/index.html",
     "reciprocal-function/index.html",
     "reciprocal-sum-function/index.html",
+    "rule-function-range-method/index.html",
     "rule-interval-skill/index.html",
     "rule-quadratic-method/index.html",
     "section-1-1/index.html",

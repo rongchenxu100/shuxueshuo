@@ -191,6 +191,7 @@ def test_function_context_switches_from_original_relation_to_child_without_revea
         assert part['stem_board']['items'][1]['math'] is None
 
 
+@pytest.mark.stage_three_db
 @pytest.mark.parametrize('index', [0, 1, 2, 3, 10, 14, 16, 17])
 def test_substitution_lesson_executes_real_child_method(tmp_path, index):
     from shuxueshuo_server.graph_lesson.stage_three import runner

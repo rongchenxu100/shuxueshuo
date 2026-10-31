@@ -4,14 +4,19 @@ from copy import deepcopy
 
 from ...problem_understanding.notation_compile import NotationValidator
 from ...problem_understanding.notation_parser import NotationError, definition
-from ..range_syntax import expression_family, range_domain, substitution_family
+from ..range_syntax import (
+    expression_family,
+    range_domain,
+    rational_family,
+    substitution_family,
+)
 from . import contracts
 from .function_domain import (
     expression_latex,
     source_pointer,
 )
 
-VERSION = 'function-range-substitution/v3'
+VERSION = 'function-range-fraction/v7'
 
 
 def _domain(ast):
@@ -55,15 +60,6 @@ def describe_range_goal(report, scope, ancestors, goal_index):
         if any(item.get('uncertainties') for item in visible):
             raise NotationError('range.unresolved_source')
         _budget(body)
-        if relation:
-            value.update(substitution_family(body, relation_input=source['value'][2]))
-            value['relation_input_ast'] = deepcopy(source['value'][2])
-        else:
-            try:
-                family = expression_family(body)
-            except NotationError:
-                family = substitution_family(body)
-            value.update(family)
         for row in records:
             if row is source:
                 continue
@@ -80,6 +76,21 @@ def describe_range_goal(report, scope, ancestors, goal_index):
             else:
                 raise NotationError('range.additional_conditions_unsupported')
         _domain(value['input_domain_ast'])
+        if relation:
+            value.update(substitution_family(body, relation_input=source['value'][2]))
+            value['relation_input_ast'] = deepcopy(source['value'][2])
+        else:
+            try:
+                family = expression_family(body)
+            except NotationError:
+                try:
+                    family = substitution_family(body)
+                except NotationError:
+                    scope_domain = range_domain(value['declared_domain_ast']) & range_domain(value['input_domain_ast'])
+                    for restriction in value['restriction_facts']:
+                        scope_domain &= range_domain(restriction['domain_ast'])
+                    family = rational_family(body, finite=scope_domain.is_FiniteSet)
+            value.update(family)
         if relation and (value['declared_domain_ast'] != ['real'] or value['input_domain_ast'] != ['real']
                          or value['restriction_facts']):
             raise NotationError('range.full_real_input_relation_required')

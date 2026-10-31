@@ -375,6 +375,7 @@ const GOALS = {
   find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_domain: g => `${math(g.target_call)} 的定义域${g.input_domain ? `（题设另限外层自变量范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_range: g => `${math(g.target_call)} 的值域`,
+  find_translation_range: g => `${math(g.function_relation.split('=')[0])} 在 ${math(g.input_domain)} 上的值域`,
   find_abstract_domain_parameter: g => `${math(g.parameter)} 的取值范围`,
   find_range: g => g.object
     ? `${math(g.object)} 的值域${g.input_domain ? `（题设输入范围 ${math(g.input_domain)}）` : ''}`
@@ -397,6 +398,9 @@ function meaningBlocks(scope, title, blocks) {
   const known = [...(scope.definitions || []), ...(scope.facts || [])].map(knownLine);
   const abstractGivens = new Set();
   const goals = (scope.goals || []).map(goal => {
+    if (goal.kind === 'find_translation_range') {
+      return `已知 ${math(goal.function_relation)}，${math(goal.periodic_function)} 定义在 ${math(goal.periodic_domain)} 上、以 ${math(goal.period)} 为周期；基础区间 ${math(goal.known_domain)} 上的值域为 ${math(goal.known_range)}；求 ${goalLine(goal)}`;
+    }
     if (['find_abstract_domain', 'find_abstract_range', 'find_abstract_domain_parameter'].includes(goal.kind)) {
       let given = goal.strength === 'meaningful_only'
         ? `${math(goal.known_call)} 在 ${math(goal.known_domain)} 上有意义`
@@ -509,7 +513,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261030-pairing-diagram';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261030-range-selection';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;

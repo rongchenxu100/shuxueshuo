@@ -123,11 +123,18 @@
     "/topics/function-concepts/q03r/",
     "/topics/function-concepts/q04/",
     "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
     "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
     "/topics/function-concepts/q11/",
     "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
     "/topics/function-concepts/q15/",
     "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
     "/topics/function-concepts/q19/",
     "/topics/function-concepts/q20/",
     "/topics/function-concepts/q22/",
@@ -141,5 +148,5 @@
     "/topics/function-concepts/q29b/",
     "/topics/function-concepts/variant02/"
   ],
-  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22"
+  "content_version": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91"
 }

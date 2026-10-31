@@ -206,7 +206,7 @@
   // work as in quadraticGraph; the branch near x = 0 simply leaves the window.
   // asymptotes draws the two lines the curve approaches: the y-axis (x → 0⁺) and y = a·x + c (x → +∞).
   // negative draws the x < 0 branch instead (such as −x − 2/x, a hook opening upward on the left).
-  function reciprocalSumGraph({a, b, c = 0, bounds, interval = null, xTicks = [], variable = 'x', title, description, uid, referenceLines = [], points = [], asymptotes = false, negative = false, interval_closed: closed = null}) {
+  function reciprocalSumGraph({a, b, c = 0, bounds, interval = null, xTicks = [], yTicks = [], variable = 'x', outputVariable = 'y', title, description, uid, referenceLines = [], points = [], asymptotes = false, negative = false, interval_closed: closed = null, pieces = null}) {
     interval = bounded(interval);
     const [xmin, xmax, ymin, ymax] = bounds;
     const x = value => 48 + (value - xmin) / (xmax - xmin) * 270;
@@ -216,6 +216,15 @@
     const samples = negative ? sampleRange(xmin, Math.min(xmax, -gap), interval || [], 240) : sampleRange(Math.max(xmin, gap), xmax, interval || [], 240);
     const path = values => values.map((value, i) => `${i ? 'L' : 'M'}${x(value).toFixed(3)} ${Math.max(-400, Math.min(700, y(f(value)))).toFixed(3)}`).join(' ');
     const focus = interval ? samples.filter(value => value >= interval[0] && value <= interval[1]) : samples;
+    // An explicit union draws each allowed interval independently. Neither the
+    // pole nor any excluded input gap may be joined by a line segment.
+    const sample = (from, to) => from < to ? sampleRange(from, to, [], 240) : [];
+    const references = pieces ? [sample(xmin, Math.min(xmax, -gap)), sample(Math.max(xmin, gap), xmax)] : [samples];
+    const focused = pieces ? pieces.map(piece => {
+      const leftBranch = piece.to !== null && piece.to <= 0;
+      return sample(Math.max(xmin, piece.from ?? xmin, leftBranch ? xmin : gap),
+        Math.min(xmax, piece.to ?? xmax, leftBranch ? -gap : xmax));
+    }) : [focus];
     const exit = negative
       ? (a > 0 ? Math.max(xmin, (ymin - c) / a) : a < 0 ? Math.max(xmin, (ymax - c) / a) : xmin)
       : (a > 0 ? Math.min(xmax, (ymax - c) / a) : a < 0 ? Math.min(xmax, (ymin - c) / a) : xmax);
@@ -228,20 +237,21 @@
       <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
       <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
       <g clip-path="url(#${id}-clip)">
-        ${intervalGuides(interval, x, closed)}
+        ${pieces ? points.map(point => `<path class="reciprocal-projection" d="M${x(point.x)} ${y(0)}V${y(f(point.x))}H${x(0)}" fill="none" stroke="#7fa79c" stroke-width="1.3" stroke-dasharray="3 4"/>`).join('') : intervalGuides(interval, x, closed)}
         ${referenceLines.map(line => `<path class="graph-reference" d="M48 ${y(line.value)}H318" fill="none" stroke="#b6782c" stroke-width="2" stroke-dasharray="6 4"/>`).join('')}
         ${asymptotes ? `<path class="graph-asymptote" d="M${x(0)} 48V${y(c)}" fill="none" stroke="#b6782c" stroke-width="2" stroke-dasharray="6 4"/><path class="graph-asymptote" d="M${x(0)} ${y(c)}L${x(exit)} ${y(a * exit + c)}" fill="none" stroke="#b6782c" stroke-width="2" stroke-dasharray="6 4"/>` : ''}
-        ${interval ? `<path class="graph-outside" d="${path(samples)}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".3"/>` : ''}
-        <path class="reciprocal-curve" d="${path(focus)}" fill="none" stroke="#07847d" stroke-width="3"/>
+        ${interval || pieces ? references.filter(values => values.length).map(values => `<path class="graph-outside" d="${path(values)}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".3"/>`).join('') : ''}
+        ${focused.filter(values => values.length).map(values => `<path class="reciprocal-curve" d="${path(values)}" fill="none" stroke="#07847d" stroke-width="3"/>`).join('')}
         ${points.map(point => `<circle class="graph-point" cx="${x(point.x)}" cy="${y(f(point.x))}" ${pointDot(point)}/>`).join('')}
       </g>
       <g fill="#526e64" font-family="Georgia,serif" font-size="14">
         ${xTicks.map(([value, label]) => `<text x="${x(value)}" y="${y(0)+21}" text-anchor="${value === 0 ? 'end' : 'middle'}" dx="${value === 0 ? -8 : 0}">${escape(label)}</text>`).join('')}
+        ${yTicks.map(([value, label]) => `<text x="${x(0)-8}" y="${y(value)+5}" text-anchor="end">${escape(label)}</text>`).join('')}
         ${referenceLines.map(line => `<text x="312" y="${y(line.value)-8}" text-anchor="end" fill="#99611f">${escape(line.label)}</text>`).join('')}
         ${asymptotes ? `<text x="${x(exit) + (negative ? 6 : -6)}" y="${y(a * (exit + inward) + c) + 18}" text-anchor="${negative ? 'start' : 'end'}" fill="#99611f">y = ${a === 1 ? '' : a === -1 ? '−' : a}${escape(variable)}${c > 0 ? ` + ${c}` : c < 0 ? ` − ${-c}` : ''}</text>` : ''}
         ${pointLabels(points, x, value => y(f(value)))}
         <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
-        <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
+        <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">${escape(outputVariable)}</text>
       </g>
     </svg>`;
   }
@@ -456,7 +466,13 @@
           Number.isFinite(value.scale) && value.scale !== 0 && Number.isFinite(value.offset));
     }
     if (spec.kind === 'reciprocal_sum') return Number.isFinite(p.a) && Number.isFinite(p.b) && p.b !== 0 && boolean(p.negative) &&
-      optional(p, 'c', Number.isFinite) && !p.points.some(point => point.x === 0);
+      optional(p, 'c', Number.isFinite) && optional(p, 'outputVariable', string) && optional(p, 'yTicks', ticks) &&
+      optional(p, 'pieces', value => array(value, piece => object(piece) && interval([piece.from, piece.to]) &&
+        boolean(piece.left_closed) && boolean(piece.right_closed) &&
+        (piece.from !== null || !piece.left_closed) && (piece.to !== null || !piece.right_closed) &&
+        !((piece.from ?? -Infinity) < 0 && (piece.to ?? Infinity) > 0) &&
+        !(piece.from === 0 && piece.left_closed) && !(piece.to === 0 && piece.right_closed))) &&
+      !p.points.some(point => point.x === 0);
     return Number.isFinite(p.coefficient) && p.coefficient !== 0 && tuple(p.vertex, 2, Number.isFinite) && ticks(p.xTicks) &&
       optional(p, 'yLabel', string) && optional(p, 'vertexLabel', string) &&
       optional(p, 'domain', interval) && optional(p, 'excluded', value => array(value, Number.isFinite)) &&

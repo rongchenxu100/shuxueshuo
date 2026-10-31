@@ -4,6 +4,9 @@
   "inputs": {
     "context": {
       "role": "constraint_context"
+    },
+    "abstract_mode": {
+      "role": "abstract_range_mode"
     }
   },
   "steps": [
@@ -25,7 +28,12 @@
             "mapping": "mapping",
             "child_context": "child_context"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          },
+          "skip_reason": "abstract_range_uses_known_image"
         }
       ],
       "judgments": [],
@@ -55,7 +63,11 @@
             "function",
             "variable",
             "domain"
-          ]
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          }
         },
         {
           "id": "substitution_domain",
@@ -82,7 +94,11 @@
             "function",
             "variable",
             "domain"
-          ]
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          }
         },
         {
           "id": "substitution_rewrite",
@@ -109,7 +125,11 @@
             "function",
             "variable",
             "domain"
-          ]
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          }
         },
         {
           "id": "substitution_borrow",
@@ -136,7 +156,11 @@
             "function",
             "variable",
             "domain"
-          ]
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          }
         }
       ]
     },
@@ -153,7 +177,12 @@
           "outputs": {
             "image": "candidate_set"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          },
+          "skip_reason": "abstract_range_uses_known_image"
         }
       ],
       "judgments": [],
@@ -173,9 +202,35 @@
           },
           "outputs": {
             "range": "range",
-            "feasible_set": "feasible_set"
+            "concrete_set": "feasible_set"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          },
+          "skip_reason": "abstract_range_uses_known_image"
+        },
+        {
+          "id": "transfer",
+          "capability": "transfer_abstract_range",
+          "public_ref": "method-substitution",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "abstract_description": "description",
+            "abstract_function": "function",
+            "abstract_variable": "variable",
+            "abstract_domain": "domain",
+            "abstract_set": "feasible_set"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": true
+          },
+          "skip_reason": "explicit_function_uses_child_method"
         }
       ],
       "judgments": [],
@@ -206,7 +261,104 @@
             "function",
             "variable",
             "domain"
-          ]
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": false
+          }
+        },
+        {
+          "id": "abstract_inputs",
+          "after": "transfer",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "abstract_inputs",
+            "description": "$abstract_description",
+            "function": "$abstract_function",
+            "variable": "$abstract_variable",
+            "domain": "$abstract_domain"
+          },
+          "depends_on": [
+            "abstract_description",
+            "abstract_function",
+            "abstract_variable",
+            "abstract_domain"
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": true
+          }
+        },
+        {
+          "id": "abstract_coverage",
+          "after": "transfer",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "abstract_coverage",
+            "description": "$abstract_description",
+            "function": "$abstract_function",
+            "variable": "$abstract_variable",
+            "domain": "$abstract_domain"
+          },
+          "depends_on": [
+            "abstract_description",
+            "abstract_function",
+            "abstract_variable",
+            "abstract_domain"
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": true
+          }
+        },
+        {
+          "id": "abstract_return",
+          "after": "transfer",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "abstract_return",
+            "description": "$abstract_description",
+            "function": "$abstract_function",
+            "variable": "$abstract_variable",
+            "domain": "$abstract_domain"
+          },
+          "depends_on": [
+            "abstract_description",
+            "abstract_function",
+            "abstract_variable",
+            "abstract_domain"
+          ],
+          "guard": {
+            "ref": "abstract_mode",
+            "equals": true
+          }
         }
       ]
     },
@@ -214,7 +366,33 @@
       "id": "verify",
       "calls": [],
       "judgments": [],
-      "display_units": []
+      "display_units": [],
+      "merges": [
+        {
+          "id": "return_image",
+          "order": 0,
+          "branches": [
+            {
+              "guard": {
+                "ref": "abstract_mode",
+                "equals": false
+              },
+              "bindings": {
+                "feasible_set": "$concrete_set"
+              }
+            },
+            {
+              "guard": {
+                "ref": "abstract_mode",
+                "equals": true
+              },
+              "bindings": {
+                "feasible_set": "$abstract_set"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "outputs": {
@@ -235,6 +413,9 @@
     "bindings": {
       "context": {
         "resolver": "constraint_context"
+      },
+      "abstract_mode": {
+        "resolver": "abstract_range_mode"
       }
     },
     "checks": [

@@ -1,9 +1,10 @@
-import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261028-domain-overlap';
+import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261031-fraction-methods';
+import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261030-range-selection';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
 import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261030-pairing-diagram';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
-import {buildStreamReplay} from './walk-replay.mjs?v=20261030-range-prerequisite';
+import {buildStreamReplay} from './walk-replay.mjs?v=20261030-range-selection';
 import {optionProgress, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';
@@ -14,7 +15,7 @@ const $ = selector => document.querySelector(selector);
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character]));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 959px)');
-const copyAnswer = answer => Array.isArray(answer) ? [...answer] : answer;
+const copyAnswer = answer => answer == null ? answer : structuredClone(answer);
 let bundle, state, studentState, graph, graphView;
 let draft = null, draftKey = '', selectedSlot = null, submitted = null, busy = false;
 let reviewOption = null;
@@ -257,6 +258,7 @@ function emptyAnswer(decision) {
   if (component.type === 'read') return 'read';
   if (component.type === 'choice') return null;
   if (['multi', 'original_choice_exact_set'].includes(component.type)) return [];
+  if (component.type === 'method_cards') return emptyMethodAnswer(decision);
   if (component.type === 'plane') return ['', '', ''];
   if (component.type === 'grid') return ['', ''];
   return Array(component.slots?.length ?? component.slot_labels?.length ?? 2).fill('');
@@ -288,6 +290,7 @@ function gridChoice(decision, answer) {
 }
 
 function ready(decision) {
+  if (decision.interaction.type === 'method_cards') return draft.confirmed === decision.interaction.checks.length && Boolean(draft.method);
   if (decision.interaction.type === 'read') return true;
   if (decision.interaction.type === 'choice') return draft != null;
   if (decision.interaction.type === 'multi') return draft.length > 0;
@@ -297,6 +300,7 @@ function ready(decision) {
 
 function projectDraft(decision, answer) {
   const empty = emptyAnswer(decision);
+  if (decision.interaction.type === 'method_cards') return projectMethodAnswer(decision, answer);
   if (decision.interaction.type === 'read') return 'read';
   if (decision.interaction.type === 'choice') return typeof answer === 'string' ? answer : empty;
   if (!Array.isArray(answer)) return empty;
@@ -323,6 +327,7 @@ function choiceLabel(component, answer, index = 0) {
 }
 
 function answerSummary(decision, answer) {
+  if (decision.interaction.type === 'method_cards') return selectedMethod(decision, answer)?.label || '';
   if (decision.interaction.type === 'read') {
     const method = decision.interaction.methods?.find(item => item.route) || decision.interaction.methods?.[0];
     if (method?.label) return method.label;
@@ -433,6 +438,7 @@ function completedHTML(record, number, runId, route) {
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
     : decision.display ? template(decision.display, uid)
     : decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, record.answer)
+    : decision.interaction.type === 'method_cards' ? methodCardsHTML(decision, record.answer, false)
     : decision.interaction.type === 'plane' ? planeHTML(decision, record.answer, false)
     : `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${methodNote}`;
   const results = decision.source !== 'stream' && !decision.display && !decision.completion_board ? (record.results || []).map(resultText).filter(Boolean).map(text => `<p class="gw-result" data-math-text>${escapeHTML(text)}</p>`).join('') : '';
@@ -525,6 +531,7 @@ function interactionHTML(decision) {
   const board = template(decision.board, `gw-${activeRunId()}-${decision.id}-active`);
   if (['choice', 'multi'].includes(component.type) && optionsOf(component).some(option => option.graph)) return board + graphOptionsHTML(decision);
   if (component.type === 'choice') return board + textOptionsHTML(decision);
+  if (component.type === 'method_cards') return board + methodCardsHTML(decision, draft);
   if (component.type === 'plane') return board + planeHTML(decision, draft);
   if (component.type === 'grid') return board + gridHTML(decision, draft);
   if (['multi', 'original_choice_exact_set'].includes(component.type)) {
@@ -1200,6 +1207,17 @@ function changeDraft(action) {
   if (options.stream || options.progressScope) park();
 }
 
+function confirmMethodCondition(decision, count) {
+  const error = checkMethodAnswers(decision, draft, count);
+  if (error) {
+    state.lastFeedback = {status: 'wrong', message: error, decision: decision.id};
+    submitted = {decision: decision.id, answer: copyAnswer(draft)};
+    $('#gw-announcement').textContent = error;
+    return;
+  }
+  draft.confirmed = count; state.lastFeedback = null;
+}
+
 function submit() {
   const decision = currentDecision(bundle, state);
   if (!decision || actor !== 'student' || busy || reviewOption || !ready(decision)) return;
@@ -1682,7 +1700,12 @@ function bind() {
         : button.dataset.planeCell != null ? `[data-plane-cell="${CSS.escape(button.dataset.planeCell)}"]`
         : button.dataset.gridCell != null ? `[data-grid-cell="${CSS.escape(button.dataset.gridCell)}"]`
           : button.dataset.planeMethod != null ? `[data-plane-method="${CSS.escape(button.dataset.planeMethod)}"]` : null;
-    if (button.hasAttribute('data-choice')) changeDraft(() => { draft = button.dataset.value; });
+    if (button.hasAttribute('data-method-check')) changeDraft(() => {
+      const i = Number(button.dataset.methodCheck); draft.checks[i] = button.dataset.value; draft.confirmed = i; draft.method = ''; state.lastFeedback = null;
+    });
+    else if (button.hasAttribute('data-method-confirm')) changeDraft(decision => confirmMethodCondition(decision, Number(button.dataset.methodConfirm) + 1));
+    else if (button.hasAttribute('data-card-method')) changeDraft(() => { draft.method = button.dataset.cardMethod; });
+    else if (button.hasAttribute('data-choice')) changeDraft(() => { draft = button.dataset.value; });
     else if (button.hasAttribute('data-pair-answer')) changeDraft(() => { draft[Number(button.dataset.pairAnswer)] = button.dataset.value; });
     else if (button.hasAttribute('data-multi')) changeDraft(() => { const value = button.dataset.multi; draft = draft.includes(value) ? draft.filter(item => item !== value) : [...draft, value]; });
     else if (button.hasAttribute('data-plane-cell')) changeDraft(decision => {
@@ -1706,6 +1729,7 @@ function bind() {
     if (!button || actor !== 'student' || busy) return;
     rememberStreamDraft();
     state = switchRoute(bundle, state, button.dataset.route); studentState = state;
+    options.onRouteChange?.(walkView());
     draftKey = ''; submitted = null; render({focus: true});
   });
   $('#gw-undo').addEventListener('click', () => {
@@ -1820,6 +1844,8 @@ function streamReplay() {
 
 export function walkView() {
   return {actor, route: state?.run?.route || null, target_ref: options.stream?.target_ref,
+    practice_answers: [...(state?.introCompleted || []), ...(state?.run?.completed || [])]
+      .map(entry => ({decision: entry.decision, answer: structuredClone(entry.answer)})),
     bundle_version: bundle?.bundleVersion, done: Boolean(state?.done),
     problem_id: bundle?.problemId, teaching_context: teachingContext(bundle, state),
     base_bundle_version: bundle?.stream?.base_bundle_version || bundle?.bundleVersion,
@@ -1903,7 +1929,7 @@ export function chooseStreamRoute(route) {
   rememberStreamDraft(); rememberReplayRoute();
   stopReplay(); ++replayTicket;
   state = switchRoute(bundle, state, route);
-  if (actor === 'student') studentState = state;
+  if (actor === 'student') { studentState = state; options.onRouteChange?.(walkView()); }
   else {
     replayRoute = route; replay = streamReplay();
     replayPosition = Math.min(replayRoutes[route] ?? replay.actions.length, replay.actions.length);

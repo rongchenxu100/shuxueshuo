@@ -392,6 +392,21 @@
         },
         "negative": {
           "type": "boolean"
+        },
+        "pieces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/numberLinePiece"
+          }
+        },
+        "outputVariable": {
+          "$ref": "#/$defs/text"
+        },
+        "yTicks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/graphTick"
+          }
         }
       }
     },

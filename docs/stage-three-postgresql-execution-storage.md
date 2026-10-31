@@ -60,6 +60,8 @@ uv run --offline python -m shuxueshuo_server.graph_lesson.stage_three.cli \
 
 以下测试需要已迁移的独立 PostgreSQL，缺少配置直接失败，不以跳过视作通过。示例在 `server/` 执行：
 
+纯数学与整课测试混合的模块，应为调用执行存储的用例加 `@pytest.mark.stage_three_db`。选中这些用例时，同样启用模块级隔离库和逐例清理；仅运行纯数学测试可使用 `-m 'not stage_three_db'`，无需连接数据库。
+
 ```bash
 PRODUCT_TEST_DATA_DIR=/private/tmp/sss-search-acceptance \
 PRODUCT_TEST_INSTANCE=search-acceptance RUN_LLM_INTEGRATION=0 \

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q18",
+  "title": "平移关系求值域 · Q18",
+  "page": "/topics/function-concepts/q18/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-concepts-range-q18.evidence.json",
+  "statement": "设$g(x)$是定义在$\\mathbb{R}$上、以$1$为周期的函数，若$f(x)=x+g(x)$在$[3,4]$上的值域为$[-2,5]$，则$f(x)$在区间$[-10,10]$上的值域为________。"
+}

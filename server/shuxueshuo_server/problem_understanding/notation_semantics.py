@@ -291,6 +291,11 @@ class Canonical:
             if is_evaluation_goal(g):
                 goals.append(canonical_evaluation(g, self.aliases))
                 continue
+            if g['kind'] == 'find_translation_range':
+                from .notation_translation_range import canonical_translation_range
+
+                goals.append(canonical_translation_range(g))
+                continue
             if g['kind'] == 'compare_functions':
                 from .notation_function_comparison import canonical_comparison
 

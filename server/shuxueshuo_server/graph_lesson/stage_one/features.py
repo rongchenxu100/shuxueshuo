@@ -16,6 +16,8 @@ from ...problem_understanding.notation_semantics import Canonical, bounded_expan
 from . import contracts
 from .abstract_function_domain import VERSION as ABSTRACT_DOMAIN_VERSION
 from .abstract_function_domain import describe_abstract_domain_goal
+from .abstract_function_range import VERSION as ABSTRACT_RANGE_VERSION
+from .abstract_function_range import describe_abstract_range_goal
 from .function_domain import VERSION as DOMAIN_VERSION
 from .function_domain import describe_domain_goal
 from .function_domain_parameter import VERSION as DOMAIN_PARAMETER_VERSION
@@ -24,8 +26,8 @@ from .function_equality import VERSION as COMPARISON_VERSION
 from .function_equality import describe_comparison_goal
 from .function_evaluation import VERSION as EVALUATION_VERSION
 from .function_evaluation import describe_evaluation_goal
-
-from .function_range import VERSION as RANGE_VERSION, describe_range_goal
+from .function_range import VERSION as RANGE_VERSION
+from .function_range import describe_range_goal
 
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
@@ -47,6 +49,16 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('translation_range', ('goal',), 'translation_range',
+                ('function-concept#elements', 'function-range-extrema#attainability'),
+                '按整数平移传递已知完整值域', version='translation-range/v1',
+                supported_structures=('linear_plus_periodic_function',),
+                computation_boundary='source-bound periodic identity and range assertions only'),
+    FeatureSpec('abstract_function_range', ('goal',), 'abstract_function_range',
+                ('function-concept#elements', 'function-concept#composite-domain'),
+                '检验新输入覆盖原定义域后传递已知值域', version=ABSTRACT_RANGE_VERSION,
+                supported_structures=('known_range_affine_input_transfer',),
+                computation_boundary='original known domain, range and affine input syntax only'),
     FeatureSpec('function_range', ('goal',), 'function_range',
                 ('function-concept#elements', 'function-range-extrema#attainability'),
                 '确定给定输入范围内的全部函数输出', version=RANGE_VERSION,
@@ -460,6 +472,15 @@ def _scope_features(report, candidate, scope, ancestors, features):
             _produced[feature_id] = feature
             features.append(feature)
 
+        if goal['kind'] == 'find_translation_range':
+            from .translation_range import describe_translation_range
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            description = describe_translation_range(report, scope, ancestors, goal_index)
+            add('translation_range', description, source_refs=[target_ref, *description['source_refs']])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_translation_range_goal'}, source_refs=[target_ref])
+            continue
         goal_ast = goal["target"]
         if goal['kind'] == 'find_range' and goal_ast[:1] == ['ref'] and goal_ast[2] == 'function':
             add('goal', {'kind': 'find_range', 'object': goal_ast[1].rsplit(':', 1)[-1]}, source_refs=[target_ref])
@@ -509,15 +530,19 @@ def _scope_features(report, candidate, scope, ancestors, features):
                     add(spec.feature_id, diagnostic={'code': 'feature.not_quantified_comparison_goal'}, source_refs=[target_ref])
             continue
         if goal['kind'] == 'find_abstract_range':
-            # Preserve the requested output range as a distinct, known target.
-            # Its solving method is not implemented yet; domain features must
-            # not accidentally make this second goal executable via M2.
             add('goal', {'kind': 'find_abstract_range', 'known_form': None,
                          'strength': goal['strength']}, source_refs=[target_ref])
             produced['goal']['knowledge_refs'] = ['function-concept#elements']
+            description = describe_abstract_range_goal(report, scope, ancestors, goal_index)
+            produced['goal']['value']['known_form'] = description['known_form']
+            refs = [target_ref, *(description[key] for key in (
+                'known_call_source_ref', 'known_domain_source_ref', 'known_range_source_ref', 'target_call_source_ref'))]
+            if description['has_outer_domain']:
+                refs.append(target_ref + '/input_domain')
+            add('abstract_function_range', description, source_refs=refs)
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
-                    add(spec.feature_id, diagnostic={'code': 'feature.abstract_range_not_implemented'},
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_abstract_range_goal'},
                         source_refs=[target_ref])
             continue
         if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter'):

@@ -114,7 +114,9 @@ export function createDerivationBoard(document, board) {
   node.className = 'gw-derivation-board';
   node.dataset.state = board.items[1].math === null ? 'pending' : 'complete';
   node.setAttribute('aria-label', board.caption);
-  node.append(text(document, 'div', board.caption, 'gw-derivation-caption'));
+  const caption = text(document, 'div', board.caption, 'gw-derivation-caption');
+  caption.dataset.mathText = 'true';
+  node.append(caption);
   if (board.pairing_diagram) {
     node.dataset.layout = 'pairing';
     const arrow = text(document, 'div', '↓', 'gw-pairing-result-arrow');
@@ -189,10 +191,10 @@ export function routeAnswerSummary(answer = {}) {
       answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
     return {label: '各项比较已完成', formula: ''};
   }
-  if (['find_range', 'find_domain', 'find_abstract_domain', 'find_abstract_domain_parameter'].includes(answer.kind) && answer.status === 'set') {
+  if (['find_range', 'find_domain', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
     const label = ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：'
-      : answer.kind === 'find_range' && typeof answer.object === 'string' && answer.object.trim() ? '值域：' : '参数范围：';
+      : ['find_abstract_range', 'find_translation_range'].includes(answer.kind) || answer.kind === 'find_range' && typeof answer.object === 'string' && answer.object.trim() ? '值域：' : '参数范围：';
     return formula ? {label, formula} : null;
   }
   if (!['find_minimum', 'find_maximum'].includes(answer.kind)) return null;

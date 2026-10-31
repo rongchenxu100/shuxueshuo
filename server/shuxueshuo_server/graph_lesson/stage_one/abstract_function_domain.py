@@ -98,13 +98,13 @@ def _target_latex(target, variable):
     return expression_latex(substitute(target), variable, names=labels)
 
 
-def describe_abstract_domain_goal(report, scope, ancestors, goal_index):
+def describe_abstract_domain_goal(report, scope, ancestors, goal_index, *, range_goal=False):
     goal = scope["goals"][goal_index]
     if goal['kind'] == 'find_abstract_domain_parameter':
         from .abstract_domain_parameter import describe_abstract_domain_parameter
 
         return describe_abstract_domain_parameter(report, scope, ancestors, goal_index)
-    if goal["kind"] != "find_abstract_domain":
+    if goal["kind"] != ("find_abstract_range" if range_goal else "find_abstract_domain"):
         raise NotationError("abstract_domain.goal_required")
     scope_ref = source_pointer(scope["scope"])
     target_ref = f"{scope_ref}/goals/{goal_index}"
@@ -115,7 +115,7 @@ def describe_abstract_domain_goal(report, scope, ancestors, goal_index):
         raise NotationError("abstract_domain.function_call_required")
     function_name = known[1][1].rsplit(":", 1)[-1]
     value = {
-        "kind": "find_abstract_domain",
+        "kind": goal["kind"],
         "function_name": function_name,
         "function_ref": deepcopy(known[1]),
         "known_call_ast": deepcopy(known),
@@ -217,7 +217,7 @@ def describe_abstract_domain_goal(report, scope, ancestors, goal_index):
     return value
 
 
-def inspect_abstract_domain_target(candidate, target_ref):
+def inspect_abstract_domain_target(candidate, target_ref, *, range_goal=False):
     report = NotationValidator().validate_root(candidate.get("root"), contracts.schema()["$defs"])
     if not report.ok:
         raise NotationError("abstract_domain.invalid_candidate")
@@ -225,7 +225,7 @@ def inspect_abstract_domain_target(candidate, target_ref):
     def visit(scope, ancestors=()):
         for index, _ in enumerate(scope["goals"]):
             if f"{source_pointer(scope['scope'])}/goals/{index}" == target_ref:
-                return describe_abstract_domain_goal(report, scope, ancestors, index)
+                return describe_abstract_domain_goal(report, scope, ancestors, index, range_goal=range_goal)
         for child in scope["children"]:
             found = visit(child, (*ancestors, scope))
             if found is not None:

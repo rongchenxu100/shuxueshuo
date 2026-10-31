@@ -478,5 +478,52 @@ def _function_range_operation(name):
 
 
 for _name in ('prepare_function_range', 'polynomial_image', 'transform_function_range',
-              'prepare_range_substitution', 'return_range_substitution'):
+              'prepare_range_substitution', 'return_range_substitution',
+              'prepare_fraction_range', 'return_fraction_range'):
     REGISTRY[_name] = _function_range_operation(_name)
+
+
+def _range_equation_operation(name):
+    def run(**inputs):
+        from .. import range_equation
+        return getattr(range_equation, name)(**inputs)
+    return run
+
+
+for _name in ('prepare_equation_range', 'solve_equation_range'):
+    REGISTRY[_name] = _range_equation_operation(_name)
+
+
+def _solve_fraction_intermediate(**inputs):
+    from ..fraction_range import solve_fraction_intermediate
+    return solve_fraction_intermediate(**inputs)
+
+
+REGISTRY['solve_fraction_intermediate'] = _solve_fraction_intermediate
+
+
+def _transfer_abstract_range(context):
+    from ..abstract_function_range import transfer_abstract_range
+    return transfer_abstract_range(context)
+
+
+REGISTRY['transfer_abstract_range'] = _transfer_abstract_range
+
+
+def _finite_range_operation(name):
+    def run(**inputs):
+        from .. import finite_range
+        return getattr(finite_range, name)(**inputs)
+    return run
+
+
+for _name in ('prepare_finite_range', 'prepare_finite_input', 'collect_finite_range'):
+    REGISTRY[_name] = _finite_range_operation(_name)
+
+
+def _translate_range(context):
+    from ..translation_range import translate_range
+    return translate_range(context)
+
+
+REGISTRY['translate_range'] = _translate_range

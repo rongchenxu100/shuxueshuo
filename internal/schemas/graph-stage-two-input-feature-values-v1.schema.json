@@ -200,6 +200,18 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_translation_range"
+            }
+          },
+          "additionalProperties": false
         }
       ]
     },
@@ -1488,9 +1500,330 @@
               "type": "string"
             }
           }
+        },
+        "rational": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "denominators",
+            "fraction_split"
+          ],
+          "properties": {
+            "denominators": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "ast",
+                  "path"
+                ],
+                "properties": {
+                  "ast": {
+                    "type": "array"
+                  },
+                  "path": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            },
+            "fraction_split": {
+              "type": "boolean"
+            },
+            "linear_remainder": {
+              "type": "boolean"
+            },
+            "equation_denominator_ast": {
+              "type": "array"
+            }
+          }
         }
       },
       "additionalProperties": false
+    },
+    "abstract_function_range": {
+      "type": "object",
+      "required": [
+        "kind",
+        "function_name",
+        "function_ref",
+        "known_call_ast",
+        "known_argument_ast",
+        "known_domain_ast",
+        "known_strength",
+        "target_call_ast",
+        "target_argument_ast",
+        "outer_domain_ast",
+        "has_outer_domain",
+        "source_ref",
+        "known_call_source_ref",
+        "known_domain_source_ref",
+        "target_call_source_ref",
+        "structure_supported",
+        "reason",
+        "structure_version",
+        "known_form",
+        "variable",
+        "known_slope",
+        "known_intercept",
+        "target_form",
+        "target_latex",
+        "concrete_denominator_ast",
+        "denominator_slope",
+        "denominator_intercept",
+        "denominator_ast_path",
+        "concrete_denominator_latex",
+        "known_range_ast",
+        "known_range_source_ref"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_abstract_range"
+        },
+        "known_range_ast": {
+          "type": "array"
+        },
+        "known_range_source_ref": {
+          "type": "string"
+        },
+        "function_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "function_ref": {
+          "type": "array"
+        },
+        "known_call_ast": {
+          "type": "array"
+        },
+        "known_argument_ast": {
+          "type": "array"
+        },
+        "known_domain_ast": {
+          "type": "array"
+        },
+        "known_strength": {
+          "enum": [
+            "exact",
+            "meaningful_only"
+          ]
+        },
+        "target_call_ast": {
+          "type": "array"
+        },
+        "target_argument_ast": {
+          "type": "array"
+        },
+        "outer_domain_ast": {
+          "type": "array"
+        },
+        "has_outer_domain": {
+          "type": "boolean"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "known_call_source_ref": {
+          "type": "string"
+        },
+        "known_domain_source_ref": {
+          "type": "string"
+        },
+        "target_call_source_ref": {
+          "type": "string"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure_version": {
+          "const": "abstract-function-range-coverage/v1"
+        },
+        "known_form": {
+          "enum": [
+            "identity",
+            "affine",
+            null
+          ]
+        },
+        "target_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "variable": {
+          "type": "string"
+        },
+        "known_variable": {
+          "type": "string"
+        },
+        "known_argument_latex": {
+          "type": "string"
+        },
+        "target_argument_latex": {
+          "type": "string"
+        },
+        "input_range_latex": {
+          "type": "string"
+        },
+        "input_range_ready": {
+          "type": "boolean"
+        },
+        "known_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "known_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_form": {
+          "enum": [
+            "plain",
+            "affine_denominator",
+            "sqrt_affine_denominator",
+            null
+          ]
+        },
+        "target_latex": {
+          "type": "string"
+        },
+        "concrete_denominator_ast": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "denominator_slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "denominator_intercept": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "denominator_ast_path": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "concrete_denominator_latex": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "translation_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source_ref",
+        "target_ref",
+        "function_name",
+        "periodic_name",
+        "variable",
+        "structure_version",
+        "reason",
+        "slope",
+        "period",
+        "relation_ast",
+        "periodic_domain_ast",
+        "known_domain_ast",
+        "known_range_ast",
+        "input_domain_ast",
+        "structure_supported",
+        "source_refs"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "function_name": {
+          "type": "string"
+        },
+        "periodic_name": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "structure_version": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "slope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "period": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relation_ast": {
+          "type": "array"
+        },
+        "periodic_domain_ast": {
+          "type": "array"
+        },
+        "known_domain_ast": {
+          "type": "array"
+        },
+        "known_range_ast": {
+          "type": "array"
+        },
+        "input_domain_ast": {
+          "type": "array"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

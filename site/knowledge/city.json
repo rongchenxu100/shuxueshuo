@@ -145,7 +145,7 @@
         "skill": 0,
         "method": 0,
         "problem_type": 5,
-        "judgment_rule": 0
+        "judgment_rule": 1
       },
       "sections": [
         {

@@ -216,7 +216,7 @@ def append_boundary(state, evidence, *, feasible_set=None):
     records.append(operation)
     updated["trajectory"]["finalization"] = deepcopy(records)
     goal_kind = updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind")
-    if 'range_goal' in updated['trajectory'].get('constraint_context', {}):
+    if goal_kind in ('find_abstract_range', 'find_translation_range') or 'range_goal' in updated['trajectory'].get('constraint_context', {}):
         # The image card already displays endpoint attainment. Keep independent
         # evidence here without adding a duplicate parameter-boundary lesson.
         return updated
@@ -307,7 +307,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"):
+    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

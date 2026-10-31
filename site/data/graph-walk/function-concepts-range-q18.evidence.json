@@ -1,0 +1,1493 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+    "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+    "input_sha256": "7227fdb7de1f549bc3710223c86c4e54366a502bc07021ff830b0a582c13f81c",
+    "checkpoint_sha256": "2593f93d6e62d3dbe9393943c1c9fd076edde168bd6d642cbb4f7e0d8c8f3490",
+    "result_sha256": "b3f086b5f79e1c762b5a8dfb0d8b476fd3e3d7d3e52621cd539935fc2473d05a",
+    "stage_one_sha256": "5fa2918f0bbb458a0c608baf14cbd34a78d64370b1d93a1e424c186b2f1885bb",
+    "stage_two_sha256": "a54d5de40de49f65f4c39c5fb887666ee2e6e786768e0e9d055233cd5a74c300"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "18",
+        "status": "resolved",
+        "primary": "type-function-range",
+        "supported": [
+          "type-function-range"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 98,
+                  "end": 100,
+                  "text": "值域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:8"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求给定输入范围内，全部函数值组成的集合",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求自变量的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "9639b55674974ea3"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目要求求值域，需要确定什么？",
+          "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+          "summary": "先确定定义域，再求全部实际能取到的函数值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "要求原式有意义的全部输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          },
+          {
+            "type_id": "type-function-range",
+            "label": "求函数的值域",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+            ],
+            "choice_hint": "求给定定义域内的全部函数值"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-range-q18//root/goals/0",
+            "graphVersion": "6bb33254e03042c3ea7a9ea8cc269f2941904c963c8b9e37f5491e064de12fcd",
+            "problem": {
+              "text": "18. 设$g(x)$是定义在$\\mathbb{R}$上、以$1$为周期的函数，若$f(x)=x+g(x)$在$[3,4]$上的值域为$[-2,5]$，则$f(x)$在区间$[-10,10]$上的值域为________。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目要求求值域，需要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求给定输入范围内，全部函数值组成的集合"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求自变量的取值范围",
+                      "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-function-domain",
+                  "type-function-range",
+                  "type-abstract-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "先确定定义域，再求全部实际能取到的函数值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "要求原式有意义的全部输入"
+                    },
+                    {
+                      "value": "type-function-range",
+                      "label": "求函数的值域",
+                      "note": "求给定定义域内的全部函数值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-range"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-range"
+                  ],
+                  "edges": [
+                    "type-function-range|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-range-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数值域的选法判断",
+                  "summary": "先确定原定义域，再根据函数结构核验各条方法路线；多种适用方法均可选择。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-equation-real-root-range",
+                  "kind": "method",
+                  "label": "方程有实根法",
+                  "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "equation",
+                      "title": "转为输入方程",
+                      "calls": [
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "分次数求有解条件",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-fraction-split-range",
+                  "kind": "method",
+                  "label": "分式分离求值域法",
+                  "summary": "保留原定义域，分离常数；求分母或对勾函数的范围，再取倒数、还原并合并零点分支。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "separate",
+                      "title": "分离常数与整理分式",
+                      "calls": [
+                        "method-fraction-split"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求中间函数的范围",
+                      "calls": [
+                        "method-quadratic-interval-range",
+                        "skill-reciprocal-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "取倒数并还原值域",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-direct-range",
+                  "kind": "method",
+                  "label": "直接求值域法",
+                  "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "range",
+                      "title": "确定基本范围",
+                      "calls": [
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-finite-range",
+                  "kind": "method",
+                  "label": "枚举法",
+                  "summary": "确定有限的合法输入，逐一代入，收集并去重得到全部输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "列出全部合法输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "依次选择输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "evaluate",
+                      "title": "逐一代入求值",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "collect",
+                      "title": "收集输出并去重",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quadratic-interval-range",
+                  "kind": "method",
+                  "label": "二次函数区间值域法",
+                  "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "配方，判断顶点位置",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求区间值域",
+                      "calls": [
+                        "quadratic-interval-extremum"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range",
+                  "kind": "method",
+                  "label": "换元求值域法",
+                  "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "substitute",
+                      "title": "换元并确定范围",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求新变量下的值域",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "回到原函数值域",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-translation-range",
+                  "kind": "method",
+                  "label": "整段平移求值域法",
+                  "summary": "已知某一完整周期段上的值域；把这段按整数次平移铺满目标输入范围，再把各段值域合并。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "translate",
+                      "title": "整段平移并合并值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验铺满与可达性",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
+                  "from": "method-fraction-split-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range|calls|method-quadratic-interval-range",
+                  "from": "method-substitution-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-equation-real-root-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-equation-real-root-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "equation",
+                      "condition": "原定义域为实数全域，原分母为无实根二次式，分子至多二次。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-fraction-split-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-fraction-split-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "fraction",
+                      "condition": "常数商、至多一次余项和至多二次分母；常数余项求分母范围，一次余项通过换元与对勾函数等中间函数求范围，并合并合法零点输出。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-direct-range",
+                  "from": "type-function-range",
+                  "to": "method-direct-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-equation-real-root-range",
+                  "from": "type-function-range",
+                  "to": "method-equation-real-root-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-finite-range",
+                  "from": "type-function-range",
+                  "to": "method-finite-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-fraction-split-range",
+                  "from": "type-function-range",
+                  "to": "method-fraction-split-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-quadratic-interval-range",
+                  "from": "type-function-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-substitution-range",
+                  "from": "type-function-range",
+                  "to": "method-substitution-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-translation-range",
+                  "from": "type-function-range",
+                  "to": "method-translation-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|method_rule|rule-function-range-method",
+                  "from": "type-function-range",
+                  "to": "rule-function-range-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "26ea5d238a2f0accf320c46b51460c60230fd7a9a6dac60e90833cd2179426eb"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-range-q18//root/goals/0",
+            "bundleVersion": "26ea5d238a2f0accf320c46b51460c60230fd7a9a6dac60e90833cd2179426eb",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "先确定定义域，再求全部实际能取到的函数值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-range",
+                "reason": "选「求函数的值域」：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+    "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+    "input_sha256": "7227fdb7de1f549bc3710223c86c4e54366a502bc07021ff830b0a582c13f81c",
+    "stream_id": "81459a59d9a94afe8c613d07c0e875d3",
+    "last_seq": 17,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "translation_relation",
+        "explanation": "$g(x + k)=g(x)$\n$f(x + k)=k + f{\\left(x \\right)}$",
+        "highlight": {
+          "caption": "写出平移后的函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知条件",
+              "math": "\\begin{gathered}f(x)=x + g{\\left(x \\right)}\\\\g(x + 1)=g(x)\\\\k\\in\\mathbb Z\\end{gathered}"
+            },
+            {
+              "label": "平移后的函数值",
+              "math": "f(x + k)=k + f{\\left(x \\right)}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "local_check": "passed",
+        "math_step_sha256": "e88d63f52b36d204f6f54a6a2f0f4307a89c6ae1fc94314180c93a984c4d3394",
+        "method_ref": "method-translation-range#translate",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "2c60702a5d938291ab589ae2cee41bf9766bbbc815190575f6dede5b7cd353de",
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-translation-range-001-translation_relation",
+        "target_ref": "/root/goals/0",
+        "title": "写出平移后的函数值",
+        "used_basis": [
+          "function-concept#elements",
+          "function-range-extrema#attainability",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "translation_coverage",
+        "explanation": "$k=-13,-12,\\ldots,6$\n$k=-13:\\ \\left[-10, -9\\right]$\n$k=-12:\\ \\left[-9, -8\\right]$\n$k=-11:\\ \\left[-8, -7\\right]$\n$k=-10:\\ \\left[-7, -6\\right]$\n$k=-9:\\ \\left[-6, -5\\right]$\n$k=-8:\\ \\left[-5, -4\\right]$\n$k=-7:\\ \\left[-4, -3\\right]$\n$k=-6:\\ \\left[-3, -2\\right]$\n$k=-5:\\ \\left[-2, -1\\right]$\n$k=-4:\\ \\left[-1, 0\\right]$\n$k=-3:\\ \\left[0, 1\\right]$\n$k=-2:\\ \\left[1, 2\\right]$\n$k=-1:\\ \\left[2, 3\\right]$\n$k=0:\\ \\left[3, 4\\right]$\n$k=1:\\ \\left[4, 5\\right]$\n$k=2:\\ \\left[5, 6\\right]$\n$k=3:\\ \\left[6, 7\\right]$\n$k=4:\\ \\left[7, 8\\right]$\n$k=5:\\ \\left[8, 9\\right]$\n$k=6:\\ \\left[9, 10\\right]$\n$\\text{这些输入段合起来}=\\left[-10, 10\\right]$",
+        "highlight": {
+          "caption": "用平移盖住输入范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知区间与平移例子",
+              "math": "\\begin{gathered}\\text{已知区间}=\\left[3, 4\\right]\\\\k=-1\\ \\text{时向左平移 }1\\text{ 个单位}=\\left[2, 3\\right]\\\\k=1\\ \\text{时向右平移 }1\\text{ 个单位}=\\left[4, 5\\right]\\\\\\text{要求盖住}=\\left[-10, 10\\right]\\end{gathered}"
+            },
+            {
+              "label": "需要的平移次数",
+              "math": "\\begin{gathered}k=-13,-12,\\ldots,6\\\\k=-13\\ \\text{时的输入段}:\\ \\left[-10, -9\\right]\\\\\\vdots\\\\k=6\\ \\text{时的输入段}:\\ \\left[9, 10\\right]\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "local_check": "passed",
+        "math_step_sha256": "2bee4c86a503e34d930eadb11afa79fb5d4df94e59fb9778132bcd3b39f55ba7",
+        "method_ref": "method-translation-range#translate",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "2c60702a5d938291ab589ae2cee41bf9766bbbc815190575f6dede5b7cd353de",
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-translation-range-002-translation_coverage",
+        "target_ref": "/root/goals/0",
+        "title": "用平移盖住输入范围",
+        "used_basis": [
+          "function-concept#elements",
+          "function-range-extrema#attainability",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "translation_union",
+        "explanation": "$k=-13:\\ \\left[-15, -8\\right]$\n$k=-12:\\ \\left[-14, -7\\right]$\n$k=-11:\\ \\left[-13, -6\\right]$\n$k=-10:\\ \\left[-12, -5\\right]$\n$k=-9:\\ \\left[-11, -4\\right]$\n$k=-8:\\ \\left[-10, -3\\right]$\n$k=-7:\\ \\left[-9, -2\\right]$\n$k=-6:\\ \\left[-8, -1\\right]$\n$k=-5:\\ \\left[-7, 0\\right]$\n$k=-4:\\ \\left[-6, 1\\right]$\n$k=-3:\\ \\left[-5, 2\\right]$\n$k=-2:\\ \\left[-4, 3\\right]$\n$k=-1:\\ \\left[-3, 4\\right]$\n$k=0:\\ \\left[-2, 5\\right]$\n$k=1:\\ \\left[-1, 6\\right]$\n$k=2:\\ \\left[0, 7\\right]$\n$k=3:\\ \\left[1, 8\\right]$\n$k=4:\\ \\left[2, 9\\right]$\n$k=5:\\ \\left[3, 10\\right]$\n$k=6:\\ \\left[4, 11\\right]$\n$\\text{合起来}=\\left[-15, 11\\right]$",
+        "highlight": {
+          "caption": "把各段值域合起来",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已知值域与各次平移后的值域",
+              "math": "\\begin{gathered}\\left[3, 4\\right]\\ \\text{上的值域}=\\left[-2, 5\\right]\\\\k=-13,-12,\\ldots,6\\\\k=-13\\ \\text{时的值域}:\\ \\left[-15, -8\\right]\\\\\\vdots\\\\k=6\\ \\text{时的值域}:\\ \\left[4, 11\\right]\\end{gathered}"
+            },
+            {
+              "label": "合起来的值域",
+              "math": "\\left[-15, 11\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "local_check": "passed",
+        "math_step_sha256": "028c9ee3ae333aa52a202657808cb890de1156b9ff95f7cbaf64aa57464ff13c",
+        "method_ref": "method-translation-range#translate",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "2c60702a5d938291ab589ae2cee41bf9766bbbc815190575f6dede5b7cd353de",
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-translation-range-003-translation_union",
+        "target_ref": "/root/goals/0",
+        "title": "把各段值域合起来",
+        "used_basis": [
+          "function-concept#elements",
+          "function-range-extrema#attainability",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_translation_range",
+          "set": {
+            "expression": "Interval(-15, 11)",
+            "latex": "\\left[-15, 11\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(-15, 11)",
+          "latex": "\\left[-15, 11\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_translation_range",
+          "set": {
+            "expression": "Interval(-15, 11)",
+            "latex": "\\left[-15, 11\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(-15, 11)",
+          "latex": "\\left[-15, 11\\right]"
+        },
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "math_steps": [
+          {
+            "math_step_sha256": "e88d63f52b36d204f6f54a6a2f0f4307a89c6ae1fc94314180c93a984c4d3394",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-translation-range-001-translation_relation"
+          },
+          {
+            "math_step_sha256": "2bee4c86a503e34d930eadb11afa79fb5d4df94e59fb9778132bcd3b39f55ba7",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-translation-range-002-translation_coverage"
+          },
+          {
+            "math_step_sha256": "028c9ee3ae333aa52a202657808cb890de1156b9ff95f7cbaf64aa57464ff13c",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-translation-range-003-translation_union"
+          }
+        ],
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "14266bb852200f12442af701e5298971df722526eb4719c22a349e497b57637f",
+        "verified_route_sha256": "358cacc0b8036809ed34d8f4918dd1aed423348d0ced20f955cf850e918d0151"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "prerequisites": [
+            {
+              "effects": {
+                "calls": [],
+                "edges": [],
+                "log": "已确定本次求值域的输入范围。",
+                "nodes": [],
+                "results": []
+              },
+              "expected_answer": {},
+              "id": "D3-domain",
+              "interaction": {
+                "type": "read"
+              },
+              "question": "$g$ 在 $\\mathbb R$ 上有定义，因此 $f(x)=x + g{\\left(x \\right)}$ 也在 $\\mathbb R$ 上有定义。本次要求的输入范围为 $x\\in\\left[-10, 10\\right]$。",
+              "source_refs": [
+                "/root/goals/0/function_relation",
+                "/root/goals/0/periodic_function",
+                "/root/goals/0/period",
+                "/root/goals/0/periodic_domain",
+                "/root/goals/0/known_domain",
+                "/root/goals/0/known_range",
+                "/root/goals/0/input_domain"
+              ],
+              "submit_label": "在这个范围内选择方法",
+              "summary": "$x\\in\\left[-10, 10\\right]$",
+              "title": "确定本次求值区间"
+            }
+          ],
+          "query": {
+            "from": "type-function-range",
+            "op": "methods"
+          },
+          "question": "先写出平移后函数值怎么变，再把已知的一整段左右平移、刚好盖住要求的输入范围，最后把各段能取到的值合起来。",
+          "submit_label": "用整段平移求值域法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-translation-range",
+              "recommendation": "preferred",
+              "route_id": "translation-range",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "translation-range",
+        "step_id": "39e5646dcb-translation-range-001-translation_relation",
+        "ordinal": 1,
+        "math_step_sha256": "e88d63f52b36d204f6f54a6a2f0f4307a89c6ae1fc94314180c93a984c4d3394",
+        "status": "interactive",
+        "interaction_id": "d4de94280e52f0e8987cbd96"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "translation-range",
+        "step_id": "39e5646dcb-translation-range-002-translation_coverage",
+        "ordinal": 2,
+        "math_step_sha256": "2bee4c86a503e34d930eadb11afa79fb5d4df94e59fb9778132bcd3b39f55ba7",
+        "status": "interactive",
+        "interaction_id": "fa1e2039536e73fae5b6d30b"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "translation-range",
+        "step_id": "39e5646dcb-translation-range-003-translation_union",
+        "ordinal": 3,
+        "math_step_sha256": "028c9ee3ae333aa52a202657808cb890de1156b9ff95f7cbaf64aa57464ff13c",
+        "status": "interactive",
+        "interaction_id": "9e0e62290f842437ad0f5b6b"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "2c60702a5d938291ab589ae2cee41bf9766bbbc815190575f6dede5b7cd353de",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "translation-range",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:translation-range:complete",
+        "last_seq": 14
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "translation-range",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-translation-range",
+            "step": "translate",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "function-range-extrema#attainability",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-translation-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "d4de94280e52f0e8987cbd96",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "d903661b2ef63d47b2f2741d1fe1b1b93fa637cdcaee2e88c60b9bb839481d73",
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出平移后的函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(x)=x + g{\\left(x \\right)}\\\\g(x + 1)=g(x)\\\\k\\in\\mathbb Z\\end{gathered}"
+                },
+                {
+                  "label": "平移后的函数值",
+                  "math": "f(x + k)=k + f{\\left(x \\right)}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$g(x + k)=g(x)$\n$f(x + k)=k + f{\\left(x \\right)}$"
+            },
+            "id": "d4de94280e52f0e8987cbd96#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x + k)=k + f{\\left(x \\right)}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x + k)=f(x)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已知 $f(x)=x + g{\\left(x \\right)}$，且 $g(x + 1)=g(x)$。把输入从 $x$ 挪到 $x + k$（$k\\in\\mathbb Z$）后，$f$ 的值变成？",
+            "stem_board": {
+              "caption": "写出平移后的函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知条件",
+                  "math": "\\begin{gathered}f(x)=x + g{\\left(x \\right)}\\\\g(x + 1)=g(x)\\\\k\\in\\mathbb Z\\end{gathered}"
+                },
+                {
+                  "label": "平移后的函数值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出平移后的函数值"
+          }
+        ],
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e88d63f52b36d204f6f54a6a2f0f4307a89c6ae1fc94314180c93a984c4d3394",
+            "step_id": "39e5646dcb-translation-range-001-translation_relation"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "fa1e2039536e73fae5b6d30b",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "1eca6d0cfd84b372ca13fcec3819b8debadc9e7510af9d15265af99b4fb95fd1",
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "用平移盖住输入范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知区间与平移例子",
+                  "math": "\\begin{gathered}\\text{已知区间}=\\left[3, 4\\right]\\\\k=-1\\ \\text{时向左平移 }1\\text{ 个单位}=\\left[2, 3\\right]\\\\k=1\\ \\text{时向右平移 }1\\text{ 个单位}=\\left[4, 5\\right]\\\\\\text{要求盖住}=\\left[-10, 10\\right]\\end{gathered}"
+                },
+                {
+                  "label": "需要的平移次数",
+                  "math": "\\begin{gathered}k=-13,-12,\\ldots,6\\\\k=-13\\ \\text{时的输入段}:\\ \\left[-10, -9\\right]\\\\\\vdots\\\\k=6\\ \\text{时的输入段}:\\ \\left[9, 10\\right]\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    2.25,
+                    4.75
+                  ],
+                  "description": "x 的取值集合：[3, 4]",
+                  "pieces": [
+                    {
+                      "from": 3.0,
+                      "left_closed": true,
+                      "right_closed": true,
+                      "to": 4.0
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      3.0,
+                      "3"
+                    ],
+                    [
+                      4.0,
+                      "4"
+                    ]
+                  ],
+                  "title": "已知区间",
+                  "variable": "x"
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -15.0,
+                    15.0
+                  ],
+                  "description": "x 的取值集合：[-10, 10]",
+                  "pieces": [
+                    {
+                      "from": -10.0,
+                      "left_closed": true,
+                      "right_closed": true,
+                      "to": 10.0
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      -10.0,
+                      "-10"
+                    ],
+                    [
+                      10.0,
+                      "10"
+                    ]
+                  ],
+                  "title": "要求的输入范围",
+                  "variable": "x"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$k=-13,-12,\\ldots,6$\n$k=-13:\\ \\left[-10, -9\\right]$\n$k=-12:\\ \\left[-9, -8\\right]$\n$k=-11:\\ \\left[-8, -7\\right]$\n$k=-10:\\ \\left[-7, -6\\right]$\n$k=-9:\\ \\left[-6, -5\\right]$\n$k=-8:\\ \\left[-5, -4\\right]$\n$k=-7:\\ \\left[-4, -3\\right]$\n$k=-6:\\ \\left[-3, -2\\right]$\n$k=-5:\\ \\left[-2, -1\\right]$\n$k=-4:\\ \\left[-1, 0\\right]$\n$k=-3:\\ \\left[0, 1\\right]$\n$k=-2:\\ \\left[1, 2\\right]$\n$k=-1:\\ \\left[2, 3\\right]$\n$k=0:\\ \\left[3, 4\\right]$\n$k=1:\\ \\left[4, 5\\right]$\n$k=2:\\ \\left[5, 6\\right]$\n$k=3:\\ \\left[6, 7\\right]$\n$k=4:\\ \\left[7, 8\\right]$\n$k=5:\\ \\left[8, 9\\right]$\n$k=6:\\ \\left[9, 10\\right]$\n$\\text{这些输入段合起来}=\\left[-10, 10\\right]$"
+            },
+            "graph": {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -15.0,
+                  15.0
+                ],
+                "description": "x 的取值集合：[-10, 10]",
+                "pieces": [
+                  {
+                    "from": -10.0,
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 10.0
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    -10.0,
+                    "-10"
+                  ],
+                  [
+                    10.0,
+                    "10"
+                  ]
+                ],
+                "title": "要求的输入范围",
+                "variable": "x"
+              }
+            },
+            "id": "fa1e2039536e73fae5b6d30b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$k=-12,-11,\\ldots,7$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$k=-13,-12,\\ldots,6$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "我们已经知道区间 $\\left[3, 4\\right]$ 上的情况。例如：$k=-1$ 时向左平移 $1$ 个单位得到 $\\left[2, 3\\right]$，$k=1$ 时向右平移 $1$ 个单位得到 $\\left[4, 5\\right]$。要刚好盖住要求的输入范围 $\\left[-10, 10\\right]$，需要哪些整数 $k$？",
+            "stem_board": {
+              "caption": "用平移盖住输入范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知区间与平移例子",
+                  "math": "\\begin{gathered}\\text{已知区间}=\\left[3, 4\\right]\\\\k=-1\\ \\text{时向左平移 }1\\text{ 个单位}=\\left[2, 3\\right]\\\\k=1\\ \\text{时向右平移 }1\\text{ 个单位}=\\left[4, 5\\right]\\\\\\text{要求盖住}=\\left[-10, 10\\right]\\end{gathered}"
+                },
+                {
+                  "label": "需要的平移次数",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "用平移盖住输入范围"
+          }
+        ],
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2bee4c86a503e34d930eadb11afa79fb5d4df94e59fb9778132bcd3b39f55ba7",
+            "step_id": "39e5646dcb-translation-range-002-translation_coverage"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9e0e62290f842437ad0f5b6b",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "9394e616920c8754f97ea98822534c10d8c3d6d9485cc8f1bf561f88b5a8b76a",
+        "lesson_version": "2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把各段值域合起来",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知值域与各次平移后的值域",
+                  "math": "\\begin{gathered}\\left[3, 4\\right]\\ \\text{上的值域}=\\left[-2, 5\\right]\\\\k=-13,-12,\\ldots,6\\\\k=-13\\ \\text{时的值域}:\\ \\left[-15, -8\\right]\\\\\\vdots\\\\k=6\\ \\text{时的值域}:\\ \\left[4, 11\\right]\\end{gathered}"
+                },
+                {
+                  "label": "合起来的值域",
+                  "math": "\\left[-15, 11\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -21.5,
+                  17.5
+                ],
+                "description": "y 的取值集合：[-15, 11]",
+                "pieces": [
+                  {
+                    "from": -15.0,
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 11.0
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    -15.0,
+                    "-15"
+                  ],
+                  [
+                    11.0,
+                    "11"
+                  ]
+                ],
+                "title": "各段值域合起来",
+                "variable": "y"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$k=-13:\\ \\left[-15, -8\\right]$\n$k=-12:\\ \\left[-14, -7\\right]$\n$k=-11:\\ \\left[-13, -6\\right]$\n$k=-10:\\ \\left[-12, -5\\right]$\n$k=-9:\\ \\left[-11, -4\\right]$\n$k=-8:\\ \\left[-10, -3\\right]$\n$k=-7:\\ \\left[-9, -2\\right]$\n$k=-6:\\ \\left[-8, -1\\right]$\n$k=-5:\\ \\left[-7, 0\\right]$\n$k=-4:\\ \\left[-6, 1\\right]$\n$k=-3:\\ \\left[-5, 2\\right]$\n$k=-2:\\ \\left[-4, 3\\right]$\n$k=-1:\\ \\left[-3, 4\\right]$\n$k=0:\\ \\left[-2, 5\\right]$\n$k=1:\\ \\left[-1, 6\\right]$\n$k=2:\\ \\left[0, 7\\right]$\n$k=3:\\ \\left[1, 8\\right]$\n$k=4:\\ \\left[2, 9\\right]$\n$k=5:\\ \\left[3, 10\\right]$\n$k=6:\\ \\left[4, 11\\right]$\n$\\text{合起来}=\\left[-15, 11\\right]$"
+            },
+            "graph": {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  6.75
+                ],
+                "description": "y 的取值集合：[-2, 5]",
+                "pieces": [
+                  {
+                    "from": -2.0,
+                    "left_closed": true,
+                    "right_closed": true,
+                    "to": 5.0
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    5.0,
+                    "5"
+                  ]
+                ],
+                "title": "已知区间上的值域",
+                "variable": "y"
+              }
+            },
+            "id": "9e0e62290f842437ad0f5b6b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[-15, 11\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(-15, 11\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[-15, 11\\right]$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "区间 $\\left[3, 4\\right]$ 上的值域是 $\\left[-2, 5\\right]$，且 $f(x + k)=k + f{\\left(x \\right)}$。每个平移次数 $k$ 对应一段值域。这些值域段全部合起来，$f$ 的值域是？",
+            "stem_board": {
+              "caption": "把各段值域合起来",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已知值域与各次平移后的值域",
+                  "math": "\\begin{gathered}\\left[3, 4\\right]\\ \\text{上的值域}=\\left[-2, 5\\right]\\\\k=-13,-12,\\ldots,6\\\\k=-13\\ \\text{时的值域}:\\ \\left[-15, -8\\right]\\\\\\vdots\\\\k=6\\ \\text{时的值域}:\\ \\left[4, 11\\right]\\end{gathered}"
+                },
+                {
+                  "label": "合起来的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把各段值域合起来"
+          }
+        ],
+        "route_id": "translation-range",
+        "run_id": "81459a59d9a94afe8c613d07c0e875d3",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "028c9ee3ae333aa52a202657808cb890de1156b9ff95f7cbaf64aa57464ff13c",
+            "step_id": "39e5646dcb-translation-range-003-translation_union"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

@@ -1,0 +1,2550 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+    "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+    "input_sha256": "64a71d5d81bfa43ba6e8ec66d0c57526c589666c4b394beca6d22f1b87a7c5ef",
+    "checkpoint_sha256": "d8f1c73cb64104f639668f552228e5f2dd773163064416d8073bef880189c6bc",
+    "result_sha256": "32bb2e87c717a18a80699a217389f37af0ebfc1b828f11919ddab28443abdc9a",
+    "stage_one_sha256": "86c72f6942017accea3224dfb3d504380628613388de74e9baaa091297a71693",
+    "stage_two_sha256": "557ffe6aa593331ff9ca8068da03581c551fc80941fddb90d474addb5f6d4177"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-abstract-function-domain",
+        "supported": [
+          "type-abstract-function-domain"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 52,
+                  "end": 55,
+                  "text": "定义域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:4"
+              ],
+              "knowledge_refs": [
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0/target_call"
+              ],
+              "signature": "dd613c457c6b279b",
+              "options": [
+                {
+                  "text": "函数值 $f(x+1)$ 的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "使 $f(x+1)$ 有意义的自变量 $x$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ]
+            }
+          ],
+          "givens": [
+            {
+              "id": "/root/goals/0:given_domain:0",
+              "kind": "given_domain",
+              "quote": [
+                {
+                  "start": 5,
+                  "end": 25,
+                  "text": "$f(x)$ 的定义域为 $[1,2]$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-concept#composite-domain",
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0/known_call",
+                "/root/goals/0/known_domain"
+              ],
+              "text": "已知 $f(x)$ 的定义域为 $[1,2]$。"
+            },
+            {
+              "id": "/root/goals/0:given_range:1",
+              "kind": "given_range",
+              "quote": [
+                {
+                  "start": 5,
+                  "end": 39,
+                  "text": "$f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [],
+              "source_refs": [
+                "/root/goals/0/known_call",
+                "/root/goals/0/known_range"
+              ],
+              "text": "已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。"
+            }
+          ],
+          "interaction": "choice",
+          "question": "题目要求 $f(x+1)$ 的定义域，也就是要确定什么？",
+          "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。",
+          "summary": "题面给出了 $f(x)$ 的定义域；本题要找出所有使 $f(x+1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。当前目标只求定义域；题设值域保留为已知条件，不用它限制自变量。"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域。",
+              "定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+            ],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "已知具体解析式并直接由原式确定合法输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#elements",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "函数的三要素"
+          },
+          {
+            "ref": "function-concept#composite-domain",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "复合写法的定义域与输入范围"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-abstract-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#elements",
+              "function-concept#composite-domain"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-range-q13//root/goals/0",
+            "graphVersion": "385df07ca6b913219136842b348836fde80b511036dd17f68591367ed221c0e5",
+            "problem": {
+              "text": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$，求 $f(x+1)$ 的定义域和值域。",
+              "givens": [
+                {
+                  "id": "/root/goals/0:given_domain:0",
+                  "kind": "given_domain",
+                  "quote": [
+                    {
+                      "start": 5,
+                      "end": 25,
+                      "text": "$f(x)$ 的定义域为 $[1,2]$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/0:d1:1"
+                  ],
+                  "knowledge_refs": [
+                    "function-concept#composite-domain",
+                    "function-concept#elements"
+                  ],
+                  "source_refs": [
+                    "/root/goals/0/known_call",
+                    "/root/goals/0/known_domain"
+                  ],
+                  "text": "已知 $f(x)$ 的定义域为 $[1,2]$。"
+                },
+                {
+                  "id": "/root/goals/0:given_range:1",
+                  "kind": "given_range",
+                  "quote": [
+                    {
+                      "start": 5,
+                      "end": 39,
+                      "text": "$f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/0:d1:2"
+                  ],
+                  "knowledge_refs": [],
+                  "source_refs": [
+                    "/root/goals/0/known_call",
+                    "/root/goals/0/known_range"
+                  ],
+                  "text": "已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。"
+                }
+              ]
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "已知 $f(x)$ 的定义域为 $[1,2]$。\n\n已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。\n\n题目要求 $f(x+1)$ 的定义域，也就是要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "函数值 $f(x+1)$ 的取值范围",
+                      "feedback": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "使 $f(x+1)$ 有意义的自变量 $x$ 的取值范围"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "目标函数的定义域是外层自变量 $x$ 的取值范围；函数值的取值范围叫值域。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-abstract-function-domain",
+                  "type-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "题面给出了 $f(x)$ 的定义域；本题要找出所有使 $f(x+1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。当前目标只求定义域；题设值域保留为已知条件，不用它限制自变量。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+                    },
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "已知具体解析式并直接由原式确定合法输入"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-abstract-function-domain"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-domain"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-abstract-function-domain"
+                  ],
+                  "edges": [
+                    "type-abstract-function-domain|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域；定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+                  ],
+                  "log": "作答判断：选择主要题型「抽象函数的定义域问题」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-input-domain-correspondence",
+                  "kind": "method",
+                  "label": "输入范围对应法",
+                  "summary": "先确定可用输入范围，再约束每个调用的完整输入；可求目标定义域，或以共同输入存在求参数。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "solve",
+                      "title": "用输入范围对应求定义域",
+                      "calls": [
+                        "skill-inequality-transform",
+                        "skill-expression-defined"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|candidate|method-input-domain-correspondence",
+                  "from": "type-abstract-function-domain",
+                  "to": "method-input-domain-correspondence",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "5b2b0efc50ff528e34aa1d03f8f660facf88d098d6156ec5dba22fb56ab3ef51"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-range-q13//root/goals/0",
+            "bundleVersion": "5b2b0efc50ff528e34aa1d03f8f660facf88d098d6156ec5dba22fb56ab3ef51",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "题面给出了 $f(x)$ 的定义域；本题要找出所有使 $f(x+1)$ 有意义的外层自变量 $x$，需要让完整输入落在同一对应关系的输入范围内。当前目标只求定义域；题设值域保留为已知条件，不用它限制自变量。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-abstract-function-domain",
+                "reason": "选「抽象函数的定义域问题」：未给出完整解析式；已知的是 f 的输入范围，或某个复合写法关于外层自变量的定义域；定义域始终指当前表达式外层自变量的合法取值；同一对应关系 f 的输入范围不随写法改变。"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-range",
+        "supported": [
+          "type-function-range"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/1:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 56,
+                  "end": 58,
+                  "text": "值域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/1:d1:4"
+              ],
+              "knowledge_refs": [],
+              "source_refs": [
+                "/root/goals/1/target_call"
+              ],
+              "signature": "b3851452481c89e4",
+              "options": [
+                {
+                  "text": "使 $f(x+1)$ 有意义的自变量 $x$ 的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "本问求全部能取到的函数值；先确定定义域，再检验新输入能否完整覆盖 $f$ 的输入范围。",
+                  "id": "/root/goals/1:goal:o0"
+                },
+                {
+                  "text": "函数值 $f(x+1)$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/1:goal:o1"
+                }
+              ]
+            }
+          ],
+          "givens": [
+            {
+              "id": "/root/goals/1:given_domain:0",
+              "kind": "given_domain",
+              "quote": [
+                {
+                  "start": 5,
+                  "end": 25,
+                  "text": "$f(x)$ 的定义域为 $[1,2]$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/1:d1:1"
+              ],
+              "knowledge_refs": [],
+              "source_refs": [
+                "/root/goals/1/known_call",
+                "/root/goals/1/known_domain"
+              ],
+              "text": "已知 $f(x)$ 的定义域为 $[1,2]$。"
+            },
+            {
+              "id": "/root/goals/1:given_range:1",
+              "kind": "given_range",
+              "quote": [
+                {
+                  "start": 5,
+                  "end": 39,
+                  "text": "$f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/1:d1:2"
+              ],
+              "knowledge_refs": [],
+              "source_refs": [
+                "/root/goals/1/known_call",
+                "/root/goals/1/known_range"
+              ],
+              "text": "已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。"
+            }
+          ],
+          "interaction": "choice",
+          "question": "题目要求 $f(x+1)$ 的值域，也就是要确定什么？",
+          "feedback": "本问求全部能取到的函数值；先确定定义域，再检验新输入能否完整覆盖 $f$ 的输入范围。",
+          "summary": "已知 $f(x)$ 的定义域和值域；本问求 $f(x+1)$ 的值域。先确定目标函数的定义域，再检验新输入是否完整覆盖 $f$ 的输入范围。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "要求原式有意义的全部输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          },
+          {
+            "type_id": "type-function-range",
+            "label": "求函数的值域",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+            ],
+            "choice_hint": "求给定定义域内的全部函数值"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-range-q13//root/goals/1",
+            "graphVersion": "385df07ca6b913219136842b348836fde80b511036dd17f68591367ed221c0e5",
+            "problem": {
+              "text": "已知函数 $f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$，求 $f(x+1)$ 的定义域和值域。",
+              "givens": [
+                {
+                  "id": "/root/goals/1:given_domain:0",
+                  "kind": "given_domain",
+                  "quote": [
+                    {
+                      "start": 5,
+                      "end": 25,
+                      "text": "$f(x)$ 的定义域为 $[1,2]$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/1:d1:1"
+                  ],
+                  "knowledge_refs": [],
+                  "source_refs": [
+                    "/root/goals/1/known_call",
+                    "/root/goals/1/known_domain"
+                  ],
+                  "text": "已知 $f(x)$ 的定义域为 $[1,2]$。"
+                },
+                {
+                  "id": "/root/goals/1:given_range:1",
+                  "kind": "given_range",
+                  "quote": [
+                    {
+                      "start": 5,
+                      "end": 39,
+                      "text": "$f(x)$ 的定义域为 $[1,2]$，值域为 $[0,1/2]$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/1:d1:2"
+                  ],
+                  "knowledge_refs": [],
+                  "source_refs": [
+                    "/root/goals/1/known_call",
+                    "/root/goals/1/known_range"
+                  ],
+                  "text": "已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。"
+                }
+              ]
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "已知 $f(x)$ 的定义域为 $[1,2]$。\n\n已知 $f(x)$ 的值域为 $[0,\\frac{1}{2}]$；这是函数值的范围，不是自变量的范围。\n\n题目要求 $f(x+1)$ 的值域，也就是要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/1:goal:o0",
+                      "label": "使 $f(x+1)$ 有意义的自变量 $x$ 的取值范围",
+                      "feedback": "本问求全部能取到的函数值；先确定定义域，再检验新输入能否完整覆盖 $f$ 的输入范围。"
+                    },
+                    {
+                      "value": "/root/goals/1:goal:o1",
+                      "label": "函数值 $f(x+1)$ 的取值范围"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/1:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "本问求全部能取到的函数值；先确定定义域，再检验新输入能否完整覆盖 $f$ 的输入范围。"
+                },
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "已知 $f(x)$ 的定义域和值域；本问求 $f(x+1)$ 的值域。先确定目标函数的定义域，再检验新输入是否完整覆盖 $f$ 的输入范围。"
+                  ],
+                  "log": "图谱查询：从 0 个知识线索反查，找到 2 个相关题型；最高覆盖 0/0。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "要求原式有意义的全部输入"
+                    },
+                    {
+                      "value": "type-function-range",
+                      "label": "求函数的值域",
+                      "note": "求给定定义域内的全部函数值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-range"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-range"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-range-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数值域的选法判断",
+                  "summary": "先确定原定义域，再根据函数结构核验各条方法路线；多种适用方法均可选择。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-equation-real-root-range",
+                  "kind": "method",
+                  "label": "方程有实根法",
+                  "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "equation",
+                      "title": "转为输入方程",
+                      "calls": [
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "分次数求有解条件",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-fraction-split-range",
+                  "kind": "method",
+                  "label": "分式分离求值域法",
+                  "summary": "保留原定义域，将分式写成常数与倒数项之和，求分母范围后逐段取倒数。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "separate",
+                      "title": "分离分式",
+                      "calls": [
+                        "method-fraction-split"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求分母的范围",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "取倒数并还原值域",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-direct-range",
+                  "kind": "method",
+                  "label": "直接求值域法",
+                  "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "range",
+                      "title": "确定基本范围",
+                      "calls": [
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-finite-range",
+                  "kind": "method",
+                  "label": "枚举法",
+                  "summary": "确定有限的合法输入，逐一代入，收集并去重得到全部输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "列出全部合法输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "依次选择输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "evaluate",
+                      "title": "逐一代入求值",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "collect",
+                      "title": "收集输出并去重",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quadratic-interval-range",
+                  "kind": "method",
+                  "label": "二次函数区间值域法",
+                  "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "配方，判断顶点位置",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求区间值域",
+                      "calls": [
+                        "quadratic-interval-extremum"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range",
+                  "kind": "method",
+                  "label": "换元求值域法",
+                  "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "substitute",
+                      "title": "换元并确定范围",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求新变量下的值域",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "回到原函数值域",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-translation-range",
+                  "kind": "method",
+                  "label": "平移关系求值域法",
+                  "summary": "从函数关系推出输入与输出的整数平移，用完整区间覆盖目标范围，再合并各段值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "translate",
+                      "title": "平移完整区间与值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整覆盖与可达性",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
+                  "from": "method-fraction-split-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range|calls|method-quadratic-interval-range",
+                  "from": "method-substitution-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-equation-real-root-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-equation-real-root-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "equation",
+                      "condition": "原定义域为实数全域，原分母为无实根二次式，分子至多二次。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-fraction-split-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-fraction-split-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "fraction",
+                      "condition": "能写成 A+B/Q(x)，A、B 为常数时直接进入当前分离路线；余项含变量时需要进一步变换，当前不展开。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-direct-range",
+                  "from": "type-function-range",
+                  "to": "method-direct-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-equation-real-root-range",
+                  "from": "type-function-range",
+                  "to": "method-equation-real-root-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-finite-range",
+                  "from": "type-function-range",
+                  "to": "method-finite-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-fraction-split-range",
+                  "from": "type-function-range",
+                  "to": "method-fraction-split-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-quadratic-interval-range",
+                  "from": "type-function-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-substitution-range",
+                  "from": "type-function-range",
+                  "to": "method-substitution-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-translation-range",
+                  "from": "type-function-range",
+                  "to": "method-translation-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|method_rule|rule-function-range-method",
+                  "from": "type-function-range",
+                  "to": "rule-function-range-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": []
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "0b11dc8d0811b92156c85d17e9cfd62f9a9e1e6675cb68e8c23bf7214364fdce"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-range-q13//root/goals/1",
+            "bundleVersion": "0b11dc8d0811b92156c85d17e9cfd62f9a9e1e6675cb68e8c23bf7214364fdce",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/1:goal:o1",
+                "reason": "已知 $f(x)$ 的定义域和值域；本问求 $f(x+1)$ 的值域。先确定目标函数的定义域，再检验新输入是否完整覆盖 $f$ 的输入范围。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-range",
+                "reason": "选「求函数的值域」：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+    "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+    "input_sha256": "64a71d5d81bfa43ba6e8ec66d0c57526c589666c4b394beca6d22f1b87a7c5ef",
+    "stream_id": "3a53cf08e6f7491c9f5243240e6604e9",
+    "last_seq": 38,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_align",
+        "explanation": "由 $f(x)$ 的定义域，得到 $f$ 的输入范围。",
+        "highlight": {
+          "caption": "输入范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "$f(x)$ 的定义域",
+              "math": "\\left[1, 2\\right]"
+            },
+            {
+              "label": "$f$ 的输入范围",
+              "math": "\\left[1, 2\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "434a95e349080f0504bdefd7143b774640436a5554f027a3f85da6b80ddb8358",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_condition",
+        "explanation": "目标函数 $f(x+1)$ 有意义，需要完整输入 $x+1$ 属于 $f$ 的输入范围。",
+        "highlight": {
+          "caption": "输入条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "$f$ 的输入范围",
+              "math": "\\left[1, 2\\right]",
+              "note": "目标函数 $f(x+1)$"
+            },
+            {
+              "label": "完整输入须满足",
+              "math": "x+1\\in \\left[1, 2\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "94d1cc2479e99cf556ef75387b25e848bbdb6df42817fa39cdfbec9d38b511d1",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_conclusion",
+        "explanation": "解输入条件，得到目标函数关于 $x$ 的定义域。",
+        "highlight": {
+          "caption": "目标函数的定义域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入条件",
+              "math": "x+1\\in \\left[1, 2\\right]"
+            },
+            {
+              "label": "$f(x+1)$ 的定义域",
+              "math": "\\left[0, 1\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "5ca75e439eceb437fa4c725515a7614bc210126df512adbaec0aaf56b701b4bf",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion",
+        "target_ref": "/root/goals/0",
+        "title": "输入范围对应",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(0, 1)",
+            "latex": "\\left[0, 1\\right]"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "boundary",
+        "explanation": "当 $x=0$ 时，代回原题成立，$\\therefore$ 边界 $0$ 保留；\n当 $x=1$ 时，代回原题成立，$\\therefore$ 边界 $1$ 保留，\n$\\therefore\\ x \\in \\left[0, 1\\right]$。",
+        "highlight": {
+          "caption": "检查边界",
+          "conclusion_only": true,
+          "items": [
+            {
+              "label": "$x$ 的取值范围",
+              "math": "x \\in \\left[0, 1\\right]",
+              "note": "$x=0$ 代回原题成立，保留；$x=1$ 代回原题成立，保留"
+            }
+          ]
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "c805c9bd9ea3e3562a67f9190a73944319f4c011e0c644cbabab683d24986615",
+        "method_ref": "method-input-domain-correspondence#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/finalization/2"
+        ],
+        "step_id": "39e5646dcb-abstract-function-domain-004-boundary",
+        "target_ref": "/root/goals/0",
+        "title": "检查边界",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "interval-notation#finite"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_inputs",
+        "explanation": "$x\\in\\left[0, 1\\right]\\Longrightarrow t=x+1\\in\\left[1, 2\\right]$",
+        "highlight": {
+          "caption": "求新变量的范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "目标函数的定义域与换元",
+              "math": "\\begin{gathered}x\\in\\left[0, 1\\right]\\\\t=x+1\\end{gathered}"
+            },
+            {
+              "label": "新变量范围",
+              "math": "t\\in\\left[1, 2\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "8cb9ef6d3e836dba17e513cb8b8b4f0d1984303d4db498f9e8aeb2e53dce9425",
+        "method_ref": "method-substitution-range#restore",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0"
+        ],
+        "step_id": "cbd98ea750-substitution-range-001-abstract_inputs",
+        "target_ref": "/root/goals/1",
+        "title": "求新变量的范围",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_coverage",
+        "explanation": "$\\{x+1:x\\in\\left[0, 1\\right]\\}=\\left[1, 2\\right]=D_{f}$",
+        "highlight": {
+          "caption": "判断是否完整覆盖",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "$f$ 的输入范围与新输入范围",
+              "math": "\\begin{gathered}D_{f}=\\left[1, 2\\right]\\\\t\\in\\left[1, 2\\right]\\end{gathered}"
+            },
+            {
+              "label": "覆盖关系",
+              "math": "\\{x+1:x\\in\\left[0, 1\\right]\\}=D_{f}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "953f103c3a9e49bdef20e00f5886f8416c8142f5ef8989afb1e68aecc9329a52",
+        "method_ref": "method-substitution-range#restore",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0"
+        ],
+        "step_id": "cbd98ea750-substitution-range-002-abstract_coverage",
+        "target_ref": "/root/goals/1",
+        "title": "判断是否完整覆盖",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "abstract_return",
+        "explanation": "$\\{f(x+1):x\\in\\left[0, 1\\right]\\}=\\left[0, \\frac{1}{2}\\right]$",
+        "highlight": {
+          "caption": "得到目标函数的值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题设已知值域",
+              "math": "f(x)\\in\\left[0, \\frac{1}{2}\\right]"
+            },
+            {
+              "label": "目标函数值域",
+              "math": "f(x+1)\\in\\left[0, \\frac{1}{2}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "local_check": "passed",
+        "math_step_sha256": "f7f92f8878d2ade95b9b173cf2aa132b75b450bb0e7f78d6be0ab4d0d0a602aa",
+        "method_ref": "method-substitution-range#restore",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0"
+        ],
+        "step_id": "cbd98ea750-substitution-range-003-abstract_return",
+        "target_ref": "/root/goals/1",
+        "title": "得到目标函数的值域",
+        "used_basis": [
+          "function-concept#composite-domain",
+          "function-concept#elements"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_abstract_domain",
+          "set": {
+            "expression": "Interval(0, 1)",
+            "latex": "\\left[0, 1\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(0, 1)",
+          "latex": "\\left[0, 1\\right]"
+        },
+        "status": "solved"
+      },
+      "/root/goals/1": {
+        "answer": {
+          "kind": "find_abstract_range",
+          "set": {
+            "expression": "Interval(0, 1/2)",
+            "latex": "\\left[0, \\frac{1}{2}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(0, 1/2)",
+          "latex": "\\left[0, \\frac{1}{2}\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_abstract_domain",
+          "set": {
+            "expression": "Interval(0, 1)",
+            "latex": "\\left[0, 1\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(0, 1)",
+          "latex": "\\left[0, 1\\right]"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "math_steps": [
+          {
+            "math_step_sha256": "434a95e349080f0504bdefd7143b774640436a5554f027a3f85da6b80ddb8358",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align"
+          },
+          {
+            "math_step_sha256": "94d1cc2479e99cf556ef75387b25e848bbdb6df42817fa39cdfbec9d38b511d1",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition"
+          },
+          {
+            "math_step_sha256": "5ca75e439eceb437fa4c725515a7614bc210126df512adbaec0aaf56b701b4bf",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion"
+          },
+          {
+            "math_step_sha256": "c805c9bd9ea3e3562a67f9190a73944319f4c011e0c644cbabab683d24986615",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-abstract-function-domain-004-boundary"
+          }
+        ],
+        "original_choice": {
+          "reason": "choice.ambiguous_scope",
+          "status": "unavailable",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "72bbc5492794f4e1bb03aee38c90b5c894933595f1a7274d4264a25f49415596",
+        "verified_route_sha256": "47496ccbbf624bee492c921d3abb0311299968970c797c6e4f16c15ed2aa3801"
+      },
+      {
+        "answer": {
+          "kind": "find_abstract_range",
+          "set": {
+            "expression": "Interval(0, 1/2)",
+            "latex": "\\left[0, \\frac{1}{2}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(0, 1/2)",
+          "latex": "\\left[0, \\frac{1}{2}\\right]"
+        },
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "math_steps": [
+          {
+            "math_step_sha256": "8cb9ef6d3e836dba17e513cb8b8b4f0d1984303d4db498f9e8aeb2e53dce9425",
+            "ordinal": 1,
+            "step_id": "cbd98ea750-substitution-range-001-abstract_inputs"
+          },
+          {
+            "math_step_sha256": "953f103c3a9e49bdef20e00f5886f8416c8142f5ef8989afb1e68aecc9329a52",
+            "ordinal": 2,
+            "step_id": "cbd98ea750-substitution-range-002-abstract_coverage"
+          },
+          {
+            "math_step_sha256": "f7f92f8878d2ade95b9b173cf2aa132b75b450bb0e7f78d6be0ab4d0d0a602aa",
+            "ordinal": 3,
+            "step_id": "cbd98ea750-substitution-range-003-abstract_return"
+          }
+        ],
+        "original_choice": {
+          "reason": "choice.ambiguous_scope",
+          "status": "unavailable",
+          "target_ref": "/root/goals/1"
+        },
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "pending",
+        "target_ref": "/root/goals/1",
+        "task_id": "0b4dfd192a84266be52ba3a39ac1edfc53cc9ba8d0f1cc7fd4e19d6b6ac5fe43",
+        "verified_route_sha256": "86d2e8d2e7e5a9db9f7b96b799fae7570f30660a8b9bf1d9ea46c37327a27bbc"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-abstract-function-domain",
+            "op": "methods"
+          },
+          "question": "先求 f 的输入范围，再列出目标函数的输入条件，最后求出目标函数的定义域。",
+          "submit_label": "用输入范围对应法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-input-domain-correspondence",
+              "recommendation": "preferred",
+              "route_id": "abstract-function-domain",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "prerequisites": [
+            {
+              "completion_board": {
+                "caption": "确定定义域",
+                "connector": "⇒",
+                "items": [
+                  {
+                    "label": "$f$ 的输入范围与目标输入条件",
+                    "math": "\\begin{gathered}D_{f}=\\left[1, 2\\right]\\\\x+1\\in\\left[1, 2\\right]\\end{gathered}"
+                  },
+                  {
+                    "label": "目标函数定义域",
+                    "math": "x\\in\\left[0, 1\\right]"
+                  }
+                ],
+                "layout": "derivation"
+              },
+              "effects": {
+                "calls": [],
+                "edges": [],
+                "log": "已确定目标函数的定义域。",
+                "nodes": [],
+                "results": []
+              },
+              "expected_answer": {
+                "one_of": [
+                  "o1"
+                ]
+              },
+              "feedback": {
+                "answer": "$D_{f}=\\left[1, 2\\right]$\n$x+1\\in\\left[1, 2\\right]$\n$x\\in\\left[0, 1\\right]$"
+              },
+              "id": "D3-domain",
+              "interaction": {
+                "field": "answer",
+                "options": [
+                  {
+                    "label": "$\\left[0, 1\\right]$",
+                    "value": "o1"
+                  },
+                  {
+                    "label": "$\\left(0, 1\\right]$",
+                    "value": "o2"
+                  },
+                  {
+                    "label": "$\\left[0, 1\\right)$",
+                    "value": "o3"
+                  }
+                ],
+                "type": "choice"
+              },
+              "question": "先求目标函数 $f(x+1)$ 的定义域：完整输入 $x+1$ 必须落在 $f$ 的输入范围内。",
+              "source_refs": [
+                "/root/goals/1",
+                "/root/goals/1/known_call",
+                "/root/goals/1/known_domain",
+                "/root/goals/1/target_call"
+              ],
+              "stem_board": {
+                "caption": "确定定义域",
+                "connector": "⇒",
+                "items": [
+                  {
+                    "label": "$f$ 的输入范围与目标输入条件",
+                    "math": "\\begin{gathered}D_{f}=\\left[1, 2\\right]\\\\x+1\\in\\left[1, 2\\right]\\end{gathered}"
+                  },
+                  {
+                    "label": "目标函数定义域",
+                    "math": null
+                  }
+                ],
+                "layout": "derivation"
+              },
+              "submit_label": "在这个范围内选择方法",
+              "summary": "$x\\in\\left[0, 1\\right]$",
+              "title": "确定定义域"
+            }
+          ],
+          "query": {
+            "from": "type-function-range",
+            "op": "methods"
+          },
+          "question": "令新变量等于目标函数的完整输入，检验它能否取遍 $f$ 的输入范围，再确定值域。",
+          "submit_label": "用换元求值域法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/1"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-substitution-range",
+              "recommendation": "preferred",
+              "route_id": "substitution-range",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/1"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align",
+        "ordinal": 1,
+        "math_step_sha256": "434a95e349080f0504bdefd7143b774640436a5554f027a3f85da6b80ddb8358",
+        "status": "interactive",
+        "interaction_id": "1a09c9d524767bec5076a577"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition",
+        "ordinal": 2,
+        "math_step_sha256": "94d1cc2479e99cf556ef75387b25e848bbdb6df42817fa39cdfbec9d38b511d1",
+        "status": "interactive",
+        "interaction_id": "e727ef9b741c35d5f5551f26"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion",
+        "ordinal": 3,
+        "math_step_sha256": "5ca75e439eceb437fa4c725515a7614bc210126df512adbaec0aaf56b701b4bf",
+        "status": "interactive",
+        "interaction_id": "e31657d00a338c9f2e212592"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "step_id": "39e5646dcb-abstract-function-domain-004-boundary",
+        "ordinal": 4,
+        "math_step_sha256": "c805c9bd9ea3e3562a67f9190a73944319f4c011e0c644cbabab683d24986615",
+        "status": "interactive",
+        "interaction_id": "9d3d8b893de0af466313738c"
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "substitution-range",
+        "step_id": "cbd98ea750-substitution-range-001-abstract_inputs",
+        "ordinal": 1,
+        "math_step_sha256": "8cb9ef6d3e836dba17e513cb8b8b4f0d1984303d4db498f9e8aeb2e53dce9425",
+        "status": "interactive",
+        "interaction_id": "1f56a90bea291f4cc41be44f"
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "substitution-range",
+        "step_id": "cbd98ea750-substitution-range-002-abstract_coverage",
+        "ordinal": 2,
+        "math_step_sha256": "953f103c3a9e49bdef20e00f5886f8416c8142f5ef8989afb1e68aecc9329a52",
+        "status": "interactive",
+        "interaction_id": "9a17c78b96106dd43809d559"
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "substitution-range",
+        "step_id": "cbd98ea750-substitution-range-003-abstract_return",
+        "ordinal": 3,
+        "math_step_sha256": "f7f92f8878d2ade95b9b173cf2aa132b75b450bb0e7f78d6be0ab4d0d0a602aa",
+        "status": "interactive",
+        "interaction_id": "e23cf2b826c70bb0ca049424"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "d91fcfcb863ebae8d900dc411d7f1948ec37f7ebe2de0d9e5d1fc7c7bcd72b31",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:abstract-function-domain:complete",
+        "last_seq": 19
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "substitution-range",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/1:substitution-range:complete",
+        "last_seq": 38
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "abstract-function-domain",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-input-domain-correspondence",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "function-concept#composite-domain",
+                  "function-concept#elements",
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "interval-notation#finite",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#composite-domain",
+                "interval-notation#finite"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "substitution-range",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-substitution-range",
+            "step": "substitute",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 2,
+            "method": "method-substitution-range",
+            "step": "solve",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 3,
+            "method": "method-substitution-range",
+            "step": "restore",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-substitution",
+                "used_basis": [
+                  "function-concept#composite-domain",
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-substitution-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1a09c9d524767bec5076a577",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "767989ed24d9495d5c166145d1d8374f7e9b5e577dee32aa03c310b5ab6e8d9b",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "对 $f(x)$，定义域与输入范围是一回事，都是 $\\left[1, 2\\right]$。"
+            },
+            "id": "1a09c9d524767bec5076a577#1",
+            "interaction": {
+              "field": "known_object",
+              "options": [
+                {
+                  "label": "$f$ 的函数值范围是 $\\left[1, 2\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f$ 的输入范围是 $\\left[1, 2\\right]$（对 $f(x)$ 而言，这也是 $x$ 的范围）",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由「$f(x)$ 的定义域为 $\\left[1, 2\\right]$」，得到什么？",
+            "stem_board": {
+              "caption": "输入范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f(x)$ 的定义域",
+                  "math": "\\left[1, 2\\right]"
+                },
+                {
+                  "label": "$f$ 的输入范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求 f 的输入范围"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "434a95e349080f0504bdefd7143b774640436a5554f027a3f85da6b80ddb8358",
+            "step_id": "39e5646dcb-abstract-function-domain-001-abstract_align"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e727ef9b741c35d5f5551f26",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "a58e1df93cef2a675328d1a3f8d56676873507855a3d35a22cae582837636c5b",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "完整输入是 $x+1$，须有 $x+1\\in \\left[1, 2\\right]$。"
+            },
+            "id": "e727ef9b741c35d5f5551f26#1",
+            "interaction": {
+              "field": "input_condition",
+              "options": [
+                {
+                  "label": "完整输入是 $x+1$，须有 $x+1\\in \\left[1, 2\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "完整输入是 $x$，须有 $x\\in \\left[1, 2\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "完整输入是 $x+1$，须有 $x+1\\notin \\left[1, 2\\right]$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "要使目标函数 $f(x+1)$ 有意义，完整输入及其须满足的范围是？",
+            "stem_board": {
+              "caption": "输入条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f$ 的输入范围",
+                  "math": "\\left[1, 2\\right]",
+                  "note": "目标函数 $f(x+1)$"
+                },
+                {
+                  "label": "完整输入须满足",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "列出目标函数的输入条件"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "94d1cc2479e99cf556ef75387b25e848bbdb6df42817fa39cdfbec9d38b511d1",
+            "step_id": "39e5646dcb-abstract-function-domain-002-abstract_condition"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e31657d00a338c9f2e212592",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "cba57bed415e774bcb5c8fcb32e699ece1e9938eaa21afe3214708d658a3c457",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域是 $\\left[0, 1\\right]$。$\\left[1, 2\\right]$ 是 $f$ 的输入范围，不是本题最终答案。"
+            },
+            "id": "e31657d00a338c9f2e212592#1",
+            "interaction": {
+              "field": "domain_answer",
+              "options": [
+                {
+                  "label": "$\\left[0, 1\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[1, 2\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $x+1\\in \\left[1, 2\\right]$，目标函数 $f(x+1)$ 关于 $x$ 的定义域是？",
+            "stem_board": {
+              "caption": "目标函数的定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入条件",
+                  "math": "x+1\\in \\left[1, 2\\right]"
+                },
+                {
+                  "label": "$f(x+1)$ 的定义域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求目标函数的定义域"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "5ca75e439eceb437fa4c725515a7614bc210126df512adbaec0aaf56b701b4bf",
+            "step_id": "39e5646dcb-abstract-function-domain-003-abstract_conclusion"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9d3d8b893de0af466313738c",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "8451541ab29cde486d81b2d7eea47d27cc1d303771bc7cf7f5e9ff88c0b927ee",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "边界是否保留取决于它是否满足原题的全部条件。"
+            },
+            "id": "9d3d8b893de0af466313738c#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$x=0$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $0$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "不成立，排除 $0$",
+                      "value": "s1o2"
+                    }
+                  ]
+                },
+                {
+                  "label": "$x=1$ 时，原题条件是否成立？",
+                  "options": [
+                    {
+                      "label": "成立，保留 $1$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "不成立，排除 $1$",
+                      "value": "s2o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "复核边界",
+              "type": "checklist"
+            },
+            "question": "把可行集 $\\left[0, 1\\right]$ 的有限边界代回原题，判断是否保留。",
+            "submit_label": "确认判断",
+            "title": "复核边界"
+          }
+        ],
+        "route_id": "abstract-function-domain",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c805c9bd9ea3e3562a67f9190a73944319f4c011e0c644cbabab683d24986615",
+            "step_id": "39e5646dcb-abstract-function-domain-004-boundary"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1f56a90bea291f4cc41be44f",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "21df45ea8b96f7e67eee0f53b263aaab0d06eb35e8d1ca1e877fbeb6a00429ed",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求新变量的范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "目标函数的定义域与换元",
+                  "math": "\\begin{gathered}x\\in\\left[0, 1\\right]\\\\t=x+1\\end{gathered}"
+                },
+                {
+                  "label": "新变量范围",
+                  "math": "t\\in\\left[1, 2\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$x\\in\\left[0, 1\\right]\\Longrightarrow t=x+1\\in\\left[1, 2\\right]$"
+            },
+            "id": "1f56a90bea291f4cc41be44f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[1, 2\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(1, 2\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[1, 2\\right]$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "对于目标函数 $f(x+1)$，令 $t=x+1$。$t$ 的范围是什么？",
+            "stem_board": {
+              "caption": "求新变量的范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "目标函数的定义域与换元",
+                  "math": "\\begin{gathered}x\\in\\left[0, 1\\right]\\\\t=x+1\\end{gathered}"
+                },
+                {
+                  "label": "新变量范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求新变量的范围"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8cb9ef6d3e836dba17e513cb8b8b4f0d1984303d4db498f9e8aeb2e53dce9425",
+            "step_id": "cbd98ea750-substitution-range-001-abstract_inputs"
+          }
+        ],
+        "target_ref": "/root/goals/1"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9a17c78b96106dd43809d559",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "ef050a90ffbec45a3d60afe20b2ec6ec51ed307828671592e246ce9c9197c541",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断是否完整覆盖",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f$ 的输入范围与新输入范围",
+                  "math": "\\begin{gathered}D_{f}=\\left[1, 2\\right]\\\\t\\in\\left[1, 2\\right]\\end{gathered}"
+                },
+                {
+                  "label": "覆盖关系",
+                  "math": "\\{x+1:x\\in\\left[0, 1\\right]\\}=D_{f}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\{x+1:x\\in\\left[0, 1\\right]\\}=\\left[1, 2\\right]=D_{f}$"
+            },
+            "id": "9a17c78b96106dd43809d559#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "新输入只覆盖 $f$ 输入范围的一部分，不能直接沿用已知值域",
+                  "value": "o2"
+                },
+                {
+                  "label": "新输入取遍 $f$ 的输入范围，可以沿用已知值域",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "目标函数 $f(x+1)$ 的完整输入 $x+1$，能否取遍 $f$ 的输入范围？",
+            "stem_board": {
+              "caption": "判断是否完整覆盖",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "$f$ 的输入范围与新输入范围",
+                  "math": "\\begin{gathered}D_{f}=\\left[1, 2\\right]\\\\t\\in\\left[1, 2\\right]\\end{gathered}"
+                },
+                {
+                  "label": "覆盖关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "判断是否完整覆盖"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "953f103c3a9e49bdef20e00f5886f8416c8142f5ef8989afb1e68aecc9329a52",
+            "step_id": "cbd98ea750-substitution-range-002-abstract_coverage"
+          }
+        ],
+        "target_ref": "/root/goals/1"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e23cf2b826c70bb0ca049424",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "745cde5816b5f242dc6b30a8b04fb7f9892e20c6cab956ca32e57246956bdb2e",
+        "lesson_version": "e98a2e9814e35cc5791272bb087429071717c8f60fcac09e8f33eec0caff5e1f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "得到目标函数的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题设已知值域",
+                  "math": "f(x)\\in\\left[0, \\frac{1}{2}\\right]"
+                },
+                {
+                  "label": "目标函数值域",
+                  "math": "f(x+1)\\in\\left[0, \\frac{1}{2}\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\{f(x+1):x\\in\\left[0, 1\\right]\\}=\\left[0, \\frac{1}{2}\\right]$"
+            },
+            "id": "e23cf2b826c70bb0ca049424#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[0, \\frac{1}{2}\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(0, \\frac{1}{2}\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[0, \\frac{1}{2}\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "新输入已完整覆盖 $f$ 的输入范围。$f(x+1)$ 的值域是什么？",
+            "stem_board": {
+              "caption": "得到目标函数的值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题设已知值域",
+                  "math": "f(x)\\in\\left[0, \\frac{1}{2}\\right]"
+                },
+                {
+                  "label": "目标函数值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "得到目标函数的值域"
+          }
+        ],
+        "route_id": "substitution-range",
+        "run_id": "3a53cf08e6f7491c9f5243240e6604e9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "f7f92f8878d2ade95b9b173cf2aa132b75b450bb0e7f78d6be0ab4d0d0a602aa",
+            "step_id": "cbd98ea750-substitution-range-003-abstract_return"
+          }
+        ],
+        "target_ref": "/root/goals/1"
+      }
+    ]
+  }
+}

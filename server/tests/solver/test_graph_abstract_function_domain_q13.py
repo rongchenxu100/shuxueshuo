@@ -1,4 +1,4 @@
-"""Q13 keeps input-domain execution separate from its pending range target."""
+"""Q13 independently closes domain and range without mixing their identities."""
 
 import json
 import subprocess
@@ -9,7 +9,10 @@ import pytest
 import sympy as sp
 
 from shuxueshuo_server.graph_lesson.stage_one.features import extract_features
-from shuxueshuo_server.graph_lesson.stage_three import abstract_function_domain, verification
+from shuxueshuo_server.graph_lesson.stage_three import (
+    abstract_function_domain,
+    verification,
+)
 from shuxueshuo_server.graph_lesson.stage_three.context import build_context
 from shuxueshuo_server.graph_lesson.stage_three.selection import evaluate_goal
 from shuxueshuo_server.graph_lesson.stage_two.recognition import evaluate_types
@@ -73,7 +76,9 @@ def test_domain_and_range_keep_distinct_known_goal_features_and_shared_function_
     assert domain_context['goal_ast']['known_call'][2] != range_context['goal_ast']['known_call'][2]
     assert domain_context['goal_ast']['known_range'] == range_context['goal_ast']['known_range']
     assert abstract_function_domain.admitted(range_context) is False
-    assert not any(row['status'] == 'supported' for row in evaluate_types(range_features))
+    assert range_by_id['abstract_function_range']['status'] == 'known'
+    assert any(row['type_id'] == 'type-function-range' and row['status'] == 'supported'
+               for row in evaluate_types(range_features))
     forced = evaluate_goal(value, RANGE_TARGET, range_features, 'type-abstract-function-domain')
     assert forced['status'] == 'no_applicable_method'
     assert forced['d3'] is forced['d4'] is None
@@ -96,7 +101,7 @@ def test_typed_known_range_does_not_authorize_ignoring_arbitrary_facts(inherited
     assert abstract_function_domain.admitted(build_context(value, target)) is False
 
 
-def test_q13_domain_is_resolved_and_range_is_unsupported_not_selection_failed(tmp_path):
+def test_q13_domain_and_range_are_resolved_without_model_selection(tmp_path):
     value = candidate()
     extracted = features(value)
 
@@ -111,38 +116,38 @@ def test_q13_domain_is_resolved_and_range_is_unsupported_not_selection_failed(tm
     by_target = {row['target_ref']: row for row in result['goals']}
     assert by_target[DOMAIN_TARGET]['status'] == 'resolved'
     assert by_target[DOMAIN_TARGET]['primary'] == 'type-abstract-function-domain'
-    assert by_target[RANGE_TARGET]['status'] == 'unsupported'
-    assert by_target[RANGE_TARGET]['primary'] is None
-    assert by_target[RANGE_TARGET]['supported'] == []
+    assert by_target[RANGE_TARGET]['status'] == 'resolved'
+    assert by_target[RANGE_TARGET]['primary'] == 'type-function-range'
     assert by_target[RANGE_TARGET]['llm'] is None
 
 
-def test_q13_runs_and_completes_only_the_domain_lesson_with_range_still_pending(tmp_path):
+def test_q13_completes_each_goal_and_both_interactive_lessons(tmp_path):
     from shuxueshuo_server.graph_lesson.stage_three import runner
     from shuxueshuo_server.graph_lesson.stage_three.trajectory import decode_value
-    from tests.solver.test_graph_stage_three_execution import constructed_upstream, store
+    from tests.solver.test_graph_stage_three_execution import (
+        constructed_upstream,
+        store,
+    )
     from tools.export_graph_walk_course import export_course
 
     value = candidate()
     source = constructed_upstream(tmp_path, value)
     output = tmp_path / 'run'
     result = runner.run_sample(source, output)
-    # "completed" is the runner's terminal process status, not a claim that
-    # every requested target has an answer. The unresolved range stays present.
     assert result['status'] == 'completed', result
     by_target = {row['target_ref']: row for row in result['goals']}
     assert by_target[DOMAIN_TARGET]['status'] == 'solved'
     assert by_target[DOMAIN_TARGET]['answer']['set']['expression'] == 'Interval(0, 1)'
-    assert by_target[RANGE_TARGET]['stage_two_status'] == 'unsupported'
-    assert by_target[RANGE_TARGET]['status'] == 'skipped'
-    assert by_target[RANGE_TARGET]['answer'] is None
-    assert by_target[RANGE_TARGET]['routes'] == []
+    assert by_target[RANGE_TARGET]['status'] == 'solved', by_target[RANGE_TARGET]
+    assert by_target[RANGE_TARGET]['answer']['kind'] == 'find_abstract_range'
+    assert by_target[RANGE_TARGET]['answer']['set']['expression'] == 'Interval(0, 1/2)'
     context = by_target[DOMAIN_TARGET]['constraint_context']
     expected_range = context['goal_ast']['known_range']
     assert context['abstract_domain_goal']['known_range_ast'] == expected_range
 
     snapshot = store(output).snapshot()
-    handoff, = snapshot['handoffs']
+    assert len(snapshot['handoffs']) == 2
+    handoff = next(row for row in snapshot['handoffs'] if row['target_ref'] == DOMAIN_TARGET)
     assert handoff['target_ref'] == DOMAIN_TARGET and handoff['available'] is True
     checkpoint = store(output).checkpoint(DOMAIN_TARGET, handoff['route_id'])
     executed = decode_value(checkpoint['driver_state']['result'])
@@ -154,8 +159,7 @@ def test_q13_runs_and_completes_only_the_domain_lesson_with_range_still_pending(
     evidence = export_course(output, 'q13-domain-acceptance-test')
     exported = {row['target_ref']: row for row in evidence['lesson']['goals']}
     assert exported[DOMAIN_TARGET]['walk'] is not None
-    assert exported[RANGE_TARGET]['status'] == 'unsupported'
-    assert exported[RANGE_TARGET]['walk'] is None
+    assert exported[RANGE_TARGET]['walk'] is not None
     evidence_path = tmp_path / 'evidence.json'
     evidence_path.write_text(json.dumps(evidence, ensure_ascii=False))
     root = Path(__file__).resolve().parents[3]
@@ -172,11 +176,12 @@ const {nodes} = await loadSources(repoRoot);
 const source = {schemaVersion: 1, problemId: 'q13-domain-acceptance-test',
   page: '/topics/function-concepts/q13/', topicHref: '/topics/function-concepts/',
   title: '求定义域', targetRef: '/root/goals/0'};
-const {bundle} = compileCourse(source, evidence, graph, nodes);
-assert.throws(() => compileCourse({...source, targetRef: '/root/goals/1'}, evidence, graph, nodes));
+const {bundle: domainBundle} = compileCourse(source, evidence, graph, nodes);
+assert.equal(Object.values(domainBundle.routes)[0].completion.answer.set.expression, 'Interval(0, 1)');
+const {bundle} = compileCourse({...source, targetRef: '/root/goals/1'}, evidence, graph, nodes);
 const routeId = Object.keys(bundle.routes)[0];
-assert.equal(bundle.routes[routeId].completion.answer.kind, 'find_abstract_domain');
-assert.equal(bundle.routes[routeId].completion.answer.set.expression, 'Interval(0, 1)');
+assert.equal(bundle.routes[routeId].completion.answer.kind, 'find_abstract_range');
+assert.equal(bundle.routes[routeId].completion.answer.set.expression, 'Interval(0, 1/2)');
 let state = createState(bundle), count = 0;
 while (currentDecision(bundle, state)) {
   const step = currentDecision(bundle, state);
@@ -195,7 +200,7 @@ while (currentDecision(bundle, state)) {
 }
 assert.ok(count >= 6);
 assert.equal(state.done, true);
-assert.equal(evidence.lesson.goals.find(goal => goal.target_ref === '/root/goals/1').walk, null);
+assert.ok(evidence.lesson.goals.every(goal => goal.walk));
 process.stdout.write(JSON.stringify({decisions: count}));
 """
     probe = subprocess.run(['node', '--input-type=module', '-e', script, str(evidence_path)],

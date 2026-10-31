@@ -124,7 +124,7 @@
     {
       "id": "explicit_function_range",
       "syntax": "f(x)=x^2-2*x+2；目标 {\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[0,3]\"}",
-      "meaning": "求具体函数的完整值域；保留原函数及题给输入范围，不提前配方或求解。object 引用函数，参数范围目标继续使用 symbol；完整定义域声明写 Dom(f)=D。",
+      "meaning": "求具体函数的完整值域；保留原函数及题给输入范围，不提前配方或求解。object 引用函数，参数范围目标继续使用 symbol；完整定义域声明写 Dom(f)=D。 分式保留原分子和原分母，不约分、不做分式分离；约分前的禁取点由后续规则求解。题目同时问定义域和值域时，保留两个独立目标（find_domain 与 find_range），引用同一函数，不能漏掉任一空。",
       "examples": [
         "f(x)=x^2-2*x+2",
         "Dom(f)=[0,3]"

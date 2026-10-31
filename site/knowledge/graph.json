@@ -686,6 +686,106 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "method-equation-real-root-range",
+      "kind": "method",
+      "label": "方程有实根法",
+      "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "equation",
+          "title": "转为输入方程",
+          "calls": [
+            "skill-equality-transform"
+          ]
+        },
+        {
+          "id": "solve",
+          "title": "分次数求有解条件",
+          "calls": [
+            "skill-solve-quadratic"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-finite-range",
+      "kind": "method",
+      "label": "枚举法",
+      "summary": "确定有限的合法输入，逐一代入，收集并去重得到全部输出。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "列出全部合法输入",
+          "calls": []
+        },
+        {
+          "id": "inputs",
+          "title": "依次选择输入",
+          "calls": []
+        },
+        {
+          "id": "evaluate",
+          "title": "逐一代入求值",
+          "calls": [
+            "method-function-evaluation"
+          ]
+        },
+        {
+          "id": "collect",
+          "title": "收集输出并去重",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-fraction-split-range",
+      "kind": "method",
+      "label": "分式分离求值域法",
+      "summary": "保留原定义域，分离常数；求分母或对勾函数的范围，再取倒数、还原并合并零点分支。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "separate",
+          "title": "分离常数与整理分式",
+          "calls": [
+            "method-fraction-split"
+          ]
+        },
+        {
+          "id": "solve",
+          "title": "求中间函数的范围",
+          "calls": [
+            "method-quadratic-interval-range",
+            "skill-reciprocal-range"
+          ]
+        },
+        {
+          "id": "restore",
+          "title": "取倒数并还原值域",
+          "calls": [
+            "skill-inequality-transform"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-fraction-split",
       "kind": "skill",
       "label": "分式分离",
@@ -1200,6 +1300,25 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "method-translation-range",
+      "kind": "method",
+      "label": "整段平移求值域法",
+      "summary": "已知某一完整周期段上的值域；把这段按整数次平移铺满目标输入范围，再把各段值域合并。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "translate",
+          "title": "整段平移并合并值域",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "核验铺满与可达性",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-variable-swap",
       "kind": "method",
       "label": "更换主元法",
@@ -1371,6 +1490,15 @@
         "倒勾函数"
       ],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "rule-function-range-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "求函数值域的选法判断",
+      "summary": "先确定原定义域，再根据函数结构核验各条方法路线；多种适用方法均可选择。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "rule-interval-skill",
@@ -2290,6 +2418,90 @@
       ]
     },
     {
+      "id": "method-equation-real-root-range|calls|skill-equality-transform",
+      "from": "method-equation-real-root-range",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "equation",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-equation-real-root-range|calls|skill-solve-quadratic",
+      "from": "method-equation-real-root-range",
+      "to": "skill-solve-quadratic",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-finite-range|calls|method-function-evaluation",
+      "from": "method-finite-range",
+      "to": "method-function-evaluation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-fraction-split-range|calls|method-fraction-split",
+      "from": "method-fraction-split-range",
+      "to": "method-fraction-split",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "separate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
+      "from": "method-fraction-split-range",
+      "to": "method-quadratic-interval-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-fraction-split-range|calls|skill-inequality-transform",
+      "from": "method-fraction-split-range",
+      "to": "skill-inequality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "restore",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-fraction-split-range|calls|skill-reciprocal-range",
+      "from": "method-fraction-split-range",
+      "to": "skill-reciprocal-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-fraction-split|uses|equality-properties",
       "from": "method-fraction-split",
       "to": "equality-properties",
@@ -3151,6 +3363,30 @@
       "type": "prerequisite",
       "occurrences": [
         {}
+      ]
+    },
+    {
+      "id": "rule-function-range-method|selects|method-equation-real-root-range",
+      "from": "rule-function-range-method",
+      "to": "method-equation-real-root-range",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "equation",
+          "condition": "原定义域为实数全域，原分母为无实根二次式，分子至多二次。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-range-method|selects|method-fraction-split-range",
+      "from": "rule-function-range-method",
+      "to": "method-fraction-split-range",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "fraction",
+          "condition": "常数商、至多一次余项和至多二次分母；常数余项求分母范围，一次余项通过换元与对勾函数等中间函数求范围，并合并合法零点输出。"
+        }
       ]
     },
     {
@@ -4675,6 +4911,33 @@
       ]
     },
     {
+      "id": "type-function-range|candidate|method-equation-real-root-range",
+      "from": "type-function-range",
+      "to": "method-equation-real-root-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|candidate|method-finite-range",
+      "from": "type-function-range",
+      "to": "method-finite-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|candidate|method-fraction-split-range",
+      "from": "type-function-range",
+      "to": "method-fraction-split-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-range|candidate|method-quadratic-interval-range",
       "from": "type-function-range",
       "to": "method-quadratic-interval-range",
@@ -4687,6 +4950,15 @@
       "id": "type-function-range|candidate|method-substitution-range",
       "from": "type-function-range",
       "to": "method-substitution-range",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|candidate|method-translation-range",
+      "from": "type-function-range",
+      "to": "method-translation-range",
       "type": "candidate",
       "occurrences": [
         {}
@@ -4760,6 +5032,15 @@
       "from": "type-function-range",
       "to": "square-root-expression",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|method_rule|rule-function-range-method",
+      "from": "type-function-range",
+      "to": "rule-function-range-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

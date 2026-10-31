@@ -22,9 +22,15 @@ def load_contract(primary):
         methods = nodes[primary].get('methods', [])
         if contract.get('admission') in ('function_domain_routes', 'function_range_routes'):
             route_methods = [row['method'] for row in contract.get('routes', [])]
-            if (contract['type'] != primary or nodes[primary].get('rules')
+            rules = nodes[primary].get('rules', [])
+            card_rule = contract.get('display') == 'method_cards' and contract.get('rule') in rules
+            if (contract['type'] != primary or (rules and not card_rule)
                     or not route_methods or any(method not in methods for method in route_methods)):
                 raise ValueError('selection.direct_contract_node_mismatch')
+            if card_rule:
+                node = nodes[contract['rule']]
+                if node['kind'] != 'judgment_rule' or any(b['target'] not in route_methods for b in node['branches']):
+                    raise ValueError('selection.card_rule_node_mismatch')
         elif (contract['type'] != primary or contract.get('method') not in methods
                 or nodes[primary].get('rules')):
             raise ValueError('selection.direct_contract_node_mismatch')
@@ -122,6 +128,11 @@ def evaluate_goal(candidate, target_ref, features, primary):
         from .function_range import admitted as admitted_range
         from .method_admission import _abstract_function_domain as admitted_abstract
         context = build_context(candidate, target_ref)
+        if (admission == 'function_range_routes' and context.get('range_goal', {}).get('rational')
+                and admitted_range(context)
+                and not admitted_range(context, 'method-finite-range')):
+            from .range_selection import select_rational_range
+            return select_rational_range(context, contract, primary)
         # Re-read the candidate. A supplied type/feature/method override never
         # grants admission to a different mathematical category.
         checks = {
@@ -133,6 +144,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_range_direct': lambda context: admitted_range(context, 'method-direct-range'),
             'function_range_quadratic': lambda context: admitted_range(context, 'method-quadratic-interval-range'),
             'function_range_substitution': lambda context: admitted_range(context, 'method-substitution-range'),
+            'function_range_fraction': lambda context: admitted_range(context, 'method-fraction-split-range'),
+            'function_range_equation': lambda context: admitted_range(context, 'method-equation-real-root-range'),
+            'function_range_translation': lambda context: admitted_range(context, 'method-translation-range'),
+            'function_range_finite': lambda context: admitted_range(context, 'method-finite-range'),
             'abstract_function_domain': admitted_abstract,
         }
         if admission == 'function_range':
@@ -180,6 +195,12 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
+            '先写出平移后函数值怎么变，再把已知的一整段左右平移、刚好盖住要求的输入范围，最后把各段能取到的值合起来。'
+            if chosen['admission'] == 'function_range_translation' else
+            '逐一代入有限的合法输入，收集全部输出并去重，得到值域。'
+            if chosen['admission'] == 'function_range_finite' else
+            '保留原定义域，分离分式，先求分母范围，再分段取倒数并还原原函数值域。'
+            if chosen['admission'] == 'function_range_fraction' else
             '设新变量，确定它的准确范围，再改写函数并求完整值域。'
             if chosen['admission'] == 'function_range_substitution' else
             '依据一次函数或平方根的性质确定基本范围，再作比例和平移，得到原函数的值域。'
@@ -204,10 +225,23 @@ def evaluate_goal(candidate, target_ref, features, primary):
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
               'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
         if admission in ('function_range', 'function_range_routes'):
-            from .function_range import inputs as range_inputs
-            from .range_presentation import domain_prerequisite
-            _, _, domain = range_inputs(context['range_goal'])
-            d3['prerequisites'] = [domain_prerequisite(context['range_goal'])]
+            if context['goal']['kind'] == 'find_translation_range':
+                from .translation_range import solve
+                from .translation_presentation import domain_prerequisite
+                domain = solve(context['translation_range_goal'])['domain']
+                d3['prerequisites'] = [domain_prerequisite(context['translation_range_goal'])]
+            elif context['goal']['kind'] == 'find_abstract_range':
+                from .abstract_function_range import transfer
+                from .abstract_range_presentation import domain_prerequisite
+                domain = transfer(context['abstract_range_goal'])['domain']
+                d3['prerequisites'] = [domain_prerequisite(context['abstract_range_goal'])]
+                fn = context['abstract_range_goal']['function_name']
+                d3['question'] = f'令新变量等于目标函数的完整输入，检验它能否取遍 ${fn}$ 的输入范围，再确定值域。'
+            else:
+                from .function_range import inputs as range_inputs
+                from .range_presentation import domain_prerequisite
+                _, _, domain = range_inputs(context['range_goal'])
+                d3['prerequisites'] = [domain_prerequisite(context['range_goal'])]
             branch['checks'] = [{'check_id': 'original_function_range', 'status': 'holds'},
                                 {'check_id': 'effective_input_domain', 'status': 'holds',
                                  'domain': str(domain)}]

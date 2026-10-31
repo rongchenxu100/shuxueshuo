@@ -54,6 +54,7 @@ RESOLVERS = {
     "strict": lambda source: source.math.value("relation")["strict"],
     "goal": lambda source: source.context["goal"],
     "constraint_context": lambda source: source.context,
+    "abstract_range_mode": lambda source: source.context['goal']['kind'] == 'find_abstract_range',
     "abstract_domain_parameter_mode": lambda source: source.context["goal"]["kind"] == "find_abstract_domain_parameter",
     "interval_function": _interval_function,
     "interval_operator": lambda source: {"<": ">", "<=": ">=", ">": "<", ">=": "<="}[

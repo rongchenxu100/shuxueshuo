@@ -2624,7 +2624,11 @@
     "method-function-evaluation": "verify",
     "method-quadratic-interval-range": "verify",
     "method-direct-range": "verify",
-    "method-substitution-range": "verify"
+    "method-substitution-range": "verify",
+    "method-fraction-split-range": "verify",
+    "method-equation-real-root-range": "verify",
+    "method-finite-range": "verify",
+    "method-translation-range": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

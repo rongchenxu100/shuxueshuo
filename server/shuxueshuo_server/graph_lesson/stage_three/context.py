@@ -134,6 +134,12 @@ def build_context(candidate, target_ref):
     elif goal['kind'] == 'compare_functions':
         from ..stage_one.function_equality import inspect_comparison_target
         context['comparison_goal'] = inspect_comparison_target(candidate, target_ref)
+    elif goal['kind'] == 'find_translation_range':
+        from ..stage_one.translation_range import inspect_translation_target
+        context['translation_range_goal'] = inspect_translation_target(candidate, target_ref)
+    elif goal['kind'] == 'find_abstract_range':
+        from ..stage_one.abstract_function_range import inspect_abstract_range_target
+        context['abstract_range_goal'] = inspect_abstract_range_target(candidate, target_ref)
     elif goal['kind'] == 'find_abstract_domain':
         from ..stage_one.abstract_function_domain import inspect_abstract_domain_target
         context['abstract_domain_goal'] = inspect_abstract_domain_target(candidate, target_ref)

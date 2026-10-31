@@ -1,0 +1,206 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-equation-real-root-range",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "equation",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_equation_range",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "function": "function",
+            "variable": "variable",
+            "domain": "domain"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "equation_rearrange",
+          "after": "prepare",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "equation_rearrange",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "solve",
+          "capability": "solve_equation_range",
+          "public_ref": "skill-solve-quadratic",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "function": "function",
+            "variable": "variable",
+            "domain": "domain",
+            "range": "range",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "equation_degenerate",
+          "after": "solve",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": "$range",
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "equation_degenerate",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range"
+          ]
+        },
+        {
+          "id": "equation_discriminant",
+          "after": "solve",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": "$range",
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "equation_discriminant",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range"
+          ]
+        },
+        {
+          "id": "equation_merge",
+          "after": "solve",
+          "template": "function_range_derivation",
+          "bindings": {
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": "$range",
+            "endpoint_values": null,
+            "critical_points": null,
+            "before": [],
+            "after": [],
+            "phase": "equation_merge",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_range",
+        "inputs": {
+          "context": "$context",
+          "method": "method-equation-real-root-range"
+        }
+      }
+    ]
+  }
+}

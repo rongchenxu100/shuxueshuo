@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-range-q06",
+  "bundleVersion": "[\"stream\",\"c9515af090150881309c55a5df4dbe8d7eab05479f8078867a93a639712ed073\",\"20ab4bb6e24847b6bb38aae9bad9e5563e4d7c80aabf5e4b3083f36f42f08823\",\"74184e60b74c4448aaa14f4ca5b600eb\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "fraction-split-range"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-range"
+    },
+    {
+      "decision": "D3-domain",
+      "answer": "o1"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [],
+        "method": "fraction",
+        "confirmed": 0
+      }
+    },
+    {
+      "decision": "a429012860426aa2d22ff743#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "477c53aa2afaf53bf057295b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "f82541879ae9c99472c310c6#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "8d9b06396894414e82368127#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "8d9b06396894414e82368127#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "94710d402111ac26e5b0bd4b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "2b239a3fd8ddf9831f09932d#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "ce09374f9e2e5d712184897d#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "73311f05bc82093fa9cfa835#1",
+      "answer": "o1"
+    }
+  ]
+}

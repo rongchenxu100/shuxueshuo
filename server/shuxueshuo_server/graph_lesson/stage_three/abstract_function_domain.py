@@ -386,8 +386,8 @@ def _verification_set(ast):
     raise NotationError("abstract_domain.verification_set_unsupported")
 
 
-def _verification_source(candidate, target_ref):
-    description = inspect_abstract_domain_target(candidate, target_ref)
+def _verification_source(candidate, target_ref, *, range_goal=False):
+    description = inspect_abstract_domain_target(candidate, target_ref, range_goal=range_goal)
     if not description.get("structure_supported"):
         raise NotationError("abstract_domain.verification_source_unsupported")
 

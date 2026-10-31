@@ -459,7 +459,9 @@
                 "find_domain",
                 "match_domain",
                 "find_abstract_domain",
-                "find_abstract_domain_parameter"
+                "find_abstract_domain_parameter",
+                "find_abstract_range",
+                "find_translation_range"
               ]
             },
             "status": {

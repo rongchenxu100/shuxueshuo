@@ -162,7 +162,7 @@ def _plane(d3):
     if not d3:
         return '<p>本目标没有学生 D3 片段。</p>'
     interaction = d3["interaction"]
-    if interaction["type"] == "read":
+    if interaction["type"] in ("read", "method_cards"):
         return "<p>" + escape(d3.get("question", d3["title"])) + "</p>"
     xs, ys = interaction["x"]["options"], interaction["y"]["options"]
     cell = d3["expected_answer"]["cell"]

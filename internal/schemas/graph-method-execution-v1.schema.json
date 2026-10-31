@@ -65,6 +65,12 @@
                 },
                 "guard": {
                   "$ref": "#/$defs/guard"
+                },
+                "presentation": {
+                  "enum": [
+                    "expanded",
+                    "fold"
+                  ]
                 }
               }
             }

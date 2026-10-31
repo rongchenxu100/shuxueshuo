@@ -4,83 +4,331 @@
   "description": "Public student read model; resumable driver state remains in the internal checkpoint.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contract", "run_id", "lesson_version", "input_sha256", "revisions_ref", "stream_id", "last_seq", "minimum_seq", "checkpoints", "trajectories", "math_steps", "goals", "handoffs", "qa", "selection_chunks"],
+  "required": [
+    "contract",
+    "run_id",
+    "lesson_version",
+    "input_sha256",
+    "revisions_ref",
+    "stream_id",
+    "last_seq",
+    "minimum_seq",
+    "checkpoints",
+    "trajectories",
+    "math_steps",
+    "goals",
+    "handoffs",
+    "qa",
+    "selection_chunks"
+  ],
   "properties": {
-    "contract": {"const": "graph-stage-three-snapshot/v2"},
-    "run_id": {"type": "string", "minLength": 1},
-    "lesson_version": {"type": "string", "minLength": 1},
-    "input_sha256": {"$ref": "#/$defs/hash"},
-    "revisions_ref": {"$ref": "#/$defs/hash"},
-    "stream_id": {"type": "string", "minLength": 1},
-    "last_seq": {"type": "integer", "minimum": 0},
-    "minimum_seq": {"type": "integer", "minimum": 1},
-    "checkpoints": {"type": "array", "items": {"$ref": "#/$defs/route"}},
-    "trajectories": {"type": "array", "items": {"$ref": "#/$defs/trajectory"}},
-    "math_steps": {"type": "array", "items": {"type": "object"}},
-    "goals": {"type": "object"},
-    "handoffs": {"type": "array", "items": {"type": "object"}},
-    "qa": {"type": "array", "items": {"type": "object"}},
-    "selection_chunks": {"type": "array", "items": {"type": "object"}},
-    "interaction_protocol": {"anyOf": [{"const": "graph-step-interaction/v1"}, {"type": "null"}]},
-    "interaction_states": {"type": "array", "items": {"$ref": "#/$defs/interaction_state"}},
-    "interactions": {"type": "array", "items": {"type": "object", "required": ["contract", "interaction_id", "status", "steps"]}}
+    "contract": {
+      "const": "graph-stage-three-snapshot/v2"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lesson_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_sha256": {
+      "$ref": "#/$defs/hash"
+    },
+    "revisions_ref": {
+      "$ref": "#/$defs/hash"
+    },
+    "stream_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "last_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "minimum_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/route"
+      }
+    },
+    "trajectories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/trajectory"
+      }
+    },
+    "math_steps": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "goals": {
+      "type": "object"
+    },
+    "handoffs": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "qa": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "selection_chunks": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "interaction_protocol": {
+      "anyOf": [
+        {
+          "const": "graph-step-interaction/v1"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "interaction_states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/interaction_state"
+      }
+    },
+    "interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "contract",
+          "interaction_id",
+          "status",
+          "steps"
+        ]
+      }
+    }
   },
   "$defs": {
-    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
-    "case_path": {"type": "array", "items": {"type": "string"}},
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "case_path": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "interaction_state": {
-      "type": "object", "additionalProperties": false,
-      "required": ["target_ref", "route_id", "step_id", "ordinal", "math_step_sha256", "status"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_ref",
+        "route_id",
+        "step_id",
+        "ordinal",
+        "math_step_sha256",
+        "status"
+      ],
       "properties": {
-        "target_ref": {"type": "string"}, "route_id": {"type": "string"}, "step_id": {"type": "string"},
-        "ordinal": {"type": "integer", "minimum": 1}, "math_step_sha256": {"$ref": "#/$defs/hash"},
-        "status": {"enum": ["pending", "interactive", "readonly"]},
-        "interaction_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"}
+        "target_ref": {
+          "type": "string"
+        },
+        "route_id": {
+          "type": "string"
+        },
+        "step_id": {
+          "type": "string"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "math_step_sha256": {
+          "$ref": "#/$defs/hash"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "interactive",
+            "readonly"
+          ]
+        },
+        "interaction_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{24}$"
+        }
       },
-      "if": {"properties": {"status": {"const": "pending"}}},
-      "then": {"not": {"required": ["interaction_id"]}},
-      "else": {"required": ["interaction_id"]}
+      "if": {
+        "properties": {
+          "status": {
+            "const": "pending"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "interaction_id"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "interaction_id"
+        ]
+      }
     },
     "route": {
-      "type": "object", "additionalProperties": false,
-      "required": ["target_ref", "route_id", "status", "commit_id", "last_seq"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_ref",
+        "route_id",
+        "status",
+        "commit_id",
+        "last_seq"
+      ],
       "properties": {
-        "target_ref": {"type": "string"}, "route_id": {"type": "string"},
-        "status": {"type": "string"}, "phase": {"type": "string"},
-        "commit_id": {"type": "string"}, "last_seq": {"type": "integer", "minimum": 0}
+        "target_ref": {
+          "type": "string"
+        },
+        "route_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "commit_id": {
+          "type": "string"
+        },
+        "last_seq": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "source": {
-      "type": "object", "additionalProperties": false,
+      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "public_ref": {"type": ["string", "null"]},
-        "rule_ref": {"type": "string"}, "branch": {"type": "string"},
-        "used_basis": {"type": "array", "items": {"type": "string"}},
-        "case_path": {"$ref": "#/$defs/case_path"},
-        "postconditions": {"type": "array", "items": {
-          "type": "object", "additionalProperties": false, "properties": {"passed": {"type": "boolean"}}
-        }}
+        "public_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rule_ref": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "used_basis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "case_path": {
+          "$ref": "#/$defs/case_path"
+        },
+        "postconditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "passed": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       }
     },
     "trajectory": {
-      "type": "object", "additionalProperties": false,
-      "required": ["target_ref", "route_id", "steps", "finalization"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_ref",
+        "route_id",
+        "steps",
+        "finalization"
+      ],
       "properties": {
-        "target_ref": {"type": "string"}, "route_id": {"type": "string"},
-        "steps": {"type": "array", "items": {
-          "type": "object", "additionalProperties": false, "required": ["seq", "calls"],
-          "properties": {
-            "seq": {"type": "integer", "minimum": 1}, "method": {"type": "string"},
-            "step": {"type": "string"}, "case_path": {"$ref": "#/$defs/case_path"},
-            "calls": {"type": "array", "items": {"$ref": "#/$defs/source"}}
+        "target_ref": {
+          "type": "string"
+        },
+        "route_id": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "seq",
+              "calls"
+            ],
+            "properties": {
+              "seq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "method": {
+                "type": "string"
+              },
+              "step": {
+                "type": "string"
+              },
+              "case_path": {
+                "$ref": "#/$defs/case_path"
+              },
+              "calls": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/source"
+                }
+              }
+            }
           }
-        }},
-        "finalization": {"type": "array", "items": {
-          "type": "object", "additionalProperties": false, "required": ["index", "record"],
-          "properties": {
-            "index": {"type": "integer", "minimum": 0}, "record": {"$ref": "#/$defs/source"}
+        },
+        "finalization": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "index",
+              "record"
+            ],
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "record": {
+                "$ref": "#/$defs/source"
+              }
+            }
           }
-        }}
+        }
       }
     }
   }

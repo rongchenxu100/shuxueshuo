@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-range-q18",
+  "bundleVersion": "[\"stream\",\"33f288f170e639df577a04be4903ab892aada0129bbbfe159aeed22a31857449\",\"2c54a646d45d5b8fa511fb9557e63fe24ddfd2aeb2df672fb008f71fe53dac12\",\"81459a59d9a94afe8c613d07c0e875d3\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "translation-range"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-range"
+    },
+    {
+      "decision": "D3-domain",
+      "answer": "read"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "d4de94280e52f0e8987cbd96#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "fa1e2039536e73fae5b6d30b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "9e0e62290f842437ad0f5b6b#1",
+      "answer": "o1"
+    }
+  ]
+}

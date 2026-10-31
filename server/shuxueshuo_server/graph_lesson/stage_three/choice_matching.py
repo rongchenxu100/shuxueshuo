@@ -19,7 +19,7 @@ from .verification import VerificationGap, _set_mismatch, _supported_set
 
 _SETS = {"real", "empty_set", "interval", "tuple", "set", "set_builder", "∪", "∩"}
 _RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "and", "or"}
-_SET_GOALS = {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter"}
+_SET_GOALS = {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
 
 
 def _domain(ast):
@@ -126,6 +126,8 @@ def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None
             return {**base, "reason": "choice.unattained_answer_unsupported"}
         if goal["kind"] == "find_abstract_domain_parameter":
             parameter_name = goal["parameter"]
+        elif goal["kind"] in ("find_abstract_range", "find_translation_range"):
+            parameter_name = "y"
         elif goal["kind"] == "find_abstract_domain":
             parameter_name = context["abstract_domain_goal"]["variable"]
         elif goal["kind"] == "find_domain":

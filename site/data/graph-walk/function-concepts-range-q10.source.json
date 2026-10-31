@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q10",
+  "title": "分式分离求值域 · Q10",
+  "page": "/topics/function-concepts/q10/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q10.evidence.json",
+  "statement": "已知函数 $y=\\frac{x^2-x}{x^2-x+1}$ 的，则其值域为 ______"
+}

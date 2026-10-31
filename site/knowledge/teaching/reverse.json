@@ -1826,6 +1826,34 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "3f134c4dbf39096b6f41ea5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "559659e8058f73fbc006d441#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "107badd7dbfc1f39039c5cc1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "17809049f1b17094375dc1e8#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "extremum",
@@ -1954,6 +1982,48 @@
       "problem": "function-concepts-range-q16",
       "route": "substitution-range",
       "step": "e64def311d14e845793f0959#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "b6cf161b5a21c56162df3dd5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "60337571058e1fea1bbb8ee4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "3bd4bc6c70313e331df0d538#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "76e48522d391364e4c3b53bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "2920d51590e749ef817e70ed#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "7a98e95eb0cc628b672d03be#1",
       "conditions": {}
     },
     {
@@ -2168,6 +2238,132 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "d4de94280e52f0e8987cbd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "fa1e2039536e73fae5b6d30b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "9e0e62290f842437ad0f5b6b#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2363,6 +2559,34 @@
       "problem": "function-concepts-range-q16",
       "route": "substitution-range",
       "step": "379704a7b3263327e33b5b86#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "3f134c4dbf39096b6f41ea5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "559659e8058f73fbc006d441#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "107badd7dbfc1f39039c5cc1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "17809049f1b17094375dc1e8#1",
       "conditions": {}
     },
     {
@@ -2724,6 +2948,90 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2996,6 +3304,90 @@
       "problem": "function-concepts-parameter-variant02",
       "route": "abstract-function-domain",
       "step": "6b6710e8909342f7d0753155#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
       "conditions": {}
     },
     {
@@ -3485,6 +3877,27 @@
       "problem": "function-concepts-q29b",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "67dd255fad8e2cc9aa9d91cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "f8979ec49e20454d037b7abf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "947ffd28eab07b0d8b27993c#1",
       "conditions": {}
     }
   ],
@@ -4285,6 +4698,27 @@
       "route": "substitution-range",
       "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "1f56a90bea291f4cc41be44f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "9a17c78b96106dd43809d559#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "e23cf2b826c70bb0ca049424#1",
+      "conditions": {}
     }
   ],
   "method-fraction-split": [
@@ -4356,6 +4790,83 @@
       "problem": "basic-inequality-q30",
       "route": "elimination",
       "step": "split",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
       "conditions": {}
     }
   ],
@@ -4733,6 +5244,69 @@
       "topic": "function-concepts",
       "problem": "function-concepts-range-q16",
       "route": "substitution-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
       "step": "D1",
       "conditions": {}
     }
@@ -5454,6 +6028,167 @@
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "67dd255fad8e2cc9aa9d91cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "f8979ec49e20454d037b7abf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "947ffd28eab07b0d8b27993c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
     }
   ],
   "square-root-expression#meaning": [
@@ -5886,6 +6621,90 @@
       "problem": "function-concepts-parameter-variant02",
       "route": "abstract-function-domain",
       "step": "6b6710e8909342f7d0753155#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
       "conditions": {}
     }
   ],
@@ -6655,6 +7474,209 @@
       "problem": "function-concepts-q29b",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "67dd255fad8e2cc9aa9d91cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "f8979ec49e20454d037b7abf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "947ffd28eab07b0d8b27993c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "1f56a90bea291f4cc41be44f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "9a17c78b96106dd43809d559#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "e23cf2b826c70bb0ca049424#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "d4de94280e52f0e8987cbd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "fa1e2039536e73fae5b6d30b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "9e0e62290f842437ad0f5b6b#1",
       "conditions": {}
     }
   ],
@@ -8013,6 +9035,195 @@
       "route": "substitution-range",
       "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "3f134c4dbf39096b6f41ea5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "559659e8058f73fbc006d441#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "67dd255fad8e2cc9aa9d91cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "107badd7dbfc1f39039c5cc1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "17809049f1b17094375dc1e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "f8979ec49e20454d037b7abf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "947ffd28eab07b0d8b27993c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
     }
   ],
   "skill-quadratic-sign": [
@@ -8286,6 +9497,69 @@
       "problem": "function-concepts-q12",
       "route": "domain-parameter",
       "step": "23d5e440bd6efbdab66c1312#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
       "conditions": {}
     },
     {
@@ -8780,6 +10054,69 @@
       "route": "domain-parameter",
       "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
     }
   ],
   "quadratic-equation#roots": [
@@ -8796,6 +10133,69 @@
       "route": "domain-parameter",
       "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
     }
   ],
   "quadratic-inequality#signs": [
@@ -8811,6 +10211,69 @@
       "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
       "conditions": {}
     }
   ],
@@ -9581,6 +11044,27 @@
       "problem": "function-concepts-parameter-variant02",
       "route": "abstract-function-domain",
       "step": "aa2eeaf09c558b606bed1e25#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "1f56a90bea291f4cc41be44f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "9a17c78b96106dd43809d559#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "e23cf2b826c70bb0ca049424#1",
       "conditions": {}
     }
   ],
@@ -10356,6 +11840,83 @@
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
     }
   ],
   "type-function-range": [
@@ -10378,6 +11939,34 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q16"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18"
     }
   ],
   "method-quadratic-interval-range": [
@@ -10466,6 +12055,34 @@
       "route": "substitution-range",
       "step": "379704a7b3263327e33b5b86#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "3f134c4dbf39096b6f41ea5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "559659e8058f73fbc006d441#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "107badd7dbfc1f39039c5cc1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "17809049f1b17094375dc1e8#1",
+      "conditions": {}
     }
   ],
   "method-quadratic-interval-range#range": [
@@ -10538,6 +12155,48 @@
       "route": "substitution-range",
       "step": "e64def311d14e845793f0959#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "b6cf161b5a21c56162df3dd5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "60337571058e1fea1bbb8ee4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "3bd4bc6c70313e331df0d538#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "76e48522d391364e4c3b53bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "2920d51590e749ef817e70ed#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "7a98e95eb0cc628b672d03be#1",
+      "conditions": {}
     }
   ],
   "method-quadratic-interval-range#transform": [
@@ -10576,6 +12235,13 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-range-q16",
+      "route": "substitution-range",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
       "route": "substitution-range",
       "step": "D3",
       "conditions": {}
@@ -10772,6 +12438,27 @@
       "route": "substitution-range",
       "step": "8c22b6a9a0ff88c29673a932#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
     }
   ],
   "method-substitution-range#restore": [
@@ -10794,6 +12481,674 @@
       "problem": "function-concepts-range-q16",
       "route": "substitution-range",
       "step": "8c22b6a9a0ff88c29673a932#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "1f56a90bea291f4cc41be44f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "9a17c78b96106dd43809d559#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q13",
+      "route": "substitution-range",
+      "step": "e23cf2b826c70bb0ca049424#1",
+      "conditions": {}
+    }
+  ],
+  "method-fraction-split-range#separate": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "8582e0985f0819d0237bea6a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "04b41de5ac564a939458542b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "8e072c6ceba8f6ebeec61e21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "80a47acc0bba6b30b6fca48b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "49e413f4517b2b6cc3f686fb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "7779b0da7816fa1e051d4aaa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "3c5e691fbf5b93f38d440b8b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "5990f8dc0f1b03142dfcc5c8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "a429012860426aa2d22ff743#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "477c53aa2afaf53bf057295b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "f82541879ae9c99472c310c6#1",
+      "conditions": {}
+    }
+  ],
+  "method-fraction-split-range#restore": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
+      "conditions": {}
+    }
+  ],
+  "function-monotonicity": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "extremum",
+      "step": "e_extremum",
+      "conditions": {}
+    }
+  ],
+  "skill-inequality-transform#reciprocal": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "f5721f675186604489248ef7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "fraction-split-range",
+      "step": "03cf07116d7a70e27b4e05a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "e7b785a43070293553d6a97c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q09",
+      "route": "fraction-split-range",
+      "step": "933b367163a4a3bb67b5ce9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "daa2de5daae40170e4c317b1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "fraction-split-range",
+      "step": "3e4a670150cbc2e279d7e5a3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "418732025e17dd1edd24cd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q17",
+      "route": "fraction-split-range",
+      "step": "53aa2960ca844c1ef527fafb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "94710d402111ac26e5b0bd4b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "2b239a3fd8ddf9831f09932d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "ce09374f9e2e5d712184897d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "73311f05bc82093fa9cfa835#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "extremum",
+      "step": "e_extremum",
+      "conditions": {}
+    }
+  ],
+  "method-equation-real-root-range#equation": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "67dd255fad8e2cc9aa9d91cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "f8979ec49e20454d037b7abf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "947ffd28eab07b0d8b27993c#1",
+      "conditions": {}
+    }
+  ],
+  "method-equation-real-root-range#solve": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    }
+  ],
+  "set-intersection-union#union": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "b941a7a4266af866accb2945#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "1ec438e63a1b2ef4ae7c0147#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q07",
+      "route": "equation-real-root-range",
+      "step": "15a2dde938043cfe7d386ca0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "7a6bd0cca02f1c6e6b5f64dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "fb68704c96e9d90115a545e8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q10",
+      "route": "equation-real-root-range",
+      "step": "0e6d43b7720310aafb8f3e31#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "fe295014f84814ea11596d5d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "6668d061e9671fe267501fb7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "equation-real-root-range",
+      "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "d4de94280e52f0e8987cbd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "fa1e2039536e73fae5b6d30b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "9e0e62290f842437ad0f5b6b#1",
+      "conditions": {}
+    }
+  ],
+  "method-fraction-split-range#solve": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#2",
+      "conditions": {}
+    }
+  ],
+  "skill-reciprocal-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#2",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "extremum",
+      "step": "e_extremum",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "extremum",
+      "step": "e_extremum",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "extremum",
+      "step": "e_extremum",
+      "conditions": {}
+    }
+  ],
+  "reciprocal-sum-function": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q06",
+      "route": "fraction-split-range",
+      "step": "8d9b06396894414e82368127#2",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "extremum",
+      "step": "e_graph",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "extremum",
+      "step": "e_graph",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "extremum",
+      "step": "e_graph",
+      "conditions": {}
+    }
+  ],
+  "method-translation-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-translation-range#translate": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "d4de94280e52f0e8987cbd96#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "fa1e2039536e73fae5b6d30b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-range-q18",
+      "route": "translation-range",
+      "step": "9e0e62290f842437ad0f5b6b#1",
       "conditions": {}
     }
   ],
@@ -10939,70 +13294,6 @@
       "problem": "quadratic-always-q07",
       "route": "interval",
       "step": "i_range",
-      "conditions": {}
-    }
-  ],
-  "reciprocal-sum-function": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "extremum",
-      "step": "e_graph",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "extremum",
-      "step": "e_graph",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "extremum",
-      "step": "e_graph",
-      "conditions": {}
-    }
-  ],
-  "skill-reciprocal-range": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "extremum",
-      "step": "e_extremum",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "extremum",
-      "step": "e_extremum",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "extremum",
-      "step": "e_extremum",
-      "conditions": {}
-    }
-  ],
-  "function-monotonicity": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "extremum",
-      "step": "e_extremum",
-      "conditions": {}
-    }
-  ],
-  "skill-inequality-transform#reciprocal": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "extremum",
-      "step": "e_extremum",
       "conditions": {}
     }
   ],

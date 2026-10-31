@@ -153,7 +153,7 @@ def validate_contract(contract, problem_id):
                  and step['interaction']['type'] == 'multi') and step['interaction']['type'] != EXACT_CHOICE
                     and not _single_original(step)):
                 raise ValueError('original multiple choice requires its independent grader')
-            if step['interaction']['type'] not in {'read', 'choice', 'multi', 'checklist', 'fill', 'plane', 'grid', EXACT_CHOICE}:
+            if step['interaction']['type'] not in {'read', 'choice', 'multi', 'checklist', 'fill', 'plane', 'grid', 'method_cards', EXACT_CHOICE}:
                 raise ValueError('unsupported graph-walk interaction')
             if 'expected_answer' not in step:
                 raise ValueError('graph-walk step has no grading contract')
@@ -210,6 +210,22 @@ def grade(decision, answer, route):
                 or any(not isinstance(item, str) or item not in choices[index] for index, item in enumerate(value))):
             raise HTTPException(422, '请按顺序提交本步提供的选项。')
         passed = value == expected['terms']
+    elif kind == 'method_cards':
+        checks = component['checks']
+        if (not isinstance(value, dict) or not isinstance(value.get('checks'), list)
+                or len(value['checks']) != len(checks) or not isinstance(value.get('method'), str)):
+            raise HTTPException(422, '请提交本题的条件判断和方法。')
+        if any(not isinstance(choice, str) or choice not in {item['value'] for item in check['options']}
+               for choice, check in zip(value['checks'], checks, strict=True)):
+            raise HTTPException(422, '判断选项不属于本步。')
+        method = next((item for item in component['methods'] if item['value'] == value['method']), None)
+        if method is None:
+            raise HTTPException(422, '方法不属于本步。')
+        passed = all(choice == expected['checks'][check['id']]
+                     for choice, check in zip(value['checks'], checks, strict=True))
+        if passed and (value['method'] in decision.get('alternatives', {}) or not method.get('route')):
+            return 'uncovered'
+        passed = passed and method.get('route') == route
     elif kind in {'plane', 'grid'}:
         if (not isinstance(value, list) or len(value) != (3 if kind == 'plane' else 2)
                 or any(not isinstance(item, str) for item in value)):

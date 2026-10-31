@@ -14,6 +14,7 @@ from shuxueshuo_server.graph_lesson.stage_three.function_range import (
     independent_verify,
     inputs,
     polynomial_image,
+    prepare_function_range,
 )
 from shuxueshuo_server.graph_lesson.stage_three.goals import (
     GoalClosureMismatch,
@@ -75,7 +76,7 @@ def test_complete_polynomial_image(expression, domain, expected):
         assert independent_verify(value, TARGET, context, expected-sp.FiniteSet(witness))['status'] == 'math_failed'
 
 
-@pytest.mark.parametrize('expression', ['(x^2-1)/(x-1)', '(x-1)^0+x', 'x^2+sqrt(1-x)', 'sqrt(x)+sqrt(x+1)', 'x^3', '1/x', 'm*x^2'])
+@pytest.mark.parametrize('expression', ['(x^2-1)/(x-1)', '(x-1)^0+x', 'x^2+sqrt(1-x)', 'sqrt(x)+sqrt(x+1)', 'x^3', 'm*x^2'])
 def test_future_or_originally_restricted_syntax_is_not_admitted(expression):
     value = candidate(expression)
     desc = inspect_range_target(value, TARGET)
@@ -177,3 +178,23 @@ def test_constant_card_does_not_invent_open_output_bounds():
                        'variable': x, 'domain': domain, **outputs})
     assert view['interaction']['type'] == 'read'
     assert '保持不变' in view['question']
+
+
+@pytest.mark.parametrize('expression,domain,compare', [
+    ('x^2', '[0,3]', True),
+    ('x^2', 'ℝ', True),
+    ('x^2', 'ℝ∖{0}', False),
+    ('x-2', 'ℝ∖{2}', False),
+    ('5', '(0,1)', False),
+])
+def test_extrema_comparison_is_only_used_for_a_quadratic_on_one_interval(expression, domain, compare):
+    from shuxueshuo_server.graph_lesson.stage_three import execution_contracts
+    from shuxueshuo_server.graph_lesson.stage_three.driver import _guard
+
+    prepared = prepare_function_range(build_context(candidate(expression, domain), TARGET))['outputs']
+    contract = execution_contracts.read('method-quadratic-interval-range')
+    prepare = contract['steps'][0]['calls'][0]
+    bindings = {target: prepared[source] for source, target in prepare['outputs'].items()}
+    card = next(unit for step in contract['steps'] for unit in step['display_units']
+                if unit['id'] == 'range_values')
+    assert _guard(card.get('guard'), bindings) is compare

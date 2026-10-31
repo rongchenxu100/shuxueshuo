@@ -635,6 +635,91 @@
                   "const": "read"
                 }
               }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "facts",
+                "checks",
+                "method_notes"
+              ],
+              "properties": {
+                "type": {
+                  "const": "method_cards"
+                },
+                "facts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "checks": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "question",
+                      "options",
+                      "resolved",
+                      "feedback"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "question": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "resolved": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "feedback": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "options": {
+                        "type": "array",
+                        "minItems": 2,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "value",
+                            "label"
+                          ],
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "method_notes": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
             }
           ]
         },
@@ -660,6 +745,23 @@
             {
               "type": "object",
               "maxProperties": 0
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "checks"
+              ],
+              "properties": {
+                "checks": {
+                  "type": "object",
+                  "minProperties": 0,
+                  "additionalProperties": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
             }
           ]
         },
@@ -677,7 +779,8 @@
                   "fit",
                   "superseded",
                   "not_triggered",
-                  "unfit"
+                  "unfit",
+                  "unknown"
                 ]
               },
               "message": {
@@ -960,7 +1063,8 @@
               "recommendation": {
                 "enum": [
                   "preferred",
-                  "optional"
+                  "optional",
+                  null
                 ]
               },
               "route_plan": {
@@ -1036,7 +1140,9 @@
                 "find_domain",
                 "match_domain",
                 "find_abstract_domain",
-                "find_abstract_domain_parameter"
+                "find_abstract_domain_parameter",
+                "find_abstract_range",
+                "find_translation_range"
               ]
             },
             "status": {

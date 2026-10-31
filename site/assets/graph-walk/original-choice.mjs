@@ -15,7 +15,7 @@ export function matchedOriginalChoice(completion, targetRef = completion?.target
   if (single && choice.correct_labels.length !== 1) return null;
   if (choice.matching === 'set_equality') {
     const keys = ['status', 'kind', 'matching', 'selection_mode', 'target_ref', 'options', 'correct_labels'];
-    if (!['find_range', 'find_domain', 'match_domain', 'find_abstract_domain', 'find_abstract_domain_parameter'].includes(completion.answer?.kind) ||
+    if (!['find_range', 'find_domain', 'match_domain', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range'].includes(completion.answer?.kind) ||
         completion.answer.status !== 'set' || Object.keys(choice).length !== keys.length ||
         keys.some(key => !Object.hasOwn(choice, key)) ||
         !(single ? choice.selection_mode === 'single' : ['multiple', 'unspecified'].includes(choice.selection_mode)) ||

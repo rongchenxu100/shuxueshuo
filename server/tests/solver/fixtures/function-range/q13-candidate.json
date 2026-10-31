@@ -1,0 +1,51 @@
+{
+  "original_text": "13. 若$y=f(x)$的定义域为$[1,2]$，值域$[0,\\frac{1}{2}]$，则$y=f(x+1)$的定义域为______，值域为______．",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_abstract_domain",
+        "known_call": "f(x)",
+        "known_domain": "[1,2]",
+        "strength": "exact",
+        "target_call": "f(x+1)",
+        "known_range": "[0,1/2]"
+      },
+      {
+        "kind": "find_abstract_range",
+        "known_call": "f(x)",
+        "known_domain": "[1,2]",
+        "strength": "exact",
+        "target_call": "f(x+1)",
+        "known_range": "[0,1/2]"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若$y=f(x)$的定义域为$[1,2]$，值域$[0,\\frac{1}{2}]$，则$y=f(x+1)$的定义域为______，值域为______．",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

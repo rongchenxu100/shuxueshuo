@@ -1,3 +1,4 @@
+import {gradeMethodCards, methodAnswer, selectedMethod} from './method-cards.mjs?v=20261030-range-selection';
 // One local decision engine for the student UI, model recorder and replay.
 import '../practice/context.js?v=15';
 import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261028-domain-overlap';
@@ -77,6 +78,8 @@ export function gradeDecision(decision, answer) {
         if (!available.includes(value)) throw new Error('请使用当前步骤提供的选项。');
       }
       globalThis.PracticeContext.validate(decision, {active: 0, pairs: [answer], choices: {}});
+    } else if (component.type === 'method_cards') {
+      return gradeMethodCards(decision, answer);
     } else if (component.type === 'plane') {
       const [x, y, value] = Array.isArray(answer) && answer.length === 3 ? answer : [];
       const method = component.methods.find(item => item.value === value);
@@ -120,8 +123,10 @@ function optionFeedback(decision, answer) {
 }
 
 const routeOf = (decision, answer) => decision.route_by_answer?.[answer] ||
-  decision.interaction.methods?.find(method => method.value === answer?.[2])?.route;
-const methodChoice = bundle => bundle.intro.find(decision => decision.interaction.type === 'plane');
+  selectedMethod(decision, answer)?.route;
+const methodChoice = bundle => bundle.intro.find(decision => ['plane', 'method_cards'].includes(decision.interaction.type));
+
+const selectionAnswer = (decision, method) => decision.interaction.type === 'method_cards' ? methodAnswer(decision, method.value) : [...decision.expected_answer.cell, method.value];
 
 function completeDecision(bundle, next, decision, answer, reason) {
   const entry = {
@@ -136,7 +141,7 @@ function completeDecision(bundle, next, decision, answer, reason) {
   };
   if (next.introCompleted.length < bundle.intro.length) {
     next.introCompleted.push(entry);
-    if (decision.interaction.type === 'plane' || decision.route_by_answer) {
+    if (['plane', 'method_cards'].includes(decision.interaction.type) || decision.route_by_answer) {
       const route = routeOf(decision, answer);
       if (!bundle.routes[route]) throw new Error('此路线尚未提供完整交互。');
       next.run.route = route;
@@ -191,7 +196,7 @@ function dropRouteConfirmation(bundle, state) {
     const method = choice?.interaction.methods.find(item => item.route === state.run.route);
     // The initial stream snapshot may not contain D3 yet. Keep the old record until its mapping arrives.
     if (!method) return;
-    const answer = [...choice.expected_answer.cell, method.value];
+    const answer = selectionAnswer(choice, method);
     state.introCompleted = state.introCompleted.map(entry => entry.decision === choice.id ? {...entry, answer} : entry);
     const align = event => event.kind === 'answer' && event.status === 'passed' && event.action?.decision === choice.id
       ? {...event, action: {...event.action, answer}} : event;
@@ -261,7 +266,7 @@ export function switchRoute(bundle, state, route) {
     const method = choice?.interaction.methods.find(item => item.route === route);
     if (!method || bundle.routes[route].available === false) throw new Error('这条路线暂不支持，请选择可用路线。');
     saveStreamRoute(bundle, next);
-    const answer = [...choice.expected_answer.cell, method.value];
+    const answer = selectionAnswer(choice, method);
     next.introCompleted = next.introCompleted.map(entry => entry.decision === choice.id ? {...entry, answer} : entry);
     next.streamIntroEvents = next.streamIntroEvents.map(event => event.status === 'passed' && event.action.decision === choice.id
       ? {...event, action: {...event.action, answer}} : event);
@@ -279,7 +284,7 @@ export function switchRoute(bundle, state, route) {
   next.lastFeedback = null;
   next.done = false;
   const method = decision.interaction.methods.find(item => item.route === route);
-  completeDecision(bundle, next, decision, [...decision.expected_answer.cell, method.value]);
+  completeDecision(bundle, next, decision, selectionAnswer(decision, method));
   next.events.push({kind: 'switch_route', route, status: 'passed', runId: next.run.id});
   return next;
 }
@@ -347,6 +352,8 @@ export function projectDecision(bundle, state) {
     candidates,
     answerFormat: interaction.type === 'read' ? {decision: decision.id, answer: 'read'} : interaction.type === 'choice'
       ? {decision: decision.id, answer: '一个选项的 value 字符串', reason: '简短说明'}
+      : interaction.type === 'method_cards'
+        ? {decision: decision.id, answer: {checks: ['按条件顺序填写选项 value'], method: '所选方法的 value'}, reason: '简短说明'}
       : interaction.type === 'plane'
         ? {decision: decision.id, answer: ['横轴 x 选项的 value', '纵轴 y 选项的 value', '覆盖这一格的一种方法的 value'], reason: '简短说明'}
         : interaction.type === 'grid'
@@ -365,7 +372,7 @@ function decisionById(bundle, id) {
 // A method choice can belong to the route itself or to a borrowed submethod.
 // Resolve its declared rule and method targets against real graph occurrences.
 function planeSelectionPaths(decision, nodes, edges) {
-  if (decision?.interaction.type !== 'plane') return [];
+  if (!['plane', 'method_cards'].includes(decision?.interaction.type)) return [];
   const rules = new Set([...(decision.effects?.nodes || []), ...(decision.candidateNodes || [])]
     .filter(id => nodes.get(id)?.kind === 'judgment_rule'));
   return decision.interaction.methods.flatMap(method => nodes.has(method.target)
@@ -395,8 +402,8 @@ function confirmedGraph(bundle, entries, route, runId) {
     for (const id of effects.nodes || []) nodes.add(id);
     for (const id of effects.edges || []) edge(id);
     if (effects.log) logs.push({decision: entry.decision, text: effects.log});
-    if (decision?.interaction.type === 'plane') {
-      const method = decision.interaction.methods.find(item => item.value === entry.answer?.[2]);
+    if (['plane', 'method_cards'].includes(decision?.interaction.type)) {
+      const method = selectedMethod(decision, entry.answer);
       if (method) {
         logs.push({decision: entry.decision, text: `作答判断：选择「${method.label}」，执行该方法的步骤。`});
         for (const path of planeSelectionPaths(decision, graphNodes, graphEdges)) if (path.method.value === method.value) {
@@ -440,7 +447,7 @@ export function graphState(bundle, state) {
   const candidates = decisionCandidates(current, bundle.graph);
   const focus = candidates.length ? candidates : selectedRoute ? [selectedRoute.method] : [];
   for (const id of focus) if (id in nodes && nodes[id] === 'idle') nodes[id] = 'candidate';
-  if (current?.interaction.type === 'plane') {
+  if (['plane', 'method_cards'].includes(current?.interaction.type)) {
     const graphNodes = new Map(bundle.graph.nodes.map(node => [node.id, node]));
     const graphEdges = new Map(bundle.graph.edges.map(edge => [edge.id, edge]));
     for (const {edge} of planeSelectionPaths(current, graphNodes, graphEdges)) {
@@ -754,14 +761,14 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
   }
   if (d3 && d4) {
     const ruleEdges = [...edges.values()].filter(edge => edge.type === 'method_rule' && edge.from === d3.query.from);
-    const rules = new Set(ruleEdges.map(edge => edge.to));
+    const rules = new Set(d3.interaction.type === 'read' ? [] : ruleEdges.map(edge => edge.to));
     const selectedByBranch = new Map();
     for (const edge of edges.values()) if (edge.type === 'selects' && rules.has(edge.from)) {
       for (const occurrence of edge.occurrences || []) selectedByBranch.set(occurrence.branch, edge.to);
     }
     const options = d4.options || [];
     const direct = d3.interaction.type === 'read';
-    const coverage = direct ? Object.fromEntries(options.map(option => [option.branch, []])) : d3.interaction.coverage;
+    const coverage = direct || d3.interaction.type === 'method_cards' ? Object.fromEntries(options.map(option => [option.branch, []])) : d3.interaction.coverage;
     const methods = Object.entries(coverage).map(([branch, cells]) => {
       const option = options.find(item => item.branch === branch);
       const target = option?.method || selectedByBranch.get(branch);
@@ -775,7 +782,7 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
     for (const id of rules) ids.add(id);
     const alternatives = {};
     for (const method of methods) if (!method.route) alternatives[method.value] = {
-      message: options.find(item => item.branch === method.value)?.message ||
+      message: (d3.interaction.type === 'method_cards' && d3.verdicts?.[method.value]?.message) || options.find(item => item.branch === method.value)?.message ||
         d3.verdicts?.[method.value]?.message || '这条思路本次不展开。', href: `/knowledge/${method.target}/`,
     };
     const selection = {...copy(d3), source: 'authored', interaction: {...copy(d3.interaction), methods}, alternatives,

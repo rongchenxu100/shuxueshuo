@@ -434,6 +434,9 @@
               },
               {
                 "$ref": "#/$defs/FiniteSumGoal"
+              },
+              {
+                "$ref": "#/$defs/FindTranslationRangeGoal"
               }
             ]
           },
@@ -949,6 +952,76 @@
         }
       },
       "description": "保留单列出现项以及闭区间整数索引块。重复项不去重，不预先展开长和式；上下限不明报告uncertainty。"
+    },
+    "FindTranslationRangeGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function_relation",
+        "periodic_function",
+        "period",
+        "periodic_domain",
+        "known_domain",
+        "known_range",
+        "input_domain"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_translation_range",
+          "description": "根据题给周期关系和已知区间值域，求指定输入范围上的值域。"
+        },
+        "function_relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给关系原文，如 f(x)=x+g(x)，不推导平移关系或解析式。"
+        },
+        "periodic_function": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给周期函数名称，如 g。不是目标函数 f。"
+        },
+        "period": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给正周期，如 1；不要求最小正周期。"
+        },
+        "periodic_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "周期函数的题给定义域；本批仅支持 ℝ。"
+        },
+        "known_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给目标函数已知完整值域对应的输入区间，如 [3,4]。不是完整定义域。"
+        },
+        "known_range": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "该区间上的题给完整值域，如 [-2,5]，不得填写所求答案。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "目标函数待求值域的输入范围，如 [-10,10]。"
+        }
+      },
+      "description": "平移关系求值域目标；完整保留周期归属、原函数关系、基础输入区间及其精确值域、目标区间。各字段只记录题面已知。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

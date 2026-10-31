@@ -39,7 +39,7 @@ from .repair_authority import (  # noqa: F401
 REPO = Path(__file__).resolve().parents[4]
 REPAIR_SCOPE = (
     "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项："
-    "分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，"
+    "分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，"
     "表达式或目标错误只能原位改正，只有新增题设可以删除。"
 )
 JSON_REPAIR = (
@@ -146,7 +146,7 @@ def _alias_policy(scope, scope_path, related):
                 # The dedicated compiler owns option-local function binders;
                 # these are not global scalar aliases or parameter targets.
                 continue
-            if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
+            if goal['kind'] in ('find_translation_range', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                 # Abstract calls bind a local function identity without a body;
                 # known_call / target_call are not global scalar aliases.
                 continue

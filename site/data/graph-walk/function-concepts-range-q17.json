@@ -1,0 +1,2865 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q17",
+  "graphVersion": "6bb33254e03042c3ea7a9ea8cc269f2941904c963c8b9e37f5491e064de12fcd",
+  "problem": {
+    "text": "已知函数 $f(x)=\\frac{2-3x}{x-1}$，则函数的值域为 ______。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "题目要求求值域，需要确定什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "求给定输入范围内，全部函数值组成的集合"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "求自变量的取值范围",
+            "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-function-domain",
+        "type-function-range",
+        "type-abstract-function-domain",
+        "type-function-equality",
+        "type-function-evaluation"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "先确定定义域，再求全部实际能取到的函数值。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "note": "给出了具体解析式，据此确定合法输入（或求参）",
+            "feedback": "要求原式有意义的全部输入"
+          },
+          {
+            "value": "type-function-range",
+            "label": "求函数的值域",
+            "note": "求给定定义域内的全部函数值"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-range"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-domain",
+        "type-function-range"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-range"
+        ],
+        "edges": [
+          "type-function-range|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+        ],
+        "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "completion_board": {
+        "caption": "确定定义域",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "原式有意义的条件",
+            "math": "x - 1\\ne0"
+          },
+          {
+            "label": "定义域",
+            "math": "x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "effects": {
+        "calls": [],
+        "edges": [],
+        "log": "已确定本题的有效输入范围。",
+        "nodes": [],
+        "results": []
+      },
+      "expected_answer": {
+        "one_of": [
+          "o1"
+        ]
+      },
+      "feedback": {
+        "answer": "$x - 1\\ne0$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+      },
+      "id": "D3-domain",
+      "interaction": {
+        "field": "answer",
+        "options": [
+          {
+            "label": "$\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+            "value": "o1"
+          },
+          {
+            "label": "$\\left(-\\infty, 1\\right)$",
+            "value": "o2"
+          },
+          {
+            "label": "$\\left(1, \\infty\\right)$",
+            "value": "o3"
+          }
+        ],
+        "type": "choice"
+      },
+      "question": "题设函数关系 $f(x)=\\frac{2-3\\cdot x}{x-1}$。原式的每个分母都必须非零，约分前的限制也要保留。定义域是什么？",
+      "source_refs": [
+        "/root/definitions/0",
+        "/root/goals/0"
+      ],
+      "stem_board": {
+        "caption": "确定定义域",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "原式有意义的条件",
+            "math": "x - 1\\ne0"
+          },
+          {
+            "label": "定义域",
+            "math": null
+          }
+        ],
+        "layout": "derivation"
+      },
+      "submit_label": "在这个范围内选择方法",
+      "summary": "$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+      "title": "确定定义域",
+      "source": "authored"
+    },
+    {
+      "expected_answer": {
+        "checks": {}
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [],
+        "facts": [
+          "$f(x)=\\frac{2-3\\cdot x}{x-1}$",
+          "$D=\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+        ],
+        "method_notes": {
+          "equation": "适用条件：分子至多二次，原分母为二次式，定义域为 $\\mathbb R$ 且分母全域非零。令 $y=f(x)$，分次数判断方程有实根。",
+          "fraction": "先分离常数；按余项求分母或对勾函数的范围，再取倒数、还原并合并。"
+        },
+        "type": "method_cards",
+        "methods": [
+          {
+            "value": "fraction",
+            "label": "分式分离求值域法",
+            "target": "method-fraction-split-range",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "fraction-split-range"
+          },
+          {
+            "value": "equation",
+            "label": "方程有实根法",
+            "target": "method-equation-real-root-range",
+            "cells": [],
+            "route_plan": "capability_gap"
+          }
+        ]
+      },
+      "prerequisites": [
+        {
+          "completion_board": {
+            "caption": "确定定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式有意义的条件",
+                "math": "x - 1\\ne0"
+              },
+              {
+                "label": "定义域",
+                "math": "x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "effects": {
+            "calls": [],
+            "edges": [],
+            "log": "已确定本题的有效输入范围。",
+            "nodes": [],
+            "results": []
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$x - 1\\ne0$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+          },
+          "id": "D3-domain",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left(-\\infty, 1\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left(1, \\infty\\right)$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题设函数关系 $f(x)=\\frac{2-3\\cdot x}{x-1}$。原式的每个分母都必须非零，约分前的限制也要保留。定义域是什么？",
+          "source_refs": [
+            "/root/definitions/0",
+            "/root/goals/0"
+          ],
+          "stem_board": {
+            "caption": "确定定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式有意义的条件",
+                "math": "x - 1\\ne0"
+              },
+              {
+                "label": "定义域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "在这个范围内选择方法",
+          "summary": "$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+          "title": "确定定义域"
+        }
+      ],
+      "query": {
+        "from": "type-function-range",
+        "op": "methods"
+      },
+      "question": "定义域已确定。结合下面的适用条件，选择本次求值域的方法。",
+      "submit_label": "确认方法，开始解题",
+      "title": "判断并选择求值域的方法",
+      "verdicts": {
+        "equation": {
+          "message": "本题的定义域不是全体实数，当前路线尚不处理域内实根筛选。",
+          "value": "unknown"
+        },
+        "fraction": {
+          "message": "本题推荐。本题可分离常数，求分母范围后取倒数并还原。",
+          "value": "fit"
+        }
+      },
+      "source": "authored",
+      "alternatives": {
+        "equation": {
+          "message": "本题的定义域不是全体实数，当前路线尚不处理域内实根筛选。",
+          "href": "/knowledge/method-equation-real-root-range/"
+        }
+      },
+      "candidateNodes": [
+        "rule-function-range-method",
+        "method-fraction-split-range",
+        "method-equation-real-root-range"
+      ],
+      "effects": {
+        "nodes": [
+          "rule-function-range-method"
+        ],
+        "edges": [
+          "type-function-range|method_rule|rule-function-range-method"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "根据本题条件选择解题方法。"
+      }
+    }
+  ],
+  "routes": {
+    "fraction-split-range": {
+      "id": "fraction-split-range",
+      "method": "method-fraction-split-range",
+      "label": "分式分离求值域法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "分离分式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数及定义域",
+                "math": "\\begin{gathered}f(x)=\\frac{2-3\\cdot x}{x-1}\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "分离结果",
+                "math": "f(x)=-3 - \\frac{1}{x - 1}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$f(x)=\\frac{2-3\\cdot x}{x-1}=-3 - \\frac{1}{x - 1}$"
+          },
+          "id": "3c5e691fbf5b93f38d440b8b#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(x)=-3 - \\frac{1}{x - 1}$",
+                "value": "o1"
+              },
+              {
+                "label": "$f(x)=-2 - \\frac{1}{x - 1}$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(x)=-4 - \\frac{1}{x - 1}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将原式写成常数与倒数项之和，结果是什么？",
+          "stem_board": {
+            "caption": "分离分式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数及定义域",
+                "math": "\\begin{gathered}f(x)=\\frac{2-3\\cdot x}{x-1}\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "分离结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "分离分式",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "eda61ad7108625b0e43dcf47b428bea5584bb8cc9041ab0264240176ea6cfd84",
+              "step_id": "39e5646dcb-fraction-split-range-001-fraction_separate"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "3c5e691fbf5b93f38d440b8b",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "分离分式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：分离分式"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "求分母的范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分离后的函数",
+                "math": "f(x)=-3 - \\frac{1}{x - 1}"
+              },
+              {
+                "label": "本次求值域的函数与输入",
+                "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "$Q(x)=x - 1$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+          },
+          "id": "5990f8dc0f1b03142dfcc5c8#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "先在原定义域内求分母的完整范围。",
+          "stem_board": {
+            "caption": "求分母的范围",
+            "lines": [
+              "$f(x)=-3 - \\frac{1}{x - 1}$",
+              "$\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "求分母的范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "efb48776913105ba5e49c477ad6fde4fe994b8cb1d35c57d9c8f4b480e7bf1a5",
+              "step_id": "39e5646dcb-fraction-split-range-002-fraction_borrow"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "5990f8dc0f1b03142dfcc5c8",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求分母的范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求分母的范围"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "写出值域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "当前函数与输入范围",
+                "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "值域",
+                "math": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graphs": [
+            {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  1.5,
+                  -2.5,
+                  0.5
+                ],
+                "description": "x=1 取不到，函数值趋近 0（空心点）",
+                "intercept": -1,
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "slope": 1,
+                "title": "Q 在 (-∞, 1) 上的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -0.5,
+                  2.5
+                ],
+                "description": "x=1 取不到，函数值趋近 0（空心点）",
+                "intercept": -1,
+                "interval": [
+                  1,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "slope": 1,
+                "title": "Q 在 (1, +∞) 上的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  0.75
+                ],
+                "description": "y 的取值集合：(-∞, 0) ∪ (0, +∞)",
+                "pieces": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0
+                  },
+                  {
+                    "from": 0,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ],
+                "title": "输出范围",
+                "variable": "y"
+              }
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$"
+          },
+          "graph": {
+            "kind": "number_line",
+            "params": {
+              "bounds": [
+                0.25,
+                1.75
+              ],
+              "description": "x 的取值集合：(-∞, 1) ∪ (1, +∞)",
+              "pieces": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 1
+                },
+                {
+                  "from": 1,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "points": [],
+              "ticks": [
+                [
+                  1,
+                  "1"
+                ]
+              ],
+              "title": "定义域的各个分量",
+              "variable": "x"
+            }
+          },
+          "id": "7a98e95eb0cc628b672d03be#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(0, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(-\\infty, 0\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在给定输入范围内，$Q(x)$ 能取到哪些值？",
+          "stem_board": {
+            "caption": "写出值域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "当前函数与输入范围",
+                "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "写出值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "d25a8c564fdfe417ba89186d89b0b8a1c0d0013c95784c07a4adf6c80466d480",
+              "step_id": "39e5646dcb-fraction-split-range-003-range_image"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "7a98e95eb0cc628b672d03be",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "写出值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：写出值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "分段取倒数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分母的范围",
+                "math": "Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+              },
+              {
+                "label": "倒数的范围",
+                "math": "\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "$u=Q(x)$，$v=\\frac{1}{u}$。深色为本题范围，浅色为参考；实心点可取，空心点不取。",
+            "kind": "reciprocal_sum",
+            "params": {
+              "a": 0,
+              "b": 1,
+              "bounds": [
+                -2.75,
+                2.75,
+                -1.5,
+                1.5
+              ],
+              "description": "u=Q(x)，输入范围为 (-∞, 0) ∪ (0, +∞)；深色曲线对应本题范围",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "negative": false,
+              "outputVariable": "v",
+              "pieces": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0
+                },
+                {
+                  "from": 0,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "points": [],
+              "title": "反比例函数 v=1/u",
+              "variable": "u",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ],
+              "yTicks": []
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$Q(x)\\in\\left(-\\infty, 0\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right)$\n$Q(x)\\in\\left(0, \\infty\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(0, \\infty\\right)$"
+          },
+          "graph": {
+            "caption": "$u=Q(x)$，$v=\\frac{1}{u}$。深色为本题范围，浅色为参考；实心点可取，空心点不取。",
+            "kind": "reciprocal_sum",
+            "params": {
+              "a": 0,
+              "b": 1,
+              "bounds": [
+                -2.75,
+                2.75,
+                -1.5,
+                1.5
+              ],
+              "description": "u=Q(x)，输入范围为 (-∞, 0) ∪ (0, +∞)；深色曲线对应本题范围",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "negative": false,
+              "outputVariable": "v",
+              "pieces": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0
+                },
+                {
+                  "from": 0,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "points": [],
+              "title": "反比例函数 v=1/u",
+              "variable": "u",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ]
+              ],
+              "yTicks": []
+            }
+          },
+          "id": "418732025e17dd1edd24cd96#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(0, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left(-\\infty, 0\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当前函数 $f(x)=-3-\\frac{1}{Q(x)}$。在零的两侧分别取倒数，端点次序交换。倒数项能取到哪些值？",
+          "stem_board": {
+            "caption": "分段取倒数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分母的范围",
+                "math": "Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+              },
+              {
+                "label": "倒数的范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "分段取倒数",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "c4f59b39f32d89e6b67920548e02e1c8a572b2e9ad5057cf074d48cb63e1eedb",
+              "step_id": "39e5646dcb-fraction-split-range-004-fraction_reciprocal"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "418732025e17dd1edd24cd96",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "分段取倒数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：分段取倒数"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "还原原函数值域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "倒数范围与原函数",
+                "math": "\\begin{gathered}\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=-3-\\frac{1}{Q(x)}\\end{gathered}"
+              },
+              {
+                "label": "原函数值域",
+                "math": "\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "kind": "number_line",
+            "params": {
+              "bounds": [
+                -3.75,
+                -2.25
+              ],
+              "description": "y 的取值集合：(-∞, -3) ∪ (-3, +∞)",
+              "pieces": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": -3
+                },
+                {
+                  "from": -3,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "points": [],
+              "ticks": [
+                [
+                  -3,
+                  "-3"
+                ]
+              ],
+              "title": "还原原函数值域",
+              "variable": "y"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$\n$f(x)\\in\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)$"
+          },
+          "id": "53aa2960ca844c1ef527fafb#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(-\\infty, -3\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left(-3, \\infty\\right)$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "根据分离后的表达式，写出原函数的值域。",
+          "stem_board": {
+            "caption": "还原原函数值域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "倒数范围与原函数",
+                "math": "\\begin{gathered}\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=-3-\\frac{1}{Q(x)}\\end{gathered}"
+              },
+              {
+                "label": "原函数值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "还原原函数值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "2c79e6d42a95ed414f559de33d9b7b3daa16da7bcb565e4077cf36a00432b057",
+              "step_id": "39e5646dcb-fraction-split-range-005-fraction_return"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "53aa2960ca844c1ef527fafb",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "还原原函数值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：还原原函数值域"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Union(Interval.open(-oo, -3), Interval.open(-3, oo))",
+            "latex": "\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Union(Interval.open(-oo, -3), Interval.open(-3, oo))",
+          "latex": "\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "math_steps": [
+          {
+            "math_step_sha256": "eda61ad7108625b0e43dcf47b428bea5584bb8cc9041ab0264240176ea6cfd84",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-fraction-split-range-001-fraction_separate"
+          },
+          {
+            "math_step_sha256": "efb48776913105ba5e49c477ad6fde4fe994b8cb1d35c57d9c8f4b480e7bf1a5",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-fraction-split-range-002-fraction_borrow"
+          },
+          {
+            "math_step_sha256": "d25a8c564fdfe417ba89186d89b0b8a1c0d0013c95784c07a4adf6c80466d480",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-fraction-split-range-003-range_image"
+          },
+          {
+            "math_step_sha256": "c4f59b39f32d89e6b67920548e02e1c8a572b2e9ad5057cf074d48cb63e1eedb",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-fraction-split-range-004-fraction_reciprocal"
+          },
+          {
+            "math_step_sha256": "2c79e6d42a95ed414f559de33d9b7b3daa16da7bcb565e4077cf36a00432b057",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-fraction-split-range-005-fraction_return"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "aca017fe5682d6b5fb54e673e4816c5a35b98f14acfd8ca2c9cdefa7635d70a2",
+        "verified_route_sha256": "573bef6843138c90d49a121170dc14aade46edc0efd8ff9d039a009ae4034c1e"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-concepts/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "rule-function-range-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "求函数值域的选法判断",
+        "summary": "先确定原定义域，再根据函数结构核验各条方法路线；多种适用方法均可选择。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-equation-real-root-range",
+        "kind": "method",
+        "label": "方程有实根法",
+        "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "equation",
+            "title": "转为输入方程",
+            "calls": [
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "分次数求有解条件",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-fraction-split-range",
+        "kind": "method",
+        "label": "分式分离求值域法",
+        "summary": "保留原定义域，分离常数；求分母或对勾函数的范围，再取倒数、还原并合并零点分支。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "separate",
+            "title": "分离常数与整理分式",
+            "calls": [
+              "method-fraction-split"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "求中间函数的范围",
+            "calls": [
+              "method-quadratic-interval-range",
+              "skill-reciprocal-range"
+            ]
+          },
+          {
+            "id": "restore",
+            "title": "取倒数并还原值域",
+            "calls": [
+              "skill-inequality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-direct-range",
+        "kind": "method",
+        "label": "直接求值域法",
+        "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "domain",
+            "title": "确定定义域",
+            "calls": []
+          },
+          {
+            "id": "range",
+            "title": "确定基本范围",
+            "calls": [
+              "skill-linear-range"
+            ]
+          },
+          {
+            "id": "transform",
+            "title": "传递到原函数值域",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-finite-range",
+        "kind": "method",
+        "label": "枚举法",
+        "summary": "确定有限的合法输入，逐一代入，收集并去重得到全部输出。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "prepare",
+            "title": "列出全部合法输入",
+            "calls": []
+          },
+          {
+            "id": "inputs",
+            "title": "依次选择输入",
+            "calls": []
+          },
+          {
+            "id": "evaluate",
+            "title": "逐一代入求值",
+            "calls": [
+              "method-function-evaluation"
+            ]
+          },
+          {
+            "id": "collect",
+            "title": "收集输出并去重",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-quadratic-interval-range",
+        "kind": "method",
+        "label": "二次函数区间值域法",
+        "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "domain",
+            "title": "确定定义域",
+            "calls": []
+          },
+          {
+            "id": "square",
+            "title": "配方，判断顶点位置",
+            "calls": [
+              "method-complete-square"
+            ]
+          },
+          {
+            "id": "range",
+            "title": "求区间值域",
+            "calls": [
+              "quadratic-interval-extremum"
+            ]
+          },
+          {
+            "id": "transform",
+            "title": "传递到原函数值域",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-substitution-range",
+        "kind": "method",
+        "label": "换元求值域法",
+        "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "substitute",
+            "title": "换元并确定范围",
+            "calls": [
+              "method-substitution"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "求新变量下的值域",
+            "calls": [
+              "method-quadratic-interval-range"
+            ]
+          },
+          {
+            "id": "restore",
+            "title": "回到原函数值域",
+            "calls": [
+              "method-substitution"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验完整值域",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-translation-range",
+        "kind": "method",
+        "label": "整段平移求值域法",
+        "summary": "已知某一完整周期段上的值域；把这段按整数次平移铺满目标输入范围，再把各段值域合并。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "translate",
+            "title": "整段平移并合并值域",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验铺满与可达性",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-fraction-split",
+        "kind": "skill",
+        "label": "分式分离",
+        "summary": "把分子次数不低于分母的分式，拆成「整式 + 分子更简单的分式」，方便看范围或凑基本不等式。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "rational-expression",
+        "kind": "knowledge",
+        "label": "分式",
+        "summary": "分式以分母非零为有意义的前提，约分后的表达式仍受原分母限制。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
+      },
+      {
+        "id": "quadratic-interval-extremum",
+        "kind": "skill",
+        "label": "求二次函数在区间上的最值与值域",
+        "summary": "看开口方向和对称轴落在区间的哪一边，找出最大值、最小值在哪里取，再检查端点取不取得到。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-inequality-transform",
+        "kind": "skill",
+        "label": "不等式变形与推导",
+        "summary": "对不等式两边加减、乘除或取倒数时，先看乘除的数是正是负，再决定不等号要不要改方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "function-monotonicity",
+        "kind": "knowledge",
+        "label": "函数的单调性",
+        "summary": "在指定区间上用自变量与函数值的次序描述增减，必须同时说明适用区间。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "function-range-extrema",
+        "kind": "knowledge",
+        "label": "函数的值域与最值",
+        "summary": "值域是所有实际函数值的集合；最大值、最小值必须属于这个集合。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "inequality-properties",
+        "kind": "knowledge",
+        "label": "不等式的性质",
+        "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-fraction-split-range|calls|method-fraction-split",
+        "from": "method-fraction-split-range",
+        "to": "method-fraction-split",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "separate",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
+        "from": "method-fraction-split-range",
+        "to": "method-quadratic-interval-range",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-fraction-split-range|calls|skill-inequality-transform",
+        "from": "method-fraction-split-range",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "restore",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-fraction-split|uses|equality-properties",
+        "from": "method-fraction-split",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "method-quadratic-interval-range|calls|quadratic-interval-extremum",
+        "from": "method-quadratic-interval-range",
+        "to": "quadratic-interval-extremum",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "range",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-substitution-range|calls|method-quadratic-interval-range",
+        "from": "method-substitution-range",
+        "to": "method-quadratic-interval-range",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "quadratic-interval-extremum|uses|function-range-extrema",
+        "from": "quadratic-interval-extremum",
+        "to": "function-range-extrema",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "attainability"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-range-method|selects|method-equation-real-root-range",
+        "from": "rule-function-range-method",
+        "to": "method-equation-real-root-range",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "equation",
+            "condition": "原定义域为实数全域，原分母为无实根二次式，分子至多二次。"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-range-method|selects|method-fraction-split-range",
+        "from": "rule-function-range-method",
+        "to": "method-fraction-split-range",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "fraction",
+            "condition": "常数商、至多一次余项和至多二次分母；常数余项求分母范围，一次余项通过换元与对勾函数等中间函数求范围，并合并合法零点输出。"
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform|uses|inequality-properties",
+        "from": "skill-inequality-transform",
+        "to": "inequality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "reciprocal"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|rational-expression",
+        "from": "type-abstract-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|rational-expression",
+        "from": "type-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-direct-range",
+        "from": "type-function-range",
+        "to": "method-direct-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-equation-real-root-range",
+        "from": "type-function-range",
+        "to": "method-equation-real-root-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-finite-range",
+        "from": "type-function-range",
+        "to": "method-finite-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-fraction-split-range",
+        "from": "type-function-range",
+        "to": "method-fraction-split-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-quadratic-interval-range",
+        "from": "type-function-range",
+        "to": "method-quadratic-interval-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-substitution-range",
+        "from": "type-function-range",
+        "to": "method-substitution-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|candidate|method-translation-range",
+        "from": "type-function-range",
+        "to": "method-translation-range",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-range-extrema",
+        "from": "type-function-range",
+        "to": "function-range-extrema",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|method_rule|rule-function-range-method",
+        "from": "type-function-range",
+        "to": "rule-function-range-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "method-fraction-split",
+          "equality-properties",
+          "rational-expression",
+          "quadratic-interval-extremum",
+          "skill-inequality-transform",
+          "function-monotonicity",
+          "function-range-extrema",
+          "inequality-properties"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"20ace01aa69a1949adf4a409ba58779c4f5a7b4bbdeb65f303f09ec379c81d39\",\"dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10\",\"97587b5a3acc49bdb1f084ca98ef2929\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+    "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+    "stream_id": "97587b5a3acc49bdb1f084ca98ef2929",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "20ace01aa69a1949adf4a409ba58779c4f5a7b4bbdeb65f303f09ec379c81d39",
+    "d3": {
+      "expected_answer": {
+        "checks": {}
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [],
+        "facts": [
+          "$f(x)=\\frac{2-3\\cdot x}{x-1}$",
+          "$D=\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+        ],
+        "method_notes": {
+          "equation": "适用条件：分子至多二次，原分母为二次式，定义域为 $\\mathbb R$ 且分母全域非零。令 $y=f(x)$，分次数判断方程有实根。",
+          "fraction": "先分离常数；按余项求分母或对勾函数的范围，再取倒数、还原并合并。"
+        },
+        "type": "method_cards"
+      },
+      "prerequisites": [
+        {
+          "completion_board": {
+            "caption": "确定定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式有意义的条件",
+                "math": "x - 1\\ne0"
+              },
+              {
+                "label": "定义域",
+                "math": "x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "effects": {
+            "calls": [],
+            "edges": [],
+            "log": "已确定本题的有效输入范围。",
+            "nodes": [],
+            "results": []
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$x - 1\\ne0$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+          },
+          "id": "D3-domain",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left(-\\infty, 1\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left(1, \\infty\\right)$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题设函数关系 $f(x)=\\frac{2-3\\cdot x}{x-1}$。原式的每个分母都必须非零，约分前的限制也要保留。定义域是什么？",
+          "source_refs": [
+            "/root/definitions/0",
+            "/root/goals/0"
+          ],
+          "stem_board": {
+            "caption": "确定定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式有意义的条件",
+                "math": "x - 1\\ne0"
+              },
+              {
+                "label": "定义域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "在这个范围内选择方法",
+          "summary": "$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+          "title": "确定定义域"
+        }
+      ],
+      "query": {
+        "from": "type-function-range",
+        "op": "methods"
+      },
+      "question": "定义域已确定。结合下面的适用条件，选择本次求值域的方法。",
+      "submit_label": "确认方法，开始解题",
+      "title": "判断并选择求值域的方法",
+      "verdicts": {
+        "equation": {
+          "message": "本题的定义域不是全体实数，当前路线尚不处理域内实根筛选。",
+          "value": "unknown"
+        },
+        "fraction": {
+          "message": "本题推荐。本题可分离常数，求分母范围后取倒数并还原。",
+          "value": "fit"
+        }
+      }
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "fraction",
+          "message": "开始解题",
+          "method": "method-fraction-split-range",
+          "recommendation": "preferred",
+          "route_id": "fraction-split-range",
+          "route_plan": "planned"
+        },
+        {
+          "branch": "equation",
+          "message": "详细步骤暂不支持",
+          "method": "method-equation-real-root-range",
+          "recommendation": null,
+          "route_id": "equation-real-root-range",
+          "route_plan": "capability_gap"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fraction_separate",
+        "explanation": "$f(x)=\\frac{2-3\\cdot x}{x-1}=-3 - \\frac{1}{x - 1}$",
+        "highlight": {
+          "caption": "分离分式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数及定义域",
+              "math": "\\begin{gathered}f(x)=\\frac{2-3\\cdot x}{x-1}\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+            },
+            {
+              "label": "分离结果",
+              "math": "f(x)=-3 - \\frac{1}{x - 1}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "local_check": "passed",
+        "math_step_sha256": "eda61ad7108625b0e43dcf47b428bea5584bb8cc9041ab0264240176ea6cfd84",
+        "method_ref": "method-fraction-split-range#separate",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "ec67198bd81be2853fe55ad8e7f8ee8cab41721e462a761668a2698312cd167f",
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-fraction-split-range-001-fraction_separate",
+        "target_ref": "/root/goals/0",
+        "title": "分离分式",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#elements",
+          "rational-expression#cancellation",
+          "rational-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fraction_borrow",
+        "explanation": "$Q(x)=x - 1$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+        "highlight": {
+          "caption": "求分母的范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "分离后的函数",
+              "math": "f(x)=-3 - \\frac{1}{x - 1}"
+            },
+            {
+              "label": "本次求值域的函数与输入",
+              "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "local_check": "passed",
+        "math_step_sha256": "efb48776913105ba5e49c477ad6fde4fe994b8cb1d35c57d9c8f4b480e7bf1a5",
+        "method_ref": "method-fraction-split-range#separate",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "ec67198bd81be2853fe55ad8e7f8ee8cab41721e462a761668a2698312cd167f",
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-fraction-split-range-002-fraction_borrow",
+        "target_ref": "/root/goals/0",
+        "title": "求分母的范围",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#elements",
+          "rational-expression#cancellation",
+          "rational-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_image",
+        "explanation": "$Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$",
+        "highlight": {
+          "caption": "写出值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "当前函数与输入范围",
+              "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+            },
+            {
+              "label": "值域",
+              "math": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "local_check": "passed",
+        "math_step_sha256": "d25a8c564fdfe417ba89186d89b0b8a1c0d0013c95784c07a4adf6c80466d480",
+        "method_ref": "method-quadratic-interval-range#range",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "ec67198bd81be2853fe55ad8e7f8ee8cab41721e462a761668a2698312cd167f",
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-fraction-split-range-003-range_image",
+        "target_ref": "/root/goals/0",
+        "title": "写出值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fraction_reciprocal",
+        "explanation": "$Q(x)\\in\\left(-\\infty, 0\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right)$\n$Q(x)\\in\\left(0, \\infty\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(0, \\infty\\right)$",
+        "highlight": {
+          "caption": "分段取倒数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "分母的范围",
+              "math": "Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+            },
+            {
+              "label": "倒数的范围",
+              "math": "\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "local_check": "passed",
+        "math_step_sha256": "c4f59b39f32d89e6b67920548e02e1c8a572b2e9ad5057cf074d48cb63e1eedb",
+        "method_ref": "method-fraction-split-range#restore",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "ec67198bd81be2853fe55ad8e7f8ee8cab41721e462a761668a2698312cd167f",
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "source_refs": [
+          "/steps/7/calls/0"
+        ],
+        "step_id": "39e5646dcb-fraction-split-range-004-fraction_reciprocal",
+        "target_ref": "/root/goals/0",
+        "title": "分段取倒数",
+        "used_basis": [
+          "function-monotonicity",
+          "function-range-extrema#attainability",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "skill-inequality-transform#reciprocal"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fraction_return",
+        "explanation": "$\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$\n$f(x)\\in\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)$",
+        "highlight": {
+          "caption": "还原原函数值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "倒数范围与原函数",
+              "math": "\\begin{gathered}\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=-3-\\frac{1}{Q(x)}\\end{gathered}"
+            },
+            {
+              "label": "原函数值域",
+              "math": "\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "local_check": "passed",
+        "math_step_sha256": "2c79e6d42a95ed414f559de33d9b7b3daa16da7bcb565e4077cf36a00432b057",
+        "method_ref": "method-fraction-split-range#restore",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "ec67198bd81be2853fe55ad8e7f8ee8cab41721e462a761668a2698312cd167f",
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "source_refs": [
+          "/steps/7/calls/0"
+        ],
+        "step_id": "39e5646dcb-fraction-split-range-005-fraction_return",
+        "target_ref": "/root/goals/0",
+        "title": "还原原函数值域",
+        "used_basis": [
+          "function-monotonicity",
+          "function-range-extrema#attainability",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "skill-inequality-transform#reciprocal"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"fraction-split-range\",\"39e5646dcb-fraction-split-range-001-fraction_separate\"]": [
+        {
+          "method": "method-fraction-split-range",
+          "step": "separate",
+          "ref": "method-fraction-split",
+          "usedBasis": [
+            "equality-properties#identity",
+            "function-concept#elements",
+            "rational-expression#cancellation",
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"fraction-split-range\",\"39e5646dcb-fraction-split-range-002-fraction_borrow\"]": [
+        {
+          "method": "method-fraction-split-range",
+          "step": "separate",
+          "ref": "method-fraction-split",
+          "usedBasis": [
+            "equality-properties#identity",
+            "function-concept#elements",
+            "rational-expression#cancellation",
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"fraction-split-range\",\"39e5646dcb-fraction-split-range-003-range_image\"]": [
+        {
+          "method": "method-quadratic-interval-range",
+          "step": "range",
+          "ref": "quadratic-interval-extremum",
+          "usedBasis": [
+            "quadratic-interval-extremum"
+          ],
+          "source": "/steps/4/calls/0"
+        }
+      ],
+      "[\"fraction-split-range\",\"39e5646dcb-fraction-split-range-004-fraction_reciprocal\"]": [
+        {
+          "method": "method-fraction-split-range",
+          "step": "restore",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ],
+          "source": "/steps/7/calls/0"
+        }
+      ],
+      "[\"fraction-split-range\",\"39e5646dcb-fraction-split-range-005-fraction_return\"]": [
+        {
+          "method": "method-fraction-split-range",
+          "step": "restore",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "function-monotonicity",
+            "function-range-extrema#attainability",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-inequality-transform#reciprocal"
+          ],
+          "source": "/steps/7/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "fraction-split-range",
+        "step_id": "39e5646dcb-fraction-split-range-001-fraction_separate",
+        "ordinal": 1,
+        "math_step_sha256": "eda61ad7108625b0e43dcf47b428bea5584bb8cc9041ab0264240176ea6cfd84",
+        "status": "interactive",
+        "interaction_id": "3c5e691fbf5b93f38d440b8b"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "fraction-split-range",
+        "step_id": "39e5646dcb-fraction-split-range-002-fraction_borrow",
+        "ordinal": 2,
+        "math_step_sha256": "efb48776913105ba5e49c477ad6fde4fe994b8cb1d35c57d9c8f4b480e7bf1a5",
+        "status": "interactive",
+        "interaction_id": "5990f8dc0f1b03142dfcc5c8"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "fraction-split-range",
+        "step_id": "39e5646dcb-fraction-split-range-003-range_image",
+        "ordinal": 3,
+        "math_step_sha256": "d25a8c564fdfe417ba89186d89b0b8a1c0d0013c95784c07a4adf6c80466d480",
+        "status": "interactive",
+        "interaction_id": "7a98e95eb0cc628b672d03be"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "fraction-split-range",
+        "step_id": "39e5646dcb-fraction-split-range-004-fraction_reciprocal",
+        "ordinal": 4,
+        "math_step_sha256": "c4f59b39f32d89e6b67920548e02e1c8a572b2e9ad5057cf074d48cb63e1eedb",
+        "status": "interactive",
+        "interaction_id": "418732025e17dd1edd24cd96"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "fraction-split-range",
+        "step_id": "39e5646dcb-fraction-split-range-005-fraction_return",
+        "ordinal": 5,
+        "math_step_sha256": "2c79e6d42a95ed414f559de33d9b7b3daa16da7bcb565e4077cf36a00432b057",
+        "status": "interactive",
+        "interaction_id": "53aa2960ca844c1ef527fafb"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "3c5e691fbf5b93f38d440b8b",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "969f245752f99a1cebddbd5352ed051bb55928f85718a90be4525a4959a5b869",
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "分离分式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数及定义域",
+                  "math": "\\begin{gathered}f(x)=\\frac{2-3\\cdot x}{x-1}\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "分离结果",
+                  "math": "f(x)=-3 - \\frac{1}{x - 1}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)=\\frac{2-3\\cdot x}{x-1}=-3 - \\frac{1}{x - 1}$"
+            },
+            "id": "3c5e691fbf5b93f38d440b8b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=-3 - \\frac{1}{x - 1}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x)=-2 - \\frac{1}{x - 1}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=-4 - \\frac{1}{x - 1}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将原式写成常数与倒数项之和，结果是什么？",
+            "stem_board": {
+              "caption": "分离分式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数及定义域",
+                  "math": "\\begin{gathered}f(x)=\\frac{2-3\\cdot x}{x-1}\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "分离结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "分离分式"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "eda61ad7108625b0e43dcf47b428bea5584bb8cc9041ab0264240176ea6cfd84",
+            "step_id": "39e5646dcb-fraction-split-range-001-fraction_separate"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "5990f8dc0f1b03142dfcc5c8",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "6ba059c41c93d3f3d9c276c76cf590a8ac95b28702b816bcadc5551bbf06b94c",
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求分母的范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分离后的函数",
+                  "math": "f(x)=-3 - \\frac{1}{x - 1}"
+                },
+                {
+                  "label": "本次求值域的函数与输入",
+                  "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$Q(x)=x - 1$\n$x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$"
+            },
+            "id": "5990f8dc0f1b03142dfcc5c8#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "先在原定义域内求分母的完整范围。",
+            "stem_board": {
+              "caption": "求分母的范围",
+              "lines": [
+                "$f(x)=-3 - \\frac{1}{x - 1}$",
+                "$\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "求分母的范围"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "efb48776913105ba5e49c477ad6fde4fe994b8cb1d35c57d9c8f4b480e7bf1a5",
+            "step_id": "39e5646dcb-fraction-split-range-002-fraction_borrow"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "7a98e95eb0cc628b672d03be",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "eaab9b49f6b93a53318cb1339eda56e8427690111c4872766b7544463c212820",
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "当前函数与输入范围",
+                  "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "linear",
+                "params": {
+                  "bounds": [
+                    -1.5,
+                    1.5,
+                    -2.5,
+                    0.5
+                  ],
+                  "description": "x=1 取不到，函数值趋近 0（空心点）",
+                  "intercept": -1,
+                  "interval": [
+                    null,
+                    1
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "points": [
+                    {
+                      "open": true,
+                      "x": 1
+                    }
+                  ],
+                  "slope": 1,
+                  "title": "Q 在 (-∞, 1) 上的图像",
+                  "variable": "x",
+                  "xTicks": [
+                    [
+                      1,
+                      "1"
+                    ]
+                  ]
+                }
+              },
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "linear",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.75,
+                    -0.5,
+                    2.5
+                  ],
+                  "description": "x=1 取不到，函数值趋近 0（空心点）",
+                  "intercept": -1,
+                  "interval": [
+                    1,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "points": [
+                    {
+                      "open": true,
+                      "x": 1
+                    }
+                  ],
+                  "slope": 1,
+                  "title": "Q 在 (1, +∞) 上的图像",
+                  "variable": "x",
+                  "xTicks": [
+                    [
+                      1,
+                      "1"
+                    ]
+                  ]
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    0.75
+                  ],
+                  "description": "y 的取值集合：(-∞, 0) ∪ (0, +∞)",
+                  "pieces": [
+                    {
+                      "from": null,
+                      "left_closed": false,
+                      "right_closed": false,
+                      "to": 0
+                    },
+                    {
+                      "from": 0,
+                      "left_closed": false,
+                      "right_closed": false,
+                      "to": null
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      0,
+                      "0"
+                    ]
+                  ],
+                  "title": "输出范围",
+                  "variable": "y"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$"
+            },
+            "graph": {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  0.25,
+                  1.75
+                ],
+                "description": "x 的取值集合：(-∞, 1) ∪ (1, +∞)",
+                "pieces": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 1
+                  },
+                  {
+                    "from": 1,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ],
+                "title": "定义域的各个分量",
+                "variable": "x"
+              }
+            },
+            "id": "7a98e95eb0cc628b672d03be#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(0, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(-\\infty, 0\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在给定输入范围内，$Q(x)$ 能取到哪些值？",
+            "stem_board": {
+              "caption": "写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "当前函数与输入范围",
+                  "math": "\\begin{gathered}Q(x)=x - 1\\\\x\\in\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出值域"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d25a8c564fdfe417ba89186d89b0b8a1c0d0013c95784c07a4adf6c80466d480",
+            "step_id": "39e5646dcb-fraction-split-range-003-range_image"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "418732025e17dd1edd24cd96",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "381ab3af2386b2b1f0bab0de4655ab0694d7af8d811423734b5e01d58e82a4f7",
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "分段取倒数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分母的范围",
+                  "math": "Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+                },
+                {
+                  "label": "倒数的范围",
+                  "math": "\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "$u=Q(x)$，$v=\\frac{1}{u}$。深色为本题范围，浅色为参考；实心点可取，空心点不取。",
+              "kind": "reciprocal_sum",
+              "params": {
+                "a": 0,
+                "b": 1,
+                "bounds": [
+                  -2.75,
+                  2.75,
+                  -1.5,
+                  1.5
+                ],
+                "description": "u=Q(x)，输入范围为 (-∞, 0) ∪ (0, +∞)；深色曲线对应本题范围",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "negative": false,
+                "outputVariable": "v",
+                "pieces": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0
+                  },
+                  {
+                    "from": 0,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "points": [],
+                "title": "反比例函数 v=1/u",
+                "variable": "u",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ],
+                "yTicks": []
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$Q(x)\\in\\left(-\\infty, 0\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right)$\n$Q(x)\\in\\left(0, \\infty\\right)\\Longrightarrow\\frac1{Q(x)}\\in\\left(0, \\infty\\right)$"
+            },
+            "graph": {
+              "caption": "$u=Q(x)$，$v=\\frac{1}{u}$。深色为本题范围，浅色为参考；实心点可取，空心点不取。",
+              "kind": "reciprocal_sum",
+              "params": {
+                "a": 0,
+                "b": 1,
+                "bounds": [
+                  -2.75,
+                  2.75,
+                  -1.5,
+                  1.5
+                ],
+                "description": "u=Q(x)，输入范围为 (-∞, 0) ∪ (0, +∞)；深色曲线对应本题范围",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "negative": false,
+                "outputVariable": "v",
+                "pieces": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0
+                  },
+                  {
+                    "from": 0,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "points": [],
+                "title": "反比例函数 v=1/u",
+                "variable": "u",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ]
+                ],
+                "yTicks": []
+              }
+            },
+            "id": "418732025e17dd1edd24cd96#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(0, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(-\\infty, 0\\right)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当前函数 $f(x)=-3-\\frac{1}{Q(x)}$。在零的两侧分别取倒数，端点次序交换。倒数项能取到哪些值？",
+            "stem_board": {
+              "caption": "分段取倒数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分母的范围",
+                  "math": "Q(x)\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+                },
+                {
+                  "label": "倒数的范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "分段取倒数"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c4f59b39f32d89e6b67920548e02e1c8a572b2e9ad5057cf074d48cb63e1eedb",
+            "step_id": "39e5646dcb-fraction-split-range-004-fraction_reciprocal"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "53aa2960ca844c1ef527fafb",
+        "interaction_revision": "f24eaa8500f7d105e720e80d0059c2e24f9bb2ae453851c5a6b88766eaebfc59",
+        "interaction_sha256": "f7320adc35f9dba7932a634611edd4d6786636d8b44ddfb87cb305327bd50769",
+        "lesson_version": "dce5965e5d9a7d05e9c5a79fa87df520dd73e45f273544680c68c0abdd42ca10",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "还原原函数值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "倒数范围与原函数",
+                  "math": "\\begin{gathered}\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=-3-\\frac{1}{Q(x)}\\end{gathered}"
+                },
+                {
+                  "label": "原函数值域",
+                  "math": "\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  -2.25
+                ],
+                "description": "y 的取值集合：(-∞, -3) ∪ (-3, +∞)",
+                "pieces": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": -3
+                  },
+                  {
+                    "from": -3,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    -3,
+                    "-3"
+                  ]
+                ],
+                "title": "还原原函数值域",
+                "variable": "y"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)$\n$f(x)\\in\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)$"
+            },
+            "id": "53aa2960ca844c1ef527fafb#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(-\\infty, -3\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left(-\\infty, -3\\right) \\cup \\left(-3, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(-3, \\infty\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据分离后的表达式，写出原函数的值域。",
+            "stem_board": {
+              "caption": "还原原函数值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "倒数范围与原函数",
+                  "math": "\\begin{gathered}\\frac1{Q(x)}\\in\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)\\\\f(x)=-3-\\frac{1}{Q(x)}\\end{gathered}"
+                },
+                {
+                  "label": "原函数值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "还原原函数值域"
+          }
+        ],
+        "route_id": "fraction-split-range",
+        "run_id": "97587b5a3acc49bdb1f084ca98ef2929",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2c79e6d42a95ed414f559de33d9b7b3daa16da7bcb565e4077cf36a00432b057",
+            "step_id": "39e5646dcb-fraction-split-range-005-fraction_return"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

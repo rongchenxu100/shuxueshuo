@@ -6,6 +6,7 @@ import * as stateAPI from '../../site/assets/graph-walk/walk-state.mjs';
 import * as mathDOM from '../../site/assets/graph-walk/stream-math-dom.mjs';
 import {buildStreamReplay} from '../../site/assets/graph-walk/walk-replay.mjs';
 import * as optionWorkspace from '../../site/assets/graph-walk/option-workspace.mjs';
+import * as methodCards from '../../site/assets/graph-walk/method-cards.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -208,7 +209,7 @@ function documentFixture() {
 function engine(value = fixture()) {
   const {document, roots} = documentFixture(), storage = new Map();
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL, structuredClone,
-    setTimeout, clearTimeout, ...stateAPI, ...mathDOM, ...optionWorkspace, buildStreamReplay,
+    setTimeout, clearTimeout, ...stateAPI, ...mathDOM, ...optionWorkspace, ...methodCards, buildStreamReplay,
     PracticeMath: {render(node, text) { node.textContent = text; }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, text) => storage.set(key, text)}});
   context.window = context;
@@ -226,6 +227,36 @@ function engine(value = fixture()) {
     render = () => {renderCount++; const current = currentDecision(bundle,state); if (current) ensureDraft(current); park();};`);
   return {context, roots, run, storage, value};
 }
+
+test('method prerequisite rejection displays feedback without advancing or revealing method choices', () => {
+  const {context, roots, run} = engine();
+  context.rangeBundle = read('../../site/data/graph-walk/function-concepts-range-q07.json');
+  // This component still supports prerequisite checks for other selection cards.
+  // Rational range lessons now offer their methods immediately after the domain.
+  const decision = context.rangeBundle.intro.find(step => step.id === 'D3');
+  decision.interaction.checks = [{id: 'domain', question: '本题定义域是否为全体实数？',
+    options: [{value: 'real', label: '是'}, {value: 'restricted', label: '否'}],
+    resolved: '本题定义域为全体实数', feedback: '请核对原函数的定义域。'}];
+  decision.expected_answer.checks = {domain: 'real'};
+  run(`bundle = rangeBundle; state = createState(bundle); options = {};
+    while (currentDecision(bundle,state).id !== 'D3') {
+      const d = currentDecision(bundle,state);
+      state = submitAnswer(bundle,state,{decision:d.id,answer:d.expected_answer.one_of[0]});
+    }
+    ensureDraft(currentDecision(bundle,state));
+    draft.checks[0] = 'restricted';
+    changeDraft(d => confirmMethodCondition(d,1));`);
+  assert.match(run('feedbackHTML()'), /再想一想.*定义域/s);
+  assert.match(roots.get('#gw-announcement').textContent, /定义域/);
+  assert.equal(run('draft.confirmed'), 0);
+  assert.equal(run('currentDecision(bundle,state).id'), 'D3');
+  assert.doesNotMatch(run('interactionHTML(currentDecision(bundle,state))'), /data-card-method/);
+  run(`draft.checks[0] = 'real'; changeDraft(d => confirmMethodCondition(d,1));`);
+  assert.equal(run('feedbackHTML()'), '');
+  assert.equal(run('draft.confirmed'), 1);
+  assert.match(run('interactionHTML(currentDecision(bundle,state))'), /data-card-method/);
+  assert.equal(run('currentDecision(bundle,state).id'), 'D3');
+});
 
 function equalityEngineFixture() {
   const value = fixture({readonly: true});
@@ -536,7 +567,7 @@ test('interactive parts hide frozen formulas; only the last completed part mount
 
 test('a local deduction reveals its result only after passing, with no repeated carry, answer or feedback', () => {
   const value = fixture({parts: [part('deduction')]});
-  const board = {layout: 'derivation', caption: '求定义域', connector: '⇒', items: [
+  const board = {layout: 'derivation', caption: '求 $f(x)$ 的定义域', connector: '⇒', items: [
     {label: '完整输入的范围', math: '-3\\le 2x-1\\le2'}, {label: '目标函数的定义域', math: null}]};
   for (const route of Object.values(value.bundle.routes)) {
     const decision = route.steps[0];
@@ -553,6 +584,7 @@ test('a local deduction reveals its result only after passing, with no repeated 
   const active = roots.get('#gw-active');
   const pending = active.querySelector('.gw-derivation-board');
   assert.equal(pending.dataset.state, 'pending');
+  assert.equal(pending.querySelector('.gw-derivation-caption').dataset.mathText, 'true');
   assert.equal(pending.querySelector('.gw-derivation-unknown').textContent, '?');
   assert.match(pending.textContent, /-3\\le 2x-1\\le2/);
   assert.doesNotMatch(active.textContent, /secret-|\\frac32/);

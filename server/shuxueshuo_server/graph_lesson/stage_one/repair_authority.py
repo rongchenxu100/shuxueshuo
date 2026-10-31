@@ -8,6 +8,8 @@ kind permits it at that place:
 * ``wrong_scope`` only moves unchanged items within its container;
 * ``missing_condition`` and a container-level ``wrong_goal`` only append to
   their scope's facts/definitions or goals;
+* a goal-level ``missing_condition`` may add one absent typed input condition,
+  without rewriting the target, existing conditions, or sibling goals;
 * other review findings correct what they point to (a goal's field edits
   stay inside that field); only ``unsupported_addition`` may delete;
 * compiler, schema and scope-policy diagnostics may edit, delete or insert at
@@ -385,7 +387,17 @@ class _Authority:
         )
 
     def unexplained(self, old, value):
-        return [path for path, _ in edits(old.value, value, old.path) if not self.editors(path)]
+        changes = edits(old.value, value, old.path)
+        if (len(changes) == 1 and isinstance(old.value, dict)
+                and old.value.get('kind') in ('find_abstract_domain', 'find_abstract_range',
+                                               'find_abstract_domain_parameter')):
+            path, operation = changes[0]
+            field = path.removeprefix(old.path + '/')
+            if (operation == 'insert' and field in ('known_domain', 'known_range', 'input_domain')
+                    and any(g.code == 'missing_condition' and g.path in (old.path, path)
+                            and g not in self.used for g in self.grants)):
+                return []
+        return [path for path, _ in changes if not self.editors(path)]
 
     def can_delete(self, item):
         return any(

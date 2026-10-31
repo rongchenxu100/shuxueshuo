@@ -47,8 +47,8 @@ def _visible_sources(candidate):
             target = f"{path}/goals/{index}"
             visible[target] = own[path] | inherited | {target}
             goal = scope['goals'][index]
-            if goal['kind'] in ('find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
-                for field in ('known_call', 'known_domain', 'known_range', 'target_call', 'input_domain', 'variable', 'parameter', 'quantifier', 'strength'):
+            if goal['kind'] in ('find_translation_range', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
+                for field in ('function_relation', 'periodic_function', 'period', 'periodic_domain', 'known_call', 'known_domain', 'known_range', 'target_call', 'input_domain', 'variable', 'parameter', 'quantifier', 'strength'):
                     if field in goal:
                         visible[target].add(f'{target}/{field}')
             if goal['kind'] == 'compare_functions':
@@ -162,7 +162,7 @@ def validate_input(value, admission="acceptance"):
         # reviewed goals that never used it. Present rows still receive every
         # ordinary shape/source check above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range'}
+        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range'}
         if kind == 'find_range' and 'object' in expected[target]['goal']:
             required.add('function_range')
         elif kind in ('find_domain', 'match_domain'):
@@ -171,6 +171,10 @@ def validate_input(value, admission="acceptance"):
             required.add('function_comparison')
         elif kind in ('find_abstract_domain', 'find_abstract_domain_parameter'):
             required.add('abstract_function_domain')
+        elif kind == 'find_translation_range':
+            required.add('translation_range')
+        elif kind == 'find_abstract_range':
+            required.add('abstract_function_range')
         elif kind in ('find_value', 'check_constant', 'finite_sum'):
             required.add('function_evaluation')
         if missing := required - found:

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q17",
+  "title": "分式分离求值域 · Q17",
+  "page": "/topics/function-concepts/q17/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q17.evidence.json",
+  "statement": "已知函数 $f(x)=\\frac{2-3x}{x-1}$，则函数的值域为 ______。"
+}

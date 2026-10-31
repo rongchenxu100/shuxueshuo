@@ -62,7 +62,11 @@
               "function_domain_parameter",
               "function_range_quadratic",
               "function_range_direct",
-              "function_range_substitution"
+              "function_range_substitution",
+              "function_range_fraction",
+              "function_range_equation",
+              "function_range_finite",
+              "function_range_translation"
             ]
           },
           "label": {
@@ -71,6 +75,12 @@
           }
         }
       }
+    },
+    "rule": {
+      "type": "string"
+    },
+    "display": {
+      "const": "method_cards"
     }
   },
   "oneOf": [

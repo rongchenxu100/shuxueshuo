@@ -180,6 +180,78 @@ def expression_family(ast):
             'scale': str(outer[1] if len(outer) > 1 else 0), 'shift': str(outer[0])}
 
 
+def rational_expression(ast, variable, *, denominators=None, path=(), depth=0):
+    """Read rational arithmetic while retaining every original divisor before cancellation."""
+    if depth > 24:
+        raise NotationError('range.expression_budget')
+    if ast == ARGUMENT:
+        return variable
+    if ast[0] == 'number':
+        (value,) = _fixed_poly(ast, max_degree=0)
+        return sp.Rational(str(value))
+    read = lambda i: rational_expression(ast[i], variable, denominators=denominators,
+                                         path=(*path, i), depth=depth+1)
+    if ast[0] == 'neg':
+        return -read(1)
+    if ast[0] == '^':
+        (power,) = _fixed_poly(ast[2], max_degree=0)
+        if power.denominator != 1 or not 1 <= power <= 4:
+            raise NotationError('range.positive_bounded_power_required')
+        value = read(1)**int(power)
+    elif ast[0] in ('+', '-', '*', '/'):
+        if ast[0] == '/':
+            coefficients = _fixed_poly(ast[2], max_degree=2)
+            if not any(coefficients):
+                raise NotationError('range.undefined_expression')
+            if denominators is not None:
+                denominators.append({'ast': deepcopy(ast[2]), 'path': [*path, 2]})
+                if len(denominators) > 8:
+                    raise NotationError('range.denominator_budget')
+        left, right = read(1), read(2)
+        value = {'+': lambda: left+right, '-': lambda: left-right,
+                 '*': lambda: left*right, '/': lambda: left/right}[ast[0]]()
+    else:
+        raise NotationError('range.rational_expression_required')
+    value = sp.cancel(value)
+    numerator, denominator = sp.fraction(value)
+    polynomial_coefficients(numerator, variable, 4)
+    polynomial_coefficients(denominator, variable, 4)
+    if sp.count_ops(value) > 256:
+        raise NotationError('range.expression_budget')
+    return value
+
+
+def rational_family(ast, *, finite=False):
+    x = sp.Symbol('_range_x', real=True)
+    denominators = []
+    expression = rational_expression(ast, x, denominators=denominators)
+    if not denominators:
+        raise NotationError('range.rational_divisor_required')
+    numerator, denominator = sp.fraction(expression)
+    coefficients = polynomial_coefficients(denominator, x)
+    quotient, remainder = sp.div(numerator, denominator, x)
+    split = bool(not quotient.has(x) and sp.degree(remainder, x) <= 1)
+    linear_remainder = split and remainder.has(x)
+    equation_denominator = None
+    for row in denominators:
+        q = range_expression(row['ast'], x)
+        if sp.degree(q, x) != 2 or sp.discriminant(q, x) >= 0:
+            continue
+        p = sp.cancel(expression*q)
+        if p.is_polynomial(x) and sp.degree(p, x) <= 2:
+            equation_denominator = row['ast']
+            break
+    if not split and equation_denominator is None and not finite:
+        raise NotationError('range.rational_family_unavailable')
+    shift, scale = (str(quotient), str(remainder)) if split and not linear_remainder else ('0', '1')
+    return {'radical': False, 'inner_ast': coefficients_ast(coefficients),
+            'degree': len(coefficients)-1, 'scale': scale, 'shift': shift,
+            'rational': {'denominators': denominators, 'fraction_split': split,
+                         'linear_remainder': bool(linear_remainder),
+                         **({'equation_denominator_ast': deepcopy(equation_denominator)}
+                            if equation_denominator is not None else {})}}
+
+
 def exact_endpoint(ast):
     """Rational arithmetic, or arithmetic in one rational square-root extension."""
     radicals = set()
@@ -215,11 +287,26 @@ def exact_endpoint(ast):
     return value
 
 
-def range_domain(ast):
+MAX_FINITE_INPUTS = 8
+
+
+def range_domain(ast, *, _depth=0, _points=False):
+    if _depth > 12:
+        raise NotationError('range.domain_budget')
     if ast == ['real']:
         return sp.S.Reals
-    if ast[0] == 'set' and len(ast) == 2:
-        return sp.FiniteSet(exact_endpoint(ast[1]))
+    if ast[0] == 'set' and 1 <= len(ast) <= 33:
+        points = sp.FiniteSet(*(exact_endpoint(point) for point in ast[1:]))
+        if len(points) > MAX_FINITE_INPUTS:
+            raise NotationError('range.finite_input_budget')
+        return points
+    if ast[0] in ('set_difference', '∪', '∩') and len(ast) == 3:
+        left = range_domain(ast[1], _depth=_depth+1)
+        right = range_domain(ast[2], _depth=_depth+1, _points=ast[0] == 'set_difference')
+        if ast[0] == 'set_difference' and not isinstance(right, (sp.FiniteSet, type(sp.S.EmptySet))):
+            raise NotationError('range.finite_exclusions_required')
+        return {'set_difference': lambda: left-right, '∪': lambda: left|right,
+                '∩': lambda: left&right}[ast[0]]()
     if ast[0] != 'interval' or len(ast) != 5:
         raise NotationError('range.single_interval_required')
 

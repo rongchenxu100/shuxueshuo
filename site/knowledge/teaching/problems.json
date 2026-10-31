@@ -1,5 +1,5 @@
 {
-  "content_version": "c95e479bad2bd098764640f8fb90520b43664d5227e2aa5effd3ce9c1302da22",
+  "content_version": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91",
   "problems": {
     "basic-inequality-q01": {
       "path": "/1/q01/",
@@ -207,6 +207,34 @@
     },
     "function-concepts-range-q16": {
       "path": "/topics/function-concepts/q16/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q07": {
+      "path": "/topics/function-concepts/q07/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q09": {
+      "path": "/topics/function-concepts/q09/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q10": {
+      "path": "/topics/function-concepts/q10/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q17": {
+      "path": "/topics/function-concepts/q17/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q06": {
+      "path": "/topics/function-concepts/q06/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q13": {
+      "path": "/topics/function-concepts/q13/",
+      "topic": "function-concepts"
+    },
+    "function-concepts-range-q18": {
+      "path": "/topics/function-concepts/q18/",
       "topic": "function-concepts"
     },
     "quadratic-always-q01": {

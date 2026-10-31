@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-range-q07",
+  "title": "分式分离求值域 · Q7",
+  "page": "/topics/function-concepts/q07/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/goals/0"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-range-q07.evidence.json",
+  "statement": "函数 $f(x)=\\frac{2x^2-2x+1}{x^2-x+1}$ 的值域为 ________."
+}

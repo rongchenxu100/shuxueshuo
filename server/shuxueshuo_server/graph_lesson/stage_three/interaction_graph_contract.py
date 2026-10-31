@@ -66,6 +66,14 @@ def validate_graph(graph):
         _interval(params["interval"], params["interval_closed"])
         if graph["kind"] == "reciprocal_sum" and any(point["x"] == 0 for point in params["points"]):
             raise ValueError("interaction.graph_undefined_point")
+        if graph["kind"] == "reciprocal_sum":
+            for piece in params.get("pieces", []):
+                _interval([piece["from"], piece["to"]], [piece["left_closed"], piece["right_closed"]])
+                low = piece["from"] if piece["from"] is not None else -math.inf
+                high = piece["to"] if piece["to"] is not None else math.inf
+                if (low < 0 < high or low == 0 and piece["left_closed"] or
+                        high == 0 and piece["right_closed"]):
+                    raise ValueError("interaction.graph_reciprocal_pole")
         if graph["kind"] == "axis_explorer":
             axis = params["axis"]
             _ordered(axis["min"], axis["max"])

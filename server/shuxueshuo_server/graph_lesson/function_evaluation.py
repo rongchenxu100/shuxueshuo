@@ -5,10 +5,10 @@ walks the source independently and reconstructs domains without consuming those
 recorded restrictions. A sum is a multiset of occurrences, never a set of inputs.
 """
 
-from collections import defaultdict, deque
-from copy import deepcopy
 import hashlib
 import json
+from collections import defaultdict, deque
+from copy import deepcopy
 
 import sympy as sp
 
@@ -103,9 +103,8 @@ def _syntax(ast, *, refs=(), body=False, depth=0, counts=None, calls=0):
         return
     if kind not in ("+", "-", "*", "/", "^") or len(ast) != 3:
         _fail("unsupported_expression")
-    if kind == "^":
-        if ast[2][0] != "number" or _rational(ast[2][1]) not in (0, 1, 2):
-            _fail("power_budget")
+    if kind == "^" and (ast[2][0] != "number" or _rational(ast[2][1]) not in (0, 1, 2)):
+        _fail("power_budget")
     for child in ast[1:]:
         _syntax(child, refs=refs, body=body, depth=depth + 1, counts=counts, calls=calls)
 
@@ -604,7 +603,11 @@ def _check_source(ast, functions, symbols, variable, *, argument=None, path="tar
 def _same_value(left, right):
     if left is None or right is None:
         return left is right
-    return sp.cancel(left - right) == 0
+    # The checkpoint can evaluate a numeric power (e.g. 0**2 -> 0), while
+    # the independently rebuilt substitution deliberately remains unevaluated.
+    # Definedness is checked separately against the original source above.
+    difference = left - right
+    return sp.cancel(difference.doit() if isinstance(difference, sp.Basic) else difference) == 0
 
 
 def _same_records(expected, actual):

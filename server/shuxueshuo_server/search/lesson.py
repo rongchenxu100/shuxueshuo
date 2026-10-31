@@ -142,7 +142,7 @@ def _goal(goal, features, text, candidate=None):
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
     source_goal = known.get("goal", {})
-    if (source_goal.get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_value", "check_constant", "finite_sum")
+    if (source_goal.get("kind") in ("find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
             or source_goal.get("kind") == "find_range" and "object" in source_goal):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
@@ -406,6 +406,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('translation_range', {}).get('structure_supported'):
+        return _range_d1_rows(target, fragments, {**known, 'function_range': known['translation_range']}, text)
     if known.get('function_range', {}).get('structure_supported'):
         return _range_d1_rows(target, fragments, known, text)
     if known.get('function_evaluation', {}).get('structure_supported'):
@@ -416,7 +418,7 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
     if known.get("goal", {}).get("kind") == "match_domain":
         return _match_domain_d1_rows(target, fragments, known, text, candidate=candidate)
-    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter"):
+    if known.get("goal", {}).get("kind") in ("find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range"):
         return _abstract_domain_d1_rows(target, fragments, known, text, candidate=candidate)
     transform, diagnostics = transformation(target, fragments, known, tex, text=text, candidate=candidate)
     extra = {"transformation": transform} if transform else {}
@@ -627,7 +629,7 @@ def _domain_d1_rows(target, fragments, known, text, *, candidate=None):
 
 def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
     """Separate the given call's domain from the requested outer-variable set."""
-    domain = known.get("abstract_function_domain") or {}
+    domain = known.get("abstract_function_domain") or known.get('abstract_function_range') or {}
     if domain.get('kind') == 'find_abstract_domain_parameter':
         return _abstract_parameter_d1_rows(target, fragments, domain, text, candidate=candidate)
     selected = [fragment for fragment in fragments if fragment["fragment_kind"] == "goal"]
@@ -640,6 +642,11 @@ def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
     known_call, target_call = tex(goal["known_call"]), tex(goal["target_call"])
     correct = f"使 ${target_call}$ 有意义的自变量 ${variable}$ 的取值范围"
     feedback = f"目标函数的定义域是外层自变量 ${variable}$ 的取值范围；函数值的取值范围叫值域。"
+    range_goal = domain.get('kind') == 'find_abstract_range'
+    wrong = f"函数值 ${target_call}$ 的取值范围"
+    if range_goal:
+        correct, wrong = wrong, correct
+        feedback = f'本问求全部能取到的函数值；先确定定义域，再检验新输入能否完整覆盖 ${domain["function_name"]}$ 的输入范围。'
     row_id = f"{target}:goal"
     spans = [_spans([fragment], text) for fragment in selected]
     row = {
@@ -650,7 +657,7 @@ def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
         "signature": sha256(json.dumps([spans, domain], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16],
         "options": _shuffle(row_id, [
             _option(correct),
-            _option(f"函数值 ${target_call}$ 的取值范围", "goal", feedback),
+            _option(wrong, "goal", feedback),
         ]),
     }
     givens = []
@@ -676,10 +683,13 @@ def _abstract_domain_d1_rows(target, fragments, known, text, *, candidate=None):
         summary += "具体分母自身有意义且不为零的条件也要同时满足。"
     if "input_domain" in goal:
         summary += "题设另给的外层自变量范围也要同时满足。"
-    if 'known_range' in goal:
+    if range_goal:
+        summary = (f'已知 ${known_call}$ 的定义域和值域；本问求 ${target_call}$ 的值域。'
+                   f'先确定目标函数的定义域，再检验新输入是否完整覆盖 ${domain["function_name"]}$ 的输入范围。')
+    elif 'known_range' in goal:
         summary += "当前目标只求定义域；题设值域保留为已知条件，不用它限制自变量。"
     return {"rows": [row], "givens": givens, "interaction": "choice",
-            "question": f"题目要求 ${target_call}$ 的定义域，也就是要确定什么？",
+            "question": f"题目要求 ${target_call}$ 的{'值域' if range_goal else '定义域'}，也就是要确定什么？",
             "feedback": feedback, "summary": summary}
 
 

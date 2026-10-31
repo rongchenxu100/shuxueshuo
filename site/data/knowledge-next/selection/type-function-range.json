@@ -4,6 +4,12 @@
   "admission": "function_range_routes",
   "routes": [
     {
+      "method": "method-finite-range",
+      "route_id": "finite-range",
+      "admission": "function_range_finite",
+      "label": "枚举法"
+    },
+    {
       "method": "method-direct-range",
       "route_id": "direct-range",
       "admission": "function_range_direct",
@@ -20,6 +26,26 @@
       "route_id": "substitution-range",
       "admission": "function_range_substitution",
       "label": "换元求值域法"
+    },
+    {
+      "method": "method-fraction-split-range",
+      "route_id": "fraction-split-range",
+      "admission": "function_range_fraction",
+      "label": "分式分离求值域法"
+    },
+    {
+      "method": "method-equation-real-root-range",
+      "route_id": "equation-real-root-range",
+      "admission": "function_range_equation",
+      "label": "方程有实根法"
+    },
+    {
+      "method": "method-translation-range",
+      "route_id": "translation-range",
+      "admission": "function_range_translation",
+      "label": "整段平移求值域法"
     }
-  ]
+  ],
+  "rule": "rule-function-range-method",
+  "display": "method_cards"
 }

@@ -61,6 +61,9 @@
 .topic-type-link { display: inline-block; min-height: 44px; padding: 10px 0; }
 .topic-group-empty { margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 .topic-overview-page .type-group + .type-group { margin-top: 16px; }
+.topic-method-group + .topic-method-group { margin-top: 26px; }
+.topic-method-title { display: flex; align-items: center; gap: 12px; margin: 8px 0 12px; color: var(--muted); font-size: 13px; line-height: 1.5; font-weight: 600; }
+.topic-method-title::after { content: ""; flex: 1; min-width: 24px; height: 1px; background: var(--line); }
 
 @media (max-width: 720px) {
   .topic-knowledge-links { grid-template-columns: 1fr; }
