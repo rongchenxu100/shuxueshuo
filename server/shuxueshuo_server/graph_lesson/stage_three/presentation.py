@@ -304,6 +304,9 @@ def append_goal_finalization(state, answer, evidence):
     requires the independent boundary card first and uses only the supplied exact
     bound, membership evidence and typed answer.
     """
+    if answer.get('kind') in ('select_range_domain', 'find_extrema_expression', 'derived_answer'):
+        from .range_task_presentation import append_finalization
+        return append_finalization(state, answer, evidence)
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")

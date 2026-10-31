@@ -88,6 +88,12 @@ def public_structure_errors(candidate):
             ):
                 errors.append((f"{location}/{number}", "完整选项需要至少两项、不重复的标签和非空内容。"))
             goals = scope.get('goals', [])
+            if number < len(goals) and goals[number]['kind'] == 'select_range_domain':
+                goal = goals[number]
+                shown = option_surfaces(options, f'{location}/{number}/options')
+                original = option_surfaces(goal['options'], f'{path}/goals/{number}/options')
+                if choice['status'] != 'complete' or choice['selection_mode'] != goal['selection_mode'] or shown != original:
+                    errors.append((f'{location}/{number}', '公开选项须与候选定义域目标的标签、顺序和原文一致。'))
             if number < len(goals) and goals[number]['kind'] == 'compare_functions':
                 goal = goals[number]
                 if goal['mode'] == 'pair':
@@ -161,7 +167,8 @@ def _root(scope, *, exclude_label=False):
     def goal_content(goal):
         if goal['kind'] == 'compare_functions':
             from ..problem_understanding.notation_function_comparison import (
-                canonical_comparison, compile_comparison,
+                canonical_comparison,
+                compile_comparison,
             )
 
             return canonical_comparison(compile_comparison(goal, 'r.goals[0]'))

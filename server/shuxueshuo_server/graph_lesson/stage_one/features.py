@@ -482,8 +482,8 @@ def _scope_features(report, candidate, scope, ancestors, features):
                     add(spec.feature_id, diagnostic={'code': 'feature.not_translation_range_goal'}, source_refs=[target_ref])
             continue
         goal_ast = goal["target"]
-        if goal['kind'] == 'find_range' and goal_ast[:1] == ['ref'] and goal_ast[2] == 'function':
-            add('goal', {'kind': 'find_range', 'object': goal_ast[1].rsplit(':', 1)[-1]}, source_refs=[target_ref])
+        if goal['kind'] in ('find_range', 'select_range_domain', 'find_extrema_expression') and goal_ast[:1] == ['ref'] and goal_ast[2] == 'function':
+            add('goal', {'kind': goal['kind'], 'object': goal_ast[1].rsplit(':', 1)[-1]}, source_refs=[target_ref])
             try:
                 description = describe_range_goal(report, scope, ancestors, goal_index)
                 refs = [target_ref, description['source_ref'], description['declared_domain_source_ref'],

@@ -7,6 +7,7 @@ from dataclasses import field as dc_field
 
 from jsonschema import Draft202012Validator
 
+from .answer_requests import validate_goal_request
 from .identity import encoded
 from .normalization_report import from_normalization
 from .notation_contract import schema
@@ -990,6 +991,12 @@ class NotationValidator:
         goals = []
         for index, goal in enumerate(source["goals"]):
             try:
+                validate_goal_request(goal)
+                if goal['kind'] in ('select_range_domain', 'find_extrema_expression'):
+                    from .notation_range_tasks import compile_range_task
+
+                    goals.append(compile_range_task(goal, f'{path}.goals[{index}]', env))
+                    continue
                 if goal['kind'] == 'find_translation_range':
                     from .notation_translation_range import compile_translation_range
 
@@ -1049,6 +1056,8 @@ class NotationValidator:
                     })
                     continue
                 result = {"kind": goal["kind"], "target": value}
+                if 'answer_request' in goal:
+                    result['answer_request'] = deepcopy(goal['answer_request'])
                 if "input_domain" in goal:
                     domain = env.bind(parse(goal["input_domain"]))
                     if domain[0] == "tuple":

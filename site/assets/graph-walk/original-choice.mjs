@@ -1,4 +1,34 @@
 /** Original exam choices are matched by the verified solver, never inferred from prose in the UI. */
+const SET_ANSWER_KINDS = new Set(['find_range', 'find_domain', 'match_domain', 'find_abstract_domain',
+  'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range']);
+
+function mathValue(value) {
+  return typeof value === 'string' ? Boolean(value.trim()) : value && typeof value === 'object' &&
+    !Array.isArray(value) && ['expression', 'latex'].some(key => typeof value[key] === 'string' && value[key].trim());
+}
+
+function exactMathValue(value) {
+  return mathValue(value) && typeof value === 'object' && Object.hasOwn(value, 'exact') && value.exact != null;
+}
+
+function derivedAnswer(answer) {
+  if (answer?.kind !== 'derived_answer') return false;
+  if (answer.request_kind === 'identity') return answer.status === 'set' && exactMathValue(answer.set);
+  if (answer.request_kind === 'expression') return answer.status === 'value' && exactMathValue(answer.value);
+  if (answer.request_kind === 'compare_set') return answer.status === 'boolean' && typeof answer.value === 'boolean';
+  if (answer.request_kind !== 'extremum' || !['minimum', 'maximum', 'infimum', 'supremum'].includes(answer.quantity)) return false;
+  return (answer.status === 'attained' || answer.status === 'not_attained' && ['infimum', 'supremum'].includes(answer.quantity)) &&
+    exactMathValue(answer.value);
+}
+
+function singleAnswer(answer) {
+  if (answer?.kind === 'derived_answer') return derivedAnswer(answer) && answer.status !== 'set';
+  // Older certified set choices predate the explicit set_equality matching field.
+  if (SET_ANSWER_KINDS.has(answer?.kind)) return answer.status === 'set' && mathValue(answer.set);
+  if (['find_minimum', 'find_maximum'].includes(answer?.kind)) return answer.status === 'attained' && mathValue(answer.value);
+  return answer?.kind === 'find_extrema_expression' && answer.status === 'value' && exactMathValue(answer.value);
+}
+
 export function matchedOriginalChoice(completion, targetRef = completion?.target_ref || completion?.identity?.[0]) {
   const choice = completion?.original_choice;
   if (completion?.status !== 'verified' || completion.available === false ||
@@ -13,10 +43,16 @@ export function matchedOriginalChoice(completion, targetRef = completion?.target
       choice.correct_labels.some(label => !labels.has(label))) return null;
   const single = choice.kind === 'single_choice';
   if (single && choice.correct_labels.length !== 1) return null;
-  if (choice.matching === 'set_equality') {
+  if (['set_equality', 'range_domain_options'].includes(choice.matching)) {
     const keys = ['status', 'kind', 'matching', 'selection_mode', 'target_ref', 'options', 'correct_labels'];
-    if (!['find_range', 'find_domain', 'match_domain', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range'].includes(completion.answer?.kind) ||
-        completion.answer.status !== 'set' || Object.keys(choice).length !== keys.length ||
+    const validAnswer = choice.matching === 'range_domain_options'
+      ? completion.answer?.kind === 'select_range_domain' && completion.answer.status === 'complete' &&
+        Array.isArray(completion.answer.correct_labels) &&
+        completion.answer.correct_labels.length === choice.correct_labels.length &&
+        completion.answer.correct_labels.every(label => choice.correct_labels.includes(label))
+      : completion.answer?.status === 'set' && (completion.answer.kind === 'derived_answer'
+        ? derivedAnswer(completion.answer) : SET_ANSWER_KINDS.has(completion.answer.kind) && mathValue(completion.answer.set));
+    if (!validAnswer || Object.keys(choice).length !== keys.length ||
         keys.some(key => !Object.hasOwn(choice, key)) ||
         !(single ? choice.selection_mode === 'single' : ['multiple', 'unspecified'].includes(choice.selection_mode)) ||
         choice.options.some(option => Object.keys(option).sort().join(',') !== 'label,text')) return null;
@@ -25,7 +61,7 @@ export function matchedOriginalChoice(completion, targetRef = completion?.target
   if (choice.matching !== undefined) return null;
   const comparison = completion.answer?.kind === 'compare_functions' ||
     choice.option_verdicts !== undefined || choice.select_relation !== undefined;
-  if (single && !comparison) return choice;
+  if (single && !comparison) return singleAnswer(completion.answer) ? choice : null;
   const validMode = single ? choice.selection_mode === 'single' : ['multiple', 'unspecified'].includes(choice.selection_mode);
   if (!validMode || !['equal', 'different'].includes(choice.select_relation) ||
       !Array.isArray(choice.option_verdicts) || choice.option_verdicts.length !== choice.options.length) return null;

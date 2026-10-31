@@ -11,7 +11,7 @@ export function nativePracticeContract(bundle) {
       'option_context', 'target_ref', 'require_complete_options', 'select_relation', 'matching'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
     if (value.interaction.type === 'original_choice_exact_set' ||
         value.source === 'original_choice' && value.interaction.type === 'choice' &&
-          (value.require_complete_options || value.matching === 'set_equality')) {
+          (value.require_complete_options || ['set_equality', 'range_domain_options'].includes(value.matching))) {
       contract.source = value.source;
     }
     // Keep valid unexpanded choices in the server grading contract without

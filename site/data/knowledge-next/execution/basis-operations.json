@@ -240,6 +240,24 @@
       "function-concept#elements",
       "function-range-extrema#attainability",
       "set-intersection-union#union"
+    ],
+    "bind_range_input": [
+      "function-concept#elements"
+    ],
+    "bind_range_options": [
+      "function-concept#elements"
+    ],
+    "bind_candidate_domain": [
+      "function-concept#elements"
+    ],
+    "compare_complete_images": [
+      "function-concept#elements"
+    ],
+    "return_complete_image": [
+      "function-concept#elements"
+    ],
+    "select_original_range_options": [
+      "function-concept#elements"
     ]
   }
 }

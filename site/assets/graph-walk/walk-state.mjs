@@ -684,20 +684,22 @@ export function originalChoiceDecision(completion, target, route) {
   if (!choice || typeof completion.verified_route_sha256 !== 'string' || !completion.verified_route_sha256) return null;
   const multiple = choice.kind === 'multiple_choice';
   const comparison = Array.isArray(choice.option_verdicts);
+  const rangeOptions = choice.matching === 'range_domain_options';
   return {id: JSON.stringify(['original-choice', target, route, completion.verified_route_sha256]),
-    source: 'original_choice', title: '选择原题答案', question: multiple && !comparison
+    source: 'original_choice', title: '选择原题答案', question: rangeOptions
+      ? `已核对各候选区间的值域，请按原题的“可能”或“不可能”要求，选择${multiple ? '全部符合条件的选项' : '一项'}。` : multiple && !comparison
       ? '根据求得的集合，按不定项选择作答，选出全部符合题意的选项。' : multiple
       ? choice.selection_mode === 'unspecified'
         ? '已完成各项判断，请按不定项选择作答，选出全部符合题意的选项。'
         : '已完成各项判断，请按原题要求选择，并确认答案。' : comparison
         ? '已完成各项判断，请按原题要求选择一项，并确认答案。' : '根据求得的结果，原题应选择哪一项？',
     ...(comparison ? {target_ref: target, require_complete_options: choice.options.map(option => option.option_id), select_relation: choice.select_relation} : {}),
-    ...(choice.matching === 'set_equality' ? {matching: choice.matching, target_ref: target} : {}),
+    ...(['set_equality', 'range_domain_options'].includes(choice.matching) ? {matching: choice.matching, target_ref: target} : {}),
     interaction: {type: multiple ? 'original_choice_exact_set' : 'choice', field: 'original_choice', options: choice.options.map(option => ({
       value: option.label, label: originalChoiceLabel(option)}))},
     expected_answer: multiple ? {correct_labels: copy(choice.correct_labels), option_labels: choice.options.map(option => option.label)}
       : {one_of: copy(choice.correct_labels)}, submit_label: '确认答案',
-    feedback: {answer: multiple && !comparison ? '请把求得的集合与各选项比较，注意端点是否包含，再检查是否漏选或多选。'
+    feedback: {answer: rangeOptions ? '回看各项算出的完整值域，注意题目问的是“可能”还是“不可能”。' : multiple && !comparison ? '请把求得的集合与各选项比较，注意端点是否包含，再检查是否漏选或多选。'
       : multiple ? '请检查原题问的是相同还是不同，必要时点进度标签回看理由，再检查是否漏选或多选。'
       : comparison ? '请检查原题问的是相同还是不同，必要时点进度标签回看各项理由。'
         : '请把求得的结果与原题各选项比较，注意边界是否包含。'},

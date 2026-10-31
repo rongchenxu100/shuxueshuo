@@ -527,3 +527,17 @@ def _translate_range(context):
 
 
 REGISTRY['translate_range'] = _translate_range
+
+
+def _range_task_operation(name):
+    def run(**inputs):
+        from .. import range_tasks
+        return getattr(range_tasks, name)(**inputs)
+    return run
+
+
+for _capability, _operation in (('prepare_range_options', 'prepare_options'),
+                              ('prepare_range_case', 'prepare_case'),
+                              ('compare_range_option', 'compare_option'),
+                              ('collect_range_options', 'collect_options')):
+    REGISTRY[_capability] = _range_task_operation(_operation)

@@ -142,7 +142,7 @@ def _goal(goal, features, text, candidate=None):
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
     source_goal = known.get("goal", {})
-    if (source_goal.get("kind") in ("find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
+    if (source_goal.get("kind") in ('select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
             or source_goal.get("kind") == "find_range" and "object" in source_goal):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
@@ -492,17 +492,45 @@ def _range_d1_rows(target, fragments, known, text):
     row_id = f'{target}:goal'
     spans = [_spans([row], text) for row in selected]
     feedback = '定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。'
+    task = known['function_range'].get('range_task', {})
+    correct, wrong = '求给定输入范围内，全部函数值组成的集合', '求自变量的取值范围'
+    question, summary = '题目要求求值域，需要确定什么？', '先确定定义域，再求全部实际能取到的函数值。'
+    if task.get('kind') == 'select_range_domain':
+        requested = '可能' if task['select_relation'] == 'matches' else '不可能'
+        correct = f'逐项核对候选定义域对应的完整值域，选择“{requested}”的端点组合'
+        wrong = '只比较区间两个端点的函数值，就能确定值域'
+        feedback = '区间内的顶点也可能取得最值；还要核对完整值域与题给范围是否一致。'
+        question, summary = '题目给出了值域，要求怎样判断候选定义域？', correct
+    elif task.get('kind') == 'find_extrema_expression':
+        correct = f'确定题设最值，再代入计算 ${task["expression"]}$'
+        wrong = '只写出函数的值域区间，不再计算所求式'
+        feedback = '值域帮助确定最值；还要确认最值能取到，并计算题目要求的算式。'
+        question, summary = '求出值域之后，还需要完成什么？', correct
+    if request := known['function_range'].get('answer_request'):
+        from ..graph_lesson.stage_two.range_task_surface import QUANTITY_WORDS
+        kind = request['kind']
+        if kind == 'expression':
+            roles = '、'.join(f'${row["symbol"]}$ 表示{QUANTITY_WORDS[row["quantity"]]}' for row in request['bindings'])
+            correct = f'{roles}，确定这些量后计算 ${tex(request["expression"])}$'
+        elif kind == 'extremum':
+            correct = f'从完整值域确定{QUANTITY_WORDS[request["quantity"]]}'
+        elif kind == 'compare_set':
+            relation = '等于' if request['relation'] == 'equal' else '不等于'
+            correct = f'判断完整值域是否{relation} ${tex(request["expected"])}$'
+        if kind != 'identity':
+            wrong = '只写出值域区间，不再回答原题的提问'
+            feedback = '先确定全部函数值，再根据题目的要求提取、计算或判断；最大值和最小值还必须能取到。'
+            question, summary = '确定值域后，原题要求怎样使用结果？', correct
     row = {'id': row_id, 'kind': 'goal', 'quote': spans,
            'fragment_ids': [row['id'] for row in selected],
            'knowledge_refs': ['function-concept#elements'], 'source_refs': [target],
            'options': _shuffle(row_id, [
-               _option('求给定输入范围内，全部函数值组成的集合'),
-               _option('求自变量的取值范围', 'goal', feedback)]),
+               _option(correct),
+               _option(wrong, 'goal', feedback)]),
            'signature': sha256(json.dumps([spans, known['function_range']], sort_keys=True,
                                          ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice',
-            'question': '题目要求求值域，需要确定什么？', 'feedback': feedback,
-            'summary': '先确定定义域，再求全部实际能取到的函数值。'}
+            'question': question, 'feedback': feedback, 'summary': summary}
 
 
 def _evaluation_d1_rows(target, fragments, known, text):

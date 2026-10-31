@@ -1015,6 +1015,16 @@
       "aliases": [],
       "steps": [
         {
+          "id": "prepare-inputs",
+          "title": "整理输入范围",
+          "calls": []
+        },
+        {
+          "id": "inputs",
+          "title": "逐个输入范围求值域",
+          "calls": []
+        },
+        {
           "id": "domain",
           "title": "确定定义域",
           "calls": []
@@ -1036,6 +1046,16 @@
         {
           "id": "transform",
           "title": "传递到原函数值域",
+          "calls": []
+        },
+        {
+          "id": "compare-option",
+          "title": "核对题给值域",
+          "calls": []
+        },
+        {
+          "id": "collect-options",
+          "title": "返回本题结论",
           "calls": []
         },
         {

@@ -193,7 +193,8 @@ def test_extrema_comparison_is_only_used_for_a_quadratic_on_one_interval(express
 
     prepared = prepare_function_range(build_context(candidate(expression, domain), TARGET))['outputs']
     contract = execution_contracts.read('method-quadratic-interval-range')
-    prepare = contract['steps'][0]['calls'][0]
+    prepare = next(call for step in contract['steps'] for call in step['calls']
+                   if call['capability'] == 'prepare_function_range')
     bindings = {target: prepared[source] for source, target in prepare['outputs'].items()}
     card = next(unit for step in contract['steps'] for unit in step['display_units']
                 if unit['id'] == 'range_values')

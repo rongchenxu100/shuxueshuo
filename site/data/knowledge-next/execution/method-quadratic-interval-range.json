@@ -8,6 +8,60 @@
   },
   "steps": [
     {
+      "id": "prepare-inputs",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_range_options",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "range_cases": "cases"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "inputs",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "cases": {
+        "source": "range_cases",
+        "binding": "option",
+        "through": "compare-option",
+        "collect": "comparisons",
+        "outputs": {
+          "comparison": "$comparison"
+        },
+        "entry": {
+          "id": "inputs",
+          "calls": [
+            {
+              "id": "bind",
+              "capability": "prepare_range_case",
+              "public_ref": null,
+              "inputs": {
+                "option": "$option"
+              },
+              "outputs": {
+                "context": "context",
+                "option_mode": "option_mode"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": []
+        }
+      }
+    },
+    {
       "id": "domain",
       "calls": [
         {
@@ -310,6 +364,79 @@
           }
         }
       ]
+    },
+    {
+      "id": "compare-option",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "compare_range_option",
+          "public_ref": null,
+          "inputs": {
+            "option": "$option",
+            "image": "$feasible_set"
+          },
+          "outputs": {
+            "comparison": "comparison"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "compare_candidate_domain",
+          "after": "compare",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "phase": "task_option_compare",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null,
+            "range": "$comparison",
+            "endpoint_values": null,
+            "critical_points": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "comparison"
+          ],
+          "guard": {
+            "ref": "option_mode",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "collect-options",
+      "calls": [
+        {
+          "id": "collect",
+          "capability": "collect_range_options",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context",
+            "comparisons": "$comparisons"
+          },
+          "outputs": {
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
     },
     {
       "id": "verify",

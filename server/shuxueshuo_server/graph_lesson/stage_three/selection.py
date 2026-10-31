@@ -225,9 +225,15 @@ def evaluate_goal(candidate, target_ref, features, primary):
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
               'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
         if admission in ('function_range', 'function_range_routes'):
-            if context['goal']['kind'] == 'find_translation_range':
-                from .translation_range import solve
+            if context['goal']['kind'] == 'select_range_domain':
+                task = context['goal']
+                domain = '各选项给定的区间'
+                d3['prerequisites'] = []
+                requested = '可能' if task['select_relation'] == 'matches' else '不可能'
+                d3['question'] = f'逐项代入定义域端点，结合顶点和区间边界求值域，再与题给 ${task["expected_range"]}$ 比较，选择“{requested}”的组合。'
+            elif context['goal']['kind'] == 'find_translation_range':
                 from .translation_presentation import domain_prerequisite
+                from .translation_range import solve
                 domain = solve(context['translation_range_goal'])['domain']
                 d3['prerequisites'] = [domain_prerequisite(context['translation_range_goal'])]
             elif context['goal']['kind'] == 'find_abstract_range':

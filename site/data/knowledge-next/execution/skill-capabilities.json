@@ -190,6 +190,18 @@
     ],
     "translate_range": [
       "method-translation-range#translate"
+    ],
+    "prepare_range_options": [
+      "method-quadratic-interval-range#prepare-inputs"
+    ],
+    "prepare_range_case": [
+      "method-quadratic-interval-range#inputs"
+    ],
+    "compare_range_option": [
+      "method-quadratic-interval-range#compare-option"
+    ],
+    "collect_range_options": [
+      "method-quadratic-interval-range#collect-options"
     ]
   }
 }

@@ -305,6 +305,9 @@
                     "minLength": 1,
                     "maxLength": 4096,
                     "description": "函数值域目标的额外输入范围，仅转录题给范围；完整定义域声明写入 Dom(f)=D。"
+                  },
+                  "answer_request": {
+                    "$ref": "#/$defs/AnswerRequest"
                   }
                 },
                 "additionalProperties": false,
@@ -345,6 +348,18 @@
                     "if": {
                       "required": [
                         "input_domain"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "object"
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "required": [
+                        "answer_request"
                       ]
                     },
                     "then": {
@@ -437,6 +452,12 @@
               },
               {
                 "$ref": "#/$defs/FindTranslationRangeGoal"
+              },
+              {
+                "$ref": "#/$defs/SelectRangeDomainGoal"
+              },
+              {
+                "$ref": "#/$defs/FindExtremaExpressionGoal"
               }
             ]
           },
@@ -1022,6 +1043,279 @@
         }
       },
       "description": "平移关系求值域目标；完整保留周期归属、原函数关系、基础输入区间及其精确值域、目标区间。各字段只记录题面已知。"
+    },
+    "SelectRangeDomainGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "object",
+        "domain_template",
+        "parameters",
+        "expected_range",
+        "select_relation",
+        "selection_mode",
+        "options"
+      ],
+      "properties": {
+        "kind": {
+          "const": "select_range_domain"
+        },
+        "object": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "domain_template": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "parameters": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "\\S"
+          }
+        },
+        "expected_range": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "select_relation": {
+          "enum": [
+            "matches",
+            "differs"
+          ]
+        },
+        "selection_mode": {
+          "enum": [
+            "single",
+            "multiple",
+            "unspecified"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "text",
+              "values"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "\\S"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "\\S"
+              },
+              "values": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024,
+                  "pattern": "\\S"
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "给定函数及值域，逐项核对定义域端点候选。domain_template、expected_range、options 仅记录题面；matches 表示可能，differs 表示不可能。不得预选或写出计算结果。"
+    },
+    "FindExtremaExpressionGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "object",
+        "extrema",
+        "expression"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_extrema_expression"
+        },
+        "object": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "extrema": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "symbol",
+              "kind"
+            ],
+            "properties": {
+              "symbol": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "\\S"
+              },
+              "kind": {
+                "enum": [
+                  "minimum",
+                  "maximum"
+                ]
+              }
+            }
+          }
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "\\S"
+        }
+      },
+      "description": "题给函数的最大值、最小值用符号命名，要求这些符号的算式。仅抄录角色、符号、所求算式；不得改成只求值域或填写最值答案。"
+    },
+    "AnswerRequest": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "identity"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "quantity"
+          ],
+          "properties": {
+            "kind": {
+              "const": "extremum"
+            },
+            "quantity": {
+              "enum": [
+                "minimum",
+                "maximum",
+                "infimum",
+                "supremum"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "bindings",
+            "expression"
+          ],
+          "properties": {
+            "kind": {
+              "const": "expression"
+            },
+            "bindings": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "symbol",
+                  "quantity"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "quantity": {
+                    "enum": [
+                      "minimum",
+                      "maximum",
+                      "infimum",
+                      "supremum"
+                    ]
+                  }
+                }
+              }
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expected",
+            "relation"
+          ],
+          "properties": {
+            "kind": {
+              "const": "compare_set"
+            },
+            "expected": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "relation": {
+              "enum": [
+                "equal",
+                "not_equal"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "原题对已求集合的提问方式；只保留原文要求，不填写算出的值、范围或计划。最值必须区分能否取得。"
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

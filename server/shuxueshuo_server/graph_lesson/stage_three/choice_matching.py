@@ -87,6 +87,45 @@ def _option_set(expression, parameter_name, goal_kind):
     return result
 
 
+def _match_converted(source, target_ref, answer, feasible):
+    """Match the result type, independently of the original solving method."""
+    base = {'status': 'unavailable', 'target_ref': target_ref}
+    set_result = answer['status'] == 'set'
+    if not set_result and source['selection_mode'] == 'multiple':
+        return {**base, 'reason': 'choice.multiple_selection_unsupported'}
+    if set_result:
+        wanted = feasible
+    elif answer['status'] == 'boolean':
+        wanted = answer['value']
+    elif 'value' in answer:
+        wanted = sp.FiniteSet(_answer_value(answer, 'value'))
+    else:
+        return {**base, 'reason': 'choice.unattained_answer_unsupported'}
+    options, matches = [], []
+    for option in source['options']:
+        if answer['status'] == 'boolean':
+            stated = option['text'].strip().strip('$').strip().rstrip('。')
+            booleans = {'是': True, '正确': True, '成立': True, '否': False, '错误': False, '不成立': False}
+            if stated not in booleans:
+                return {**base, 'reason': 'choice.unsupported_option'}
+            matches_value = booleans[stated] is wanted
+        else:
+            expression = option_expression(option['text'], real_parameter='result') if set_result else option['expression']
+            if not isinstance(expression, str):
+                return {**base, 'reason': 'choice.unsupported_option'}
+            actual = _option_set(expression, 'result', 'find_range' if set_result else 'find_value')
+            matches_value = _set_mismatch(actual, wanted) is None
+        options.append({'label': option['label'], 'text': option['text']})
+        if matches_value:
+            matches.append(option['label'])
+    mode = source['selection_mode']
+    if (mode == 'single' or not set_result) and len(matches) != 1:
+        return {**base, 'reason': 'choice.ambiguous_match' if matches else 'choice.no_match'}
+    return {'status': 'matched', 'kind': 'multiple_choice' if set_result and mode != 'single' else 'single_choice',
+            'target_ref': target_ref, 'options': options, 'correct_labels': matches,
+            **({'matching': 'set_equality', 'selection_mode': mode} if set_result else {})}
+
+
 def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None):
     """Return certified original labels, or an explicit unavailable reason.
 
@@ -104,8 +143,27 @@ def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None
     try:
         context = build_context(candidate, target_ref)
         goal, goal_ast = context["goal"], context["goal_ast"]
+        if 'answer_request' in goal:
+            if feasible_set_exact is None:
+                return {**base, 'reason': 'choice.exact_answer_required'}
+            feasible = decode_value(feasible_set_exact)
+            verify_goal_answer(goal, feasible, answer)
+            return _match_converted(source, target_ref, answer, feasible)
+        if goal['kind'] == 'select_range_domain':
+            if feasible_set_exact is None:
+                return {**base, 'reason': 'choice.exact_answer_required'}
+            verify_goal_answer(goal, decode_value(feasible_set_exact), answer)
+            from ...search.identity import _surface
+            shown = [(row['label'], _surface(row['text'])) for row in source['options']]
+            original = [(row['label'], _surface(row['text'])) for row in goal['options']]
+            if shown != original or source['selection_mode'] != goal['selection_mode']:
+                return {**base, 'reason': 'choice.option_identity_mismatch'}
+            return {'status': 'matched', 'kind': 'single_choice' if goal['selection_mode'] == 'single' else 'multiple_choice',
+                    'matching': 'range_domain_options', 'selection_mode': goal['selection_mode'],
+                    'target_ref': target_ref, 'options': [{'label': row['label'], 'text': row['text']} for row in source['options']],
+                    'correct_labels': answer['correct_labels']}
         set_goal = goal["kind"] in _SET_GOALS
-        if (not set_goal and goal["kind"] not in ("find_minimum", "find_maximum")
+        if (not set_goal and goal["kind"] not in ("find_minimum", "find_maximum", 'find_extrema_expression')
                 or not isinstance(answer, dict) or answer.get("kind") != goal["kind"]):
             return {**base, "reason": "choice.unsupported_goal"}
         if not set_goal and source["selection_mode"] == "multiple":
@@ -114,17 +172,19 @@ def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None
             feasible = decode_value(feasible_set_exact)
             _supported_set(feasible)
             verify_goal_answer(goal, feasible, answer)
-        elif set_goal:
+        elif set_goal or goal['kind'] == 'find_extrema_expression':
             return {**base, "reason": "choice.exact_answer_required"}
         if set_goal:
             if answer["set"].get("expression") != math_value(feasible)["expression"]:
                 return {**base, "reason": "choice.answer_mismatch"}
             expected = feasible
-        elif answer.get("status") == "attained":
+        elif answer.get("status") == "attained" or (goal['kind'] == 'find_extrema_expression' and answer.get('status') == 'value'):
             expected = sp.FiniteSet(_answer_value(answer, "value"))
         else:
             return {**base, "reason": "choice.unattained_answer_unsupported"}
-        if goal["kind"] == "find_abstract_domain_parameter":
+        if goal['kind'] == 'find_extrema_expression':
+            parameter_name = 'result'
+        elif goal["kind"] == "find_abstract_domain_parameter":
             parameter_name = goal["parameter"]
         elif goal["kind"] in ("find_abstract_range", "find_translation_range"):
             parameter_name = "y"

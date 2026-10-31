@@ -450,8 +450,9 @@ def revisions():
     result["evaluation_runtime"] = hashlib.sha256((folder / "evaluation_runtime.py").read_bytes()).hexdigest()
     result["evaluation_presentation"] = hashlib.sha256((folder / "evaluation_presentation.py").read_bytes()).hexdigest()
     result["evaluation_algebra"] = hashlib.sha256((folder / "evaluation_algebra.py").read_bytes()).hexdigest()
-    for name in ('function_range', 'range_presentation', 'range_equation', 'range_selection', 'fraction_range', 'fraction_range_presentation', 'abstract_function_range', 'abstract_range_presentation', 'finite_range', 'translation_range', 'translation_presentation'):
+    for name in ('function_range', 'range_presentation', 'range_tasks', 'range_task_presentation', 'answer_conversion', 'answer_conversion_presentation', 'range_equation', 'range_selection', 'fraction_range', 'fraction_range_presentation', 'abstract_function_range', 'abstract_range_presentation', 'finite_range', 'translation_range', 'translation_presentation'):
         result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
+    result['answer_requests'] = hashlib.sha256((folder.parents[1] / 'problem_understanding/answer_requests.py').read_bytes()).hexdigest()
     result['range_syntax'] = hashlib.sha256((folder.parent / 'range_syntax.py').read_bytes()).hexdigest()
     result["selection"] = hashlib.sha256(b"".join(
         path.name.encode() + b"\0" + path.read_bytes() for path in sorted((DATA / "selection").glob("*.json"))

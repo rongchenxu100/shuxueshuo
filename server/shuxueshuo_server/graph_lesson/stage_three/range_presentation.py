@@ -82,6 +82,12 @@ def _graph(values):
 
 def phase_view(values):
     phase, desc = values['phase'], values['description']
+    if phase.startswith('answer_conversion'):
+        from .answer_conversion_presentation import phase_view as answer_view
+        return answer_view(values)
+    if phase.startswith('task_'):
+        from .range_task_presentation import phase_view as task_view
+        return task_view(values)
     if phase.startswith('translation_'):
         from .translation_presentation import phase_view as translation_view
         return translation_view(values)

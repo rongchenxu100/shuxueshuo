@@ -172,6 +172,99 @@
           }
         }
       ]
+    },
+    {
+      "id": "function_range_answer_tasks",
+      "syntax": "select_range_domain / find_range + answer_request",
+      "meaning": "函数的提问方式通过 `find_range` 的 `answer_request` 保留，`object` 引用原函数，题给输入范围照录。`kind=\"extremum\"` 指定 `quantity=\"minimum\"/\"maximum\"`；最大值为 a、最小值为 b，求 a+b 时，用 `answer_request={\"kind\":\"expression\",\"bindings\":[{\"symbol\":\"a\",\"quantity\":\"maximum\"},{\"symbol\":\"b\",\"quantity\":\"minimum\"}],\"expression\":\"a+b\"}`。只记录原题角色和运算，不计算结果。题目直接说“最大值与最小值的和/差/积/商”时，可用 a、b 作为这两个量的内部别名；运算及顺序严格对应原文。明确问上确界/下确界才用 supremum/infimum，不能替代最大/最小值。判断值域是否为题给集合时，用 `answer_request={\"kind\":\"compare_set\",\"relation\":\"equal\",\"expected\":\"原题给定集合\"}`；明确问不等于时 relation 为 not_equal。普通求值域省略 answer_request。兼容历史 find_extrema_expression，但新提取优先使用此统一表示。不能把命名最值当作解析式的自由参数，也不能把原题要求丢成仅求值域。 候选定义域使用 select_range_domain，保留原选项和可能/不可能方向，不把未知端点当作固定定义域。",
+      "few_shots": [
+        {
+          "input": "已知函数 $f(x)=x^2-2x-3$ 的定义域为 $[a,b]$，值域为 $[-4,5]$，则实数对 $(a,b)$ 不可能为（　）\nA. $(-2,4)$\nB. $(-2,1)$\nC. $(1,4)$\nD. $(-1,1)$",
+          "output": {
+            "definitions": [
+              "f(x)=x^2-2*x-3"
+            ],
+            "goals": [
+              {
+                "kind": "select_range_domain",
+                "object": "f",
+                "domain_template": "[a,b]",
+                "parameters": [
+                  "a",
+                  "b"
+                ],
+                "expected_range": "[-4,5]",
+                "select_relation": "differs",
+                "selection_mode": "single",
+                "options": [
+                  {
+                    "label": "A",
+                    "text": "$(-2,4)$",
+                    "values": [
+                      "-2",
+                      "4"
+                    ]
+                  },
+                  {
+                    "label": "B",
+                    "text": "$(-2,1)$",
+                    "values": [
+                      "-2",
+                      "1"
+                    ]
+                  },
+                  {
+                    "label": "C",
+                    "text": "$(1,4)$",
+                    "values": [
+                      "1",
+                      "4"
+                    ]
+                  },
+                  {
+                    "label": "D",
+                    "text": "$(-1,1)$",
+                    "values": [
+                      "-1",
+                      "1"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "explanation": "保留原题条件、所求及选项；求值域是后续中间步骤，提取阶段不计算结果或选择答案。"
+        },
+        {
+          "input": "若函数 $f(x)=\\frac{3x^2+x+3}{x^2+1}$ 的最大值为 $a$，最小值为 $b$，则 $a+b$ =（　）\nA. $4$\nB. $6$\nC. $7$\nD. $8$",
+          "output": {
+            "definitions": [
+              "f(x)=(3*x^2+x+3)/(x^2+1)"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "object": "f",
+                "answer_request": {
+                  "kind": "expression",
+                  "bindings": [
+                    {
+                      "symbol": "a",
+                      "quantity": "maximum"
+                    },
+                    {
+                      "symbol": "b",
+                      "quantity": "minimum"
+                    }
+                  ],
+                  "expression": "a+b"
+                }
+              }
+            ]
+          },
+          "explanation": "保留原题条件、所求及选项；求值域是后续中间步骤，提取阶段不计算结果或选择答案。"
+        }
+      ]
     }
   ]
 }

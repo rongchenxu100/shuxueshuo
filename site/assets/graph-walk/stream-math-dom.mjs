@@ -161,6 +161,34 @@ export function createDerivationBoard(document, board) {
 }
 
 export function routeAnswerSummary(answer = {}) {
+  if (answer.kind === 'derived_answer') {
+    if (answer.status === 'boolean' && typeof answer.value === 'boolean') {
+      return {label: answer.value ? '原题判断：是' : '原题判断：否', formula: ''};
+    }
+    const names = {minimum: '最小值', maximum: '最大值', infimum: '下确界', supremum: '上确界'};
+    if (answer.value || answer.set) {
+      const formula = expressionText(answer.value || answer.set);
+      return formula ? {label: answer.set ? '所求集合：' : `${names[answer.quantity] || '所求值'}：`, formula} : null;
+    }
+    if (answer.request_kind === 'extremum' && names[answer.quantity]) {
+      return {label: `${names[answer.quantity]}不存在。`, formula: ''};
+    }
+    return answer.status === 'undefined' ? {label: answer.reason === 'quantity_unavailable' ? '所需量不存在，所求式无定义。' : '所求式无定义。', formula: ''} : null;
+  }
+  if (answer.kind === 'select_range_domain' && answer.status === 'complete' &&
+      Array.isArray(answer.correct_labels) && answer.correct_labels.every(label => typeof label === 'string')) {
+    return {label: `原题选项：${answer.correct_labels.join('、') || '无'}`, formula: ''};
+  }
+  if (answer.kind === 'find_extrema_expression') {
+    if (answer.status === 'value') {
+      const formula = expressionText(answer.value);
+      return formula ? {label: '所求值：', formula} : null;
+    }
+    if (answer.status === 'undefined' && ['extremum_not_attained', 'undefined_expression'].includes(answer.reason)) {
+      return {label: answer.reason === 'extremum_not_attained' ? '所需最值不存在，所求式无定义。' : '所求式无定义。', formula: ''};
+    }
+    return null;
+  }
   if (answer.kind === 'goal_group' && answer.status === 'complete') {
     const rows = answer.answers;
     if (!Array.isArray(rows) || !rows.length || new Set(rows.map(row => row.target_ref)).size !== rows.length) return null;

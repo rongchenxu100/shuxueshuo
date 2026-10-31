@@ -507,7 +507,7 @@ def normalize_bound(root, objects, *, source_locations=None):
             from .notation_evaluation import is_evaluation_goal
 
             if (is_evaluation_goal(goal) or goal['kind'] in
-                    ('find_translation_range', 'compare_functions', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range')):
+                    ('select_range_domain', 'find_extrema_expression', 'find_translation_range', 'compare_functions', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range')):
                 # Original function / abstract-call syntax defines domain
                 # restrictions. Do not run generic expression rewrites across
                 # option-local or abstract function objects.

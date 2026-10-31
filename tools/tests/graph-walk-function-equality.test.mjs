@@ -126,6 +126,7 @@ test('single-answer comparison handoffs validate every verdict and preserve ordi
   const ordinary = structuredClone(completion);
   delete ordinary.original_choice.option_verdicts;
   delete ordinary.original_choice.select_relation;
+  ordinary.answer = {kind: 'find_range', status: 'set', set: {latex: '[0,1]'}};
   assert.ok(matchedOriginalChoice(ordinary));
   const ordinaryFinal = originalChoiceDecision(ordinary, '/root/goals/0', 'ordinary');
   assert.equal(ordinaryFinal.require_complete_options, undefined);
@@ -214,6 +215,7 @@ test('completed ordinary original single choice retains its existing stale-answe
   const {bundle, completion} = fixture('equal', ['different', 'different', 'equal', 'different'], 'single');
   delete completion.original_choice.option_verdicts;
   delete completion.original_choice.select_relation;
+  completion.answer = {kind: 'find_range', status: 'set', set: {latex: '[0,1]'}};
   const final = originalChoiceDecision(completion, '/root/goals/0', 'equality');
   bundle.routes.equality.steps = [final];
   let state = createState(bundle);

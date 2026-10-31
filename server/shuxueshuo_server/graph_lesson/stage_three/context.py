@@ -118,8 +118,16 @@ def build_context(candidate, target_ref):
         "well_definedness": obligations,
         "processing": {"status": "pending", "unprocessed_source_refs": [entry["source_ref"] for entry in entries]},
     }
+    from ...problem_understanding.answer_requests import (
+        compile_candidate_plan,
+        compile_plan,
+        request_for_goal,
+    )
+    if request := request_for_goal(goal):
+        context['answer_plan'] = (compile_candidate_plan(request) if goal['kind'] == 'select_range_domain'
+                                  else compile_plan(request))
 
-    if goal['kind'] == 'find_range' and 'object' in goal:
+    if goal['kind'] in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in goal:
         from ..stage_one.function_range import inspect_range_target
         context['range_goal'] = inspect_range_target(candidate, target_ref)
     elif goal['kind'] in ('find_value', 'check_constant', 'finite_sum'):

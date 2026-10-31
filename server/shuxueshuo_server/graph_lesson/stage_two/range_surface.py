@@ -94,6 +94,14 @@ def range_source_spans(candidate, target_ref, ranges, description, matches):
         if not located:
             return None
         spans.append((*located[0], 'expression', [ref]))
+    if request := description.get('answer_request'):
+        from .range_task_surface import request_spans
+        extra = request_spans(text, ranges, formulas, request, target_ref, matches)
+        return [*spans, *extra] if extra else None
+    if task := description.get('range_task'):
+        from .range_task_surface import task_spans
+        extra = task_spans(text, ranges, formulas, task, target_ref, matches)
+        return [*spans, *extra] if extra else None
     goals = [(begin + match.start(), begin + match.end()) for begin, end in ranges
              for match in re.finditer(r'值域', text[begin:end])]
     if not goals:

@@ -27,7 +27,7 @@ def validate_original_choice(choice, target):
         return
     if not isinstance(choice, dict) or choice.get("target_ref") != target:
         raise ValueError("handoff.invalid_original_choice")
-    if choice.get("matching") == "set_equality":
+    if choice.get("matching") in ('set_equality', 'range_domain_options'):
         _validate_set_choice(choice)
         return
     if choice.get('selection_mode') in ('multiple', 'single', 'unspecified'):
@@ -124,8 +124,12 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
         raise ValueError("handoff.invalid_consistency")
     target, route_id = checkpoint["target_ref"], checkpoint["route_id"]
     validate_original_choice(original_choice, target)
+    if (original_choice and original_choice.get('matching') == 'range_domain_options'
+            and (answer.get('kind') != 'select_range_domain' or answer.get('status') != 'complete'
+                 or original_choice['correct_labels'] != answer['correct_labels'])):
+        raise ValueError('handoff.invalid_original_choice_goal')
     if (original_choice and original_choice.get("matching") == "set_equality"
-            and (answer.get("kind") not in {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
+            and (answer.get("kind") not in {"derived_answer", "find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
                  or answer.get("status") != "set")):
         raise ValueError("handoff.invalid_original_choice_goal")
     choice_fields = {"original_choice": deepcopy(original_choice)} if original_choice is not None else {}

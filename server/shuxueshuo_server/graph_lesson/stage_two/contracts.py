@@ -163,7 +163,7 @@ def validate_input(value, admission="acceptance"):
         # ordinary shape/source check above.
         kind = expected[target]['goal']['kind']
         required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range'}
-        if kind == 'find_range' and 'object' in expected[target]['goal']:
+        if kind in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in expected[target]['goal']:
             required.add('function_range')
         elif kind in ('find_domain', 'match_domain'):
             required.add('function_domain')

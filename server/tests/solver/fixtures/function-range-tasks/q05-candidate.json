@@ -1,0 +1,92 @@
+{
+  "original_text": "已知函数 $f(x)=x^2-2x-3$ 的定义域为 $[a,b]$，值域为 $[-4,5]$，则实数对 $(a,b)$ 不可能为（　）\nA. $(-2,4)$\nB. $(-2,1)$\nC. $(1,4)$\nD. $(-1,1)$",
+  "root": {
+    "definitions": [
+      "f(x)=x^2-2*x-3"
+    ],
+    "goals": [
+      {
+        "kind": "select_range_domain",
+        "object": "f",
+        "domain_template": "[a,b]",
+        "parameters": [
+          "a",
+          "b"
+        ],
+        "expected_range": "[-4,5]",
+        "select_relation": "differs",
+        "selection_mode": "single",
+        "options": [
+          {
+            "label": "A",
+            "text": "$(-2,4)$",
+            "values": [
+              "-2",
+              "4"
+            ]
+          },
+          {
+            "label": "B",
+            "text": "$(-2,1)$",
+            "values": [
+              "-2",
+              "1"
+            ]
+          },
+          {
+            "label": "C",
+            "text": "$(1,4)$",
+            "values": [
+              "1",
+              "4"
+            ]
+          },
+          {
+            "label": "D",
+            "text": "$(-1,1)$",
+            "values": [
+              "-1",
+              "1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=x^2-2x-3$ 的定义域为 $[a,b]$，值域为 $[-4,5]$，则实数对 $(a,b)$ 不可能为（　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "single",
+            "options": [
+              {
+                "label": "A",
+                "text": "$(-2,4)$"
+              },
+              {
+                "label": "B",
+                "text": "$(-2,1)$"
+              },
+              {
+                "label": "C",
+                "text": "$(1,4)$"
+              },
+              {
+                "label": "D",
+                "text": "$(-1,1)$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -551,6 +551,316 @@
               ]
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "selection_mode",
+            "select_relation",
+            "correct_labels"
+          ],
+          "properties": {
+            "kind": {
+              "const": "select_range_domain"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "selection_mode": {
+              "enum": [
+                "single",
+                "multiple",
+                "unspecified"
+              ]
+            },
+            "select_relation": {
+              "enum": [
+                "matches",
+                "differs"
+              ]
+            },
+            "correct_labels": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_extrema_expression"
+            },
+            "status": {
+              "const": "value"
+            },
+            "value": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_extrema_expression"
+            },
+            "status": {
+              "const": "undefined"
+            },
+            "reason": {
+              "enum": [
+                "extremum_not_attained",
+                "undefined_expression"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "status",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "expression"
+            },
+            "status": {
+              "const": "value"
+            },
+            "value": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "expression"
+            },
+            "status": {
+              "const": "undefined"
+            },
+            "reason": {
+              "enum": [
+                "quantity_unavailable",
+                "undefined_expression"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "status",
+            "set"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "identity"
+            },
+            "status": {
+              "const": "set"
+            },
+            "set": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "status",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "compare_set"
+            },
+            "status": {
+              "const": "boolean"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "quantity",
+            "status",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "extremum"
+            },
+            "quantity": {
+              "enum": [
+                "minimum",
+                "maximum",
+                "infimum",
+                "supremum"
+              ]
+            },
+            "status": {
+              "const": "attained"
+            },
+            "value": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "quantity",
+            "status",
+            "bound"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "extremum"
+            },
+            "quantity": {
+              "enum": [
+                "minimum",
+                "maximum"
+              ]
+            },
+            "status": {
+              "const": "not_attained"
+            },
+            "bound": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "quantity",
+            "status",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "extremum"
+            },
+            "quantity": {
+              "enum": [
+                "infimum",
+                "supremum"
+              ]
+            },
+            "status": {
+              "const": "not_attained"
+            },
+            "value": {
+              "$ref": "#/$defs/exactScalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "request_kind",
+            "quantity",
+            "status"
+          ],
+          "properties": {
+            "kind": {
+              "const": "derived_answer"
+            },
+            "request_kind": {
+              "const": "extremum"
+            },
+            "quantity": {
+              "enum": [
+                "minimum",
+                "maximum",
+                "infimum",
+                "supremum"
+              ]
+            },
+            "status": {
+              "enum": [
+                "empty_feasible_set",
+                "unbounded_below",
+                "unbounded_above"
+              ]
+            }
+          }
         }
       ]
     }

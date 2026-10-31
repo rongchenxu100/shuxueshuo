@@ -103,8 +103,15 @@ def inputs(description):
 
 
 def admitted(context, method=None):
+    if context.get('goal', {}).get('kind') == 'select_range_domain':
+        from .range_tasks import options_admitted
+        return options_admitted(context, method)
+    if context.get('goal', {}).get('kind') == 'find_extrema_expression':
+        from .range_tasks import child_context
+        return admitted(child_context(context), method)
     if context.get('goal', {}).get('kind') == 'find_translation_range':
-        from .translation_range import METHOD, admitted as admitted_translation
+        from .translation_range import METHOD
+        from .translation_range import admitted as admitted_translation
         return method in (None, METHOD) and admitted_translation(context)
     if context.get('goal', {}).get('kind') == 'find_abstract_range':
         from .abstract_function_range import admitted as admitted_abstract
@@ -428,7 +435,11 @@ def monotone_cover(expression, variable, domain):
 
 
 def process_context(context, feasible_set):
-    inputs(context['range_goal'])
+    if context['goal']['kind'] == 'select_range_domain':
+        if not admitted(context):
+            raise CapabilityGap('range_task.unsupported_domain_options')
+    else:
+        inputs(context['range_goal'])
     # Definition, declared domain and extra restrictions have all been read by
     # the structural contract. The result is an OUTPUT set, never intersect it
     # with an input constraint here.

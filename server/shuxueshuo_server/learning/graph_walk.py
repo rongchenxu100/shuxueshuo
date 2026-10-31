@@ -57,7 +57,7 @@ def option_requirements(contract, route, decision):
     """Validate a complete comparison lesson and return all prerequisite step ids."""
     if 'matching' in decision:
         steps = route_steps(contract, route)
-        if (decision['matching'] != 'set_equality' or decision.get('source') != 'original_choice'
+        if (decision['matching'] not in ('set_equality', 'range_domain_options') or decision.get('source') != 'original_choice'
                 or decision.get('interaction', {}).get('type') not in {EXACT_CHOICE, 'choice'}
                 or not isinstance(decision.get('target_ref'), str) or not decision['target_ref']
                 or any(key in decision for key in ('require_complete_options', 'select_relation'))
@@ -127,7 +127,7 @@ def ensure_option_prerequisites(contract, route, decision, passed_ids):
     except ValueError as error:
         raise HTTPException(409, '本题判断记录不完整，请重新开始练习。') from error
     if not set(required) <= set(passed_ids):
-        if decision.get('matching') == 'set_equality':
+        if decision.get('matching') in ('set_equality', 'range_domain_options'):
             raise HTTPException(409, '请先完成求解步骤，再提交原题答案。')
         raise HTTPException(409, '请先完成每个选项的证据步骤和判断，再提交原题答案。')
 

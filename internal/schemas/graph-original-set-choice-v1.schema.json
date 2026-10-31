@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Verified set-answer original choice",
-  "description": "Only for verified set answers (find_range/find_domain/match_domain/find_abstract_domain/find_abstract_domain_parameter); never a compare_functions handoff. Labels are matched by exact set equality. Runtime additionally checks label uniqueness and membership. Unspecified mode uses exact multiple selection.",
+  "description": "Verified set-equality or candidate-domain image comparison choices. Runtime additionally checks goal kind, original option identity, label uniqueness and membership.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -24,7 +24,10 @@
       ]
     },
     "matching": {
-      "const": "set_equality"
+      "enum": [
+        "set_equality",
+        "range_domain_options"
+      ]
     },
     "selection_mode": {
       "enum": [

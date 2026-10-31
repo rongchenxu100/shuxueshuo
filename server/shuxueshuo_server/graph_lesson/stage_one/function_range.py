@@ -16,7 +16,7 @@ from .function_domain import (
     source_pointer,
 )
 
-VERSION = 'function-range-fraction/v7'
+VERSION = 'function-range-answer-request/v8'
 
 
 def _domain(ast):
@@ -35,7 +35,7 @@ def _budget(ast, depth=0, count=None):
 
 def describe_range_goal(report, scope, ancestors, goal_index):
     goal = scope['goals'][goal_index]
-    if goal['kind'] != 'find_range' or goal['target'][0] != 'ref' or goal['target'][2] != 'function':
+    if goal['kind'] not in ('find_range', 'select_range_domain', 'find_extrema_expression') or goal['target'][0] != 'ref' or goal['target'][2] != 'function':
         raise NotationError('range.function_goal_required')
     visible = [*ancestors, scope]
     records = [row for item in visible for row in report.scope_facts.get(item['scope'], [])]
@@ -56,6 +56,10 @@ def describe_range_goal(report, scope, ancestors, goal_index):
              'input_domain_source_ref': target_ref+'/input_domain' if 'input_domain' in goal else '',
              'restriction_facts': [], 'degree': 0, 'structure_supported': False,
              'structure_version': VERSION, 'reason': ''}
+    if 'task' in goal:
+        value['range_task'] = deepcopy(goal['task'])
+    if 'answer_request' in goal:
+        value['answer_request'] = deepcopy(goal['answer_request'])
     try:
         if any(item.get('uncertainties') for item in visible):
             raise NotationError('range.unresolved_source')
@@ -94,6 +98,10 @@ def describe_range_goal(report, scope, ancestors, goal_index):
         if relation and (value['declared_domain_ast'] != ['real'] or value['input_domain_ast'] != ['real']
                          or value['restriction_facts']):
             raise NotationError('range.full_real_input_relation_required')
+        if goal['kind'] == 'select_range_domain' and (
+                relation or value.get('rational') or value.get('substitution') or value.get('radical')
+                or value['degree'] != 2 or value['declared_domain_source_ref'] or value['restriction_facts']):
+            raise NotationError('range_task.quadratic_candidate_domains_required')
         value['structure_supported'] = True
     except (NotationError, ValueError, ZeroDivisionError) as exc:
         value['reason'] = getattr(exc, 'code', 'range.invalid_structure')

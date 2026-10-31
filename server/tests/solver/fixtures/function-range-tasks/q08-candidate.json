@@ -1,0 +1,61 @@
+{
+  "original_text": "若函数 $f(x)=\\frac{3x^2+x+3}{x^2+1}$ 的最大值为 $a$，最小值为 $b$，则 $a+b$ =（　）\nA. $4$\nB. $6$\nC. $7$\nD. $8$",
+  "root": {
+    "definitions": [
+      "f(x)=(3*x^2+x+3)/(x^2+1)"
+    ],
+    "goals": [
+      {
+        "kind": "find_extrema_expression",
+        "object": "f",
+        "extrema": [
+          {
+            "symbol": "a",
+            "kind": "maximum"
+          },
+          {
+            "symbol": "b",
+            "kind": "minimum"
+          }
+        ],
+        "expression": "a+b"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $f(x)=\\frac{3x^2+x+3}{x^2+1}$ 的最大值为 $a$，最小值为 $b$，则 $a+b$ =（　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "single",
+            "options": [
+              {
+                "label": "A",
+                "text": "$4$"
+              },
+              {
+                "label": "B",
+                "text": "$6$"
+              },
+              {
+                "label": "C",
+                "text": "$7$"
+              },
+              {
+                "label": "D",
+                "text": "$8$"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
