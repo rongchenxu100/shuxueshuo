@@ -10,7 +10,9 @@ COPY tools/lib/public-knowledge-sources.mjs tools/lib/public-knowledge-export.mj
 # Import structured originals and the page identities checked by the publisher.
 COPY site/data/knowledge-next /app/site/data/knowledge-next
 COPY site/data/graph-walk /app/site/data/graph-walk
-COPY site/assets/knowledge-next/model.mjs site/assets/knowledge-next/teaching-model.mjs /app/site/assets/knowledge-next/
+COPY site/assets/knowledge-next/model.mjs site/assets/knowledge-next/teaching-model.mjs site/assets/knowledge-next/learning-model.mjs /app/site/assets/knowledge-next/
+# Diagram modules imported by the content exporter also use the shared learning mode.
+COPY site/assets/practice/learning-mode.mjs /app/site/assets/practice/learning-mode.mjs
 COPY site/assets/explain /app/site/assets/explain
 COPY site/1 /app/site/1
 COPY site/2 /app/site/2
