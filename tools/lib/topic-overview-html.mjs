@@ -89,7 +89,10 @@ function groupProblems(group, topic, byId) {
 export function renderTopicOverview(topic, nodes) {
   validateTopicSource(topic, nodes);
   const count = problemCount(topic), byId = new Map(nodes.map(node => [node.id, node]));
-  const knowledge = topic.knowledge.map(ref => { const node = byId.get(ref); return `<li><a href="/knowledge/${ref}/"><span class="topic-knowledge-title">${h(node.label)} <span aria-hidden="true">→</span></span><span class="topic-knowledge-summary">${textHtml(node.summary || '')}</span></a></li>`; }).join('');
+  const knowledgeList = refs => `<ul class="topic-knowledge-links">${refs.map(ref => { const node = byId.get(ref); return `<li><a href="/knowledge/${ref}/"><span class="topic-knowledge-title">${h(node.label)} <span aria-hidden="true">→</span></span><span class="topic-knowledge-summary">${textHtml(node.summary || '')}</span></a></li>`; }).join('')}</ul>`;
+  const knowledge = topic.knowledgeGroups
+    ? topic.knowledgeGroups.map(group => `<section class="topic-knowledge-group" aria-labelledby="knowledge-${group.id}"><h3 id="knowledge-${group.id}">${h(group.label)}</h3>${group.description ? `<p class="topic-knowledge-context">${textHtml(group.description)}</p>` : ''}${knowledgeList(group.refs)}</section>`).join('\n')
+    : knowledgeList(topic.knowledge);
   const groups = topic.groups.map((group, index) => `<section class="type-group" id="group-${group.id}" aria-labelledby="title-${group.id}">
   <div class="type-heading"><span class="type-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><div class="type-title"><h3 id="title-${group.id}">${h(group.label)}</h3><p class="type-hint">${h(group.description || '')}</p></div></div>
   <a class="topic-type-link" href="${typeLink(group)}">了解题型 <span aria-hidden="true">→</span></a>
@@ -105,7 +108,7 @@ export function renderTopicOverview(topic, nodes) {
   <link rel="canonical" href="https://shuxueshuo.com${topicPath(topic)}">
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
   <link rel="stylesheet" href="/1/chapter.css?v=20261028-choice-stem">
-  <link rel="stylesheet" href="/topics/topics.css?v=20261031-method-groups">
+  <link rel="stylesheet" href="/topics/topics.css?v=20261031-knowledge-groups">
   <link rel="stylesheet" href="${SITE_HEADER_CSS}">
   <script type="module" src="/assets/auth/site-auth.js?v=4"></script>
   ${count ? '<script type="module" src="/assets/learning/learning-marks.js?v=20261026-graph-walk"></script>' : ''}
@@ -126,7 +129,7 @@ ${count ? '' : '      <div class="topic-empty"><h2>题目建设中</h2><p>先了
       <nav class="toc" aria-label="题型目录"><div class="toc-heading"><h3 id="toc-title">题型目录</h3><span class="toc-meta">点击跳到对应题型</span></div><ol class="toc-list">${topic.groups.map((group, index) => `<li><a class="toc-link" href="#group-${group.id}"><span class="toc-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="toc-name">${h(group.label)}</span></a></li>`).join('')}</ol><a class="toc-map" href="#knowledge-map">本专题的知识梳理 <span aria-hidden="true">↓</span></a></nav>
       ${groups}
     </section>
-    <section class="topic-knowledge-entry" id="knowledge-map" aria-labelledby="knowledge-title"><div class="bank-heading"><h2 id="knowledge-title">知识梳理</h2><a href="/knowledge/${topic.chapter.ref}/">查看本节知识 →</a></div><ul class="topic-knowledge-links">${knowledge}</ul></section>
+    <section class="topic-knowledge-entry" id="knowledge-map" aria-labelledby="knowledge-title"><div class="bank-heading"><h2 id="knowledge-title">知识梳理</h2><a href="/knowledge/${topic.chapter.ref}/">查看本节知识 →</a></div>${knowledge}</section>
     <footer class="chapter-footer"><span>数学说 · 高中专题</span><a href="/topics/">返回专题目录 →</a></footer>
   </main>
 </body>

@@ -1,5 +1,5 @@
 {
-  "contentVersion": "d5d8b8d78f3e7924f6dd7a53c5dbbbfe7af3fc7a46758bb69e718ba388166f91",
+  "contentVersion": "f3567311ceaab43727f1c3c38a7cd4f44cabb45365005a1f5e700e66daf58167",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {

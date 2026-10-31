@@ -67,15 +67,15 @@ a { color: var(--sq-teal); }
 .sq-flow h2, .sq-history h2, .sq-scope h2 { font-size: 17px; font-weight: 750; }
 .sq-scope-head { display: flex; align-items: center; gap: 8px; }
 .sq-scope-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 4px rgba(16, 185, 129, .15); }
-.sq-scope-type { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--sq-teal-soft); color: var(--sq-teal-dark); font-size: 15px; font-weight: 650; }
+.sq-scope-list { display: grid; gap: 10px; margin: 16px 0; padding: 0; list-style: none; }
+.sq-scope-list li { padding: 12px 14px; border-radius: 12px; background: #f4f8f6; }
+.sq-scope-type { margin: 0; font-size: 15px; font-weight: 650; }
+.sq-scope-type a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--sq-teal-dark); text-decoration: none; }
+.sq-scope-type a span { flex: none; }
+.sq-scope-type a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.sq-scope-type a:focus-visible { outline: 2px solid var(--sq-teal); outline-offset: 4px; border-radius: 2px; }
+.sq-scope-list p { margin-top: 4px; color: var(--sq-muted); font-size: 13px; }
 .sq-scope-note { margin-top: 10px; color: var(--sq-muted); font-size: 13px; }
-.sq-examples { margin-top: 10px; font-size: 14px; }
-.sq-examples summary { color: var(--sq-teal); font-weight: 600; cursor: pointer; list-style: none; }
-.sq-examples summary::-webkit-details-marker { display: none; }
-.sq-examples summary::after { content: ' ›'; display: inline-block; transition: transform .15s; }
-.sq-examples[open] summary::after { transform: rotate(90deg); }
-.sq-examples ol { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 8px; }
-.sq-examples li { color: var(--sq-ink); }
 
 .sq-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; counter-reset: step; }
 .sq-steps li { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: #f4f8f6; counter-increment: step; }

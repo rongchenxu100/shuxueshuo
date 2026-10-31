@@ -54,6 +54,10 @@
 .topic-overview-page .bank { padding-top: 8px; }
 .topic-overview-page .toc-map { display: inline-flex; margin-top: 12px; color: var(--teal-dark); font-size: 13.5px; font-weight: 600; }
 .topic-knowledge-entry .bank-heading a, .topic-type-link { color: var(--teal-dark); font-size: 14px; }
+.topic-knowledge-group + .topic-knowledge-group { margin-top: 24px; }
+.topic-knowledge-group h3 { display: flex; align-items: center; gap: 12px; margin: 0 0 6px; font-size: 16px; font-weight: 650; }
+.topic-knowledge-group h3::after { content: ""; flex: 1; min-width: 24px; height: 1px; background: var(--line); }
+.topic-knowledge-context { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.7; }
 .topic-knowledge-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .topic-knowledge-links a { display: grid; gap: 5px; height: 100%; padding: 14px 16px; border: 1px solid #cfe3de; border-radius: 12px; background: var(--paper); }
 .topic-knowledge-title { color: var(--teal-dark); font-size: 15px; font-weight: 650; }

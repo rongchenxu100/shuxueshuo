@@ -142,7 +142,7 @@ async function handOff(file, ticket = session.epoch) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  renderMath($('.sq-examples'));
+  renderMath($('.sq-scope'));
   resetHistory();
   $('#sq-file').addEventListener('change', event => {
     const file = event.target.files[0];

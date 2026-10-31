@@ -4,7 +4,7 @@
   "label": "函数的概念",
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "introduction": "从定义域、对应关系和值域认识函数，再按题型学习函数的判定、输入范围与函数值。",
+  "introduction": "从定义域、对应关系和值域认识函数，练习函数判等、输入范围、整体代入与值域求解。",
   "chapter": {
     "book": "人教 A 版 · 必修第一册",
     "number": "第三章",
@@ -15,12 +15,50 @@
   "knowledge": [
     "function-concept",
     "interval-notation",
-    "function-representations",
-    "piecewise-function",
-    "function-graph-transformations",
-    "absolute-value-function",
-    "floor-function",
-    "reciprocal-function"
+    "set-intersection-union",
+    "quantifiers",
+    "rational-expression",
+    "square-root-expression",
+    "integer-power",
+    "absolute-value-concept",
+    "equality-properties",
+    "inequality-properties",
+    "function-range-extrema",
+    "function-monotonicity",
+    "linear-interval-extremum",
+    "quadratic-function-properties",
+    "square-nonnegative",
+    "reciprocal-function",
+    "reciprocal-sum-function",
+    "quadratic-equation",
+    "quadratic-inequality",
+    "function-graph-transformations"
+  ],
+  "knowledgeGroups": [
+    {
+      "id": "function-inputs",
+      "label": "函数与输入范围",
+      "description": "判等先比较定义域与对应关系；复合写法要区分自变量的范围与 $f$ 的输入范围。多个条件同时满足取交集，分支结果合并取并集；求参时分清“全部满足”与“至少一次成立”。",
+      "refs": ["function-concept", "interval-notation", "set-intersection-union", "quantifiers"]
+    },
+    {
+      "id": "expression-conditions",
+      "label": "表达式条件与整体代入",
+      "description": "从原式列出分母、根式与零次幂的限制，化简后仍保留。求值时把完整输入代入，复合调用从内到外计算；求参时，条件的解集须与题给定义域一致。",
+      "refs": ["rational-expression", "square-root-expression", "integer-power", "absolute-value-concept", "equality-properties", "inequality-properties"]
+    },
+    {
+      "id": "function-ranges",
+      "label": "值域与函数性质",
+      "description": "先确定定义域，再比较端点、顶点与边界。换元时同步求新变量的准确范围，有限输入逐项求值；值域的端点取舍由能否取到决定。",
+      "refs": ["function-range-extrema", "function-monotonicity", "linear-interval-extremum", "quadratic-function-properties", "square-nonnegative"]
+    },
+    {
+      "id": "range-transformations",
+      "label": "分式与图像变换",
+      "description": "分式先分离常数，再求分母或对勾函数的范围，分段取倒数并还原。方程有实根法要检查降次；由周期性得到整段平移时，确认完整输入段覆盖目标范围。",
+      "refs": ["reciprocal-function", "reciprocal-sum-function", "quadratic-equation", "quadratic-inequality", "function-graph-transformations"]
+    }
   ],
   "groups": [
     {

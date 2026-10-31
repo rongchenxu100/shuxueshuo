@@ -63,6 +63,21 @@ export function validateTopicSource(source, nodes) {
       checkRef(ref, nodes, ['knowledge']);
       insist(!ref.includes('#'), `专题知识入口须引用完整节点：${source.id}/${ref}`);
     });
+    if (source.knowledgeGroups !== undefined) {
+      insist(Array.isArray(source.knowledgeGroups) && source.knowledgeGroups.length > 0, `专题知识分组无效：${source.id}`);
+      const groupIds = new Set(), refs = [];
+      for (const group of source.knowledgeGroups) {
+        insist(group && typeof group.id === 'string' && /^[a-z][a-z0-9-]*$/.test(group.id)
+          && typeof group.label === 'string' && group.label.trim()
+          && (group.description === undefined || typeof group.description === 'string')
+          && Array.isArray(group.refs) && group.refs.length > 0, `专题知识分组无效：${source.id}`);
+        insist(!groupIds.has(group.id), `专题知识分组重复：${source.id}/${group.id}`);
+        groupIds.add(group.id);
+        refs.push(...group.refs);
+      }
+      insist(new Set(refs).size === refs.length, `专题知识分组引用重复：${source.id}`);
+      equal([...refs].sort(), [...source.knowledge].sort(), `专题知识分组未完整覆盖知识入口：${source.id}`);
+    }
     insist(source.groups.every(group => group.type), `专题总览分组缺少题型：${source.id}`);
   }
   return source;

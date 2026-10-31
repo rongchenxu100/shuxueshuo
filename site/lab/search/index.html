@@ -8,11 +8,11 @@
   <title>拍题学 · 数学说</title>
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
   <link rel="stylesheet" href="/assets/css/site-header.css?v=1">
-  <link rel="stylesheet" href="search.css">
+  <link rel="stylesheet" href="search.css?v=20261031-scope">
   <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
   <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
   <script src="search-session.js?v=1" defer></script>
-  <script src="search.js?v=1" defer></script>
+  <script src="search.js?v=20261031-scope" defer></script>
   <script type="module" src="../../assets/auth/site-auth.js?v=4"></script>
 </head>
 <body class="sq-page">
@@ -44,22 +44,34 @@
         <span class="sq-scope-dot" aria-hidden="true"></span>
         <h2 id="sq-scope-title">现在能学的题型</h2>
       </div>
-      <p class="sq-scope-type">含参一元二次不等式的恒成立与存在成立问题</p>
-      <p class="sq-scope-type">具体函数的定义域（平方根、分式）</p>
-      <p class="sq-scope-note">具体定义域支持一个自变量的根式、分式与零次幂；固定系数的多项式限制不超过六次，实零点须为有理数。<a href="/topics/function-concepts/q15/">试做一道定义域题 →</a></p>
-      <p class="sq-scope-type">判断是否为同一函数</p>
-      <p class="sq-scope-note">先比较原式的定义域，定义域相同后再比较对应关系。目前支持无参数、有理系数的常见分式、根式乘除及绝对值结构；定义域条件中的多项式不超过六次，实零点须为有理数。化简前的分母、根式等限制始终保留。复杂根式和式、含参判等暂不支持。</p>
-      <p class="sq-scope-note">支持区间、单点，以及从这些范围或全体实数中去掉不超过 16 个有理点的定义域。含参数的同一性判断及复杂嵌套暂不支持。<a href="/topics/function-concepts/q20/">试做第 20 题：逐项判断，再完成多选 →</a></p>
-      <p class="sq-scope-note">每道题都经过程序验证才给你看。暂不支持的题型会直接告诉你，不会给出没有把握的解析；更多题型陆续开放。</p>
-      <details class="sq-examples">
-        <summary>看看这些题长什么样</summary>
-        <ol>
-          <li>若不等式 $-x^2+2x+3\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。</li>
-          <li>若 $kx^2-kx+1>0$ 对一切实数 $x$ 恒成立，求实数 $k$ 的取值范围。</li>
-          <li>若存在 $x\in(1,3)$，使得 $x^2-ax+4<0$ 成立，求实数 $a$ 的取值范围。</li>
-          <li>求函数 $f(x)=\frac{\sqrt{x-1}}{x-2}$ 的定义域。</li>
-        </ol>
-      </details>
+      <p class="sq-scope-note">以下题型中的常见题目已开放，可以先点开例题试一试。</p>
+      <ul class="sq-scope-list">
+        <li>
+          <h3 class="sq-scope-type"><a href="/lab/graph-walk/quadratic-always-q01/">含参二次不等式：恒成立与存在成立<span aria-hidden="true">→</span></a></h3>
+          <p>分清“对所有”与“至少一个”，结合自变量的范围，用判别式或最值求参数。</p>
+        </li>
+        <li>
+          <h3 class="sq-scope-type"><a href="/topics/function-concepts/q15/">求具体函数的定义域<span aria-hidden="true">→</span></a></h3>
+          <p>处理根式、分式与零次幂的输入限制；也支持由给定定义域反求参数的常见题。</p>
+        </li>
+        <li>
+          <h3 class="sq-scope-type"><a href="/topics/function-concepts/q20/">判断是否为同一函数<span aria-hidden="true">→</span></a></h3>
+          <p>先比较定义域，再比较对应关系。化简、约分后，原来的输入限制仍要保留。</p>
+        </li>
+        <li>
+          <h3 class="sq-scope-type"><a href="/topics/function-concepts/q26/">求抽象函数的定义域<span aria-hidden="true">→</span></a></h3>
+          <p>区分自变量范围与 $f$ 的输入范围，求复合写法的定义域，或由共同输入存在求参数。</p>
+        </li>
+        <li>
+          <h3 class="sq-scope-type"><a href="/topics/function-concepts/q28b/">求函数值与表达式<span aria-hidden="true">→</span></a></h3>
+          <p>把完整输入代入，复合调用从内到外计算；也可验证定值关系，用配对求函数值之和。</p>
+        </li>
+        <li>
+          <h3 class="sq-scope-type"><a href="/topics/function-concepts/#group-range">求函数的值域<span aria-hidden="true">→</span></a></h3>
+          <p>先确定定义域，再检查输出范围与边界。支持有限输入，以及常见的一次、二次、根式、分式、换元与整段平移题。</p>
+        </li>
+      </ul>
+      <p class="sq-scope-note">拍题后会先识别题意，再核验可用方法和解答；遇到尚未支持的题目，会明确提示。</p>
     </section>
 
     <section class="sq-flow" aria-labelledby="sq-flow-title">

@@ -39,11 +39,11 @@ async function fixture(t) {
   return {root, write};
 }
 
-test('empty source has the agreed topic identity, eight knowledge entries and five type groups', () => {
+test('empty source keeps grouped knowledge and five type groups without exercises', () => {
   assert.equal(source.id, 'function-concepts');
   assert.equal(source.label, '函数的概念');
   assert.equal(topicPath(source), '/topics/function-concepts/');
-  assert.equal(source.knowledge.length, 8);
+  assert.deepEqual(source.knowledgeGroups.flatMap(group => group.refs), source.knowledge);
   assert.deepEqual(source.groups.map(group => group.type), [
     'type-function-domain', 'type-function-equality', 'type-abstract-function-domain', 'type-function-evaluation', 'type-function-range'
   ]);
@@ -68,6 +68,31 @@ test('source validation rejects broken type/knowledge references and fake exerci
   assert.throws(() => validateTopicSource(edit(value => value.knowledge.push('missing')), nodes), /节点不存在/);
   assert.throws(() => validateTopicSource(edit(value => value.groups[0].problems.push('fake-q01')), nodes), /未覆盖题目/);
   assert.throws(() => validateTopicSource(edit(value => value.path = '/topics/'), nodes), /独立路径/);
+});
+
+test('knowledge groups cannot lose, duplicate or invent knowledge links', () => {
+  const edit = fn => { const copy = structuredClone(source); fn(copy); return copy; };
+  assert.throws(() => validateTopicSource(edit(value => value.knowledgeGroups[0].refs.pop()), nodes), /未完整覆盖/);
+  assert.throws(() => validateTopicSource(edit(value => value.knowledgeGroups[0].refs.push('missing')), nodes), /未完整覆盖/);
+  assert.throws(() => validateTopicSource(edit(value => value.knowledgeGroups[1].refs.push(value.knowledge[0])), nodes), /引用重复/);
+  assert.throws(() => validateTopicSource(edit(value => value.knowledgeGroups[1].id = value.knowledgeGroups[0].id), nodes), /分组重复/);
+  assert.throws(() => validateTopicSource(edit(value => value.knowledgeGroups[0].refs = []), nodes), /分组无效/);
+});
+
+test('knowledge headings organize real links and flat topics remain supported', () => {
+  const page = topicOverviewOutputs([source], nodes, indexHtml).get('topics/function-concepts/index.html');
+  const knowledge = page.slice(page.indexOf('id="knowledge-map"'));
+  for (const group of source.knowledgeGroups) {
+    const section = knowledge.match(new RegExp(`<section class="topic-knowledge-group" aria-labelledby="knowledge-${group.id}">([\\s\\S]*?)</section>`));
+    assert.ok(section, group.id);
+    for (const ref of group.refs) assert.ok(section[1].includes(`href="/knowledge/${ref}/"`), ref);
+  }
+  assert.equal((knowledge.match(/<li>/g) || []).length, source.knowledge.length);
+  const flat = structuredClone(source);
+  delete flat.knowledgeGroups;
+  const flatPage = topicOverviewOutputs([flat], nodes, indexHtml).get('topics/function-concepts/index.html');
+  assert.doesNotMatch(flatPage, /class="topic-knowledge-group"/);
+  for (const ref of flat.knowledge) assert.ok(flatPage.includes(`href="/knowledge/${ref}/"`));
 });
 
 test('teaching and private publication accept zero exercises without reading a teacher contract', async t => {
@@ -132,16 +157,20 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic keeps domain, equality and abstract-domain courses in order', async () => {
+test('real topic keeps all five courses and their knowledge links', async () => {
   const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   const comparison = 'function-concepts-q20-v2';
   const abstract = ['function-concepts-q25', 'function-concepts-q26', 'function-concepts-abstract-mixed-q03', 'function-concepts-parameter-variant02'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'equality').problems, [comparison, 'function-concepts-q19']);
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'abstract-domain').problems, abstract);
-  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison, 'function-concepts-q19', ...abstract].sort());
+  const evaluation = currentTopic.groups.find(group => group.id === 'evaluation').problems;
+  const range = currentTopic.groups.find(group => group.id === 'range').problems;
+  assert.equal(evaluation.length, 5);
+  assert.equal(range.length, 12);
+  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids, comparison, 'function-concepts-q19', ...abstract, ...evaluation, ...range].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 12);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 29);
   const equality = page.slice(page.indexOf('data-problem-id="function-concepts-q20-v2"'));
   assert.doesNotMatch(equality.slice(0, 1200), /【变式】/);
   assert.match(equality.slice(0, 1200), /class="problem-options"/);
@@ -159,7 +188,7 @@ test('real topic keeps domain, equality and abstract-domain courses in order', a
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
   assert.match(page, /kx\^\{2\}/);
-  assert.match(page, /5 个题型 · 12 道题/);
+  assert.match(page, /5 个题型 · 29 道题/);
   assert.match(page, /href="\/topics\/function-concepts\/q20\/"/);
   assert.match(page, /href="\/topics\/function-concepts\/q19\/"/);
   assert.ok(page.indexOf(`data-problem-id="${comparison}"`) < page.indexOf('data-problem-id="function-concepts-q19"'));
@@ -173,7 +202,15 @@ test('real topic keeps domain, equality and abstract-domain courses in order', a
     assert.deepEqual(currentTopic.problems[id].types, ['type-abstract-function-domain']);
   }
   assert.equal(currentTopic.problems['function-concepts-q02'], undefined, 'Q2 validates reuse without adding a duplicate topic exercise');
-  assert.ok(currentTopic.groups.filter(group => !['domain', 'equality', 'abstract-domain'].includes(group.id)).every(group => group.problems.length === 0));
+  for (const ref of currentTopic.knowledge) {
+    await fs.access(new URL(`../../site/knowledge/${ref}/index.html`, import.meta.url));
+    assert.ok(page.includes(`href="/knowledge/${ref}/"`), ref);
+  }
+  const knowledge = page.slice(page.indexOf('id="knowledge-map"'));
+  for (const ref of ['set-intersection-union', 'function-range-extrema', 'function-monotonicity', 'quadratic-function-properties', 'reciprocal-sum-function']) {
+    assert.ok(knowledge.includes(`href="/knowledge/${ref}/"`), ref);
+  }
+  assert.doesNotMatch(knowledge, /href="\/knowledge\/(?:floor-function|piecewise-function)\//);
 });
 
 test('topic builder is deterministic and check mode reports staleness without writing', async t => {
