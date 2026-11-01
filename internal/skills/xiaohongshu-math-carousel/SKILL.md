@@ -74,12 +74,24 @@ When generating or editing raster slides, also use the `imagegen` skill. Inspect
 - On the final slide, use a real stem and real choices. Do not reveal the answer, highlight a choice, or replace the question with an abstract “continue learning” panel.
 - Put `访问 shuxueshuo.com` in the final image. Do not write “从主页入口进入”.
 
+## Brand Line
+
+Canonical product line for every Xiaohongshu carousel and video in this skill:
+
+> 美好皆配得，科学练习就能学好数学。
+
+- Use this exact wording. Do not paraphrase across posts.
+- Put it on the closing slide footer and/or CTA slide; optional echo in `post-copy.md` after the website action.
+- Teaching content stays practical first (题型、选法、判断). This line is belief + practice promise, not a substitute for the method lesson.
+- Pair with the operating principle already used in lessons: 先判断题型与方法，再动手做题.
+
 ## Copy Rules
 
 - Make the title searchable and specific: audience/topic + pain point or payoff. Avoid self-referential openings such as “可视化某某同学课程”.
 - Use the first two body lines as the hook. Explain why the mistake occurs and what the carousel helps the student decide.
 - Include two or three compact takeaways that mirror the slides.
 - End with one action: answer the final question, then visit `shuxueshuo.com` for the interactive judgment and full explanation.
+- Close brand voice with the canonical line above; do not invent alternate slogans.
 - Do not promise downloads, worksheets, or features that the destination page does not provide.
 
 ## Final Review
@@ -93,6 +105,6 @@ When generating or editing raster slides, also use the `imagegen` skill. Inspect
 - Number-line endpoints, excluded points, rays, and shading agree with strictness and domain restrictions.
 - Labels do not collide with lines, roots, fraction bars, radicals, points, or one another at phone size.
 - Set names and number-line labels come from the actual problem; mappings to `p` and `q` are introduced once without repeated prefixes.
-- The last slide contains a concrete unanswered question, readable choices, `shuxueshuo.com`, and a precise reason to visit.
+- The last slide contains a concrete unanswered question, readable choices, `shuxueshuo.com`, a precise reason to visit, and the brand line `美好皆配得，科学练习就能学好数学。`
 - All Chinese characters, mathematical symbols, answer choices, and page numbers render correctly at phone size.
 - All files are `1080×1440`, sequentially named, and present in the repository; every `svg` or `hybrid` slide has a matching source entry in the manifest.

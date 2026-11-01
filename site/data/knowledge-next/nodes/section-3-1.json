@@ -2,7 +2,7 @@
   "id": "section-3-1",
   "kind": "section",
   "label": "3.1 函数的概念及其表示",
-  "summary": "认识函数的三要素、区间与表示方法，了解常用函数及定义域、求值、值域等题型。",
+  "summary": "认识函数的三要素、区间与表示方法，学习定义域、求值、值域、解析式、图像与分段函数等题型。",
   "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
   "members": [
     {
@@ -51,6 +51,22 @@
     },
     {
       "ref": "type-function-range",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-formula",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-graph",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-piecewise-function",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-piecewise-composition",
       "relation": "contains"
     },
     {

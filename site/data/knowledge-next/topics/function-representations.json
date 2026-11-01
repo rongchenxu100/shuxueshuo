@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "id": "function-representations",
+  "label": "函数的表示法",
+  "path": "/topics/function-representations/",
+  "presentation": "topic-overview",
+  "introduction": "理解解析式、表格与图像怎样表示函数，再学习求解析式、图像变换、分段函数及复合分段问题。",
+  "chapter": {
+    "book": "人教 A 版 · 必修第一册",
+    "number": "第三章",
+    "label": "函数的概念与性质",
+    "section": "3.1.2",
+    "ref": "section-3-1"
+  },
+  "knowledge": [
+    "function-representations",
+    "function-concept",
+    "equality-properties",
+    "square-root-expression",
+    "rational-expression",
+    "linear-interval-extremum",
+    "quadratic-function-properties",
+    "reciprocal-function",
+    "function-graph-transformations",
+    "absolute-value-function",
+    "absolute-value-concept",
+    "piecewise-function",
+    "interval-notation",
+    "set-intersection-union"
+  ],
+  "knowledgeGroups": [
+    {
+      "id": "representations",
+      "label": "三种表示与对应关系",
+      "description": "解析式、表格和图像都在表达输入与输出的对应关系。完整列表只适用于有限定义域，不能凭几个采样值确定一个未知函数。",
+      "refs": ["function-representations", "function-concept"]
+    },
+    {
+      "id": "formula-foundations",
+      "label": "求解析式的基础",
+      "description": "识别完整的函数输入，利用题给函数类型或恒等关系恢复规则；换元与化简时保留原式限制，并说明哪些输入上的规则已经确定。",
+      "refs": ["equality-properties", "square-root-expression", "rational-expression", "linear-interval-extremum", "quadratic-function-properties", "reciprocal-function"]
+    },
+    {
+      "id": "graphs",
+      "label": "图像与变换",
+      "description": "用关键点理解平移、对称和绝对值翻折。水平变换同时改变输入范围，空心点与实心点也要随之移动。",
+      "refs": ["function-graph-transformations", "absolute-value-function", "absolute-value-concept"]
+    },
+    {
+      "id": "piecewise",
+      "label": "分段规则与范围",
+      "description": "每段表达式只在本段范围内使用。求值先选段，逆向解题后还要验段；复合时根据中间值重新选段，各段结果按原目标合并。",
+      "refs": ["piecewise-function", "interval-notation", "set-intersection-union"]
+    }
+  ],
+  "groups": [
+    {
+      "id": "formula",
+      "label": "求函数的解析式",
+      "type": "type-function-formula",
+      "description": "根据函数类型或恒等关系恢复解析式，保留全部可能结果及可确定的输入范围。",
+      "problems": []
+    },
+    {
+      "id": "graph",
+      "label": "函数图像及其应用",
+      "type": "type-function-graph",
+      "description": "由表达式选图、作图，理解图像变换，并结合关键点判断方程或不等式的解。",
+      "problems": []
+    },
+    {
+      "id": "piecewise",
+      "label": "分段函数常规问题",
+      "type": "type-piecewise-function",
+      "description": "按段求值、求输入或值域，处理值域求参与阶梯计费，核对分界点和各段范围。",
+      "problems": []
+    },
+    {
+      "id": "piecewise-composition",
+      "label": "复合型分段函数问题",
+      "type": "type-piecewise-composition",
+      "description": "先求外层条件允许的中间值，再回到内层逐段求原输入。",
+      "problems": []
+    }
+  ],
+  "problems": {}
+}

@@ -1,0 +1,38 @@
+{
+  "id": "function-representations",
+  "label": "函数的表示法",
+  "groups": [
+    {
+      "id": "formula",
+      "label": "求函数的解析式",
+      "type": "type-function-formula",
+      "description": "根据函数类型或恒等关系恢复解析式，保留全部可能结果及可确定的输入范围。",
+      "problems": []
+    },
+    {
+      "id": "graph",
+      "label": "函数图像及其应用",
+      "type": "type-function-graph",
+      "description": "由表达式选图、作图，理解图像变换，并结合关键点判断方程或不等式的解。",
+      "problems": []
+    },
+    {
+      "id": "piecewise",
+      "label": "分段函数常规问题",
+      "type": "type-piecewise-function",
+      "description": "按段求值、求输入或值域，处理值域求参与阶梯计费，核对分界点和各段范围。",
+      "problems": []
+    },
+    {
+      "id": "piecewise-composition",
+      "label": "复合型分段函数问题",
+      "type": "type-piecewise-composition",
+      "description": "先求外层条件允许的中间值，再回到内层逐段求原输入。",
+      "problems": []
+    }
+  ],
+  "problems": {},
+  "path": "/topics/function-representations/",
+  "presentation": "topic-overview",
+  "content_version": "bbd141f165fcef71f48b791ac3f74dffed1cf9d7be2b4a75daecbd47e0bf7797"
+}

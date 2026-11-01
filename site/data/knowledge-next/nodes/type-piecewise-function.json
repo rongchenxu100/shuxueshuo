@@ -1,0 +1,22 @@
+{
+  "id": "type-piecewise-function",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "分段函数常规问题",
+  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+  "source": "函数的表示法专题建设计划（2026-10-30）；教辅例 10—12；P0 登记（2026-11-01）",
+  "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点",
+  "features": [
+    {"cue": "给定输入求值时先选段；嵌套数值每算完一层，都根据中间值重新选段。"},
+    {"cue": "由函数值反求输入或解不等式时，各段结果先与本段范围取交，再合并。"},
+    {"cue": "值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"},
+    {"cue": "阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"}
+  ],
+  "confuse": [
+    {"text": "未知输入出现在两层分段函数中，须从外层条件逐层反求", "ref": "type-piecewise-composition"}
+  ],
+  "knowledge": ["piecewise-function", "function-representations", "function-concept", "interval-notation", "set-intersection-union", "linear-interval-extremum", "quadratic-function-properties"],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

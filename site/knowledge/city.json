@@ -144,7 +144,7 @@
         "knowledge": 9,
         "skill": 0,
         "method": 0,
-        "problem_type": 5,
+        "problem_type": 9,
         "judgment_rule": 1
       },
       "sections": [
@@ -804,19 +804,19 @@
       "from": "compulsory-1-ch3",
       "to": "junior-knowledge",
       "type": "relation",
-      "count": 8
+      "count": 11
     },
     {
       "from": "compulsory-1-ch2",
       "to": "compulsory-1-ch3",
       "type": "relation",
-      "count": 9
+      "count": 16
     },
     {
       "from": "compulsory-1-ch1",
       "to": "compulsory-1-ch3",
       "type": "relation",
-      "count": 8
+      "count": 10
     },
     {
       "from": "compulsory-1-ch1",

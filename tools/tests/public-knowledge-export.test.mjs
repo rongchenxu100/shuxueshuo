@@ -28,17 +28,17 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 95);
+  assert.equal(data.knowledge_nodes.length, 109);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 47);
-  assert.equal(data.practice_routes.length, 58);
+  assert.equal(data.practice_problems.length, 68);
+  assert.equal(data.practice_routes.length, 82);
   const comparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q20-v2');
   // B–D each merge two scored parts into one displayed card: 15 decisions, 12 cards.
   assert.equal(comparisonSteps.length, 15, '3 intro + 11 scoped mathematical decisions + 1 original exact selection');
   const sharedComparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q19');
   assert.equal(sharedComparisonSteps.length, 15);
-  assert.equal(data.practice_steps.length, 329 + comparisonSteps.length + sharedComparisonSteps.length);
+  assert.equal(data.practice_steps.length, 597);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -56,8 +56,16 @@ test('chapter 3.1 exposes domain and equality courses with their own sources and
   assert.deepEqual(topic.groups.find((group) => group.id === 'domain').problems, ids);
   const comparisonIds = ['function-concepts-q20-v2', 'function-concepts-q19'];
   assert.deepEqual(topic.groups.find(group => group.id === 'equality').problems, comparisonIds);
-  assert.ok(topic.groups.filter((group) => !['domain', 'equality'].includes(group.id)).every((group) => group.problems.length === 0));
-  assert.deepEqual(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(), [...ids, ...comparisonIds].sort());
+  const abstractIds = ['function-concepts-q25', 'function-concepts-q26', 'function-concepts-abstract-mixed-q03', 'function-concepts-parameter-variant02'];
+  const evaluationIds = ['function-concepts-q28a', 'function-concepts-q28b', 'function-concepts-q28c', 'function-concepts-q28d', 'function-concepts-q29b'];
+  const rangeIds = ['function-concepts-range-q03', 'function-concepts-range-q05', 'function-concepts-range-q06', 'function-concepts-range-q07', 'function-concepts-range-q08', 'function-concepts-range-q09', 'function-concepts-range-q10', 'function-concepts-range-q11', 'function-concepts-range-q13', 'function-concepts-range-q16', 'function-concepts-range-q17', 'function-concepts-range-q18'];
+  assert.deepEqual(topic.groups.find((group) => group.id === 'abstract-domain').problems, abstractIds);
+  assert.deepEqual(topic.groups.find((group) => group.id === 'evaluation').problems, evaluationIds);
+  assert.deepEqual(topic.groups.find((group) => group.id === 'range').problems, rangeIds);
+  assert.deepEqual(
+    data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(),
+    [...ids, ...comparisonIds, ...abstractIds, ...evaluationIds, ...rangeIds].sort(),
+  );
   for (const [id, basis] of [[ids[0], 'square-root-expression#meaning'], [ids[1], 'integer-power#zero-exponent']]) {
     const problem = data.practice_problems.find((row) => row.id === id);
     const course = problem.problem_data._graph_walk;
@@ -92,7 +100,7 @@ test('chapter 3.1 exposes domain and equality courses with their own sources and
     assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
   }
   const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');
-  assert.equal(types.length, 3);
+  assert.equal(types.length, 4);
   for (const type of types) {
     assert.equal(type.kind, 'problem_type');
     assert.deepEqual(type.body.examples, []);

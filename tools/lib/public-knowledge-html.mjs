@@ -149,7 +149,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
   }
   function features(n) {
     const here = homes.get(n.id);
-    const cue = f => typeof f === 'string' ? `<li>${textHtml(f)}</li>` : `<li><p>${textHtml(f.cue)}</p><p class="cue-example"><span>例中</span>${textHtml(f.example)}</p></li>`;
+    const cue = f => typeof f === 'string' ? `<li>${textHtml(f)}</li>` : `<li><p>${textHtml(f.cue)}</p>${f.example ? `<p class="cue-example"><span>例中</span>${textHtml(f.example)}</p>` : ''}</li>`;
     const sample = n.sample ? `<div class="feature-sample"><p class="feature-tag">典型题面</p><p class="problem">${textHtml(n.sample)}</p></div><p class="muted">认这类题，看题面里有没有下面几样：</p>` : '';
     const confuse = n.confuse?.length ? `<div class="feature-confuse"><p class="feature-tag">别和它混淆</p><ul>${n.confuse.map(c => `<li><span>${textHtml(c.text)}</span><b aria-hidden="true">→</b>${chip(c.ref, here)}</li>`).join('')}</ul></div>` : '';
     return `<section id="features"><h2>题型特征</h2>${sample}<${n.sample ? 'ol class="feature-cues"' : 'ul'}>${n.features.map(cue).join('')}</${n.sample ? 'ol' : 'ul'}>${confuse}</section>`;

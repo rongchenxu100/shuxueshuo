@@ -1598,7 +1598,7 @@
       "id": "section-3-1",
       "kind": "section",
       "label": "3.1 函数的概念及其表示",
-      "summary": "认识函数的三要素、区间与表示方法，了解常用函数及定义域、求值、值域等题型。",
+      "summary": "认识函数的三要素、区间与表示方法，学习定义域、求值、值域、解析式、图像与分段函数等题型。",
       "aliases": [],
       "home": "compulsory-1-ch3"
     },
@@ -1816,6 +1816,24 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "type-function-formula",
+      "kind": "problem_type",
+      "label": "求函数的解析式",
+      "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-function-graph",
+      "kind": "problem_type",
+      "label": "函数图像及其应用",
+      "summary": "根据表达式或已有图像选图、作图与变换，再用精确关键点分析方程或不等式。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "type-function-range",
       "kind": "problem_type",
       "label": "求函数的值域",
@@ -1831,6 +1849,24 @@
       "summary": "二次不等式的系数里有参数，按参数的不同情况分别写出 x 的解集。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "type-piecewise-composition",
+      "kind": "problem_type",
+      "label": "复合型分段函数问题",
+      "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-piecewise-function",
+      "kind": "problem_type",
+      "label": "分段函数常规问题",
+      "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "type-quadratic-solve",
@@ -4205,9 +4241,45 @@
       ]
     },
     {
+      "id": "section-3-1|contains|type-function-formula",
+      "from": "section-3-1",
+      "to": "type-function-formula",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-function-graph",
+      "from": "section-3-1",
+      "to": "type-function-graph",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-1|contains|type-function-range",
       "from": "section-3-1",
       "to": "type-function-range",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-piecewise-composition",
+      "from": "section-3-1",
+      "to": "type-piecewise-composition",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-piecewise-function",
+      "from": "section-3-1",
+      "to": "type-piecewise-function",
       "type": "contains",
       "occurrences": [
         {}
@@ -4922,6 +4994,123 @@
       ]
     },
     {
+      "id": "type-function-formula|involves|equality-properties",
+      "from": "type-function-formula",
+      "to": "equality-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|function-concept",
+      "from": "type-function-formula",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|function-representations",
+      "from": "type-function-formula",
+      "to": "function-representations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|linear-interval-extremum",
+      "from": "type-function-formula",
+      "to": "linear-interval-extremum",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|quadratic-function-properties",
+      "from": "type-function-formula",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|rational-expression",
+      "from": "type-function-formula",
+      "to": "rational-expression",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|involves|square-root-expression",
+      "from": "type-function-formula",
+      "to": "square-root-expression",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|absolute-value-concept",
+      "from": "type-function-graph",
+      "to": "absolute-value-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|absolute-value-function",
+      "from": "type-function-graph",
+      "to": "absolute-value-function",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|function-graph-transformations",
+      "from": "type-function-graph",
+      "to": "function-graph-transformations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|function-representations",
+      "from": "type-function-graph",
+      "to": "function-representations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|interval-notation",
+      "from": "type-function-graph",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-graph|involves|quadratic-function-properties",
+      "from": "type-function-graph",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-range|candidate|method-direct-range",
       "from": "type-function-range",
       "to": "method-direct-range",
@@ -5096,6 +5285,123 @@
       "id": "type-parameter-quadratic-solve|involves|quadratic-inequality",
       "from": "type-parameter-quadratic-solve",
       "to": "quadratic-inequality",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|function-concept",
+      "from": "type-piecewise-composition",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|function-graph-transformations",
+      "from": "type-piecewise-composition",
+      "to": "function-graph-transformations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|interval-notation",
+      "from": "type-piecewise-composition",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|piecewise-function",
+      "from": "type-piecewise-composition",
+      "to": "piecewise-function",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|quadratic-function-properties",
+      "from": "type-piecewise-composition",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-composition|involves|set-intersection-union",
+      "from": "type-piecewise-composition",
+      "to": "set-intersection-union",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|function-concept",
+      "from": "type-piecewise-function",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|function-representations",
+      "from": "type-piecewise-function",
+      "to": "function-representations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|interval-notation",
+      "from": "type-piecewise-function",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|linear-interval-extremum",
+      "from": "type-piecewise-function",
+      "to": "linear-interval-extremum",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|piecewise-function",
+      "from": "type-piecewise-function",
+      "to": "piecewise-function",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|quadratic-function-properties",
+      "from": "type-piecewise-function",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-piecewise-function|involves|set-intersection-union",
+      "from": "type-piecewise-function",
+      "to": "set-intersection-union",
       "type": "involves",
       "occurrences": [
         {}

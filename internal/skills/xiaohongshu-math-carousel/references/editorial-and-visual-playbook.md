@@ -11,12 +11,18 @@
 
 ## 1. Acquisition premise
 
+Brand line (fixed; all 图文 / 视频):
+
+> 美好皆配得，科学练习就能学好数学。
+
+Use this exact sentence on the CTA or closing surface. Do not rotate synonyms. Practical teaching still leads; the brand line closes belief + practice. Method posts may also keep the operating footer `先判断题型与方法，再动手做题`.
+
 The post must provide a useful miniature lesson while making the website's interactive explanation the natural next step. Optimize for four successive decisions:
 
 1. Stop: the cover names a familiar error.
 2. Swipe: slide 02 asks a question the reader wants resolved.
 3. Trust: slides 03–06 demonstrate a repeatable method, not decorative notes.
-4. Visit: slide 07 presents a fresh question and promises the matching interactive explanation.
+4. Visit: slide 07 presents a fresh question, promises the matching interactive explanation, and lands the brand line.
 
 Do not lead with the product name, a page screenshot, or “here are my notes”. Lead with what the student repeatedly gets wrong.
 
@@ -38,8 +44,9 @@ Avoid vague titles such as `可视化高一数学预习` or titles that try to c
 2. Payoff: state the visual method the reader will learn.
 3. Takeaways: two or three brief points that correspond to carousel slides.
 4. Challenge: ask the reader to answer the final slide before revealing anything.
-5. CTA: `访问 shuxueshuo.com，查看双箭头判断与互动解析。`
-6. Tags: use five to eight topic and audience tags, for example `#高一数学 #高中数学 #充分条件 #必要条件 #数学可视化 #数学学习`.
+5. CTA: `访问 shuxueshuo.com，查看<与题目对应的互动判断与完整解析>。`
+6. Brand: `美好皆配得，科学练习就能学好数学。`
+7. Tags: use five to eight topic and audience tags, for example `#高一数学 #高中数学 #充分条件 #必要条件 #数学可视化 #数学学习`.
 
 ## 3. Story types
 

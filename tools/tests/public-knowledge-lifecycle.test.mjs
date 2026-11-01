@@ -70,6 +70,7 @@ test('published views expose the collection and planned labels without fake exer
   for(const n of planned){
     assert.equal(data.nodes.find(x=>x.id===n.id).status,'planned');
     const html=outputs.get(n.id+'/index.html');assert.match(html,/题型建设中/);assert.doesNotMatch(html,/data-drill-open|打开原题/);
+    assert.doesNotMatch(html, /<span>例中<\/span>undefined/, 'optional feature examples must not render an undefined placeholder');
   }
   const referenced=nodes.find(n=>n.entries?.some(e=>e.references?.length));
   assert.match(outputs.get(referenced.id+'/index.html'),/相关知识条目/);

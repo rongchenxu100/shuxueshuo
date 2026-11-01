@@ -1,0 +1,21 @@
+{
+  "id": "type-piecewise-composition",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "复合型分段函数问题",
+  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+  "source": "函数的表示法专题建设计划（2026-10-30）；教辅例 13 及变式；P0 登记（2026-11-01）",
+  "choice_hint": "未知输入位于复合分段函数中，目标是满足外层条件的全部原输入",
+  "features": [
+    {"cue": "目标形如 f(f(x)) 等于某个常数，或与该常数比较大小，原输入 x 尚未知。"},
+    {"cue": "引入中间值后，外层条件先形成有限集合或区间，再由内层函数逐段求原像。"},
+    {"cue": "外层候选须能由内层达到；每层的合法输入范围和分界点都参与最终校验。"}
+  ],
+  "confuse": [
+    {"text": "已给定具体数值，只需由内到外选段代入", "ref": "type-piecewise-function"}
+  ],
+  "knowledge": ["function-concept", "piecewise-function", "interval-notation", "set-intersection-union", "function-graph-transformations", "quadratic-function-properties"],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

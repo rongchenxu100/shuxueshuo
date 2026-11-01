@@ -1,0 +1,23 @@
+{
+  "id": "type-function-formula",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "求函数的解析式",
+  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+  "source": "函数的表示法专题建设计划（2026-10-30）；学校小条与教辅例 4—7；P0 登记（2026-11-01）",
+  "choice_hint": "函数规则尚未知，题目给出函数类型或关于它的恒等关系",
+  "features": [
+    {"cue": "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"},
+    {"cue": "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"},
+    {"cue": "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"},
+    {"cue": "目标也可能只要求一个函数值；即使函数有多个候选，所求数值仍可能唯一。"}
+  ],
+  "confuse": [
+    {"text": "已知完整函数规则，只需代入给定输入求值", "ref": "type-function-evaluation"},
+    {"text": "只给函数的输入范围，要求新复合式的定义域", "ref": "type-abstract-function-domain"}
+  ],
+  "knowledge": ["function-concept", "function-representations", "equality-properties", "square-root-expression", "rational-expression", "linear-interval-extremum", "quadratic-function-properties"],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}
