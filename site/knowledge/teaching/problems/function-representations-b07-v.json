@@ -1,0 +1,204 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b07-v",
+  "label": "赋值法 · 例 7 变式",
+  "path": "/topics/function-representations/variant07/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b07-v.json",
+  "types": [
+    "type-function-formula"
+  ],
+  "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbb{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$ ______。",
+  "routes": {
+    "function-assignment": {
+      "label": "赋值法求函数解析式",
+      "methods": [
+        "method-function-assignment"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "2e749e72e6cf95ad844cc8aa#1": {
+          "title": "选择赋值，消去一个变量",
+          "position": 4,
+          "refs": [
+            "method-function-assignment#recover",
+            "skill-equality-transform",
+            "equality-properties#universal-substitution",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-simplify",
+            "equality-properties#identity"
+          ]
+        },
+        "22ec90180a272441545e245c#1": {
+          "title": "先求出零对应的函数值",
+          "position": 5,
+          "refs": [
+            "method-function-assignment#recover",
+            "skill-equality-transform",
+            "equality-properties#universal-substitution",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-simplify",
+            "equality-properties#identity"
+          ]
+        },
+        "e202f000ca6f679907b485a5#1": {
+          "title": "得到任意输入的解析式",
+          "position": 6,
+          "refs": [
+            "method-function-assignment#recover",
+            "skill-equality-transform",
+            "equality-properties#universal-substitution",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-simplify",
+            "equality-properties#identity"
+          ]
+        },
+        "22f041fa980e84d6f1749454#1": {
+          "title": "分别代入，比较等式两边",
+          "position": 7,
+          "refs": [
+            "method-function-assignment#recover",
+            "skill-equality-transform",
+            "equality-properties#universal-substitution",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-simplify",
+            "equality-properties#identity"
+          ]
+        },
+        "20d8c868d3c493f0af0d8b93#1": {
+          "title": "写出完整答案",
+          "position": 8,
+          "refs": [
+            "method-function-assignment#recover",
+            "skill-equality-transform",
+            "equality-properties#universal-substitution",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-simplify",
+            "equality-properties#identity"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515"
+}

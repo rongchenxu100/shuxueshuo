@@ -1,0 +1,30 @@
+{
+  "updated": "2026-11-01",
+  "authority": "本对话中用户明确修订 W07，并确认 W10 为二次函数；本记录不修改原图字节。",
+  "corrections": [
+    {
+      "problem_id": "W07",
+      "source_image": "source-image-01.png",
+      "question_number": 7,
+      "kind": "user_authorized_revision",
+      "original_quantifier": "对于任意实数 x",
+      "approved_quantifier": "对于任意非零实数 x",
+      "approved_statement": "若对于任意非零实数 x 都有 2f(x)-f(1/x)=2x+1，则 f(x)=____。",
+      "status": "active_candidate",
+      "method": "构造方程组法",
+      "note": "后续冻结修订题时同时引用原图与本记录；原图转录和用户批准的修订版本分别保留。"
+    },
+    {
+      "problem_id": "W10",
+      "source_image": "source-image-02.png",
+      "question_number": 10,
+      "kind": "assistant_transcription_correction",
+      "incorrect_assistant_reading": "一次函数",
+      "confirmed_function_type": "二次函数",
+      "confirmed_statement": "已知二次函数 f(x) 满足 f(0)=0，f(x-1)=f(x)+3x-5，则不等式 f(x)>0 的解集为____。",
+      "status": "active_candidate",
+      "method": "待定系数法，再解二次不等式",
+      "note": "更正助手的误读，不将原题记为印刷错误或用户修订题。求解析式是内部步骤，原题只有求不等式解集一个目标。"
+    }
+  ]
+}

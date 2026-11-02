@@ -1,0 +1,130 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-formula",
+  "branches": [
+    {
+      "branch_id": "invertible-affine-input",
+      "checks": [
+        {
+          "id": "unknown-rule-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_function_formula",
+          "role": "required",
+          "student_cue": 1
+        },
+        {
+          "id": "supported-substitution-relation",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 1
+        },
+        {
+          "id": "single-input-version",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_version",
+          "expected": "function-formula-substitution/v3",
+          "role": "required",
+          "student_cue": 1
+        }
+      ]
+    },
+    {
+      "branch_id": "stated-linear",
+      "checks": [
+        {
+          "id": "stated-type",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "function_type",
+          "expected": "linear",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-identity",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "stated-quadratic",
+      "checks": [
+        {
+          "id": "stated-type",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "function_type",
+          "expected": "quadratic",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-identity",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "paired-function-values",
+      "checks": [
+        {
+          "id": "supported-pair",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 2
+        },
+        {
+          "id": "involution-version",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_version",
+          "expected": "function-formula-system/v1",
+          "role": "required",
+          "student_cue": 2
+        }
+      ]
+    },
+    {
+      "branch_id": "two-variable-identity",
+      "checks": [
+        {
+          "id": "supported-assignment",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 2
+        },
+        {
+          "id": "assignment-version",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_version",
+          "expected": "function-formula-assignment/v1",
+          "role": "required",
+          "student_cue": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w05",
+  "reviewer": "Codex：对照用户原图题干转录，W07 应用用户批准的非零条件。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第 5 题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 满足 $f(x)-2f(\\frac{1}{x})=2x-1$，$x\\ne0$，则 $f(x)$ 的解析式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)-2*f(1/x)=2*x-1",
+          "relation_domain": "ℝ∖{0}"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "1-2*x/3-4/(3*x)",
+    "domain": "ℝ∖{0}"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

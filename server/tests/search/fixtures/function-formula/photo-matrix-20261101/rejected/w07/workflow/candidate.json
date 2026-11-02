@@ -1,0 +1,41 @@
+{
+  "original_text": "7. 若对于任意实数 $x$ 都有 $2f(x)-f(\\frac{1}{x})=2x+1$，则 $f(x)=$",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "2*f(x)-f(1/x)=2*x+1",
+        "relation_domain": "ℝ"
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "ambiguous_symbol",
+        "text": "题面写“对于任意实数 x”，但关系中含有 f(1/x)，在 x=0 处无定义；按原图保留，不自动改写。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若对于任意实数 $x$ 都有 $2f(x)-f(\\frac{1}{x})=2x+1$，则 $f(x)=$",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -287,13 +287,18 @@ class Canonical:
             from .notation_compile import typecheck
             from .notation_evaluation import canonical_evaluation, is_evaluation_goal
 
-            if is_evaluation_goal(g):
+            if is_evaluation_goal(g) and 'relation' not in g:
                 goals.append(canonical_evaluation(g, self.aliases))
                 continue
             if g['kind'] in ('select_range_domain', 'find_extrema_expression'):
                 from .notation_range_tasks import canonical_range_task
 
                 goals.append(canonical_range_task(g))
+                continue
+            if g['kind'] == 'find_function_formula' or (g['kind'] in ('find_value', 'find_range') and 'relation' in g):
+                from .notation_function_formula import canonical_function_formula
+
+                goals.append(canonical_function_formula(g))
                 continue
             if g['kind'] == 'find_translation_range':
                 from .notation_translation_range import canonical_translation_range

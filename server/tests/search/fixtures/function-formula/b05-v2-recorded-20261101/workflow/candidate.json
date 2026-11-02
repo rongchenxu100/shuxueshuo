@@ -1,0 +1,35 @@
+{
+  "original_text": "【变式2】已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(sqrt(x)+1)=2*x+1"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

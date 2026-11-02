@@ -167,6 +167,9 @@ def grade(decision, answer, route):
     """Mirror walk-state.gradeDecision, without trusting a client correctness flag."""
     if set(answer) != {'value'}:
         raise HTTPException(422, '请提交当前图谱步骤的作答。')
+    # Sequential goals keep their own method route in the published contract.
+    # The attempt still belongs to the enclosing course's first route.
+    route = decision.get('route_id') or route
     value = answer['value']
     component, expected = decision['interaction'], decision['expected_answer']
     kind = component['type']
@@ -223,6 +226,8 @@ def grade(decision, answer, route):
             raise HTTPException(422, '方法不属于本步。')
         passed = all(choice == expected['checks'][check['id']]
                      for choice, check in zip(value['checks'], checks, strict=True))
+        if decision.get('verdicts', {}).get(value['method'], {}).get('value') in ('unfit', 'not_triggered'):
+            return 'wrong'
         if passed and (value['method'] in decision.get('alternatives', {}) or not method.get('route')):
             return 'uncovered'
         passed = passed and method.get('route') == route

@@ -1,4 +1,4 @@
-"""Published domain courses record actual native answers through student APIs."""
+"""Published native courses record actual answers through student APIs."""
 
 import json
 import os
@@ -15,8 +15,9 @@ from shuxueshuo_server.product.db import engine
 @pytest.mark.parametrize("problem_id", [
     "function-concepts-q15", "function-concepts-q01", "function-concepts-q22-v2", "function-concepts-q04",
     "function-concepts-q12", "function-concepts-q23b",
+    "function-representations-b05-v2-r4",
 ])
-def test_published_domain_course_records_each_step_and_restores(client, auth, phone, problem_id):
+def test_published_course_records_each_step_and_restores(client, auth, phone, problem_id):
     settings = Settings.load("local", os.environ["PRODUCT_TEST_DATA_DIR"], os.environ["PRODUCT_TEST_INSTANCE"])
     publisher = engine(settings.url("migration"))
     try:

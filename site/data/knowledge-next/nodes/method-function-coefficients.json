@@ -1,0 +1,62 @@
+{
+  "id": "method-function-coefficients",
+  "kind": "method",
+  "label": "待定系数法求函数解析式",
+  "summary": "按题给的一次或二次函数类型设一般式，比较系数，保留全部合法解析式，再回答原题。",
+  "source": "函数的表示法 FR-T1 B",
+  "input": "题给一次或二次类型、在实数范围恒等的多项式关系及初值；目标可以是解析式、函数值或不等式解集。",
+  "output": "全部合法解析式；依原目标给出函数值或不等式解集。",
+  "conditions": "不得根据等式右边猜函数类型；最高次项系数非零；当前支持至多二次的系数约束且解集有限。",
+  "steps": [
+    {
+      "id": "recover",
+      "title": "设式、比较系数并解出全部候选",
+      "body": [
+        "按函数类型设一般式，代入所有题给等式。",
+        "将同次幂的系数分别相等，解出所有系数组合。",
+        "逐个回验，最后回答原题所问。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-simplify"
+        },
+        {
+          "ref": "skill-polynomial-coefficient-comparison"
+        },
+        {
+          "ref": "method-elimination"
+        },
+        {
+          "ref": "skill-solve-quadratic"
+        },
+        {
+          "ref": "skill-quadratic-sign"
+        },
+        {
+          "ref": "skill-equality-transform"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "核验全部条件与原目标",
+      "body": [
+        "确认没有漏解，验证每个解析式的类型、全部恒等关系和原题答案。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "两个解析式，同一个函数值",
+      "prompt": "一次函数满足 $f(f(x))=4x-3$，求 $f(1)$。",
+      "solution": [
+        "设 $f(x)=ax+b$，$a\\ne0$，得 $a^2=4$，$(a+1)b=-3$。",
+        "得到 $f(x)=2x-1$ 或 $f(x)=-2x+3$。",
+        "两种情况下都有 $f(1)=1$。"
+      ],
+      "source": "高中数学一本通第91页例4"
+    }
+  ],
+  "resources": []
+}

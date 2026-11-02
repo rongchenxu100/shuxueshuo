@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "usage": "development_regression_not_unseen_holdout",
+  "source_kind": "original_page_polygon_crop_product_preprocessing",
+  "notes": "Only selected question pixels sent to the model; authored expectations are frozen separately and never supplied to extraction/review.",
+  "cases": [
+    {
+      "id": "w05",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+        "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8"
+      },
+      "crop": {
+        "file": "w05-question.png",
+        "sha256": "421417532be37614b01039f536272389c7bbcb117c90a02247a1ace2c1b388a5",
+        "xyxy": [
+          78,
+          943,
+          951,
+          1033
+        ],
+        "source_polygon": [
+          [
+            78,
+            943
+          ],
+          [
+            951,
+            943
+          ],
+          [
+            951,
+            1033
+          ],
+          [
+            78,
+            1021
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          873,
+          90
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-c-20261101/w05.json",
+        "sha256": "bad6f746a896fc3cde95a98112861b2be6c6ff4b13868cbd03d5300dbff8a5c1",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x)-2*f(1/x)=2*x-1",
+            "relation_domain": "ℝ∖{0}"
+          }
+        ],
+        "expected": {
+          "expression": "1-2*x/3-4/(3*x)",
+          "domain": "ℝ∖{0}"
+        }
+      },
+      "contains_handwritten_response": true,
+      "notes": "扩大选题边界以保留完整题末及填空；原始手写作答和批改笔迹保持原像素，提取不得将其作为题设或求解依据。先前过紧裁片的识别失败保留。"
+    },
+    {
+      "id": "w12",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+        "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272"
+      },
+      "crop": {
+        "file": "w12-question.png",
+        "sha256": "7b6a943236b5fe638b78bfd3c61f56586b51f75f35e0adacffd7da30791d263f",
+        "xyxy": [
+          665,
+          63,
+          769,
+          1104
+        ],
+        "source_polygon": [
+          [
+            679,
+            63
+          ],
+          [
+            769,
+            63
+          ],
+          [
+            755,
+            1104
+          ],
+          [
+            665,
+            1104
+          ]
+        ],
+        "rotate_ccw": 90,
+        "size": [
+          1041,
+          104
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-b-20261101/w12.json",
+        "sha256": "a218d8f249482f35e0e9771d8e745ed28ed4bc4fcf1d4afa11a4943ecd421d9e",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(f(x))=4*x-1",
+            "function_type": "linear"
+          }
+        ],
+        "expected": {
+          "candidates": [
+            "2*x-1/3",
+            "-2*x+1"
+          ]
+        }
+      },
+      "contains_handwritten_response": true,
+      "notes": "扩大选题边界以保留完整题末及填空；原始手写作答和批改笔迹保持原像素，提取不得将其作为题设或求解依据。先前过紧裁片的识别失败保留。"
+    }
+  ]
+}

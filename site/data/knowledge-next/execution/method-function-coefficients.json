@@ -1,0 +1,254 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-coefficients",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "recover",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_coefficients",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "has_inequality": "has_inequality"
+          },
+          "order": 0
+        },
+        {
+          "id": "expand",
+          "capability": "expand_coefficient_relations",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "identities": "identities",
+            "variable": "variable",
+            "parameters": "parameters",
+            "domain": "domain"
+          },
+          "order": 1
+        },
+        {
+          "id": "compare",
+          "capability": "compare_polynomial_coefficients",
+          "public_ref": "skill-polynomial-coefficient-comparison",
+          "inputs": {
+            "identities": "$identities",
+            "variable": "$variable",
+            "parameters": "$parameters",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "comparison": "comparison"
+          },
+          "order": 2
+        },
+        {
+          "id": "solve",
+          "capability": "solve_function_coefficient_system",
+          "public_ref": "method-elimination",
+          "inputs": {
+            "description": "$description",
+            "comparison": "$comparison"
+          },
+          "outputs": {
+            "raw_formula_result": "formula_result"
+          },
+          "order": 3
+        },
+        {
+          "id": "roots",
+          "capability": "coefficient_target_roots",
+          "public_ref": "skill-solve-quadratic",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$raw_formula_result"
+          },
+          "outputs": {
+            "root_records": "root_records"
+          },
+          "order": 4,
+          "guard": {
+            "ref": "has_inequality",
+            "equals": true
+          }
+        },
+        {
+          "id": "signs",
+          "capability": "coefficient_target_signs",
+          "public_ref": "skill-quadratic-sign",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$raw_formula_result",
+            "root_records": "$root_records"
+          },
+          "outputs": {
+            "checked_solutions": "checked_solutions"
+          },
+          "order": 5,
+          "guard": {
+            "ref": "has_inequality",
+            "equals": true
+          }
+        },
+        {
+          "id": "verify",
+          "capability": "verify_function_coefficients",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$raw_formula_result"
+          },
+          "outputs": {
+            "formula_result": "formula_result"
+          },
+          "order": 6
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "template",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "template",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "expand",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "expand",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "compare",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "compare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "solve",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "solve",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "verify",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "verify",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "answer",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "answer",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "formula_result": "$formula_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_coefficients",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

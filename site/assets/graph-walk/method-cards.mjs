@@ -1,3 +1,4 @@
+import {methodConnectionsHTML} from './method-connections.mjs?v=20261101-map';
 // Conditions and method choice share one scoped answer; grading never trusts UI confirmation flags.
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -26,6 +27,8 @@ export function gradeMethodCards(decision, answer) {
   if (error) return {status: 'wrong', message: error};
   const method = selectedMethod(decision, answer);
   if (!method) return {status: 'wrong', message: '请选择当前提供的一种方法。'};
+  const verdict = decision.verdicts?.[method.value];
+  if (['unfit', 'not_triggered'].includes(verdict?.value)) return {status: 'wrong', message: verdict.message};
   const alternative = decision.alternatives?.[method.value];
   if (alternative) return {status: 'uncovered', message: alternative.message, href: alternative.href};
   if (!method.route) return {status: 'uncovered', message: '这条路线尚未展开，请选择其他方法。'};
@@ -36,6 +39,12 @@ export function projectMethodAnswer(decision, value) {
   const answer = emptyMethodAnswer(decision);
   if (!value || !Array.isArray(value.checks)) return answer;
   answer.checks = answer.checks.map((_, i) => typeof value.checks[i] === 'string' ? value.checks[i] : '');
+  if (decision.interaction.layout === 'connections') {
+    // A pending connection represents the student's choice, not a passed premise.
+    answer.checks = answer.checks.map((choice, i) => decision.interaction.checks[i].options.some(option => option.value === choice) ? choice : '');
+    answer.method = decision.interaction.methods.some(method => method.value === value.method) ? value.method : '';
+    return answer;
+  }
   const count = Number.isInteger(value.confirmed) ? value.confirmed : 0;
   answer.confirmed = Math.max(0, Math.min(count, answer.checks.length));
   // A stale/forged draft cannot reveal the method picker after a wrong premise.
@@ -46,6 +55,7 @@ export function projectMethodAnswer(decision, value) {
 
 export function methodCardsHTML(decision, value, interactive = true) {
   const answer = projectMethodAnswer(decision, value), component = decision.interaction;
+  if (component.layout === 'connections') return methodConnectionsHTML(decision, answer, interactive);
   const facts = component.facts.map(fact => `<div class="gw-method-fact" data-math-text>${escape(fact)}</div>`).join('');
   const checks = component.checks.map((check, i) => {
     if (interactive && i > answer.confirmed) return '';

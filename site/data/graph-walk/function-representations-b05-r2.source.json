@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-r2",
+  "title": "求函数的解析式 · 例 5",
+  "page": "/topics/function-representations/q05/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-b05-r2.evidence.json",
+  "statement": "已知 $f(x-1)=x^2-2x$，则 $f(x)=$ ______。",
+  "preferredRoute": "function-matching"
+}

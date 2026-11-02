@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"root\":{\"label\":\"2.\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x+7\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1693,
+      "prompt_tokens": 26497,
+      "total_tokens": 28190,
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 385
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 482,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "9a7815b8f771e2e2c10af188a3392ece197ef93f663d1eeaa333fc2b130fd6f4",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6398,
+        "expires_at": 1793626973,
+        "uploaded_at": 1793540573.441684
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "9a7815b8f771e2e2c10af188a3392ece197ef93f663d1eeaa333fc2b130fd6f4",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793626973,
+        "elapsed_ms": 458
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 10538,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1693,
+          "prompt_tokens": 26497,
+          "total_tokens": 28190,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1519
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 26112
+          },
+          "prompt_cache_hit_tokens": 26112,
+          "prompt_cache_miss_tokens": 385
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1693,
+            "prompt_tokens": 26497,
+            "total_tokens": 28190,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1519
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 26112
+            },
+            "prompt_cache_hit_tokens": 26112,
+            "prompt_cache_miss_tokens": 385
+          },
+          "created": 1793540573,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"root\":{\"label\":\"2.\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x+7\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要提取。图片文字：2. 已知f(x-1)=x^2-2x+7则f(x)的解析式为____。需要不求解。需要JSON schema。original_text 保留题号？可以保留“2.”。public_content 排除题号。root 定义？这是由恒等关系求未知函数解析式，使用 find_function_formula。注意规则：relation=f(x-1)=x^2-2*x+7，function=f，variable=x。不要提前换元。goals: [{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x+7\"}]。definitions? 规则说由题给恒等关系求未知函数解析式，使用 find_function_formula，字段 function、variable、relation 仅转录。不要把关系放 definitions？它说 relation 字段。definitions 可省略。这里没有其他定义。root label? 原图开头“2.”是来源题号？可能是题号。root.label可以设为“2.” role source? 公开题干不含题号。需要判断：仅原图明确是来源或试卷题号时 source。这里“2.”明确题号。可以 label \"2.\"，public_content.root_label_role=\"source\"。但 label 是可省略。如果要保留题号，需要 role source。公开 statement 排除题号。original_text 保留。uncertainties 空。public_content completeness complete, privacy separated? 需要确认图片没有姓名等，只有题干，手写无？图片似乎有被划掉的？f(x-1)=... 有手写横线？题干有“则f(x)的解析式为____”。没有手写答案。privacy separated 可行，题号已分离？题号作为来源可分离，root_label_role source。figure not_required。scopes 对应 root 一个。statement 只保留题干：已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。 不含题号。choices: target_ref /root/goals/0, status none, selection_mode none, options []。\n\n但 root.label 如果填“2.”，public_content.root_label_role source。original_text 写“2. 已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。” 题目图片中公式：f(x-1)=x^2-2x+7。等号处似乎有横线？图片“f(x-1)=”可能有划线？看：f(x-1)=x^2-2x+7。学生横线? 原题是等号。解析式为____。使用 LaTeX。JSON 字符串反斜杠？没有反斜杠除了$。可以不用LaTeX命令。original_text 内公式用 $…$ 包围。$f(x-1)=x^2-2x+7$。这里的^不需要转义。JSON 中 $ 安全。如果写 x^2 没问题。original_text pattern \\S 满足。\n\nroot facts? 不需要？由关系求解析式，目标本身包含 relation。definitions 可以不放。goals 就 find_function_formula。但是 public_content scopes statement 要完整题干。是否 root 应该有 facts? 没有。\n\n注意规则：由题给恒等关系求未知函数解析式，使用 find_function_formula，字段 function、variable、relation 仅转录函数名、原变量名和原恒等式。所以 relation 是 \"f(x-1)=x^2-2*x+7\"？乘法可以显式写2*x。relation 原恒等式可以写成 f(x-1)=x^2-2*x+7。不化简。function \"f\", variable \"x\"。\n\n对于函数解析式目标，是 find_function_formula。没有 options。\n\npublic_content.root_label_role 仅在 root.label 存在时填写。我们填 label \"2.\"，role source。需要 original_text 保留 \"2.\"。公开 statement 不含 \"2.\"。题号是否应该放 root.label? 可以。如果你不想引入题号，也可以省略 label，root_label_role 不填。但规则说 original_text 可保留来源题号，public_content排除。可以在 root.label 标 source。更完整。但 label 不能只是题号？可以。scope label 可以放题面分问或图景标签。这里题号不是小问，是来源题号；root_label_role source 允许。公开时排除题号。可行。\n\nuncertainties 空数组。\n\nJSON 字段顺序：original_text, root, public_content。root 包含 label, goals。goals 里 find_function_formula 必填 fields。不能有额外字段。root 可以不包含 definitions/facts，因为空省略。public_content 必填 completeness, privacy, figure, root_label_role, scopes。scopes 中 statement, choices。choices item 必填 target_ref,status,selection_mode,options。selection_mode none。status none。\n\n需要检查 public_content statement：是否包含“已知”和“则”？只写该作用域自己的题干和所求。可以写：已知 $f(x-1)=x^2-2x+7$，则 $f(x)$ 的解析式为____。不含题号。公式用$…$。没问题。\n\noriginal_text：题干转录保留变量、量词等。只有一道题。填空处照印刷原样写横线。图片最后“解析式为”后似乎有一条长横线，可能被裁剪。写“____”。题号“2.”可保留。原图“已知f(x-1)=x^2-2x+7则f(x)的解析式为____” 中间没有逗号？可以按原文不加逗号，但阅读顺序可保留。原始可能“已知 f(x-1)=x²-2x+7 则 f(x) 的解析式为____”。我会写“2. 已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。” 注意加入逗号是否算改写？规则说保留原有中文叙述，按阅读顺序换行，不化简；可以加标点？最好不加原图没有的逗号。原图“已知f(x-1)=x^2-2x+7则f(x)的解析式为”。 public statement 可保留原样，不加逗号？写“已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。” 这符合原文。不要补逗号。original_text 同样。题号后的空格可保留。图片中“2.”后有空格。可以。\n\n注意 original_text 的 $…$ 内集合花括号等等不涉及。不要用 \\( \\)。\n\nroot.label 应该写“2.”，public_content.root_label_role \"source\"。\n\n但 root label 是否会被公开？privacy separated 因题号已分离。Good.\n\n现在输出 JSON object only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 11001
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"root\":{\"label\":\"2.\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x+7\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取。图片文字：2. 已知f(x-1)=x^2-2x+7则f(x)的解析式为____。需要不求解。需要JSON schema。original_text 保留题号？可以保留“2.”。public_content 排除题号。root 定义？这是由恒等关系求未知函数解析式，使用 find_function_formula。注意规则：relation=f(x-1)=x^2-2*x+7，function=f，variable=x。不要提前换元。goals: [{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x+7\"}]。definitions? 规则说由题给恒等关系求未知函数解析式，使用 find_function_formula，字段 function、variable、relation 仅转录。不要把关系放 definitions？它说 relation 字段。definitions 可省略。这里没有其他定义。root label? 原图开头“2.”是来源题号？可能是题号。root.label可以设为“2.” role source? 公开题干不含题号。需要判断：仅原图明确是来源或试卷题号时 source。这里“2.”明确题号。可以 label \"2.\"，public_content.root_label_role=\"source\"。但 label 是可省略。如果要保留题号，需要 role source。公开 statement 排除题号。original_text 保留。uncertainties 空。public_content completeness complete, privacy separated? 需要确认图片没有姓名等，只有题干，手写无？图片似乎有被划掉的？f(x-1)=... 有手写横线？题干有“则f(x)的解析式为____”。没有手写答案。privacy separated 可行，题号已分离？题号作为来源可分离，root_label_role source。figure not_required。scopes 对应 root 一个。statement 只保留题干：已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。 不含题号。choices: target_ref /root/goals/0, status none, selection_mode none, options []。\n\n但 root.label 如果填“2.”，public_content.root_label_role source。original_text 写“2. 已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。” 题目图片中公式：f(x-1)=x^2-2x+7。等号处似乎有横线？图片“f(x-1)=”可能有划线？看：f(x-1)=x^2-2x+7。学生横线? 原题是等号。解析式为____。使用 LaTeX。JSON 字符串反斜杠？没有反斜杠除了$。可以不用LaTeX命令。original_text 内公式用 $…$ 包围。$f(x-1)=x^2-2x+7$。这里的^不需要转义。JSON 中 $ 安全。如果写 x^2 没问题。original_text pattern \\S 满足。\n\nroot facts? 不需要？由关系求解析式，目标本身包含 relation。definitions 可以不放。goals 就 find_function_formula。但是 public_content scopes statement 要完整题干。是否 root 应该有 facts? 没有。\n\n注意规则：由题给恒等关系求未知函数解析式，使用 find_function_formula，字段 function、variable、relation 仅转录函数名、原变量名和原恒等式。所以 relation 是 \"f(x-1)=x^2-2*x+7\"？乘法可以显式写2*x。relation 原恒等式可以写成 f(x-1)=x^2-2*x+7。不化简。function \"f\", variable \"x\"。\n\n对于函数解析式目标，是 find_function_formula。没有 options。\n\npublic_content.root_label_role 仅在 root.label 存在时填写。我们填 label \"2.\"，role source。需要 original_text 保留 \"2.\"。公开 statement 不含 \"2.\"。题号是否应该放 root.label? 可以。如果你不想引入题号，也可以省略 label，root_label_role 不填。但规则说 original_text 可保留来源题号，public_content排除。可以在 root.label 标 source。更完整。但 label 不能只是题号？可以。scope label 可以放题面分问或图景标签。这里题号不是小问，是来源题号；root_label_role source 允许。公开时排除题号。可行。\n\nuncertainties 空数组。\n\nJSON 字段顺序：original_text, root, public_content。root 包含 label, goals。goals 里 find_function_formula 必填 fields。不能有额外字段。root 可以不包含 definitions/facts，因为空省略。public_content 必填 completeness, privacy, figure, root_label_role, scopes。scopes 中 statement, choices。choices item 必填 target_ref,status,selection_mode,options。selection_mode none。status none。\n\n需要检查 public_content statement：是否包含“已知”和“则”？只写该作用域自己的题干和所求。可以写：已知 $f(x-1)=x^2-2x+7$，则 $f(x)$ 的解析式为____。不含题号。公式用$…$。没问题。\n\noriginal_text：题干转录保留变量、量词等。只有一道题。填空处照印刷原样写横线。图片最后“解析式为”后似乎有一条长横线，可能被裁剪。写“____”。题号“2.”可保留。原图“已知f(x-1)=x^2-2x+7则f(x)的解析式为____” 中间没有逗号？可以按原文不加逗号，但阅读顺序可保留。原始可能“已知 f(x-1)=x²-2x+7 则 f(x) 的解析式为____”。我会写“2. 已知$f(x-1)=x^2-2x+7$，则$f(x)$的解析式为____。” 注意加入逗号是否算改写？规则说保留原有中文叙述，按阅读顺序换行，不化简；可以加标点？最好不加原图没有的逗号。原图“已知f(x-1)=x^2-2x+7则f(x)的解析式为”。 public statement 可保留原样，不加逗号？写“已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。” 这符合原文。不要补逗号。original_text 同样。题号后的空格可保留。图片中“2.”后有空格。可以。\n\n注意 original_text 的 $…$ 内集合花括号等等不涉及。不要用 \\( \\)。\n\nroot.label 应该写“2.”，public_content.root_label_role \"source\"。\n\n但 root label 是否会被公开？privacy separated 因题号已分离。Good.\n\n现在输出 JSON object only."
+        }
+      }
+    ],
+    "created": 1793540573,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1693,
+      "prompt_tokens": 26497,
+      "total_tokens": 28190,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1519,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 26112
+      },
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 385
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 11.002
+}

@@ -1,0 +1,32 @@
+{
+  "original_text": "【变式1】已知 $f\\left(\\frac{x}{x+1}\\right)=x-1$，则 $f(x)=$ ______．",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x/(x+1))=x-1"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f\\left(\\frac{x}{x+1}\\right)=x-1$，则 $f(x)=$ ______．",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

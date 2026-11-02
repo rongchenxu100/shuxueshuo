@@ -1,0 +1,170 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-matching",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "recover",
+      "calls": [
+        {
+          "id": "recover",
+          "capability": "solve_function_matching",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "raw_formula_result": "formula_result"
+          },
+          "order": 0
+        },
+        {
+          "id": "match",
+          "capability": "complete_matching_identity",
+          "public_ref": "method-complete-square",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$raw_formula_result"
+          },
+          "outputs": {
+            "matched_formula_result": "formula_result"
+          },
+          "order": 1
+        },
+        {
+          "id": "simplify_formula_expression",
+          "capability": "simplify_matching_expression",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$matched_formula_result"
+          },
+          "outputs": {
+            "simplified_formula_result": "formula_result"
+          },
+          "order": 2
+        },
+        {
+          "id": "verify_formula_identity",
+          "capability": "verify_formula_identity",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$simplified_formula_result"
+          },
+          "outputs": {
+            "formula_result": "formula_result"
+          },
+          "order": 3
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "square",
+          "after": "verify_formula_identity",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "square",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "match",
+          "after": "verify_formula_identity",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "match",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "rename",
+          "after": "verify_formula_identity",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "rename",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "coverage",
+          "after": "verify_formula_identity",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "coverage",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "formula_result": "$formula_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_matching",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import {gradeMethodCards, methodAnswer, selectedMethod} from './method-cards.mjs?v=20261030-range-selection';
+import {gradeMethodCards, methodAnswer, selectedMethod} from './method-cards.mjs?v=20261101-method-map';
 // One local decision engine for the student UI, model recorder and replay.
 import '../practice/context.js?v=15';
 import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261028-domain-overlap';
@@ -771,7 +771,7 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
     const options = d4.options || [];
     const direct = d3.interaction.type === 'read';
     const coverage = direct || d3.interaction.type === 'method_cards' ? Object.fromEntries(options.map(option => [option.branch, []])) : d3.interaction.coverage;
-    const methods = Object.entries(coverage).map(([branch, cells]) => {
+    let methods = Object.entries(coverage).map(([branch, cells]) => {
       const option = options.find(item => item.branch === branch);
       const target = option?.method || selectedByBranch.get(branch);
       if (!target || !nodes.has(target)) throw new Error('stream.unknown_method');
@@ -781,14 +781,23 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
         ...(option ? {route_plan: option.route_plan} : {}),
         ...(option?.route_plan === 'planned' ? {route: option.route_id} : {})};
     });
+    // Comparison choices can be meaningful before their methods have executable
+    // graph nodes. Only D4's verified route may grant a target/route binding.
+    if (d3.interaction.layout === 'connections') {
+      const choices = d3.interaction.method_choices;
+      if (!Array.isArray(choices) || new Set(choices.map(item => item.value)).size !== choices.length ||
+          methods.some(method => !choices.some(item => item.value === method.value))) throw new Error('stream.invalid_method_choices');
+      methods = choices.map(choice => ({...methods.find(method => method.value === choice.value),
+        value: choice.value, label: choice.label}));
+    }
     for (const id of rules) ids.add(id);
     const alternatives = {};
-    for (const method of methods) if (!method.route) alternatives[method.value] = {
+    for (const method of methods) if (!method.route && !['unfit', 'not_triggered'].includes(d3.verdicts?.[method.value]?.value)) alternatives[method.value] = {
       message: (d3.interaction.type === 'method_cards' && d3.verdicts?.[method.value]?.message) || options.find(item => item.branch === method.value)?.message ||
-        d3.verdicts?.[method.value]?.message || '这条思路本次不展开。', href: `/knowledge/${method.target}/`,
+        d3.verdicts?.[method.value]?.message || '这条思路本次不展开。', ...(method.target ? {href: `/knowledge/${method.target}/`} : {}),
     };
     const selection = {...copy(d3), source: 'authored', interaction: {...copy(d3.interaction), methods}, alternatives,
-      candidateNodes: [...rules, ...methods.map(method => method.target)],
+      candidateNodes: [...rules, ...methods.map(method => method.target).filter(Boolean)],
       effects: {nodes: [...rules], edges: ruleEdges.map(edge => edge.id), calls: [], results: [], log: '根据本题条件选择解题方法。'}};
     if (direct) {
       const runnable = methods.filter(method => method.route);
@@ -903,7 +912,7 @@ export function streamGraphState(bundle, state) {
     if (entry.source !== 'stream' || !entry.stream_last_part || decision?.source !== 'stream' ||
         !decision.stream_last_part || JSON.stringify(entry.stream_steps) !== JSON.stringify(decision.stream_steps)) continue;
     for (const ref of entry.stream_steps) {
-      const passed = {...bundle.stream, target_ref: decision.target_ref || bundle.stream.target_ref, route_id: state.run.route, ...ref};
+      const passed = {...bundle.stream, target_ref: decision.target_ref || bundle.stream.target_ref, route_id: decision.route_id || state.run.route, ...ref};
       const key = streamStepKey(passed);
       if (seen.has(key)) continue;
       seen.add(key);

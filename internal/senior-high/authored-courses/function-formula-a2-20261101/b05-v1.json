@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b05-v1",
+  "reviewer": "Codex：对照用户原图核对题目关系，独立换元核对答案，未执行照片模型复核",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-03.png",
+      "sha256": "3419f5c8b1c3b616722980e0ec365d549890ba802ac5c3d90724afc5f27f7b86",
+      "location": "第91页例5变式1，解析续见第92页"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(\\frac{x}{x+1})=x-1$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x/(x+1))=x-1"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "(2*t - 1)/(1 - t)",
+    "determined_domain": "Union(Interval.open(-oo, 1), Interval.open(1, oo))"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

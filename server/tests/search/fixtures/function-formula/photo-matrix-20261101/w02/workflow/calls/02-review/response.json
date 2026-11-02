@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 575,
+      "prompt_tokens": 15760,
+      "total_tokens": 16335,
+      "prompt_cache_hit_tokens": 15104,
+      "prompt_cache_miss_tokens": 656
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "9a7815b8f771e2e2c10af188a3392ece197ef93f663d1eeaa333fc2b130fd6f4",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6398,
+        "expires_at": 1793626973,
+        "uploaded_at": 1793540573.441684
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "9a7815b8f771e2e2c10af188a3392ece197ef93f663d1eeaa333fc2b130fd6f4",
+        "file_id": "[redacted-provider-identifier]",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 3812,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 575,
+          "prompt_tokens": 15760,
+          "total_tokens": 16335,
+          "completion_tokens_details": {
+            "reasoning_tokens": 564
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 15104
+          },
+          "prompt_cache_hit_tokens": 15104,
+          "prompt_cache_miss_tokens": 656
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 575,
+            "prompt_tokens": 15760,
+            "total_tokens": 16335,
+            "completion_tokens_details": {
+              "reasoning_tokens": 564
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 15104
+            },
+            "prompt_cache_hit_tokens": 15104,
+            "prompt_cache_miss_tokens": 656
+          },
+          "created": 1793540584,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "我们需要复核候选的root数学题意和original_text。不能只读转录，必须对照图片。图片文字：\"2. 已知f(x-1)=x^2-2x+7则f(x)的解析式为____。\" 候选 original_text: \"2. 已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\" 基本一致。图片看起来有 f(x-1)=x^2-2x+7，则 f(x) 的解析式为____。候选 root: label \"2.\", goals: find_function_formula function f variable x relation \"f(x-1)=x^2-2*x+7\"。这是题给恒等关系求未知函数解析式，应该使用 find_function_formula，字段 function, variable, relation 仅转录函数名、原变量名和原恒等式。候选关系是 f(x-1)=x^2-2*x+7，正确，保留原式。variable=x? 原题要求 f(x) 解析式，变量 x，可以。函数名 f。没有 relation_domain 等。题面没有限制定义域。正确。public_content statement: \"已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\" 去除了题号，符合。root_label_role source 对于 \"2.\" 是来源题号，正确。figure not_required 正确。privacy separated? public_content 没有个人隐私。completeness complete 正确。choices status none, selection_mode none, options [] 正确。目标引用 /root/goals/0 正确。scope_ref /root。没有其他小问。original_text 保留来源题号，允许。数学表达：候选 relation 用了 x^2-2*x+7，乘法显式 *，是允许的。original_text 写了 x^2-2x+7，符合原文。是否需要报告 original_text 少空格？标点、空格、换行和公式排版差异不算错误。标点：候选 original_text 有句号，原图结尾\"____。\"？图片结尾似乎是\"为____。\"? 看图片 \"解析式为\" 后面有下划线，可能没有句号。但标点差异不算错误。public_content statement 也完整。candidate 是否将 public_content 中的公式 \"$x^2-2x+7$\" 保留原文，未显式乘号，可以。没有发现问题。status confirmed, findings [].\n\n需要确保不返回candidate/root/original_text。只输出 status, findings。confirmed findings=[]。输出 JSON object.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 3813
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要复核候选的root数学题意和original_text。不能只读转录，必须对照图片。图片文字：\"2. 已知f(x-1)=x^2-2x+7则f(x)的解析式为____。\" 候选 original_text: \"2. 已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\" 基本一致。图片看起来有 f(x-1)=x^2-2x+7，则 f(x) 的解析式为____。候选 root: label \"2.\", goals: find_function_formula function f variable x relation \"f(x-1)=x^2-2*x+7\"。这是题给恒等关系求未知函数解析式，应该使用 find_function_formula，字段 function, variable, relation 仅转录函数名、原变量名和原恒等式。候选关系是 f(x-1)=x^2-2*x+7，正确，保留原式。variable=x? 原题要求 f(x) 解析式，变量 x，可以。函数名 f。没有 relation_domain 等。题面没有限制定义域。正确。public_content statement: \"已知$f(x-1)=x^2-2x+7$则$f(x)$的解析式为____。\" 去除了题号，符合。root_label_role source 对于 \"2.\" 是来源题号，正确。figure not_required 正确。privacy separated? public_content 没有个人隐私。completeness complete 正确。choices status none, selection_mode none, options [] 正确。目标引用 /root/goals/0 正确。scope_ref /root。没有其他小问。original_text 保留来源题号，允许。数学表达：候选 relation 用了 x^2-2*x+7，乘法显式 *，是允许的。original_text 写了 x^2-2x+7，符合原文。是否需要报告 original_text 少空格？标点、空格、换行和公式排版差异不算错误。标点：候选 original_text 有句号，原图结尾\"____。\"？图片结尾似乎是\"为____。\"? 看图片 \"解析式为\" 后面有下划线，可能没有句号。但标点差异不算错误。public_content statement 也完整。candidate 是否将 public_content 中的公式 \"$x^2-2x+7$\" 保留原文，未显式乘号，可以。没有发现问题。status confirmed, findings [].\n\n需要确保不返回candidate/root/original_text。只输出 status, findings。confirmed findings=[]。输出 JSON object."
+        }
+      }
+    ],
+    "created": 1793540584,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 575,
+      "prompt_tokens": 15760,
+      "total_tokens": 16335,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 564,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 15104
+      },
+      "prompt_cache_hit_tokens": 15104,
+      "prompt_cache_miss_tokens": 656
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 3.813
+}

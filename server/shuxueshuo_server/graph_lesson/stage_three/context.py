@@ -127,9 +127,15 @@ def build_context(candidate, target_ref):
         context['answer_plan'] = (compile_candidate_plan(request) if goal['kind'] == 'select_range_domain'
                                   else compile_plan(request))
 
-    if goal['kind'] in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in goal:
+    if 'relation' in goal and goal.get('function_type'):
+        from ..stage_one.function_formula import inspect_formula_target
+        context['formula_goal'] = inspect_formula_target(candidate, target_ref)
+    elif goal['kind'] in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in goal:
         from ..stage_one.function_range import inspect_range_target
         context['range_goal'] = inspect_range_target(candidate, target_ref)
+    elif goal['kind'] == 'find_value' and 'relation' in goal:
+        from ..stage_one.function_formula import inspect_formula_target
+        context['evaluation_goal'] = inspect_formula_target(candidate, target_ref)
     elif goal['kind'] in ('find_value', 'check_constant', 'finite_sum'):
         from ..stage_one.function_evaluation import inspect_evaluation_target
         context['evaluation_goal'] = inspect_evaluation_target(candidate, target_ref)
@@ -142,6 +148,9 @@ def build_context(candidate, target_ref):
     elif goal['kind'] == 'compare_functions':
         from ..stage_one.function_equality import inspect_comparison_target
         context['comparison_goal'] = inspect_comparison_target(candidate, target_ref)
+    elif goal['kind'] == 'find_function_formula':
+        from ..stage_one.function_formula import inspect_formula_target
+        context['formula_goal'] = inspect_formula_target(candidate, target_ref)
     elif goal['kind'] == 'find_translation_range':
         from ..stage_one.translation_range import inspect_translation_target
         context['translation_range_goal'] = inspect_translation_target(candidate, target_ref)

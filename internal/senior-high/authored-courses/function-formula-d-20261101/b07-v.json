@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b07-v",
+  "reviewer": "Codex：对照用户提供的原图题干转录。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-05.png",
+      "sha256": "a11b30609d1756b9743efe1d9334b69a7fe6f2ed1f18a766fb797cffbda3c92f",
+      "location": "第93页 例 7 变式"
+    }
+  ],
+  "candidate": {
+    "original_text": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbb{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-y)=f(x)+f(y)-2*x*y",
+          "relation_variables": [
+            "x",
+            "y"
+          ],
+          "relation_domain": "ℝ"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "x**2",
+    "domain": "ℝ"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

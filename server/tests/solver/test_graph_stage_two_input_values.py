@@ -158,7 +158,10 @@ def test_corrupt_coefficients_cannot_crash_runner_or_reach_recognition(tmp_path,
 
 def test_schema_covers_registry_and_real_conditional_shapes():
     schema = json.loads(FEATURE_VALUES_PATH.read_text())
-    assert set(schema["$defs"]) == {s.feature_id for s in FEATURE_REGISTRY}
+    assert set(schema["$defs"]) == {s.feature_id for s in FEATURE_REGISTRY} | {
+        'AnswerRequest', 'SelectRangeDomainGoal', 'FindExtremaExpressionGoal',
+        'abstract_function_domain_plain', 'abstract_function_domain_parameter',
+    }
     # A deterministic unit-test candidate exercises the extractor's conditional
     # data shape. This is not presented as a fresh image-reviewed/live result.
     candidate = {"original_text": "∀x∈[1/a,2]:x²≥a，求a。", "root": {

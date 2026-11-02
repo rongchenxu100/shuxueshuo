@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【例5】已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"root\":{\"label\":\"例5\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 950,
+      "prompt_tokens": 26502,
+      "total_tokens": 27452,
+      "prompt_cache_hit_tokens": 1152,
+      "prompt_cache_miss_tokens": 25350
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 475,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "7ef625d1cf6e946b5fc84615ddd4f44aeddb9340b1195f5d96349252f7018d6a",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6439,
+        "expires_at": 1793626806,
+        "uploaded_at": 1793540406.311019
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "7ef625d1cf6e946b5fc84615ddd4f44aeddb9340b1195f5d96349252f7018d6a",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793626806,
+        "elapsed_ms": 475
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6805,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 950,
+          "prompt_tokens": 26502,
+          "total_tokens": 27452,
+          "completion_tokens_details": {
+            "reasoning_tokens": 783
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 1152
+          },
+          "prompt_cache_hit_tokens": 1152,
+          "prompt_cache_miss_tokens": 25350
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 950,
+            "prompt_tokens": 26502,
+            "total_tokens": 27452,
+            "completion_tokens_details": {
+              "reasoning_tokens": 783
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 1152
+            },
+            "prompt_cache_hit_tokens": 1152,
+            "prompt_cache_miss_tokens": 25350
+          },
+          "created": 1793540406,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【例5】已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"root\":{\"label\":\"例5\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要提取题目。图片显示：【例5】已知 f(x-1)=x^2-2x，则 f(x)=____。需要输出 original_text 和 root 及 public_content。\n\n这是由恒等关系求未知函数解析式。使用 find_function_formula，function=f，variable=x，relation=f(x-1)=x^2-2*x。变量名 x。目标求 f(x) 解析式。requested? 题目要求 f(x)，可放 requested_domain? 没有范围，省略。function_type未明确，省略。relation_domain无。additional_relations无。\n\nroot definitions? 关系不是具体函数定义，应放 goals 的 relation。root 只有 goals。标签 root.label 可能 \"例5\" 是来源题号？original_text 保留 【例5】。root.label 如果填可以写 \"例5\"，role source? 图片明确是例题编号，属来源题号。public_content 排除来源编号。也可以在 root.label 填 \"例5\" 并 root_label_role=source? 需要 public_content.scopes statement 不包含例5。original_text 保留。public_content completeness complete, privacy separated (题目无个人信息，题号分离), figure not_required。scope root statement 只保留题目公共题干：已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。没有选项 choices target_ref /root/goals/0 status none selection_mode none options []。root label role source.\n\n注意 original_text 公式用 $…$，反斜杠双写。题中 \"【例5】\" 后空格。转录完整。不确定？没有。\n\nroot.goals find_function_formula: kind, function \"f\", variable \"x\", relation \"f(x-1)=x^2-2*x\"。是否需要 additional？不需要。注意受控数学字符串中乘法显式 *，幂 ^。relation 原式是 f(x-1)=x^2-2x，写 f(x-1)=x^2-2*x。public_content statement 公式可保留 LaTeX: 已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。这是可公开的。注意 public_content 不要任务来源编号，所以去掉【例5】。\n\nroot.label \"例5\" 还是 \"(例5)\"? 原文【例5】，label 可写 \"例5\"。root_label_role source。但规则说无法确认分离时 privacy uncertain；这里题号明确可分离，privacy separated。public_content.scopes statement 不含小问编号。root 没有 children。\n\nMaybe original_text 应该写 \"【例5】已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\" 填横线。图片中 f(x)=____ 有长横线。保留。不要手写。\n\n目标：find_function_formula 求得 f(x) 解析式。原式右 x^2-2x。\n\npublic_content 的 choices 需要每个 goal 出现一次，target_ref /root/goals/0. status none. selection none. options [].\n\npublic_content.scopes 对应 root 一个 scope_ref \"/root\" statement。root.label没有 public_content label；root_label_role source. 是否需要在 statement 中保留 \"已知...\"？是。\n\n输出 JSON。确保没有额外字段。uncertainties 可省略？root 需要 properties but not required? Scope required none? It allows no fields? But root should have goals. uncertainties optional. no uncertainties. 不要输出。public_content required completeness privacy figure scopes; root_label_role optional but we include source.\n\n现在生成。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7284
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【例5】已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"root\":{\"label\":\"例5\",\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x-1)=x^2-2*x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片显示：【例5】已知 f(x-1)=x^2-2x，则 f(x)=____。需要输出 original_text 和 root 及 public_content。\n\n这是由恒等关系求未知函数解析式。使用 find_function_formula，function=f，variable=x，relation=f(x-1)=x^2-2*x。变量名 x。目标求 f(x) 解析式。requested? 题目要求 f(x)，可放 requested_domain? 没有范围，省略。function_type未明确，省略。relation_domain无。additional_relations无。\n\nroot definitions? 关系不是具体函数定义，应放 goals 的 relation。root 只有 goals。标签 root.label 可能 \"例5\" 是来源题号？original_text 保留 【例5】。root.label 如果填可以写 \"例5\"，role source? 图片明确是例题编号，属来源题号。public_content 排除来源编号。也可以在 root.label 填 \"例5\" 并 root_label_role=source? 需要 public_content.scopes statement 不包含例5。original_text 保留。public_content completeness complete, privacy separated (题目无个人信息，题号分离), figure not_required。scope root statement 只保留题目公共题干：已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。没有选项 choices target_ref /root/goals/0 status none selection_mode none options []。root label role source.\n\n注意 original_text 公式用 $…$，反斜杠双写。题中 \"【例5】\" 后空格。转录完整。不确定？没有。\n\nroot.goals find_function_formula: kind, function \"f\", variable \"x\", relation \"f(x-1)=x^2-2*x\"。是否需要 additional？不需要。注意受控数学字符串中乘法显式 *，幂 ^。relation 原式是 f(x-1)=x^2-2x，写 f(x-1)=x^2-2*x。public_content statement 公式可保留 LaTeX: 已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。这是可公开的。注意 public_content 不要任务来源编号，所以去掉【例5】。\n\nroot.label \"例5\" 还是 \"(例5)\"? 原文【例5】，label 可写 \"例5\"。root_label_role source。但规则说无法确认分离时 privacy uncertain；这里题号明确可分离，privacy separated。public_content.scopes statement 不含小问编号。root 没有 children。\n\nMaybe original_text 应该写 \"【例5】已知 $f(x-1)=x^2-2x$，则 $f(x)=$____。\" 填横线。图片中 f(x)=____ 有长横线。保留。不要手写。\n\n目标：find_function_formula 求得 f(x) 解析式。原式右 x^2-2x。\n\npublic_content 的 choices 需要每个 goal 出现一次，target_ref /root/goals/0. status none. selection none. options [].\n\npublic_content.scopes 对应 root 一个 scope_ref \"/root\" statement。root.label没有 public_content label；root_label_role source. 是否需要在 statement 中保留 \"已知...\"？是。\n\n输出 JSON。确保没有额外字段。uncertainties 可省略？root 需要 properties but not required? Scope required none? It allows no fields? But root should have goals. uncertainties optional. no uncertainties. 不要输出。public_content required completeness privacy figure scopes; root_label_role optional but we include source.\n\n现在生成。"
+        }
+      }
+    ],
+    "created": 1793540406,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 950,
+      "prompt_tokens": 26502,
+      "total_tokens": 27452,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 783,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 1152
+      },
+      "prompt_cache_hit_tokens": 1152,
+      "prompt_cache_miss_tokens": 25350
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.286
+}

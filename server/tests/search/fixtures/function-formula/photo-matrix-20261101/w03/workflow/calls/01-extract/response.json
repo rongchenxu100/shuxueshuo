@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"root\":{\"label\":\"3\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)-2*f(-x)=x+2\",\"declared_domain\":\"ℝ\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1385,
+      "prompt_tokens": 26478,
+      "total_tokens": 27863,
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 366
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 590,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "45564bc2aa4d1c6895da142c86f01e51d7470820500a90a3956ca15e5a6ba840",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 9830,
+        "expires_at": 1793626973,
+        "uploaded_at": 1793540573.3725288
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "45564bc2aa4d1c6895da142c86f01e51d7470820500a90a3956ca15e5a6ba840",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793626973,
+        "elapsed_ms": 389
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9285,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1385,
+          "prompt_tokens": 26478,
+          "total_tokens": 27863,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1173
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 26112
+          },
+          "prompt_cache_hit_tokens": 26112,
+          "prompt_cache_miss_tokens": 366
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1385,
+            "prompt_tokens": 26478,
+            "total_tokens": 27863,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1173
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 26112
+            },
+            "prompt_cache_hit_tokens": 26112,
+            "prompt_cache_miss_tokens": 366
+          },
+          "created": 1793540573,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"root\":{\"label\":\"3\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)-2*f(-x)=x+2\",\"declared_domain\":\"ℝ\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要从图片提取题意，不求解。图片显示题号3，已知定义在R上的函数f(x)满足 f(x)-2f(-x)=x+2，则 f(x)=____。需要找函数解析式。关系中出现 f(x) 与 f(-x)，符合 find_function_formula 规则，保留整条原等式，声明定义域是R？题面“定义在R上的函数”说明 declared_domain=ℝ。变量 x。函数 f。relation=f(x)-2*f(-x)=x+2。目标是 find_function_formula，function f，variable x，relation... declared_domain ℝ。没有小问。original_text 要保留题号？ original_text 可以说“3. 已知定义在R上的函数f(x)满足f(x)-2f(-x)=x+2，则f(x)=____”。公开内容排除来源题号。root.label? 图片开头“3.”是来源/试卷题号。可以在 root.label 写“3”，root_label_role=source？ schema root.label 可以存在。但 original_text 已有。public_content scopes statement 去除题号。completeness complete，privacy separated? 没有手写答案，只有题面，题号分离。figure not_required。root definitions? 关系不是具体函数定义，放 relation 目标。root facts 可以包含定义在R上的函数 f(x)？ 根据 find_function_formula 字段 declared_domain 保存。不需要重复 facts。root goals one. uncertainties 空。public_content scopes root statement 包含完整题干，公式用$…$，排除“3.”。是否包含“则$f(x)=$____”保留填空横线。选择 status none。selection_mode none。options [].\n\n需确保 JSON schema 字段。root 是 Scope，可以有 label，definitions/facts/goals/children/uncertainties。目标用 FindFunctionFormulaGoal：kind, function, variable, relation, declared_domain。relation 字符串数学表达式。使用 * 明确乘法：f(x)-2*f(-x)=x+2。function f，variable x。declared_domain \"ℝ\"。relation 中有 f(-x) 保留。\n\npublic_content.scopes scope_ref /root, statement。choices 的 target_ref /root/goals/0, status none, selection_mode none, options []。\n\noriginal_text 保留 LaTeX 公式：$f(x)-2f(-x)=x+2$？ 也可以带空格。题面“定义在R上”通常 R 是实数集，使用 $R$ 或 $\\mathbb{R}$? 原图 R 是斜体 R，转录保留 $R$? 规则公式用 $…$。original_text 保留题面变量。可写“3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____”。public statement 排除题号。同用 $R$。也许应写 $\\mathbb{R}$? 转录原图显示 R（黑板粗？图片中R斜体普通）。为了保真写 $R$。root declared_domain 使用受控 Unicode 记法 ℝ，符合数学式目录。public content 可以 $R$。\n\nroot.label “3”存在，root_label_role source。不过 schema 中 root_label_role 在 public_content，不是 root。public_content 中可选。original_text 保留“3.”。公开 statement 排除“3.”。privacy separated 因为明确分离题号。但题号是否是来源？可以声明 source。图片没有其他个人信息。confidence enough。\n\nuncertainties 无。\n\n需要只输出 JSON，不能有额外。确保字符串反斜杠？无 LaTeX 命令，只有 $。JSON 中换行? original_text 可单行。\n\npublic_content 的 completeness complete，figure not_required，privacy separated，root_label_role source，scopes。声明 statement 应只保留该作用域自己的题干条件所求。父题干放 root。 root statement 包括全部。小问无。\n\nroot 的 definitions 可不填。 facts 可不填。 goals 一个。uncertainties 可省略或空数组。schema Scope required? 没有 required 列表在 Scope 中？ 看 schema no required fields? 但目标需要。可给 definitions: [], facts: [], goals, children? 不要输出 children。uncertainties 可以 []。label 需要与 public root_label_role 一致，可以给 \"3\"。但 label 是题面分问或图景标签。来源题号可以为 label? 规范：root.label 存在时用 root_label_role 区分来源题号。可以。不过若 label 是来源题号，公开 statement 不应含。OK。\n\n注意 original_text 里的“R”不是 \\mathbb{R}，没问题。JSON 无需转义美元。\n\n是否需要 relation_domain？题面“定义在R上的函数”是 f 的定义域，不是关系变量范围，declared_domain 记录。relation_domain 不填。\n\n目标 relation 不写 $。declared_domain \"ℝ\"。 relation 字符串中 f(-x) 不需要括号？ f(-x)。使用 f(x)-2*f(-x)=x+2。\n\n可以给 root.label \"3\" 和 public_content.root_label_role \"source\"。\n\n但 schema public_content 的 root_label_role 可省略；如果 root.label 存在则填写。OK.\n\n返回。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9677
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"root\":{\"label\":\"3\",\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)-2*f(-x)=x+2\",\"declared_domain\":\"ℝ\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意，不求解。图片显示题号3，已知定义在R上的函数f(x)满足 f(x)-2f(-x)=x+2，则 f(x)=____。需要找函数解析式。关系中出现 f(x) 与 f(-x)，符合 find_function_formula 规则，保留整条原等式，声明定义域是R？题面“定义在R上的函数”说明 declared_domain=ℝ。变量 x。函数 f。relation=f(x)-2*f(-x)=x+2。目标是 find_function_formula，function f，variable x，relation... declared_domain ℝ。没有小问。original_text 要保留题号？ original_text 可以说“3. 已知定义在R上的函数f(x)满足f(x)-2f(-x)=x+2，则f(x)=____”。公开内容排除来源题号。root.label? 图片开头“3.”是来源/试卷题号。可以在 root.label 写“3”，root_label_role=source？ schema root.label 可以存在。但 original_text 已有。public_content scopes statement 去除题号。completeness complete，privacy separated? 没有手写答案，只有题面，题号分离。figure not_required。root definitions? 关系不是具体函数定义，放 relation 目标。root facts 可以包含定义在R上的函数 f(x)？ 根据 find_function_formula 字段 declared_domain 保存。不需要重复 facts。root goals one. uncertainties 空。public_content scopes root statement 包含完整题干，公式用$…$，排除“3.”。是否包含“则$f(x)=$____”保留填空横线。选择 status none。selection_mode none。options [].\n\n需确保 JSON schema 字段。root 是 Scope，可以有 label，definitions/facts/goals/children/uncertainties。目标用 FindFunctionFormulaGoal：kind, function, variable, relation, declared_domain。relation 字符串数学表达式。使用 * 明确乘法：f(x)-2*f(-x)=x+2。function f，variable x。declared_domain \"ℝ\"。relation 中有 f(-x) 保留。\n\npublic_content.scopes scope_ref /root, statement。choices 的 target_ref /root/goals/0, status none, selection_mode none, options []。\n\noriginal_text 保留 LaTeX 公式：$f(x)-2f(-x)=x+2$？ 也可以带空格。题面“定义在R上”通常 R 是实数集，使用 $R$ 或 $\\mathbb{R}$? 原图 R 是斜体 R，转录保留 $R$? 规则公式用 $…$。original_text 保留题面变量。可写“3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____”。public statement 排除题号。同用 $R$。也许应写 $\\mathbb{R}$? 转录原图显示 R（黑板粗？图片中R斜体普通）。为了保真写 $R$。root declared_domain 使用受控 Unicode 记法 ℝ，符合数学式目录。public content 可以 $R$。\n\nroot.label “3”存在，root_label_role source。不过 schema 中 root_label_role 在 public_content，不是 root。public_content 中可选。original_text 保留“3.”。公开 statement 排除“3.”。privacy separated 因为明确分离题号。但题号是否是来源？可以声明 source。图片没有其他个人信息。confidence enough。\n\nuncertainties 无。\n\n需要只输出 JSON，不能有额外。确保字符串反斜杠？无 LaTeX 命令，只有 $。JSON 中换行? original_text 可单行。\n\npublic_content 的 completeness complete，figure not_required，privacy separated，root_label_role source，scopes。声明 statement 应只保留该作用域自己的题干条件所求。父题干放 root。 root statement 包括全部。小问无。\n\nroot 的 definitions 可不填。 facts 可不填。 goals 一个。uncertainties 可省略或空数组。schema Scope required? 没有 required 列表在 Scope 中？ 看 schema no required fields? 但目标需要。可给 definitions: [], facts: [], goals, children? 不要输出 children。uncertainties 可以 []。label 需要与 public root_label_role 一致，可以给 \"3\"。但 label 是题面分问或图景标签。来源题号可以为 label? 规范：root.label 存在时用 root_label_role 区分来源题号。可以。不过若 label 是来源题号，公开 statement 不应含。OK。\n\n注意 original_text 里的“R”不是 \\mathbb{R}，没问题。JSON 无需转义美元。\n\n是否需要 relation_domain？题面“定义在R上的函数”是 f 的定义域，不是关系变量范围，declared_domain 记录。relation_domain 不填。\n\n目标 relation 不写 $。declared_domain \"ℝ\"。 relation 字符串中 f(-x) 不需要括号？ f(-x)。使用 f(x)-2*f(-x)=x+2。\n\n可以给 root.label \"3\" 和 public_content.root_label_role \"source\"。\n\n但 schema public_content 的 root_label_role 可省略；如果 root.label 存在则填写。OK.\n\n返回。"
+        }
+      }
+    ],
+    "created": 1793540573,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1385,
+      "prompt_tokens": 26478,
+      "total_tokens": 27863,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1173,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 26112
+      },
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 366
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.679
+}

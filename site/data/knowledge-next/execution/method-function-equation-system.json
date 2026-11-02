@@ -1,0 +1,197 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-equation-system",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "recover",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_system",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description"
+          },
+          "order": 0
+        },
+        {
+          "id": "swap",
+          "capability": "interchange_function_inputs",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "rhs_swapped": "rhs_swapped"
+          },
+          "order": 1
+        },
+        {
+          "id": "eliminate",
+          "capability": "eliminate_function_values",
+          "public_ref": "method-elimination",
+          "inputs": {
+            "description": "$description",
+            "rhs_swapped": "$rhs_swapped"
+          },
+          "outputs": {
+            "raw_expression": "raw_expression"
+          },
+          "order": 2
+        },
+        {
+          "id": "simplify",
+          "capability": "simplify_system_formula",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "description": "$description",
+            "raw_expression": "$raw_expression"
+          },
+          "outputs": {
+            "raw_result": "formula_result"
+          },
+          "order": 3
+        },
+        {
+          "id": "verify",
+          "capability": "verify_system_formula",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description",
+            "formula_result": "$raw_result"
+          },
+          "outputs": {
+            "formula_result": "formula_result"
+          },
+          "order": 4
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "swap",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "swap",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "second",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "second",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "eliminate",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "eliminate",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "verify",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "verify",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        },
+        {
+          "id": "answer",
+          "after": "verify",
+          "template": "function_formula_derivation",
+          "bindings": {
+            "description": "$description",
+            "formula_result": "$formula_result",
+            "phase": "answer",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "formula_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "formula_result": "$formula_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_system",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

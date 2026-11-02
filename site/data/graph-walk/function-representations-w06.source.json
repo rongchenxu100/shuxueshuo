@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w06",
+  "title": "构造方程组法 · 小条第 6 题",
+  "page": "/topics/function-representations/q06/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $f(x)$ 满足 $3f(x)+2f(1-x)=4x$，则 $f(x)$ 解析式为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w06.evidence.json"
+}

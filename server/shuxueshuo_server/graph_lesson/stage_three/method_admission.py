@@ -139,7 +139,37 @@ def _function_range(context, method=None):
     return admitted(context, method)
 
 
+def _function_formula(context):
+    from .formula_runtime import admitted
+    return admitted(context)
+
+
+def _function_assignment(context):
+    from .assignment_runtime import admitted
+    return admitted(context)
+
+
+def _function_system(context):
+    from .system_runtime import admitted
+    return admitted(context)
+
+
+def _function_coefficients(context):
+    from .coefficients_runtime import admitted
+    return admitted(context)
+
+
+def _function_matching(context):
+    from .matching_runtime import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    'function_formula': _function_formula,
+    'function_matching': _function_matching,
+    'function_coefficients': _function_coefficients,
+    'function_system': _function_system,
+    'function_assignment': _function_assignment,
     'function_range': _function_range,
     "function_evaluation": _function_evaluation,
     "function_equality": _function_equality,

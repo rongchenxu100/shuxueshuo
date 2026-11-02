@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w14",
+  "title": "构造方程组法 · 小条第 14 题",
+  "page": "/topics/function-representations/q14/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "设 $x\\ne0$，函数 $f(x)$ 满足 $2f(x)+f(\\frac{1}{x})=10^x$，函数 $f(x)$ 的解析式为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w14.evidence.json"
+}

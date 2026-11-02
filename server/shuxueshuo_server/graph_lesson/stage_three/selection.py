@@ -20,8 +20,8 @@ def load_contract(primary):
         schema = json.loads((DATA.parents[2] / "internal/schemas/graph-direct-method-selection-v1.schema.json").read_text())
         Draft202012Validator(schema).validate(contract)
         methods = nodes[primary].get('methods', [])
-        if contract.get('admission') in ('function_domain_routes', 'function_range_routes'):
-            route_methods = [row['method'] for row in contract.get('routes', [])]
+        if contract.get('admission') in ('function_domain_routes', 'function_range_routes') or contract.get('display') == 'method_cards':
+            route_methods = [row['method'] for row in contract['routes']] if 'routes' in contract else [contract['method']]
             rules = nodes[primary].get('rules', [])
             card_rule = contract.get('display') == 'method_cards' and contract.get('rule') in rules
             if (contract['type'] != primary or (rules and not card_rule)
@@ -119,15 +119,23 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes'):
+                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
         from .evaluation_runtime import admitted as admitted_evaluation
+        from .formula_runtime import admitted as admitted_formula
+        from .matching_runtime import admitted as admitted_matching
+        from .coefficients_runtime import admitted as admitted_coefficients
+        from .system_runtime import admitted as admitted_system
+        from .assignment_runtime import admitted as admitted_assignment
         from .function_domain import admitted, admitted_parameter
         from .function_range import admitted as admitted_range
         from .method_admission import _abstract_function_domain as admitted_abstract
         context = build_context(candidate, target_ref)
+        if admission == 'function_formula' and (admitted_formula(context) or admitted_matching(context) or admitted_coefficients(context) or admitted_system(context) or admitted_assignment(context)):
+            from .formula_selection import select_formula
+            return select_formula(context, contract, primary)
         if (admission == 'function_range_routes' and context.get('range_goal', {}).get('rational')
                 and admitted_range(context)
                 and not admitted_range(context, 'method-finite-range')):
@@ -136,6 +144,11 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Re-read the candidate. A supplied type/feature/method override never
         # grants admission to a different mathematical category.
         checks = {
+            'function_formula': admitted_formula,
+            'function_matching': admitted_matching,
+            'function_coefficients': admitted_coefficients,
+            'function_system': admitted_system,
+            'function_assignment': admitted_assignment,
             'function_domain': admitted,
             'function_domain_parameter': admitted_parameter,
             'function_equality': admitted_equality,
@@ -150,7 +163,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_range_finite': lambda context: admitted_range(context, 'method-finite-range'),
             'abstract_function_domain': admitted_abstract,
         }
-        if admission == 'function_range':
+        if admission == 'function_formula':
+            routes = contract['routes']
+        elif admission == 'function_range':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '二次函数区间值域法'}]
         elif admission == 'function_evaluation':
@@ -195,6 +210,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
         question = (
+            '先选一个合法的原变量，让函数括号里的值等于所求输入，再代入题目右边求值。'
+            if context.get('evaluation_goal', {}).get('relation_ast') else
+            '把函数括号里的整体设为新变量，核对新变量的范围，再合法反解、恢复规则并回验。'
+            if chosen['admission'] == 'function_formula' else
             '先写出平移后函数值怎么变，再把已知的一整段左右平移、刚好盖住要求的输入范围，最后把各段能取到的值合起来。'
             if chosen['admission'] == 'function_range_translation' else
             '逐一代入有限的合法输入，收集全部输出并去重，得到值域。'

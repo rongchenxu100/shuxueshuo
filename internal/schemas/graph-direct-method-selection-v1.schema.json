@@ -33,7 +33,8 @@
         "abstract_function_domain",
         "function_evaluation",
         "function_range",
-        "function_range_routes"
+        "function_range_routes",
+        "function_formula"
       ]
     },
     "routes": {
@@ -66,7 +67,12 @@
               "function_range_fraction",
               "function_range_equation",
               "function_range_finite",
-              "function_range_translation"
+              "function_range_translation",
+              "function_formula",
+              "function_matching",
+              "function_coefficients",
+              "function_system",
+              "function_assignment"
             ]
           },
           "label": {
@@ -101,7 +107,8 @@
             "function_equality",
             "abstract_function_domain",
             "function_evaluation",
-            "function_range"
+            "function_range",
+            "function_formula"
           ]
         }
       }
@@ -128,7 +135,8 @@
         "admission": {
           "enum": [
             "function_domain_routes",
-            "function_range_routes"
+            "function_range_routes",
+            "function_formula"
           ]
         }
       }

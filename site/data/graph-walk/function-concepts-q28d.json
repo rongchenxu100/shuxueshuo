@@ -69,7 +69,7 @@
           {
             "value": "type-function-evaluation",
             "label": "求函数值",
-            "note": "已知函数规则，求给定输入或组合的输出"
+            "note": "根据函数关系，求给定输入或组合的输出"
           }
         ]
       },
@@ -833,6 +833,9 @@
           },
           {
             "entry": "identity"
+          },
+          {
+            "entry": "universal-substitution"
           }
         ]
       },
@@ -990,13 +993,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"83f28cc1fe0e863da3646c3adf467397065caf1b9e0d93b91b9fa475cbc495c2\",\"ac83458f9ddecdcbe8dafae1929be4624498ea394336cc1cb6d3ca064dcad7f2\",\"abfd5ce1d3324c3fa0efb48134264ec4\",\"/root/children/0/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"d21186a140b715c4444d791f10c8bf8c29dd513f50dbe4615c6f6114eef32e61\",\"ac83458f9ddecdcbe8dafae1929be4624498ea394336cc1cb6d3ca064dcad7f2\",\"abfd5ce1d3324c3fa0efb48134264ec4\",\"/root/children/0/goals/0\"]",
   "stream": {
     "run_id": "abfd5ce1d3324c3fa0efb48134264ec4",
     "lesson_version": "ac83458f9ddecdcbe8dafae1929be4624498ea394336cc1cb6d3ca064dcad7f2",
     "stream_id": "abfd5ce1d3324c3fa0efb48134264ec4",
     "target_ref": "/root/children/0/goals/0",
-    "base_bundle_version": "83f28cc1fe0e863da3646c3adf467397065caf1b9e0d93b91b9fa475cbc495c2",
+    "base_bundle_version": "d21186a140b715c4444d791f10c8bf8c29dd513f50dbe4615c6f6114eef32e61",
     "d3": {
       "expected_answer": {},
       "id": "D3",

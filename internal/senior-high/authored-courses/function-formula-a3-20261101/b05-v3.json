@@ -1,0 +1,40 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b05-v3",
+  "reviewer": "Codex：对照用户原图第92页变式3逐字核对；两问独立验算，未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-04.png",
+      "sha256": "2cce6f08688bae2b3073848aee19189ea9c4e5607d866c59da6453c72fb5c051",
+      "location": "第92页例5变式3"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x-\\frac{1}{x})=x^2+\\frac{1}{x^2}$，则 $f(0)=$ ______，$f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-1/x)=x**2+1/x**2",
+          "expression": "f(0)"
+        },
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-1/x)=x**2+1/x**2"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "values": [
+      2
+    ],
+    "expression": "t**2+2",
+    "determined_domain": "Reals"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

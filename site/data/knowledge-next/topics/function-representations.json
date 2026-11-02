@@ -33,25 +33,43 @@
       "id": "representations",
       "label": "三种表示与对应关系",
       "description": "解析式、表格和图像都在表达输入与输出的对应关系。完整列表只适用于有限定义域，不能凭几个采样值确定一个未知函数。",
-      "refs": ["function-representations", "function-concept"]
+      "refs": [
+        "function-representations",
+        "function-concept"
+      ]
     },
     {
       "id": "formula-foundations",
       "label": "求解析式的基础",
       "description": "识别完整的函数输入，利用题给函数类型或恒等关系恢复规则；换元与化简时保留原式限制，并说明哪些输入上的规则已经确定。",
-      "refs": ["equality-properties", "square-root-expression", "rational-expression", "linear-interval-extremum", "quadratic-function-properties", "reciprocal-function"]
+      "refs": [
+        "equality-properties",
+        "square-root-expression",
+        "rational-expression",
+        "linear-interval-extremum",
+        "quadratic-function-properties",
+        "reciprocal-function"
+      ]
     },
     {
       "id": "graphs",
       "label": "图像与变换",
       "description": "用关键点理解平移、对称和绝对值翻折。水平变换同时改变输入范围，空心点与实心点也要随之移动。",
-      "refs": ["function-graph-transformations", "absolute-value-function", "absolute-value-concept"]
+      "refs": [
+        "function-graph-transformations",
+        "absolute-value-function",
+        "absolute-value-concept"
+      ]
     },
     {
       "id": "piecewise",
       "label": "分段规则与范围",
       "description": "每段表达式只在本段范围内使用。求值先选段，逆向解题后还要验段；复合时根据中间值重新选段，各段结果按原目标合并。",
-      "refs": ["piecewise-function", "interval-notation", "set-intersection-union"]
+      "refs": [
+        "piecewise-function",
+        "interval-notation",
+        "set-intersection-union"
+      ]
     }
   ],
   "groups": [
@@ -59,8 +77,32 @@
       "id": "formula",
       "label": "求函数的解析式",
       "type": "type-function-formula",
+      "groupBy": "method",
       "description": "根据函数类型或恒等关系恢复解析式，保留全部可能结果及可确定的输入范围。",
-      "problems": []
+      "problems": [
+        "function-representations-b05-r2",
+        "function-representations-w02-r2",
+        "function-representations-w09-r2",
+        "function-representations-b05-v2-r5",
+        "function-representations-b05-v1",
+        "function-representations-b05-v3",
+        "function-representations-b04",
+        "function-representations-w01",
+        "function-representations-w12",
+        "function-representations-b04-v",
+        "function-representations-w10",
+        "function-representations-b06",
+        "function-representations-b06-v",
+        "function-representations-w03",
+        "function-representations-w05",
+        "function-representations-w06",
+        "function-representations-w07",
+        "function-representations-w14",
+        "function-representations-b07",
+        "function-representations-b07-v",
+        "function-representations-w04",
+        "function-representations-w11"
+      ]
     },
     {
       "id": "graph",
@@ -84,5 +126,205 @@
       "problems": []
     }
   ],
-  "problems": {}
+  "problems": {
+    "function-representations-b05-v1": {
+      "label": "分式换元求函数解析式 · 例 5 变式 1",
+      "path": "/topics/function-representations/variant01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v1.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b05-r2": {
+      "label": "求函数的解析式 · 例 5",
+      "path": "/topics/function-representations/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-r2.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w02-r2": {
+      "label": "求函数的解析式 · 小条第 2 题",
+      "path": "/topics/function-representations/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w02-r2.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w09-r2": {
+      "label": "求函数的解析式 · 小条第 9 题",
+      "path": "/topics/function-representations/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w09-r2.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b05-v2-r5": {
+      "label": "求函数的解析式 · 例 5 变式 2",
+      "path": "/topics/function-representations/variant02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v2-r5.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b05-v3": {
+      "label": "配凑法求函数解析式 · 例5变式3",
+      "path": "/topics/function-representations/variant03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v3.json",
+      "types": [
+        "type-function-formula",
+        "type-function-evaluation"
+      ]
+    },
+    "function-representations-b04": {
+      "label": "待定系数法 · 例 4",
+      "path": "/topics/function-representations/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b04.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w01": {
+      "label": "待定系数法 · 小条第 1 题",
+      "path": "/topics/function-representations/q01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w01.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w12": {
+      "label": "待定系数法 · 小条第 12 题",
+      "path": "/topics/function-representations/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w12.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b04-v": {
+      "label": "待定系数法 · 例 4 变式",
+      "path": "/topics/function-representations/variant04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b04-v.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w10": {
+      "label": "待定系数法 · 小条第 10 题",
+      "path": "/topics/function-representations/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w10.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b06": {
+      "label": "构造方程组法 · 例 6",
+      "path": "/topics/function-representations/q06a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b06.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b06-v": {
+      "label": "构造方程组法 · 例 6 变式",
+      "path": "/topics/function-representations/variant06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b06-v.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w03": {
+      "label": "构造方程组法 · 小条第 3 题",
+      "path": "/topics/function-representations/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w03.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w05": {
+      "label": "构造方程组法 · 小条第 5 题",
+      "path": "/topics/function-representations/q05b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w05.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w06": {
+      "label": "构造方程组法 · 小条第 6 题",
+      "path": "/topics/function-representations/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w06.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w07": {
+      "label": "构造方程组法 · 小条第 7 题",
+      "path": "/topics/function-representations/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w07.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w14": {
+      "label": "构造方程组法 · 小条第 14 题",
+      "path": "/topics/function-representations/q14/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w14.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b07": {
+      "label": "赋值法 · 例 7",
+      "path": "/topics/function-representations/q07a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b07.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-b07-v": {
+      "label": "赋值法 · 例 7 变式",
+      "path": "/topics/function-representations/variant07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b07-v.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w04": {
+      "label": "求函数的解析式 · 小条第 4 题",
+      "path": "/topics/function-representations/q04b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w04.json",
+      "types": [
+        "type-function-formula"
+      ]
+    },
+    "function-representations-w11": {
+      "label": "求函数的解析式 · 小条第 11 题",
+      "path": "/topics/function-representations/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w11.json",
+      "types": [
+        "type-function-formula"
+      ]
+    }
+  }
 }

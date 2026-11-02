@@ -1,0 +1,695 @@
+{
+  "status": "reviewed_candidate",
+  "source_reviewed": true,
+  "output_contract": "search-problem-extraction/v1",
+  "public_candidate": {
+    "original_text": "12. 已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x-1",
+          "function_type": "linear"
+        }
+      ],
+      "definitions": [],
+      "facts": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": "41d617a0aff0a81b5ecf20b75a5bb5baf7e0bbdaab798b23fef696e021042bd8",
+  "candidate": {
+    "original_text": "12. 已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x-1",
+          "function_type": "linear"
+        }
+      ],
+      "definitions": [],
+      "facts": []
+    }
+  },
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_function_formula"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_function_formula",
+        "target_ref": "/root/goals/0",
+        "target_ast": [
+          "function_call",
+          [
+            "ref",
+            "r.goals[0]:function:f",
+            "function"
+          ],
+          [
+            "ref",
+            "r.goals[0]:scalar:x",
+            "scalar"
+          ]
+        ],
+        "relation_ast": [
+          "=",
+          [
+            "function_call",
+            [
+              "ref",
+              "r.goals[0]:function:f",
+              "function"
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ]
+          ],
+          [
+            "-",
+            [
+              "*",
+              [
+                "number",
+                "4"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ]
+        ],
+        "function_name": "f",
+        "variable": "x",
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation",
+          "/root/goals/0/function_type"
+        ],
+        "extra_source_refs": [],
+        "function_type": "linear",
+        "structure_version": "function-formula-coefficients/v1",
+        "structure_supported": true,
+        "reason": "",
+        "relation_domain_ast": null,
+        "declared_domain_ast": null,
+        "requested_domain_ast": null
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0",
+        "/root/goals/0/function",
+        "/root/goals/0/function_type",
+        "/root/goals/0/relation",
+        "/root/goals/0/variable"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v8",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_function_formula_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": true,
+  "feature_diagnostics": [],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "cad09cf4dac2dc3d4a22410e683adfa66c20fd2cf14125f22c972bac62f75c20",
+  "sent_image_sha256": [
+    "cad09cf4dac2dc3d4a22410e683adfa66c20fd2cf14125f22c972bac62f75c20"
+  ],
+  "elapsed_seconds": 11.165
+}

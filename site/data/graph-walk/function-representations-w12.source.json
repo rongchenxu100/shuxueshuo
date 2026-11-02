@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w12",
+  "title": "待定系数法 · 小条第 12 题",
+  "page": "/topics/function-representations/q12/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w12.evidence.json"
+}

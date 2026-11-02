@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 406,
+      "prompt_tokens": 15763,
+      "total_tokens": 16169,
+      "prompt_cache_hit_tokens": 15104,
+      "prompt_cache_miss_tokens": 659
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "95b758a4ef066f319de7faff2656d758ffc9685d132447edfbc3a8e952cda949",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8416,
+        "expires_at": 1793626806,
+        "uploaded_at": 1793540406.3699641
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "95b758a4ef066f319de7faff2656d758ffc9685d132447edfbc3a8e952cda949",
+        "file_id": "[redacted-provider-identifier]",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 3129,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 406,
+          "prompt_tokens": 15763,
+          "total_tokens": 16169,
+          "completion_tokens_details": {
+            "reasoning_tokens": 395
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 15104
+          },
+          "prompt_cache_hit_tokens": 15104,
+          "prompt_cache_miss_tokens": 659
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 406,
+            "prompt_tokens": 15763,
+            "total_tokens": 16169,
+            "completion_tokens_details": {
+              "reasoning_tokens": 395
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 15104
+            },
+            "prompt_cache_hit_tokens": 15104,
+            "prompt_cache_miss_tokens": 659
+          },
+          "created": 1793540422,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "We need review candidate against image. Need output JSON status findings only. Need inspect. Candidate original_text: \"11. 已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____\". Image appears \"11. 已知函数 f(√x - 2)=x - 4，则函数的解析式为 f(x)=____\" okay. Root definitions empty facts empty goal find_function_formula function f variable x relation f(sqrt(x)-2)=x-4. Need check root semantics. Is relation correct? Original f(√x -2)=x-4. Yes. But think find_function_formula rules relation original identity; function unknown. variable? The variable in relation is x. It asks f(x). Should variable maybe x. Relation correct. Need check domain? Original doesn't explicitly state domain. There may be implicit x? relation_domain only explicit; omit. declared_domain omitted. requested_domain omitted. Good.\n\nPublic content: completeness complete privacy separated figure not_required. statement excludes source number \"11.\"? It starts \"已知函数...\" yes. Fine. choices target_ref correct. No options status none. Good.\n\nPotential issue: original_text includes \"11.\" source number; allowed. Public statement omitted. Good.\n\nNeed check image vs candidate: Is f(√x−2)=x−4 or maybe f(√x -2)=x-4? Yes. Maybe relation should preserve \"sqrt(x)-2\" not \"sqrt{x}-2\" same. Formula. Good.\n\nNeed review root confidence. Candidate status likely confirmed findings []. But need consider whether original expression's right side is x-4 perhaps \"x−4\" yes. It asks \"函数的解析式为 f(x)=____\". find_function_formula correct. No definitions. Good.\n\nNeed output exactly JSON with status and findings. confirmed findings []. Ensure no candidate etc.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 3131
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need review candidate against image. Need output JSON status findings only. Need inspect. Candidate original_text: \"11. 已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____\". Image appears \"11. 已知函数 f(√x - 2)=x - 4，则函数的解析式为 f(x)=____\" okay. Root definitions empty facts empty goal find_function_formula function f variable x relation f(sqrt(x)-2)=x-4. Need check root semantics. Is relation correct? Original f(√x -2)=x-4. Yes. But think find_function_formula rules relation original identity; function unknown. variable? The variable in relation is x. It asks f(x). Should variable maybe x. Relation correct. Need check domain? Original doesn't explicitly state domain. There may be implicit x? relation_domain only explicit; omit. declared_domain omitted. requested_domain omitted. Good.\n\nPublic content: completeness complete privacy separated figure not_required. statement excludes source number \"11.\"? It starts \"已知函数...\" yes. Fine. choices target_ref correct. No options status none. Good.\n\nPotential issue: original_text includes \"11.\" source number; allowed. Public statement omitted. Good.\n\nNeed check image vs candidate: Is f(√x−2)=x−4 or maybe f(√x -2)=x-4? Yes. Maybe relation should preserve \"sqrt(x)-2\" not \"sqrt{x}-2\" same. Formula. Good.\n\nNeed review root confidence. Candidate status likely confirmed findings []. But need consider whether original expression's right side is x-4 perhaps \"x−4\" yes. It asks \"函数的解析式为 f(x)=____\". find_function_formula correct. No definitions. Good.\n\nNeed output exactly JSON with status and findings. confirmed findings []. Ensure no candidate etc."
+        }
+      }
+    ],
+    "created": 1793540422,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 406,
+      "prompt_tokens": 15763,
+      "total_tokens": 16169,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 395,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 15104
+      },
+      "prompt_cache_hit_tokens": 15104,
+      "prompt_cache_miss_tokens": 659
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 3.132
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b06-v",
+  "title": "构造方程组法 · 例 6 变式",
+  "page": "/topics/function-representations/variant06/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "若函数 $f(x)$ 满足 $2f(x)-f(\\frac{1}{x})=2x-1$，$x\\ne0$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-b06-v.evidence.json"
+}

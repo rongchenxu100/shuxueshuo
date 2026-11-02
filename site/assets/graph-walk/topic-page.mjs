@@ -1,4 +1,4 @@
-import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261030-range-selection';
+import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261101-coefficients';
 import {createRecorder} from '../learning/practice-records.js?v=20261026-domain-powers';
 import {isPreview} from '../practice/learning-mode.mjs';
 import {routeRecordActions} from './practice-route.mjs?v=20261030-range-selection';
@@ -12,7 +12,7 @@ const read = async url => {
 try {
   const [bundle, replay, version] = await Promise.all([read(config.bundleUrl), read(config.replayUrl), read('/knowledge/teaching/version.json')]);
   if (bundle.problemId !== config.problemId) throw Error('课包身份与题页不一致。');
-  const route = Object.keys(bundle.routes)[0], preview = isPreview(location.search);
+  const route = Object.keys(bundle.routes)[0], preview = config.preview === true || isPreview(location.search);
   let mountedOwner = null, mounting = false, pendingHistory = null, epoch = 0;
   let recordedRoute = route;
   const owner = () => window.SiteAuth?.user?.id || 'guest';

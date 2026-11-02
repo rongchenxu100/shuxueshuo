@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "case": "B05-v2",
+  "usage": "development_regression_not_holdout",
+  "page": {
+    "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-04.png",
+    "sha256": "2cce6f08688bae2b3073848aee19189ea9c4e5607d866c59da6453c72fb5c051"
+  },
+  "crop": {
+    "file": "b05-v2-question.png",
+    "sha256": "fab754788bf47464d4840311b7deb003466d36f759d95e81c804a121e144b951",
+    "xyxy": [
+      156,
+      293,
+      716,
+      429
+    ],
+    "source_polygon": [
+      [
+        156,
+        365
+      ],
+      [
+        710,
+        293
+      ],
+      [
+        716,
+        356
+      ],
+      [
+        158,
+        429
+      ]
+    ],
+    "size": [
+      560,
+      136
+    ],
+    "outside_polygon": "white",
+    "operation": "Original source pixels retained inside polygon; no rotation, rewriting or generated text."
+  },
+  "review": "Full question visible, radical contains x only, surrounding printed solutions excluded."
+}

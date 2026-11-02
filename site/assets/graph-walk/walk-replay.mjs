@@ -1,6 +1,7 @@
-import {methodAnswer} from './method-cards.mjs?v=20261030-range-selection';
+import {methodAnswer} from './method-cards.mjs?v=20261101-method-map';
 // Static lessons and streamed AI playback answer the same verified decisions.
 export function replayAnswer(decision, route) {
+  route = decision.route_id || route;
   const component = decision.interaction, expected = decision.expected_answer || {};
   let answer;
   switch (component.type) {

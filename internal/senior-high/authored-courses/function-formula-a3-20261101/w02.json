@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w02-r2",
+  "reviewer": "Codex：对照用户原图核对题目关系，独立换元核对答案，未执行照片模型复核；A3 增补独立配凑执行路线。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第2题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x-1)=x^2-2x+7$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-1)=x**2-2*x+7"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "t**2 + 6",
+    "determined_domain": "Reals"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

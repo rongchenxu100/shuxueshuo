@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w12",
+  "reviewer": "Codex：对照用户原图题干转录并核对原目标；W10采用用户确认的二次函数类型。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+      "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272",
+      "location": "小条第12题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x-1",
+          "function_type": "linear"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "candidates": [
+      "2*x-1/3",
+      "-2*x+1"
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

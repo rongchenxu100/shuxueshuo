@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"root\":{\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x+1)-f(x)=2*x\",\"function_type\":\"quadratic\",\"additional_relations\":[\"f(0)=1\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 896,
+      "prompt_tokens": 26490,
+      "total_tokens": 27386,
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 378
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 550,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "192304b3e41a6bf22481b15794c6348029cbe3726a64d372f19cdea7df035392",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10196,
+        "expires_at": 1793627011,
+        "uploaded_at": 1793540611.886226
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "192304b3e41a6bf22481b15794c6348029cbe3726a64d372f19cdea7df035392",
+        "api_calls": 1,
+        "file_id": "[redacted-provider-identifier]",
+        "expires_at": 1793627011,
+        "elapsed_ms": 182
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 5081,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 896,
+          "prompt_tokens": 26490,
+          "total_tokens": 27386,
+          "completion_tokens_details": {
+            "reasoning_tokens": 694
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 26112
+          },
+          "prompt_cache_hit_tokens": 26112,
+          "prompt_cache_miss_tokens": 378
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 896,
+            "prompt_tokens": 26490,
+            "total_tokens": 27386,
+            "completion_tokens_details": {
+              "reasoning_tokens": 694
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 26112
+            },
+            "prompt_cache_hit_tokens": 26112,
+            "prompt_cache_miss_tokens": 378
+          },
+          "created": 1793540612,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"root\":{\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x+1)-f(x)=2*x\",\"function_type\":\"quadratic\",\"additional_relations\":[\"f(0)=1\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要提取题意，不求解。图片文字：【变式】二次函数 f(x) 满足 f(x+1)-f(x)=2x，且 f(0)=1. 则 f(x)=____.\n\n需要输出 original_text 完整题干。root 使用 find_function_formula，因为已知二次函数类型和恒等关系，求解析式。function=f, variable=x, relation=f(x+1)-f(x)=2*x, function_type=quadratic, additional_relations: f(0)=1。目标 find_function_formula。没有小问。public_content: completeness complete, privacy separated? 题目文字含【变式】可能来源标签？ Should we remove? Root label? There is no root label necessarily. Original text保留来源题号/标签? 【变式】看起来是来源/题型标签，但公开题干应排除来源文字。我们可以在 public_content.statement 写“二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$。则 $f(x)=$______。” 不含【变式】。original_text 包含【变式】。privacy separated? 图片没有答案，只有题干。可以 separated。figure not_required。choices none. root has no label? Could set label? The 【变式】 is not necessarily root.label; maybe original_text includes it, public omitted. No root.label. uncertainties empty.\n\nNeed root facts? Relation is in goal relation. additional_relations includes f(0)=1. Function_type quadratic. Maybe definitions none. facts none. Goal: {\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x+1)-f(x)=2*x\",\"function_type\":\"quadratic\",\"additional_relations\":[\"f(0)=1\"]}. Note variable x. No relation_domain.\n\nNeed original_text use $...$ with backslashes? Formula simple no backslashes except maybe none. Original text: \"【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\" Use Chinese punctuation. The blank is underscore. Need preserve period? image has “1 .” maybe. We can write.\n\npublic_content scopes: one root scope_ref /root, statement \"二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\" choices for goal /root/goals/0 status none selection_mode none options [].\n\nNeed root json include maybe definitions []? Schema optional. Include goals only. Could include definitions empty, facts empty? allowed but not necessary. We can omit. Need label? no.\n\nCheck find_function_formula relation should preserve equality. \"f(x+1)-f(x)=2*x\" is okay. function_type quadratic. additional_relations [\"f(0)=1\"]. Good.\n\nNeed original_text not include answer. No answer shown.\n\nPotential issue: \"二次函数\" explicitly function_type quadratic. Yes.\n\nUse * for multiplication in root. 2*x.\n\nOriginal_text can have 2x plain. Public statement can use 2x. Good.\n\nReturn JSON only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5266
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"root\":{\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x+1)-f(x)=2*x\",\"function_type\":\"quadratic\",\"additional_relations\":[\"f(0)=1\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意，不求解。图片文字：【变式】二次函数 f(x) 满足 f(x+1)-f(x)=2x，且 f(0)=1. 则 f(x)=____.\n\n需要输出 original_text 完整题干。root 使用 find_function_formula，因为已知二次函数类型和恒等关系，求解析式。function=f, variable=x, relation=f(x+1)-f(x)=2*x, function_type=quadratic, additional_relations: f(0)=1。目标 find_function_formula。没有小问。public_content: completeness complete, privacy separated? 题目文字含【变式】可能来源标签？ Should we remove? Root label? There is no root label necessarily. Original text保留来源题号/标签? 【变式】看起来是来源/题型标签，但公开题干应排除来源文字。我们可以在 public_content.statement 写“二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$。则 $f(x)=$______。” 不含【变式】。original_text 包含【变式】。privacy separated? 图片没有答案，只有题干。可以 separated。figure not_required。choices none. root has no label? Could set label? The 【变式】 is not necessarily root.label; maybe original_text includes it, public omitted. No root.label. uncertainties empty.\n\nNeed root facts? Relation is in goal relation. additional_relations includes f(0)=1. Function_type quadratic. Maybe definitions none. facts none. Goal: {\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x+1)-f(x)=2*x\",\"function_type\":\"quadratic\",\"additional_relations\":[\"f(0)=1\"]}. Note variable x. No relation_domain.\n\nNeed original_text use $...$ with backslashes? Formula simple no backslashes except maybe none. Original text: \"【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\" Use Chinese punctuation. The blank is underscore. Need preserve period? image has “1 .” maybe. We can write.\n\npublic_content scopes: one root scope_ref /root, statement \"二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．\" choices for goal /root/goals/0 status none selection_mode none options [].\n\nNeed root json include maybe definitions []? Schema optional. Include goals only. Could include definitions empty, facts empty? allowed but not necessary. We can omit. Need label? no.\n\nCheck find_function_formula relation should preserve equality. \"f(x+1)-f(x)=2*x\" is okay. function_type quadratic. additional_relations [\"f(0)=1\"]. Good.\n\nNeed original_text not include answer. No answer shown.\n\nPotential issue: \"二次函数\" explicitly function_type quadratic. Yes.\n\nUse * for multiplication in root. 2*x.\n\nOriginal_text can have 2x plain. Public statement can use 2x. Good.\n\nReturn JSON only."
+        }
+      }
+    ],
+    "created": 1793540612,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 896,
+      "prompt_tokens": 26490,
+      "total_tokens": 27386,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 694,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 26112
+      },
+      "prompt_cache_hit_tokens": 26112,
+      "prompt_cache_miss_tokens": 378
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.267
+}

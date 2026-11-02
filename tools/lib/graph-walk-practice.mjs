@@ -8,7 +8,7 @@ export function nativePracticeContract(bundle) {
   const decision = value => {
     const contract = Object.fromEntries(['id', 'title', 'question', 'interaction', 'expected_answer',
       'feedback', 'route_by_answer', 'source_regions', 'stream_steps', 'condition_number_lines', 'completion_number_line', 'endpoint_checks',
-      'option_context', 'target_ref', 'require_complete_options', 'select_relation', 'matching'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
+      'option_context', 'target_ref', 'route_id', 'require_complete_options', 'select_relation', 'matching'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
     if (value.interaction.type === 'original_choice_exact_set' ||
         value.source === 'original_choice' && value.interaction.type === 'choice' &&
           (value.require_complete_options || ['set_equality', 'range_domain_options'].includes(value.matching))) {
@@ -17,6 +17,7 @@ export function nativePracticeContract(bundle) {
     // Keep valid unexpanded choices in the server grading contract without
     // changing the frozen identity of courses that have no such alternatives.
     if (Object.keys(value.alternatives || {}).length) contract.alternatives = copy(value.alternatives);
+    if (value.interaction.layout === 'connections') contract.verdicts = copy(value.verdicts);
     return contract;
   };
   return {schema: 'graph-walk-practice/v1', problemId: bundle.problemId, bundleVersion: bundle.bundleVersion,
@@ -29,6 +30,7 @@ export function projectGraphWalkTeaching(bundle, nodes) {
   assert(bundle.bundleVersion && bundle.problemId && bundle.intro?.length, '图谱课包身份不完整');
   const byId = new Map(nodes.map(node => [node.id, node])), routes = {};
   const refsFor = (decision, routeId) => {
+    routeId = decision.route_id || routeId;
     const refs = new Set();
     for (const id of decision.effects?.nodes || []) if (['knowledge', 'skill', 'method'].includes(byId.get(id)?.kind)) refs.add(id);
     for (const ref of decision.stream_steps || []) {
@@ -54,7 +56,9 @@ export function projectGraphWalkTeaching(bundle, nodes) {
     assert(byId.get(route.method)?.kind === 'method' && route.steps.length, `课包路线无有效方法或交互：${id}`);
     const steps = [...bundle.intro, ...route.steps];
     assert(new Set(steps.map(step => step.id)).size === steps.length, `课包步骤身份重复：${id}`);
-    routes[id] = {label: route.label || byId.get(route.method).label, methods: [route.method],
+    const methods = route.methods || [route.method];
+    assert(methods.every(ref => byId.get(ref)?.kind === 'method') && methods.includes(route.method), '课包方法清单无效');
+    routes[id] = {label: route.label || byId.get(route.method).label, methods,
       steps: Object.fromEntries(steps.map((step, index) => {
         const refs = refsFor(step, id);
         return [step.id, {title: step.title, position: index + 1, refs,

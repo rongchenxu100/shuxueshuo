@@ -1,0 +1,41 @@
+{
+  "original_text": "10. 已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为____。",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x-1)=f(x)+3*x-5",
+        "additional_relations": [
+          "f(0)=0"
+        ],
+        "function_type": "quadratic",
+        "expression": "f(x)>0",
+        "symbol": "x"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

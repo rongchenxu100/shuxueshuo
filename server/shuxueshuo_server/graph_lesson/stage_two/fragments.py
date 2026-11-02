@@ -541,6 +541,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
+    if values.get('function_formula', {}).get('structure_supported'):
+        from .formula_surface import formula_source_spans
+        spans = formula_source_spans(candidate, target_ref, ranges,
+                                    values['function_formula'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.formula_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'function_formula'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-concept#elements', 'function-representations#analytic']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('translation_range', {}).get('structure_supported'):
         from .translation_surface import translation_source_spans
         spans = translation_source_spans(candidate, target_ref, ranges,

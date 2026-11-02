@@ -1,0 +1,39 @@
+{
+  "original_text": "5. 已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为[无法辨认]",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x)-2*f(1/x)=2*x-1",
+        "relation_domain": "ℝ∖{0}"
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "occluded",
+        "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "incomplete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "unknown",
+            "selection_mode": "unspecified",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

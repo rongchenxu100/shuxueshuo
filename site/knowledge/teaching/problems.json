@@ -1,5 +1,5 @@
 {
-  "content_version": "bbd141f165fcef71f48b791ac3f74dffed1cf9d7be2b4a75daecbd47e0bf7797",
+  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515",
   "problems": {
     "basic-inequality-q01": {
       "path": "/1/q01/",
@@ -236,6 +236,94 @@
     "function-concepts-range-q18": {
       "path": "/topics/function-concepts/q18/",
       "topic": "function-concepts"
+    },
+    "function-representations-b05-v1": {
+      "path": "/topics/function-representations/variant01/",
+      "topic": "function-representations"
+    },
+    "function-representations-b05-r2": {
+      "path": "/topics/function-representations/q05/",
+      "topic": "function-representations"
+    },
+    "function-representations-w02-r2": {
+      "path": "/topics/function-representations/q02/",
+      "topic": "function-representations"
+    },
+    "function-representations-w09-r2": {
+      "path": "/topics/function-representations/q09/",
+      "topic": "function-representations"
+    },
+    "function-representations-b05-v2-r5": {
+      "path": "/topics/function-representations/variant02/",
+      "topic": "function-representations"
+    },
+    "function-representations-b05-v3": {
+      "path": "/topics/function-representations/variant03/",
+      "topic": "function-representations"
+    },
+    "function-representations-b04": {
+      "path": "/topics/function-representations/q04/",
+      "topic": "function-representations"
+    },
+    "function-representations-w01": {
+      "path": "/topics/function-representations/q01/",
+      "topic": "function-representations"
+    },
+    "function-representations-w12": {
+      "path": "/topics/function-representations/q12/",
+      "topic": "function-representations"
+    },
+    "function-representations-b04-v": {
+      "path": "/topics/function-representations/variant04/",
+      "topic": "function-representations"
+    },
+    "function-representations-w10": {
+      "path": "/topics/function-representations/q10/",
+      "topic": "function-representations"
+    },
+    "function-representations-b06": {
+      "path": "/topics/function-representations/q06a/",
+      "topic": "function-representations"
+    },
+    "function-representations-b06-v": {
+      "path": "/topics/function-representations/variant06/",
+      "topic": "function-representations"
+    },
+    "function-representations-w03": {
+      "path": "/topics/function-representations/q03/",
+      "topic": "function-representations"
+    },
+    "function-representations-w05": {
+      "path": "/topics/function-representations/q05b/",
+      "topic": "function-representations"
+    },
+    "function-representations-w06": {
+      "path": "/topics/function-representations/q06/",
+      "topic": "function-representations"
+    },
+    "function-representations-w07": {
+      "path": "/topics/function-representations/q07/",
+      "topic": "function-representations"
+    },
+    "function-representations-w14": {
+      "path": "/topics/function-representations/q14/",
+      "topic": "function-representations"
+    },
+    "function-representations-b07": {
+      "path": "/topics/function-representations/q07a/",
+      "topic": "function-representations"
+    },
+    "function-representations-b07-v": {
+      "path": "/topics/function-representations/variant07/",
+      "topic": "function-representations"
+    },
+    "function-representations-w04": {
+      "path": "/topics/function-representations/q04b/",
+      "topic": "function-representations"
+    },
+    "function-representations-w11": {
+      "path": "/topics/function-representations/q11/",
+      "topic": "function-representations"
     },
     "quadratic-always-q01": {
       "path": "/2/q01/",

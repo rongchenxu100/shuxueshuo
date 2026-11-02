@@ -1,0 +1,477 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "11. 已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(sqrt(x)-2)=x-4"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "11. 已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(sqrt(x)-2)=x-4"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "function:0",
+                "function"
+              ],
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "function:0",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "ref",
+                  "scalar:0",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r.goals[0]:function:f",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "ref",
+                  "r.goals[0]:scalar:x",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "4"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t1-photo-w11",
+      "source_sha256": "95b758a4ef066f319de7faff2656d758ffc9685d132447edfbc3a8e952cda949"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "call",
+                        "sqrt",
+                        [
+                          "ref",
+                          "scalar:0",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "4"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "call",
+                        "sqrt",
+                        [
+                          "ref",
+                          "r.goals[0]:scalar:x",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "4"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t1-photo-w11",
+          "source_sha256": "95b758a4ef066f319de7faff2656d758ffc9685d132447edfbc3a8e952cda949"
+        }
+      },
+      "revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "202ed70364da6f41028a19074ab8ea14c1f06d7afab148f24c60940fc6bc156e",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "original_text": "11. 已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(sqrt(x)-2)=x-4"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$____",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

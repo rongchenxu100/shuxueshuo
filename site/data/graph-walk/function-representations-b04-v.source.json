@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b04-v",
+  "title": "待定系数法 · 例 4 变式",
+  "page": "/topics/function-representations/variant04/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-b04-v.evidence.json"
+}

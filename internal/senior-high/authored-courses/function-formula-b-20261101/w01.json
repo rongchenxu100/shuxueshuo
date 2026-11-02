@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w01",
+  "reviewer": "Codex：对照用户原图题干转录并核对原目标；W10采用用户确认的二次函数类型。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第1题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x+6$，则 $f(x)$ 的解析式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x+6",
+          "function_type": "linear"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "candidates": [
+      "2*x+2",
+      "-2*x-6"
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

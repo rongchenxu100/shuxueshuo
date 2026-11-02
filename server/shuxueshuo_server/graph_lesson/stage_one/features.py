@@ -49,6 +49,11 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('function_formula', ('goal',), 'function_formula',
+                ('function-concept#elements', 'function-representations#analytic'),
+                '由未知函数的整体输入关系恢复规则', version='function-formula-root/v1',
+                supported_structures=('affine_root_input',),
+                computation_boundary='仅检查原式结构和范围约束，不恢复函数或读取答案'),
     FeatureSpec('translation_range', ('goal',), 'translation_range',
                 ('function-concept#elements', 'function-range-extrema#attainability'),
                 '按整数平移传递已知完整值域', version='translation-range/v1',
@@ -472,6 +477,16 @@ def _scope_features(report, candidate, scope, ancestors, features):
             _produced[feature_id] = feature
             features.append(feature)
 
+        if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
+            from .function_formula import describe_function_formula
+            description = describe_function_formula(report, scope, ancestors, goal_index)
+            add('goal', {'kind': goal['kind'], **({'symbol': description['variable']} if goal['kind'] == 'find_range' else {})}, source_refs=[target_ref])
+            add('function_formula', description,
+                source_refs=[target_ref, *description['source_refs'], *description['extra_source_refs']])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_function_formula_goal'}, source_refs=[target_ref])
+            continue
         if goal['kind'] == 'find_translation_range':
             from .translation_range import describe_translation_range
             add('goal', {'kind': goal['kind']}, source_refs=[target_ref])

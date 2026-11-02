@@ -1,0 +1,34 @@
+{
+  "original_text": "4. 已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$，求 $f(x)$ 的解析式为",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(sqrt(x)+1)=x+2*sqrt(x)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$，求 $f(x)$ 的解析式。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -16,28 +16,42 @@
     "skill-equality-transform": [
       "separation_division",
       "verify_evaluation_identities",
-      "prepare_equation_range"
+      "prepare_equation_range",
+      "verify_formula_identity",
+      "verify_function_coefficients",
+      "interchange_function_inputs",
+      "verify_system_formula",
+      "specialize_function_relation",
+      "verify_assignment_formula"
     ],
     "skill-simplify": [
       "simplify_expression",
       "reorder_by_variable",
       "compare_function_pair",
-      "simplify_evaluation_expressions"
+      "simplify_evaluation_expressions",
+      "simplify_formula_expression",
+      "simplify_matching_expression",
+      "expand_coefficient_relations",
+      "simplify_system_formula",
+      "simplify_assignment_formula"
     ],
     "skill-quadratic-sign": [
       "quadratic_sign_condition",
-      "quadratic_sign_pattern"
+      "quadratic_sign_pattern",
+      "coefficient_target_signs"
     ],
     "skill-solve-quadratic": [
       "solve_quadratic",
       "check_evaluation_quadratic_conditions",
-      "solve_equation_range"
+      "solve_equation_range",
+      "coefficient_target_roots"
     ],
     "skill-quantified-range": [
       "select_quantifier_policy"
     ],
     "method-complete-square": [
-      "complete_square"
+      "complete_square",
+      "complete_matching_identity"
     ],
     "quadratic-interval-extremum": [
       "quadratic_interval_range",
@@ -56,14 +70,18 @@
       "solve_fraction_intermediate"
     ],
     "method-elimination": [
-      "elimination"
+      "elimination",
+      "solve_function_coefficient_system",
+      "eliminate_function_values",
+      "solve_assignment_equations"
     ],
     "method-substitution": [
       "substitution",
       "restore_substitution_range",
       "prepare_range_substitution",
       "return_range_substitution",
-      "transfer_abstract_range"
+      "transfer_abstract_range",
+      "substitute_formula_input"
     ],
     "quadratic-inequality-solve": [
       "submethod"
@@ -75,7 +93,8 @@
       "extract_domain_conditions",
       "extract_domain_parameter_conditions",
       "extract_abstract_concrete_conditions",
-      "extract_evaluation_conditions"
+      "extract_evaluation_conditions",
+      "extract_formula_conditions"
     ],
     "method-discriminant": [
       "submethod"
@@ -94,6 +113,9 @@
     ],
     "method-function-evaluation": [
       "submethod"
+    ],
+    "skill-polynomial-coefficient-comparison": [
+      "compare_polynomial_coefficients"
     ]
   },
   "internal": {
@@ -202,6 +224,21 @@
     ],
     "collect_range_options": [
       "method-quadratic-interval-range#collect-options"
+    ],
+    "solve_function_formula": [
+      "method-function-substitution#recover"
+    ],
+    "solve_function_matching": [
+      "method-function-matching#recover"
+    ],
+    "prepare_function_coefficients": [
+      "method-function-coefficients#recover"
+    ],
+    "prepare_function_system": [
+      "method-function-equation-system#recover"
+    ],
+    "prepare_function_assignment": [
+      "method-function-assignment#recover"
     ]
   }
 }

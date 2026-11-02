@@ -457,6 +457,29 @@ def execute(capability, inputs):
     return REGISTRY[capability](**inputs)
 
 
+def _function_formula_operation(name):
+    def run(**inputs):
+        from .. import formula_runtime
+        return getattr(formula_runtime, name)(**inputs)
+    return run
+
+
+for _name in ('solve_function_formula', 'extract_formula_conditions', 'substitute_formula_input',
+              'simplify_formula_expression', 'verify_formula_identity'):
+    REGISTRY[_name] = _function_formula_operation(_name)
+
+
+def _function_matching_operation(name):
+    def run(**inputs):
+        from .. import matching_runtime
+        return getattr(matching_runtime, name)(**inputs)
+    return run
+
+
+for _name in ('solve_function_matching', 'complete_matching_identity', 'simplify_matching_expression'):
+    REGISTRY[_name] = _function_matching_operation(_name)
+
+
 def _function_evaluation_operation(name):
     def run(**inputs):
         from .. import evaluation_runtime
@@ -541,3 +564,40 @@ for _capability, _operation in (('prepare_range_options', 'prepare_options'),
                               ('compare_range_option', 'compare_option'),
                               ('collect_range_options', 'collect_options')):
     REGISTRY[_capability] = _range_task_operation(_operation)
+
+
+def _function_coefficients_operation(name):
+    def execute(**inputs):
+        from .. import coefficients_runtime
+        return getattr(coefficients_runtime, name)(**inputs)
+    return execute
+
+
+for _name in ('prepare_function_coefficients', 'expand_coefficient_relations', 'compare_polynomial_coefficients',
+              'solve_function_coefficient_system', 'verify_function_coefficients',
+              'coefficient_target_roots', 'coefficient_target_signs'):
+    REGISTRY[_name] = _function_coefficients_operation(_name)
+
+
+def _function_system_operation(name):
+    def operation(**inputs):
+        from .. import system_runtime
+        return getattr(system_runtime, name)(**inputs)
+    return operation
+
+
+for _name in ('prepare_function_system', 'interchange_function_inputs', 'eliminate_function_values',
+              'simplify_system_formula', 'verify_system_formula'):
+    REGISTRY[_name] = _function_system_operation(_name)
+
+
+def _function_assignment_operation(name):
+    def operation(**inputs):
+        from .. import assignment_runtime
+        return getattr(assignment_runtime, name)(**inputs)
+    return operation
+
+
+for _name in ('prepare_function_assignment', 'specialize_function_relation', 'solve_assignment_equations',
+              'simplify_assignment_formula', 'verify_assignment_formula'):
+    REGISTRY[_name] = _function_assignment_operation(_name)

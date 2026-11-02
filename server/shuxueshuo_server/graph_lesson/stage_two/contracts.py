@@ -47,6 +47,12 @@ def _visible_sources(candidate):
             target = f"{path}/goals/{index}"
             visible[target] = own[path] | inherited | {target}
             goal = scope['goals'][index]
+            if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
+                for field in ('function', 'variable', 'relation', 'relation_domain', 'declared_domain', 'requested_domain', 'function_type', 'expression', 'symbol'):
+                    if field in goal:
+                        visible[target].add(f'{target}/{field}')
+                visible[target].update(f'{target}/additional_relations/{i}' for i in range(len(goal.get('additional_relations', []))))
+                visible[target].update(f'{target}/relation_variables/{i}' for i in range(len(goal.get('relation_variables', []))))
             if goal['kind'] in ('find_translation_range', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range'):
                 for field in ('function_relation', 'periodic_function', 'period', 'periodic_domain', 'known_call', 'known_domain', 'known_range', 'target_call', 'input_domain', 'variable', 'parameter', 'quantifier', 'strength'):
                     if field in goal:
@@ -72,6 +78,7 @@ def _visible_sources(candidate):
 ADMISSIONS = {
     "acceptance": ("source_reviewed", "features", "evaluation", "passed"),
     "student_upload": ("source_reviewed", "features"),
+    "authored_topic": ("author_reviewed", "features"),
 }
 
 
@@ -93,10 +100,35 @@ def validate_input(value, admission="acceptance"):
     if not checked["contract_valid"]:
         issue("input.candidate", "/candidate", "阶段①候选不完整或数学／作用域校验未通过。")
     statuses = value["statuses"]
-    if statuses.get("extraction") != "reviewed_candidate":
+    extraction = 'authored_candidate' if admission == 'authored_topic' else 'reviewed_candidate'
+    if statuses.get("extraction") != extraction:
         issue("input.extraction", "/statuses/extraction", "阶段①尚未完成题意提取与原图复核。")
     if admission == "student_upload" and statuses.get("admission") != "student_upload":
         issue("input.admission", "/statuses/admission", "学生上传的阶段①结果必须标明 admission=student_upload。")
+    if admission == 'authored_topic':
+        from ...problem_understanding.identity import revision
+        provenance = value.get('provenance')
+        schema = {
+            'type': 'object', 'required': ['kind', 'candidate_sha256', 'sources', 'reviewer'],
+            'properties': {
+                'kind': {'const': 'authored_topic'},
+                'candidate_sha256': {'const': revision(candidate)},
+                'reviewer': {'type': 'string', 'minLength': 1},
+                'sources': {'type': 'array', 'minItems': 1, 'items': {
+                    'type': 'object', 'required': ['reference', 'sha256', 'location'],
+                    'properties': {'reference': {'type': 'string', 'minLength': 1},
+                                   'sha256': {'type': 'string', 'pattern': '^[a-f0-9]{64}$'},
+                                   'location': {'type': 'string', 'minLength': 1}}}},
+            },
+        }
+        if (statuses.get('admission') != admission or statuses.get('source_reviewed') is not False
+                or any(key in statuses for key in ('evaluation', 'passed'))):
+            issue('input.authored_claims', '/statuses', '专题录入须明确来源，不能声称经过拍题复核或金标验收。')
+        for error in Draft202012Validator(schema).iter_errors(provenance):
+            issue('input.authored_provenance', '/provenance', error.message)
+        from ..stage_one.features import extract_features
+        if checked['contract_valid'] and value['features'] != extract_features(candidate)['features']:
+            issue('input.authored_features', '/features', '专题特征必须由当前规范题意重新计算。')
     for key in ADMISSIONS[admission]:
         if statuses.get(key) is not True:
             issue("input.not_accepted", f"/statuses/{key}", "阶段①完成与验收标记必须明确为 true。")
@@ -163,7 +195,10 @@ def validate_input(value, admission="acceptance"):
         # ordinary shape/source check above.
         kind = expected[target]['goal']['kind']
         required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range'}
-        if kind in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in expected[target]['goal']:
+        required.discard('function_formula')
+        if kind == 'find_function_formula' or (kind in ('find_value', 'find_range') and 'relation' in expected[target]['goal']):
+            required.add('function_formula')
+        elif kind in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in expected[target]['goal']:
             required.add('function_range')
         elif kind in ('find_domain', 'match_domain'):
             required.add('function_domain')

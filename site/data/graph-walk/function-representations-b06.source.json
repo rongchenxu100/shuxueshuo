@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b06",
+  "title": "构造方程组法 · 例 6",
+  "page": "/topics/function-representations/q06a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知定义域为 $\\mathbb{R}$ 的函数 $f(x)$ 满足 $2f(x)-f(-x)=3x$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-b06.evidence.json"
+}

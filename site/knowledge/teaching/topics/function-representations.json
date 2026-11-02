@@ -6,8 +6,32 @@
       "id": "formula",
       "label": "求函数的解析式",
       "type": "type-function-formula",
+      "groupBy": "method",
       "description": "根据函数类型或恒等关系恢复解析式，保留全部可能结果及可确定的输入范围。",
-      "problems": []
+      "problems": [
+        "function-representations-b05-r2",
+        "function-representations-w02-r2",
+        "function-representations-w09-r2",
+        "function-representations-b05-v2-r5",
+        "function-representations-b05-v1",
+        "function-representations-b05-v3",
+        "function-representations-b04",
+        "function-representations-w01",
+        "function-representations-w12",
+        "function-representations-b04-v",
+        "function-representations-w10",
+        "function-representations-b06",
+        "function-representations-b06-v",
+        "function-representations-w03",
+        "function-representations-w05",
+        "function-representations-w06",
+        "function-representations-w07",
+        "function-representations-w14",
+        "function-representations-b07",
+        "function-representations-b07-v",
+        "function-representations-w04",
+        "function-representations-w11"
+      ]
     },
     {
       "id": "graph",
@@ -31,8 +55,2767 @@
       "problems": []
     }
   ],
-  "problems": {},
+  "problems": {
+    "function-representations-b05-v1": {
+      "label": "分式换元求函数解析式 · 例 5 变式 1",
+      "path": "/topics/function-representations/variant01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v1.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(\\frac{x}{x+1})=x-1$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "b02ac3a2c4b5fc399b7c0ab1#1": {
+              "title": "换元后，哪些数不能取",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "ac6b74e88b01e1b36ffa3f48#1": {
+              "title": "用新变量表示原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "0fc636efa47c103504b67400#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "933bfebb7c02a131557a25d4#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b05-r2": {
+      "label": "求函数的解析式 · 例 5",
+      "path": "/topics/function-representations/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-r2.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(x-1)=x^2-2x$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "3bafa7197caa054ff4d4241c#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "733f884ca5142c99028618ab#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "b31af6ecf2637be267e0c7de#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "eda85bde24870bdd12cf29b4#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "adb580e081af53772f181c98#1": {
+              "title": "把函数的输入换成新变量",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "7eb8e65ff895f11a0a05539f#1": {
+              "title": "用新变量表示原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "435a6f2b90eeb973bc5a8b55#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "6c34cb2b9602308ac0a45100#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w02-r2": {
+      "label": "求函数的解析式 · 小条第 2 题",
+      "path": "/topics/function-representations/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w02-r2.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(x-1)=x^2-2x+7$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "4e3e6c9fc974dca429256ccc#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "9ff5a7bcbad841bc34f0c34b#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "ece9ffcbb43a4ff396e73bd7#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "63b657d9e29b90f3ffef7541#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "0f62b3715b29d63cd64e1f2c#1": {
+              "title": "把函数的输入换成新变量",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "668dd4c3073bc2662f615c91#1": {
+              "title": "用新变量表示原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "24222d24cae78c6c9969f178#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "150edc3070d720a8161d7fdc#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w09-r2": {
+      "label": "求函数的解析式 · 小条第 9 题",
+      "path": "/topics/function-representations/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w09-r2.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(x+2)=x^2-4x$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "31545bedcf93f1580d3fbf1f#1": {
+              "title": "把函数的输入换成新变量",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "d116a7a13879fa5134b879b0#1": {
+              "title": "用新变量表示原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "215c92c77d9125efaa3dcb13#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "5dbc06de02939984e619bb46#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "dc4434269555f5d7a39cc88f#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "4e1d3166c510e8555982d217#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "8b9b5944522492ec7e9c0a06#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "d0c371ce303571881448b98d#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b05-v2-r5": {
+      "label": "求函数的解析式 · 例 5 变式 2",
+      "path": "/topics/function-representations/variant02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v2-r5.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "a777ca65f84b1f009929e48b#1": {
+              "title": "整体换元，确定新变量范围",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "d4cd9ef3237b0d0015ac95cb#1": {
+              "title": "合法反解原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "9271b33ea539b4ee511ca235#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "30c364c6c6e9f507f81c1bc3#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "545a7290ad406a496c45a950#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "2f801584c38395aaf4a48a38#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "566402daa721a0d007db77b8#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "f3c9c0c327f6e2841af3539d#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b05-v3": {
+      "label": "配凑法求函数解析式 · 例5变式3",
+      "path": "/topics/function-representations/variant03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b05-v3.json",
+      "types": [
+        "type-function-formula",
+        "type-function-evaluation"
+      ],
+      "statement": "已知 $f(x-\\frac{1}{x})=x^2+\\frac{1}{x^2}$，则 $f(0)=$ ______，$f(x)=$ ______。",
+      "routes": {
+        "function-evaluation": {
+          "label": "先求 f(0) → 再求函数的解析式",
+          "methods": [
+            "method-function-matching",
+            "method-function-evaluation"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-function-evaluation"
+              ]
+            },
+            "c8f11b377741603b15825992#1": {
+              "title": "先让括号里的值等于目标输入",
+              "position": 4,
+              "refs": [
+                "method-function-evaluation#evaluate",
+                "function-concept#definition",
+                "function-concept#elements",
+                "skill-expression-defined",
+                "skill-simplify",
+                "skill-equality-transform",
+                "equality-properties#identity"
+              ]
+            },
+            "7698a2eb26e576d06d283d8c#1": {
+              "title": "代入原关系，算出函数值",
+              "position": 5,
+              "refs": [
+                "method-function-evaluation#evaluate",
+                "function-concept#definition",
+                "function-concept#elements",
+                "skill-expression-defined",
+                "skill-simplify",
+                "skill-equality-transform",
+                "equality-properties#identity"
+              ]
+            },
+            "goal-2-D1": {
+              "title": "再求函数的解析式",
+              "position": 6,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "goal-2-D2": {
+              "title": "确定题型",
+              "position": 7,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "goal-2-D3": {
+              "title": "选择解题方法",
+              "position": 8,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "b294c01acd6ce3522a0b09fb#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 9,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "8a01486aebdcf06c11bc66f7#1": {
+              "title": "把右边配成同一个式子",
+              "position": 10,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "4644dd75d788cd425f7551e3#1": {
+              "title": "读出函数的解析式",
+              "position": 11,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "10132107b1b70b646bced4c5#1": {
+              "title": "写出完整答案",
+              "position": 12,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b04": {
+      "label": "待定系数法 · 例 4",
+      "path": "/topics/function-representations/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b04.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。",
+      "routes": {
+        "function-coefficients": {
+          "label": "待定系数法求函数解析式",
+          "methods": [
+            "method-function-coefficients"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "27ead00557dccb270ee8f9aa#1": {
+              "title": "按函数类型设一般式",
+              "position": 4,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "61ac47f7c30432b37dbc2438#1": {
+              "title": "把一般式代入题给关系",
+              "position": 5,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "2f8c654e3cfa0349af2bbcd0#1": {
+              "title": "同次幂的系数分别相等",
+              "position": 6,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "b77abe5f0e51781662f7d30e#1": {
+              "title": "求出所有系数",
+              "position": 7,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "411fbd64ab754cf12e740269#1": {
+              "title": "把每个结果代回检查",
+              "position": 8,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "02dd0c2591239bf66102e9d2#1": {
+              "title": "回到原题，计算函数值",
+              "position": 9,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w01": {
+      "label": "待定系数法 · 小条第 1 题",
+      "path": "/topics/function-representations/q01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w01.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x+6$，则 $f(x)$ 的解析式为 ______。",
+      "routes": {
+        "function-coefficients": {
+          "label": "待定系数法求函数解析式",
+          "methods": [
+            "method-function-coefficients"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "c570033e93e6c3e19e6fd866#1": {
+              "title": "按函数类型设一般式",
+              "position": 4,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "e8b7263ba73226c16829c753#1": {
+              "title": "把一般式代入题给关系",
+              "position": 5,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "a17bfffc2dc40488a13e4f00#1": {
+              "title": "同次幂的系数分别相等",
+              "position": 6,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "ea80ab89ab0514168e291d7d#1": {
+              "title": "求出所有系数",
+              "position": 7,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "78ba1030a50b9db2194ef591#1": {
+              "title": "把每个结果代回检查",
+              "position": 8,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "a291aab6ac415dfa8fe2cba9#1": {
+              "title": "写出全部解析式",
+              "position": 9,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w12": {
+      "label": "待定系数法 · 小条第 12 题",
+      "path": "/topics/function-representations/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w12.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为 ______。",
+      "routes": {
+        "function-coefficients": {
+          "label": "待定系数法求函数解析式",
+          "methods": [
+            "method-function-coefficients"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "ca72a2126b8781c3889bc77b#1": {
+              "title": "按函数类型设一般式",
+              "position": 4,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "34802a878c0161d2067c988f#1": {
+              "title": "把一般式代入题给关系",
+              "position": 5,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "84cab7bf8bd98278b289e042#1": {
+              "title": "同次幂的系数分别相等",
+              "position": 6,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "980bb25c04cf488b303ff37f#1": {
+              "title": "求出所有系数",
+              "position": 7,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "540c35079d7d53e8bf6b2626#1": {
+              "title": "把每个结果代回检查",
+              "position": 8,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "07173b84f187e037f81e2ddd#1": {
+              "title": "写出全部解析式",
+              "position": 9,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b04-v": {
+      "label": "待定系数法 · 例 4 变式",
+      "path": "/topics/function-representations/variant04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b04-v.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-coefficients": {
+          "label": "待定系数法求函数解析式",
+          "methods": [
+            "method-function-coefficients"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "3abdf29863b394db825a64c0#1": {
+              "title": "按函数类型设一般式",
+              "position": 4,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "521353f84a8f0c18e1a3bdc3#1": {
+              "title": "把一般式代入题给关系",
+              "position": 5,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "400846fdf813b05702dbdacf#1": {
+              "title": "同次幂的系数分别相等",
+              "position": 6,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "3be794b6dd773def900319bf#1": {
+              "title": "求出所有系数",
+              "position": 7,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "2c5240db9d237216c69b77d0#1": {
+              "title": "把结果代回检查",
+              "position": 8,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            },
+            "d4ef721a3a65e600267d60ce#1": {
+              "title": "写出全部解析式",
+              "position": 9,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w10": {
+      "label": "待定系数法 · 小条第 10 题",
+      "path": "/topics/function-representations/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w10.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为 ______。",
+      "routes": {
+        "function-coefficients": {
+          "label": "待定系数法求函数解析式",
+          "methods": [
+            "method-function-coefficients"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "60586a484491cfabdc8808c9#1": {
+              "title": "按函数类型设一般式",
+              "position": 4,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            },
+            "0c15483542ffc991b5596280#1": {
+              "title": "把一般式代入题给关系",
+              "position": 5,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            },
+            "c6f2e04da3ea7ee46c1b1439#1": {
+              "title": "同次幂的系数分别相等",
+              "position": 6,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            },
+            "241a21d58fb2170979f3cc3c#1": {
+              "title": "求出所有系数",
+              "position": 7,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            },
+            "50fdcc09abe04af52479d0bc#1": {
+              "title": "把结果代回检查",
+              "position": 8,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            },
+            "cc493a8d635ba88caa30c135#1": {
+              "title": "解原题的不等式",
+              "position": 9,
+              "refs": [
+                "method-function-coefficients#recover",
+                "skill-simplify",
+                "skill-polynomial-coefficient-comparison",
+                "equality-properties#polynomial-coefficients",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b06": {
+      "label": "构造方程组法 · 例 6",
+      "path": "/topics/function-representations/q06a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b06.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知定义域为 $\\mathbb{R}$ 的函数 $f(x)$ 满足 $2f(x)-f(-x)=3x$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "69c46566b69e60e4eeeb3a80#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "95dc09bb3da18d3847ab91fd#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "4c6c5f1e1daca9f2380d4e78#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "b80b7d89757cf2d24dc5fc9d#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "85d6493b9f26142bcd8ce298#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b06-v": {
+      "label": "构造方程组法 · 例 6 变式",
+      "path": "/topics/function-representations/variant06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b06-v.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "若函数 $f(x)$ 满足 $2f(x)-f(\\frac{1}{x})=2x-1$，$x\\ne0$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "0c7d94d7bbd88d3b331b4545#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "7621d46f975e3c899e842ba4#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "e1835ab42e6ef468176f2c21#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "f0ca58cf26b1a1f9116ce647#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "cdfe73aaca1b26d9ae948e92#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w03": {
+      "label": "构造方程组法 · 小条第 3 题",
+      "path": "/topics/function-representations/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w03.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知定义在 $\\mathbb{R}$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "c4f5a9fc8d88a46f5628a520#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "3751f0c581b80f0e3299badf#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "49d4d4b7a4c8936bec326f03#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "67552aa3cb1db541fd8942e3#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "a4f515752d02c1646191614b#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w05": {
+      "label": "构造方程组法 · 小条第 5 题",
+      "path": "/topics/function-representations/q05b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w05.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知函数 $f(x)$ 满足 $f(x)-2f(\\frac{1}{x})=2x-1$，$x\\ne0$，则 $f(x)$ 的解析式为 ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "60374b3699dd333520b12829#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "e409f2c7e6fed7ff5a66e1e9#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "2bb6487aa04fcb0bceee1f1b#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "6f2f2be4333567c33c7a4405#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "37fd1e4dd35936f95ad0181b#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w06": {
+      "label": "构造方程组法 · 小条第 6 题",
+      "path": "/topics/function-representations/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w06.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(x)$ 满足 $3f(x)+2f(1-x)=4x$，则 $f(x)$ 解析式为 ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "28f66c41c3d4b995d78828e4#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "b8dd261c6a9d1f450ba8d30f#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "129b082b659c7c98ec9c789e#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "e3b66fcbb97bf4402ed3c2c3#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "94a1f48b42d655ab37f4736d#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w07": {
+      "label": "构造方程组法 · 小条第 7 题",
+      "path": "/topics/function-representations/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w07.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "若对于任意非零实数 $x$ 都有 $2f(x)-f(\\frac{1}{x})=2x+1$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "1c4ebe3e79ce880aa872e586#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "594a7110a7ed5882d97d81d1#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "04084e96a0d43b4d1cca98f8#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "0a94b62147a1ed378f616704#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "de1169675e127d42cdb37dd1#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w14": {
+      "label": "构造方程组法 · 小条第 14 题",
+      "path": "/topics/function-representations/q14/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w14.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "设 $x\\ne0$，函数 $f(x)$ 满足 $2f(x)+f(\\frac{1}{x})=10^x$，函数 $f(x)$ 的解析式为 ______。",
+      "routes": {
+        "function-system": {
+          "label": "构造方程组法求函数解析式",
+          "methods": [
+            "method-function-equation-system"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "aa79922849aef1bc82bde364#1": {
+              "title": "让两个函数值交换位置",
+              "position": 4,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "45708f3eceea87b665d82be5#1": {
+              "title": "写出第二个方程",
+              "position": 5,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "2a01ff35ad5f5c44f30de811#1": {
+              "title": "联立消去另一个函数值",
+              "position": 6,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "57af383b912ec273321bac58#1": {
+              "title": "把解析式代回原关系",
+              "position": 7,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "d2fc7909418a7bc90495b9b4#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-equation-system#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b07": {
+      "label": "赋值法 · 例 7",
+      "path": "/topics/function-representations/q07a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b07.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbb{R}$，$f(x+y)=2f(y)+x^2+2xy-y^2+3x-3y$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-assignment": {
+          "label": "赋值法求函数解析式",
+          "methods": [
+            "method-function-assignment"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "c45cf0b319ba9b6b9f314f2b#1": {
+              "title": "选择赋值，消去一个变量",
+              "position": 4,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "68ab2e163501f5001fe34c85#1": {
+              "title": "整理等式，求出函数值",
+              "position": 5,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "a8975c7a6edf02661a146573#1": {
+              "title": "得到任意输入的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "0b7149332b5534f55d72bf8e#1": {
+              "title": "分别代入，比较等式两边",
+              "position": 7,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "b7ed4ddfa41ac30406816aa2#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-b07-v": {
+      "label": "赋值法 · 例 7 变式",
+      "path": "/topics/function-representations/variant07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b07-v.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbb{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$ ______。",
+      "routes": {
+        "function-assignment": {
+          "label": "赋值法求函数解析式",
+          "methods": [
+            "method-function-assignment"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "2e749e72e6cf95ad844cc8aa#1": {
+              "title": "选择赋值，消去一个变量",
+              "position": 4,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "22ec90180a272441545e245c#1": {
+              "title": "先求出零对应的函数值",
+              "position": 5,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "e202f000ca6f679907b485a5#1": {
+              "title": "得到任意输入的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "22f041fa980e84d6f1749454#1": {
+              "title": "分别代入，比较等式两边",
+              "position": 7,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            },
+            "20d8c868d3c493f0af0d8b93#1": {
+              "title": "写出完整答案",
+              "position": 8,
+              "refs": [
+                "method-function-assignment#recover",
+                "skill-equality-transform",
+                "equality-properties#universal-substitution",
+                "method-elimination",
+                "equality-properties#addition",
+                "equality-properties#multiplication",
+                "skill-simplify",
+                "equality-properties#identity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w04": {
+      "label": "求函数的解析式 · 小条第 4 题",
+      "path": "/topics/function-representations/q04b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w04.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$，求 $f(x)$ 的解析式。",
+      "routes": {
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "86f38208361323a9c26638a4#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "8623d93f213ddb155b0183f0#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "d663cad11966202515c35a4e#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "15e678447d7bea5515c0c445#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "36294e9ef54d48fe2b58d2f6#1": {
+              "title": "整体换元，确定新变量范围",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "de96cd62369f84680a5eb503#1": {
+              "title": "合法反解原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "24b0fdcf026575698c51c150#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "198e08c8dfb2d0f0f06db526#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-representations-w11": {
+      "label": "求函数的解析式 · 小条第 11 题",
+      "path": "/topics/function-representations/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-w11.json",
+      "types": [
+        "type-function-formula"
+      ],
+      "statement": "已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$ ______。",
+      "routes": {
+        "function-substitution": {
+          "label": "换元法求函数解析式",
+          "methods": [
+            "method-function-substitution"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "5d360c087cfc8e7b48836561#1": {
+              "title": "整体换元，确定新变量范围",
+              "position": 4,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "9e4627aa653439635be06306#1": {
+              "title": "合法反解原变量",
+              "position": 5,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "2bff8ce8c68d5ea5925cb0b4#1": {
+              "title": "把右式全部改写为新变量",
+              "position": 6,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "7798c98fefb6516011e32594#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-substitution#recover",
+                "skill-expression-defined",
+                "method-substitution",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        },
+        "function-matching": {
+          "label": "配凑法求函数解析式",
+          "methods": [
+            "method-function-matching"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "fa4a39b339613e75956b3698#1": {
+              "title": "展开平方，寻找相同的项",
+              "position": 4,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "86892c5023c49aa237cd55be#1": {
+              "title": "把右边配成同一个式子",
+              "position": 5,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "ce9f1daaa391f996fe17729c#1": {
+              "title": "读出函数的解析式",
+              "position": 6,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            },
+            "fcbd3029dda3f6a952604bd1#1": {
+              "title": "写出完整答案",
+              "position": 7,
+              "refs": [
+                "method-function-matching#recover",
+                "method-complete-square",
+                "equality-properties#identity",
+                "skill-simplify",
+                "skill-equality-transform"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
   "path": "/topics/function-representations/",
   "presentation": "topic-overview",
-  "content_version": "bbd141f165fcef71f48b791ac3f74dffed1cf9d7be2b4a75daecbd47e0bf7797"
+  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515"
 }

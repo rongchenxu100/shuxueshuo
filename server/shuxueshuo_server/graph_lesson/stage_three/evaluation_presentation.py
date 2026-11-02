@@ -305,6 +305,9 @@ def _composite_input_card(description, target):
 
 def phase_views(values):
     description, result, phase = values['description'], values['evaluation_result'], values['phase']
+    if 'relation_ast' in description:
+        from .matching_presentation import value_view
+        return [value_view(description, result, phase)]
     calls, defined = result.get('calls', []), result.get('defined', True)
     target = _ast(description['expression_ast'], description) if description['kind'] != 'finite_sum' else ''
     domain = _domain_latex(result['domain'])

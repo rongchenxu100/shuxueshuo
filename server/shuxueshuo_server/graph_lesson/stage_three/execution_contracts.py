@@ -447,6 +447,13 @@ def revisions():
     ):
         result[name] = hashlib.sha256((folder / f"{name}.py").read_bytes()).hexdigest()
     result["function_evaluation"] = hashlib.sha256((folder.parent / "function_evaluation.py").read_bytes()).hexdigest()
+    result['function_formula'] = hashlib.sha256((folder.parent / 'function_formula.py').read_bytes()).hexdigest()
+    result['function_matching'] = hashlib.sha256((folder.parent / 'function_matching.py').read_bytes()).hexdigest()
+    result['function_coefficients'] = hashlib.sha256((folder.parent / 'function_coefficients.py').read_bytes()).hexdigest()
+    result['function_assignment'] = hashlib.sha256((folder.parent / 'function_assignment.py').read_bytes()).hexdigest()
+    result['function_system'] = hashlib.sha256((folder.parent / 'function_system.py').read_bytes()).hexdigest()
+    for name in ('formula_runtime', 'formula_presentation', 'matching_runtime', 'matching_presentation', 'coefficients_runtime', 'coefficients_presentation', 'system_runtime', 'system_presentation', 'assignment_runtime', 'assignment_presentation'):
+        result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
     result["evaluation_runtime"] = hashlib.sha256((folder / "evaluation_runtime.py").read_bytes()).hexdigest()
     result["evaluation_presentation"] = hashlib.sha256((folder / "evaluation_presentation.py").read_bytes()).hexdigest()
     result["evaluation_algebra"] = hashlib.sha256((folder / "evaluation_algebra.py").read_bytes()).hexdigest()

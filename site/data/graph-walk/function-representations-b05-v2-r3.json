@@ -1,0 +1,1967 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-v2-r3",
+  "graphVersion": "20d110e5ecbab122036621d714e832a18a214321de6e5f1e7ef61f1ca0bda0c9",
+  "problem": {
+    "text": "已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这道题需要求什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "求出函数解析式，并写出适用范围"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "只求出函数解析式",
+            "feedback": "还要写明求出的解析式在哪些输入上成立。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "还要写明求出的解析式在哪些输入上成立。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-abstract-function-domain",
+        "type-function-formula",
+        "type-function-domain",
+        "type-function-equality",
+        "type-function-evaluation",
+        "type-function-range",
+        "type-piecewise-composition",
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "求出函数解析式，并写出适用范围"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域"
+          },
+          {
+            "value": "type-function-formula",
+            "label": "求函数的解析式",
+            "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-formula"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-abstract-function-domain",
+        "type-function-formula"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-formula"
+        ],
+        "edges": [
+          "type-function-formula|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+        ],
+        "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "composite_input"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "这道题的线索在函数括号里：可以换元，也可以尝试配凑。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "如一次函数、二次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "函数括号里是一个式子",
+                "note": "如 $f\\left(\\sqrt{x} + 1\\right)$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "函数括号里是 $\\sqrt{x} + 1$。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation"
+        ],
+        "type": "method_cards",
+        "methods": [
+          {
+            "value": "coefficients",
+            "label": "待定系数法"
+          },
+          {
+            "value": "substitution",
+            "label": "换元法",
+            "target": "method-function-substitution",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "function-substitution"
+          },
+          {
+            "value": "matching",
+            "label": "配凑法"
+          },
+          {
+            "value": "system",
+            "label": "构造方程组法"
+          },
+          {
+            "value": "assignment",
+            "label": "赋值法"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+          "value": "not_triggered"
+        },
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。",
+          "value": "fit"
+        },
+        "substitution": {
+          "message": "把函数括号里的式子设为新变量：先令 $t=\\sqrt{x} + 1$，再把右边改写成 $t$ 的式子。",
+          "value": "fit"
+        },
+        "system": {
+          "message": "这里没有两个相互关联的函数值，暂不需要构造方程组。",
+          "value": "not_triggered"
+        }
+      },
+      "source": "authored",
+      "alternatives": {
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。"
+        }
+      },
+      "candidateNodes": [
+        "rule-function-formula-method",
+        "method-function-substitution"
+      ],
+      "effects": {
+        "nodes": [
+          "rule-function-formula-method"
+        ],
+        "edges": [
+          "type-function-formula|method_rule|rule-function-formula-method"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "根据本题条件选择解题方法。"
+      }
+    }
+  ],
+  "routes": {
+    "function-substitution": {
+      "id": "function-substitution",
+      "method": "method-function-substitution",
+      "label": "换元法求函数解析式",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "整体换元，确定新变量范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原关系与换元",
+                "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\t=\\sqrt{x} + 1\\end{gathered}"
+              },
+              {
+                "label": "整体输入的范围",
+                "math": "t\\in\\left[1, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$x\\geq0$\n$\\sqrt{x}\\geq0$\n$t\\in\\left[1, \\infty\\right)$"
+          },
+          "id": "63cf1e81e9cb396c7d998c4d#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left\\{1\\right\\}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(1, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left[1, \\infty\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "根式要求原变量 $x\\geq0$。令 $t=\\sqrt{x} + 1$，新变量 $t$ 能取哪些值？",
+          "stem_board": {
+            "caption": "整体换元，确定新变量范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原关系与换元",
+                "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\t=\\sqrt{x} + 1\\end{gathered}"
+              },
+              {
+                "label": "整体输入的范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "整体换元，确定新变量范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "d8f8df26cd441dcc506fac731f0aba23639488420885a2c2f467669ca2e32c07",
+              "step_id": "39e5646dcb-function-substitution-001-input_range"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "63cf1e81e9cb396c7d998c4d",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "整体换元，确定新变量范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：整体换元，确定新变量范围"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "合法反解原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元与范围",
+                "math": "\\begin{gathered}t=\\sqrt{x} + 1\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "原变量",
+                "math": "x=\\left(t - 1\\right)^{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$"
+          },
+          "id": "d91f5f355228d2cfc8ad2e94#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x=\\left(t - 1\\right)^{2}$",
+                "value": "o1"
+              },
+              {
+                "label": "$x=t - 1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先利用新变量的范围确认根式非负，再平方。原变量可以怎样表示？",
+          "stem_board": {
+            "caption": "合法反解原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元与范围",
+                "math": "\\begin{gathered}t=\\sqrt{x} + 1\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "原变量",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "合法反解原变量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b262ec5016bae0098a7deb026c87cef23a359b698aa71901327224041d0b9e24",
+              "step_id": "39e5646dcb-function-substitution-002-inverse"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "d91f5f355228d2cfc8ad2e94",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "合法反解原变量",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：合法反解原变量"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把右式全部改写为新变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与反解",
+                "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+              },
+              {
+                "label": "恢复的规则",
+                "math": "f(t)=2 t^{2} - 4 t + 3"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$"
+          },
+          "id": "ea853aca7acec16bfd220a7d#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(t)=2 t + 1$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(t)=2 t^{2} - 4 t + 3$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将已得到的反解代入原关系，$f(t)$ 等于什么？",
+          "stem_board": {
+            "caption": "把右式全部改写为新变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与反解",
+                "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+              },
+              {
+                "label": "恢复的规则",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把右式全部改写为新变量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "da9a6db32ed86c764b2b6075fd416fe7ac6a1b2bccd2c5552204f4a1d78f474c",
+              "step_id": "39e5646dcb-function-substitution-003-rewrite"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "ea853aca7acec16bfd220a7d",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把右式全部改写为新变量",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把右式全部改写为新变量"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "检查覆盖并写出带范围的答案",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求规则与合法反解",
+                "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+              },
+              {
+                "label": "本题可确定的规则",
+                "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$\n$t=\\sqrt{x} + 1$\n$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$ 任取此范围内的输入，反解都合法；代回原关系恒成立。 范围外的规则不能由这条关系确定。"
+          },
+          "id": "fa361e738e3019628be7cea0#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "结果是多项式，所以已确定全体实数上的规则",
+                "value": "o2"
+              },
+              {
+                "label": "题给关系确定 $\\left[1, \\infty\\right)$ 上的规则",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "任取上述范围内的新变量，反解都能给出合法的原输入。最终结论确定了哪个范围的规则？",
+          "stem_board": {
+            "caption": "检查覆盖并写出带范围的答案",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求规则与合法反解",
+                "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+              },
+              {
+                "label": "本题可确定的规则",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "检查覆盖并写出带范围的答案",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "d9bd7532776d96743d97c445b100de419709e3767dc2a83df32206f327c4bff2",
+              "step_id": "39e5646dcb-function-substitution-004-coverage"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "fa361e738e3019628be7cea0",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "检查覆盖并写出带范围的答案",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：检查覆盖并写出带范围的答案"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "3"
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "Pow",
+                      "args": [
+                        {
+                          "$math": "Symbol",
+                          "name": "t"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "2*t**2 - 4*t + 3",
+            "latex": "2 t^{2} - 4 t + 3"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(0, oo)",
+            "latex": "\\left[0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "math_steps": [
+          {
+            "math_step_sha256": "d8f8df26cd441dcc506fac731f0aba23639488420885a2c2f467669ca2e32c07",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          },
+          {
+            "math_step_sha256": "b262ec5016bae0098a7deb026c87cef23a359b698aa71901327224041d0b9e24",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          },
+          {
+            "math_step_sha256": "da9a6db32ed86c764b2b6075fd416fe7ac6a1b2bccd2c5552204f4a1d78f474c",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          },
+          {
+            "math_step_sha256": "d9bd7532776d96743d97c445b100de419709e3767dc2a83df32206f327c4bff2",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "106013e3ceb6ce4a2561ed48f1e027607fc129f57ac100d67f827bc8adeb2e9f",
+        "verified_route_sha256": "45ad7b3d637540e6f18541466bd81175c0f3f7d58ca99f3c9a21acd0f10938e5"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-formula",
+        "kind": "problem_type",
+        "label": "求函数的解析式",
+        "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-composition",
+        "kind": "problem_type",
+        "label": "复合型分段函数问题",
+        "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "rule-function-formula-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "求函数解析式的选法判断",
+        "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-function-substitution",
+        "kind": "method",
+        "label": "换元法求函数解析式",
+        "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "整体换元并恢复规则",
+            "calls": [
+              "skill-expression-defined",
+              "method-substitution",
+              "skill-simplify",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "独立核验规则与覆盖",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined",
+        "kind": "skill",
+        "label": "提取表达式有意义的条件",
+        "summary": "按原式结构找到根号、分母、零次幂底数等限制位置，逐条列出有意义的条件并保留出处。",
+        "aliases": []
+      },
+      {
+        "id": "method-substitution",
+        "kind": "skill",
+        "label": "换元",
+        "summary": "把一个碍事或反复出现的整体设成新字母，条件、要求的式子和取值范围都跟着换成新字母。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-equality-transform",
+        "kind": "skill",
+        "label": "等式变形与推导",
+        "summary": "用两边同加减、同乘除等办法整理等式，并分清每一步能不能倒推回去。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-function-substitution|calls|method-substitution",
+        "from": "method-function-substitution",
+        "to": "method-substitution",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-equality-transform",
+        "from": "method-function-substitution",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-expression-defined",
+        "from": "method-function-substitution",
+        "to": "skill-expression-defined",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-simplify",
+        "from": "method-function-substitution",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-substitution",
+        "from": "rule-function-formula-method",
+        "to": "method-function-substitution",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "substitution",
+            "condition": "当前支持 f(a√x+b)=ux+v√x+w，固定有理系数且 a≠0；整体换元后保留新变量范围，再反解原变量。"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-substitution",
+        "from": "type-function-formula",
+        "to": "method-function-substitution",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|involves|function-concept",
+        "from": "type-function-formula",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|method_rule|rule-function-formula-method",
+        "from": "type-function-formula",
+        "to": "rule-function-formula-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-composition|involves|function-concept",
+        "from": "type-piecewise-composition",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|function-concept",
+        "from": "type-piecewise-function",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-expression-defined",
+          "method-substitution",
+          "skill-simplify",
+          "skill-equality-transform"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"4a400b372c3b3dd6d49c3cdee7d56ddeacaac40c231ce3d3083b5fcbb46504fe\",\"91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c\",\"77197ee5846447a48c38bd3bcc534b5e\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+    "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+    "stream_id": "77197ee5846447a48c38bd3bcc534b5e",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "4a400b372c3b3dd6d49c3cdee7d56ddeacaac40c231ce3d3083b5fcbb46504fe",
+    "d3": {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "composite_input"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "这道题的线索在函数括号里：可以换元，也可以尝试配凑。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "如一次函数、二次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "函数括号里是一个式子",
+                "note": "如 $f\\left(\\sqrt{x} + 1\\right)$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "函数括号里是 $\\sqrt{x} + 1$。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation"
+        ],
+        "type": "method_cards"
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+          "value": "not_triggered"
+        },
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。",
+          "value": "fit"
+        },
+        "substitution": {
+          "message": "把函数括号里的式子设为新变量：先令 $t=\\sqrt{x} + 1$，再把右边改写成 $t$ 的式子。",
+          "value": "fit"
+        },
+        "system": {
+          "message": "这里没有两个相互关联的函数值，暂不需要构造方程组。",
+          "value": "not_triggered"
+        }
+      }
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "substitution",
+          "message": "开始解题",
+          "method": "method-function-substitution",
+          "recommendation": "preferred",
+          "route_id": "function-substitution",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "按所选方法解题"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "input_range",
+        "explanation": "$x\\geq0$\n$\\sqrt{x}\\geq0$\n$t\\in\\left[1, \\infty\\right)$",
+        "highlight": {
+          "caption": "整体换元，确定新变量范围",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原关系与换元",
+              "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\t=\\sqrt{x} + 1\\end{gathered}"
+            },
+            {
+              "label": "整体输入的范围",
+              "math": "t\\in\\left[1, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "local_check": "passed",
+        "math_step_sha256": "d8f8df26cd441dcc506fac731f0aba23639488420885a2c2f467669ca2e32c07",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "9a928f59ef215518c109bd370811f80ba4cf132f80bc312b2403a07536bc2749",
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "target_ref": "/root/goals/0",
+        "title": "整体换元，确定新变量范围",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inverse",
+        "explanation": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$",
+        "highlight": {
+          "caption": "合法反解原变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "换元与范围",
+              "math": "\\begin{gathered}t=\\sqrt{x} + 1\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+            },
+            {
+              "label": "原变量",
+              "math": "x=\\left(t - 1\\right)^{2}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "local_check": "passed",
+        "math_step_sha256": "b262ec5016bae0098a7deb026c87cef23a359b698aa71901327224041d0b9e24",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "9a928f59ef215518c109bd370811f80ba4cf132f80bc312b2403a07536bc2749",
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "target_ref": "/root/goals/0",
+        "title": "合法反解原变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "rewrite",
+        "explanation": "$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$",
+        "highlight": {
+          "caption": "把右式全部改写为新变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原式与反解",
+              "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+            },
+            {
+              "label": "恢复的规则",
+              "math": "f(t)=2 t^{2} - 4 t + 3"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "local_check": "passed",
+        "math_step_sha256": "da9a6db32ed86c764b2b6075fd416fe7ac6a1b2bccd2c5552204f4a1d78f474c",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "9a928f59ef215518c109bd370811f80ba4cf132f80bc312b2403a07536bc2749",
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "target_ref": "/root/goals/0",
+        "title": "把右式全部改写为新变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "coverage",
+        "explanation": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$\n$t=\\sqrt{x} + 1$\n$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$ 任取此范围内的输入，反解都合法；代回原关系恒成立。 范围外的规则不能由这条关系确定。",
+        "highlight": {
+          "caption": "检查覆盖并写出带范围的答案",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已求规则与合法反解",
+              "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+            },
+            {
+              "label": "本题可确定的规则",
+              "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "local_check": "passed",
+        "math_step_sha256": "d9bd7532776d96743d97c445b100de419709e3767dc2a83df32206f327c4bff2",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "9a928f59ef215518c109bd370811f80ba4cf132f80bc312b2403a07536bc2749",
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "target_ref": "/root/goals/0",
+        "title": "检查覆盖并写出带范围的答案",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-001-input_range\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-002-inverse\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-003-rewrite\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-004-coverage\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "ordinal": 1,
+        "math_step_sha256": "d8f8df26cd441dcc506fac731f0aba23639488420885a2c2f467669ca2e32c07",
+        "status": "interactive",
+        "interaction_id": "63cf1e81e9cb396c7d998c4d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "ordinal": 2,
+        "math_step_sha256": "b262ec5016bae0098a7deb026c87cef23a359b698aa71901327224041d0b9e24",
+        "status": "interactive",
+        "interaction_id": "d91f5f355228d2cfc8ad2e94"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "ordinal": 3,
+        "math_step_sha256": "da9a6db32ed86c764b2b6075fd416fe7ac6a1b2bccd2c5552204f4a1d78f474c",
+        "status": "interactive",
+        "interaction_id": "ea853aca7acec16bfd220a7d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "ordinal": 4,
+        "math_step_sha256": "d9bd7532776d96743d97c445b100de419709e3767dc2a83df32206f327c4bff2",
+        "status": "interactive",
+        "interaction_id": "fa361e738e3019628be7cea0"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "63cf1e81e9cb396c7d998c4d",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "138127b3b94401dcd3cb9e3724a7c7159fc7f9839686920e551f61e5d236cb46",
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "整体换元，确定新变量范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系与换元",
+                  "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\t=\\sqrt{x} + 1\\end{gathered}"
+                },
+                {
+                  "label": "整体输入的范围",
+                  "math": "t\\in\\left[1, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$x\\geq0$\n$\\sqrt{x}\\geq0$\n$t\\in\\left[1, \\infty\\right)$"
+            },
+            "id": "63cf1e81e9cb396c7d998c4d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{1\\right\\}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(1, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[1, \\infty\\right)$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根式要求原变量 $x\\geq0$。令 $t=\\sqrt{x} + 1$，新变量 $t$ 能取哪些值？",
+            "stem_board": {
+              "caption": "整体换元，确定新变量范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系与换元",
+                  "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\t=\\sqrt{x} + 1\\end{gathered}"
+                },
+                {
+                  "label": "整体输入的范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "整体换元，确定新变量范围"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d8f8df26cd441dcc506fac731f0aba23639488420885a2c2f467669ca2e32c07",
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "d91f5f355228d2cfc8ad2e94",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "879bbed2b03512aadeb96245dfae173e6eeead60cc47c098117fe88cde318d4e",
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合法反解原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=\\sqrt{x} + 1\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": "x=\\left(t - 1\\right)^{2}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$"
+            },
+            "id": "d91f5f355228d2cfc8ad2e94#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x=\\left(t - 1\\right)^{2}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x=t - 1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先利用新变量的范围确认根式非负，再平方。原变量可以怎样表示？",
+            "stem_board": {
+              "caption": "合法反解原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=\\sqrt{x} + 1\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "合法反解原变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b262ec5016bae0098a7deb026c87cef23a359b698aa71901327224041d0b9e24",
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ea853aca7acec16bfd220a7d",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "cf160070284c8162b4352dc7787937631ed7ebabf10fcf77b80ea6fa76b071cc",
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": "f(t)=2 t^{2} - 4 t + 3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$"
+            },
+            "id": "ea853aca7acec16bfd220a7d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(t)=2 t + 1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(t)=2 t^{2} - 4 t + 3$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将已得到的反解代入原关系，$f(t)$ 等于什么？",
+            "stem_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(\\sqrt{x} + 1)=2 x + 1\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把右式全部改写为新变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "da9a6db32ed86c764b2b6075fd416fe7ac6a1b2bccd2c5552204f4a1d78f474c",
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "fa361e738e3019628be7cea0",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "bf28fccd9fbb4f80545a7f95fac77b9cfd1db5f5df365c63f2593320309c690e",
+        "lesson_version": "91a44b015a2386d03fd199cbc7d9cb9c7bf64664fb53954d0fd30c24eb39109c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查覆盖并写出带范围的答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已求规则与合法反解",
+                  "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+                },
+                {
+                  "label": "本题可确定的规则",
+                  "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$\\sqrt{x}=t - 1\\geq0$\n$x=\\left(t - 1\\right)^{2}$\n$t=\\sqrt{x} + 1$\n$f(t)=2 t^{2} - 4 t + 3$\n$t\\in\\left[1, \\infty\\right)$ 任取此范围内的输入，反解都合法；代回原关系恒成立。 范围外的规则不能由这条关系确定。"
+            },
+            "id": "fa361e738e3019628be7cea0#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "结果是多项式，所以已确定全体实数上的规则",
+                  "value": "o2"
+                },
+                {
+                  "label": "题给关系确定 $\\left[1, \\infty\\right)$ 上的规则",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "任取上述范围内的新变量，反解都能给出合法的原输入。最终结论确定了哪个范围的规则？",
+            "stem_board": {
+              "caption": "检查覆盖并写出带范围的答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已求规则与合法反解",
+                  "math": "\\begin{gathered}f(t)=2 t^{2} - 4 t + 3\\\\t\\in\\left[1, \\infty\\right)\\\\\\sqrt{x}=t - 1\\geq0\\\\x=\\left(t - 1\\right)^{2}\\end{gathered}"
+                },
+                {
+                  "label": "本题可确定的规则",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查覆盖并写出带范围的答案"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "77197ee5846447a48c38bd3bcc534b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d9bd7532776d96743d97c445b100de419709e3767dc2a83df32206f327c4bff2",
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

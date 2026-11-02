@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b04",
+  "title": "待定系数法 · 例 4",
+  "page": "/topics/function-representations/q04/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-b04.evidence.json"
+}

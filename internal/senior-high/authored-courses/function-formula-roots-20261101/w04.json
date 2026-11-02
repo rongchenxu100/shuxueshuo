@@ -1,0 +1,31 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w04",
+  "reviewer": "Codex：对照用户原图逐字核对根号范围、符号和所求；本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第 4 题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$，求 $f(x)$ 的解析式。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(sqrt(x)+1)=x+2*sqrt(x)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "t**2-1",
+    "determined_domain": "Interval(1, oo)",
+    "source_domain": "Interval(0, oo)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

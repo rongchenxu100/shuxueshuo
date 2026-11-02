@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w01",
+  "title": "待定系数法 · 小条第 1 题",
+  "page": "/topics/function-representations/q01/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x+6$，则 $f(x)$ 的解析式为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w01.evidence.json"
+}

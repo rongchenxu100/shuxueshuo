@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-v1",
+  "title": "分式换元求函数解析式 · 例 5 变式 1",
+  "page": "/topics/function-representations/variant01/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-b05-v1.evidence.json",
+  "statement": "已知 $f(\\frac{x}{x+1})=x-1$，则 $f(x)=$ ______。"
+}

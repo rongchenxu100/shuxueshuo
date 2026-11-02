@@ -1,10 +1,12 @@
-import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261031-fraction-methods';
-import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261030-range-selection';
+import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261101-method-map';
+import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261101-map';
+import {formulaAnswerHTML} from './formula-answer.mjs?v=20261101-fraction';
+import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261101-coefficients';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261030-pairing-diagram';
+import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261101-coefficients';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
-import {buildStreamReplay} from './walk-replay.mjs?v=20261030-range-selection';
+import {buildStreamReplay} from './walk-replay.mjs?v=20261101-coefficients';
 import {optionProgress, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';
@@ -21,6 +23,7 @@ let draft = null, draftKey = '', selectedSlot = null, submitted = null, busy = f
 let reviewOption = null;
 // The student's unsubmitted answer when this bundle was parked; picked up once its step renders again.
 let keptDraft = null;
+let disposeMethodConnections = () => {};
 let actor = 'student', replay = null, replayPosition = 0, replayTimer = null, replayPlaying = false, replayTicket = 0, loadTicket = 0;
 let replayEntries = [], replayIndexLoaded = false, replayNotice = null, focusBeforeGraph = null, commitTimer = null;
 let graphMode = readGraphMode(), webglFailed = false, graphTicket = 0;
@@ -290,6 +293,7 @@ function gridChoice(decision, answer) {
 }
 
 function ready(decision) {
+  if (decision.interaction.layout === 'connections') return draft.checks.every(Boolean) && Boolean(draft.method);
   if (decision.interaction.type === 'method_cards') return draft.confirmed === decision.interaction.checks.length && Boolean(draft.method);
   if (decision.interaction.type === 'read') return true;
   if (decision.interaction.type === 'choice') return draft != null;
@@ -432,7 +436,8 @@ function completedHTML(record, number, runId, route) {
   const summary = answerSummary(decision, record.answer);
   const methodNote = decision.interaction.type === 'read' && decision.question && decision.question !== summary
     ? `<p class="gw-result" data-math-text>${escapeHTML(decision.question.replace(/^使用[^：]+：/, ''))}</p>` : '';
-  const body = decision.source === 'stream' && decision.stream_last_part
+  const body = decision.answer_completion ? formulaAnswerHTML(decision, record.answer, false)
+    : decision.source === 'stream' && decision.stream_last_part
     ? `${completionBoardHTML(decision)}${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
     : decision.completion_board ? completionBoardHTML(decision)
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
@@ -469,6 +474,7 @@ function completionBoardHTML(decision) {
 }
 
 function partAnswerHTML(decision, answer) {
+  if (decision.answer_completion) return formulaAnswerHTML(decision, answer, false);
   if (decision.completion_board) return completionBoardHTML(decision);
   return decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, answer)
     : `<p class="gw-answer" data-math-text>${escapeHTML(answerSummary(decision, answer))}</p>`;
@@ -527,6 +533,7 @@ function textOptionsHTML(decision) {
 
 function interactionHTML(decision) {
   const component = decision.interaction;
+  if (decision.answer_completion) return formulaAnswerHTML(decision, draft);
   if (component.type === 'read') return '';
   const board = template(decision.board, `gw-${activeRunId()}-${decision.id}-active`);
   if (['choice', 'multi'].includes(component.type) && optionsOf(component).some(option => option.graph)) return board + graphOptionsHTML(decision);
@@ -637,6 +644,7 @@ function carryHTML() {
   const current = bundle.stream ? currentDecision(bundle, state) : null, premises = mergePremisesHTML(current);
   const active = current || bundle.routes?.[state.run?.route]?.steps?.[state.run?.completed?.length || 0];
   if (active?.stem_board?.layout === 'derivation') return '';
+  if (active?.interaction.layout === 'connections') return '';
   if (active?.interaction.type === 'original_choice_exact_set' || active?.source === 'original_choice' && active.require_complete_options) return '';
   if (active?.option_context && decision?.option_context?.option_id !== active.option_context.option_id) return '';
   const transition = bundle.stream && caseCarryHTML(decision, current);
@@ -668,7 +676,7 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
   const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
-  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.stem_board ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
+  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.stem_board && !decision.answer_completion ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
   // Frozen before formulas are derivation inputs, not necessarily givens: they can be
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
   // or the completed-step carry above; only read cards reveal the mathematical record.
@@ -701,6 +709,10 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
     button.setAttribute('aria-haspopup', 'false');
   }
   hydrate(host);
+  if (decision.interaction.layout === 'connections') {
+    disposeMethodConnections();
+    disposeMethodConnections = mountMethodConnections($('#gw-steps'));
+  }
   if (focus) host.querySelector(focus)?.focus({preventScroll: true});
 }
 
@@ -1050,6 +1062,8 @@ function render({focus = false, scroll = focus} = {}) {
   const completedCount = introCount + units.length;
   $('#gw-progress').textContent = `${completedCount} 个步骤已确认${actor === 'replay' ? ` · AI 回放 ${replayPosition} / ${replay?.actions.length || 0}` : ''}`;
   hydrate($('#gw-steps')); hydrate($('#gw-completion'));
+  disposeMethodConnections();
+  disposeMethodConnections = mountMethodConnections($('#gw-steps'));
   // A completion picture replaces its fallback only after every picture has drawn successfully.
   mountCompletedMath();
   renderGraph();
@@ -1484,7 +1498,7 @@ const streamCardKey = step => JSON.stringify([step.run_id, step.lesson_version, 
 const streamQAKey = chunk => JSON.stringify([streamCardKey(chunk), chunk.verified_route_sha256]);
 
 function decisionMathSteps(decision) {
-  const route = state.run?.route;
+  const route = decision.route_id || state.run?.route;
   return (decision.stream_steps || []).map(ref => bundle.stream.math_steps.find(step =>
     step.target_ref === (decision.target_ref || bundle.stream.target_ref) && step.route_id === route && step.step_id === ref.step_id &&
     step.math_step_sha256 === ref.math_step_sha256)).filter(Boolean);
@@ -1494,8 +1508,11 @@ function streamCompletion(route, targetRef = null) {
   const target = targetRef || bundle.stream.target_ref;
   const goal = streamView?.goals?.[target];
   if (goal && (goal.available === false || goal.status === 'conflict' || goal.reason === 'route_consistency_undecidable')) return null;
-  const current = bundle.routes[route], completion = targetRef && current?.goal_completions
-    ? current.goal_completions.find(value => value.target_ref === targetRef) : current?.completion;
+  const matchesGoal = value => value.target_ref === target && value.route_id === route;
+  const current = bundle.routes[route] || (targetRef && Object.values(bundle.routes).find(value =>
+    value.goal_completions?.some(matchesGoal)));
+  const completion = targetRef && current?.goal_completions
+    ? current.goal_completions.find(matchesGoal) : current?.completion;
   if (current?.available === false || !current?.math_complete || completion?.status !== 'verified' ||
       completion.available === false || completion.run_id !== bundle.stream.run_id ||
       completion.lesson_version !== bundle.stream.lesson_version ||
@@ -1694,17 +1711,25 @@ function bind() {
       return;
     }
     if (button.id === 'gw-submit') { submit(); return; }
-    const focus = button.dataset.choice != null ? `[data-choice][data-value="${CSS.escape(button.dataset.value)}"]`
+    const focus = button.dataset.methodLink != null ? `[data-method-link="${CSS.escape(button.dataset.methodLink)}"]`
+      : button.dataset.cardMethod != null ? `[data-card-method="${CSS.escape(button.dataset.cardMethod)}"]`
+      : button.dataset.choice != null ? `[data-choice][data-value="${CSS.escape(button.dataset.value)}"]`
       : button.dataset.pairAnswer != null ? `[data-pair-answer="${button.dataset.pairAnswer}"][data-value="${CSS.escape(button.dataset.value)}"]`
       : button.dataset.multi != null ? `[data-multi="${CSS.escape(button.dataset.multi)}"]`
         : button.dataset.planeCell != null ? `[data-plane-cell="${CSS.escape(button.dataset.planeCell)}"]`
         : button.dataset.gridCell != null ? `[data-grid-cell="${CSS.escape(button.dataset.gridCell)}"]`
           : button.dataset.planeMethod != null ? `[data-plane-method="${CSS.escape(button.dataset.planeMethod)}"]` : null;
-    if (button.hasAttribute('data-method-check')) changeDraft(() => {
+    if (button.hasAttribute('data-method-link')) changeDraft(() => {
+      draft.checks[0] = button.dataset.methodLink; state.lastFeedback = null;
+    });
+    else if (button.hasAttribute('data-method-check')) changeDraft(() => {
       const i = Number(button.dataset.methodCheck); draft.checks[i] = button.dataset.value; draft.confirmed = i; draft.method = ''; state.lastFeedback = null;
     });
     else if (button.hasAttribute('data-method-confirm')) changeDraft(decision => confirmMethodCondition(decision, Number(button.dataset.methodConfirm) + 1));
-    else if (button.hasAttribute('data-card-method')) changeDraft(() => { draft.method = button.dataset.cardMethod; });
+    else if (button.hasAttribute('data-card-method')) changeDraft(decision => {
+      if (decision.interaction.layout === 'connections' && decision.interaction.connections) draft = connectedMethodAnswer(decision, button.dataset.cardMethod);
+      else draft.method = button.dataset.cardMethod;
+    });
     else if (button.hasAttribute('data-choice')) changeDraft(() => { draft = button.dataset.value; });
     else if (button.hasAttribute('data-pair-answer')) changeDraft(() => { draft[Number(button.dataset.pairAnswer)] = button.dataset.value; });
     else if (button.hasAttribute('data-multi')) changeDraft(() => { const value = button.dataset.multi; draft = draft.includes(value) ? draft.filter(item => item !== value) : [...draft, value]; });
@@ -1822,6 +1847,7 @@ export function parkWalk() {
 
 export function disposeWalk() {
   disposed = true;
+  disposeMethodConnections();
   streamParked = true;
   ++graphTicket;
   ++streamUpdateTicket; ++mountTicket; ++loadTicket; ++replayTicket;

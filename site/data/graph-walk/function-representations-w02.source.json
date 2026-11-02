@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w02",
+  "title": "一次式换元求函数解析式 · 小条第 2 题",
+  "page": "/topics/function-representations/q02/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-w02.evidence.json",
+  "statement": "已知 $f(x-1)=x^2-2x+7$，则 $f(x)=$ ______。"
+}

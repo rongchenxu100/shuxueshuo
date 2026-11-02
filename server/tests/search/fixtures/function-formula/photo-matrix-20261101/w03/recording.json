@@ -1,0 +1,60 @@
+{
+  "contract": "student-search-recording/v1",
+  "case": "w03",
+  "source": "internal/senior-high/source-images/function-formula-photo-extra-20261101/manifest.json",
+  "source_manifest_sha256": "80b93a650c07ef8113d4a62a20f165e008f242bcd25509bbd540eac79c3bf4f7",
+  "source_kind": "original_page_polygon_crop_product_preprocessing",
+  "usage": "development_regression_not_unseen_holdout",
+  "recorded_date": "2026-11-01",
+  "upload_source": "internal/senior-high/source-images/function-formula-photo-extra-20261101/w03-question.png",
+  "upload_source_sha256": "4f6525d9525958d89098048569970acead259ede6ceebdf6b956cd86a957ef12",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "notes": "Real extraction/review, with no answer or gold input. CLI product preprocessing; not browser upload or unseen holdout.",
+  "sanitization": {
+    "removed": "Only provider identifiers and URLs; model response text is unchanged.",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id",
+      "workflow/calls/02-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/02-review/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "question.png": "45564bc2aa4d1c6895da142c86f01e51d7470820500a90a3956ca15e5a6ba840",
+    "result.json": "c629e4f0aa319d3a67ed10e9bcfcc68283f5c5d6e9089a160e9a86bb90af2786",
+    "workflow/ledger.json": "2ffa30067d5381f34312c1221d06c2508e9bf9f0ce25b266b4789585bb2d0434",
+    "workflow/candidate.json": "1d2f1c37adf66b474d1e28cdd10621afb736cbb8966e1bff92830abf66c794bd",
+    "workflow/latest-review.json": "8656c40e1c155bbbdb018576bb8a8a4101389f18286972e4ce4bf704ed5ab579",
+    "workflow/workflow-result.json": "39afb5d52bfd0d63d988e868e9b0fd7e6249bbefef074a788c03e5e134b7773d",
+    "workflow/calls/01-extract/request.json": "ffe19666e45245c57a6cf7ead1452063ef59013193402793ee51de748aabb182",
+    "workflow/calls/01-extract/response.json": "4130f8b806c5e9ce3d8cf17a1a15f416b6d1ea275aed52f71325d40dd83c9e63",
+    "workflow/calls/02-review/request.json": "f66795aef35c470920657f1e5aac816f82612915b248ac8b1a9b88bfdd5fe9da",
+    "workflow/calls/02-review/response.json": "24447de6a34b43fd2d459f351ac1a13b37c428090ad899097f12277f09d708e1"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "f386b7710bad95cb29be0a40336eef90b7c595131ba4cdf84e63e35b0abb6a0b",
+    "workflow/calls/02-review/response.json": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+  },
+  "files": {
+    "result.json": "c629e4f0aa319d3a67ed10e9bcfcc68283f5c5d6e9089a160e9a86bb90af2786",
+    "question.png": "45564bc2aa4d1c6895da142c86f01e51d7470820500a90a3956ca15e5a6ba840",
+    "original.png": "4f6525d9525958d89098048569970acead259ede6ceebdf6b956cd86a957ef12",
+    "workflow/candidate.json": "1d2f1c37adf66b474d1e28cdd10621afb736cbb8966e1bff92830abf66c794bd",
+    "workflow/latest-review.json": "8656c40e1c155bbbdb018576bb8a8a4101389f18286972e4ce4bf704ed5ab579",
+    "workflow/workflow-result.json": "39afb5d52bfd0d63d988e868e9b0fd7e6249bbefef074a788c03e5e134b7773d",
+    "workflow/ledger.json": "2ffa30067d5381f34312c1221d06c2508e9bf9f0ce25b266b4789585bb2d0434",
+    "workflow/calls/02-review/request.json": "f66795aef35c470920657f1e5aac816f82612915b248ac8b1a9b88bfdd5fe9da",
+    "workflow/calls/02-review/response.json": "3880df2f35a8dfee91694d87acb3ae97c31c25a5fa2827446090a77665ddf9d8",
+    "workflow/calls/01-extract/request.json": "ffe19666e45245c57a6cf7ead1452063ef59013193402793ee51de748aabb182",
+    "workflow/calls/01-extract/response.json": "d310ef1e44e1408fc05a6eb01758dc030af852f66388b3bc1a34d38e781290af"
+  }
+}

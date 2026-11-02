@@ -1,0 +1,41 @@
+{
+  "original_text": "12. 已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(f(x))=4*x-1",
+        "function_type": "linear"
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "occluded",
+        "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "incomplete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "unknown",
+            "selection_mode": "unspecified",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

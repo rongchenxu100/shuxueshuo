@@ -131,6 +131,25 @@ test('parallel condition labels and formulas stay inert text and retain math ren
   assert.ok(find('gw-derivation-formula', groups).every(node => node.dataset.mathFormula === 'true' && !node.children.length));
 });
 
+test('identity verification keeps both substitution sides visible before and after comparison', () => {
+  const {document, find} = documentFixture();
+  const board = {layout: 'derivation', caption: '分别代入，比较等式两边', connector: '⇒',
+    items: [{label: '已求解析式', math: 'f(x)=x^2+3x'}, {label: '两边展开后都等于', math: null}],
+    comparison_sides: [{label: '左边', math: 'f(x+y)=(x+y)^2+3(x+y)'},
+      {label: '右边', math: '2(y^2+3y)+x^2+2xy-y^2+3x-3y'}]};
+  const pending = createDerivationBoard(document, board);
+  const groups = find('gw-domain-conditions', pending)[0];
+  assert.equal(groups['aria-label'], '原等式的左边和右边');
+  assert.equal(find('gw-domain-condition-join-label', pending)[0].textContent, '展开并比较');
+  assert.deepEqual(find('gw-domain-condition-number', groups).map(node => node.textContent), ['左', '右']);
+  assert.equal(find('gw-derivation-unknown', pending).length, 1);
+  const completed = createMathCard(document, {...step, highlight: {...board,
+    items: [board.items[0], {...board.items[1], math: 'x^2+2xy+y^2+3x+3y'}]}});
+  assert.equal(find('gw-derivation-unknown', completed.node).length, 0);
+  assert.deepEqual(find('gw-derivation-formula', find('gw-domain-conditions', completed.node)[0]).map(node => node.textContent),
+    find('gw-derivation-formula', groups).map(node => node.textContent));
+});
+
 test('pairing preserves occurrences and the same arrangement when leftovers become the focus', () => {
   const {document, find} = documentFixture();
   const diagram = {focus: 'pairs', pair_value: '3', omitted_pairs: 97, omitted_leftovers: 0,

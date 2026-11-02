@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-w07",
+  "bundleVersion": "[\"stream\",\"ec97c04f3e12dc73d882dd5bd5e93a0e47d05c4c61b154de0d1b3af85e459eee\",\"e575c07edd90e21af973fc09ca553d40d59a17c2c031bf847ff5c3a3083ca8f0\",\"c35727f7e2af4b609ecf1247cbea0a09\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "function-system"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-formula"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "paired_values"
+        ],
+        "method": "system",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "1c4ebe3e79ce880aa872e586#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "594a7110a7ed5882d97d81d1#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "04084e96a0d43b4d1cca98f8#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "0a94b62147a1ed378f616704#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "de1169675e127d42cdb37dd1#1",
+      "answer": "o1"
+    }
+  ]
+}

@@ -1,0 +1,672 @@
+{
+  "schema_version": 1,
+  "usage": "development_regression_not_unseen_holdout",
+  "source_kind": "original_page_polygon_crop_product_preprocessing",
+  "notes": "Only selected question pixels sent to the model; authored expectations are frozen separately and never supplied to extraction/review.",
+  "cases": [
+    {
+      "id": "w04",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+        "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8"
+      },
+      "crop": {
+        "file": "w04-question.png",
+        "sha256": "39deb843d84100a06d8d6aa4306e881cf25d3e972f2b94a794221114b11a7cdf",
+        "xyxy": [
+          85,
+          727,
+          592,
+          790
+        ],
+        "source_polygon": [
+          [
+            85,
+            727
+          ],
+          [
+            592,
+            735
+          ],
+          [
+            592,
+            790
+          ],
+          [
+            85,
+            783
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          507,
+          63
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-roots-20261101/w04.json",
+        "sha256": "98440cfa91987877ee275c8861934064156f20effa26741976e7572c90c4f1d6",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(sqrt(x)+1)=x+2*sqrt(x)"
+          }
+        ],
+        "expected": {
+          "expression": "t**2-1",
+          "determined_domain": "Interval(1, oo)",
+          "source_domain": "Interval(0, oo)"
+        }
+      }
+    },
+    {
+      "id": "w11",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+        "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272"
+      },
+      "crop": {
+        "file": "w11-question.png",
+        "sha256": "74e598c2a965f5d841d3124a2262e1c17609f8d26546ed7d86a4e66f1aaa864d",
+        "xyxy": [
+          900,
+          75,
+          961,
+          682
+        ],
+        "source_polygon": [
+          [
+            900,
+            75
+          ],
+          [
+            961,
+            75
+          ],
+          [
+            959,
+            682
+          ],
+          [
+            902,
+            682
+          ]
+        ],
+        "rotate_ccw": 90,
+        "size": [
+          607,
+          61
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-roots-20261101/w11.json",
+        "sha256": "c4142687143a733c4d85ff6d7cd4f2b24f3cdf442bc7bcc6aa50cdf7542cef74",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(sqrt(x)-2)=x-4"
+          }
+        ],
+        "expected": {
+          "expression": "t**2+4*t",
+          "determined_domain": "Interval(-2, oo)",
+          "source_domain": "Interval(0, oo)"
+        }
+      }
+    },
+    {
+      "id": "b05",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-03.png",
+        "sha256": "3419f5c8b1c3b616722980e0ec365d549890ba802ac5c3d90724afc5f27f7b86"
+      },
+      "crop": {
+        "file": "b05-question.png",
+        "sha256": "e7152877d4e3c108585c45950850579393a5fcf767c3205f601e3b7bffd4cc39",
+        "xyxy": [
+          98,
+          1104,
+          658,
+          1167
+        ],
+        "source_polygon": [
+          [
+            99,
+            1108
+          ],
+          [
+            657,
+            1104
+          ],
+          [
+            658,
+            1157
+          ],
+          [
+            98,
+            1167
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          560,
+          63
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-a3-20261101/b05.json",
+        "sha256": "c9a8f9885df3e20bf2e0b30a7ab5181ee039f74cd91dbf849378edbcc9da91e2",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x-1)=x**2-2*x"
+          }
+        ],
+        "expected": {
+          "expression": "t**2 - 1",
+          "determined_domain": "Reals"
+        }
+      }
+    },
+    {
+      "id": "b05-v1",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-03.png",
+        "sha256": "3419f5c8b1c3b616722980e0ec365d549890ba802ac5c3d90724afc5f27f7b86"
+      },
+      "crop": {
+        "file": "b05-v1-question.png",
+        "sha256": "749237a2a16c5a3013974010f92679c67788b78cf8f0032c026efc81b3615c7f",
+        "xyxy": [
+          94,
+          1315,
+          718,
+          1414
+        ],
+        "source_polygon": [
+          [
+            95,
+            1325
+          ],
+          [
+            716,
+            1315
+          ],
+          [
+            718,
+            1408
+          ],
+          [
+            94,
+            1414
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          624,
+          99
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-a2-20261101/b05-v1.json",
+        "sha256": "9b8106a3289a58a4bc3c3f67e5b7cbc4511e5cf77d49d0d55f9c9f81ccab4cef",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x/(x+1))=x-1"
+          }
+        ],
+        "expected": {
+          "expression": "(2*t - 1)/(1 - t)",
+          "determined_domain": "Union(Interval.open(-oo, 1), Interval.open(1, oo))"
+        }
+      }
+    },
+    {
+      "id": "b05-v3",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-04.png",
+        "sha256": "2cce6f08688bae2b3073848aee19189ea9c4e5607d866c59da6453c72fb5c051"
+      },
+      "crop": {
+        "file": "b05-v3-question.png",
+        "sha256": "c689b91c3a63f7315dd3b565219a73ffc14ad16013e6c98014e2117250ea5253",
+        "xyxy": [
+          151,
+          657,
+          940,
+          792
+        ],
+        "source_polygon": [
+          [
+            151,
+            708
+          ],
+          [
+            935,
+            657
+          ],
+          [
+            940,
+            736
+          ],
+          [
+            152,
+            792
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          789,
+          135
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-a3-20261101/b05-v3.json",
+        "sha256": "d4cb9d57f8422447de58dcb4fad0d61cd8c8abf18b9dd7c0633898181f3d8f3f",
+        "goals": [
+          {
+            "kind": "find_value",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x-1/x)=x**2+1/x**2",
+            "expression": "f(0)"
+          },
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x-1/x)=x**2+1/x**2"
+          }
+        ],
+        "expected": {
+          "values": [
+            2
+          ],
+          "expression": "t**2+2",
+          "determined_domain": "Reals"
+        }
+      }
+    },
+    {
+      "id": "b04",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-03.png",
+        "sha256": "3419f5c8b1c3b616722980e0ec365d549890ba802ac5c3d90724afc5f27f7b86"
+      },
+      "crop": {
+        "file": "b04-question.png",
+        "sha256": "090525c1079d9987663509a62a8f7fb4c424a827e5b864cbd2ec9d7d04322e02",
+        "xyxy": [
+          108,
+          466,
+          837,
+          530
+        ],
+        "source_polygon": [
+          [
+            108,
+            473
+          ],
+          [
+            835,
+            466
+          ],
+          [
+            837,
+            519
+          ],
+          [
+            108,
+            530
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          729,
+          64
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-b-20261101/b04.json",
+        "sha256": "9cf81cd4e22aa6447db7aaae254b0ad915a13a1074ea1164ff671a91d0e41f92",
+        "goals": [
+          {
+            "kind": "find_value",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(f(x))=4*x-3",
+            "function_type": "linear",
+            "expression": "f(1)"
+          }
+        ],
+        "expected": {
+          "candidates": [
+            "2*x-1",
+            "-2*x+3"
+          ],
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "w10",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+        "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272"
+      },
+      "crop": {
+        "file": "w10-question.png",
+        "sha256": "9d31954ab8037fbd4fff80a8a7cea034c04890f5811df418df830811259a8192",
+        "xyxy": [
+          1092,
+          90,
+          1180,
+          1085
+        ],
+        "source_polygon": [
+          [
+            1110,
+            90
+          ],
+          [
+            1180,
+            90
+          ],
+          [
+            1162,
+            1085
+          ],
+          [
+            1092,
+            1085
+          ]
+        ],
+        "rotate_ccw": 90,
+        "size": [
+          995,
+          88
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-b-20261101/w10.json",
+        "sha256": "57ab2fe44e009a4b1ca58404693cf11bd67d3de9aed1be51e4c2c4f36baa570a",
+        "goals": [
+          {
+            "kind": "find_range",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x-1)=f(x)+3*x-5",
+            "function_type": "quadratic",
+            "additional_relations": [
+              "f(0)=0"
+            ],
+            "expression": "f(x)>0",
+            "symbol": "x"
+          }
+        ],
+        "expected": {
+          "candidates": [
+            "-3*x**2/2+7*x/2"
+          ],
+          "solution": "Interval.open(0,7/3)"
+        }
+      }
+    },
+    {
+      "id": "b06-v",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-05.png",
+        "sha256": "a11b30609d1756b9743efe1d9334b69a7fe6f2ed1f18a766fb797cffbda3c92f"
+      },
+      "crop": {
+        "file": "b06-v-question.png",
+        "sha256": "1b865ab23e638885754eb5ba241805b128dd70603a796a2a29d8ae96a8876542",
+        "xyxy": [
+          91,
+          450,
+          904,
+          525
+        ],
+        "source_polygon": [
+          [
+            91,
+            453
+          ],
+          [
+            902,
+            450
+          ],
+          [
+            904,
+            525
+          ],
+          [
+            91,
+            525
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          813,
+          75
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-c-20261101/b06-v.json",
+        "sha256": "1e4a9b7bf5d8aeb2088d4912ba0fafe7aa12d69a67a6705d1446672a15cebe1f",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "2*f(x)-f(1/x)=2*x-1",
+            "relation_domain": "ℝ∖{0}"
+          }
+        ],
+        "expected": {
+          "expression": "(4*x**2-3*x+2)/(3*x)",
+          "domain": "ℝ∖{0}"
+        }
+      }
+    },
+    {
+      "id": "w14",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+        "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272"
+      },
+      "crop": {
+        "file": "w14-question.png",
+        "sha256": "4784f3b45d11157298fab2ff94079b8c4c439da4425b331b87be2b97ed96f1e7",
+        "xyxy": [
+          158,
+          51,
+          223,
+          884
+        ],
+        "source_polygon": [
+          [
+            160,
+            51
+          ],
+          [
+            223,
+            51
+          ],
+          [
+            221,
+            884
+          ],
+          [
+            158,
+            884
+          ]
+        ],
+        "rotate_ccw": 90,
+        "size": [
+          833,
+          65
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-c-20261101/w14.json",
+        "sha256": "157568e8969b37c94ec84435ccf686ca8d57679217326f64c33654a46b2ca672",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "2*f(x)+f(1/x)=10**x",
+            "relation_domain": "ℝ∖{0}"
+          }
+        ],
+        "expected": {
+          "expression": "(2*10**x-10**(1/x))/3",
+          "domain": "ℝ∖{0}"
+        }
+      }
+    },
+    {
+      "id": "b07",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-05.png",
+        "sha256": "a11b30609d1756b9743efe1d9334b69a7fe6f2ed1f18a766fb797cffbda3c92f"
+      },
+      "crop": {
+        "file": "b07-question.png",
+        "sha256": "25ccad2814f9c4022d01865d5c329966522d50a47964d010630300f8c840d560",
+        "xyxy": [
+          70,
+          865,
+          1202,
+          930
+        ],
+        "source_polygon": [
+          [
+            70,
+            866
+          ],
+          [
+            1202,
+            865
+          ],
+          [
+            1202,
+            922
+          ],
+          [
+            70,
+            930
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          1132,
+          65
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-d-20261101/b07.json",
+        "sha256": "d621815147ae7cd306c504ec4703bf1c96e83670d9c9ad57a38fd64d12c1eed5",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x+y)=2*f(y)+x**2+2*x*y-y**2+3*x-3*y",
+            "relation_variables": [
+              "x",
+              "y"
+            ],
+            "relation_domain": "ℝ"
+          }
+        ],
+        "expected": {
+          "expression": "x**2+3*x",
+          "domain": "ℝ"
+        }
+      }
+    },
+    {
+      "id": "b07-v",
+      "page": {
+        "file": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-05.png",
+        "sha256": "a11b30609d1756b9743efe1d9334b69a7fe6f2ed1f18a766fb797cffbda3c92f"
+      },
+      "crop": {
+        "file": "b07-v-question.png",
+        "sha256": "9f7a9ee244b96098dbcb055d728252bd7a0b8763bc2ae1e1625a704b3af12e36",
+        "xyxy": [
+          47,
+          1354,
+          1083,
+          1434
+        ],
+        "source_polygon": [
+          [
+            47,
+            1375
+          ],
+          [
+            1079,
+            1354
+          ],
+          [
+            1083,
+            1412
+          ],
+          [
+            48,
+            1434
+          ]
+        ],
+        "rotate_ccw": 0,
+        "size": [
+          1036,
+          80
+        ],
+        "outside_polygon": "white"
+      },
+      "gold": {
+        "file": "internal/senior-high/authored-courses/function-formula-d-20261101/b07-v.json",
+        "sha256": "ac5080b1f27199ee2951f4497bb8e284d146a061b10f253ae239e4c92047ea1e",
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x-y)=f(x)+f(y)-2*x*y",
+            "relation_variables": [
+              "x",
+              "y"
+            ],
+            "relation_domain": "ℝ"
+          }
+        ],
+        "expected": {
+          "expression": "x**2",
+          "domain": "ℝ"
+        }
+      }
+    }
+  ]
+}

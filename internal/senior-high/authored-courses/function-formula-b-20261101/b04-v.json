@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b04-v",
+  "reviewer": "Codex：对照用户原图题干转录并核对原目标；W10采用用户确认的二次函数类型。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-03.png",
+      "sha256": "3419f5c8b1c3b616722980e0ec365d549890ba802ac5c3d90724afc5f27f7b86",
+      "location": "第91页例4变式"
+    }
+  ],
+  "candidate": {
+    "original_text": "二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x+1)-f(x)=2*x",
+          "function_type": "quadratic",
+          "additional_relations": [
+            "f(0)=1"
+          ]
+        }
+      ]
+    }
+  },
+  "expected": {
+    "candidates": [
+      "x**2-x+1"
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

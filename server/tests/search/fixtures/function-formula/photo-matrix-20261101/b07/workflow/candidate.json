@@ -1,0 +1,39 @@
+{
+  "original_text": "【例 7】 若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x+y)=2f(y)+x^2+2xy-y^2+3x-3y$，则 $f(x)=$______．",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x+y)=2*f(y)+x^2+2*x*y-y^2+3*x-3*y",
+        "relation_domain": "ℝ",
+        "relation_variables": [
+          "x",
+          "y"
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x+y)=2f(y)+x^2+2xy-y^2+3x-3y$，则 $f(x)=$______．",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

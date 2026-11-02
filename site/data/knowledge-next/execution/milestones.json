@@ -46,7 +46,12 @@
       "method-fraction-split-range",
       "method-equation-real-root-range",
       "method-finite-range",
-      "method-translation-range"
+      "method-translation-range",
+      "method-function-substitution",
+      "method-function-matching",
+      "method-function-coefficients",
+      "method-function-equation-system",
+      "method-function-assignment"
     ]
   }
 }

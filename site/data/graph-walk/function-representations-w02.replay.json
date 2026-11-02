@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-w02",
+  "bundleVersion": "[\"stream\",\"ade160c80607f850d71af90bddf961a682f338414a1c7c6d952440c492c5a4a0\",\"d4271e4953261655da0f8dc807efe10874c3879de0bf3dfc2fed3ce08d205215\",\"d2d95667bd5b4a929c578659aba44cae\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "function-substitution"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-formula"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "composite_input"
+        ],
+        "method": "substitution",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "4e64242e1b62906ce50f5dcd#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "7d43506e95f8741c64b6ae26#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "11f88d0ada6feab6aa52d06f#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "4db15be60ad17e5e77b5b91e#1",
+      "answer": "o1"
+    }
+  ]
+}

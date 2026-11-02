@@ -2610,6 +2610,35 @@
         ],
         "connector": "⇒"
       }
+    },
+    "function_formula_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "formula_result",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "function_formula_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
     }
   },
   "boundary_steps": {
@@ -2628,7 +2657,12 @@
     "method-fraction-split-range": "verify",
     "method-equation-real-root-range": "verify",
     "method-finite-range": "verify",
-    "method-translation-range": "verify"
+    "method-translation-range": "verify",
+    "method-function-substitution": "verify",
+    "method-function-matching": "verify",
+    "method-function-coefficients": "verify",
+    "method-function-equation-system": "verify",
+    "method-function-assignment": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

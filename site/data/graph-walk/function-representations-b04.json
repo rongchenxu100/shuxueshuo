@@ -1,0 +1,2889 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b04",
+  "graphVersion": "77b8df4d49bcf718a156ed43676d6554844bbf307a350337b296dca58e2ce8d6",
+  "problem": {
+    "text": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这一问需要求什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "只写出函数解析式",
+            "feedback": "题目只问函数值。先利用函数类型和已知关系，再计算这个值。"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "求出给定输入对应的函数值"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o1"
+        ]
+      },
+      "feedback": {
+        "answer": "题目只问函数值。先利用函数类型和已知关系，再计算这个值。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-abstract-function-domain",
+        "type-function-formula",
+        "type-function-domain",
+        "type-function-equality",
+        "type-function-evaluation",
+        "type-function-range",
+        "type-piecewise-composition",
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "求出给定输入对应的函数值"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域"
+          },
+          {
+            "value": "type-function-formula",
+            "label": "求函数的解析式",
+            "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-formula"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-abstract-function-domain",
+        "type-function-formula"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-formula"
+        ],
+        "edges": [
+          "type-function-formula|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+        ],
+        "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "function_type"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "注意题目给出的一次或二次函数类型。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "题给一次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "已知复合函数的解析式",
+                "note": "如 $f(x-1)=x^2-2x$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "题目明确给出了函数类型。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation",
+          "/root/goals/0/function_type",
+          "/root/goals/0/expression"
+        ],
+        "type": "method_cards",
+        "methods": [
+          {
+            "value": "coefficients",
+            "label": "待定系数法",
+            "target": "method-function-coefficients",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "function-coefficients"
+          },
+          {
+            "value": "substitution",
+            "label": "换元法"
+          },
+          {
+            "value": "matching",
+            "label": "配凑法"
+          },
+          {
+            "value": "system",
+            "label": "构造方程组法"
+          },
+          {
+            "value": "assignment",
+            "label": "赋值法"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目给了函数类型。先设含未知系数的一般式，再代入已知关系比较系数。",
+          "value": "fit"
+        },
+        "matching": {
+          "message": "这类题的配凑路线尚未核验。可以利用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        },
+        "substitution": {
+          "message": "这类题的换元路线尚未核验。可以利用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        },
+        "system": {
+          "message": "本批尚未核验这类关系的联立路线，可先用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        }
+      },
+      "source": "authored",
+      "alternatives": {
+        "substitution": {
+          "message": "这类题的换元路线尚未核验。可以利用题给函数类型选择待定系数法。"
+        },
+        "matching": {
+          "message": "这类题的配凑路线尚未核验。可以利用题给函数类型选择待定系数法。"
+        },
+        "system": {
+          "message": "本批尚未核验这类关系的联立路线，可先用题给函数类型选择待定系数法。"
+        }
+      },
+      "candidateNodes": [
+        "rule-function-formula-method",
+        "method-function-coefficients"
+      ],
+      "effects": {
+        "nodes": [
+          "rule-function-formula-method"
+        ],
+        "edges": [
+          "type-function-formula|method_rule|rule-function-formula-method"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "根据本题条件选择解题方法。"
+      }
+    }
+  ],
+  "routes": {
+    "function-coefficients": {
+      "id": "function-coefficients",
+      "method": "method-function-coefficients",
+      "label": "待定系数法求函数解析式",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "按函数类型设一般式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题给类型",
+                "math": "\\text{一次函数}"
+              },
+              {
+                "label": "设一般式",
+                "math": "f(x)=a x + b,\\quad a\\ne0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "把各项系数设为未知数；最高次项的系数不能是 0，也不能漏掉常数项。"
+          },
+          "id": "27ead00557dccb270ee8f9aa#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(x)=a x$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(x)=a x + b,\\quad a\\ne0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题目说明了是一次函数，应怎样设解析式？",
+          "stem_board": {
+            "caption": "按函数类型设一般式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题给类型",
+                "math": "\\text{一次函数}"
+              },
+              {
+                "label": "设一般式",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "按函数类型设一般式",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "155fc506ea4657dfd44bc3be5a9664d87600fffa2582578f379893c1b455a289",
+              "step_id": "39e5646dcb-function-coefficients-001-template"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "27ead00557dccb270ee8f9aa",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "按函数类型设一般式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：按函数类型设一般式"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把一般式代入题给关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已设解析式",
+                "math": "\\begin{gathered}f(x)=a x + b,\\quad a\\ne0\\\\f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3\\end{gathered}"
+              },
+              {
+                "label": "代入并整理",
+                "math": "a^{2} x + a b + b = 4 x - 3"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "每个函数调用都按同一个一般式代入。题目给出的初值也要一起代入。"
+          },
+          "id": "61ac47f7c30432b37dbc2438#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a^{2} x + a b + b + 1 = 4 x - 3$",
+                "value": "o2"
+              },
+              {
+                "label": "$a^{2} x + a b + b = 4 x - 3$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把已设的解析式代入下面的条件，展开后得到什么？",
+          "stem_board": {
+            "caption": "把一般式代入题给关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已设解析式",
+                "math": "\\begin{gathered}f(x)=a x + b,\\quad a\\ne0\\\\f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3\\end{gathered}"
+              },
+              {
+                "label": "代入并整理",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把一般式代入题给关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "a89c836685514bfd732b8c02eff7e6b7843e59eebd7aa42b1530fa8fa3bc0377",
+              "step_id": "39e5646dcb-function-coefficients-002-expand"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "61ac47f7c30432b37dbc2438",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把一般式代入题给关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把一般式代入题给关系"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "同次幂的系数分别相等",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "比较系数（缺项记为 0）",
+                "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 1&a^{2}&4\\\\0&a b + b&-3\\end{array}"
+              },
+              {
+                "label": "系数满足的方程",
+                "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "分别比较二次项、一次项和常数项。只在某一个数处相等，不能这样比较系数。"
+          },
+          "id": "2f8c654e3cfa0349af2bbcd0#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\begin{gathered}a^{2} - 3 = 0\\\\a b + b + 4 = 0\\end{gathered}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "上一步得到 $a^{2} x + a b + b = 4 x - 3$，且对任意实数 $x$ 都成立。比较同次幂的系数，应列出哪组方程？",
+          "stem_board": {
+            "caption": "同次幂的系数分别相等",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "比较系数（缺项记为 0）",
+                "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 1&a^{2}&4\\\\0&a b + b&-3\\end{array}"
+              },
+              {
+                "label": "系数满足的方程",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "同次幂的系数分别相等",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "8dd0c02a2a020f1133e5c9f50e9fe667856df48cfeb8d22747d0ff369417ad4b",
+              "step_id": "39e5646dcb-function-coefficients-003-compare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "2f8c654e3cfa0349af2bbcd0",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "同次幂的系数分别相等",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：同次幂的系数分别相等"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "求出所有系数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "系数方程",
+                "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+              },
+              {
+                "label": "全部系数组合",
+                "math": "\\begin{gathered}a=-2,\\quad b=3\\\\a=2,\\quad b=-1\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "每组系数都要满足全部方程，且最高次项系数不为 0。如果有多组合法解，需全部保留。"
+          },
+          "id": "b77abe5f0e51781662f7d30e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\begin{gathered}a=-2,\\quad b=3\\\\a=2,\\quad b=-1\\end{gathered}$",
+                "value": "o1"
+              },
+              {
+                "label": "$a=-2,\\quad b=3$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "解这组方程，并保留所有符合函数类型的结果。",
+          "stem_board": {
+            "caption": "求出所有系数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "系数方程",
+                "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+              },
+              {
+                "label": "全部系数组合",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求出所有系数",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "466dcc9bf5023b4ee9b2102e77f6c25fe780370d192ffeda58aa6c46d03f6289",
+              "step_id": "39e5646dcb-function-coefficients-004-solve"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b77abe5f0e51781662f7d30e",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求出所有系数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求出所有系数"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把每个结果代回检查",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "得到的解析式",
+                "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\text{或}\\\\f(x)=2 x - 1\\end{gathered}"
+              },
+              {
+                "label": "回验原题的每个等式",
+                "math": "\\begin{gathered}f(x)=- 2 x + 3:\\quad 4 x - 3 = 4 x - 3\\\\f(x)=2 x - 1:\\quad 4 x - 3 = 4 x - 3\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "逐个代回原题的全部等式，左右两边恒等；最高次项系数也满足题给函数类型。"
+          },
+          "id": "411fbd64ab754cf12e740269#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "只检查其中一个解析式",
+                "value": "o2"
+              },
+              {
+                "label": "逐个代回原关系，并检查函数类型",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "已经求出这些解析式，怎样确认它们都符合题意？",
+          "stem_board": {
+            "caption": "把每个结果代回检查",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "得到的解析式",
+                "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\text{或}\\\\f(x)=2 x - 1\\end{gathered}"
+              },
+              {
+                "label": "回验原题的每个等式",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把每个结果代回检查",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bf9ef5f154944a216d21050ff09f77ad7d569413e33f3ff7ef968d9a950f8ed5",
+              "step_id": "39e5646dcb-function-coefficients-005-verify"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "411fbd64ab754cf12e740269",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把每个结果代回检查",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把每个结果代回检查"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "回到原题，计算函数值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各个解析式的计算结果",
+                "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\Rightarrow\\quad f(1)=1\\\\f(x)=2 x - 1\\quad\\Rightarrow\\quad f(1)=1\\end{gathered}"
+              },
+              {
+                "label": "原题答案",
+                "math": "f(1)=1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "将题目要求的输入分别代入所有解析式，得到的函数值相同，因此这一问有唯一答案。"
+          },
+          "id": "02dd0c2591239bf66102e9d2#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2$",
+                "value": "o2"
+              },
+              {
+                "label": "有多个解析式，所以函数值不能确定",
+                "value": "o3"
+              },
+              {
+                "label": "$1$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题目问的是 $f(1)$。将它代入每个解析式后，应怎样回答？",
+          "stem_board": {
+            "caption": "回到原题，计算函数值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各个解析式的计算结果",
+                "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\Rightarrow\\quad f(1)=1\\\\f(x)=2 x - 1\\quad\\Rightarrow\\quad f(1)=1\\end{gathered}"
+              },
+              {
+                "label": "原题答案",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到原题，计算函数值",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "c8dc29d24b720756ab93c60ab63c2cae8e911957ffac339c1e197d62e7ade66d",
+              "step_id": "39e5646dcb-function-coefficients-006-answer"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "02dd0c2591239bf66102e9d2",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "回到原题，计算函数值",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：回到原题，计算函数值"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "candidate_values": [
+            {
+              "exact": {
+                "$math": "Integer",
+                "value": "1"
+              },
+              "expression": "1",
+              "latex": "1"
+            },
+            {
+              "exact": {
+                "$math": "Integer",
+                "value": "1"
+              },
+              "expression": "1",
+              "latex": "1"
+            }
+          ],
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "3"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "3 - 2*x",
+              "latex": "- 2 x + 3"
+            },
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "2*x - 1",
+              "latex": "2 x - 1"
+            }
+          ],
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "function": "f",
+          "kind": "find_value",
+          "status": "complete",
+          "value": {
+            "exact": {
+              "$math": "Integer",
+              "value": "1"
+            },
+            "expression": "1",
+            "latex": "1"
+          },
+          "variable": "x"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "math_steps": [
+          {
+            "math_step_sha256": "155fc506ea4657dfd44bc3be5a9664d87600fffa2582578f379893c1b455a289",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-coefficients-001-template"
+          },
+          {
+            "math_step_sha256": "a89c836685514bfd732b8c02eff7e6b7843e59eebd7aa42b1530fa8fa3bc0377",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-coefficients-002-expand"
+          },
+          {
+            "math_step_sha256": "8dd0c02a2a020f1133e5c9f50e9fe667856df48cfeb8d22747d0ff369417ad4b",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-coefficients-003-compare"
+          },
+          {
+            "math_step_sha256": "466dcc9bf5023b4ee9b2102e77f6c25fe780370d192ffeda58aa6c46d03f6289",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-coefficients-004-solve"
+          },
+          {
+            "math_step_sha256": "bf9ef5f154944a216d21050ff09f77ad7d569413e33f3ff7ef968d9a950f8ed5",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-function-coefficients-005-verify"
+          },
+          {
+            "math_step_sha256": "c8dc29d24b720756ab93c60ab63c2cae8e911957ffac339c1e197d62e7ade66d",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-function-coefficients-006-answer"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "cc5a3ee4782c22a8aa47edc2ced31e6b6221938080831d7bb4caf2bf952bfef3",
+        "verified_route_sha256": "3ce6f2ea0b30d4dece64b5dd190c0febe57307cae7b4c2c09598df40bec8fda7"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-formula",
+        "kind": "problem_type",
+        "label": "求函数的解析式",
+        "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-composition",
+        "kind": "problem_type",
+        "label": "复合型分段函数问题",
+        "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "rule-function-formula-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "求函数解析式的选法判断",
+        "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-function-assignment",
+        "kind": "method",
+        "label": "赋值法求函数解析式",
+        "summary": "给恒等关系中的变量赋特殊值，或令两个变量相等，先消去变量，再求出解析式并代回完整原关系。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "选择合法赋值并整理关系",
+            "calls": [
+              "skill-equality-transform",
+              "method-elimination",
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "回验完整的二元关系",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-coefficients",
+        "kind": "method",
+        "label": "待定系数法求函数解析式",
+        "summary": "按题给的一次或二次函数类型设一般式，比较系数，保留全部合法解析式，再回答原题。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "设式、比较系数并解出全部候选",
+            "calls": [
+              "skill-simplify",
+              "skill-polynomial-coefficient-comparison",
+              "method-elimination",
+              "skill-solve-quadratic",
+              "skill-quadratic-sign",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验全部条件与原目标",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-equation-system",
+        "kind": "method",
+        "label": "构造方程组法求函数解析式",
+        "summary": "替换变量，让两个关联函数值交换位置；联立两个方程消元，得到解析式并代回原关系检查。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "替换输入、联立消元",
+            "calls": [
+              "skill-equality-transform",
+              "method-elimination",
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验恒等与唯一性",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-matching",
+        "kind": "method",
+        "label": "配凑法求函数解析式",
+        "summary": "把题目右边配成函数括号里式子的组合，读出函数规则，并保留输入能取到的范围。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "配成整体输入的式子",
+            "calls": [
+              "method-complete-square",
+              "skill-simplify",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "独立核验规则与覆盖",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution",
+        "kind": "method",
+        "label": "换元法求函数解析式",
+        "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "整体换元并恢复规则",
+            "calls": [
+              "skill-expression-defined",
+              "method-substitution",
+              "skill-simplify",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "独立核验规则与覆盖",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-polynomial-coefficient-comparison",
+        "kind": "skill",
+        "label": "多项式恒等式比较系数",
+        "summary": "两个多项式对任意实数都相等时，同次幂的系数分别相等。",
+        "aliases": []
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "method-elimination",
+        "kind": "skill",
+        "label": "消元",
+        "summary": "用条件里的等式把一个字母写成另一个字母的式子，代进去，让题目只剩一个变量。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-equality-transform",
+        "kind": "skill",
+        "label": "等式变形与推导",
+        "summary": "用两边同加减、同乘除等办法整理等式，并分清每一步能不能倒推回去。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-elimination|uses|equality-properties",
+        "from": "method-elimination",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          }
+        ]
+      },
+      {
+        "id": "method-function-assignment|calls|method-elimination",
+        "from": "method-function-assignment",
+        "to": "method-elimination",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-assignment|calls|skill-equality-transform",
+        "from": "method-function-assignment",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-assignment|calls|skill-simplify",
+        "from": "method-function-assignment",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-coefficients|calls|method-elimination",
+        "from": "method-function-coefficients",
+        "to": "method-elimination",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-coefficients|calls|skill-equality-transform",
+        "from": "method-function-coefficients",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-coefficients|calls|skill-polynomial-coefficient-comparison",
+        "from": "method-function-coefficients",
+        "to": "skill-polynomial-coefficient-comparison",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-coefficients|calls|skill-simplify",
+        "from": "method-function-coefficients",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-equation-system|calls|method-elimination",
+        "from": "method-function-equation-system",
+        "to": "method-elimination",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-equation-system|calls|skill-equality-transform",
+        "from": "method-function-equation-system",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-equation-system|calls|skill-simplify",
+        "from": "method-function-equation-system",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-matching|calls|skill-equality-transform",
+        "from": "method-function-matching",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-matching|calls|skill-simplify",
+        "from": "method-function-matching",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-equality-transform",
+        "from": "method-function-substitution",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-simplify",
+        "from": "method-function-substitution",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-assignment",
+        "from": "rule-function-formula-method",
+        "to": "method-function-assignment",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "assignment",
+            "condition": "两个全称变量均取任意实数；代入零或令变量相等后，能逐步确定函数规则，并回验完整原关系。"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-coefficients",
+        "from": "rule-function-formula-method",
+        "to": "method-function-coefficients",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "coefficients",
+            "condition": "可设相应一般式并形成受支持的系数恒等关系。"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-equation-system",
+        "from": "rule-function-formula-method",
+        "to": "method-function-equation-system",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "system",
+            "condition": "在原合法范围内以 c−x 或 k/x 替换后，关联函数值互换，形成两个线性方程。"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-matching",
+        "from": "rule-function-formula-method",
+        "to": "method-function-matching",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "matching",
+            "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。"
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-substitution",
+        "from": "rule-function-formula-method",
+        "to": "method-function-substitution",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "substitution",
+            "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。"
+          }
+        ]
+      },
+      {
+        "id": "skill-equality-transform|uses|equality-properties",
+        "from": "skill-equality-transform",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "identity"
+          },
+          {
+            "entry": "universal-substitution"
+          }
+        ]
+      },
+      {
+        "id": "skill-polynomial-coefficient-comparison|uses|equality-properties",
+        "from": "skill-polynomial-coefficient-comparison",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "polynomial-coefficients"
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify|uses|equality-properties",
+        "from": "skill-simplify",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-assignment",
+        "from": "type-function-formula",
+        "to": "method-function-assignment",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-coefficients",
+        "from": "type-function-formula",
+        "to": "method-function-coefficients",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-equation-system",
+        "from": "type-function-formula",
+        "to": "method-function-equation-system",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-matching",
+        "from": "type-function-formula",
+        "to": "method-function-matching",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-substitution",
+        "from": "type-function-formula",
+        "to": "method-function-substitution",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|involves|equality-properties",
+        "from": "type-function-formula",
+        "to": "equality-properties",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|involves|function-concept",
+        "from": "type-function-formula",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|method_rule|rule-function-formula-method",
+        "from": "type-function-formula",
+        "to": "rule-function-formula-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-composition|involves|function-concept",
+        "from": "type-piecewise-composition",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|function-concept",
+        "from": "type-piecewise-function",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-simplify",
+          "skill-polynomial-coefficient-comparison",
+          "equality-properties",
+          "method-elimination",
+          "skill-equality-transform"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"17ba1a072ba73d66f08bb908862ee8289a394de54934de4a790221bf2aaee1e0\",\"e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b\",\"dbf0c1c8ce994fb8855b46689e8ac0a0\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+    "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+    "stream_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "17ba1a072ba73d66f08bb908862ee8289a394de54934de4a790221bf2aaee1e0",
+    "d3": {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "function_type"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "注意题目给出的一次或二次函数类型。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "题给一次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "已知复合函数的解析式",
+                "note": "如 $f(x-1)=x^2-2x$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "题目明确给出了函数类型。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation",
+          "/root/goals/0/function_type",
+          "/root/goals/0/expression"
+        ],
+        "type": "method_cards"
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目给了函数类型。先设含未知系数的一般式，再代入已知关系比较系数。",
+          "value": "fit"
+        },
+        "matching": {
+          "message": "这类题的配凑路线尚未核验。可以利用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        },
+        "substitution": {
+          "message": "这类题的换元路线尚未核验。可以利用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        },
+        "system": {
+          "message": "本批尚未核验这类关系的联立路线，可先用题给函数类型选择待定系数法。",
+          "value": "unknown"
+        }
+      }
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "coefficients",
+          "message": "开始解题",
+          "method": "method-function-coefficients",
+          "recommendation": "preferred",
+          "route_id": "function-coefficients",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "按所选方法解题"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "template",
+        "explanation": "题给 $f$ 是一次函数，因此可设\n$f(x)=a x + b$\n其中 $a,b\\in\\mathbb{R}$，$a\\ne0$。最高次项系数不为零，保证它是题给类型的函数。",
+        "highlight": {
+          "caption": "按函数类型设一般式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题给类型",
+              "math": "\\text{一次函数}"
+            },
+            {
+              "label": "设一般式",
+              "math": "f(x)=a x + b,\\quad a\\ne0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "155fc506ea4657dfd44bc3be5a9664d87600fffa2582578f379893c1b455a289",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-001-template",
+        "target_ref": "/root/goals/0",
+        "title": "按函数类型设一般式",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "expand",
+        "explanation": "条件 1：$f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3$。\n$f{\\left(f{\\left(x \\right)} \\right)}=a \\left(a x + b\\right) + b=a^{2} x + a b + b$\n因此 $a^{2} x + a b + b = 4 x - 3$。",
+        "highlight": {
+          "caption": "把一般式代入题给关系",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已设解析式",
+              "math": "\\begin{gathered}f(x)=a x + b,\\quad a\\ne0\\\\f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3\\end{gathered}"
+            },
+            {
+              "label": "代入并整理",
+              "math": "a^{2} x + a b + b = 4 x - 3"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "a89c836685514bfd732b8c02eff7e6b7843e59eebd7aa42b1530fa8fa3bc0377",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-002-expand",
+        "target_ref": "/root/goals/0",
+        "title": "把一般式代入题给关系",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "compare",
+        "explanation": "条件 1 化为 $a^{2} x + a b + b = 4 x - 3$。\n此等式对任意实数 $x$ 成立，故同次幂系数相等：\n一次项：$a^{2} = 4$。\n常数项：$a b + b = -3$。\n移项并合并同类项，得到 $\\begin{gathered}a^{2} - 4 = 0\\\\a b + b + 3 = 0\\end{gathered}$。",
+        "highlight": {
+          "caption": "同次幂的系数分别相等",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "比较系数（缺项记为 0）",
+              "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 1&a^{2}&4\\\\0&a b + b&-3\\end{array}"
+            },
+            {
+              "label": "系数满足的方程",
+              "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "8dd0c02a2a020f1133e5c9f50e9fe667856df48cfeb8d22747d0ff369417ad4b",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-003-compare",
+        "target_ref": "/root/goals/0",
+        "title": "同次幂的系数分别相等",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "solve",
+        "explanation": "由上一步的方程组 $\\begin{gathered}a^{2} - 4 = 0\\\\a b + b + 3 = 0\\end{gathered}$：\n由 $a^{2} - 4 = 0$，结合 $a\\ne0$，得$a=-2$ 或 $a=2$。\n当 $a=-2$ 时：\n$3 - b = 0\\quad\\Longrightarrow\\quad b=3$\n得到 $a=-2,\\quad b=3$。\n故 $f(x)=- 2 x + 3$。\n当 $a=2$ 时：\n$3 b + 3 = 0\\quad\\Longrightarrow\\quad b=-1$\n得到 $a=2,\\quad b=-1$。\n故 $f(x)=2 x - 1$。",
+        "highlight": {
+          "caption": "求出所有系数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "系数方程",
+              "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+            },
+            {
+              "label": "全部系数组合",
+              "math": "\\begin{gathered}a=-2,\\quad b=3\\\\a=2,\\quad b=-1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "466dcc9bf5023b4ee9b2102e77f6c25fe780370d192ffeda58aa6c46d03f6289",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-004-solve",
+        "target_ref": "/root/goals/0",
+        "title": "求出所有系数",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "verify",
+        "explanation": "将 $f(x)=- 2 x + 3$ 代回原条件：\n条件 1：$f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3$。\n$f{\\left(f{\\left(x \\right)} \\right)}=4 x - 3$\n因此 $4 x - 3 = 4 x - 3$。\n以上等式左右两边相同，且最高次项系数 $-2\\ne0$，符合题意。\n将 $f(x)=2 x - 1$ 代回原条件：\n条件 1：$f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3$。\n$f{\\left(f{\\left(x \\right)} \\right)}=4 x - 3$\n因此 $4 x - 3 = 4 x - 3$。\n以上等式左右两边相同，且最高次项系数 $2\\ne0$，符合题意。",
+        "highlight": {
+          "caption": "把每个结果代回检查",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "得到的解析式",
+              "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\text{或}\\\\f(x)=2 x - 1\\end{gathered}"
+            },
+            {
+              "label": "回验原题的每个等式",
+              "math": "\\begin{gathered}f(x)=- 2 x + 3:\\quad 4 x - 3 = 4 x - 3\\\\f(x)=2 x - 1:\\quad 4 x - 3 = 4 x - 3\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "bf9ef5f154944a216d21050ff09f77ad7d569413e33f3ff7ef968d9a950f8ed5",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-005-verify",
+        "target_ref": "/root/goals/0",
+        "title": "把每个结果代回检查",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer",
+        "explanation": "由 $a=-2,\\quad b=3$，得 $f(x)=- 2 x + 3$。\n$f(1)=3 - 2 \\left(1\\right)=1$\n由 $a=2,\\quad b=-1$，得 $f(x)=2 x - 1$。\n$f(1)=2 \\left(1\\right) - 1=1$\n所以 $f(1)=1$。",
+        "highlight": {
+          "caption": "回到原题，计算函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "各个解析式的计算结果",
+              "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\Rightarrow\\quad f(1)=1\\\\f(x)=2 x - 1\\quad\\Rightarrow\\quad f(1)=1\\end{gathered}"
+            },
+            {
+              "label": "原题答案",
+              "math": "f(1)=1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "local_check": "passed",
+        "math_step_sha256": "c8dc29d24b720756ab93c60ab63c2cae8e911957ffac339c1e197d62e7ade66d",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0",
+          "/steps/0/skipped_calls/1"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-006-answer",
+        "target_ref": "/root/goals/0",
+        "title": "回到原题，计算函数值",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-001-template\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-002-expand\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-003-compare\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-004-solve\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-005-verify\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-coefficients\",\"39e5646dcb-function-coefficients-006-answer\"]": [
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "method-elimination",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-coefficients",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-001-template",
+        "ordinal": 1,
+        "math_step_sha256": "155fc506ea4657dfd44bc3be5a9664d87600fffa2582578f379893c1b455a289",
+        "status": "interactive",
+        "interaction_id": "27ead00557dccb270ee8f9aa"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-002-expand",
+        "ordinal": 2,
+        "math_step_sha256": "a89c836685514bfd732b8c02eff7e6b7843e59eebd7aa42b1530fa8fa3bc0377",
+        "status": "interactive",
+        "interaction_id": "61ac47f7c30432b37dbc2438"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-003-compare",
+        "ordinal": 3,
+        "math_step_sha256": "8dd0c02a2a020f1133e5c9f50e9fe667856df48cfeb8d22747d0ff369417ad4b",
+        "status": "interactive",
+        "interaction_id": "2f8c654e3cfa0349af2bbcd0"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-004-solve",
+        "ordinal": 4,
+        "math_step_sha256": "466dcc9bf5023b4ee9b2102e77f6c25fe780370d192ffeda58aa6c46d03f6289",
+        "status": "interactive",
+        "interaction_id": "b77abe5f0e51781662f7d30e"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-005-verify",
+        "ordinal": 5,
+        "math_step_sha256": "bf9ef5f154944a216d21050ff09f77ad7d569413e33f3ff7ef968d9a950f8ed5",
+        "status": "interactive",
+        "interaction_id": "411fbd64ab754cf12e740269"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-006-answer",
+        "ordinal": 6,
+        "math_step_sha256": "c8dc29d24b720756ab93c60ab63c2cae8e911957ffac339c1e197d62e7ade66d",
+        "status": "interactive",
+        "interaction_id": "02dd0c2591239bf66102e9d2"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "27ead00557dccb270ee8f9aa",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "65bf7f3c564b9f201d482873c91784cce9b8a3eb9ebd25cf9f57b576815bdf67",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "按函数类型设一般式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给类型",
+                  "math": "\\text{一次函数}"
+                },
+                {
+                  "label": "设一般式",
+                  "math": "f(x)=a x + b,\\quad a\\ne0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把各项系数设为未知数；最高次项的系数不能是 0，也不能漏掉常数项。"
+            },
+            "id": "27ead00557dccb270ee8f9aa#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=a x$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(x)=a x + b,\\quad a\\ne0$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题目说明了是一次函数，应怎样设解析式？",
+            "stem_board": {
+              "caption": "按函数类型设一般式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给类型",
+                  "math": "\\text{一次函数}"
+                },
+                {
+                  "label": "设一般式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "按函数类型设一般式"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "155fc506ea4657dfd44bc3be5a9664d87600fffa2582578f379893c1b455a289",
+            "step_id": "39e5646dcb-function-coefficients-001-template"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "61ac47f7c30432b37dbc2438",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "6746483dcb137d474c4235f98857d7f836ce9a7104ecd37513ba5601673c8054",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把一般式代入题给关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已设解析式",
+                  "math": "\\begin{gathered}f(x)=a x + b,\\quad a\\ne0\\\\f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3\\end{gathered}"
+                },
+                {
+                  "label": "代入并整理",
+                  "math": "a^{2} x + a b + b = 4 x - 3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "每个函数调用都按同一个一般式代入。题目给出的初值也要一起代入。"
+            },
+            "id": "61ac47f7c30432b37dbc2438#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a^{2} x + a b + b + 1 = 4 x - 3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a^{2} x + a b + b = 4 x - 3$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把已设的解析式代入下面的条件，展开后得到什么？",
+            "stem_board": {
+              "caption": "把一般式代入题给关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已设解析式",
+                  "math": "\\begin{gathered}f(x)=a x + b,\\quad a\\ne0\\\\f{\\left(f{\\left(x \\right)} \\right)} = 4 x - 3\\end{gathered}"
+                },
+                {
+                  "label": "代入并整理",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把一般式代入题给关系"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "a89c836685514bfd732b8c02eff7e6b7843e59eebd7aa42b1530fa8fa3bc0377",
+            "step_id": "39e5646dcb-function-coefficients-002-expand"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2f8c654e3cfa0349af2bbcd0",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "be3cca5c1f79a7186c76db673fd1b4ba3bfededf830ddad569c99f2790f702d9",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "同次幂的系数分别相等",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "比较系数（缺项记为 0）",
+                  "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 1&a^{2}&4\\\\0&a b + b&-3\\end{array}"
+                },
+                {
+                  "label": "系数满足的方程",
+                  "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "分别比较二次项、一次项和常数项。只在某一个数处相等，不能这样比较系数。"
+            },
+            "id": "2f8c654e3cfa0349af2bbcd0#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\begin{gathered}a^{2} - 3 = 0\\\\a b + b + 4 = 0\\end{gathered}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "上一步得到 $a^{2} x + a b + b = 4 x - 3$，且对任意实数 $x$ 都成立。比较同次幂的系数，应列出哪组方程？",
+            "stem_board": {
+              "caption": "同次幂的系数分别相等",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "比较系数（缺项记为 0）",
+                  "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 1&a^{2}&4\\\\0&a b + b&-3\\end{array}"
+                },
+                {
+                  "label": "系数满足的方程",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "同次幂的系数分别相等"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8dd0c02a2a020f1133e5c9f50e9fe667856df48cfeb8d22747d0ff369417ad4b",
+            "step_id": "39e5646dcb-function-coefficients-003-compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b77abe5f0e51781662f7d30e",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "319abde6762b19667df3ca8cb099e85f15077b9bfde454f77b30b0a89ba9abc6",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求出所有系数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "系数方程",
+                  "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+                },
+                {
+                  "label": "全部系数组合",
+                  "math": "\\begin{gathered}a=-2,\\quad b=3\\\\a=2,\\quad b=-1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "每组系数都要满足全部方程，且最高次项系数不为 0。如果有多组合法解，需全部保留。"
+            },
+            "id": "b77abe5f0e51781662f7d30e#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\begin{gathered}a=-2,\\quad b=3\\\\a=2,\\quad b=-1\\end{gathered}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a=-2,\\quad b=3$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "解这组方程，并保留所有符合函数类型的结果。",
+            "stem_board": {
+              "caption": "求出所有系数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "系数方程",
+                  "math": "\\begin{gathered}a^{2} = 4\\\\b \\left(a + 1\\right) = -3\\end{gathered}"
+                },
+                {
+                  "label": "全部系数组合",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求出所有系数"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "466dcc9bf5023b4ee9b2102e77f6c25fe780370d192ffeda58aa6c46d03f6289",
+            "step_id": "39e5646dcb-function-coefficients-004-solve"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "411fbd64ab754cf12e740269",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "69ee33ece0f09bf240b43802662447cf16ab2f70da352b4d603a03a4996a5c77",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把每个结果代回检查",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "得到的解析式",
+                  "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\text{或}\\\\f(x)=2 x - 1\\end{gathered}"
+                },
+                {
+                  "label": "回验原题的每个等式",
+                  "math": "\\begin{gathered}f(x)=- 2 x + 3:\\quad 4 x - 3 = 4 x - 3\\\\f(x)=2 x - 1:\\quad 4 x - 3 = 4 x - 3\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "逐个代回原题的全部等式，左右两边恒等；最高次项系数也满足题给函数类型。"
+            },
+            "id": "411fbd64ab754cf12e740269#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "只检查其中一个解析式",
+                  "value": "o2"
+                },
+                {
+                  "label": "逐个代回原关系，并检查函数类型",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已经求出这些解析式，怎样确认它们都符合题意？",
+            "stem_board": {
+              "caption": "把每个结果代回检查",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "得到的解析式",
+                  "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\text{或}\\\\f(x)=2 x - 1\\end{gathered}"
+                },
+                {
+                  "label": "回验原题的每个等式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把每个结果代回检查"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bf9ef5f154944a216d21050ff09f77ad7d569413e33f3ff7ef968d9a950f8ed5",
+            "step_id": "39e5646dcb-function-coefficients-005-verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "02dd0c2591239bf66102e9d2",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "efc5782c50133d78174b657a28a122361e2f5182fdfff8bb72f266862acdc381",
+        "lesson_version": "e9a1ff4429cb536caaaab938b4b7a6499af996336f882d4c72d91f868d5d056b",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "回到原题，计算函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各个解析式的计算结果",
+                  "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\Rightarrow\\quad f(1)=1\\\\f(x)=2 x - 1\\quad\\Rightarrow\\quad f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "原题答案",
+                  "math": "f(1)=1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "将题目要求的输入分别代入所有解析式，得到的函数值相同，因此这一问有唯一答案。"
+            },
+            "id": "02dd0c2591239bf66102e9d2#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "有多个解析式，所以函数值不能确定",
+                  "value": "o3"
+                },
+                {
+                  "label": "$1$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题目问的是 $f(1)$。将它代入每个解析式后，应怎样回答？",
+            "stem_board": {
+              "caption": "回到原题，计算函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各个解析式的计算结果",
+                  "math": "\\begin{gathered}f(x)=- 2 x + 3\\quad\\Rightarrow\\quad f(1)=1\\\\f(x)=2 x - 1\\quad\\Rightarrow\\quad f(1)=1\\end{gathered}"
+                },
+                {
+                  "label": "原题答案",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "回到原题，计算函数值"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "dbf0c1c8ce994fb8855b46689e8ac0a0",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c8dc29d24b720756ab93c60ab63c2cae8e911957ffac339c1e197d62e7ade66d",
+            "step_id": "39e5646dcb-function-coefficients-006-answer"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

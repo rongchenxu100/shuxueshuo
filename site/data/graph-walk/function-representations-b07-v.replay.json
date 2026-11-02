@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-b07-v",
+  "bundleVersion": "[\"stream\",\"2786ff97fe8cbf63ee82a8740b339a575ed1ff6e94024a7131e26cca2fb319ce\",\"d808b6c07993eb847e9aa1d40b82d7d80c2df17f0ef8b6a8996a57dd9e424784\",\"6aedaffb1ac8467dbedb14dd0f7fe3bc\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "function-assignment"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-formula"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "two_variables"
+        ],
+        "method": "assignment",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "2e749e72e6cf95ad844cc8aa#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "22ec90180a272441545e245c#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "e202f000ca6f679907b485a5#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "22f041fa980e84d6f1749454#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "20d8c868d3c493f0af0d8b93#1",
+      "answer": "o1"
+    }
+  ]
+}

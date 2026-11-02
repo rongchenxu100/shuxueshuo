@@ -1,0 +1,2155 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-v1",
+  "graphVersion": "20d110e5ecbab122036621d714e832a18a214321de6e5f1e7ef61f1ca0bda0c9",
+  "problem": {
+    "text": "已知 $f(\\frac{x}{x+1})=x-1$，则 $f(x)=$ ______。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这道题需要求什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "求出函数解析式，并写出适用范围"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "只求出函数解析式",
+            "feedback": "还要写明求出的解析式在哪些输入上成立。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "还要写明求出的解析式在哪些输入上成立。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-abstract-function-domain",
+        "type-function-formula",
+        "type-function-domain",
+        "type-function-equality",
+        "type-function-evaluation",
+        "type-function-range",
+        "type-piecewise-composition",
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "求出函数解析式，并写出适用范围"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域"
+          },
+          {
+            "value": "type-function-formula",
+            "label": "求函数的解析式",
+            "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-formula"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-abstract-function-domain",
+        "type-function-formula"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-formula"
+        ],
+        "edges": [
+          "type-function-formula|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+        ],
+        "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "composite_input"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "这道题的线索在函数括号里：可以换元，也可以尝试配凑。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "如一次函数、二次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "已知复合函数的解析式",
+                "note": "如 $f\\left(\\frac{x}{x + 1}\\right)=x - 1$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "函数括号里是 $\\frac{x}{x + 1}$。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation"
+        ],
+        "type": "method_cards",
+        "methods": [
+          {
+            "value": "coefficients",
+            "label": "待定系数法"
+          },
+          {
+            "value": "substitution",
+            "label": "换元法",
+            "target": "method-function-substitution",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "function-substitution"
+          },
+          {
+            "value": "matching",
+            "label": "配凑法"
+          },
+          {
+            "value": "system",
+            "label": "构造方程组法"
+          },
+          {
+            "value": "assignment",
+            "label": "赋值法"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+          "value": "not_triggered"
+        },
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。",
+          "value": "fit"
+        },
+        "substitution": {
+          "message": "把函数括号里的式子设为新变量：先令 $t=\\frac{x}{x + 1}$，再把右边改写成 $t$ 的式子。",
+          "value": "fit"
+        },
+        "system": {
+          "message": "这里没有两个相互关联的函数值，暂不需要构造方程组。",
+          "value": "not_triggered"
+        }
+      },
+      "source": "authored",
+      "alternatives": {
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。"
+        }
+      },
+      "candidateNodes": [
+        "rule-function-formula-method",
+        "method-function-substitution"
+      ],
+      "effects": {
+        "nodes": [
+          "rule-function-formula-method"
+        ],
+        "edges": [
+          "type-function-formula|method_rule|rule-function-formula-method"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "根据本题条件选择解题方法。"
+      }
+    }
+  ],
+  "routes": {
+    "function-substitution": {
+      "id": "function-substitution",
+      "method": "method-function-substitution",
+      "label": "换元法求函数解析式",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "换元后，哪些数不能取",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原关系与换元",
+                "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\t=\\frac{x}{x + 1}\\end{gathered}"
+              },
+              {
+                "label": "新变量的限制",
+                "math": "t\\ne1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "将分式改写成 $t=1 - \\frac{1}{x + 1}$，分数部分不可能等于 $0$，所以 $t\\ne1$。"
+          },
+          "id": "b02ac3a2c4b5fc399b7c0ab1#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$t\\ne1$",
+                "value": "o1"
+              },
+              {
+                "label": "$t\\ne-1$",
+                "value": "o2"
+              },
+              {
+                "label": "$t\\in\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "原题中 $x\\ne-1$。令 $t=\\frac{x}{x + 1}$，$t$ 不能取哪些值？",
+          "stem_board": {
+            "caption": "换元后，哪些数不能取",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原关系与换元",
+                "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\t=\\frac{x}{x + 1}\\end{gathered}"
+              },
+              {
+                "label": "新变量的限制",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "换元后，哪些数不能取",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "a90d4ff881605d1528eeeb5d209066d3109143ba960b55817dbdb17d8d137c24",
+              "step_id": "39e5646dcb-function-substitution-001-input_range"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b02ac3a2c4b5fc399b7c0ab1",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "换元后，哪些数不能取",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：换元后，哪些数不能取"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "用新变量表示原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元与范围",
+                "math": "\\begin{gathered}t=\\frac{x}{x + 1}\\\\t\\ne1\\end{gathered}"
+              },
+              {
+                "label": "原变量",
+                "math": "x=\\frac{t}{1 - t}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$t=\\frac{x}{x + 1}$\n$t\\left(x + 1\\right)=x$\n$\\left(t - 1\\right)x=- t$\n$x=\\frac{t}{1 - t}$"
+          },
+          "id": "ac6b74e88b01e1b36ffa3f48#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x=\\frac{t}{1 - t}$",
+                "value": "o1"
+              },
+              {
+                "label": "$x=\\frac{t}{t + 1}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "由 $t=\\frac{x}{x + 1}$ 解出 $x$，应该得到哪个式子？",
+          "stem_board": {
+            "caption": "用新变量表示原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元与范围",
+                "math": "\\begin{gathered}t=\\frac{x}{x + 1}\\\\t\\ne1\\end{gathered}"
+              },
+              {
+                "label": "原变量",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "用新变量表示原变量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "01fd5bdec583510b3ea6bde2bd22569c91680a48be4906aac4f076f4acee275d",
+              "step_id": "39e5646dcb-function-substitution-002-inverse"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "ac6b74e88b01e1b36ffa3f48",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "用新变量表示原变量",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：用新变量表示原变量"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把右式全部改写为新变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与反解",
+                "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\x=\\frac{t}{1 - t}\\end{gathered}"
+              },
+              {
+                "label": "恢复的规则",
+                "math": "f(t)=\\frac{2 t - 1}{1 - t}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$f(t)=\\frac{2 t - 1}{1 - t}$\n$t\\ne1$"
+          },
+          "id": "0fc636efa47c103504b67400#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(t)=t - 1$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(t)=\\frac{2 t - 1}{1 - t}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将已得到的反解代入原关系，$f(t)$ 等于什么？",
+          "stem_board": {
+            "caption": "把右式全部改写为新变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原式与反解",
+                "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\x=\\frac{t}{1 - t}\\end{gathered}"
+              },
+              {
+                "label": "恢复的规则",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把右式全部改写为新变量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "ed4fa5f8204dd3785cece420b23ad3964b9d319ec3fb3a966883cae4b7a07bdc",
+              "step_id": "39e5646dcb-function-substitution-003-rewrite"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "0fc636efa47c103504b67400",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把右式全部改写为新变量",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把右式全部改写为新变量"
+          }
+        },
+        {
+          "answer_completion": {
+            "bounds": [
+              -2,
+              2
+            ],
+            "coverage": "任取 $t\\ne1$ 中的一个数，取原变量 $x=\\frac{t}{1 - t}$，就能使 $t=\\frac{x}{x + 1}$。因此，这个范围里的每个数都能取到。范围外的函数值，题目没有告诉我们。",
+            "formula": "f(x)=\\frac{2 x - 1}{- x + 1}",
+            "given": "$f(t)=\\frac{2 t - 1}{1 - t}$\n$t\\ne1$",
+            "ranges": [
+              {
+                "condition": "x\\ne1",
+                "excluded": [
+                  1
+                ],
+                "left": null,
+                "left_closed": false,
+                "right": null,
+                "right_closed": false,
+                "value": "o1"
+              },
+              {
+                "condition": "x\\ne-1",
+                "excluded": [
+                  -1
+                ],
+                "left": null,
+                "left_closed": false,
+                "right": null,
+                "right_closed": false,
+                "value": "o2"
+              },
+              {
+                "condition": "x\\in\\mathbb{R}",
+                "left": null,
+                "left_closed": false,
+                "right": null,
+                "right_closed": false,
+                "value": "o3"
+              }
+            ],
+            "reminder": "换元后得到的范围，要随解析式一起保留。",
+            "ticks": [
+              {
+                "at": -1,
+                "label": "-1"
+              },
+              {
+                "at": 0,
+                "label": "0"
+              },
+              {
+                "at": 1,
+                "label": "1"
+              }
+            ],
+            "variable": "x"
+          },
+          "completion_board": {
+            "caption": "写出完整答案",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面已经得到",
+                "math": "\\begin{gathered}f(t)=\\frac{2 t - 1}{1 - t}\\\\t\\ne1\\end{gathered}"
+              },
+              {
+                "label": "完整答案",
+                "math": "\\begin{gathered}f(x)=\\frac{2 x - 1}{- x + 1}\\\\x\\ne1\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "换元后得到的范围，要随解析式一起保留。"
+          },
+          "id": "933bfebb7c02a131557a25d4#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "化简后的式子不代表任意实数都能取。原关系没有确定被排除位置的函数值。",
+                "label": "$x\\in\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "feedback": "换元后得到的范围，要随解析式一起保留。",
+                "label": "$x\\ne1$",
+                "value": "o1"
+              },
+              {
+                "feedback": "这是原题中 $x$ 的限制。答案里应保留换元后 $t$ 的限制：$t\\ne1$。",
+                "label": "$x\\ne-1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把字母 $t$ 换成 $x$，取值范围也要保留。请补全答案。",
+          "stem_board": {
+            "caption": "写出完整答案",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面已经得到",
+                "math": "\\begin{gathered}f(t)=\\frac{2 t - 1}{1 - t}\\\\t\\ne1\\end{gathered}"
+              },
+              {
+                "label": "完整答案",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认答案",
+          "title": "写出完整答案",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "c2be49e5d528e03178f17ef793ff3256763b848bb1b94e30c3edc21142657760",
+              "step_id": "39e5646dcb-function-substitution-004-coverage"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "933bfebb7c02a131557a25d4",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "写出完整答案",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：写出完整答案"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+            "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Mul",
+              "args": [
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Add",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Mul",
+                          "args": [
+                            {
+                              "$math": "Integer",
+                              "value": "-1"
+                            },
+                            {
+                              "$math": "Symbol",
+                              "name": "t"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "2"
+                        },
+                        {
+                          "$math": "Symbol",
+                          "name": "t"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "(2*t - 1)/(1 - t)",
+            "latex": "\\frac{2 t - 1}{1 - t}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, -1), Interval.open(-1, oo))",
+            "latex": "\\left(-\\infty, -1\\right) \\cup \\left(-1, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "math_steps": [
+          {
+            "math_step_sha256": "a90d4ff881605d1528eeeb5d209066d3109143ba960b55817dbdb17d8d137c24",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          },
+          {
+            "math_step_sha256": "01fd5bdec583510b3ea6bde2bd22569c91680a48be4906aac4f076f4acee275d",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          },
+          {
+            "math_step_sha256": "ed4fa5f8204dd3785cece420b23ad3964b9d319ec3fb3a966883cae4b7a07bdc",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          },
+          {
+            "math_step_sha256": "c2be49e5d528e03178f17ef793ff3256763b848bb1b94e30c3edc21142657760",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "16f647a765268f0d5ad3cb907b2e42ca63df1b05f23886a346ee81a8c8a1852e",
+        "verified_route_sha256": "a2d23219a44c753f174f79f8fd4d9821a0196d381850ef0b66fe6cc5b713bd49"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-formula",
+        "kind": "problem_type",
+        "label": "求函数的解析式",
+        "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-composition",
+        "kind": "problem_type",
+        "label": "复合型分段函数问题",
+        "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "rule-function-formula-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "求函数解析式的选法判断",
+        "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-function-substitution",
+        "kind": "method",
+        "label": "换元法求函数解析式",
+        "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "recover",
+            "title": "整体换元并恢复规则",
+            "calls": [
+              "skill-expression-defined",
+              "method-substitution",
+              "skill-simplify",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "独立核验规则与覆盖",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined",
+        "kind": "skill",
+        "label": "提取表达式有意义的条件",
+        "summary": "按原式结构找到根号、分母、零次幂底数等限制位置，逐条列出有意义的条件并保留出处。",
+        "aliases": []
+      },
+      {
+        "id": "method-substitution",
+        "kind": "skill",
+        "label": "换元",
+        "summary": "把一个碍事或反复出现的整体设成新字母，条件、要求的式子和取值范围都跟着换成新字母。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-equality-transform",
+        "kind": "skill",
+        "label": "等式变形与推导",
+        "summary": "用两边同加减、同乘除等办法整理等式，并分清每一步能不能倒推回去。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-function-substitution|calls|method-substitution",
+        "from": "method-function-substitution",
+        "to": "method-substitution",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-equality-transform",
+        "from": "method-function-substitution",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-expression-defined",
+        "from": "method-function-substitution",
+        "to": "skill-expression-defined",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-substitution|calls|skill-simplify",
+        "from": "method-function-substitution",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "recover",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "rule-function-formula-method|selects|method-function-substitution",
+        "from": "rule-function-formula-method",
+        "to": "method-function-substitution",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "substitution",
+            "condition": "当前支持 f(a√x+b)=ux+v√x+w，固定有理系数且 a≠0；整体换元后保留新变量范围，再反解原变量。"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|candidate|method-function-substitution",
+        "from": "type-function-formula",
+        "to": "method-function-substitution",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|involves|function-concept",
+        "from": "type-function-formula",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-formula|method_rule|rule-function-formula-method",
+        "from": "type-function-formula",
+        "to": "rule-function-formula-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-composition|involves|function-concept",
+        "from": "type-piecewise-composition",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|function-concept",
+        "from": "type-piecewise-function",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-expression-defined",
+          "method-substitution",
+          "skill-simplify",
+          "skill-equality-transform"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"48903fbe1b4c84ac6911488dd08f1f82762e45c9bbefa0de61acfe294d0dae9a\",\"3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab\",\"bf29aee60ef041d8a5332de2be732b86\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "bf29aee60ef041d8a5332de2be732b86",
+    "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+    "stream_id": "bf29aee60ef041d8a5332de2be732b86",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "48903fbe1b4c84ac6911488dd08f1f82762e45c9bbefa0de61acfe294d0dae9a",
+    "d3": {
+      "expected_answer": {
+        "checks": {
+          "source_structure": "composite_input"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "这道题的线索在函数括号里：可以换元，也可以尝试配凑。",
+            "id": "source_structure",
+            "options": [
+              {
+                "label": "已知函数类型",
+                "note": "如一次函数、二次函数",
+                "value": "function_type"
+              },
+              {
+                "label": "已知复合函数的解析式",
+                "note": "如 $f\\left(\\frac{x}{x + 1}\\right)=x - 1$",
+                "value": "composite_input"
+              },
+              {
+                "label": "出现关联函数值",
+                "note": "如 $f(x)$ 与 $f(-x)$",
+                "value": "paired_values"
+              },
+              {
+                "label": "含两个变量的恒等式",
+                "note": "对任意 $x,y$ 成立",
+                "value": "two_variables"
+              }
+            ],
+            "question": "题目给了哪类条件？",
+            "resolved": "函数括号里是 $\\frac{x}{x + 1}$。"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "function_type",
+            "method": "coefficients"
+          },
+          {
+            "cue": "composite_input",
+            "method": "substitution"
+          },
+          {
+            "cue": "composite_input",
+            "method": "matching"
+          },
+          {
+            "cue": "paired_values",
+            "method": "system"
+          },
+          {
+            "cue": "two_variables",
+            "method": "assignment"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "待定系数法",
+            "value": "coefficients"
+          },
+          {
+            "label": "换元法",
+            "value": "substitution"
+          },
+          {
+            "label": "配凑法",
+            "value": "matching"
+          },
+          {
+            "label": "构造方程组法",
+            "value": "system"
+          },
+          {
+            "label": "赋值法",
+            "value": "assignment"
+          }
+        ],
+        "method_notes": {},
+        "source_refs": [
+          "/root/goals/0/function",
+          "/root/goals/0/variable",
+          "/root/goals/0/relation"
+        ],
+        "type": "method_cards"
+      },
+      "query": {
+        "from": "type-function-formula",
+        "op": "methods"
+      },
+      "question": "根据题目条件，沿连线选择一种方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "assignment": {
+          "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+          "value": "not_triggered"
+        },
+        "coefficients": {
+          "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+          "value": "not_triggered"
+        },
+        "matching": {
+          "message": "配凑法也适用：可以把右边凑成整体输入的式子。这条路线的步骤暂未开放，可改选换元法继续。",
+          "value": "fit"
+        },
+        "substitution": {
+          "message": "把函数括号里的式子设为新变量：先令 $t=\\frac{x}{x + 1}$，再把右边改写成 $t$ 的式子。",
+          "value": "fit"
+        },
+        "system": {
+          "message": "这里没有两个相互关联的函数值，暂不需要构造方程组。",
+          "value": "not_triggered"
+        }
+      }
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "substitution",
+          "message": "开始解题",
+          "method": "method-function-substitution",
+          "recommendation": "preferred",
+          "route_id": "function-substitution",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "按所选方法解题"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "input_range",
+        "explanation": "将分式改写成 $t=1 - \\frac{1}{x + 1}$，分数部分不可能等于 $0$，所以 $t\\ne1$。",
+        "highlight": {
+          "caption": "换元后，哪些数不能取",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原关系与换元",
+              "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\t=\\frac{x}{x + 1}\\end{gathered}"
+            },
+            {
+              "label": "新变量的限制",
+              "math": "t\\ne1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "local_check": "passed",
+        "math_step_sha256": "a90d4ff881605d1528eeeb5d209066d3109143ba960b55817dbdb17d8d137c24",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "11966d6cb1f00f69e5dc5e8348ad9110c07250105ed29aeb99417b8ae67ea69e",
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "target_ref": "/root/goals/0",
+        "title": "换元后，哪些数不能取",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inverse",
+        "explanation": "$t=\\frac{x}{x + 1}$\n$t\\left(x + 1\\right)=x$\n$\\left(t - 1\\right)x=- t$\n$x=\\frac{t}{1 - t}$",
+        "highlight": {
+          "caption": "用新变量表示原变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "换元与范围",
+              "math": "\\begin{gathered}t=\\frac{x}{x + 1}\\\\t\\ne1\\end{gathered}"
+            },
+            {
+              "label": "原变量",
+              "math": "x=\\frac{t}{1 - t}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "local_check": "passed",
+        "math_step_sha256": "01fd5bdec583510b3ea6bde2bd22569c91680a48be4906aac4f076f4acee275d",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "11966d6cb1f00f69e5dc5e8348ad9110c07250105ed29aeb99417b8ae67ea69e",
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "target_ref": "/root/goals/0",
+        "title": "用新变量表示原变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "rewrite",
+        "explanation": "$f(t)=\\frac{2 t - 1}{1 - t}$\n$t\\ne1$",
+        "highlight": {
+          "caption": "把右式全部改写为新变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原式与反解",
+              "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\x=\\frac{t}{1 - t}\\end{gathered}"
+            },
+            {
+              "label": "恢复的规则",
+              "math": "f(t)=\\frac{2 t - 1}{1 - t}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "local_check": "passed",
+        "math_step_sha256": "ed4fa5f8204dd3785cece420b23ad3964b9d319ec3fb3a966883cae4b7a07bdc",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "11966d6cb1f00f69e5dc5e8348ad9110c07250105ed29aeb99417b8ae67ea69e",
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "target_ref": "/root/goals/0",
+        "title": "把右式全部改写为新变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "coverage",
+        "explanation": "换元后得到的范围，要随解析式一起保留。",
+        "highlight": {
+          "caption": "写出完整答案",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "前面已经得到",
+              "math": "\\begin{gathered}f(t)=\\frac{2 t - 1}{1 - t}\\\\t\\ne1\\end{gathered}"
+            },
+            {
+              "label": "完整答案",
+              "math": "\\begin{gathered}f(x)=\\frac{2 x - 1}{- x + 1}\\\\x\\ne1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "local_check": "passed",
+        "math_step_sha256": "c2be49e5d528e03178f17ef793ff3256763b848bb1b94e30c3edc21142657760",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "11966d6cb1f00f69e5dc5e8348ad9110c07250105ed29aeb99417b8ae67ea69e",
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "target_ref": "/root/goals/0",
+        "title": "写出完整答案",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-001-input_range\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-002-inverse\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-003-rewrite\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-substitution\",\"39e5646dcb-function-substitution-004-coverage\"]": [
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "skill-expression-defined"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "method-substitution"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-substitution",
+          "step": "recover",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "skill-equality-transform"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "ordinal": 1,
+        "math_step_sha256": "a90d4ff881605d1528eeeb5d209066d3109143ba960b55817dbdb17d8d137c24",
+        "status": "interactive",
+        "interaction_id": "b02ac3a2c4b5fc399b7c0ab1"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "ordinal": 2,
+        "math_step_sha256": "01fd5bdec583510b3ea6bde2bd22569c91680a48be4906aac4f076f4acee275d",
+        "status": "interactive",
+        "interaction_id": "ac6b74e88b01e1b36ffa3f48"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "ordinal": 3,
+        "math_step_sha256": "ed4fa5f8204dd3785cece420b23ad3964b9d319ec3fb3a966883cae4b7a07bdc",
+        "status": "interactive",
+        "interaction_id": "0fc636efa47c103504b67400"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "ordinal": 4,
+        "math_step_sha256": "c2be49e5d528e03178f17ef793ff3256763b848bb1b94e30c3edc21142657760",
+        "status": "interactive",
+        "interaction_id": "933bfebb7c02a131557a25d4"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b02ac3a2c4b5fc399b7c0ab1",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "9e2fa312bb0edab4434f1eb7a65988f63a0583ee23af3798da6ef96f6fec5fa2",
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "换元后，哪些数不能取",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系与换元",
+                  "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\t=\\frac{x}{x + 1}\\end{gathered}"
+                },
+                {
+                  "label": "新变量的限制",
+                  "math": "t\\ne1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "将分式改写成 $t=1 - \\frac{1}{x + 1}$，分数部分不可能等于 $0$，所以 $t\\ne1$。"
+            },
+            "id": "b02ac3a2c4b5fc399b7c0ab1#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$t\\ne1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$t\\ne-1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$t\\in\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原题中 $x\\ne-1$。令 $t=\\frac{x}{x + 1}$，$t$ 不能取哪些值？",
+            "stem_board": {
+              "caption": "换元后，哪些数不能取",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系与换元",
+                  "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\t=\\frac{x}{x + 1}\\end{gathered}"
+                },
+                {
+                  "label": "新变量的限制",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "换元后，哪些数不能取"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "a90d4ff881605d1528eeeb5d209066d3109143ba960b55817dbdb17d8d137c24",
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ac6b74e88b01e1b36ffa3f48",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "39dce4e9f5e882806cef83777f429bef557f75348166be8b8ae4a1ac3d7d81de",
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "用新变量表示原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=\\frac{x}{x + 1}\\\\t\\ne1\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": "x=\\frac{t}{1 - t}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$t=\\frac{x}{x + 1}$\n$t\\left(x + 1\\right)=x$\n$\\left(t - 1\\right)x=- t$\n$x=\\frac{t}{1 - t}$"
+            },
+            "id": "ac6b74e88b01e1b36ffa3f48#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x=\\frac{t}{1 - t}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x=\\frac{t}{t + 1}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $t=\\frac{x}{x + 1}$ 解出 $x$，应该得到哪个式子？",
+            "stem_board": {
+              "caption": "用新变量表示原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=\\frac{x}{x + 1}\\\\t\\ne1\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "用新变量表示原变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "01fd5bdec583510b3ea6bde2bd22569c91680a48be4906aac4f076f4acee275d",
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0fc636efa47c103504b67400",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "f9bd6dacdd89876d47f3e5dea3f9eff131d65451d3a8f6c9d473510fcfed7ef9",
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\x=\\frac{t}{1 - t}\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": "f(t)=\\frac{2 t - 1}{1 - t}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(t)=\\frac{2 t - 1}{1 - t}$\n$t\\ne1$"
+            },
+            "id": "0fc636efa47c103504b67400#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(t)=t - 1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(t)=\\frac{2 t - 1}{1 - t}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将已得到的反解代入原关系，$f(t)$ 等于什么？",
+            "stem_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(\\frac{x}{x + 1})=x - 1\\\\x=\\frac{t}{1 - t}\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把右式全部改写为新变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ed4fa5f8204dd3785cece420b23ad3964b9d319ec3fb3a966883cae4b7a07bdc",
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "933bfebb7c02a131557a25d4",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "cd10845113724de8298d654e6ed660a15b0971eabd837e38e3e40f64c2afa463",
+        "lesson_version": "3ac1cb354ec9147ade2556da5fa265dd7c8aef25b1e765cc273b1613c10345ab",
+        "parts": [
+          {
+            "answer_completion": {
+              "bounds": [
+                -2,
+                2
+              ],
+              "coverage": "任取 $t\\ne1$ 中的一个数，取原变量 $x=\\frac{t}{1 - t}$，就能使 $t=\\frac{x}{x + 1}$。因此，这个范围里的每个数都能取到。范围外的函数值，题目没有告诉我们。",
+              "formula": "f(x)=\\frac{2 x - 1}{- x + 1}",
+              "given": "$f(t)=\\frac{2 t - 1}{1 - t}$\n$t\\ne1$",
+              "ranges": [
+                {
+                  "condition": "x\\ne1",
+                  "excluded": [
+                    1
+                  ],
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o1"
+                },
+                {
+                  "condition": "x\\ne-1",
+                  "excluded": [
+                    -1
+                  ],
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o2"
+                },
+                {
+                  "condition": "x\\in\\mathbb{R}",
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o3"
+                }
+              ],
+              "reminder": "换元后得到的范围，要随解析式一起保留。",
+              "ticks": [
+                {
+                  "at": -1,
+                  "label": "-1"
+                },
+                {
+                  "at": 0,
+                  "label": "0"
+                },
+                {
+                  "at": 1,
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            "completion_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=\\frac{2 t - 1}{1 - t}\\\\t\\ne1\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": "\\begin{gathered}f(x)=\\frac{2 x - 1}{- x + 1}\\\\x\\ne1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "换元后得到的范围，要随解析式一起保留。"
+            },
+            "id": "933bfebb7c02a131557a25d4#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "化简后的式子不代表任意实数都能取。原关系没有确定被排除位置的函数值。",
+                  "label": "$x\\in\\mathbb{R}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "换元后得到的范围，要随解析式一起保留。",
+                  "label": "$x\\ne1$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "这是原题中 $x$ 的限制。答案里应保留换元后 $t$ 的限制：$t\\ne1$。",
+                  "label": "$x\\ne-1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把字母 $t$ 换成 $x$，取值范围也要保留。请补全答案。",
+            "stem_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=\\frac{2 t - 1}{1 - t}\\\\t\\ne1\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认答案",
+            "title": "写出完整答案"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "bf29aee60ef041d8a5332de2be732b86",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c2be49e5d528e03178f17ef793ff3256763b848bb1b94e30c3edc21142657760",
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

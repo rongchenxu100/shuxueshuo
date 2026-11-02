@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w11",
+  "title": "求函数的解析式 · 小条第 11 题",
+  "page": "/topics/function-representations/q11/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-w11.evidence.json",
+  "statement": "已知函数 $f(\\sqrt{x}-2)=x-4$，则函数的解析式为 $f(x)=$ ______。",
+  "preferredRoute": "function-substitution"
+}

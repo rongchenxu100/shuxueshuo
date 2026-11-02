@@ -341,6 +341,7 @@ class Scope:
         self.report, self.path, self.parent = report, path, parent
         self.local = {}
         self.functions = dict(parent.functions) if parent else {}
+        self.abstract_functions = set(parent.abstract_functions) if parent else set()
 
     def lookup(self, name):
         if name in self.local:
@@ -553,7 +554,7 @@ class Scope:
                     "call", "angle", *[self.reference(p, "point") for p in packed]
                 )
             if name not in ARITY and name not in ("fixed", "moving"):
-                if name not in self.functions or len(args) != 1:
+                if (name not in self.functions and name not in self.abstract_functions) or len(args) != 1:
                     raise NotationError("binding.unknown_function", name)
                 return node(
                     "function_call", self.reference(name, "function"), bind(args[0])
@@ -996,6 +997,11 @@ class NotationValidator:
                     from .notation_range_tasks import compile_range_task
 
                     goals.append(compile_range_task(goal, f'{path}.goals[{index}]', env))
+                    continue
+                if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
+                    from .notation_function_formula import compile_function_formula
+
+                    goals.append(compile_function_formula(goal, f'{path}.goals[{index}]'))
                     continue
                 if goal['kind'] == 'find_translation_range':
                     from .notation_translation_range import compile_translation_range

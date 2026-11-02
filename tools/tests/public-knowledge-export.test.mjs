@@ -28,17 +28,17 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 109);
+  assert.equal(data.knowledge_nodes.length, 116);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 68);
-  assert.equal(data.practice_routes.length, 82);
+  assert.equal(data.practice_problems.length, 90);
+  assert.equal(data.practice_routes.length, 110);
   const comparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q20-v2');
   // B–D each merge two scored parts into one displayed card: 15 decisions, 12 cards.
   assert.equal(comparisonSteps.length, 15, '3 intro + 11 scoped mathematical decisions + 1 original exact selection');
   const sharedComparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q19');
   assert.equal(sharedComparisonSteps.length, 15);
-  assert.equal(data.practice_steps.length, 597);
+  assert.equal(data.practice_steps.length, 817);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -100,7 +100,7 @@ test('chapter 3.1 exposes domain and equality courses with their own sources and
     assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
   }
   const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');
-  assert.equal(types.length, 4);
+  assert.equal(types.length, 3);
   for (const type of types) {
     assert.equal(type.kind, 'problem_type');
     assert.deepEqual(type.body.examples, []);

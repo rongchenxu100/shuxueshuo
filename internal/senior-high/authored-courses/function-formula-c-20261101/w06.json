@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w06",
+  "reviewer": "Codex：对照用户原图题干转录，W07 应用用户批准的非零条件。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第 6 题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$ 满足 $3f(x)+2f(1-x)=4x$，则 $f(x)$ 解析式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "3*f(x)+2*f(1-x)=4*x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "4*x-8/5",
+    "domain": "ℝ"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,0 +1,33 @@
+{
+  "original_text": "14. 设 $x\\neq0$，函数 $f(x)$ 满足 $2f(x)+f(\\frac{1}{x})=10^x$，函数 $f(x)$ 的解析式为 ______.",
+  "root": {
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "2*f(x)+f(1/x)=10^x",
+        "relation_domain": "ℝ∖{0}"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设 $x\\neq0$，函数 $f(x)$ 满足 $2f(x)+f(\\frac{1}{x})=10^x$，函数 $f(x)$ 的解析式为 ______.",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

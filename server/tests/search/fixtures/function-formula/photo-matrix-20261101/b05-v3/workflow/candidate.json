@@ -1,0 +1,48 @@
+{
+  "original_text": "【变式3】已知 $f(x-\\frac{1}{x})=x^2+\\frac{1}{x^2}$，则 $f(0)=$______，$f(x)=$______。",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_value",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x-1/x)=x^2+1/x^2",
+        "expression": "f(0)"
+      },
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x-1/x)=x^2+1/x^2"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x-\\frac{1}{x})=x^2+\\frac{1}{x^2}$，则 $f(0)=$______，$f(x)=$______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

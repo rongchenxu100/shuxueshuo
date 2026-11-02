@@ -1,0 +1,35 @@
+{
+  "original_text": "6. 已知 $f(x)$ 满足 $3f(x)+2f(1-x)=4x$，则 $f(x)$ 解析式为 ______。",
+  "root": {
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "3*f(x)+2*f(1-x)=4*x"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x)$ 满足 $3f(x)+2f(1-x)=4x$，则 $f(x)$ 解析式为 ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

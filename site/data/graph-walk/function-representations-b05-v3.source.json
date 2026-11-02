@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-v3",
+  "title": "配凑法求函数解析式 · 例5变式3",
+  "page": "/topics/function-representations/variant03/",
+  "topicHref": "/topics/function-representations/",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "先求 f(0)",
+    "再求函数的解析式"
+  ],
+  "mainTargetRef": "/root/goals/1",
+  "evidence": "site/data/graph-walk/function-representations-b05-v3.evidence.json",
+  "statement": "已知 $f(x-\\frac{1}{x})=x^2+\\frac{1}{x^2}$，则 $f(0)=$ ______，$f(x)=$ ______。"
+}

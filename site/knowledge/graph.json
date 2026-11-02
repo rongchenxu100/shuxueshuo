@@ -794,6 +794,55 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "method-function-assignment",
+      "kind": "method",
+      "label": "赋值法求函数解析式",
+      "summary": "给恒等关系中的变量赋特殊值，或令两个变量相等，先消去变量，再求出解析式并代回完整原关系。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "recover",
+          "title": "选择合法赋值并整理关系",
+          "calls": [
+            "skill-equality-transform",
+            "method-elimination",
+            "skill-simplify"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "回验完整的二元关系",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients",
+      "kind": "method",
+      "label": "待定系数法求函数解析式",
+      "summary": "按题给的一次或二次函数类型设一般式，比较系数，保留全部合法解析式，再回答原题。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "recover",
+          "title": "设式、比较系数并解出全部候选",
+          "calls": [
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "method-elimination",
+            "skill-solve-quadratic",
+            "skill-quadratic-sign",
+            "skill-equality-transform"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验全部条件与原目标",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-function-equality",
       "kind": "method",
       "label": "同一函数判定法",
@@ -844,6 +893,29 @@
       ]
     },
     {
+      "id": "method-function-equation-system",
+      "kind": "method",
+      "label": "构造方程组法求函数解析式",
+      "summary": "替换变量，让两个关联函数值交换位置；联立两个方程消元，得到解析式并代回原关系检查。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "recover",
+          "title": "替换输入、联立消元",
+          "calls": [
+            "skill-equality-transform",
+            "method-elimination",
+            "skill-simplify"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验恒等与唯一性",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-function-evaluation",
       "kind": "method",
       "label": "代入法",
@@ -863,6 +935,53 @@
         {
           "id": "verify",
           "title": "核验原式与目标结果",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-function-matching",
+      "kind": "method",
+      "label": "配凑法求函数解析式",
+      "summary": "把题目右边配成函数括号里式子的组合，读出函数规则，并保留输入能取到的范围。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "recover",
+          "title": "配成整体输入的式子",
+          "calls": [
+            "method-complete-square",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "独立核验规则与覆盖",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-function-substitution",
+      "kind": "method",
+      "label": "换元法求函数解析式",
+      "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "recover",
+          "title": "整体换元并恢复规则",
+          "calls": [
+            "skill-expression-defined",
+            "method-substitution",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "独立核验规则与覆盖",
           "calls": []
         }
       ]
@@ -1512,6 +1631,15 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "rule-function-formula-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "求函数解析式的选法判断",
+      "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-function-range-method",
       "kind": "judgment_rule",
       "subtype": "method_selection",
@@ -1676,6 +1804,13 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "skill-polynomial-coefficient-comparison",
+      "kind": "skill",
+      "label": "多项式恒等式比较系数",
+      "summary": "两个多项式对任意实数都相等时，同次幂的系数分别相等。",
+      "aliases": []
+    },
+    {
       "id": "skill-quadratic-sign",
       "kind": "skill",
       "label": "根据开口与零点判断二次式的正负",
@@ -1821,7 +1956,7 @@
       "label": "求函数的解析式",
       "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -2569,6 +2704,114 @@
       ]
     },
     {
+      "id": "method-function-assignment|calls|method-elimination",
+      "from": "method-function-assignment",
+      "to": "method-elimination",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-assignment|calls|skill-equality-transform",
+      "from": "method-function-assignment",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-assignment|calls|skill-simplify",
+      "from": "method-function-assignment",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|method-elimination",
+      "from": "method-function-coefficients",
+      "to": "method-elimination",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|skill-equality-transform",
+      "from": "method-function-coefficients",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|skill-polynomial-coefficient-comparison",
+      "from": "method-function-coefficients",
+      "to": "skill-polynomial-coefficient-comparison",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|skill-quadratic-sign",
+      "from": "method-function-coefficients",
+      "to": "skill-quadratic-sign",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|skill-simplify",
+      "from": "method-function-coefficients",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-coefficients|calls|skill-solve-quadratic",
+      "from": "method-function-coefficients",
+      "to": "skill-solve-quadratic",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-function-equality|calls|method-domain-intersection",
       "from": "method-function-equality",
       "to": "method-domain-intersection",
@@ -2592,6 +2835,42 @@
       "occurrences": [
         {
           "step": "compare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-equation-system|calls|method-elimination",
+      "from": "method-function-equation-system",
+      "to": "method-elimination",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-equation-system|calls|skill-equality-transform",
+      "from": "method-function-equation-system",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-equation-system|calls|skill-simplify",
+      "from": "method-function-equation-system",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
           "when": ""
         }
       ]
@@ -2640,6 +2919,90 @@
       "occurrences": [
         {
           "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-matching|calls|method-complete-square",
+      "from": "method-function-matching",
+      "to": "method-complete-square",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-matching|calls|skill-equality-transform",
+      "from": "method-function-matching",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-matching|calls|skill-simplify",
+      "from": "method-function-matching",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-substitution|calls|method-substitution",
+      "from": "method-function-substitution",
+      "to": "method-substitution",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-substitution|calls|skill-equality-transform",
+      "from": "method-function-substitution",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-substitution|calls|skill-expression-defined",
+      "from": "method-function-substitution",
+      "to": "skill-expression-defined",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-substitution|calls|skill-simplify",
+      "from": "method-function-substitution",
+      "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
           "when": ""
         }
       ]
@@ -3419,6 +3782,66 @@
       "type": "prerequisite",
       "occurrences": [
         {}
+      ]
+    },
+    {
+      "id": "rule-function-formula-method|selects|method-function-assignment",
+      "from": "rule-function-formula-method",
+      "to": "method-function-assignment",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "assignment",
+          "condition": "两个全称变量均取任意实数；代入零或令变量相等后，能逐步确定函数规则，并回验完整原关系。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-formula-method|selects|method-function-coefficients",
+      "from": "rule-function-formula-method",
+      "to": "method-function-coefficients",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "coefficients",
+          "condition": "可设相应一般式并形成受支持的系数恒等关系。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-formula-method|selects|method-function-equation-system",
+      "from": "rule-function-formula-method",
+      "to": "method-function-equation-system",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "system",
+          "condition": "在原合法范围内以 c−x 或 k/x 替换后，关联函数值互换，形成两个线性方程。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-formula-method|selects|method-function-matching",
+      "from": "rule-function-formula-method",
+      "to": "method-function-matching",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "matching",
+          "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-formula-method|selects|method-function-substitution",
+      "from": "rule-function-formula-method",
+      "to": "method-function-substitution",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "substitution",
+          "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。"
+        }
       ]
     },
     {
@@ -4391,6 +4814,9 @@
         },
         {
           "entry": "identity"
+        },
+        {
+          "entry": "universal-substitution"
         }
       ]
     },
@@ -4502,6 +4928,17 @@
         },
         {
           "entry": "interval"
+        }
+      ]
+    },
+    {
+      "id": "skill-polynomial-coefficient-comparison|uses|equality-properties",
+      "from": "skill-polynomial-coefficient-comparison",
+      "to": "equality-properties",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "polynomial-coefficients"
         }
       ]
     },
@@ -4994,6 +5431,51 @@
       ]
     },
     {
+      "id": "type-function-formula|candidate|method-function-assignment",
+      "from": "type-function-formula",
+      "to": "method-function-assignment",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|candidate|method-function-coefficients",
+      "from": "type-function-formula",
+      "to": "method-function-coefficients",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|candidate|method-function-equation-system",
+      "from": "type-function-formula",
+      "to": "method-function-equation-system",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|candidate|method-function-matching",
+      "from": "type-function-formula",
+      "to": "method-function-matching",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|candidate|method-function-substitution",
+      "from": "type-function-formula",
+      "to": "method-function-substitution",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-formula|involves|equality-properties",
       "from": "type-function-formula",
       "to": "equality-properties",
@@ -5052,6 +5534,15 @@
       "from": "type-function-formula",
       "to": "square-root-expression",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-formula|method_rule|rule-function-formula-method",
+      "from": "type-function-formula",
+      "to": "rule-function-formula-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

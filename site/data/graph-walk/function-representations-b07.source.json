@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b07",
+  "title": "赋值法 · 例 7",
+  "page": "/topics/function-representations/q07a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbb{R}$，$f(x+y)=2f(y)+x^2+2xy-y^2+3x-3y$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-b07.evidence.json"
+}

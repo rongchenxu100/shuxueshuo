@@ -56,6 +56,11 @@ def frozen_files():
         *Path(__file__).parent.glob("*.py"),
         package / "graph_lesson/function_equality.py",
         package / "graph_lesson/function_evaluation.py",
+        package / "graph_lesson/function_formula.py",
+        package / "graph_lesson/function_matching.py",
+        package / "graph_lesson/function_coefficients.py",
+        package / "graph_lesson/function_system.py",
+        package / "graph_lesson/function_assignment.py",
         package / "graph_lesson/domain_expression.py",
         package / "graph_lesson/range_syntax.py",
         *(package / "problem_understanding").glob("*.py"),
@@ -150,6 +155,8 @@ def _alias_policy(scope, scope_path, related):
                 # Abstract calls bind a local function identity without a body;
                 # known_call / target_call are not global scalar aliases.
                 continue
+            if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
+                continue  # Unknown function identity belongs to its relation goal.
             target = next(
                 goal[key] for key in ("symbol", "expression", "object") if key in goal
             )

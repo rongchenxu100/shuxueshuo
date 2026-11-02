@@ -1,0 +1,12 @@
+{
+  "revision": "3a019c43f4f3e7ae8dcb952ee1f991109558111b5da1c38ecb2c4ed64b7e43a6",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/public_content/scopes/0/statement",
+      "kind": "wrong_public_content",
+      "source_excerpt": "1. 已知一次函数f(x)满足f[f(x)]=4x+6，则f(x)的解析式为____",
+      "message": "公开题面当前以“1. ”开头，其中“1.”是原题/试卷来源题号，按公开内容规则应从 public_content.statement 中排除；原始转录 original_text 可保留题号。"
+    }
+  ]
+}

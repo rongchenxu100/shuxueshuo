@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-w04",
+  "bundleVersion": "[\"stream\",\"383aab72fe8fae27d99a93e5c6115b4101971f5bd661b670a99491806e4d18c7\",\"f90cc7975a890773bd733623d4315ec87ce5b8d2aa9578817472e85d2a7ad6ac\",\"5015970197da4b0a9284762c1a13ec78\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "function-matching"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-formula"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "composite_input"
+        ],
+        "method": "matching",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "86f38208361323a9c26638a4#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "8623d93f213ddb155b0183f0#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "d663cad11966202515c35a4e#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "15e678447d7bea5515c0c445#1",
+      "answer": "o1"
+    }
+  ]
+}

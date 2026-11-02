@@ -15,6 +15,38 @@
           "student_cue": 0
         }
       ]
+    },
+    {
+      "branch_id": "unknown-function-relation-value",
+      "checks": [
+        {
+          "id": "relation-value-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_value",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-original-relation",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "no-stated-type",
+          "feature_id": "function_formula",
+          "op": "eq",
+          "path": "function_type",
+          "expected": null,
+          "role": "required",
+          "student_cue": 1
+        }
+      ]
     }
   ]
 }

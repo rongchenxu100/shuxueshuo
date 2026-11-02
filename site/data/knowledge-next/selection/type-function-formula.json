@@ -1,0 +1,39 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-formula",
+  "admission": "function_formula",
+  "rule": "rule-function-formula-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-function-substitution",
+      "route_id": "function-substitution",
+      "admission": "function_formula",
+      "label": "换元法"
+    },
+    {
+      "method": "method-function-matching",
+      "route_id": "function-matching",
+      "admission": "function_matching",
+      "label": "配凑法"
+    },
+    {
+      "method": "method-function-coefficients",
+      "route_id": "function-coefficients",
+      "admission": "function_coefficients",
+      "label": "待定系数法"
+    },
+    {
+      "method": "method-function-equation-system",
+      "route_id": "function-system",
+      "admission": "function_system",
+      "label": "构造方程组法"
+    },
+    {
+      "method": "method-function-assignment",
+      "route_id": "function-assignment",
+      "admission": "function_assignment",
+      "label": "赋值法"
+    }
+  ]
+}

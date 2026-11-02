@@ -1,0 +1,665 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "needs_confirmation",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "needs_confirmation"
+  },
+  "diagnostics": [
+    {
+      "stage": "source",
+      "code": "occluded",
+      "path": "/root/uncertainties/0",
+      "source": {
+        "kind": "occluded",
+        "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+      },
+      "message": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。",
+      "action": "needs_confirmation"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "5. 已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为[无法辨认]",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)-2*f(1/x)=2*x-1",
+          "relation_domain": "ℝ∖{0}"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "unknown",
+              "selection_mode": "unspecified",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "5. 已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为[无法辨认]",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)-2*f(1/x)=2*x-1",
+          "relation_domain": "ℝ∖{0}"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)$ 满足 $f(x)-2f\\left(\\frac{1}{x}\\right)=2x-1$，$x\\ne 0$，则 $f(x)$ 的解析式为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "unknown",
+              "selection_mode": "unspecified",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "9eec5207b76ac5e03b1cb62e83b2738528c5390f5c28eec0bcf12ede30f5471e",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "function:0",
+                "function"
+              ],
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "-",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "number",
+                        "1"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "relation_domain": [
+              "set_difference",
+              [
+                "real"
+              ],
+              [
+                "set",
+                [
+                  "number",
+                  "0"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [
+          "occluded"
+        ],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "-",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "/",
+                      [
+                        "number",
+                        "1"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "relation_domain": [
+              "set_difference",
+              [
+                "real"
+              ],
+              [
+                "set",
+                [
+                  "number",
+                  "0"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "occluded",
+            "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+          }
+        ],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t1-photo-w05",
+      "source_sha256": "7e719b2b6ed8e597a985812155080f908ed85edd28d08268f72185028bee38ee"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "source",
+          "code": "occluded",
+          "path": "/root/uncertainties/0",
+          "source": {
+            "kind": "occluded",
+            "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+          },
+          "message": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。",
+          "action": "needs_confirmation"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "9eec5207b76ac5e03b1cb62e83b2738528c5390f5c28eec0bcf12ede30f5471e",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "-",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "function:0",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "function:0",
+                          "function"
+                        ],
+                        [
+                          "/",
+                          [
+                            "number",
+                            "1"
+                          ],
+                          [
+                            "ref",
+                            "scalar:0",
+                            "scalar"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "relation_domain": [
+                  "set_difference",
+                  [
+                    "real"
+                  ],
+                  [
+                    "set",
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [
+              "occluded"
+            ],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "-",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r.goals[0]:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r.goals[0]:function:f",
+                          "function"
+                        ],
+                        [
+                          "/",
+                          [
+                            "number",
+                            "1"
+                          ],
+                          [
+                            "ref",
+                            "r.goals[0]:scalar:x",
+                            "scalar"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "relation_domain": [
+                  "set_difference",
+                  [
+                    "real"
+                  ],
+                  [
+                    "set",
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "occluded",
+                "text": "题面末尾“则 f(x) 的解析式为”之后被截断，无法确认是否存在选项或后续内容。"
+              }
+            ],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t1-photo-w05",
+          "source_sha256": "7e719b2b6ed8e597a985812155080f908ed85edd28d08268f72185028bee38ee"
+        }
+      },
+      "revision": "9eec5207b76ac5e03b1cb62e83b2738528c5390f5c28eec0bcf12ede30f5471e"
+    }
+  ]
+}

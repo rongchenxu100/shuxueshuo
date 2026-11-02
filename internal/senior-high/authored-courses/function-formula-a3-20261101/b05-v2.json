@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b05-v2-r5",
+  "reviewer": "Codex：沿用已核对题面，新增配凑路线；本次编排未执行新的照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-04.png",
+      "sha256": "2cce6f08688bae2b3073848aee19189ea9c4e5607d866c59da6453c72fb5c051",
+      "location": "第92页例5变式2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(sqrt(x)+1)=2*x+1"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "2*t**2-4*t+3",
+    "determined_domain": "Interval(1, oo)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

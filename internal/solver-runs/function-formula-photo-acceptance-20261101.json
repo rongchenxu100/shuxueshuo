@@ -1,0 +1,2167 @@
+[
+  {
+    "case": "w04",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/w04",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/w04/course.evidence.json",
+    "run_id": "14cec9825b7d49599de51b64c65ba876",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 - 1",
+            "latex": "t^{2} - 1"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(0, oo)",
+            "latex": "\\left[0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution",
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w11",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/w11",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/w11/course.evidence.json",
+    "run_id": "e660da52120f4a19814783060283e199",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-2"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(-2, oo)",
+            "latex": "\\left[-2, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "4"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 4*t",
+            "latex": "t^{2} + 4 t"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval(0, oo)",
+            "latex": "\\left[0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution",
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b05",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b05",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b05/course.evidence.json",
+    "run_id": "06b7bd0189ca49c897d8ed7999048788",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 - 1",
+            "latex": "t^{2} - 1"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution",
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b05-v1",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b05-v1",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b05-v1/course.evidence.json",
+    "run_id": "0e37268190e94b4ea74237dff3e57aa2",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+            "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Mul",
+              "args": [
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Add",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Mul",
+                          "args": [
+                            {
+                              "$math": "Integer",
+                              "value": "-1"
+                            },
+                            {
+                              "$math": "Symbol",
+                              "name": "t"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "2"
+                        },
+                        {
+                          "$math": "Symbol",
+                          "name": "t"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "(2*t - 1)/(1 - t)",
+            "latex": "\\frac{2 t - 1}{1 - t}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, -1), Interval.open(-1, oo))",
+            "latex": "\\left(-\\infty, -1\\right) \\cup \\left(-1, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b05-v3",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b05-v3",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b05-v3/course.evidence.json",
+    "run_id": "a5164f654ad4489196a9571156f474af",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "defined": true,
+          "domain": {
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": null,
+          "is_constant": null,
+          "kind": "find_value",
+          "result_type": "scalar_value",
+          "status": "complete",
+          "value": {
+            "expression": "2",
+            "latex": "2"
+          }
+        },
+        "routes": [
+          "function-evaluation"
+        ]
+      },
+      {
+        "target": "/root/goals/1",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 2",
+            "latex": "t^{2} + 2"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b04",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b04",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b04/course.evidence.json",
+    "run_id": "3b2a298a6bb04c3d99ddf7a0066a7153",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "candidate_values": [
+            {
+              "exact": {
+                "$math": "Integer",
+                "value": "1"
+              },
+              "expression": "1",
+              "latex": "1"
+            },
+            {
+              "exact": {
+                "$math": "Integer",
+                "value": "1"
+              },
+              "expression": "1",
+              "latex": "1"
+            }
+          ],
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "3"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "3 - 2*x",
+              "latex": "- 2 x + 3"
+            },
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "2*x - 1",
+              "latex": "2 x - 1"
+            }
+          ],
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "function": "f",
+          "kind": "find_value",
+          "status": "complete",
+          "value": {
+            "exact": {
+              "$math": "Integer",
+              "value": "1"
+            },
+            "expression": "1",
+            "latex": "1"
+          },
+          "variable": "x"
+        },
+        "routes": [
+          "function-coefficients"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w10",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/w10",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/w10/course.evidence.json",
+    "run_id": "75f6efb9f62a487f9271430703d712b4",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "-3",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "7",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-3*x**2/2 + 7*x/2",
+              "latex": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+            }
+          ],
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "function": "f",
+          "kind": "find_range",
+          "set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "7",
+                  "q": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(0, 7/3)",
+            "latex": "\\left(0, \\frac{7}{3}\\right)"
+          },
+          "status": "set",
+          "variable": "x"
+        },
+        "routes": [
+          "function-coefficients"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b06-v",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b06-v",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b06-v/course-final.evidence.json",
+    "run_id": "f2506f901c8344ae90843e10dbda4890",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Mul",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "3"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-3"
+                        },
+                        {
+                          "$math": "Symbol",
+                          "name": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "4"
+                        },
+                        {
+                          "$math": "Pow",
+                          "args": [
+                            {
+                              "$math": "Symbol",
+                              "name": "x"
+                            },
+                            {
+                              "$math": "Integer",
+                              "value": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "(4*x**2 - 3*x + 2)/(3*x)",
+            "latex": "\\frac{4 x^{2} - 3 x + 2}{3 x}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w14",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/w14",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/w14/course.evidence.json",
+    "run_id": "6947262b90124a828febe4d58a023c7f",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Rational",
+                      "p": "-1",
+                      "q": "3"
+                    },
+                    {
+                      "$math": "Pow",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "10"
+                        },
+                        {
+                          "$math": "Pow",
+                          "args": [
+                            {
+                              "$math": "Symbol",
+                              "name": "x"
+                            },
+                            {
+                              "$math": "Integer",
+                              "value": "-1"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Rational",
+                      "p": "2",
+                      "q": "3"
+                    },
+                    {
+                      "$math": "Pow",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "10"
+                        },
+                        {
+                          "$math": "Symbol",
+                          "name": "x"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "-10**(1/x)/3 + 2*10**x/3",
+            "latex": "- \\frac{10^{\\frac{1}{x}}}{3} + \\frac{2 \\cdot 10^{x}}{3}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b07",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b07",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b07/course-final.evidence.json",
+    "run_id": "20cd34415f45408c8de58c8dc618474f",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "3"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "x**2 + 3*x",
+            "latex": "x^{2} + 3 x"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-assignment"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b07-v",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-20261101-live/b07-v",
+    "course_file": "internal/solver-runs/function-formula-photo-20261101-live/b07-v/course-final.evidence.json",
+    "run_id": "4d83735c66f4456b8e0ae37676685e9e",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Pow",
+              "args": [
+                {
+                  "$math": "Symbol",
+                  "name": "x"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                }
+              ]
+            },
+            "expression": "x**2",
+            "latex": "x^{2}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-assignment"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w01",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-review-retry-20261101-live/w01",
+    "course_file": "internal/solver-runs/function-formula-photo-review-retry-20261101-live/w01/course-final.evidence.json",
+    "run_id": "90ea296d7e8a4441b92168733d21e067",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-6"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-2*x - 6",
+              "latex": "- 2 x - 6"
+            },
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "2*x + 2",
+              "latex": "2 x + 2"
+            }
+          ],
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": null,
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-coefficients"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w02",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/w02",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/w02/course.evidence.json",
+    "run_id": "0e09f9c7211b4c6fa4b13438d3064936",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "6"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 6",
+            "latex": "t^{2} + 6"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution",
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w03",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/w03",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/w03/course-final.evidence.json",
+    "run_id": "99f216713ce04b9098559aa986f9552e",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-2"
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Rational",
+                      "p": "1",
+                      "q": "3"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "x/3 - 2",
+            "latex": "\\frac{x}{3} - 2"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w05",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-recrop-20261101-live/w05",
+    "course_file": "internal/solver-runs/function-formula-photo-recrop-20261101-live/w05/course.evidence.json",
+    "run_id": "51221b5014fe46fcb74beb70c1cd7244",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Mul",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "3"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-2"
+                        },
+                        {
+                          "$math": "Pow",
+                          "args": [
+                            {
+                              "$math": "Symbol",
+                              "name": "x"
+                            },
+                            {
+                              "$math": "Integer",
+                              "value": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "3"
+                        },
+                        {
+                          "$math": "Symbol",
+                          "name": "x"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "(-2*x**2 + 3*x - 4)/(3*x)",
+            "latex": "\\frac{- 2 x^{2} + 3 x - 4}{3 x}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval.open(-oo, 0), Interval.open(0, oo))",
+            "latex": "\\left(-\\infty, 0\\right) \\cup \\left(0, \\infty\\right)"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w06",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/w06",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/w06/course.evidence.json",
+    "run_id": "7fb007e520304efb869a83796b5fd731",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "-8",
+                  "q": "5"
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "4"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "4*x - 8/5",
+            "latex": "4 x - \\frac{8}{5}"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w09",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/w09",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/w09/course.evidence.json",
+    "run_id": "9d2cb51f2c494a029fbe126637086bcc",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "12"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-8"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 - 8*t + 12",
+            "latex": "t^{2} - 8 t + 12"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "routes": [
+          "function-substitution",
+          "function-matching"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "w12",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-recrop-20261101-live/w12",
+    "course_file": "internal/solver-runs/function-formula-photo-recrop-20261101-live/w12/course.evidence.json",
+    "run_id": "01bbbfac3b60420997adeb76eea3a0a9",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "1"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "1 - 2*x",
+              "latex": "- 2 x + 1"
+            },
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Rational",
+                    "p": "-1",
+                    "q": "3"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "2*x - 1/3",
+              "latex": "2 x - \\frac{1}{3}"
+            }
+          ],
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": null,
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-coefficients"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b04-v",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/b04-v",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/b04-v/course.evidence.json",
+    "run_id": "ed639677d9c1462db84920dd29d315cb",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "1"
+                  },
+                  {
+                    "$math": "Pow",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "x**2 - x + 1",
+              "latex": "x^{2} - x + 1"
+            }
+          ],
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Mul",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Symbol",
+                      "name": "x"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "x**2 - x + 1",
+            "latex": "x^{2} - x + 1"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-coefficients"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "b06",
+    "status": "completed",
+    "admission": "student_upload",
+    "d1_complete": true,
+    "gold_checked": true,
+    "source": "internal/solver-runs/function-formula-photo-extra-20261101-live/b06",
+    "course_file": "internal/solver-runs/function-formula-photo-extra-20261101-live/b06/course.evidence.json",
+    "run_id": "43242a23f99c47e0bf020766f9217a45",
+    "goals": [
+      {
+        "target": "/root/goals/0",
+        "status": "solved",
+        "answer": {
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Symbol",
+              "name": "x"
+            },
+            "expression": "x",
+            "latex": "x"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "routes": [
+          "function-system"
+        ]
+      }
+    ]
+  }
+]

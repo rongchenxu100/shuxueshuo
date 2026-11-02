@@ -1,0 +1,1726 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "ce07e690c7b74c08a016fa938770fad4",
+    "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+    "input_sha256": "6ee06729594cdd47cf70c32d77ce7ec39263c82594ae7d980e11d2ea16fef98b",
+    "checkpoint_sha256": "e86cf031be3acfb049d709ae17226f1c81c65a69ca0054cae9dddb12c2f5c0ac",
+    "result_sha256": "b01512a463e06aa993c2aaf56f807757651934ed22bd07a238d2b1be5f6dc50d",
+    "stage_one_sha256": "cbdfb6bc2fdd9d2c14b943c3f9baa6858e9689e317e3c3c10f95a9806eff5371",
+    "stage_two_sha256": "6c05d0b47b60d9942fc7e7e0e382977f6505c6a7071fee09a72abc4d16eed9fb",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "17a629fba9687ea2ee88b1c27f1a828546d311091e052a35a1415ed4467fb835"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-formula",
+        "supported": [
+          "type-function-formula"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 54,
+                  "end": 59,
+                  "text": "$f(x)=$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求出函数解析式，并写出适用范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只求出函数解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "还要写明求出的解析式在哪些输入上成立。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "b3640abe2148da32"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要求什么？",
+          "feedback": "还要写明求出的解析式在哪些输入上成立。",
+          "summary": "求出函数解析式，并写出适用范围"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "conflict",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域",
+            "reasons": [],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-formula",
+            "label": "求函数的解析式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+            ],
+            "choice_hint": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-b06//root/goals/0",
+            "graphVersion": "77b8df4d49bcf718a156ed43676d6554844bbf307a350337b296dca58e2ce8d6",
+            "problem": {
+              "text": "已知定义域为 $\\mathbb{R}$ 的函数 $f(x)$ 满足 $2f(x)-f(-x)=3x$，则 $f(x)=$ ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求出函数解析式，并写出适用范围"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只求出函数解析式",
+                      "feedback": "还要写明求出的解析式在哪些输入上成立。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "还要写明求出的解析式在哪些输入上成立。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-abstract-function-domain",
+                  "type-function-formula",
+                  "type-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range",
+                  "type-piecewise-composition",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求出函数解析式，并写出适用范围"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+                      "feedback": "只给函数的输入范围，要求新复合式的定义域"
+                    },
+                    {
+                      "value": "type-function-formula",
+                      "label": "求函数的解析式",
+                      "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-formula"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-formula"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-formula"
+                  ],
+                  "edges": [
+                    "type-function-formula|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-composition",
+                  "kind": "problem_type",
+                  "label": "复合型分段函数问题",
+                  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-formula-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数解析式的选法判断",
+                  "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-function-assignment",
+                  "kind": "method",
+                  "label": "赋值法求函数解析式",
+                  "summary": "给恒等关系中的变量赋特殊值，或令两个变量相等，先消去变量，再求出解析式并代回完整原关系。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "选择合法赋值并整理关系",
+                      "calls": [
+                        "skill-equality-transform",
+                        "method-elimination",
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验完整的二元关系",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-coefficients",
+                  "kind": "method",
+                  "label": "待定系数法求函数解析式",
+                  "summary": "按题给的一次或二次函数类型设一般式，比较系数，保留全部合法解析式，再回答原题。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "设式、比较系数并解出全部候选",
+                      "calls": [
+                        "skill-simplify",
+                        "skill-polynomial-coefficient-comparison",
+                        "method-elimination",
+                        "skill-solve-quadratic",
+                        "skill-quadratic-sign",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验全部条件与原目标",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-equation-system",
+                  "kind": "method",
+                  "label": "构造方程组法求函数解析式",
+                  "summary": "替换变量，让两个关联函数值交换位置；联立两个方程消元，得到解析式并代回原关系检查。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "替换输入、联立消元",
+                      "calls": [
+                        "skill-equality-transform",
+                        "method-elimination",
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验恒等与唯一性",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-matching",
+                  "kind": "method",
+                  "label": "配凑法求函数解析式",
+                  "summary": "把题目右边配成函数括号里式子的组合，读出函数规则，并保留输入能取到的范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "配成整体输入的式子",
+                      "calls": [
+                        "method-complete-square",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-substitution",
+                  "kind": "method",
+                  "label": "换元法求函数解析式",
+                  "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "整体换元并恢复规则",
+                      "calls": [
+                        "skill-expression-defined",
+                        "method-substitution",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-function-formula-method|selects|method-function-assignment",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-assignment",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "assignment",
+                      "condition": "两个全称变量均取任意实数；代入零或令变量相等后，能逐步确定函数规则，并回验完整原关系。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-coefficients",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-coefficients",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "coefficients",
+                      "condition": "可设相应一般式并形成受支持的系数恒等关系。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-equation-system",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-equation-system",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "system",
+                      "condition": "在原合法范围内以 c−x 或 k/x 替换后，关联函数值互换，形成两个线性方程。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-matching",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-matching",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "matching",
+                      "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-substitution",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-substitution",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "substitution",
+                      "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-assignment",
+                  "from": "type-function-formula",
+                  "to": "method-function-assignment",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-coefficients",
+                  "from": "type-function-formula",
+                  "to": "method-function-coefficients",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-equation-system",
+                  "from": "type-function-formula",
+                  "to": "method-function-equation-system",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-matching",
+                  "from": "type-function-formula",
+                  "to": "method-function-matching",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-substitution",
+                  "from": "type-function-formula",
+                  "to": "method-function-substitution",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-concept",
+                  "from": "type-function-formula",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|method_rule|rule-function-formula-method",
+                  "from": "type-function-formula",
+                  "to": "rule-function-formula-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-composition|involves|function-concept",
+                  "from": "type-piecewise-composition",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-concept",
+                  "from": "type-piecewise-function",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "b28889b7417636c0bde998af8253356c022bfb2740389425996d958fd2551fad"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-b06//root/goals/0",
+            "bundleVersion": "b28889b7417636c0bde998af8253356c022bfb2740389425996d958fd2551fad",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "求出函数解析式，并写出适用范围"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-formula",
+                "reason": "选「求函数的解析式」：同一关系中出现相互关联的函数输入，或出现对两个变量恒成立的关系。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "ce07e690c7b74c08a016fa938770fad4",
+    "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+    "input_sha256": "6ee06729594cdd47cf70c32d77ce7ec39263c82594ae7d980e11d2ea16fef98b",
+    "stream_id": "ce07e690c7b74c08a016fa938770fad4",
+    "last_seq": 23,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "swap",
+        "explanation": "原条件为 $x\\in\\mathbb{R}$，替换后的输入 $- x$ 仍满足该条件。\n$- \\left(- x\\right)=x$\n$f{\\left(x \\right)}\\longmapsto f{\\left(- x \\right)}$\n$f{\\left(- x \\right)}\\longmapsto f\\left(- \\left(- x\\right)\\right)=f{\\left(x \\right)}$",
+        "highlight": {
+          "caption": "让两个函数值交换位置",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题给关系",
+              "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+            },
+            {
+              "label": "整条等式一起替换",
+              "math": "\\begin{array}{c|c}\\text{原来的函数值}&\\text{替换后的函数值}\\\\\\hline f{\\left(x \\right)}&f{\\left(- x \\right)}\\\\f{\\left(- x \\right)}&f{\\left(x \\right)}\\end{array}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "local_check": "passed",
+        "math_step_sha256": "7ae8c584b011dad53c3e6709a57c9c0a13e71e9c1461c68736fb514f5984c1bf",
+        "method_ref": "method-function-equation-system#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-system-001-swap",
+        "target_ref": "/root/goals/0",
+        "title": "让两个函数值交换位置",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "second",
+        "explanation": "原方程 (1)：$2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x$。\n将 $x$ 替换为 $- x$：\n$2 f{\\left(- x \\right)} - f\\left(- \\left(- x\\right)\\right)=3 \\left(- x\\right)$\n由 $- \\left(- x\\right)=x$，化简得方程 (2)：\n$2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x$",
+        "highlight": {
+          "caption": "写出第二个方程",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原方程 (1)",
+              "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+            },
+            {
+              "label": "新方程 (2)",
+              "math": "2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "local_check": "passed",
+        "math_step_sha256": "479ab3ebbb3b5a662d80cca94467e2e10664765b9eea2d49abea97e1490c1af2",
+        "method_ref": "method-function-equation-system#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-system-002-second",
+        "target_ref": "/root/goals/0",
+        "title": "写出第二个方程",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "eliminate",
+        "explanation": "方程 (1) 乘 $2$：\n$4 f{\\left(x \\right)} - 2 f{\\left(- x \\right)}=6 x$\n方程 (2) 乘 $1$：\n$2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x$\n两式相加，$f{\\left(- x \\right)}$ 的项相消：\n$3 f{\\left(x \\right)} = 3 x$\n两边同除以 $3\\ne0$：\n$f{\\left(x \\right)}=\\frac{3 x}{3}=x$",
+        "highlight": {
+          "caption": "联立消去另一个函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "两个方程",
+              "math": "\\begin{gathered}\\text{(1) }2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x\\\\\\text{(2) }2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x\\end{gathered}"
+            },
+            {
+              "label": "消元后的等式",
+              "math": "3 f{\\left(x \\right)} = 3 x"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "local_check": "passed",
+        "math_step_sha256": "f52f2e8d15dab3c1a1b1d91537b2213dc841ba3917598346eed26773b3afaa18",
+        "method_ref": "method-function-equation-system#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-system-003-eliminate",
+        "target_ref": "/root/goals/0",
+        "title": "联立消去另一个函数值",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "verify",
+        "explanation": "原关系：$2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x$。\n$f{\\left(x \\right)}=x$\n$f{\\left(- x \\right)}=\\left(- x\\right)=- x$\n代回原等式左边：$2 f{\\left(x \\right)} - f{\\left(- x \\right)}=2\\cdot \\left(x\\right) - \\left(- x\\right)=3 x$。\n与右边 $3 x$ 相同，且 $x\\in\\mathbb{R}$，原关系成立。",
+        "highlight": {
+          "caption": "把解析式代回原关系",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "把已求的函数值代入左边",
+              "math": "\\begin{gathered}f{\\left(x \\right)}=x\\\\f{\\left(- x \\right)}=- x\\\\2 f{\\left(x \\right)} - f{\\left(- x \\right)}=2\\cdot \\left(x\\right) - \\left(- x\\right)\\end{gathered}"
+            },
+            {
+              "label": "原等式左边化简为",
+              "math": "3 x"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "local_check": "passed",
+        "math_step_sha256": "db8c162273854f0810ddf6052bbe857aec90e0910857e983c6ce73bf0da38d84",
+        "method_ref": "method-function-equation-system#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-system-004-verify",
+        "target_ref": "/root/goals/0",
+        "title": "把解析式代回原关系",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer",
+        "explanation": "由消元与回验，得到 $f{\\left(x \\right)}=x$。\n$x\\in\\mathbb{R}\\Longrightarrow - x\\in\\mathbb{R}$。\n故 $f{\\left(x \\right)}=x,\\quad x\\in\\mathbb{R}$。",
+        "highlight": {
+          "caption": "写出完整答案",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已得到的解析式",
+              "math": "f{\\left(x \\right)}=x"
+            },
+            {
+              "label": "完整答案",
+              "math": "f{\\left(x \\right)}=x,\\quad x\\in\\mathbb{R}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "local_check": "passed",
+        "math_step_sha256": "abd36d0fa4d81fdf600cc86cc5ff692b7e3e938efcf787b8b22af12ec6f20ca0",
+        "method_ref": "method-function-equation-system#recover",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-system-005-answer",
+        "target_ref": "/root/goals/0",
+        "title": "写出完整答案",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Symbol",
+              "name": "x"
+            },
+            "expression": "x",
+            "latex": "x"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "declared_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Symbol",
+              "name": "x"
+            },
+            "expression": "x",
+            "latex": "x"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "x"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "math_steps": [
+          {
+            "math_step_sha256": "7ae8c584b011dad53c3e6709a57c9c0a13e71e9c1461c68736fb514f5984c1bf",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-system-001-swap"
+          },
+          {
+            "math_step_sha256": "479ab3ebbb3b5a662d80cca94467e2e10664765b9eea2d49abea97e1490c1af2",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-system-002-second"
+          },
+          {
+            "math_step_sha256": "f52f2e8d15dab3c1a1b1d91537b2213dc841ba3917598346eed26773b3afaa18",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-system-003-eliminate"
+          },
+          {
+            "math_step_sha256": "db8c162273854f0810ddf6052bbe857aec90e0910857e983c6ce73bf0da38d84",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-system-004-verify"
+          },
+          {
+            "math_step_sha256": "abd36d0fa4d81fdf600cc86cc5ff692b7e3e938efcf787b8b22af12ec6f20ca0",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-function-system-005-answer"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "70f7fb1bc3ee8e897be3ae0c6acc6f8cea43e2e7d67d9e1e28333cf119644e97",
+        "verified_route_sha256": "2907e6b5dbb83cbfc6091dd5b7f883a74a098348f8038bcb2858b10169fe645d"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "source_structure": "paired_values"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "找一个替换，让两个函数值交换位置。",
+                "id": "source_structure",
+                "options": [
+                  {
+                    "label": "已知函数类型",
+                    "note": "如一次函数、二次函数",
+                    "value": "function_type"
+                  },
+                  {
+                    "label": "已知复合函数的解析式",
+                    "note": "如 $f(x-1)=x^2-2x$",
+                    "value": "composite_input"
+                  },
+                  {
+                    "label": "出现关联函数值",
+                    "note": "$f(x)$ 与 $f\\left(- x\\right)$",
+                    "value": "paired_values"
+                  },
+                  {
+                    "label": "含两个变量的恒等式",
+                    "note": "对任意 $x,y$ 成立",
+                    "value": "two_variables"
+                  }
+                ],
+                "question": "题目给了哪类条件？",
+                "resolved": "同一个等式中给出了两个相互关联的函数值。"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "function_type",
+                "method": "coefficients"
+              },
+              {
+                "cue": "composite_input",
+                "method": "substitution"
+              },
+              {
+                "cue": "composite_input",
+                "method": "matching"
+              },
+              {
+                "cue": "paired_values",
+                "method": "system"
+              },
+              {
+                "cue": "two_variables",
+                "method": "assignment"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "待定系数法",
+                "value": "coefficients"
+              },
+              {
+                "label": "换元法",
+                "value": "substitution"
+              },
+              {
+                "label": "配凑法",
+                "value": "matching"
+              },
+              {
+                "label": "构造方程组法",
+                "value": "system"
+              },
+              {
+                "label": "赋值法",
+                "value": "assignment"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0/function",
+              "/root/goals/0/variable",
+              "/root/goals/0/relation",
+              "/root/goals/0/declared_domain"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-formula",
+            "op": "methods"
+          },
+          "question": "根据题目条件，沿连线选择一种方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "assignment": {
+              "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+              "value": "not_triggered"
+            },
+            "coefficients": {
+              "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+              "value": "not_triggered"
+            },
+            "matching": {
+              "message": "这类关系的配凑路线尚未核验；可以用关联函数值构造方程组。",
+              "value": "unknown"
+            },
+            "substitution": {
+              "message": "这里有两个关联函数值，需要用替换后的第二个方程与原式联立。",
+              "value": "not_triggered"
+            },
+            "system": {
+              "message": "把 $x$ 换成 $- x$，两个函数值互换，再将两个方程联立。",
+              "value": "fit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "system",
+              "message": "开始解题",
+              "method": "method-function-equation-system",
+              "recommendation": "preferred",
+              "route_id": "function-system",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "step_id": "39e5646dcb-function-system-001-swap",
+        "ordinal": 1,
+        "math_step_sha256": "7ae8c584b011dad53c3e6709a57c9c0a13e71e9c1461c68736fb514f5984c1bf",
+        "status": "interactive",
+        "interaction_id": "69c46566b69e60e4eeeb3a80"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "step_id": "39e5646dcb-function-system-002-second",
+        "ordinal": 2,
+        "math_step_sha256": "479ab3ebbb3b5a662d80cca94467e2e10664765b9eea2d49abea97e1490c1af2",
+        "status": "interactive",
+        "interaction_id": "95dc09bb3da18d3847ab91fd"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "step_id": "39e5646dcb-function-system-003-eliminate",
+        "ordinal": 3,
+        "math_step_sha256": "f52f2e8d15dab3c1a1b1d91537b2213dc841ba3917598346eed26773b3afaa18",
+        "status": "interactive",
+        "interaction_id": "4c6c5f1e1daca9f2380d4e78"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "step_id": "39e5646dcb-function-system-004-verify",
+        "ordinal": 4,
+        "math_step_sha256": "db8c162273854f0810ddf6052bbe857aec90e0910857e983c6ce73bf0da38d84",
+        "status": "interactive",
+        "interaction_id": "b80b7d89757cf2d24dc5fc9d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "step_id": "39e5646dcb-function-system-005-answer",
+        "ordinal": 5,
+        "math_step_sha256": "abd36d0fa4d81fdf600cc86cc5ff692b7e3e938efcf787b8b22af12ec6f20ca0",
+        "status": "interactive",
+        "interaction_id": "85d6493b9f26142bcd8ce298"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "85924c35cf2aa875741c92d5f5046e0bbb84d7d1a2e48580aaf38708deeabe50",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-system:complete",
+        "last_seq": 18
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-system",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-equation-system",
+            "step": "recover",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-equality-transform",
+                "used_basis": [
+                  "equality-properties#universal-substitution"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "method-elimination",
+                "used_basis": [
+                  "equality-properties#addition",
+                  "equality-properties#multiplication"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "skill-simplify"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-equality-transform",
+                "used_basis": [
+                  "equality-properties#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-equation-system",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "69c46566b69e60e4eeeb3a80",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "50cc1792bf8cf423349fd113fc645d40162860b7719378ab30fe0ecf2c542b23",
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "让两个函数值交换位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给关系",
+                  "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+                },
+                {
+                  "label": "整条等式一起替换",
+                  "math": "\\begin{array}{c|c}\\text{原来的函数值}&\\text{替换后的函数值}\\\\\\hline f{\\left(x \\right)}&f{\\left(- x \\right)}\\\\f{\\left(- x \\right)}&f{\\left(x \\right)}\\end{array}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "原关系对所有实数成立，$- x$ 仍是实数。 把整条等式中的 $x$ 都换成 $- x$，两个函数值正好交换位置。"
+            },
+            "id": "69c46566b69e60e4eeeb3a80#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "把 $x$ 换成 $- x$",
+                  "value": "o1"
+                },
+                {
+                  "label": "只把一个函数括号里的输入换掉",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "怎样替换原关系中的变量，能让这两个函数值互换？",
+            "stem_board": {
+              "caption": "让两个函数值交换位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给关系",
+                  "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+                },
+                {
+                  "label": "整条等式一起替换",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "让两个函数值交换位置"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "7ae8c584b011dad53c3e6709a57c9c0a13e71e9c1461c68736fb514f5984c1bf",
+            "step_id": "39e5646dcb-function-system-001-swap"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "95dc09bb3da18d3847ab91fd",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "d8de45e9c6f5d806af88a41e893b4a11b549a2b088c9f6bb24dba03f83a85803",
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出第二个方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原方程 (1)",
+                  "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+                },
+                {
+                  "label": "新方程 (2)",
+                  "math": "2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "替换要遍及整条等式，不能只改函数括号。两个方程在同一个合法输入范围内同时成立。"
+            },
+            "id": "95dc09bb3da18d3847ab91fd#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$2 f{\\left(- x \\right)} - f{\\left(x \\right)} = 3 x$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已决定把 $x$ 换成 $- x$。等号右边也一起替换，得到什么？",
+            "stem_board": {
+              "caption": "写出第二个方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原方程 (1)",
+                  "math": "2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x"
+                },
+                {
+                  "label": "新方程 (2)",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出第二个方程"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "479ab3ebbb3b5a662d80cca94467e2e10664765b9eea2d49abea97e1490c1af2",
+            "step_id": "39e5646dcb-function-system-002-second"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "4c6c5f1e1daca9f2380d4e78",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "52c69254fee5435ff2dee0d8572455ab8af4429e1aaf93ec7b8255d4c6a4111a",
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "联立消去另一个函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "两个方程",
+                  "math": "\\begin{gathered}\\text{(1) }2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x\\\\\\text{(2) }2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x\\end{gathered}"
+                },
+                {
+                  "label": "消元后的等式",
+                  "math": "3 f{\\left(x \\right)} = 3 x"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "相加后 $f{\\left(- x \\right)}$ 的系数为 $0$，只剩 $f{\\left(x \\right)}$。其系数 $3\\ne0$，可以相除求解。"
+            },
+            "id": "4c6c5f1e1daca9f2380d4e78#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$3 f{\\left(x \\right)} = 3 x + 1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$3 f{\\left(x \\right)} = 3 x$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "方程 (1) 乘 $2$，方程 (2) 乘 $1$，再相加。消去 $f{\\left(- x \\right)}$ 后得到什么？",
+            "stem_board": {
+              "caption": "联立消去另一个函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "两个方程",
+                  "math": "\\begin{gathered}\\text{(1) }2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x\\\\\\text{(2) }2 f{\\left(- x \\right)} - f{\\left(x \\right)}=- 3 x\\end{gathered}"
+                },
+                {
+                  "label": "消元后的等式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "联立消去另一个函数值"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "f52f2e8d15dab3c1a1b1d91537b2213dc841ba3917598346eed26773b3afaa18",
+            "step_id": "39e5646dcb-function-system-003-eliminate"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b80b7d89757cf2d24dc5fc9d",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "b4b3b3e227d390a21dfa8e8ab30b57e8abdcfba105da770e2bfcff7c607df3b3",
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把解析式代回原关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "把已求的函数值代入左边",
+                  "math": "\\begin{gathered}f{\\left(x \\right)}=x\\\\f{\\left(- x \\right)}=- x\\\\2 f{\\left(x \\right)} - f{\\left(- x \\right)}=2\\cdot \\left(x\\right) - \\left(- x\\right)\\end{gathered}"
+                },
+                {
+                  "label": "原等式左边化简为",
+                  "math": "3 x"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "化简结果为 $3 x$，与原题右边相同；原输入条件 $x\\in\\mathbb{R}$ 也保留。"
+            },
+            "id": "b80b7d89757cf2d24dc5fc9d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$3 x + 1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$3 x$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原关系是 $2 f{\\left(x \\right)} - f{\\left(- x \\right)}=3 x$。把下面两个函数值代入左边 $2 f{\\left(x \\right)} - f{\\left(- x \\right)}$，化简后得到什么？",
+            "stem_board": {
+              "caption": "把解析式代回原关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "把已求的函数值代入左边",
+                  "math": "\\begin{gathered}f{\\left(x \\right)}=x\\\\f{\\left(- x \\right)}=- x\\\\2 f{\\left(x \\right)} - f{\\left(- x \\right)}=2\\cdot \\left(x\\right) - \\left(- x\\right)\\end{gathered}"
+                },
+                {
+                  "label": "原等式左边化简为",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把解析式代回原关系"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "db8c162273854f0810ddf6052bbe857aec90e0910857e983c6ce73bf0da38d84",
+            "step_id": "39e5646dcb-function-system-004-verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "85d6493b9f26142bcd8ce298",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "de7482adaf3088e2a83c56e1124f12b4a41947cc21f670ace4db6b3a0df5a341",
+        "lesson_version": "dd74e6a56a42072e976761190ce945b85885dfa50c415c5a68a5d63101866846",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已得到的解析式",
+                  "math": "f{\\left(x \\right)}=x"
+                },
+                {
+                  "label": "完整答案",
+                  "math": "f{\\left(x \\right)}=x,\\quad x\\in\\mathbb{R}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "对任意实数都能作这个替换，因此得到整个实数范围上的解析式。"
+            },
+            "id": "85d6493b9f26142bcd8ce298#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f{\\left(x \\right)}=x + 1,\\quad x\\in\\mathbb{R}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f{\\left(x \\right)}=x,\\quad x\\in\\mathbb{R}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "结合原题的输入条件，完整答案是哪一项？",
+            "stem_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已得到的解析式",
+                  "math": "f{\\left(x \\right)}=x"
+                },
+                {
+                  "label": "完整答案",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出完整答案"
+          }
+        ],
+        "route_id": "function-system",
+        "run_id": "ce07e690c7b74c08a016fa938770fad4",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "abd36d0fa4d81fdf600cc86cc5ff692b7e3e938efcf787b8b22af12ec6f20ca0",
+            "step_id": "39e5646dcb-function-system-005-answer"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w05",
+  "title": "构造方程组法 · 小条第 5 题",
+  "page": "/topics/function-representations/q05b/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 满足 $f(x)-2f(\\frac{1}{x})=2x-1$，$x\\ne0$，则 $f(x)$ 的解析式为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w05.evidence.json"
+}

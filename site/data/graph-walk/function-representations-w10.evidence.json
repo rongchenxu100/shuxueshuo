@@ -1,0 +1,2224 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "f060b4e522d94c96b9f153549defd3d2",
+    "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+    "input_sha256": "c0afb3b097038f63298a1d30bef4f3298e92ab47199511cfd24627f0c336d82c",
+    "checkpoint_sha256": "68862c78616e0338cdc575b22baa0139c28a28c7aa0b3ecf764f2437dcda8f78",
+    "result_sha256": "48a1226d1264eff5430a557b1699e8c343ca387b7026fb45a735b91bd76fc620",
+    "stage_one_sha256": "a4043107aabf6a649f046ee3b3b4b4d6680a80e32575cfd9cde6cf939b7adb08",
+    "stage_two_sha256": "cc1f690d3f154ff6e6ff6b364493b4b88f7a71c6579067cda0a7a2ae057b4786",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "57ab2fe44e009a4b1ca58404693cf11bd67d3de9aed1be51e4c2c4f36baa570a"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-formula",
+        "supported": [
+          "type-function-formula"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 51,
+                  "end": 57,
+                  "text": "$f(x)>0$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "只写出函数解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "求出解析式后，还要解原题的不等式。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求满足不等式的自变量范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "6aad1b6082ba0b12"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要求什么？",
+          "feedback": "求出解析式后，还要解原题的不等式。",
+          "summary": "求满足不等式的自变量范围"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "conflict",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域",
+            "reasons": [],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-formula",
+            "label": "求函数的解析式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+            ],
+            "choice_hint": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-w10//root/goals/0",
+            "graphVersion": "77b8df4d49bcf718a156ed43676d6554844bbf307a350337b296dca58e2ce8d6",
+            "problem": {
+              "text": "已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为 ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "只写出函数解析式",
+                      "feedback": "求出解析式后，还要解原题的不等式。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求满足不等式的自变量范围"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "求出解析式后，还要解原题的不等式。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-abstract-function-domain",
+                  "type-function-formula",
+                  "type-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range",
+                  "type-piecewise-composition",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求满足不等式的自变量范围"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+                      "feedback": "只给函数的输入范围，要求新复合式的定义域"
+                    },
+                    {
+                      "value": "type-function-formula",
+                      "label": "求函数的解析式",
+                      "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-formula"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-formula"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-formula"
+                  ],
+                  "edges": [
+                    "type-function-formula|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-composition",
+                  "kind": "problem_type",
+                  "label": "复合型分段函数问题",
+                  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-formula-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数解析式的选法判断",
+                  "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-function-assignment",
+                  "kind": "method",
+                  "label": "赋值法求函数解析式",
+                  "summary": "给恒等关系中的变量赋特殊值，或令两个变量相等，先消去变量，再求出解析式并代回完整原关系。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "选择合法赋值并整理关系",
+                      "calls": [
+                        "skill-equality-transform",
+                        "method-elimination",
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验完整的二元关系",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-coefficients",
+                  "kind": "method",
+                  "label": "待定系数法求函数解析式",
+                  "summary": "按题给的一次或二次函数类型设一般式，比较系数，保留全部合法解析式，再回答原题。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "设式、比较系数并解出全部候选",
+                      "calls": [
+                        "skill-simplify",
+                        "skill-polynomial-coefficient-comparison",
+                        "method-elimination",
+                        "skill-solve-quadratic",
+                        "skill-quadratic-sign",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验全部条件与原目标",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-equation-system",
+                  "kind": "method",
+                  "label": "构造方程组法求函数解析式",
+                  "summary": "替换变量，让两个关联函数值交换位置；联立两个方程消元，得到解析式并代回原关系检查。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "替换输入、联立消元",
+                      "calls": [
+                        "skill-equality-transform",
+                        "method-elimination",
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验恒等与唯一性",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-matching",
+                  "kind": "method",
+                  "label": "配凑法求函数解析式",
+                  "summary": "把题目右边配成函数括号里式子的组合，读出函数规则，并保留输入能取到的范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "配成整体输入的式子",
+                      "calls": [
+                        "method-complete-square",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-substitution",
+                  "kind": "method",
+                  "label": "换元法求函数解析式",
+                  "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "整体换元并恢复规则",
+                      "calls": [
+                        "skill-expression-defined",
+                        "method-substitution",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-function-formula-method|selects|method-function-assignment",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-assignment",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "assignment",
+                      "condition": "两个全称变量均取任意实数；代入零或令变量相等后，能逐步确定函数规则，并回验完整原关系。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-coefficients",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-coefficients",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "coefficients",
+                      "condition": "可设相应一般式并形成受支持的系数恒等关系。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-equation-system",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-equation-system",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "system",
+                      "condition": "在原合法范围内以 c−x 或 k/x 替换后，关联函数值互换，形成两个线性方程。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-matching",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-matching",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "matching",
+                      "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-substitution",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-substitution",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "substitution",
+                      "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-assignment",
+                  "from": "type-function-formula",
+                  "to": "method-function-assignment",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-coefficients",
+                  "from": "type-function-formula",
+                  "to": "method-function-coefficients",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-equation-system",
+                  "from": "type-function-formula",
+                  "to": "method-function-equation-system",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-matching",
+                  "from": "type-function-formula",
+                  "to": "method-function-matching",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-substitution",
+                  "from": "type-function-formula",
+                  "to": "method-function-substitution",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-concept",
+                  "from": "type-function-formula",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|method_rule|rule-function-formula-method",
+                  "from": "type-function-formula",
+                  "to": "rule-function-formula-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-composition|involves|function-concept",
+                  "from": "type-piecewise-composition",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-concept",
+                  "from": "type-piecewise-function",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "50273905be6a30bbb9b14ebf11647bdb8964268e583c2f15391a21d9f62e628b"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-w10//root/goals/0",
+            "bundleVersion": "50273905be6a30bbb9b14ebf11647bdb8964268e583c2f15391a21d9f62e628b",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "求满足不等式的自变量范围"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-formula",
+                "reason": "选「求函数的解析式」：已知一次或二次函数类型，通过复合、差分或函数值条件约束其系数。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "f060b4e522d94c96b9f153549defd3d2",
+    "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+    "input_sha256": "c0afb3b097038f63298a1d30bef4f3298e92ab47199511cfd24627f0c336d82c",
+    "stream_id": "f060b4e522d94c96b9f153549defd3d2",
+    "last_seq": 27,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "template",
+        "explanation": "题给 $f$ 是二次函数，因此可设\n$f(x)=a x^{2} + b x + c$\n其中 $a,b,c\\in\\mathbb{R}$，$a\\ne0$。最高次项系数不为零，保证它是题给类型的函数。",
+        "highlight": {
+          "caption": "按函数类型设一般式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题给类型",
+              "math": "\\text{二次函数}"
+            },
+            {
+              "label": "设一般式",
+              "math": "f(x)=a x^{2} + b x + c,\\quad a\\ne0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "e1a9e260d71147e7969d07b6cbd2f49d78eb1d5b24a0b8f67b4a4e013476ebc3",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-001-template",
+        "target_ref": "/root/goals/0",
+        "title": "按函数类型设一般式",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "expand",
+        "explanation": "条件 1：$f{\\left(0 \\right)} = 0$。\n$f{\\left(0 \\right)}=c$\n因此 $c = 0$。\n条件 2：$f{\\left(x - 1 \\right)} = 3 x + f{\\left(x \\right)} - 5$。\n$f{\\left(x - 1 \\right)}=a \\left(x - 1\\right)^{2} + b \\left(x - 1\\right) + c=a x^{2} - 2 a x + b x + a - b + c$\n$3 x + f{\\left(x \\right)} - 5=a x^{2} + b x + 3 x + c - 5$\n因此 $a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5$。",
+        "highlight": {
+          "caption": "把一般式代入题给关系",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已设解析式",
+              "math": "f(x)=a x^{2} + b x + c,\\quad a\\ne0"
+            },
+            {
+              "label": "代入并整理",
+              "math": "\\begin{gathered}c = 0\\\\a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "24a3c34097dde46be69ee90a3c8b1d4229546802b2fb7a1e2a4f98754d526a5e",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-002-expand",
+        "target_ref": "/root/goals/0",
+        "title": "把一般式代入题给关系",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "compare",
+        "explanation": "条件 1 化为 $c = 0$。\n条件 2 化为 $a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5$。\n此等式对任意实数 $x$ 成立，故同次幂系数相等：\n二次项：$a = a$。\n一次项：$- 2 a + b = b + 3$。\n常数项：$a - b + c = c - 5$。\n移项并合并同类项，得到 $\\begin{gathered}- 2 a - 3 = 0\\\\a - b + 5 = 0\\\\c = 0\\end{gathered}$。",
+        "highlight": {
+          "caption": "同次幂的系数分别相等",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "比较系数（缺项记为 0）",
+              "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 2&a&a\\\\1&- 2 a + b&b + 3\\\\0&a - b + c&c - 5\\\\0&c&0\\end{array}"
+            },
+            {
+              "label": "系数满足的方程",
+              "math": "\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "e991d0e8b50edb898a517b61c344ed4394337f4097c1341fecbdc5c5aaafb617",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-003-compare",
+        "target_ref": "/root/goals/0",
+        "title": "同次幂的系数分别相等",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "solve",
+        "explanation": "由上一步的方程组 $\\begin{gathered}- 2 a - 3 = 0\\\\a - b + 5 = 0\\\\c = 0\\end{gathered}$：\n由 $- 2 a - 3 = 0$，结合 $a\\ne0$，得$a=- \\frac{3}{2}$。\n$\\frac{7}{2} - b = 0\\quad\\Longrightarrow\\quad b=\\frac{7}{2}$\n$c = 0\\quad\\Longrightarrow\\quad c=0$\n得到 $a=- \\frac{3}{2},\\quad b=\\frac{7}{2},\\quad c=0$。\n故 $f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}$。",
+        "highlight": {
+          "caption": "求出所有系数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "系数方程",
+              "math": "\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}"
+            },
+            {
+              "label": "全部系数组合",
+              "math": "a=- \\frac{3}{2},\\quad b=\\frac{7}{2},\\quad c=0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "c738ded983855144717ff1a2fe4bd3e7a10d86d1f0bb7a3c6ec79780ccabbc09",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-004-solve",
+        "target_ref": "/root/goals/0",
+        "title": "求出所有系数",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "verify",
+        "explanation": "将 $f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}$ 代回原条件：\n条件 1：$f{\\left(0 \\right)} = 0$。\n$f{\\left(0 \\right)}=0$\n因此 $0 = 0$。\n条件 2：$f{\\left(x - 1 \\right)} = 3 x + f{\\left(x \\right)} - 5$。\n$f{\\left(x - 1 \\right)}=- \\frac{3 \\left(x - 1\\right)^{2}}{2} + \\frac{7 x}{2} - \\frac{7}{2}=- \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5$\n$3 x + f{\\left(x \\right)} - 5=- \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5$\n因此 $- \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5 = - \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5$。\n以上等式左右两边相同，且最高次项系数 $- \\frac{3}{2}\\ne0$，符合题意。",
+        "highlight": {
+          "caption": "把结果代回检查",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "得到的解析式",
+              "math": "f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+            },
+            {
+              "label": "回验原题的每个等式",
+              "math": "f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}:\\quad - \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5 = - \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5,\\quad 0 = 0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "f289233a17cc755e322f562334c9466cf1dde76734fac91d4370c536b9d2ace5",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-005-verify",
+        "target_ref": "/root/goals/0",
+        "title": "把结果代回检查",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer",
+        "explanation": "由 $f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}$，原不等式等价于 $- \\frac{3 x^{2}}{2} + \\frac{7 x}{2} > 0$。\n$- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}=- \\frac{x \\left(3 x - 7\\right)}{2}$\n令 $- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}=0$，得$x=0$ 或 $x=\\frac{7}{3}$。\n记 $y=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}$，各段的符号为：\n$\\begin{array}{c|ccccc}x&\\left(-\\infty, 0\\right)&0&\\left(0, \\frac{7}{3}\\right)&\\frac{7}{3}&\\left(\\frac{7}{3}, \\infty\\right)\\\\\\hline y&-&0&+&0&-\\end{array}$\n所以 $x\\in \\left(0, \\frac{7}{3}\\right)$。",
+        "highlight": {
+          "caption": "解原题的不等式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "将解析式代入原不等式",
+              "math": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2} > 0"
+            },
+            {
+              "label": "原题解集",
+              "math": "x\\in \\left(0, \\frac{7}{3}\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "local_check": "passed",
+        "math_step_sha256": "7a812a942652b09c6eecc667cc0487e8cd7dddd7578f3cc8e6a5eaccfb24e181",
+        "method_ref": "method-function-coefficients#recover",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/calls/5",
+          "/steps/0/calls/6"
+        ],
+        "step_id": "39e5646dcb-function-coefficients-006-answer",
+        "target_ref": "/root/goals/0",
+        "title": "解原题的不等式",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#multiplication",
+          "equality-properties#polynomial-coefficients",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "-3",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "7",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-3*x**2/2 + 7*x/2",
+              "latex": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+            }
+          ],
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "function": "f",
+          "kind": "find_range",
+          "set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "7",
+                  "q": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(0, 7/3)",
+            "latex": "\\left(0, \\frac{7}{3}\\right)"
+          },
+          "status": "set",
+          "variable": "x"
+        },
+        "available": true,
+        "feasible_set": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Integer",
+                "value": "0"
+              },
+              {
+                "$math": "Rational",
+                "p": "7",
+                "q": "3"
+              },
+              {
+                "$math": "BooleanTrue"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval.open(0, 7/3)",
+          "latex": "\\left(0, \\frac{7}{3}\\right)"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "candidates": [
+            {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "-3",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Rational",
+                        "p": "7",
+                        "q": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-3*x**2/2 + 7*x/2",
+              "latex": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+            }
+          ],
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "function": "f",
+          "kind": "find_range",
+          "set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "7",
+                  "q": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(0, 7/3)",
+            "latex": "\\left(0, \\frac{7}{3}\\right)"
+          },
+          "status": "set",
+          "variable": "x"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Integer",
+                "value": "0"
+              },
+              {
+                "$math": "Rational",
+                "p": "7",
+                "q": "3"
+              },
+              {
+                "$math": "BooleanTrue"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval.open(0, 7/3)",
+          "latex": "\\left(0, \\frac{7}{3}\\right)"
+        },
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "math_steps": [
+          {
+            "math_step_sha256": "e1a9e260d71147e7969d07b6cbd2f49d78eb1d5b24a0b8f67b4a4e013476ebc3",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-coefficients-001-template"
+          },
+          {
+            "math_step_sha256": "24a3c34097dde46be69ee90a3c8b1d4229546802b2fb7a1e2a4f98754d526a5e",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-coefficients-002-expand"
+          },
+          {
+            "math_step_sha256": "e991d0e8b50edb898a517b61c344ed4394337f4097c1341fecbdc5c5aaafb617",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-coefficients-003-compare"
+          },
+          {
+            "math_step_sha256": "c738ded983855144717ff1a2fe4bd3e7a10d86d1f0bb7a3c6ec79780ccabbc09",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-coefficients-004-solve"
+          },
+          {
+            "math_step_sha256": "f289233a17cc755e322f562334c9466cf1dde76734fac91d4370c536b9d2ace5",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-function-coefficients-005-verify"
+          },
+          {
+            "math_step_sha256": "7a812a942652b09c6eecc667cc0487e8cd7dddd7578f3cc8e6a5eaccfb24e181",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-function-coefficients-006-answer"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "1f23d11ffbdf6b1621b80fcf4c4b266cca36100d92a38ed6d95d4d50b534affa",
+        "verified_route_sha256": "94f715b363ae2aa28825f4a6aeb9c4cbd793dfe0e80d58ba7d89eec047425c13"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "source_structure": "function_type"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "注意题目给出的一次或二次函数类型。",
+                "id": "source_structure",
+                "options": [
+                  {
+                    "label": "已知函数类型",
+                    "note": "题给二次函数",
+                    "value": "function_type"
+                  },
+                  {
+                    "label": "已知复合函数的解析式",
+                    "note": "如 $f(x-1)=x^2-2x$",
+                    "value": "composite_input"
+                  },
+                  {
+                    "label": "出现关联函数值",
+                    "note": "如 $f(x)$ 与 $f(-x)$",
+                    "value": "paired_values"
+                  },
+                  {
+                    "label": "含两个变量的恒等式",
+                    "note": "对任意 $x,y$ 成立",
+                    "value": "two_variables"
+                  }
+                ],
+                "question": "题目给了哪类条件？",
+                "resolved": "题目明确给出了函数类型。"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "function_type",
+                "method": "coefficients"
+              },
+              {
+                "cue": "composite_input",
+                "method": "substitution"
+              },
+              {
+                "cue": "composite_input",
+                "method": "matching"
+              },
+              {
+                "cue": "paired_values",
+                "method": "system"
+              },
+              {
+                "cue": "two_variables",
+                "method": "assignment"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "待定系数法",
+                "value": "coefficients"
+              },
+              {
+                "label": "换元法",
+                "value": "substitution"
+              },
+              {
+                "label": "配凑法",
+                "value": "matching"
+              },
+              {
+                "label": "构造方程组法",
+                "value": "system"
+              },
+              {
+                "label": "赋值法",
+                "value": "assignment"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0/function",
+              "/root/goals/0/variable",
+              "/root/goals/0/relation",
+              "/root/goals/0/function_type",
+              "/root/goals/0/additional_relations/0",
+              "/root/goals/0/expression"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-formula",
+            "op": "methods"
+          },
+          "question": "根据题目条件，沿连线选择一种方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "assignment": {
+              "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+              "value": "not_triggered"
+            },
+            "coefficients": {
+              "message": "题目给了函数类型。先设含未知系数的一般式，再代入已知关系比较系数。",
+              "value": "fit"
+            },
+            "matching": {
+              "message": "这类题的配凑路线尚未核验。可以利用题给函数类型选择待定系数法。",
+              "value": "unknown"
+            },
+            "substitution": {
+              "message": "这类题的换元路线尚未核验。可以利用题给函数类型选择待定系数法。",
+              "value": "unknown"
+            },
+            "system": {
+              "message": "本批尚未核验这类关系的联立路线，可先用题给函数类型选择待定系数法。",
+              "value": "unknown"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "coefficients",
+              "message": "开始解题",
+              "method": "method-function-coefficients",
+              "recommendation": "preferred",
+              "route_id": "function-coefficients",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-001-template",
+        "ordinal": 1,
+        "math_step_sha256": "e1a9e260d71147e7969d07b6cbd2f49d78eb1d5b24a0b8f67b4a4e013476ebc3",
+        "status": "interactive",
+        "interaction_id": "60586a484491cfabdc8808c9"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-002-expand",
+        "ordinal": 2,
+        "math_step_sha256": "24a3c34097dde46be69ee90a3c8b1d4229546802b2fb7a1e2a4f98754d526a5e",
+        "status": "interactive",
+        "interaction_id": "0c15483542ffc991b5596280"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-003-compare",
+        "ordinal": 3,
+        "math_step_sha256": "e991d0e8b50edb898a517b61c344ed4394337f4097c1341fecbdc5c5aaafb617",
+        "status": "interactive",
+        "interaction_id": "c6f2e04da3ea7ee46c1b1439"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-004-solve",
+        "ordinal": 4,
+        "math_step_sha256": "c738ded983855144717ff1a2fe4bd3e7a10d86d1f0bb7a3c6ec79780ccabbc09",
+        "status": "interactive",
+        "interaction_id": "241a21d58fb2170979f3cc3c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-005-verify",
+        "ordinal": 5,
+        "math_step_sha256": "f289233a17cc755e322f562334c9466cf1dde76734fac91d4370c536b9d2ace5",
+        "status": "interactive",
+        "interaction_id": "50fdcc09abe04af52479d0bc"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "step_id": "39e5646dcb-function-coefficients-006-answer",
+        "ordinal": 6,
+        "math_step_sha256": "7a812a942652b09c6eecc667cc0487e8cd7dddd7578f3cc8e6a5eaccfb24e181",
+        "status": "interactive",
+        "interaction_id": "cc493a8d635ba88caa30c135"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "f59596056fda51b168b03cd35203b814756c2b02d0d201bb9e35d5082d1fa89e",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-coefficients:complete",
+        "last_seq": 21
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-coefficients",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-coefficients",
+            "step": "recover",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "skill-simplify"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-polynomial-coefficient-comparison",
+                "used_basis": [
+                  "equality-properties#polynomial-coefficients"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "method-elimination",
+                "used_basis": [
+                  "equality-properties#addition",
+                  "equality-properties#multiplication"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-solve-quadratic",
+                "used_basis": [
+                  "quadratic-equation#roots"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-quadratic-sign",
+                "used_basis": [
+                  "quadratic-inequality#signs"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-equality-transform",
+                "used_basis": [
+                  "skill-equality-transform"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-coefficients",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "60586a484491cfabdc8808c9",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "f26b90f8c9586e58a63d9dbc8ec12a8bb384dbd95a45330fd8a9a9d3d8709c76",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "按函数类型设一般式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给类型",
+                  "math": "\\text{二次函数}"
+                },
+                {
+                  "label": "设一般式",
+                  "math": "f(x)=a x^{2} + b x + c,\\quad a\\ne0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把各项系数设为未知数；最高次项的系数不能是 0，也不能漏掉常数项。"
+            },
+            "id": "60586a484491cfabdc8808c9#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=a x^{2} + b x + c,\\quad a\\ne0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x)=a x^{2} + b x$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题目说明了是二次函数，应怎样设解析式？",
+            "stem_board": {
+              "caption": "按函数类型设一般式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给类型",
+                  "math": "\\text{二次函数}"
+                },
+                {
+                  "label": "设一般式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "按函数类型设一般式"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e1a9e260d71147e7969d07b6cbd2f49d78eb1d5b24a0b8f67b4a4e013476ebc3",
+            "step_id": "39e5646dcb-function-coefficients-001-template"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0c15483542ffc991b5596280",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "1c8fde12bfa3ae4fd575d273c3537824155992b3586b070c6718e2c7b95d206e",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把一般式代入题给关系",
+              "condition_groups": [
+                {
+                  "label": "条件 1 · 函数值",
+                  "math": "f{\\left(0 \\right)} = 0"
+                },
+                {
+                  "label": "条件 2 · 函数关系",
+                  "math": "f{\\left(x - 1 \\right)} = 3 x + f{\\left(x \\right)} - 5"
+                }
+              ],
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已设解析式",
+                  "math": "f(x)=a x^{2} + b x + c,\\quad a\\ne0"
+                },
+                {
+                  "label": "代入并整理",
+                  "math": "\\begin{gathered}c = 0\\\\a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "每个函数调用都按同一个一般式代入。题目给出的初值也要一起代入。"
+            },
+            "id": "0c15483542ffc991b5596280#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\begin{gathered}c = 0\\\\a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5\\end{gathered}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\begin{gathered}c = 0\\\\a x^{2} - 2 a x + b x + a - b + c + 1 = a x^{2} + b x + 3 x + c - 5\\end{gathered}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把已设的解析式分别代入下面 2 个条件，哪组等式同时满足它们？",
+            "stem_board": {
+              "caption": "把一般式代入题给关系",
+              "condition_groups": [
+                {
+                  "label": "条件 1 · 函数值",
+                  "math": "f{\\left(0 \\right)} = 0"
+                },
+                {
+                  "label": "条件 2 · 函数关系",
+                  "math": "f{\\left(x - 1 \\right)} = 3 x + f{\\left(x \\right)} - 5"
+                }
+              ],
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已设解析式",
+                  "math": "f(x)=a x^{2} + b x + c,\\quad a\\ne0"
+                },
+                {
+                  "label": "代入并整理",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把一般式代入题给关系"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "24a3c34097dde46be69ee90a3c8b1d4229546802b2fb7a1e2a4f98754d526a5e",
+            "step_id": "39e5646dcb-function-coefficients-002-expand"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "c6f2e04da3ea7ee46c1b1439",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "2d89344e4a67aae4adbf0415df3a3c032b23dcffc35fc8b31a3cc155a94bcbd5",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "同次幂的系数分别相等",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "比较系数（缺项记为 0）",
+                  "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 2&a&a\\\\1&- 2 a + b&b + 3\\\\0&a - b + c&c - 5\\\\0&c&0\\end{array}"
+                },
+                {
+                  "label": "系数满足的方程",
+                  "math": "\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "分别比较二次项、一次项和常数项。只在某一个数处相等，不能这样比较系数。"
+            },
+            "id": "c6f2e04da3ea7ee46c1b1439#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\begin{gathered}- 2 a - 2 = 0\\\\a - b + 6 = 0\\\\c + 1 = 0\\end{gathered}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "上一步得到 $\\begin{gathered}c = 0\\\\a x^{2} - 2 a x + b x + a - b + c = a x^{2} + b x + 3 x + c - 5\\end{gathered}$，且对任意实数 $x$ 都成立。比较同次幂的系数，应列出哪组方程？",
+            "stem_board": {
+              "caption": "同次幂的系数分别相等",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "比较系数（缺项记为 0）",
+                  "math": "\\begin{array}{c|c|c}\\text{次数}&\\text{左边系数}&\\text{右边系数}\\\\\\hline 2&a&a\\\\1&- 2 a + b&b + 3\\\\0&a - b + c&c - 5\\\\0&c&0\\end{array}"
+                },
+                {
+                  "label": "系数满足的方程",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "同次幂的系数分别相等"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e991d0e8b50edb898a517b61c344ed4394337f4097c1341fecbdc5c5aaafb617",
+            "step_id": "39e5646dcb-function-coefficients-003-compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "241a21d58fb2170979f3cc3c",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "5222f418b5bcf453fc75df5806a882187f42eaecde45ea93ea75b92a1aaf12eb",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "求出所有系数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "系数方程",
+                  "math": "\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}"
+                },
+                {
+                  "label": "全部系数组合",
+                  "math": "a=- \\frac{3}{2},\\quad b=\\frac{7}{2},\\quad c=0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "每组系数都要满足全部方程，且最高次项系数不为 0。如果有多组合法解，需全部保留。"
+            },
+            "id": "241a21d58fb2170979f3cc3c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a=- \\frac{3}{2},\\quad b=\\frac{7}{2},\\quad c=0$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a=- \\frac{1}{2},\\quad b=\\frac{9}{2},\\quad c=1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "解这组方程，并保留所有符合函数类型的结果。",
+            "stem_board": {
+              "caption": "求出所有系数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "系数方程",
+                  "math": "\\begin{gathered}- 2 a + b = b + 3\\\\a - b + c = c - 5\\\\c = 0\\end{gathered}"
+                },
+                {
+                  "label": "全部系数组合",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "求出所有系数"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c738ded983855144717ff1a2fe4bd3e7a10d86d1f0bb7a3c6ec79780ccabbc09",
+            "step_id": "39e5646dcb-function-coefficients-004-solve"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "50fdcc09abe04af52479d0bc",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "236c093cabd13457881a08b1216a103d2fe6d2f1502796009b3d1248df77f589",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把结果代回检查",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "得到的解析式",
+                  "math": "f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+                },
+                {
+                  "label": "回验原题的每个等式",
+                  "math": "f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}:\\quad - \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5 = - \\frac{3 x^{2}}{2} + \\frac{13 x}{2} - 5,\\quad 0 = 0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "代回原题的全部等式，左右两边恒等；最高次项系数也满足题给函数类型。"
+            },
+            "id": "50fdcc09abe04af52479d0bc#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "只检查函数类型，不代回原题",
+                  "value": "o2"
+                },
+                {
+                  "label": "代回原题的全部等式，并检查函数类型",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已经求出这个解析式，怎样确认它符合题意？",
+            "stem_board": {
+              "caption": "把结果代回检查",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "得到的解析式",
+                  "math": "f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}"
+                },
+                {
+                  "label": "回验原题的每个等式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把结果代回检查"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "f289233a17cc755e322f562334c9466cf1dde76734fac91d4370c536b9d2ace5",
+            "step_id": "39e5646dcb-function-coefficients-005-verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "cc493a8d635ba88caa30c135",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "f365dfbdb7157eaf5cb451533c59ea3bb0ba3fc974c7a6d93b9485c8c26d3896",
+        "lesson_version": "4a51c2b4233a12069e64309fafd63e733875ca2929a71488fb039065fd0d970f",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "解原题的不等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "将解析式代入原不等式",
+                  "math": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2} > 0"
+                },
+                {
+                  "label": "原题解集",
+                  "math": "x\\in \\left(0, \\frac{7}{3}\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "高亮曲线对应不等式成立的部分；零点不取。",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -1.25,
+                    3.75,
+                    -3.5,
+                    3.0
+                  ],
+                  "coefficient": -1.5,
+                  "description": "解集为 (0, 7/3)。",
+                  "interval": [
+                    null,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "markSign": "above",
+                  "points": [
+                    {
+                      "open": true,
+                      "x": 0.0
+                    },
+                    {
+                      "open": true,
+                      "x": 2.3333333333333335
+                    }
+                  ],
+                  "showVertex": false,
+                  "strict": true,
+                  "title": "y=-3x^2/2 + 7x/2 的图像",
+                  "variable": "x",
+                  "vertex": [
+                    1.1666666666666667,
+                    2.0416666666666665
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      2.3333333333333335,
+                      "7/3"
+                    ]
+                  ],
+                  "yLabel": "49/24"
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.0833333333333335
+                  ],
+                  "description": "x 的取值集合：(0, 7/3)",
+                  "pieces": [
+                    {
+                      "from": 0.0,
+                      "left_closed": false,
+                      "right_closed": false,
+                      "to": 2.3333333333333335
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      2.3333333333333335,
+                      "7/3"
+                    ]
+                  ],
+                  "title": "原不等式的解集",
+                  "variable": "x"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "先求零点，再按开口方向判断各段的正负。严格不等号不包含零点。"
+            },
+            "graph": {
+              "caption": "$y=f(x)=- \\frac{3 x^{2}}{2} + \\frac{7 x}{2}$。先找到零点，再观察曲线与横轴的位置。",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -1.25,
+                  3.75,
+                  -3.5,
+                  3.0
+                ],
+                "coefficient": -1.5,
+                "description": "观察抛物线与横轴的位置，判断不等式成立的范围。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 2.3333333333333335
+                  }
+                ],
+                "showVertex": false,
+                "title": "y=-3x^2/2 + 7x/2 的图像",
+                "variable": "x",
+                "vertex": [
+                  1.1666666666666667,
+                  2.0416666666666665
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.3333333333333335,
+                    "7/3"
+                  ]
+                ],
+                "yLabel": "49/24"
+              }
+            },
+            "id": "cc493a8d635ba88caa30c135#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(0, \\frac{7}{3}\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(-\\infty, 0\\right] \\cup \\left[\\frac{7}{3}, \\infty\\right)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "图像在 $x$ 轴上方时，不等式成立。对应的 $x$ 的取值范围是什么？",
+            "stem_board": {
+              "caption": "解原题的不等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "将解析式代入原不等式",
+                  "math": "- \\frac{3 x^{2}}{2} + \\frac{7 x}{2} > 0"
+                },
+                {
+                  "label": "原题解集",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "解原题的不等式"
+          }
+        ],
+        "route_id": "function-coefficients",
+        "run_id": "f060b4e522d94c96b9f153549defd3d2",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "7a812a942652b09c6eecc667cc0487e8cd7dddd7578f3cc8e6a5eaccfb24e181",
+            "step_id": "39e5646dcb-function-coefficients-006-answer"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

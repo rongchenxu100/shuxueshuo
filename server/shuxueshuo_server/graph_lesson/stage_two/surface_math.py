@@ -30,13 +30,13 @@ class Surface:
 
 
 _COMMANDS = {
-    "le": "≤", "leq": "≤", "ge": "≥", "geq": "≥", "lt": "<", "gt": ">",
+    "le": "≤", "leq": "≤", "ge": "≥", "geq": "≥", "lt": "<", "gt": ">", "ne": "≠", "neq": "≠",
     "forall": "∀", "exists": "∃", "in": "∈", "infty": "∞", "neg": "¬", "lnot": "¬",
     "mid": "|", "vert": "|", "cdot": "*", "times": "*",
     "left": "", "right": "", "quad": " ", "qquad": " ",
 }
 _CHARACTERS = {"−": "-", "²": "^2", "³": "^3", "（": "(", "）": ")"}
-_MATH = set("()[]{}+-*/^=<>|∞ℝ∈≤≥∀∃¬_'¤")
+_MATH = set("()[]{}+-*/^=<>|∞ℝ∈≤≥≠∀∃¬_'¤")
 
 
 def normalize_surface(text, start=0, end=None):

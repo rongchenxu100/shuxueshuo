@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w04",
+  "title": "求函数的解析式 · 小条第 4 题",
+  "page": "/topics/function-representations/q04b/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-w04.evidence.json",
+  "statement": "已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$，求 $f(x)$ 的解析式。",
+  "preferredRoute": "function-matching"
+}

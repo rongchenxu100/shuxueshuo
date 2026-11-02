@@ -1,0 +1,43 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w10",
+  "reviewer": "Codex：对照用户原图题干转录并核对原目标；W10采用用户确认的二次函数类型。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+      "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272",
+      "location": "小条第10题（用户确认二次函数）"
+    },
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-corrections.json",
+      "sha256": "cc4fd9a35ddb541a802343d71b92276a21cfb2fc52d1bce4888c39644a91e9fa",
+      "location": "W10：用户确认二次函数，更正助手误读"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_range",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-1)=f(x)+3*x-5",
+          "function_type": "quadratic",
+          "additional_relations": [
+            "f(0)=0"
+          ],
+          "expression": "f(x)>0",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "candidates": [
+      "-3*x**2/2+7*x/2"
+    ],
+    "solution": "Interval.open(0,7/3)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

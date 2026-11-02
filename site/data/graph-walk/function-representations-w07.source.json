@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w07",
+  "title": "构造方程组法 · 小条第 7 题",
+  "page": "/topics/function-representations/q07/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "若对于任意非零实数 $x$ 都有 $2f(x)-f(\\frac{1}{x})=2x+1$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-w07.evidence.json"
+}

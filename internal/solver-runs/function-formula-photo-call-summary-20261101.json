@@ -1,0 +1,180 @@
+{
+  "live_runs": 24,
+  "semantic_calls": 46,
+  "network_attempts": 46,
+  "statuses": {
+    "reviewed_candidate": 20,
+    "workflow.oscillation": 1,
+    "needs_confirmation": 3
+  },
+  "attempts": [
+    {
+      "case": "b04",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b05",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b05-v1",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b05-v3",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b06-v",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b07",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b07-v",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w04",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w10",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w11",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w14",
+      "attempt": "function-formula-photo-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b04-v",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "b06",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w01",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "workflow.oscillation",
+      "semantic_calls": 3,
+      "network_attempts": 3
+    },
+    {
+      "case": "w02",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w03",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w05",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "needs_confirmation",
+      "semantic_calls": 1,
+      "network_attempts": 1
+    },
+    {
+      "case": "w06",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w07",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "needs_confirmation",
+      "semantic_calls": 1,
+      "network_attempts": 1
+    },
+    {
+      "case": "w09",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w12",
+      "attempt": "function-formula-photo-extra-20261101-live",
+      "status": "needs_confirmation",
+      "semantic_calls": 1,
+      "network_attempts": 1
+    },
+    {
+      "case": "w05",
+      "attempt": "function-formula-photo-recrop-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w12",
+      "attempt": "function-formula-photo-recrop-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    },
+    {
+      "case": "w01",
+      "attempt": "function-formula-photo-review-retry-20261101-live",
+      "status": "reviewed_candidate",
+      "semantic_calls": 2,
+      "network_attempts": 2
+    }
+  ]
+}

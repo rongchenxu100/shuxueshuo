@@ -1,0 +1,249 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b05-r2",
+  "label": "求函数的解析式 · 例 5",
+  "path": "/topics/function-representations/q05/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b05-r2.json",
+  "types": [
+    "type-function-formula"
+  ],
+  "statement": "已知 $f(x-1)=x^2-2x$，则 $f(x)=$ ______。",
+  "routes": {
+    "function-matching": {
+      "label": "配凑法求函数解析式",
+      "methods": [
+        "method-function-matching"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "3bafa7197caa054ff4d4241c#1": {
+          "title": "展开平方，寻找相同的项",
+          "position": 4,
+          "refs": [
+            "method-function-matching#recover",
+            "method-complete-square",
+            "equality-properties#identity",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "733f884ca5142c99028618ab#1": {
+          "title": "把右边配成同一个式子",
+          "position": 5,
+          "refs": [
+            "method-function-matching#recover",
+            "method-complete-square",
+            "equality-properties#identity",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "b31af6ecf2637be267e0c7de#1": {
+          "title": "读出函数的解析式",
+          "position": 6,
+          "refs": [
+            "method-function-matching#recover",
+            "method-complete-square",
+            "equality-properties#identity",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "eda85bde24870bdd12cf29b4#1": {
+          "title": "写出完整答案",
+          "position": 7,
+          "refs": [
+            "method-function-matching#recover",
+            "method-complete-square",
+            "equality-properties#identity",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        }
+      }
+    },
+    "function-substitution": {
+      "label": "换元法求函数解析式",
+      "methods": [
+        "method-function-substitution"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "adb580e081af53772f181c98#1": {
+          "title": "把函数的输入换成新变量",
+          "position": 4,
+          "refs": [
+            "method-function-substitution#recover",
+            "skill-expression-defined",
+            "method-substitution",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "7eb8e65ff895f11a0a05539f#1": {
+          "title": "用新变量表示原变量",
+          "position": 5,
+          "refs": [
+            "method-function-substitution#recover",
+            "skill-expression-defined",
+            "method-substitution",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "435a6f2b90eeb973bc5a8b55#1": {
+          "title": "把右式全部改写为新变量",
+          "position": 6,
+          "refs": [
+            "method-function-substitution#recover",
+            "skill-expression-defined",
+            "method-substitution",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        },
+        "6c34cb2b9602308ac0a45100#1": {
+          "title": "写出完整答案",
+          "position": 7,
+          "refs": [
+            "method-function-substitution#recover",
+            "skill-expression-defined",
+            "method-substitution",
+            "skill-simplify",
+            "skill-equality-transform"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515"
+}

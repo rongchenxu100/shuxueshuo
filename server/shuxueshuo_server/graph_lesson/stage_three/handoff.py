@@ -113,12 +113,19 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
         raise ValueError("handoff.route_not_verified")
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
     evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
+    formula = isinstance(answer, dict) and answer.get('kind') == 'find_function_formula'
+    candidate_range = (isinstance(answer, dict) and answer.get('kind') == 'find_range'
+                       and answer.get('status') == 'insufficient_information'
+                       and bool(answer.get('candidates')) and 'formula_result' in (route.get('result') or {}))
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not (comparison or evaluation))
+            or (feasible_set is None and not (comparison or evaluation or formula or candidate_range))
+            or (formula and (feasible_set is not None
+                             or answer.get('status') not in ('determined_on_domain', 'insufficient_information')
+                             or 'formula_result' not in (route.get('result') or {})))
             or (comparison and (feasible_set is not None or answer.get('status') != 'complete'
                                 or 'comparison_result' not in (route.get('result') or {})))
-            or (evaluation and (feasible_set is not None or answer.get('status') != 'complete'
-                                or 'evaluation_result' not in (route.get('result') or {})))):
+            or (evaluation and (feasible_set is not None or answer.get('status') not in ('complete', 'insufficient_information')
+                                or not ({'evaluation_result', 'formula_result'} & (route.get('result') or {}).keys())))):
         raise ValueError("handoff.incomplete_finalization")
     if consistency not in {"consistent", "conflict", "unknown"}:
         raise ValueError("handoff.invalid_consistency")

@@ -216,6 +216,18 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_function_formula"
+            }
+          }
         }
       ]
     },
@@ -2114,6 +2126,120 @@
         }
       ],
       "description": "原题对已求集合的提问方式；只保留原文要求，不填写算出的值、范围或计划。最值必须区分能否取得。"
+    },
+    "function_formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "target_ref",
+        "function_name",
+        "variable",
+        "structure_version",
+        "structure_supported",
+        "reason",
+        "function_type",
+        "target_ast",
+        "relation_ast",
+        "relation_domain_ast",
+        "declared_domain_ast",
+        "requested_domain_ast",
+        "source_refs",
+        "extra_source_refs"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "find_function_formula",
+            "find_value",
+            "find_range"
+          ]
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "function_name": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "structure_version": {
+          "enum": [
+            "function-formula-root/v1",
+            "function-formula-substitution/v2",
+            "function-formula-substitution/v3",
+            "function-formula-coefficients/v1",
+            "function-formula-system/v1",
+            "function-formula-assignment/v1"
+          ]
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "function_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target_ast": {
+          "type": "array"
+        },
+        "relation_ast": {
+          "type": "array"
+        },
+        "relation_domain_ast": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "declared_domain_ast": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "requested_domain_ast": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extra_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "value_ast": {
+          "type": "array"
+        },
+        "additional_relations_ast": {
+          "type": "array",
+          "items": {
+            "type": "array"
+          }
+        },
+        "relation_variables_ast": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "array"
+          }
+        }
+      }
     }
   }
 }

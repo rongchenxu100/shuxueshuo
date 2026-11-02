@@ -1,0 +1,150 @@
+{
+  "text": "{\"original_text\":\"1. 已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"root\":{\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(f(x))=4*x+6\",\"function_type\":\"linear\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1037,
+      "prompt_tokens": 26478,
+      "total_tokens": 27515,
+      "prompt_cache_hit_tokens": 26240,
+      "prompt_cache_miss_tokens": 238
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 555,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "[redacted-provider-identifier]",
+        "sha256": "e38077c4212edaed08f43967482d965eb55888347a693a6b3f0e6981176f1bc1",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8119,
+        "expires_at": 1793626973,
+        "uploaded_at": 1793540573.44151
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "e38077c4212edaed08f43967482d965eb55888347a693a6b3f0e6981176f1bc1",
+        "file_id": "[redacted-provider-identifier]",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6992,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1037,
+          "prompt_tokens": 26478,
+          "total_tokens": 27515,
+          "completion_tokens_details": {
+            "reasoning_tokens": 844
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 26240
+          },
+          "prompt_cache_hit_tokens": 26240,
+          "prompt_cache_miss_tokens": 238
+        },
+        "raw_payload": {
+          "id": "[redacted-provider-identifier]",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1037,
+            "prompt_tokens": 26478,
+            "total_tokens": 27515,
+            "completion_tokens_details": {
+              "reasoning_tokens": 844
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 26240
+            },
+            "prompt_cache_hit_tokens": 26240,
+            "prompt_cache_miss_tokens": 238
+          },
+          "created": 1793541561,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"1. 已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"root\":{\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(f(x))=4*x+6\",\"function_type\":\"linear\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要从图片提取题意。图片文字：\"1. 已知一次函数 f(x) 满足 f[f(x)] = 4x + 6，则 f(x) 的解析式为____\"。需要输出 original_text, root, public_content。\n\n题目是一次函数，求解析式。使用 find_function_formula，function=f, variable=x, relation=f(f(x))=4*x+6，function_type=linear。需要保留关系。求解析式目标。没有小问。root.definitions? 题面没有给出具体函数定义，只有未知函数满足关系。按规则 find_function_formula 的 relation 填原式，不另写 definitions。function=f, variable=x, relation=\"f(f(x))=4*x+6\"，function_type=\"linear\"。additional_relations 无。goals 一个。facts 无。\n\noriginal_text 要完整题干，包括题号？ original_text 保留来源题号可。public_content 要排除题号。题号 \"1.\" 是来源题号，public_content.statement 不包含。original_text 保留 \"1. 已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\" 注意公式用 $...$，反斜杠没有。JSON 转义不涉及。原图有下划线填空。用 \"____\" 可以。f[f(x)] 原式。 public_content.scopes 对应 root。statement 写 \"已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\" choices status none selection none options []。privacy separated? 没有姓名等，题号可分离。figure not_required。completeness complete。root_label_role? root label? 题号在 original_text 中，但 root 没有 label。可以不填 root_label_role。但 public_content 需要 required root_label_role? schema 中不是 required，根对象 required completeness privacy figure scopes，root_label_role optional。不填。\n\nroot: definitions maybe none, facts none, goals [find_function_formula]. Need include function_type \"linear\". relation \"f(f(x))=4*x+6\". function \"f\", variable \"x\". Good.\n\nuncertainties 空。original_text 保留题号。但题目来源题号 \"1.\" 可保留。public_content statement 去除题号。\n\n注意 relation 中的 f[f(x)] 使用方括号，受控数学字符串可以写 f(f(x)) 吗？应原样保留。relation 可以 \"f(f(x))=4*x+6\" 或 \"f[f(x)]=4*x+6\"? 受控数学字符串中函数调用通常用 f(x)。题面是 f[f(x)]，数学等价。为了原样可写 \"f(f(x))=4*x+6\"? 但规则说原等式保留，不要化简。f[f(x)] 是复合函数表示。受控表达允许函数调用 f(t)，嵌套 f(f(x)) 应该可以。original_text 用 LaTeX $f[f(x)]=4x+6$。root relation 使用 \"f(f(x))=4*x+6\" 可接受。但是不是要严格用 f[f(x)]？目录中 function_definition_and_reference 有 f(t)=表达式, f(t)。嵌套 f(f(x)) 应该也能识别。可以写 relation \"f(f(x))=4*x+6\"。目标 function f, variable x。\n\nfunction_type=linear 明确一次函数。\n\n不需要 root definitions 因为关系是约束。root goals 只能一个。 OK.\n\npublic_content.scopes choices target_ref 需要 \"/root/goals/0\" 如果 goal。status none, selection_mode none, options [].\n\nroot_label_role 可选不填。privacy separated? 题目正文和题号可分离，没有隐私。 separated。\n\nfigure not_required。\n\ncompleteness complete。\n\nOutput JSON only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 6994
+  },
+  "raw_payload": {
+    "id": "[redacted-provider-identifier]",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"1. 已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"root\":{\"definitions\":[],\"facts\":[],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(f(x))=4*x+6\",\"function_type\":\"linear\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。图片文字：\"1. 已知一次函数 f(x) 满足 f[f(x)] = 4x + 6，则 f(x) 的解析式为____\"。需要输出 original_text, root, public_content。\n\n题目是一次函数，求解析式。使用 find_function_formula，function=f, variable=x, relation=f(f(x))=4*x+6，function_type=linear。需要保留关系。求解析式目标。没有小问。root.definitions? 题面没有给出具体函数定义，只有未知函数满足关系。按规则 find_function_formula 的 relation 填原式，不另写 definitions。function=f, variable=x, relation=\"f(f(x))=4*x+6\"，function_type=\"linear\"。additional_relations 无。goals 一个。facts 无。\n\noriginal_text 要完整题干，包括题号？ original_text 保留来源题号可。public_content 要排除题号。题号 \"1.\" 是来源题号，public_content.statement 不包含。original_text 保留 \"1. 已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\" 注意公式用 $...$，反斜杠没有。JSON 转义不涉及。原图有下划线填空。用 \"____\" 可以。f[f(x)] 原式。 public_content.scopes 对应 root。statement 写 \"已知一次函数 $f(x)$ 满足 $f[f(x)]=4x+6$，则 $f(x)$ 的解析式为____。\" choices status none selection none options []。privacy separated? 没有姓名等，题号可分离。figure not_required。completeness complete。root_label_role? root label? 题号在 original_text 中，但 root 没有 label。可以不填 root_label_role。但 public_content 需要 required root_label_role? schema 中不是 required，根对象 required completeness privacy figure scopes，root_label_role optional。不填。\n\nroot: definitions maybe none, facts none, goals [find_function_formula]. Need include function_type \"linear\". relation \"f(f(x))=4*x+6\". function \"f\", variable \"x\". Good.\n\nuncertainties 空。original_text 保留题号。但题目来源题号 \"1.\" 可保留。public_content statement 去除题号。\n\n注意 relation 中的 f[f(x)] 使用方括号，受控数学字符串可以写 f(f(x)) 吗？应原样保留。relation 可以 \"f(f(x))=4*x+6\" 或 \"f[f(x)]=4*x+6\"? 受控数学字符串中函数调用通常用 f(x)。题面是 f[f(x)]，数学等价。为了原样可写 \"f(f(x))=4*x+6\"? 但规则说原等式保留，不要化简。f[f(x)] 是复合函数表示。受控表达允许函数调用 f(t)，嵌套 f(f(x)) 应该可以。original_text 用 LaTeX $f[f(x)]=4x+6$。root relation 使用 \"f(f(x))=4*x+6\" 可接受。但是不是要严格用 f[f(x)]？目录中 function_definition_and_reference 有 f(t)=表达式, f(t)。嵌套 f(f(x)) 应该也能识别。可以写 relation \"f(f(x))=4*x+6\"。目标 function f, variable x。\n\nfunction_type=linear 明确一次函数。\n\n不需要 root definitions 因为关系是约束。root goals 只能一个。 OK.\n\npublic_content.scopes choices target_ref 需要 \"/root/goals/0\" 如果 goal。status none, selection_mode none, options [].\n\nroot_label_role 可选不填。privacy separated? 题目正文和题号可分离，没有隐私。 separated。\n\nfigure not_required。\n\ncompleteness complete。\n\nOutput JSON only."
+        }
+      }
+    ],
+    "created": 1793541561,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1037,
+      "prompt_tokens": 26478,
+      "total_tokens": 27515,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 844,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 26240
+      },
+      "prompt_cache_hit_tokens": 26240,
+      "prompt_cache_miss_tokens": 238
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 6.996
+}

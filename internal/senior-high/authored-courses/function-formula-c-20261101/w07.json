@@ -1,0 +1,36 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w07",
+  "reviewer": "Codex：对照用户原图题干转录，W07 应用用户批准的非零条件。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-01.png",
+      "sha256": "b3cc091396bf38ab54b256717558d6785fc9ef62acfefa26ba187994ee0a4cf8",
+      "location": "小条第 7 题（用户修订非零条件）"
+    },
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-corrections.json",
+      "sha256": "cc4fd9a35ddb541a802343d71b92276a21cfb2fc52d1bce4888c39644a91e9fa",
+      "location": "W07：用户批准将题面修订为任意非零实数 x；不冒充原图逐字转录"
+    }
+  ],
+  "candidate": {
+    "original_text": "若对于任意非零实数 $x$ 都有 $2f(x)-f(\\frac{1}{x})=2x+1$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "2*f(x)-f(1/x)=2*x+1",
+          "relation_domain": "ℝ∖{0}"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "(4*x**2+3*x+2)/(3*x)",
+    "domain": "ℝ∖{0}"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

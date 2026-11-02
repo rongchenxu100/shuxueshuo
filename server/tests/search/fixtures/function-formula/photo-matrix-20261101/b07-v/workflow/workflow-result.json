@@ -1,0 +1,695 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式】若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$______．",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-y)=f(x)+f(y)-2*x*y",
+          "relation_domain": "ℝ",
+          "relation_variables": [
+            "x",
+            "y"
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$______．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【变式】若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$______．",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x-y)=f(x)+f(y)-2*x*y",
+          "relation_domain": "ℝ",
+          "relation_variables": [
+            "x",
+            "y"
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)$ 满足 $\\forall x,y\\in\\mathbf{R}$，$f(x-y)=f(x)+f(y)-2xy$，则 $f(x)=$______．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "function:0",
+                "function"
+              ],
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "function:0",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "scalar:2",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "scalar:2",
+                      "scalar"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "ref",
+                    "scalar:2",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ],
+            "relation_variables": [
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ],
+              [
+                "ref",
+                "scalar:2",
+                "scalar"
+              ]
+            ],
+            "relation_domain": [
+              "real"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r.goals[0]:function:f",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:y",
+                      "scalar"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ],
+            "relation_variables": [
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:y",
+                "scalar"
+              ]
+            ],
+            "relation_domain": [
+              "real"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t1-photo-b07-v",
+      "source_sha256": "6a8085764020245ca413e3202e660cd82258fe0342da0fa8272abfdb9a01744c"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ],
+                      [
+                        "ref",
+                        "scalar:2",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "function:0",
+                          "function"
+                        ],
+                        [
+                          "ref",
+                          "scalar:0",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "function:0",
+                          "function"
+                        ],
+                        [
+                          "ref",
+                          "scalar:2",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "scalar:0",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "ref",
+                        "scalar:2",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ],
+                "relation_variables": [
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "scalar:2",
+                    "scalar"
+                  ]
+                ],
+                "relation_domain": [
+                  "real"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:y",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r.goals[0]:function:f",
+                          "function"
+                        ],
+                        [
+                          "ref",
+                          "r.goals[0]:scalar:x",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r.goals[0]:function:f",
+                          "function"
+                        ],
+                        [
+                          "ref",
+                          "r.goals[0]:scalar:y",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r.goals[0]:scalar:x",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:y",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ],
+                "relation_variables": [
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:y",
+                    "scalar"
+                  ]
+                ],
+                "relation_domain": [
+                  "real"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t1-photo-b07-v",
+          "source_sha256": "6a8085764020245ca413e3202e660cd82258fe0342da0fa8272abfdb9a01744c"
+        }
+      },
+      "revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "aaa015da373a527280b44017f3142fad3b0af1d450269c68770b0395df679ac9",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

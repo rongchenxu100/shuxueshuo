@@ -258,6 +258,48 @@
     ],
     "select_original_range_options": [
       "function-concept#elements"
+    ],
+    "function_formula_substitution": [
+      "method-substitution"
+    ],
+    "function_formula_conditions": [
+      "skill-expression-defined"
+    ],
+    "function_formula_simplification": [
+      "skill-simplify"
+    ],
+    "function_formula_identity": [
+      "skill-equality-transform"
+    ],
+    "function_matching_identity": [
+      "equality-properties#identity"
+    ],
+    "polynomial_coefficient_identity": [
+      "equality-properties#polynomial-coefficients"
+    ],
+    "solve_polynomial_coefficients": [
+      "equality-properties#addition",
+      "equality-properties#multiplication"
+    ],
+    "function_system_substitution": [
+      "equality-properties#universal-substitution"
+    ],
+    "function_system_elimination": [
+      "equality-properties#addition",
+      "equality-properties#multiplication"
+    ],
+    "function_system_identity": [
+      "equality-properties#identity"
+    ],
+    "function_assignment_specialization": [
+      "equality-properties#universal-substitution"
+    ],
+    "function_assignment_elimination": [
+      "equality-properties#addition",
+      "equality-properties#multiplication"
+    ],
+    "function_assignment_identity": [
+      "equality-properties#identity"
     ]
   }
 }

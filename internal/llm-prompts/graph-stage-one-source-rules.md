@@ -1,8 +1,18 @@
 提取、复核、修复共用以下题意表示规则；阶段变化不改变这些规则。
 
+由题给恒等关系求未知函数的解析式，使用 find_function_formula，字段 function、variable、relation 仅转录函数名、原变量名和原恒等式。例如 f(sqrt(x)+1)=2*x+1 是未知函数约束，不能放成具体函数定义 f(x)=2*x+1，不能提前换元或恢复答案，也不能因为右式含二次项就声称 f 是二次函数。注意 sqrt(x)+1 与 sqrt(x+1) 的根号范围不同。relation_domain 只填题面显式给出的原变量范围；declared_domain 只填题面声明的 f 完整定义域；requested_domain 只填题面明确要求恢复规则的范围。没有这些声明时省略，不反填计算结果，也不将多项式的自然域补成 f 的全域。若明确给出一次／二次类型，用 function_type=linear/quadratic 原样保留。其他附加条件仍完整记录在所属 scope，不为符合当前求解范围删去；同一未知函数的额外等式（如 f(0)=1）按下文 additional_relations 记录。尚未支持的结构如实提取，不伪装成 find_range 或已知规则求值，也不谎报图片模糊。本目标只用于原题确实求解析式；原题仅求值或求解集时仍保留那个原目标。
+
+已知一次或二次函数类型的关系题，function_type 必须来自题面明确文字，不能由函数关系推断。原关系放 relation；同一未知函数的其余题给等式（如 f(0)=1）逐条保留在 additional_relations，不重复放成具体函数定义，不丢掉初值，也不先设 ax+b 或 ax²+bx+c。find_function_formula、关系形式的 find_value 和 find_range 共用这些字段。若原题仅求 f(x)>0 的解集，保留一个 find_range 目标，function=f、variable=x、expression=f(x)>0、symbol=x，同时保留 relation、additional_relations 与原函数类型；这不是求完整值域，不使用 object，不另造一个求解析式目标。提取、复核和修复只保留原始条件与所求，系数、候选函数和解集由后续数学执行生成。
+
+同一关系中出现 f(x) 与 f(-x)、f(1/x) 或 f(c-x) 时，保留整条原等式及两个函数调用，仍用 find_function_formula 的 relation；不能把它们当成两个未知函数，也不能先代换、联立或填入恢复后的公式。原题写“任意非零实数 x”或明确 x≠0 时，relation_domain 记 ℝ∖{0}；若没有这一文字，不从倒数表达式推导后补写。原图确实写“任意实数 x”则原样保留并报告与倒数的冲突，不自动改题。用户批准的题面修订须单独记录修订来源。右式中的 10^x、10^(1/x) 按原式保留，不误读为 10*x，不把它改成指数方程求 x。
+
+对任意两个实数 x、y 成立的未知函数关系，仍保留一个 find_function_formula 目标。relation_variables 只记录题面全称量化的两个变量，如 ["x","y"]；relation_domain=ℝ 表示这两个变量各自都取任意实数，variable 保留所求 f(x) 的变量 x。不得把 y 当成待定参数、删去全称量词、先赋值或改为单变量关系。比如 f(x-y)=f(x)+f(y)-2xy 要完整保留，不能提前写成 f(x)=x²。仅存在某些变量值、有限取值或不同作用域的条件，不得改成两个全称实数变量；保留原条件及范围，不能为了获得赋值路线扩大作用域。
+
 独立小问的完整性以当前图片实际呈现的任务为准。图片含共同函数定义及“（2）”所求，但未含“（1）”，不意味着当前题目缺失；编号不是数学依赖。当前所求需要的已知条件已经齐全、没有“利用上一问结论”等明确依赖时，提取、复核和修复均把当前可见小问作为完整独立题保留，不添加 occluded/missing_condition/ambiguous_symbol，不要求补拍上一问，也不虚构或补入未出现的小问。只有当前所求真正依赖的条件或明确引用的前问结果未出现在图中，才按实际缺口报告 uncertainty。原编号可保留在 original_text，公开题面按公开内容规则省略来源编号；不得为了消除误报而后处理删除已有 uncertainty，须在提取/复核时依据原图作出判断。
 
 求函数数值、含变量表达式或复合输入的输出，均使用 find_value，expression 保留原调用，例如 f(g(0))、g(1/x-1)，不得提前算成数值或化简；一个题目同时求 f(1)、g(1) 时保留两个平级 goals，不虚造 children。函数定义仍放在所属 scope.definitions，并在各目标中引用可见函数；函数体的绑定自变量与目标外层变量、求和索引分别绑定。函数显式定义域使用所属 scope.facts 中 Dom(f)=[0,2] 或 Dom(g)=ℝ∖{-2}；只记题给完整域，不把自然域计算结果或输入限制补成题设。目标另有明确外层范围才填 input_domain。代入法是把完整输入放进已有函数规则，不是引入新变量转换问题的换元法。
+
+若函数规则未知，只给出恒等关系而要求 f(0) 等数值，使用 find_value 的关系形式：expression 保留 f(0)，同时转录 function、variable、relation；可选的 relation_domain、declared_domain、requested_domain、function_type 仍只记录题面明确条件。例如已知 f(x-1/x)=x²+1/x²，同时求 f(0) 和 f(x)，应建立两个平级目标：find_value(expression=f(0)) 与 find_function_formula，两者各自保留相同原关系。不得把求值目标替换成求解析式，不提前填入 x=1、数值 2 或恢复后的函数体。
 
 判断函数值组合是否为定值，使用 {"kind":"check_constant","expression":"f(x)+f(1/x)"}，可带题给 input_domain；不能预写定值结果、成立范围或真假。该任务同时要求求一个有限和时，再保留独立 finite_sum 目标，不能把两所求合为一个目标或删除未算出的所求。finite_sum 的 terms 依原顺序保留每个单列项 {"expression":"f(1)"} 和闭区间整数索引块 {"expression":"f(n)","index":"n","lower":2,"upper":101}；索引局部绑定，重复项按出现次数保留，不能去重、预求和或擅自缩短末项。例 f(1)+f(2)+⋯+f(101)+f(1/2)+⋯+f(1/101) 表示两个块：f(n), n=1..101；f(1/n), n=2..101。有限列表逐项转录，不强行补出未出现的配对项。省略号上下限确实不清时记 uncertainty，不能按常见题型猜 101。
 

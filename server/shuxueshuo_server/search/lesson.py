@@ -142,7 +142,7 @@ def _goal(goal, features, text, candidate=None):
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
     source_goal = known.get("goal", {})
-    if (source_goal.get("kind") in ('select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
+    if (source_goal.get("kind") in ('find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
             or source_goal.get("kind") == "find_range" and "object" in source_goal):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
@@ -406,6 +406,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('function_formula', {}).get('structure_supported'):
+        return _formula_d1_rows(target, fragments, known, text)
     if known.get('translation_range', {}).get('structure_supported'):
         return _range_d1_rows(target, fragments, {**known, 'function_range': known['translation_range']}, text)
     if known.get('function_range', {}).get('structure_supported'):
@@ -483,6 +485,41 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _formula_d1_rows(target, fragments, known, text):
+    selected = [row for row in fragments if row['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in selected]
+    correct = '求出函数解析式，并写出适用范围'
+    wrong = '只求出函数解析式'
+    feedback = '还要写明求出的解析式在哪些输入上成立。'
+    if known['function_formula']['kind'] == 'find_value':
+        correct = '求出给定输入对应的函数值'
+        wrong = '先求出整个函数的解析式'
+        feedback = '这一问只求一个函数值，可以直接在题给关系中代入合适的数。'
+    if known['function_formula'].get('function_type'):
+        if known['function_formula']['kind'] == 'find_value':
+            wrong = '只写出函数解析式'
+            feedback = '题目只问函数值。先利用函数类型和已知关系，再计算这个值。'
+        elif known['function_formula']['kind'] == 'find_range':
+            correct, wrong = '求满足不等式的自变量范围', '只写出函数解析式'
+            feedback = '求出解析式后，还要解原题的不等式。'
+        else:
+            correct, wrong = '求出所有符合条件的函数解析式', '找到一个解析式就结束'
+            feedback = '可能有多个解析式，必须保留所有符合题意的结果。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-concept#elements'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct),
+                       _option(wrong, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, known['function_formula']], sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '这一问需要求什么？',
+            'feedback': feedback, 'summary': correct}
 
 
 def _range_d1_rows(target, fragments, known, text):

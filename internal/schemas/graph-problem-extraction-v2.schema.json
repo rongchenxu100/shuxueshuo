@@ -285,7 +285,8 @@
                     "description": "函数值域目标的额外输入范围，仅转录题给范围；完整定义域声明写入 Dom(f)=D。"
                   },
                   "answer_request": {
-                    "$ref": "#/$defs/AnswerRequest"
+                    "$ref": "#/$defs/AnswerRequest",
+                    "description": "原题对值域集合的提问方式，仅记录目标，不写答案。"
                   }
                 },
                 "additionalProperties": false,
@@ -457,6 +458,15 @@
               },
               {
                 "$ref": "#/$defs/FindExtremaExpressionGoal"
+              },
+              {
+                "$ref": "#/$defs/FindFunctionFormulaGoal"
+              },
+              {
+                "$ref": "#/$defs/FindRelationValueGoal"
+              },
+              {
+                "$ref": "#/$defs/FindRelationRangeGoal"
               }
             ]
           },
@@ -1050,19 +1060,22 @@
       ],
       "properties": {
         "kind": {
-          "const": "select_range_domain"
+          "const": "select_range_domain",
+          "description": "选择满足题给值域要求的定义域端点候选。"
         },
         "object": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "题给函数名称或表达式；不得填写求解结果。"
         },
         "domain_template": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "按题面记录含端点参数的定义域模板。"
         },
         "parameters": {
           "type": "array",
@@ -1074,26 +1087,30 @@
             "minLength": 1,
             "maxLength": 1024,
             "pattern": "\\S"
-          }
+          },
+          "description": "按模板中的顺序记录两个端点参数名。"
         },
         "expected_range": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "题面指定的值域集合。"
         },
         "select_relation": {
           "enum": [
             "matches",
             "differs"
-          ]
+          ],
+          "description": "matches 选可能，differs 选不可能，保留原题方向。"
         },
         "selection_mode": {
           "enum": [
             "single",
             "multiple",
             "unspecified"
-          ]
+          ],
+          "description": "原题的单选、多选或未说明。"
         },
         "options": {
           "type": "array",
@@ -1132,7 +1149,8 @@
                 }
               }
             }
-          }
+          },
+          "description": "原题选项标签、文字及按参数顺序排列的端点候选值；不标注答案。"
         }
       },
       "description": "给定函数及值域，逐项核对定义域端点候选。domain_template、expected_range、options 仅记录题面；matches 表示可能，differs 表示不可能。不得预选或写出计算结果。"
@@ -1148,13 +1166,15 @@
       ],
       "properties": {
         "kind": {
-          "const": "find_extrema_expression"
+          "const": "find_extrema_expression",
+          "description": "求题给最值符号所组成的表达式。"
         },
         "object": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "题给函数名称或表达式。"
         },
         "extrema": {
           "type": "array",
@@ -1181,19 +1201,22 @@
                 ]
               }
             }
-          }
+          },
+          "description": "原题给最大值、最小值命名的符号及角色，不填最值结果。"
         },
         "expression": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "原题所求的最值符号算式，不提前计算。"
         },
         "input_domain": {
           "type": "string",
           "minLength": 1,
           "maxLength": 1024,
-          "pattern": "\\S"
+          "pattern": "\\S",
+          "description": "原题显式给出的输入范围；未给出时省略。"
         }
       },
       "description": "题给函数的最大值、最小值用符号命名，要求这些符号的算式。仅抄录角色、符号、所求算式；不得改成只求值域或填写最值答案。"
@@ -1307,6 +1330,269 @@
         }
       ],
       "description": "原题对已求集合的提问方式；只保留原文要求，不填写算出的值、范围或计划。最值必须区分能否取得。"
+    },
+    "FindFunctionFormulaGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function",
+        "variable",
+        "relation"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_function_formula",
+          "description": "从题给关系恢复未知函数的解析式，并保留可确定范围。"
+        },
+        "function": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "所求未知函数名，如 f；不声明具体函数体。"
+        },
+        "variable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "原关系的变量名，如 x。"
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给恒等式原文，如 f(sqrt(x)+1)=2*x+1；不能提前换元、化简或填入答案。"
+        },
+        "relation_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面明确限制原关系变量时填写；未给范围则省略，代码检查自然合法输入。"
+        },
+        "declared_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅记录题给 f 的完整定义域；不是整体输入的取值范围。"
+        },
+        "requested_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题目明确要求某一范围上的完整规则时填写；不能从候选解析式推断。"
+        },
+        "function_type": {
+          "enum": [
+            "linear",
+            "quadratic"
+          ],
+          "description": "仅题面明确给出一次或二次函数类型时填写；不要从右式猜测。"
+        },
+        "additional_relations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "description": "逐条保留题给的其他等式，如 f(0)=1，不提前解出系数。"
+        },
+        "relation_variables": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "description": "题面明确全称量化的两个变量，如对任意实数 x、y 恒成立时记 [x,y]。relation_domain 同时记录两变量各自的共同范围；不能把参数补成全称变量。"
+        }
+      },
+      "description": "由题给恒等关系恢复未知函数规则；函数保持未知，保留原变量、关系与题给范围，不提前求解。"
+    },
+    "FindRelationValueGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function",
+        "variable",
+        "relation",
+        "expression"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_value"
+        },
+        "function": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "所求未知函数名，如 f；不声明具体函数体。"
+        },
+        "variable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "原关系的变量名，如 x。"
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给恒等式原文，如 f(sqrt(x)+1)=2*x+1；不能提前换元、化简或填入答案。"
+        },
+        "relation_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面明确限制原关系变量时填写；未给范围则省略，代码检查自然合法输入。"
+        },
+        "declared_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅记录题给 f 的完整定义域；不是整体输入的取值范围。"
+        },
+        "requested_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题目明确要求某一范围上的完整规则时填写；不能从候选解析式推断。"
+        },
+        "function_type": {
+          "enum": [
+            "linear",
+            "quadratic"
+          ],
+          "description": "仅题面明确给出一次或二次函数类型时填写；不要从右式猜测。"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "原题要求的函数值，如 f(0)；保留未知函数原关系，不先求解析式。"
+        },
+        "additional_relations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "description": "逐条保留题给的其他等式，如 f(0)=1，不提前解出系数。"
+        }
+      },
+      "description": "在题给未知函数关系中，直接求指定输入的函数值。"
+    },
+    "FindRelationRangeGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function",
+        "variable",
+        "relation",
+        "expression",
+        "symbol"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_range"
+        },
+        "function": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "所求未知函数名，如 f；不声明具体函数体。"
+        },
+        "variable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "原关系的变量名，如 x。"
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给恒等式原文，如 f(sqrt(x)+1)=2*x+1；不能提前换元、化简或填入答案。"
+        },
+        "relation_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题面明确限制原关系变量时填写；未给范围则省略，代码检查自然合法输入。"
+        },
+        "declared_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅记录题给 f 的完整定义域；不是整体输入的取值范围。"
+        },
+        "requested_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "仅在题目明确要求某一范围上的完整规则时填写；不能从候选解析式推断。"
+        },
+        "function_type": {
+          "enum": [
+            "linear",
+            "quadratic"
+          ],
+          "description": "仅题面明确给出一次或二次函数类型时填写；不要从右式猜测。"
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "原题所求不等式，如 f(x)>0；保留未知函数，不提前填入解析式。"
+        },
+        "additional_relations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "description": "逐条保留题给的其他等式，如 f(0)=1，不提前解出系数。"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "原关系的变量名，如 x。"
+        }
+      },
+      "description": "由题给函数关系与类型，求满足原不等式的自变量范围。"
     }
   }
 }

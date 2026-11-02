@@ -1,0 +1,218 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b04",
+  "label": "待定系数法 · 例 4",
+  "path": "/topics/function-representations/q04/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b04.json",
+  "types": [
+    "type-function-formula"
+  ],
+  "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。",
+  "routes": {
+    "function-coefficients": {
+      "label": "待定系数法求函数解析式",
+      "methods": [
+        "method-function-coefficients"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "27ead00557dccb270ee8f9aa#1": {
+          "title": "按函数类型设一般式",
+          "position": 4,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        },
+        "61ac47f7c30432b37dbc2438#1": {
+          "title": "把一般式代入题给关系",
+          "position": 5,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        },
+        "2f8c654e3cfa0349af2bbcd0#1": {
+          "title": "同次幂的系数分别相等",
+          "position": 6,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        },
+        "b77abe5f0e51781662f7d30e#1": {
+          "title": "求出所有系数",
+          "position": 7,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        },
+        "411fbd64ab754cf12e740269#1": {
+          "title": "把每个结果代回检查",
+          "position": 8,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        },
+        "02dd0c2591239bf66102e9d2#1": {
+          "title": "回到原题，计算函数值",
+          "position": 9,
+          "refs": [
+            "method-function-coefficients#recover",
+            "skill-simplify",
+            "skill-polynomial-coefficient-comparison",
+            "equality-properties#polynomial-coefficients",
+            "method-elimination",
+            "equality-properties#addition",
+            "equality-properties#multiplication",
+            "skill-equality-transform"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515"
+}

@@ -1,0 +1,38 @@
+{
+  "original_text": "3. 已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____",
+  "root": {
+    "label": "3",
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x)-2*f(-x)=x+2",
+        "declared_domain": "ℝ"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知定义在 $R$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$____",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

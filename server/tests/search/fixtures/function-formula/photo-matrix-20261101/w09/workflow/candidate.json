@@ -1,0 +1,36 @@
+{
+  "original_text": "9. 已知 $f(x+2)=x^2-4x$，则 $f(x)=$____",
+  "root": {
+    "label": "9.",
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x+2)=x^2-4*x"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x+2)=x^2-4x$，则 $f(x)=$____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

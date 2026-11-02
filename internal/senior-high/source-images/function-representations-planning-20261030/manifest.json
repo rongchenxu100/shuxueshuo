@@ -3,6 +3,7 @@
   "purpose": "函数的表示法：专题与拍题学同步建设计划",
   "status": "planning_sources_not_extraction_gold",
   "processing": "Original bytes copied without rotation, cropping, or annotation changes.",
+  "corrections": "source-corrections.json",
   "images": [
     {
       "image_number": 1,

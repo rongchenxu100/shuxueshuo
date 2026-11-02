@@ -1,0 +1,617 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x+1)-f(x)=2*x",
+          "function_type": "quadratic",
+          "additional_relations": [
+            "f(0)=1"
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【变式】二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x+1)-f(x)=2*x",
+          "function_type": "quadratic",
+          "additional_relations": [
+            "f(0)=1"
+          ]
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "二次函数 $f(x)$ 满足 $f(x+1)-f(x)=2x$，且 $f(0)=1$．则 $f(x)=$______．",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "function:0",
+                "function"
+              ],
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "-",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "scalar:0",
+                  "scalar"
+                ]
+              ]
+            ],
+            "additional_relations": [
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "function_type": "quadratic"
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "-",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "r.goals[0]:scalar:x",
+                  "scalar"
+                ]
+              ]
+            ],
+            "additional_relations": [
+              [
+                "=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "function_type": "quadratic"
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t1-photo-b04-v",
+      "source_sha256": "192304b3e41a6bf22481b15794c6348029cbe3726a64d372f19cdea7df035392"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "-",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "function:0",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "ref",
+                          "scalar:0",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "function:0",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "scalar:0",
+                      "scalar"
+                    ]
+                  ]
+                ],
+                "additional_relations": [
+                  [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "function:0",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "function_type": "quadratic"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "-",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r.goals[0]:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "ref",
+                          "r.goals[0]:scalar:x",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r.goals[0]:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ]
+                ],
+                "additional_relations": [
+                  [
+                    "=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r.goals[0]:function:f",
+                        "function"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "function_type": "quadratic"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t1-photo-b04-v",
+          "source_sha256": "192304b3e41a6bf22481b15794c6348029cbe3726a64d372f19cdea7df035392"
+        }
+      },
+      "revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "db4d851f91e2fbdd75de92c62bf7b80ff8354902f11343c68707939bddc4db94",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

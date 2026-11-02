@@ -1,0 +1,31 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w14",
+  "reviewer": "Codex：对照用户原图题干转录，W07 应用用户批准的非零条件。本批未执行照片模型复核。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+      "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272",
+      "location": "小条第 14 题"
+    }
+  ],
+  "candidate": {
+    "original_text": "设 $x\\ne0$，函数 $f(x)$ 满足 $2f(x)+f(\\frac{1}{x})=10^x$，函数 $f(x)$ 的解析式为 ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "2*f(x)+f(1/x)=10**x",
+          "relation_domain": "ℝ∖{0}"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "(2*10**x-10**(1/x))/3",
+    "domain": "ℝ∖{0}"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

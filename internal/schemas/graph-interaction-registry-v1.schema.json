@@ -352,7 +352,8 @@
             "function_equality",
             "abstract_function_domain",
             "function_evaluation",
-            "function_range"
+            "function_range",
+            "function_formula"
           ]
         },
         "parts": {

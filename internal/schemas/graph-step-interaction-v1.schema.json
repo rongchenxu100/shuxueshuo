@@ -1143,6 +1143,9 @@
                 },
                 "pairing_diagram": {
                   "$ref": "#/$defs/pairing_diagram"
+                },
+                "comparison_sides": {
+                  "$ref": "#/$defs/condition_groups"
                 }
               },
               "allOf": [
@@ -1158,6 +1161,24 @@
                       {
                         "required": [
                           "pairing_diagram",
+                          "interval_explorer"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
+                          "pairing_diagram"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
                           "interval_explorer"
                         ]
                       }
@@ -1664,6 +1685,9 @@
                 },
                 "pairing_diagram": {
                   "$ref": "#/$defs/pairing_diagram"
+                },
+                "comparison_sides": {
+                  "$ref": "#/$defs/condition_groups"
                 }
               },
               "allOf": [
@@ -1681,6 +1705,24 @@
                           "pairing_diagram",
                           "interval_explorer"
                         ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
+                          "pairing_diagram"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "comparison_sides",
+                          "interval_explorer"
+                        ]
                       }
                     ]
                   }
@@ -1688,6 +1730,9 @@
               ]
             }
           ]
+        },
+        "answer_completion": {
+          "$ref": "#/$defs/formulaAnswerCompletion"
         }
       },
       "allOf": [
@@ -1975,6 +2020,115 @@
         "omitted_leftovers": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "formulaAnswerCompletion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "given",
+        "formula",
+        "variable",
+        "reminder",
+        "coverage",
+        "bounds",
+        "ticks",
+        "ranges"
+      ],
+      "properties": {
+        "given": {
+          "$ref": "#/$defs/text"
+        },
+        "formula": {
+          "$ref": "#/$defs/text"
+        },
+        "variable": {
+          "$ref": "#/$defs/text"
+        },
+        "reminder": {
+          "$ref": "#/$defs/text"
+        },
+        "coverage": {
+          "$ref": "#/$defs/text"
+        },
+        "bounds": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "ticks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "at",
+              "label"
+            ],
+            "properties": {
+              "at": {
+                "type": "number"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "ranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "condition",
+              "left",
+              "right",
+              "left_closed",
+              "right_closed"
+            ],
+            "properties": {
+              "value": {
+                "$ref": "#/$defs/text"
+              },
+              "condition": {
+                "$ref": "#/$defs/text"
+              },
+              "left": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "right": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "left_closed": {
+                "type": "boolean"
+              },
+              "right_closed": {
+                "type": "boolean"
+              },
+              "excluded": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "uniqueItems": true,
+                "maxItems": 4
+              }
+            }
+          },
+          "minItems": 2
         }
       }
     }

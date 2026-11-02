@@ -227,6 +227,25 @@
             }
           },
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "formula_result",
+            "answer"
+          ],
+          "properties": {
+            "formula_result": {
+              "type": "object"
+            },
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            }
+          }
         }
       ]
     },
@@ -858,6 +877,329 @@
                 "empty_feasible_set",
                 "unbounded_below",
                 "unbounded_above"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "function",
+            "variable",
+            "expression",
+            "source_domain",
+            "determined_domain",
+            "declared_domain",
+            "requested_domain"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_function_formula"
+            },
+            "status": {
+              "enum": [
+                "determined_on_domain",
+                "insufficient_information"
+              ]
+            },
+            "function": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string"
+            },
+            "expression": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expression",
+                "latex",
+                "exact"
+              ],
+              "properties": {
+                "expression": {
+                  "type": "string"
+                },
+                "latex": {
+                  "type": "string"
+                },
+                "exact": {}
+              }
+            },
+            "source_domain": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expression",
+                "latex",
+                "exact"
+              ],
+              "properties": {
+                "expression": {
+                  "type": "string"
+                },
+                "latex": {
+                  "type": "string"
+                },
+                "exact": {}
+              }
+            },
+            "determined_domain": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expression",
+                "latex",
+                "exact"
+              ],
+              "properties": {
+                "expression": {
+                  "type": "string"
+                },
+                "latex": {
+                  "type": "string"
+                },
+                "exact": {}
+              }
+            },
+            "declared_domain": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "expression",
+                    "latex",
+                    "exact"
+                  ],
+                  "properties": {
+                    "expression": {
+                      "type": "string"
+                    },
+                    "latex": {
+                      "type": "string"
+                    },
+                    "exact": {}
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requested_domain": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "expression",
+                    "latex",
+                    "exact"
+                  ],
+                  "properties": {
+                    "expression": {
+                      "type": "string"
+                    },
+                    "latex": {
+                      "type": "string"
+                    },
+                    "exact": {}
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "function",
+            "variable",
+            "candidates",
+            "determined_domain",
+            "expression",
+            "source_domain",
+            "declared_domain",
+            "requested_domain"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_function_formula"
+            },
+            "status": {
+              "enum": [
+                "determined_on_domain"
+              ]
+            },
+            "function": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string"
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/mathValue"
+              }
+            },
+            "determined_domain": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "expression": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "source_domain": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "declared_domain": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "requested_domain": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "function",
+            "variable",
+            "candidates",
+            "determined_domain",
+            "value",
+            "candidate_values"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_value"
+            },
+            "status": {
+              "enum": [
+                "complete",
+                "insufficient_information"
+              ]
+            },
+            "function": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string"
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/mathValue"
+              }
+            },
+            "determined_domain": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "candidate_values": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/mathValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "function",
+            "variable",
+            "candidates",
+            "determined_domain",
+            "set"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_range"
+            },
+            "status": {
+              "enum": [
+                "set",
+                "insufficient_information"
+              ]
+            },
+            "function": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string"
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/mathValue"
+              }
+            },
+            "determined_domain": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "set": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
               ]
             }
           }

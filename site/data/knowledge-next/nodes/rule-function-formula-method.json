@@ -1,0 +1,55 @@
+{
+  "id": "rule-function-formula-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "求函数解析式的选法判断",
+  "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+  "source": "函数的表示法 FR-T1 A0—A3",
+  "input": "题给函数类型、函数关系及其成立范围。",
+  "output": "所选线索与方法是否相符，以及当前是否有可执行的解题步骤。",
+  "conditions": "各方法分别判断；同一整体输入可以同时适用换元和配凑。方法适用但未开放时不判为数学错误。范围随所选方法核对。",
+  "branches": [
+    {
+      "id": "substitution",
+      "title": "整体输入可以合法反解",
+      "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。",
+      "target": "method-function-substitution"
+    },
+    {
+      "id": "matching",
+      "title": "右边容易凑成整体输入的式子",
+      "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。",
+      "target": "method-function-matching"
+    },
+    {
+      "id": "coefficients",
+      "title": "题给一次或二次函数类型",
+      "condition": "可设相应一般式并形成受支持的系数恒等关系。",
+      "target": "method-function-coefficients"
+    },
+    {
+      "id": "system",
+      "title": "两个函数值可由替换互换",
+      "condition": "在原合法范围内以 c−x 或 k/x 替换后，关联函数值互换，形成两个线性方程。",
+      "target": "method-function-equation-system"
+    },
+    {
+      "id": "assignment",
+      "title": "对两个变量恒成立，可作特殊代入",
+      "condition": "两个全称变量均取任意实数；代入零或令变量相等后，能逐步确定函数规则，并回验完整原关系。",
+      "target": "method-function-assignment"
+    }
+  ],
+  "examples": [
+    {
+      "title": "同一线索可以支持不同方法",
+      "prompt": "已知 $f(\\sqrt{x}+1)=2x+1$，怎样选择方法？",
+      "solution": [
+        "题目给出整体输入 $\\sqrt{x}+1$，可选换元法：令 $t=\\sqrt{x}+1$，再反解原变量。",
+        "也可把右边凑成 $2(\\sqrt{x}+1)^2-4(\\sqrt{x}+1)+3$，选择配凑法。",
+        "题目没有给出 f 的一次或二次类型，不能因为右边是一次式就直接设 f 为一次函数。"
+      ],
+      "source": "函数的表示法 B05-v2"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "original_text": "【例6】已知定义域为 $ℝ$ 的函数 $f(x)$ 满足 $2f(x)-f(-x)=3x$，则 $f(x)=$ ____。",
+  "root": {
+    "label": "【例6】",
+    "definitions": [],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "2*f(x)-f(-x)=3*x",
+        "declared_domain": "ℝ"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知定义域为 $ℝ$ 的函数 $f(x)$ 满足 $2f(x)-f(-x)=3x$，则 $f(x)=$ ____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

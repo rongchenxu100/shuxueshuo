@@ -17,9 +17,12 @@ const h = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&
 
 function compileTarget(source, evidence, graph, nodes, targetRef) {
   assert(source.schemaVersion === 1 && /^[a-z][a-z0-9-]*$/.test(source.problemId), 'Invalid course source');
-  assert(/^\/topics\/[a-z][a-z0-9-]*\/(?:q\d+[a-z]?|variant\d+)\/$/.test(source.page), 'Invalid topic problem path');
+  assert(source.preview === true
+    ? /^\/lab\/graph-walk\/[a-z][a-z0-9-]*\/$/.test(source.page)
+    : /^\/topics\/[a-z][a-z0-9-]*\/(?:q\d+[a-z]?|variant\d+)\/$/.test(source.page), 'Invalid topic problem path');
   assert(typeof source.title === 'string' && source.title.trim(), 'Missing course title');
-  assert(/^\/topics\/[a-z][a-z0-9-]*\/$/.test(source.topicHref) && source.page.startsWith(source.topicHref), 'Invalid course topic');
+  assert(/^\/topics\/[a-z][a-z0-9-]*\/$/.test(source.topicHref)
+    && (source.preview === true || source.page.startsWith(source.topicHref)), 'Invalid course topic');
   const goal = evidence.lesson?.goals?.find(item => item.target_ref === targetRef);
   assert(goal?.walk?.bundle && evidence.stream, 'Missing real lesson projection or committed stream');
   const base = structuredClone(goal.walk.bundle);
@@ -64,24 +67,42 @@ export function compileCourse(source, evidence, graph, nodes) {
   assert(targets.length && new Set(targets).size === targets.length, 'Invalid course targets');
   const parts = targets.map(ref => compileTarget(source, evidence, graph, nodes, ref));
   const bundle = parts[0];
+  if (source.preferredRoute) {
+    for (const part of parts) if (part.routes[source.preferredRoute]) {
+      part.routes = Object.fromEntries([source.preferredRoute, ...Object.keys(part.routes).filter(id => id !== source.preferredRoute)]
+        .map(id => [id, part.routes[id]]));
+    }
+  }
   if (parts.length > 1) {
     const [routeId] = Object.keys(bundle.routes);
     const route = bundle.routes[routeId];
-    assert(parts.every(part => Object.keys(part.routes).length === 1 && part.routes[routeId]?.method === route.method),
-      'Sequential goals require the same verified method route');
-    const completions = parts.map((part, index) => ({...structuredClone(part.routes[routeId].completion),
+    assert(parts.every(part => Object.keys(part.routes).length === 1), 'Sequential goals require one verified route per target');
+    const partRoutes = parts.map(part => Object.values(part.routes)[0]);
+    const mainIndex = source.mainTargetRef ? targets.indexOf(source.mainTargetRef) : 0;
+    assert(mainIndex >= 0, 'Main target must belong to this course');
+    const methods = [...new Set([partRoutes[mainIndex].method, ...partRoutes.map(value => value.method)])];
+    if (methods.length > 1) {
+      route.methods = methods;
+      route.label = (source.targetTitles || partRoutes.map(value => value.label)).join(' → ');
+    }
+    const completions = partRoutes.map((partRoute, index) => ({...structuredClone(partRoute.completion),
       title: source.targetTitles?.[index] || `目标 ${index + 1}`}));
     for (const [index, part] of parts.entries()) {
-      for (const step of [...part.intro, ...part.routes[routeId].steps]) step.target_ref = targets[index];
+      const partRoute = partRoutes[index];
+      for (const step of [...part.intro, ...partRoute.steps]) {
+        step.target_ref = targets[index];
+        if (partRoute.id !== routeId) step.route_id = partRoute.id;
+      }
       if (!index) continue;
       const read = structuredClone(part.intro.find(step => step.id === 'D1'));
       assert(read, 'Missing next-goal reading');
       read.id = `goal-${index + 1}-D1`;
       read.title = source.targetTitles?.[index] || `目标 ${index + 1}：读题`;
-      const prerequisites = part.intro.filter(step => step.id === 'D3-domain').map(step => ({
+      const prerequisites = part.intro.filter(step => step.id === 'D3-domain' ||
+        partRoute.method !== route.method && ['D2', 'D3'].includes(step.id)).map(step => ({
         ...structuredClone(step), id: `goal-${index + 1}-${step.id}`,
       }));
-      route.steps.push(read, ...prerequisites, ...part.routes[routeId].steps);
+      route.steps.push(read, ...prerequisites, ...partRoute.steps);
       bundle.stream.math_steps.push(...part.stream.math_steps);
       Object.assign(bundle.stream.step_calls, part.stream.step_calls);
       bundle.stream.interaction_states.push(...part.stream.interaction_states);
@@ -151,17 +172,20 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   const {bundle, replay} = compileCourse(source, evidence, graph, nodes);
   const bundleUrl = `/data/graph-walk/${source.problemId}.json`, replayUrl = `/data/graph-walk/${source.problemId}.replay.json`;
   const config = {problemId: source.problemId, bundleUrl, replayUrl, topicHref: source.topicHref};
+  if (source.preview === true) config.preview = true;
   let html = await fs.readFile(path.join(root, 'tools/templates/graph-walk.html'), 'utf8');
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
     .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261031-derivation-stack"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261101-answer"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261031-derivation-stack"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261101-coefficients"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)
-    .replace('本页不保存学习记录。适用性结论由人工编写；候选与关联来自真实图谱查询。', '自己做与 AI 回放分别保留进度；登录后保存已确认的练习记录。')
+    .replace('本页不保存学习记录。适用性结论由人工编写；候选与关联来自真实图谱查询。', source.preview === true
+      ? '学习预览：自己做与 AI 回放分别保留本机进度，本页不提交练习记录。'
+      : '自己做与 AI 回放分别保留进度；登录后保存已确认的练习记录。')
     .replace('<small id="gw-version"></small>', '')
     .replace('<noscript><p class="gw-error">请启用 JavaScript 体验解题过程。也可以阅读<a href="/2/q01/?preview=1">原题的无记录练习</a>。</p></noscript>',
       `<noscript><p class="gw-error">请启用 JavaScript 完成练习，或<a href="${h(source.topicHref)}">返回专题</a>。</p></noscript>`)

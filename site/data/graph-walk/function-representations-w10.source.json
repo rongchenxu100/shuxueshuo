@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w10",
+  "title": "待定系数法 · 小条第 10 题",
+  "page": "/topics/function-representations/q10/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知二次函数 $f(x)$ 满足 $f(0)=0$，$f(x-1)=f(x)+3x-5$，则不等式 $f(x)>0$ 的解集为 ______。",
+  "evidence": "site/data/graph-walk/function-representations-w10.evidence.json"
+}

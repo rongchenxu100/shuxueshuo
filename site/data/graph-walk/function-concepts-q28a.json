@@ -70,7 +70,7 @@
           {
             "value": "type-function-evaluation",
             "label": "求函数值",
-            "note": "已知函数规则，求给定输入或组合的输出"
+            "note": "根据函数关系，求给定输入或组合的输出"
           }
         ]
       },
@@ -1063,6 +1063,9 @@
           },
           {
             "entry": "identity"
+          },
+          {
+            "entry": "universal-substitution"
           }
         ]
       },
@@ -1220,13 +1223,13 @@
       }
     ]
   },
-  "bundleVersion": "444e90c0583f4915c4a9873c3ddcddd2fc1f20d82a5a536c42a584006a375464",
+  "bundleVersion": "afbe55b27749b7fa486847276217f1f1d2bed1599bad75acdbf588d1a872a728",
   "stream": {
     "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
     "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
     "stream_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
     "target_ref": "/root/children/0/goals/0",
-    "base_bundle_version": "9255a72e193d383c143eb987920dba1785adb46ef1f822dc3438a70d8d6c9efd",
+    "base_bundle_version": "9c1e44a33bde80f180f7fb5169fe3774237db9512f08cb7f58a2b13e9c7480c9",
     "d3": {
       "expected_answer": {},
       "id": "D3",

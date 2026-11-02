@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w09",
+  "title": "一次式换元求函数解析式 · 小条第 9 题",
+  "page": "/topics/function-representations/q09/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-w09.evidence.json",
+  "statement": "已知 $f(x+2)=x^2-4x$，则 $f(x)=$ ______。"
+}

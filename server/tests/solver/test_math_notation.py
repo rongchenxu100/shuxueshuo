@@ -8,6 +8,7 @@ from hashlib import sha256
 import pytest
 from _math_notation_test_support import Recorded
 from jsonschema import Draft202012Validator
+
 from shuxueshuo_server.problem_understanding.batch_smoke import (
     CASES,
     NOTATION_FIXTURES,
@@ -131,6 +132,9 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_abstract_domain_parameter",
         "find_abstract_range",
         "find_translation_range",
+        "select_range_domain",
+        "find_extrema_expression",
+        "find_function_formula",
         "check_constant",
         "finite_sum",
     }

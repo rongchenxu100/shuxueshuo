@@ -1,0 +1,36 @@
+{
+  "original_text": "【例4】已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。",
+  "root": {
+    "label": "例4",
+    "goals": [
+      {
+        "kind": "find_value",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(f(x))=4*x-3",
+        "function_type": "linear",
+        "expression": "f(1)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知一次函数 $f(x)$ 满足 $f(f(x))=4x-3$，则 $f(1)=$ ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ]
+  }
+}

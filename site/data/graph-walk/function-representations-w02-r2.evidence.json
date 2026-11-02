@@ -1,0 +1,2271 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+    "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+    "input_sha256": "e4efbd7df6d64f9a641245e3f89799fbce38f3ff259a2825931794b399a117cb",
+    "checkpoint_sha256": "e5d3c2f63bca2b7e075f7365c1855d88f5ee859c39f2816ab6b4c8fb570ff83c",
+    "result_sha256": "72af69fd1130ab0a6d74aa430884ba65cbcd3e29d6ef691ec38125158f753ace",
+    "stage_one_sha256": "34dd40aea44b6cc8c1bd8e48d4335ca3238b4b088cef1e489df6538849db528d",
+    "stage_two_sha256": "ef9e63b3e09ad069b550bfcf03d2b301674dec42fa63f9452a787cf69341d8dd",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "a96748d6294a2fc914780b51128ef5b55bdeafb84ac14e682a6a7404178ee0a6"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-formula",
+        "supported": [
+          "type-function-formula"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 24,
+                  "end": 29,
+                  "text": "$f(x)=$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求出函数解析式，并写出适用范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只求出函数解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "还要写明求出的解析式在哪些输入上成立。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "854f85f723d67fa7"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要求什么？",
+          "feedback": "还要写明求出的解析式在哪些输入上成立。",
+          "summary": "求出函数解析式，并写出适用范围"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "conflict",
+            "feedback": "只给函数的输入范围，要求新复合式的定义域",
+            "reasons": [],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-formula",
+            "label": "求函数的解析式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+            ],
+            "choice_hint": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-w02-r2//root/goals/0",
+            "graphVersion": "7d44434228ab22f2948254c8f06ab29771edf7864649c57efb319bc53c308a44",
+            "problem": {
+              "text": "已知 $f(x-1)=x^2-2x+7$，则 $f(x)=$ ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求出函数解析式，并写出适用范围"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只求出函数解析式",
+                      "feedback": "还要写明求出的解析式在哪些输入上成立。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "还要写明求出的解析式在哪些输入上成立。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-abstract-function-domain",
+                  "type-function-formula",
+                  "type-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range",
+                  "type-piecewise-composition",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求出函数解析式，并写出适用范围"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+                      "feedback": "只给函数的输入范围，要求新复合式的定义域"
+                    },
+                    {
+                      "value": "type-function-formula",
+                      "label": "求函数的解析式",
+                      "note": "函数规则尚未知，题目给出函数类型或关于它的恒等关系"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-formula"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-formula"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-formula"
+                  ],
+                  "edges": [
+                    "type-function-formula|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的解析式」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-composition",
+                  "kind": "problem_type",
+                  "label": "复合型分段函数问题",
+                  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-formula-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数解析式的选法判断",
+                  "summary": "根据题目给出的条件选择方法：已知函数类型可设一般式，整体输入可换元或配凑，关联函数值可联立，二元恒等式可赋值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-function-matching",
+                  "kind": "method",
+                  "label": "配凑法求函数解析式",
+                  "summary": "把题目右边配成函数括号里式子的组合，读出函数规则，并保留输入能取到的范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "配成整体输入的式子",
+                      "calls": [
+                        "method-complete-square",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-substitution",
+                  "kind": "method",
+                  "label": "换元法求函数解析式",
+                  "summary": "由未知函数的整体输入关系，确定新变量范围，合法反解并恢复规则，最后证明覆盖并回验原式。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "recover",
+                      "title": "整体换元并恢复规则",
+                      "calls": [
+                        "skill-expression-defined",
+                        "method-substitution",
+                        "skill-simplify",
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验规则与覆盖",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-function-formula-method|selects|method-function-matching",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-matching",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "matching",
+                      "condition": "已知复合函数的解析式；右边可恒等表示为同一整体输入的至多二次多项式，且覆盖范围有证明。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-formula-method|selects|method-function-substitution",
+                  "from": "rule-function-formula-method",
+                  "to": "method-function-substitution",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "substitution",
+                      "condition": "整体输入在支持的根式、一次式、一次分式范围内，可以合法反解。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-matching",
+                  "from": "type-function-formula",
+                  "to": "method-function-matching",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|candidate|method-function-substitution",
+                  "from": "type-function-formula",
+                  "to": "method-function-substitution",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-concept",
+                  "from": "type-function-formula",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|method_rule|rule-function-formula-method",
+                  "from": "type-function-formula",
+                  "to": "rule-function-formula-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-composition|involves|function-concept",
+                  "from": "type-piecewise-composition",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-concept",
+                  "from": "type-piecewise-function",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "9d15ecf2b9639e373f524f9364797f82fe5517c361d35841c83bd348ca4da541"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-w02-r2//root/goals/0",
+            "bundleVersion": "9d15ecf2b9639e373f524f9364797f82fe5517c361d35841c83bd348ca4da541",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "求出函数解析式，并写出适用范围"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-formula",
+                "reason": "选「求函数的解析式」：给出复合输入的函数值，要求恢复原函数的解析式；整体输入的取值范围必须保留。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+    "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+    "input_sha256": "e4efbd7df6d64f9a641245e3f89799fbce38f3ff259a2825931794b399a117cb",
+    "stream_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+    "last_seq": 39,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "square",
+        "explanation": "用完全平方公式展开，注意中间的乘积项。得到 $\\left(x - 1\\right)^2=x^{2} - 2 x + 1$。",
+        "highlight": {
+          "caption": "展开平方，寻找相同的项",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题目给出的关系",
+              "math": "f\\left(x - 1\\right)=x^{2} - 2 x + 7"
+            },
+            {
+              "label": "平方展开",
+              "math": "\\left(x - 1\\right)^2=x^{2} - 2 x + 1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "76c3974e3d4490d93eda7ddd94c51ad35b0b04a2c002e779dc2b191454aeee83",
+        "method_ref": "method-function-matching#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3"
+        ],
+        "step_id": "39e5646dcb-function-matching-001-square",
+        "target_ref": "/root/goals/0",
+        "title": "展开平方，寻找相同的项",
+        "used_basis": [
+          "equality-properties#identity",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "match",
+        "explanation": "把函数括号里的式子看作一个整体，右边也用这个整体来表示。展开右边即可检查等式是否成立。",
+        "highlight": {
+          "caption": "把右边配成同一个式子",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "可利用的恒等式",
+              "math": "\\left(x - 1\\right)^2=x^{2} - 2 x + 1"
+            },
+            {
+              "label": "配凑后的关系",
+              "math": "f\\left(x - 1\\right)=\\left(x - 1\\right)^{2} + 6"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "c3fe41158fc9291b6453155b1c58a3247d8e8222a568f2017de5d815ded98350",
+        "method_ref": "method-function-matching#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3"
+        ],
+        "step_id": "39e5646dcb-function-matching-002-match",
+        "target_ref": "/root/goals/0",
+        "title": "把右边配成同一个式子",
+        "used_basis": [
+          "equality-properties#identity",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "rename",
+        "explanation": "左右两边的 $x - 1$ 都换成 $t$，得到 $f(t)=t^{2} + 6$。",
+        "highlight": {
+          "caption": "读出函数的解析式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "把相同的式子整体替换",
+              "math": "t=x - 1"
+            },
+            {
+              "label": "得到解析式",
+              "math": "f(t)=t^{2} + 6"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "5cf01a04ac14845c9251f7854615edf2d1f8f71378711497477d3f4df5df6910",
+        "method_ref": "method-function-matching#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3"
+        ],
+        "step_id": "39e5646dcb-function-matching-003-rename",
+        "target_ref": "/root/goals/0",
+        "title": "读出函数的解析式",
+        "used_basis": [
+          "equality-properties#identity",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "coverage",
+        "explanation": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+        "highlight": {
+          "caption": "写出完整答案",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "前面已经得到",
+              "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "完整答案",
+              "math": "\\begin{gathered}f(x)=x^{2} + 6\\\\x\\in\\mathbb{R}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "bf162a52e923a72eab9a996af45e9efba139bf7e3c541978c933982413fc5b8d",
+        "method_ref": "method-function-matching#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3"
+        ],
+        "step_id": "39e5646dcb-function-matching-004-coverage",
+        "target_ref": "/root/goals/0",
+        "title": "写出完整答案",
+        "used_basis": [
+          "equality-properties#identity",
+          "skill-equality-transform",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "input_range",
+        "explanation": "把 $x - 1$ 整体设为 $t$。原变量能取任意实数，$t$ 也能取任意实数。",
+        "highlight": {
+          "caption": "把函数的输入换成新变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原关系",
+              "math": "f(x - 1)=x^{2} - 2 x + 7"
+            },
+            {
+              "label": "选取新变量",
+              "math": "\\begin{gathered}t=x - 1\\\\t\\in\\mathbb{R}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "ddb2b50f5523a5a2554e85538e80cc6d2944813ebc07bf1e3d8f7a97e7e8d262",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "target_ref": "/root/goals/0",
+        "title": "把函数的输入换成新变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inverse",
+        "explanation": "$t=x - 1$\n$x=t + 1$",
+        "highlight": {
+          "caption": "用新变量表示原变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "换元与范围",
+              "math": "\\begin{gathered}t=x - 1\\\\t\\in\\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "原变量",
+              "math": "x=t + 1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "c5fb02411d37a5767497cc86278b301d7e21be4f97e4b6529cd8b477a37c7f94",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "target_ref": "/root/goals/0",
+        "title": "用新变量表示原变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "rewrite",
+        "explanation": "$f(t)=t^{2} + 6$\n$t\\in\\mathbb{R}$",
+        "highlight": {
+          "caption": "把右式全部改写为新变量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原式与反解",
+              "math": "\\begin{gathered}f(x - 1)=x^{2} - 2 x + 7\\\\x=t + 1\\end{gathered}"
+            },
+            {
+              "label": "恢复的规则",
+              "math": "f(t)=t^{2} + 6"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "6168bda10660b125f824bbf96c2216e071924ef304d1f7fb5592499fec85c189",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "target_ref": "/root/goals/0",
+        "title": "把右式全部改写为新变量",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "coverage",
+        "explanation": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+        "highlight": {
+          "caption": "写出完整答案",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "前面已经得到",
+              "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "完整答案",
+              "math": "\\begin{gathered}f(x)=x^{2} + 6\\\\x\\in\\mathbb{R}\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "local_check": "passed",
+        "math_step_sha256": "83545fcfb746a35041fb501761881f0934a89685eeb0b0b50fefaef9d62a0d34",
+        "method_ref": "method-function-substitution#recover",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4"
+        ],
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "target_ref": "/root/goals/0",
+        "title": "写出完整答案",
+        "used_basis": [
+          "method-substitution",
+          "skill-equality-transform",
+          "skill-expression-defined",
+          "skill-simplify"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "6"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 6",
+            "latex": "t^{2} + 6"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "6"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 6",
+            "latex": "t^{2} + 6"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "math_steps": [
+          {
+            "math_step_sha256": "76c3974e3d4490d93eda7ddd94c51ad35b0b04a2c002e779dc2b191454aeee83",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-matching-001-square"
+          },
+          {
+            "math_step_sha256": "c3fe41158fc9291b6453155b1c58a3247d8e8222a568f2017de5d815ded98350",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-matching-002-match"
+          },
+          {
+            "math_step_sha256": "5cf01a04ac14845c9251f7854615edf2d1f8f71378711497477d3f4df5df6910",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-matching-003-rename"
+          },
+          {
+            "math_step_sha256": "bf162a52e923a72eab9a996af45e9efba139bf7e3c541978c933982413fc5b8d",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-matching-004-coverage"
+          }
+        ],
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "a84cce1b4eea8235774df1e97fb09e60cd9ee92caf4b913e98fbda48b19cda12",
+        "verified_route_sha256": "89dfdb5950dad7bc7c08ad5900005c048a918b413e43d0dd8bac6b311c412cfa"
+      },
+      {
+        "answer": {
+          "declared_domain": null,
+          "determined_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "expression": {
+            "exact": {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "6"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Symbol",
+                      "name": "t"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "t**2 + 6",
+            "latex": "t^{2} + 6"
+          },
+          "function": "f",
+          "kind": "find_function_formula",
+          "requested_domain": null,
+          "source_domain": {
+            "exact": {
+              "$math": "Reals"
+            },
+            "expression": "Reals",
+            "latex": "\\mathbb{R}"
+          },
+          "status": "determined_on_domain",
+          "variable": "t"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "math_steps": [
+          {
+            "math_step_sha256": "ddb2b50f5523a5a2554e85538e80cc6d2944813ebc07bf1e3d8f7a97e7e8d262",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          },
+          {
+            "math_step_sha256": "c5fb02411d37a5767497cc86278b301d7e21be4f97e4b6529cd8b477a37c7f94",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          },
+          {
+            "math_step_sha256": "6168bda10660b125f824bbf96c2216e071924ef304d1f7fb5592499fec85c189",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          },
+          {
+            "math_step_sha256": "83545fcfb746a35041fb501761881f0934a89685eeb0b0b50fefaef9d62a0d34",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "5a5ee1351e4dd4a140650465f8892c85f2e6a186826d58121c5df40c5700d701",
+        "verified_route_sha256": "6a6c7c5a05efd6651a7f071f87fe654c138eaccea5e068ad78f001b659f02436"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "source_structure": "composite_input"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "这道题的线索在函数括号里：可以换元，也可以尝试配凑。",
+                "id": "source_structure",
+                "options": [
+                  {
+                    "label": "已知函数类型",
+                    "note": "如一次函数、二次函数",
+                    "value": "function_type"
+                  },
+                  {
+                    "label": "已知复合函数的解析式",
+                    "note": "如 $f\\left(x - 1\\right)=x^{2} - 2 x + 7$",
+                    "value": "composite_input"
+                  },
+                  {
+                    "label": "出现关联函数值",
+                    "note": "如 $f(x)$ 与 $f(-x)$",
+                    "value": "paired_values"
+                  },
+                  {
+                    "label": "含两个变量的恒等式",
+                    "note": "对任意 $x,y$ 成立",
+                    "value": "two_variables"
+                  }
+                ],
+                "question": "题目给了哪类条件？",
+                "resolved": "函数括号里是 $x - 1$。"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "function_type",
+                "method": "coefficients"
+              },
+              {
+                "cue": "composite_input",
+                "method": "substitution"
+              },
+              {
+                "cue": "composite_input",
+                "method": "matching"
+              },
+              {
+                "cue": "paired_values",
+                "method": "system"
+              },
+              {
+                "cue": "two_variables",
+                "method": "assignment"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "待定系数法",
+                "value": "coefficients"
+              },
+              {
+                "label": "换元法",
+                "value": "substitution"
+              },
+              {
+                "label": "配凑法",
+                "value": "matching"
+              },
+              {
+                "label": "构造方程组法",
+                "value": "system"
+              },
+              {
+                "label": "赋值法",
+                "value": "assignment"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0/function",
+              "/root/goals/0/variable",
+              "/root/goals/0/relation"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-formula",
+            "op": "methods"
+          },
+          "question": "根据题目条件，沿连线选择一种方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "assignment": {
+              "message": "这里不是含两个变量的恒等式；只代入几个数不能确定整个解析式。",
+              "value": "not_triggered"
+            },
+            "coefficients": {
+              "message": "题目没有给出一次、二次等函数类型，不能直接设一般式。",
+              "value": "not_triggered"
+            },
+            "matching": {
+              "message": "先展开函数括号里式子的平方，再把右边配成同一个式子的组合。",
+              "value": "fit"
+            },
+            "substitution": {
+              "message": "先令 $t=x - 1$，再把右边改写成 $t$ 的式子。",
+              "value": "fit"
+            },
+            "system": {
+              "message": "这里没有两个相互关联的函数值，暂不需要构造方程组。",
+              "value": "not_triggered"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "substitution",
+              "message": "开始解题",
+              "method": "method-function-substitution",
+              "recommendation": "optional",
+              "route_id": "function-substitution",
+              "route_plan": "planned"
+            },
+            {
+              "branch": "matching",
+              "message": "开始解题",
+              "method": "method-function-matching",
+              "recommendation": "preferred",
+              "route_id": "function-matching",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "step_id": "39e5646dcb-function-matching-001-square",
+        "ordinal": 1,
+        "math_step_sha256": "76c3974e3d4490d93eda7ddd94c51ad35b0b04a2c002e779dc2b191454aeee83",
+        "status": "interactive",
+        "interaction_id": "4e3e6c9fc974dca429256ccc"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "step_id": "39e5646dcb-function-matching-002-match",
+        "ordinal": 2,
+        "math_step_sha256": "c3fe41158fc9291b6453155b1c58a3247d8e8222a568f2017de5d815ded98350",
+        "status": "interactive",
+        "interaction_id": "9ff5a7bcbad841bc34f0c34b"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "step_id": "39e5646dcb-function-matching-003-rename",
+        "ordinal": 3,
+        "math_step_sha256": "5cf01a04ac14845c9251f7854615edf2d1f8f71378711497477d3f4df5df6910",
+        "status": "interactive",
+        "interaction_id": "ece9ffcbb43a4ff396e73bd7"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "step_id": "39e5646dcb-function-matching-004-coverage",
+        "ordinal": 4,
+        "math_step_sha256": "bf162a52e923a72eab9a996af45e9efba139bf7e3c541978c933982413fc5b8d",
+        "status": "interactive",
+        "interaction_id": "63b657d9e29b90f3ffef7541"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-001-input_range",
+        "ordinal": 1,
+        "math_step_sha256": "ddb2b50f5523a5a2554e85538e80cc6d2944813ebc07bf1e3d8f7a97e7e8d262",
+        "status": "interactive",
+        "interaction_id": "0f62b3715b29d63cd64e1f2c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-002-inverse",
+        "ordinal": 2,
+        "math_step_sha256": "c5fb02411d37a5767497cc86278b301d7e21be4f97e4b6529cd8b477a37c7f94",
+        "status": "interactive",
+        "interaction_id": "668dd4c3073bc2662f615c91"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-003-rewrite",
+        "ordinal": 3,
+        "math_step_sha256": "6168bda10660b125f824bbf96c2216e071924ef304d1f7fb5592499fec85c189",
+        "status": "interactive",
+        "interaction_id": "24222d24cae78c6c9969f178"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "step_id": "39e5646dcb-function-substitution-004-coverage",
+        "ordinal": 4,
+        "math_step_sha256": "83545fcfb746a35041fb501761881f0934a89685eeb0b0b50fefaef9d62a0d34",
+        "status": "interactive",
+        "interaction_id": "150edc3070d720a8161d7fdc"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "07e241584f16b986162a567341ff5d091c335205bf54f43732ea61869e8e7c01",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-matching:complete",
+        "last_seq": 31
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-substitution:complete",
+        "last_seq": 17
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-matching",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-matching",
+            "step": "recover",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "skill-simplify"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-equality-transform",
+                "used_basis": [
+                  "skill-equality-transform"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-matching",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-substitution",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-substitution",
+            "step": "recover",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "skill-expression-defined"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "method-substitution",
+                "used_basis": [
+                  "method-substitution"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "skill-simplify"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-equality-transform",
+                "used_basis": [
+                  "skill-equality-transform"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-substitution",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "4e3e6c9fc974dca429256ccc",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "7cb4bc7f3676772ae4cf9ba20c9d7b3d6614e04b2b22395d61ea17300d730491",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "展开平方，寻找相同的项",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题目给出的关系",
+                  "math": "f\\left(x - 1\\right)=x^{2} - 2 x + 7"
+                },
+                {
+                  "label": "平方展开",
+                  "math": "\\left(x - 1\\right)^2=x^{2} - 2 x + 1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "用完全平方公式展开，注意中间的乘积项。得到 $\\left(x - 1\\right)^2=x^{2} - 2 x + 1$。"
+            },
+            "id": "4e3e6c9fc974dca429256ccc#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x^{2} - 2 x + 1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x^{2} - 2 x + 7$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先观察 $f$ 括号里的式子：$\\left(x - 1\\right)^2$ 展开后等于什么？",
+            "stem_board": {
+              "caption": "展开平方，寻找相同的项",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题目给出的关系",
+                  "math": "f\\left(x - 1\\right)=x^{2} - 2 x + 7"
+                },
+                {
+                  "label": "平方展开",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "展开平方，寻找相同的项"
+          }
+        ],
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "76c3974e3d4490d93eda7ddd94c51ad35b0b04a2c002e779dc2b191454aeee83",
+            "step_id": "39e5646dcb-function-matching-001-square"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9ff5a7bcbad841bc34f0c34b",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "7516df2ff0d02ddcee068367d8a338c8241c06ca2e41e01949a450d9200c1c26",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把右边配成同一个式子",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "可利用的恒等式",
+                  "math": "\\left(x - 1\\right)^2=x^{2} - 2 x + 1"
+                },
+                {
+                  "label": "配凑后的关系",
+                  "math": "f\\left(x - 1\\right)=\\left(x - 1\\right)^{2} + 6"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把函数括号里的式子看作一个整体，右边也用这个整体来表示。展开右边即可检查等式是否成立。"
+            },
+            "id": "9ff5a7bcbad841bc34f0c34b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(x - 1\\right)^{2} + 7$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left(x - 1\\right)^{2} + 6$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "利用刚才的平方展开，右边的 $x^{2} - 2 x + 7$ 可以写成哪一个式子？",
+            "stem_board": {
+              "caption": "把右边配成同一个式子",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "可利用的恒等式",
+                  "math": "\\left(x - 1\\right)^2=x^{2} - 2 x + 1"
+                },
+                {
+                  "label": "配凑后的关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把右边配成同一个式子"
+          }
+        ],
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c3fe41158fc9291b6453155b1c58a3247d8e8222a568f2017de5d815ded98350",
+            "step_id": "39e5646dcb-function-matching-002-match"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ece9ffcbb43a4ff396e73bd7",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "5fa00480132fc7034a1669a3d57b5ffb465f71702de42aa277559aa331be45d5",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "读出函数的解析式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "把相同的式子整体替换",
+                  "math": "t=x - 1"
+                },
+                {
+                  "label": "得到解析式",
+                  "math": "f(t)=t^{2} + 6"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "左右两边的 $x - 1$ 都换成 $t$，得到 $f(t)=t^{2} + 6$。"
+            },
+            "id": "ece9ffcbb43a4ff396e73bd7#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(t)=t^{2} + t + 7$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f(t)=t^{2} + 6$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将 $x - 1$ 简记为 $t$，刚才的关系可以写成什么？",
+            "stem_board": {
+              "caption": "读出函数的解析式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "把相同的式子整体替换",
+                  "math": "t=x - 1"
+                },
+                {
+                  "label": "得到解析式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "读出函数的解析式"
+          }
+        ],
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "5cf01a04ac14845c9251f7854615edf2d1f8f71378711497477d3f4df5df6910",
+            "step_id": "39e5646dcb-function-matching-003-rename"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "63b657d9e29b90f3ffef7541",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "e4dc292d527d3c12e93d1604e3117dd8cf713598886e7ff8cb21f784754e3262",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "answer_completion": {
+              "bounds": [
+                -2.0,
+                1.0
+              ],
+              "coverage": "由 $t=x - 1$，得到 $x=t + 1$。因此，$t\\in\\mathbb{R}$ 中每个数都能取到。",
+              "formula": "f(x)=x^{2} + 6",
+              "given": "$f(t)=t^{2} + 6$\n$t\\in\\mathbb{R}$",
+              "ranges": [
+                {
+                  "condition": "x\\in\\mathbb{R}",
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o1"
+                },
+                {
+                  "condition": "x\\geq-1",
+                  "left": -1.0,
+                  "left_closed": true,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o2"
+                },
+                {
+                  "condition": "x\\leq-1",
+                  "left": null,
+                  "left_closed": false,
+                  "right": -1.0,
+                  "right_closed": true,
+                  "value": "o3"
+                }
+              ],
+              "reminder": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+              "ticks": [
+                {
+                  "at": -1.0,
+                  "label": "-1"
+                },
+                {
+                  "at": 0.0,
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            },
+            "completion_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": "\\begin{gathered}f(x)=x^{2} + 6\\\\x\\in\\mathbb{R}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "新变量能取任意实数，所以完整答案的范围是全体实数。"
+            },
+            "id": "63b657d9e29b90f3ffef7541#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "原变量没有非正限制。由 $t=x - 1$ 可知，$t$ 也能取大于 $-1$ 的数。",
+                  "label": "$x\\leq-1$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "原变量没有非负限制。由 $t=x - 1$ 可知，$t$ 也能取小于 $-1$ 的数。",
+                  "label": "$x\\geq-1$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+                  "label": "$x\\in\\mathbb{R}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把字母 $t$ 换成 $x$，取值范围也要保留。请补全答案。",
+            "stem_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认答案",
+            "title": "写出完整答案"
+          }
+        ],
+        "route_id": "function-matching",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bf162a52e923a72eab9a996af45e9efba139bf7e3c541978c933982413fc5b8d",
+            "step_id": "39e5646dcb-function-matching-004-coverage"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0f62b3715b29d63cd64e1f2c",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "c618b68d95a29255557125c4280ac343fe1d1acf527f4e1ecc2aa06e53c0db36",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把函数的输入换成新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系",
+                  "math": "f(x - 1)=x^{2} - 2 x + 7"
+                },
+                {
+                  "label": "选取新变量",
+                  "math": "\\begin{gathered}t=x - 1\\\\t\\in\\mathbb{R}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把 $x - 1$ 整体设为 $t$。原变量能取任意实数，$t$ 也能取任意实数。"
+            },
+            "id": "0f62b3715b29d63cd64e1f2c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$t=x - 1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$t=x^{2} - 2 x + 7$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "要把 $f(x - 1)$ 写成 $f(t)$，应该令什么等于 $t$？",
+            "stem_board": {
+              "caption": "把函数的输入换成新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原关系",
+                  "math": "f(x - 1)=x^{2} - 2 x + 7"
+                },
+                {
+                  "label": "选取新变量",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把函数的输入换成新变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ddb2b50f5523a5a2554e85538e80cc6d2944813ebc07bf1e3d8f7a97e7e8d262",
+            "step_id": "39e5646dcb-function-substitution-001-input_range"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "668dd4c3073bc2662f615c91",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "28ea6c1e752038dca0eae333709a7124a64f522c51b86a54112e0c2faa966c60",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "用新变量表示原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=x - 1\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": "x=t + 1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$t=x - 1$\n$x=t + 1$"
+            },
+            "id": "668dd4c3073bc2662f615c91#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x=t + 1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x=t - 1$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $t=x - 1$ 解出 $x$，应该得到哪个式子？",
+            "stem_board": {
+              "caption": "用新变量表示原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元与范围",
+                  "math": "\\begin{gathered}t=x - 1\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "原变量",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "用新变量表示原变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c5fb02411d37a5767497cc86278b301d7e21be4f97e4b6529cd8b477a37c7f94",
+            "step_id": "39e5646dcb-function-substitution-002-inverse"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "24222d24cae78c6c9969f178",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "2b4e47bf19715e4ddb611dd8bc8444d4bb6f31da24326b73f35727599b9f5f16",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(x - 1)=x^{2} - 2 x + 7\\\\x=t + 1\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": "f(t)=t^{2} + 6"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(t)=t^{2} + 6$\n$t\\in\\mathbb{R}$"
+            },
+            "id": "24222d24cae78c6c9969f178#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(t)=t^{2} + 6$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(t)=t^{2} - 2 t + 7$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将已得到的反解代入原关系，$f(t)$ 等于什么？",
+            "stem_board": {
+              "caption": "把右式全部改写为新变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原式与反解",
+                  "math": "\\begin{gathered}f(x - 1)=x^{2} - 2 x + 7\\\\x=t + 1\\end{gathered}"
+                },
+                {
+                  "label": "恢复的规则",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把右式全部改写为新变量"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "6168bda10660b125f824bbf96c2216e071924ef304d1f7fb5592499fec85c189",
+            "step_id": "39e5646dcb-function-substitution-003-rewrite"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "150edc3070d720a8161d7fdc",
+        "interaction_revision": "ac9c9c67818beff6c268e8895e00703ff8dd12c05927df618d10cf765faee9c2",
+        "interaction_sha256": "3fda1c77146a0a8dccf496ecce6ab519b1bb5cd7e45646c582fb5cc47ee38697",
+        "lesson_version": "743f456fa81be3e595ea68ec0849dbbd6c812eb5b4fc7bb3b160695038d1ad13",
+        "parts": [
+          {
+            "answer_completion": {
+              "bounds": [
+                -2.0,
+                1.0
+              ],
+              "coverage": "任取 $t\\in\\mathbb{R}$ 中的一个数，取原变量 $x=t + 1$，就能使 $t=x - 1$。因此，这个范围里的每个数都能取到。",
+              "formula": "f(x)=x^{2} + 6",
+              "given": "$f(t)=t^{2} + 6$\n$t\\in\\mathbb{R}$",
+              "ranges": [
+                {
+                  "condition": "x\\in\\mathbb{R}",
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o1"
+                },
+                {
+                  "condition": "x\\geq-1",
+                  "left": -1.0,
+                  "left_closed": true,
+                  "right": null,
+                  "right_closed": false,
+                  "value": "o2"
+                },
+                {
+                  "condition": "x\\leq-1",
+                  "left": null,
+                  "left_closed": false,
+                  "right": -1.0,
+                  "right_closed": true,
+                  "value": "o3"
+                }
+              ],
+              "reminder": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+              "ticks": [
+                {
+                  "at": -1.0,
+                  "label": "-1"
+                },
+                {
+                  "at": 0.0,
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            },
+            "completion_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": "\\begin{gathered}f(x)=x^{2} + 6\\\\x\\in\\mathbb{R}\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "新变量能取任意实数，所以完整答案的范围是全体实数。"
+            },
+            "id": "150edc3070d720a8161d7fdc#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "原变量没有非负限制。由 $t=x - 1$ 可知，$t$ 也能取小于 $-1$ 的数。",
+                  "label": "$x\\geq-1$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "原变量没有非正限制。由 $t=x - 1$ 可知，$t$ 也能取大于 $-1$ 的数。",
+                  "label": "$x\\leq-1$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "新变量能取任意实数，所以完整答案的范围是全体实数。",
+                  "label": "$x\\in\\mathbb{R}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把字母 $t$ 换成 $x$，取值范围也要保留。请补全答案。",
+            "stem_board": {
+              "caption": "写出完整答案",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面已经得到",
+                  "math": "\\begin{gathered}f(t)=t^{2} + 6\\\\t\\in\\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "完整答案",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认答案",
+            "title": "写出完整答案"
+          }
+        ],
+        "route_id": "function-substitution",
+        "run_id": "360cc9c7d17f4ff19ebf3b3a377ec2ab",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "83545fcfb746a35041fb501761881f0934a89685eeb0b0b50fefaef9d62a0d34",
+            "step_id": "39e5646dcb-function-substitution-004-coverage"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

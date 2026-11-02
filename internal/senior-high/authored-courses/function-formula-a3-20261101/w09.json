@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-w09-r2",
+  "reviewer": "Codex：对照用户原图核对题目关系，独立换元核对答案，未执行照片模型复核；A3 增补独立配凑执行路线。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-02.png",
+      "sha256": "ee4b51943e70c778055a4f70d70233268c8708d2d30ff3928d3e47b75321c272",
+      "location": "小条第9题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x+2)=x^2-4x$，则 $f(x)=$ ______。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x+2)=x**2-4*x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "expression": "t**2 - 8*t + 12",
+    "determined_domain": "Reals"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-w03",
+  "title": "构造方程组法 · 小条第 3 题",
+  "page": "/topics/function-representations/q03/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知定义在 $\\mathbb{R}$ 上的函数 $f(x)$ 满足 $f(x)-2f(-x)=x+2$，则 $f(x)=$ ______。",
+  "evidence": "site/data/graph-walk/function-representations-w03.evidence.json"
+}

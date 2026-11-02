@@ -125,23 +125,25 @@ export function createDerivationBoard(document, board) {
       derivationCell(document, board.items[1], 'result'));
     return node;
   }
-  if (board.condition_groups) {
+  if (board.condition_groups || board.comparison_sides) {
+    const comparing = Boolean(board.comparison_sides);
+    const entries = board.comparison_sides || board.condition_groups;
     node.dataset.layout = 'parallel-conditions';
     node.append(derivationCell(document, board.items[0], 'target'));
     const groups = document.createElement('div');
     groups.className = 'gw-domain-conditions';
     groups.setAttribute('role', 'group');
-    groups.setAttribute('aria-label', '需要同时满足的两个条件');
-    board.condition_groups.forEach((item, index) => {
+    groups.setAttribute('aria-label', comparing ? '原等式的左边和右边' : '需要同时满足的两个条件');
+    entries.forEach((item, index) => {
       const condition = derivationCell(document, item, 'condition');
-      const number = text(document, 'span', String(index + 1), 'gw-domain-condition-number');
+      const number = text(document, 'span', comparing ? ['左', '右'][index] : String(index + 1), 'gw-domain-condition-number');
       number.setAttribute('aria-hidden', 'true');
       condition.append(number);
       groups.append(condition);
     });
     const join = document.createElement('div');
     join.className = 'gw-domain-condition-join';
-    join.append(text(document, 'span', '同时满足', 'gw-domain-condition-join-label'));
+    join.append(text(document, 'span', comparing ? '展开并比较' : '同时满足', 'gw-domain-condition-join-label'));
     node.append(groups, join, derivationCell(document, board.items[1], 'result'));
     return node;
   }
@@ -161,6 +163,35 @@ export function createDerivationBoard(document, board) {
 }
 
 export function routeAnswerSummary(answer = {}) {
+  if (Array.isArray(answer.candidates) && answer.status === 'insufficient_information' &&
+      ['find_value', 'find_range'].includes(answer.kind)) {
+    return {label: answer.kind === 'find_value' ? '所求函数值不能唯一确定。' : '所求解集不能唯一确定。', formula: ''};
+  }
+  if (Array.isArray(answer.candidates) && answer.kind === 'find_value' && answer.status === 'complete') {
+    const formula = expressionText(answer.value);
+    return formula ? {label: '函数值：', formula} : null;
+  }
+  if (Array.isArray(answer.candidates) && answer.kind === 'find_range' && answer.status === 'set') {
+    const formula = expressionText(answer.set);
+    return formula ? {label: '原不等式的解集：', formula} : null;
+  }
+  if (answer.kind === 'find_function_formula') {
+    if (!['determined_on_domain', 'insufficient_information'].includes(answer.status) ||
+        !/^[A-Za-z][A-Za-z0-9_]*$/.test(answer.function || '') ||
+        !/^[A-Za-z][A-Za-z0-9_]*$/.test(answer.variable || '')) return null;
+    const domain = expressionText(answer.determined_domain);
+    if (Array.isArray(answer.candidates) && answer.candidates.length) {
+      const expressions = answer.candidates.map(expressionText);
+      if (!domain || expressions.some(value => !value)) return null;
+      return {label: expressions.length > 1 ? '全部可能的解析式：' : '函数解析式：',
+        formula: expressions.map(value => `${answer.function}(${answer.variable})=${value}`).join('\\quad\\text{或}\\quad ') +
+          `,\\quad ${answer.variable}\\in ${domain}`};
+    }
+    const expression = expressionText(answer.expression);
+    if (!expression || !domain) return null;
+    return {label: answer.status === 'insufficient_information' ? '全域规则信息不足；已确定：' : '已确定的函数规则：',
+      formula: `${answer.function}(${answer.variable})=${expression},\\quad ${answer.variable}\\in ${domain}`};
+  }
   if (answer.kind === 'derived_answer') {
     if (answer.status === 'boolean' && typeof answer.value === 'boolean') {
       return {label: answer.value ? '原题判断：是' : '原题判断：否', formula: ''};

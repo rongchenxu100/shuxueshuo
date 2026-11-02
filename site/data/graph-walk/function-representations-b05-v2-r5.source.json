@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b05-v2-r5",
+  "title": "求函数的解析式 · 例5变式2",
+  "page": "/topics/function-representations/variant02/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-representations-b05-v2-r5.evidence.json",
+  "statement": "已知 $f(\\sqrt{x}+1)=2x+1$，则 $f(x)=$ ______。",
+  "preferredRoute": "function-substitution"
+}

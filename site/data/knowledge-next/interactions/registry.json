@@ -1743,6 +1743,11 @@
       "repeat": "always",
       "compiler": "function_range",
       "parts": []
+    },
+    "function_formula_derivation": {
+      "repeat": "always",
+      "compiler": "function_formula",
+      "parts": []
     }
   },
   "overrides": {

@@ -34,6 +34,9 @@ def _compact_sum(evaluated):
 
 
 def _verify_evaluation(description, evaluated):
+    if 'relation_ast' in description:
+        from ..function_matching import verify_value
+        return verify_value(description, evaluated)
     if evaluated.get('certificate_encoding') != SUM_CERTIFICATE:
         return verify(description, evaluated)
     try:
@@ -59,6 +62,14 @@ def _verify_evaluation(description, evaluated):
 
 def admitted(context):
     description = context.get('evaluation_goal') or {}
+    if 'relation_ast' in description:
+        from ..function_matching import evaluate_relation, verify_value
+        from ...problem_understanding.notation_parser import NotationError
+        try:
+            return (context.get('goal', {}).get('kind') == 'find_value' and not context.get('entries')
+                    and verify_value(description, evaluate_relation(description)))
+        except (NotationError, KeyError, TypeError, ValueError):
+            return False
     return (context.get('goal', {}).get('kind') in GOAL_KINDS
             and description.get('structure_supported') is True
             and structural_inspect(description).get('structure_supported') is True)
@@ -68,6 +79,13 @@ def solve_function_evaluation(context):
     if not admitted(context):
         raise CapabilityGap('function_evaluation.input_class_unavailable')
     description = deepcopy(context['evaluation_goal'])
+    if 'relation_ast' in description:
+        from ..function_matching import evaluate_relation
+        evaluated = evaluate_relation(description)
+        flags = {f'has_{phase}': phase in ('input', 'conclusion') for phase in
+                 ('input', 'inner', 'substitute', 'domain', 'conclusion', 'trial', 'constant', 'pairing', 'leftovers', 'sum')}
+        return capability_result({'description': description, 'evaluation_result': evaluated, **flags},
+                                 ['function_evaluation'], [{'kind': 'original_relation_value', 'passed': _verify_evaluation(description, evaluated)}])
     evaluated = evaluate(description)
     if not verify(description, evaluated):
         raise LocalCheckFailed('function_evaluation.local_verification_failed')
@@ -122,6 +140,15 @@ def _substitute_source(ast, functions, symbols, constraints, expressions, operat
 
 
 def extract_evaluation_conditions(description, evaluation_result):
+    if 'relation_ast' in description:
+        from ..function_matching import matching_source
+        source = matching_source(description)
+        if not _verify_evaluation(description, evaluation_result):
+            raise LocalCheckFailed('function_value.original_relation_mismatch')
+        return capability_result({'conditions': {'source_domain': source.domain},
+                                  'substitutions': {'relation_description': description}, 'raw_terms': [],
+                                  'quadratic_conditions': [], 'has_quadratic_conditions': False},
+                                 ['function_formula_conditions'], [{'kind': 'legal_original_input', 'passed': True}])
     functions = math_kernel._prepare(description)
     variable = evaluation_result['variable']
     constraints, expressions, operations, terms = [], {}, set(), []
@@ -172,6 +199,12 @@ def extract_evaluation_conditions(description, evaluation_result):
 
 def resolve_evaluation_domain(description, conditions, evaluation_result):
     """M9 consumes the extracted restrictions before any cancellation."""
+    if 'relation_ast' in description:
+        from ..function_matching import matching_source
+        if conditions != {'source_domain': matching_source(description).domain}:
+            raise LocalCheckFailed('function_value.source_domain_mismatch')
+        return capability_result({'evaluation_result': deepcopy(evaluation_result)}, [],
+                                 [{'kind': 'original_input_allowed', 'passed': True}])
     checked = deepcopy(evaluation_result)
     domain = math_kernel._guard_domain(conditions, checked['variable'])
     if description['kind'] != 'finite_sum':
@@ -206,6 +239,16 @@ def check_evaluation_quadratic_conditions(quadratic_conditions, evaluation_resul
 
 def simplify_evaluation_expressions(substitutions, raw_terms, evaluation_result):
     from .capabilities import simplify_expression
+
+    if 'relation_description' in substitutions:
+        from ..function_matching import matching_source
+        desc = substitutions['relation_description']
+        g, h = matching_source(desc).expressions(evaluation_result['variable'])
+        value = sp.simplify(h.subs(evaluation_result['variable'], evaluation_result['source_input']))
+        if raw_terms or value != evaluation_result['value'] or not _verify_evaluation(desc, evaluation_result):
+            raise LocalCheckFailed('function_value.arithmetic_mismatch')
+        return capability_result({'evaluation_result': deepcopy(evaluation_result)}, ['function_formula_simplification'],
+                                 [{'kind': 'original_right_side_arithmetic', 'passed': True}])
 
     checked = deepcopy(evaluation_result)
     checks, operations = [], set()

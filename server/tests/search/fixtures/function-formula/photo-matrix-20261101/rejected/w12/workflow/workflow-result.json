@@ -1,0 +1,533 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "needs_confirmation",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "needs_confirmation"
+  },
+  "diagnostics": [
+    {
+      "stage": "source",
+      "code": "occluded",
+      "path": "/root/uncertainties/0",
+      "source": {
+        "kind": "occluded",
+        "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+      },
+      "message": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。",
+      "action": "needs_confirmation"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "12. 已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x-1",
+          "function_type": "linear"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "unknown",
+              "selection_mode": "unspecified",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "12. 已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(f(x))=4*x-1",
+          "function_type": "linear"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $f(x)$ 是一次函数，且 $f(f(x))=4x-1$，则 $f(x)$ 的表达式为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "unknown",
+              "selection_mode": "unspecified",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "072f5116578b01afa081602dbc87563accd51091be27c7adad2e9f9fc7edb698",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "function:0",
+                "function"
+              ],
+              [
+                "ref",
+                "scalar:0",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "function:0",
+                  "function"
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "*",
+                  [
+                    "number",
+                    "4"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "function_type": "linear"
+          }
+        ],
+        "uncertainties": [
+          "occluded"
+        ],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "ref",
+                "r.goals[0]:scalar:x",
+                "scalar"
+              ]
+            ],
+            "relation": [
+              "=",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r.goals[0]:function:f",
+                  "function"
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "*",
+                  [
+                    "number",
+                    "4"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "function_type": "linear"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "occluded",
+            "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+          }
+        ],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t1-photo-w12",
+      "source_sha256": "1a4722489c702be583bf54b03d141bb4b58afb8f10a138bdeaba0c5d7c44c2f1"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "source",
+          "code": "occluded",
+          "path": "/root/uncertainties/0",
+          "source": {
+            "kind": "occluded",
+            "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+          },
+          "message": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。",
+          "action": "needs_confirmation"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "072f5116578b01afa081602dbc87563accd51091be27c7adad2e9f9fc7edb698",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "function:0",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "scalar:0",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "function:0",
+                      "function"
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "function:0",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "4"
+                      ],
+                      [
+                        "ref",
+                        "scalar:0",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "function_type": "linear"
+              }
+            ],
+            "uncertainties": [
+              "occluded"
+            ],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_function_formula",
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                "relation": [
+                  "=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r.goals[0]:function:f",
+                      "function"
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r.goals[0]:function:f",
+                        "function"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "4"
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                "function_type": "linear"
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "occluded",
+                "text": "图片右侧被截断，未显示“则 f(x) 的表达式为”之后的填空横线或选项。"
+              }
+            ],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t1-photo-w12",
+          "source_sha256": "1a4722489c702be583bf54b03d141bb4b58afb8f10a138bdeaba0c5d7c44c2f1"
+        }
+      },
+      "revision": "072f5116578b01afa081602dbc87563accd51091be27c7adad2e9f9fc7edb698"
+    }
+  ]
+}

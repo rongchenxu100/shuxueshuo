@@ -1,0 +1,34 @@
+{
+  "id": "skill-polynomial-coefficient-comparison",
+  "kind": "skill",
+  "label": "多项式恒等式比较系数",
+  "summary": "两个多项式对任意实数都相等时，同次幂的系数分别相等。",
+  "source": "函数的表示法 FR-T1 B",
+  "input": "已展开的多项式恒等式、所比较的变量、系数参数和恒等作用域。",
+  "output": "各次幂（包括缺项）的系数等式；不代替解方程。",
+  "conditions": "本批至多二次多项式，在实数范围内恒等；只在几个数处相等不能直接应用。",
+  "basis": [
+    "equality-properties#polynomial-coefficients"
+  ],
+  "operations": [
+    {
+      "id": "compare",
+      "title": "按次数比较",
+      "body": [
+        "分别找出二次项、一次项和常数项，缺项系数记为 0。",
+        "将对应系数分别相等，得到方程组。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "一次恒等式",
+      "prompt": "$a^2x+(a+1)b=4x+6$ 对任意实数 x 成立。",
+      "solution": [
+        "比较一次项得 $a^2=4$；比较常数项得 $(a+1)b=6$。"
+      ],
+      "source": "函数的表示法 W01"
+    }
+  ],
+  "resources": []
+}
