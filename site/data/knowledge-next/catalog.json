@@ -6,7 +6,7 @@
     "textbook": 1,
     "chapter": 3,
     "section": 9,
-    "knowledge": 27,
+    "knowledge": 29,
     "skill": 24,
     "method": 39,
     "problem_type": 17,
@@ -369,6 +369,38 @@
       "title": "判断对称结构：交换 x、y，看式子变不变",
       "note": "点一个式子，把 $x$、$y$ 互换：不变就能对 $x$、$y$ 设和与积；改变的（如 $x^2+4y^2-2xy$），看能不能先令 $b=2y$ 这样换元，变成关于新字母对称。",
       "after": "choose"
+    },
+    "monotonicity-two-points": {
+      "module": "/assets/explain/knowledge/monotonicity-explorer.js",
+      "part": "definitionFigure",
+      "scope": "monotonicity-explorer",
+      "title": "移动两点，比较自变量与函数值的次序",
+      "after": "graph",
+      "note": "选择一个具体函数并移动两点，观察 $x_1<x_2$ 时的函数值关系。数值观察用于理解定义，不能代替对任意两点的证明。"
+    },
+    "monotonicity-operation-curves": {
+      "module": "/assets/explain/knowledge/monotonicity-explorer.js",
+      "part": "operationsFigure",
+      "scope": "monotonicity-explorer",
+      "title": "切换运算，观察图像的增减",
+      "after": "product",
+      "note": "每个例子都明确给出函数、区间与符号条件。灰线是参与运算的函数，彩线是运算后的函数。"
+    },
+    "composite-monotonicity-curves": {
+      "module": "/assets/explain/knowledge/monotonicity-explorer.js",
+      "part": "compositionFigure",
+      "scope": "monotonicity-explorer",
+      "title": "沿三幅图看清内层、外层与复合结果",
+      "after": "rule",
+      "note": "$x\\in[0,2]$，内层输出 $u\\in[1,3]$。切换内、外层的增减方向，拖动 $x$ 看对应点如何变化。"
+    },
+    "monotonicity-extrema-curves": {
+      "module": "/assets/explain/knowledge/monotonicity-explorer.js",
+      "part": "extremaFigure",
+      "scope": "monotonicity-explorer",
+      "title": "看端点与转折点，检查最值能否取到",
+      "after": "monotone-extrema",
+      "note": "实心点属于图像，空心点不属于图像。开区间也可能在内部取到最小值；端点取得最值也不一定意味着整体单调。"
     }
   },
   "resourceLinks": {

@@ -67,7 +67,6 @@ export function teachingOutputs(teaching, nodes, manifest, resourceHtml, render)
     )
   );
   outputs.set('teaching/migration.json', JSON.stringify(teaching.migration, null, 2) + '\n');
-  const problemPaths = teaching.topics.flatMap((t) => Object.values(t.problems).map((p) => p.path)).sort();
   for (const t of teaching.topics) {
     const cards = t.groups
       .map(
@@ -97,7 +96,7 @@ export function teachingOutputs(teaching, nodes, manifest, resourceHtml, render)
     for (const [pid, p] of Object.entries(t.problems)) {
       outputs.set(
         `teaching/problems/${pid}.json`,
-        JSON.stringify({ topic: t.id, id: pid, ...p, problemPaths }, null, 2) + '\n'
+        JSON.stringify({ topic: t.id, id: pid, ...p }, null, 2) + '\n'
       );
       const pl = `<a href="${previewHref(p.path)}">${h(p.label)}</a>`;
       for (const [rid, r] of Object.entries(p.routes)) {

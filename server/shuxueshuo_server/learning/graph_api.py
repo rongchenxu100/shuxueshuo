@@ -33,7 +33,14 @@ class StartDrill(BaseModel):
     id: UUID
     node_id: str = Field(min_length=1, max_length=100)
     previous_attempt_id: UUID | None = None
-    content_version: str = Field(min_length=1, max_length=100)
+    content_version: str | None = Field(default=None, min_length=1, max_length=100)
+    drill_version: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
+
+    @model_validator(mode='after')
+    def requires_version(self):
+        if self.drill_version is None and self.content_version is None:
+            raise ValueError('检测需要本节点题池版本。')
+        return self
 
 
 class AnswerDrill(BaseModel):
@@ -45,7 +52,7 @@ class AnswerDrill(BaseModel):
 def start(body: StartDrill, user: User, auth: Auth):
     return drills.start(
         auth.db, UUID(user["id"]), body.node_id, body.id, body.previous_attempt_id,
-        content_version=body.content_version,
+        content_version=body.content_version, drill_version=body.drill_version,
     )
 
 

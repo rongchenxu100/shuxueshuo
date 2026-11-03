@@ -82,11 +82,14 @@ def view(c, a):
     return dict(a, items=items)
 
 
-def start(db, user, node, aid, previous=None, *, content_version=None):
+def start(db, user, node, aid, previous=None, *, content_version=None, drill_version=None):
     with transaction(db) as c:
         lock(c, 'learning.publish', shared=True)
         current_version = associations.content_metadata(c)['content_version']
-        associations.require_content(c, content_version if content_version is not None else current_version)
+        # Retain the global check for legacy clients. New clients bind only to
+        # this node's pool; the release version remains an audit field.
+        if drill_version is None:
+            associations.require_content(c, content_version if content_version is not None else current_version)
         lock(c, "drill", str(user), node)
         exists = one(c, "SELECT * FROM knowledge_drill_attempts WHERE id=:id", id=aid)
         if exists:
@@ -100,6 +103,16 @@ def start(db, user, node, aid, previous=None, *, content_version=None):
             raise HTTPException(404, "本节点已停用，不能开始新练习。")
         if not one(c, "SELECT id FROM knowledge_nodes WHERE id=:n AND kind IN ('knowledge','skill','method','problem_type')", n=node):
             raise HTTPException(422, '本类节点不单独评估掌握状态。')
+        pool = list(c.execute(text(
+            "SELECT * FROM knowledge_drill_items WHERE node_id=:node AND is_active ORDER BY item_id"
+        ), {"node": node}).mappings())
+        version = pool_hash(pool)
+        if drill_version is not None and drill_version != version:
+            raise HTTPException(409, {
+                'code': 'learning_drill_changed',
+                'message': '本节点的检测题已更新，请刷新后重新开始。',
+                'drill_version': version,
+            })
         current = one(
             c,
             "SELECT * FROM knowledge_drill_attempts WHERE user_id=:user AND node_id=:node AND status='in_progress' FOR UPDATE",
@@ -112,14 +125,6 @@ def start(db, user, node, aid, previous=None, *, content_version=None):
                 raise HTTPException(409, "练习已更新，请刷新后重试。")
         elif current:
             return view(c, current)
-        pool = list(
-            c.execute(
-                text(
-                    "SELECT * FROM knowledge_drill_items WHERE node_id=:node AND is_active ORDER BY item_id"
-                ),
-                {"node": node},
-            ).mappings()
-        )
         if len(pool) < 5:
             raise HTTPException(409, "本节点可用题目不足五道。")
         if current:
@@ -136,7 +141,7 @@ def start(db, user, node, aid, previous=None, *, content_version=None):
             user=user,
             node=node,
             version=current_version,
-            hash=pool_hash(pool),
+            hash=version,
         )
         for i, item in enumerate(secrets.SystemRandom().sample(pool, 5), 1):
             c.execute(
@@ -214,7 +219,9 @@ def statuses(c, user):
     for row in c.execute(
         text("""SELECT n.id AS node_id,n.kind,n.label,s.status,s.probability,s.strategy_version,s.evaluated_at,
       s.evidence_position,s.evidence_attempt_id AS attempt_id,a.completed_at,s.correct_count,
-      (SELECT count(*) FROM knowledge_drill_items q WHERE q.node_id=n.id AND q.is_active) AS item_count,
+      (SELECT jsonb_agg(jsonb_build_object('item_id',q.item_id,'node_id',q.node_id,
+          'entry_id',q.entry_id,'content_hash',q.content_hash) ORDER BY q.item_id)
+       FROM knowledge_drill_items q WHERE q.node_id=n.id AND q.is_active) AS drill_pool,
       EXISTS(SELECT 1 FROM knowledge_drill_attempts p WHERE p.user_id=:user AND p.node_id=n.id AND p.status='in_progress') AS in_progress
       FROM knowledge_nodes n
       LEFT JOIN student_node_assessments s ON s.node_id=n.id AND s.user_id=:user
@@ -222,6 +229,9 @@ def statuses(c, user):
       WHERE n.is_active AND n.kind IN ('knowledge','skill','method','problem_type') ORDER BY n.id"""),
         {"user": user},
     ).mappings():
+        row = dict(row)
+        pool = row.pop('drill_pool') or []
+        row['item_count'] = len(pool)
         result.append(
             dict(
                 row,
@@ -231,6 +241,7 @@ def statuses(c, user):
                 eligible=row['item_count'] >= 5,
                 drill_available=row['item_count'] >= 5,
                 drill_count=row['item_count'],
+                drill_version=pool_hash(pool),
             )
         )
     return result

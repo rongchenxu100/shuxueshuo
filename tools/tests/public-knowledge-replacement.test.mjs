@@ -7,10 +7,12 @@ import {compatibilityHref, legacyGraphHref} from '../../site/assets/knowledge-ne
 const {outputs, compatibility, teaching} = await generate();
 const graph = JSON.parse(outputs.get('graph.json'));
 
-test('every formal HTML page binds personal state to its publication version', () => {
+test('the release fingerprint appears only in the central release manifest', () => {
   const version = JSON.parse(outputs.get('teaching/version.json')).content_version;
-  for (const [name, html] of outputs) if (name.endsWith('.html')) {
-    assert.ok(html.includes(`<meta name="knowledge-content-version" content="${version}">`), name);
+  for (const [name, body] of [...outputs, ...compatibility]) {
+    if (name === 'teaching/version.json') continue;
+    assert.ok(!body.includes(version), name);
+    assert.ok(!body.includes('knowledge-content-version'), name);
   }
 });
 
@@ -66,7 +68,7 @@ test('published problem inventory has exact identities and paths, not inferred p
   const inventory = JSON.parse(outputs.get('teaching/problems.json'));
   const expected = teaching.topics.flatMap(topic => Object.entries(topic.problems).map(([id, problem]) => [id, {topic: topic.id, path: problem.path}]));
   assert.deepEqual(inventory.problems, Object.fromEntries(expected));
-  assert.equal(inventory.content_version, JSON.parse(outputs.get('teaching/version.json')).content_version);
+  assert.equal(inventory.content_version, undefined);
   assert.ok(!inventory.problems['inequality-practice-q04']);
   const amgm = outputs.get('amgm-formula/index.html');
   assert.ok([...outputs.values()].some(html => html.includes('打开原题</a>')));

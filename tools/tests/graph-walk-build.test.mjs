@@ -188,6 +188,10 @@ test('missing templates fail and all inputs bind the reproducible bundle version
   const root = await fixture(t);
   const first = await generateDemo({root});
   assert.deepEqual((await generateDemo({root})).outputs, first.outputs);
+  await edit(root, 'site/data/knowledge-next/nodes/function-monotonicity-operations.json', node => {
+    node.entries[0].body.push('与本题无关的知识说明。');
+  });
+  assert.deepEqual((await generateDemo({root})).outputs, first.outputs, 'unrelated knowledge must not change the demo graph version');
   const htmlPath = path.join(root, 'site/2/q01/index.html'), original = await fs.readFile(htmlPath, 'utf8');
   await fs.writeFile(htmlPath, original.replace('id="e_extremum-done"', 'id="missing-template"'));
   await assert.rejects(generateDemo({root}), /Missing page template: e_extremum-done/);

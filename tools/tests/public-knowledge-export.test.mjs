@@ -28,7 +28,7 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 127);
+  assert.equal(data.knowledge_nodes.length, 129);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
   assert.equal(data.practice_problems.length, 101);
@@ -130,7 +130,9 @@ test('static and database content versions agree, static outputs never carry dri
   const { outputs } = await generate();
   const version = JSON.parse(outputs.get('teaching/version.json'));
   assert.deepEqual(version, data._meta);
-  assert.equal(JSON.parse(outputs.get('teaching/problems/basic-inequality-q01.json')).content_version, version.content_version);
+  const problem = JSON.parse(outputs.get('teaching/problems/basic-inequality-q01.json'));
+  assert.equal(problem.content_version, undefined);
+  assert.match(problem.practice_version, /^[0-9a-f]{64}$/);
   for (const [name, output] of outputs) if (name.endsWith('.json')) {
     assert.ok(!output.includes('"answer_spec"'), name);
     assert.ok(!output.includes('"item_snapshot"'), name);

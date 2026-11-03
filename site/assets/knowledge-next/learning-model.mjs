@@ -1,6 +1,6 @@
 import {isPreview, modeHref, preserveModeLink} from '../practice/learning-mode.mjs';
 
-// Personal state is available on published pages after authentication and version checking.
+// Personal state is live authenticated data; grading compatibility is checked per exercise.
 export const ABILITY_KINDS = ['knowledge', 'skill', 'method', 'problem_type'];
 export const STATUS_LABELS = {unassessed: '未检测', mastered: '已掌握', needs_review: '待巩固'};
 

@@ -38,7 +38,7 @@ function harness({search = '', registered = true, content = 'current', pathname 
       calls.push({url, body:options?.body ? JSON.parse(options.body) : null});
       if (url === '/knowledge/teaching/problems.json') {
         if (mode === 'registry-offline') throw Error('offline');
-        return reply({content_version:'current',problems:registered ? {q01:{path:'/1/q01/',topic:'basic-inequality'}} : {}});
+        return reply({problems:registered ? {q01:{path:'/1/q01/',topic:'basic-inequality'}} : {}});
       }
       if (url === '/api/learning/content/problems/q01') {
         if (mode === 'pending') return new Promise(() => {});
@@ -48,7 +48,7 @@ function harness({search = '', registered = true, content = 'current', pathname 
         return reply({practice_version:mode === 'mismatch' ? 'changed' : practiceVersion,content_version:'current'});
       }
       if (url.startsWith('/knowledge/')) return reply({id:'q01', page_contract_hash:pageHash,
-        practice_version:practiceVersion, content_version:'old-release'});
+        practice_version:practiceVersion});
       if (url.endsWith('/sessions')) return reply({session_id:'standalone',revision:0});
       return reply({session_id:'standalone',revision:1,attempt_id:'local-attempt',state,messages:[{text:'提示内容'}]});
     }
@@ -238,6 +238,31 @@ test('retry revalidates publication version without relaxing write checks', asyn
   await h.run('checkPracticeContent()');
   assert.equal(h.run('practiceAccess.contentVersion'), 'current');
   assert.equal(h.run('practiceAccess.enabled'), true);
+});
+
+test('an existing recorder survives unrelated releases and network retries, but not a different practice version', async () => {
+  const h = harness();
+  await h.contentReady;
+  Object.assign(h.scope, {
+    recorder:{}, recorderPracticeVersion:practiceVersion, runtimeSrc:null, reloadKnowledgePreview:null,
+    initializeKnowledge:async () => {}, render() {}, enableRecorder:async () => h.scope.recorder
+  });
+  const {aside} = attachNotice(h);
+  const retry = () => aside.querySelector('[data-check-learning]').onclick({currentTarget:{}});
+  h.run("practiceAccess.enabled = false; practiceAccess.contentVersion = 'old-release'; renderLearningNotice();");
+  await retry();
+  assert.equal(h.run('practiceAccess.enabled'), true);
+  h.setMode('offline');
+  await retry();
+  assert.equal(h.run('practiceAccess.enabled'), false);
+  assert.doesNotMatch(h.run('practiceAccess.reason'), /版本已变化/);
+  h.setMode('current');
+  await retry();
+  assert.equal(h.run('practiceAccess.enabled'), true);
+  h.scope.recorderPracticeVersion = 'different-practice';
+  await retry();
+  assert.equal(h.run('practiceAccess.enabled'), false);
+  assert.match(h.run('practiceAccess.reason'), /内容版本已变化/);
 });
 
 test('a late metadata response never starts recording a standalone tutor or prior completed work', async () => {

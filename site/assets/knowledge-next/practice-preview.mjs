@@ -14,9 +14,10 @@ async function read(url) {
   return response.json();
 }
 export async function createPreview(lesson, host, {learning = false, useServerProgress = () => learning, onShown = null, getConfirmedChoices = null, getPassedFields = null, expectedContentVersion = null, expectedPracticeVersion = null, problem: loaded = null} = {}) {
-  const [problem, catalog] = await Promise.all([
+  const [problem, catalog, registry] = await Promise.all([
     loaded || read(`/knowledge/teaching/problems/${encodeURIComponent(lesson.id)}.json`),
     read('/knowledge/teaching/catalog.json'),
+    read('/knowledge/teaching/problems.json'),
     stylesheet(new URL('./practice-preview.css', import.meta.url).pathname)
   ]);
   if (expectedPracticeVersion ? problem.practice_version !== expectedPracticeVersion
@@ -51,7 +52,7 @@ export async function createPreview(lesson, host, {learning = false, useServerPr
     if (button) openNode(button.dataset.nodeRef);
   });
   // Preserve the preview on topic/back/adjacent-problem navigation.
-  const targets = { paths: problem.problemPaths, library: libraryPath(problem.path), topic, learning };
+  const targets = { paths: Object.values(registry.problems).map(item => item.path), library: libraryPath(problem.path), topic, learning };
   for (const a of document.querySelectorAll('a[href]')) {
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin) continue;

@@ -21,7 +21,7 @@ async function checkPracticeContent() {
   };
   try {
     const registry = await read('/knowledge/teaching/problems.json');
-    if (!registry.content_version || !registry.problems || Array.isArray(registry.problems)) {
+    if (!registry.problems || typeof registry.problems !== 'object' || Array.isArray(registry.problems)) {
       throw Error('已发布题目目录暂不可用');
     }
     const lessonId = JSON.parse(document.getElementById('practice-config').textContent).id;
@@ -88,6 +88,7 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
     snapshot.state = state; render();
   };
   let recorder = null;
+  let recorderPracticeVersion = null;
   let recorderLoadAttempts = 0;
   const useServerProgress = () => Boolean(practiceAccess.enabled && recorder && window.SiteAuth?.user?.id);
   function recorderUnavailable() {
@@ -114,6 +115,7 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
       confirmedProgress(history);
       if (preview) preview.update(snapshot);
     }});
+    recorderPracticeVersion = access.practiceVersion;
     preview?.update(snapshot);
     return recorder;
   }
@@ -888,9 +890,8 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
       learningNotice.querySelector('[data-refresh-learning]').onclick = () => location.reload();
       learningNotice.querySelector('[data-check-learning]').onclick = async event => {
         event.currentTarget.disabled = true;
-        const previousVersion = practiceAccess.contentVersion;
         const access = await checkPracticeContent();
-        if (recorder && previousVersion !== access.contentVersion) {
+        if (access.enabled && recorder && recorderPracticeVersion !== access.practiceVersion) {
           access.enabled = false;
           access.reason = '内容版本已变化，请刷新页面后再保存。';
         } else if (access.enabled && !recorder && (snapshot.completed.length || remote)) {

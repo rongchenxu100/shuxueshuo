@@ -52,6 +52,7 @@ function drillFixture() {
   const window = eventWindow(), writes = [], dialog = new Element();
   const context = vm.createContext({
     window, CustomEvent, AbortController, h:escapeHtml,
+    crypto:{randomUUID:() => 'new-round'},
     learningApi:async () => { if (context.error) throw context.error; return context.next; },
     localStorage:{setItem:(...entry) => writes.push(entry)},
     fixtureDialog:dialog
@@ -64,6 +65,16 @@ function drillFixture() {
   }
   return {window, writes, dialog, context, save};
 }
+
+test('starting a drill sends only the selected node pool version', async () => {
+  const fixture = drillFixture(), requests = [];
+  fixture.context.learningApi = async (path, options) => {requests.push({path, body:options.body});return round(0);};
+  vm.runInContext("source.drillVersion = 'pool-version'; source.contentVersion = 'unrelated-release';", fixture.context);
+  await vm.runInContext("start('previous-round')", fixture.context);
+  assert.deepEqual(JSON.parse(JSON.stringify(requests)), [{path:'/drills', body:{
+    id:'new-round', node_id:'skill', drill_version:'pool-version', previous_attempt_id:'previous-round'
+  }}]);
+});
 
 test('opening and the first four answers update only local progress; completion broadcasts once', async () => {
   const fixture = drillFixture(), host = new Element();

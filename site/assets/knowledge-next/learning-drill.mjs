@@ -19,7 +19,7 @@ function current() {
 }
 function start(previous = null) {
   pending = {path:'/drills', body:{id:crypto.randomUUID(), node_id:source.node,
-    content_version:source.contentVersion, ...(previous ? {previous_attempt_id:previous} : {})}};
+    drill_version:source.drillVersion, ...(previous ? {previous_attempt_id:previous} : {})}};
   return perform();
 }
 function shell() {

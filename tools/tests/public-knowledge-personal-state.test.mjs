@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPersonalState, pageContentVersion} from '../../site/assets/knowledge-next/personal-state.mjs';
+import {createPersonalState} from '../../site/assets/knowledge-next/personal-state.mjs';
 import {isPreview} from '../../site/assets/practice/learning-mode.mjs';
 
 const node = (node_id, kind = 'skill', status = 'mastered') => ({node_id, kind, status});
@@ -8,7 +8,7 @@ const result = nodes => ({content_version:'v1', nodes});
 const deferred = () => { let resolve, reject; const promise = new Promise((yes,no) => { resolve=yes; reject=no; }); return {promise,resolve,reject}; };
 function fixture(request, extra = {}) {
   const values = new Map();
-  return createPersonalState({request,loadVersion:async () => 'v1',storage:{getItem:key => values.get(key),setItem:(key,value) => values.set(key,value)},...extra});
+  return createPersonalState({request,storage:{getItem:key => values.get(key),setItem:(key,value) => values.set(key,value)},...extra});
 }
 
 test('all consumers share one authenticated node request and retain only four ability kinds', async () => {
@@ -59,15 +59,12 @@ test('visibility preference is scoped per account and disabled accounts do not f
   await store.setEnabled(true); assert.deepEqual(owners,['one','two','one']);
 });
 
-test('failures and stale versions do not invent unassessed states; retry fetches anew', async () => {
+test('failures do not invent unassessed states; retry fetches anew', async () => {
   let fails=true;
   const store = fixture(async () => { if(fails)throw Error('offline'); return result([node('tested')]); });
   await store.setUser({id:'one'});
   assert.equal(store.snapshot().phase,'error'); assert.equal(store.snapshot().nodes.size,0);
   fails=false; await store.refresh(); assert.equal(store.snapshot().phase,'ready');
-  const stale = fixture(async () => ({...result([node('wrong')]),content_version:'v0'}));
-  await stale.setUser({id:'one'}); assert.equal(stale.snapshot().phase,'error');
-  assert.equal(stale.snapshot().nodes.size,0); assert.match(stale.snapshot().error.message,/版本不同/);
 });
 
 test('directory consumers coalesce scopes into one batch, deduplicate and cache results', async () => {
@@ -105,16 +102,14 @@ test('directory errors remain errors until retry and stale in-flight summaries c
 });
 
 
-test('personal state compares the loaded page metadata rather than a newer static manifest', async () => {
-  const root = version => ({querySelector:selector => {
-    assert.equal(selector, 'meta[name="knowledge-content-version"]');
-    return version ? {content:version} : null;
-  }});
-  assert.equal(pageContentVersion(root('v1')), 'v1');
-  assert.throws(() => pageContentVersion(root(null)), /缺少内容版本/);
-  for (const version of ['v0', null]) {
-    const store = fixture(async () => result([node('skill')]), {loadVersion:() => pageContentVersion(root(version))});
-    await store.setUser({id:'one'});
-    assert.equal(store.snapshot().phase, 'error'); assert.equal(store.snapshot().nodes.size, 0);
-  }
+test('old static pages read live records without a release stamp, including across publication', async () => {
+  const store = fixture(async path => path === '/nodes'
+    ? {...result([node('skill')]), content_version:'new-release'}
+    : {content_version:'even-newer-release', progress:[{scope:'chapter'}]},
+  {loadVersion:() => {throw Error('Static release must not gate live records');}});
+  await store.setUser({id:'one'});
+  assert.equal(store.snapshot().phase, 'ready');
+  assert.equal(store.snapshot().nodes.get('skill').status, 'mastered');
+  assert.deepEqual(await store.getProgress(['chapter']), [{scope:'chapter'}]);
+  assert.equal(store.snapshot().progressErrors.size, 0);
 });

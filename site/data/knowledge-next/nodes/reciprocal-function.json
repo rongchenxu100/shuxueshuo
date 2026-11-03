@@ -41,6 +41,19 @@
       "references": [
         "function-graph-transformations#graph"
       ]
+    },
+    {
+      "id": "monotonicity",
+      "title": "两条分支上的单调性",
+      "type": "性质",
+      "body": [
+        "$k>0$ 时，$f(x)=\\frac{k}{x}$ 在 $(-\\infty,0)$ 和 $(0,+\\infty)$ 上分别递减；$k<0$ 时在这两个区间上分别递增。",
+        "两段之间有无定义的点 $x=0$，必须分别列出单调区间，不能据此认定在整个定义域上也具有同一单调性。"
+      ],
+      "conditions": "$k\\ne0$，只在不跨过零的区间内比较。",
+      "references": [
+        "function-monotonicity#interval"
+      ]
     }
   ],
   "resources": [

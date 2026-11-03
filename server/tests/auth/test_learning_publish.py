@@ -109,7 +109,7 @@ def test_shared_export_has_complete_next_content(authored):
     assert len(authored['practice_problems']) == 101
     assert len(authored['practice_routes']) == 121
     assert len(authored['practice_steps']) == 946
-    assert len(authored['knowledge_nodes']) == 127
+    assert len(authored['knowledge_nodes']) == 129
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177

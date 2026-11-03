@@ -354,7 +354,8 @@ test('problem-page links stay in the preview for any associated problem path', (
 test('generated public links offer explicit preview and publish no private drill answers', async () => {
   const { outputs } = await generate();
   assert.equal(previewHref('/1/q01/?a=1#step-1'), '/1/q01/?a=1&preview=1#step-1');
-  const paths = JSON.parse(outputs.get('teaching/problems/basic-inequality-q01.json')).problemPaths;
+  const paths = Object.values(JSON.parse(outputs.get('teaching/problems.json')).problems).map(p => p.path).sort();
+  assert.equal(JSON.parse(outputs.get('teaching/problems/basic-inequality-q01.json')).problemPaths, undefined);
   assert.deepEqual(
     paths,
     teaching.topics.flatMap((t) => Object.values(t.problems).map((p) => p.path)).sort()
@@ -504,9 +505,11 @@ test('builder works without legacy sources and accepts additional problems and n
     assert.equal(expanded.teaching.drills.newCount, 1);
     assert.equal(expanded.teaching.drills.sourceCount, teaching.drills.sourceCount);
     assert.ok(expanded.outputs.has(`teaching/problems/${addedId}.json`));
-    assert.ok(
-      JSON.parse(expanded.outputs.get(`teaching/problems/${previousId}.json`)).problemPaths.includes(added.path)
-    );
+    assert.equal(JSON.parse(expanded.outputs.get('teaching/problems.json')).problems[addedId].path, added.path);
+    // A new problem or drill belongs in the index; existing exercises are unchanged.
+    for (const [name, body] of baseline.outputs) if (name.startsWith('teaching/problems/')) {
+      assert.equal(expanded.outputs.get(name), body, name);
+    }
     assert.match(expanded.outputs.get('topics/drills/index.html'), /新增 1 道/);
     const changedLesson = structuredClone(lesson);
     changedLesson.routes.direct[0].title = '不一致的标题';

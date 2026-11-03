@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 import {isDeepStrictEqual} from 'node:util';
 import {loadSources, repoRoot} from './lib/public-knowledge-sources.mjs';
 import {loadTeaching} from './lib/public-knowledge-teaching.mjs';
-import {exportRows, digest} from './lib/public-knowledge-export.mjs';
+import {digest} from './lib/public-knowledge-export.mjs';
 import {validateGraph, splitRef, anchors, nodeHref} from '../site/assets/knowledge-next/model.mjs';
 import {lanesLayout} from '../site/assets/knowledge-next/layout.mjs';
 
@@ -122,9 +122,6 @@ export async function generateDemo({root = repoRoot, sourcePath = SOURCE_PATH} =
   assert(normalizeText(candidate.original_text) === normalizeText(teacher.problem.statement), 'Notation original text differs from teacher problem');
   const notation = compileNotation(candidate, root);
   assert(notation.root && notation.semantic, 'Missing compiled notation');
-  // Only the release metadata is public. exportRows also contains private drill
-  // answers and teacher snapshots and must never be included in a demo bundle.
-  const graphVersion = (await exportRows(root, {nodes, edges, manifest, teaching}))._meta.content_version;
   const selected = new Set();
   const include = id => { assert(byId.has(id), `Unknown node: ${id}`); selected.add(id); return byId.get(id); };
   const findEdge = (from, type, to) => {
@@ -303,6 +300,7 @@ export async function generateDemo({root = repoRoot, sourcePath = SOURCE_PATH} =
   delete templates[page.completion];
   const graphNodes = nodes.filter(node => selected.has(node.id));
   const graphEdges = edges.filter(edge => selected.has(edge.from) && selected.has(edge.to));
+  const graphVersion = digest({nodes: graphNodes, edges: graphEdges});
   const clues = new Set(source.intro[0].query.from);
   const primaryMethods = new Set(rule.branches.map(branch => branch.target));
   const layout = lanesLayout(graphNodes, graphEdges, [

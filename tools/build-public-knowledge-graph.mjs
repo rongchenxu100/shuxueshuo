@@ -75,30 +75,24 @@ export async function generate(root = repoRoot) {
   for (const c of city.collections || []) outputs.set(`collections/${c.id}/index.html`,render.chapter(c));
   for (const n of nodes) outputs.set(`${n.id}/index.html`,render.detail(n,resourceHtml));
   for (const [file,body] of teachingOutputs(teaching,nodes,manifest,resourceHtml,render)) outputs.set(file,body);
+  // One release fingerprint for deployment verification and rollback. Individual
+  // outputs depend on their own content; practice compatibility is per problem.
   outputs.set('teaching/version.json',JSON.stringify(release,null,2)+'\n');
   outputs.set('teaching/problems.json', JSON.stringify({
-    content_version: release.content_version,
     problems: Object.fromEntries(teaching.topics.flatMap(topic => Object.entries(topic.problems).map(([id, problem]) => [id, {path: problem.path, topic: topic.id}]))),
   }, null, 2) + '\n');
   for (const topic of teaching.topics) outputs.set(`teaching/topics/${topic.id}.json`, JSON.stringify({
     id: topic.id, label: topic.label, groups: topic.groups, problems: topic.problems,
     ...(topic.path ? {path: topic.path} : {}),
     ...(topic.presentation ? {presentation: topic.presentation} : {}),
-    content_version: release.content_version,
   }, null, 2) + '\n');
   for (const [name,body] of outputs) if (/^teaching\/problems\/.+\.json$/.test(name)) {
     const problem = JSON.parse(body);
-    outputs.set(name,JSON.stringify({...problem, ...practiceVersions[problem.id], content_version:release.content_version},null,2)+'\n');
+    outputs.set(name,JSON.stringify({...problem, ...practiceVersions[problem.id]},null,2)+'\n');
   }
   for (const [name, body] of legacyNodeOutputs(teaching.migration, nodes)) outputs.set(name, body);
-  // Bind personal state to the HTML that was actually opened. Fetching the
-  // latest version file would let an old tab accept a newer publication.
-  for (const [name, body] of outputs) if (name.endsWith('.html')) {
-    if (!body.includes('</head>')) throw Error(`页面缺少 head：${name}`);
-    outputs.set(name, body.replace('</head>', `<meta name="knowledge-content-version" content="${release.content_version}"></head>`));
-  }
   const compatibility = new Map([...outputs.keys()].filter(name => name.endsWith('/index.html') || name === 'index.html').map(name => [name, redirectPage(`/knowledge/${name.replace(/index\.html$/, '')}`)]));
-  for (const files of [outputs, compatibility]) files.set('manifest.json',JSON.stringify({contentVersion:release.content_version,generator:'tools/build-public-knowledge-graph.mjs',schemaVersion:1,nodeCounts:manifest.expectedCounts,files:[...files.keys(), 'manifest.json'].sort()},null,2)+'\n');
+  for (const files of [outputs, compatibility]) files.set('manifest.json',JSON.stringify({generator:'tools/build-public-knowledge-graph.mjs',schemaVersion:1,nodeCounts:manifest.expectedCounts,files:[...files.keys(), 'manifest.json'].sort()},null,2)+'\n');
   return {outputs,compatibility,nodes,edges,manifest,teaching};
 }
 

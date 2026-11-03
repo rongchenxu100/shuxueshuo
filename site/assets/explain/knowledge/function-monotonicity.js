@@ -71,7 +71,7 @@ export default {
       </section>
       <section class="fm-note">
         <h3>开区间：最值可能取不到</h3>
-        <p data-math-text>单调函数在开区间上没有最大值、最小值，只有取值范围的上下端。例如 $x+\\frac4x$ 在 $(1,2)$ 上递减，取值范围是 $(4,5)$。</p>
+        <p data-math-text>严格单调函数在开区间上没有最大值、最小值。例如 $x+\\frac4x$ 在 $(1,2)$ 上递减，取值范围是 $(4,5)$。这不适用于常函数或区间内有转折的函数。</p>
         <p>见 <button type="button" class="fm-link" data-explain-open="endpoint-attainability"></button>。</p>
       </section>
       <section class="fm-note">

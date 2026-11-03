@@ -4,8 +4,8 @@ const preferenceKey = id => `sss-knowledge-personal:${id}`;
 
 // Only preferences persist. Assessments and evidence never enter localStorage.
 // All consumers in one page share this store, including dynamically drawn nodes.
-export function createPersonalState({request, loadVersion, storage, preview = false}) {
-  let epoch = 0, controller, pending, expectedVersion;
+export function createPersonalState({request, storage, preview = false}) {
+  let epoch = 0, controller, pending;
   let userId = null, enabled = false, phase = preview ? 'preview' : 'anonymous';
   let nodes = new Map(), progress = new Map(), progressErrors = new Map();
   let contentVersion = null, error = null, revision = 0;
@@ -31,14 +31,12 @@ export function createPersonalState({request, loadVersion, storage, preview = fa
     const stamp = epoch, owner = userId, signal = controller.signal;
     pending = (async () => {
       try {
-        const [version, result] = await Promise.all([
-          expectedVersion || (expectedVersion = Promise.resolve().then(loadVersion).catch(e => { expectedVersion = null; throw e; })),
-          request('/nodes', {user: owner, signal})
-        ]);
+        // These are live, read-only records keyed by stable node IDs, not grades
+        // against the static article. Unrelated publications must not hide them.
+        const result = await request('/nodes', {user: owner, signal});
         if (stamp !== epoch) return snapshot();
-        if (!version || version !== result.content_version) throw Error('页面与学习服务的内容版本不同，请刷新页面后重试。');
         nodes = new Map(result.nodes.filter(node => ABILITY_KINDS.includes(node.kind)).map(node => [node.node_id, node]));
-        contentVersion = version; phase = 'ready'; revision++;
+        contentVersion = result.content_version; phase = 'ready'; revision++;
       } catch (cause) {
         if (stamp !== epoch) return snapshot();
         nodes = new Map(); progress = new Map(); contentVersion = null;
@@ -60,7 +58,6 @@ export function createPersonalState({request, loadVersion, storage, preview = fa
       const query = new URLSearchParams(); scopes.forEach(id => query.append('scope', id));
       const result = await request(`/progress/batch?${query}`, {user: owner, signal: controller.signal});
       if (stamp !== epoch) return;
-      if (result.content_version !== contentVersion) throw Error('教学内容已更新，请刷新页面后重试。');
       const rows = new Map(result.progress.map(row => [row.scope, row]));
       if (scopes.some(id => !rows.has(id))) throw Error('部分目录进度未返回，请重试。');
       progress = new Map([...progress, ...rows]);
@@ -113,20 +110,12 @@ export function createPersonalState({request, loadVersion, storage, preview = fa
   };
 }
 
-export function pageContentVersion(root = document) {
-  const version = root.querySelector('meta[name="knowledge-content-version"]')?.content;
-  if (!version) throw Error('当前页面缺少内容版本，请刷新页面后重试。');
-  return version;
-}
-
 let shared;
 export function personalState({preview = false} = {}) {
   if (!shared) {
     let storage;
     try { storage = window.localStorage; } catch { /* Private mode may disable storage. */ }
-    // Compare the loaded HTML's contract, not a newly fetched version file that
-    // could silently pair old HTML with a later database publication.
-    shared = createPersonalState({preview, storage, request: learningApi, loadVersion: pageContentVersion});
+    shared = createPersonalState({preview, storage, request: learningApi});
   }
   return shared;
 }

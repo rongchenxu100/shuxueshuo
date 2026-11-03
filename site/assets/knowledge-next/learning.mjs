@@ -62,7 +62,7 @@ if (config?.redirectHref) {
       const anchor = location.hash.slice(1);
       return config?.entryIds?.includes(anchor) ? anchor : '';
     };
-    let ticket = 0, contentVersion = null, rendered = '', evidenceController, localDrillProgress = null;
+    let ticket = 0, rendered = '', evidenceController, localDrillProgress = null;
     const drawDrillProgress = () => updateLocalDrillProgress(mine.querySelector('[data-drill-progress]'),
       localDrillProgress, store.snapshot().userId, config?.id);
     // Formula rendering is an enhancement; a failed script must not hide evidence.
@@ -119,7 +119,6 @@ if (config?.redirectHref) {
       records.replaceChildren(); records.hidden = true;
       drawControls(current);
       if (current.phase !== 'ready') return;
-      contentVersion = current.contentVersion;
       const user = {id:current.userId};
       // Overviews and 3D have compact per-directory summaries instead of a duplicate panel.
       if (!config && !scope()) return;
@@ -140,7 +139,7 @@ if (config?.redirectHref) {
             start.disabled = true;
             try {
               const {openDrill} = await import('./learning-drill.mjs');
-              await openDrill({node:config.id, label:config.label, contentVersion});
+              await openDrill({node:config.id, label:config.label, drillVersion:state.drill_version});
             } catch (error) { start.after(document.createTextNode(error.message)); }
             finally { start.disabled = false; }
           };

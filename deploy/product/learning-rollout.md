@@ -106,12 +106,12 @@ set -euo pipefail
 `run.sh` 把仓库 `site/knowledge/teaching/` 只读挂载给管理容器，仓库路径由 `PRODUCT_REPO_HOST` 决定（默认 `$HOME/code/shuxueshuo`）。
 
 5. 用目标包 `services-start` 启动应用，再执行 `services-doctor`。启动前核对镜像原稿与数据库内容版本，不一致直接停止；仓库 `site/` 不一致只在输出中报告 `site`，不阻止无人值守启动，因此第 4 步的严格校验不能省略。
-6. 检查 `/knowledge/teaching/version.json` 与 `/api/learning/content` 版本一致，手动走一次登录、整题记录、小题和节点状态。保留一页旧标签，确认过期版本被拒绝新建记录。
+6. 检查 `/knowledge/teaching/version.json` 与 `/api/learning/content` 版本一致，手动走一次登录、整题记录、小题和节点状态。保留一页旧标签：无关内容更新后应仍可保存；本题作答契约或本节点题池变化时，过期的新建请求应被拒绝。
 
 ## 静态资源与缓存
 
 `git pull` 直接替换仓库 `site/`。页面引用的脚本、样式都是固定地址（知识图谱用 `/assets/knowledge-next/`，题页用 `/assets/practice/`），不带版本号；已打开的旧页面在 `git pull` 后懒加载到的是新模块，出现异常刷新即可。
-旧页面与新 API 的内容版本不一致时停止写入学习记录。仅页面、样式或图片变化（教学内容版本不变）直接 `git pull`，不需要发布包。
+整体发布版本集中于 `teaching/version.json`，不复制到每份静态文件。练习按本题 `practice_version` 校验，五题检测按本节点 `drill_version` 校验，个人图谱状态与目录进度读取实时 API；无关发布不停止学习记录。仅页面、样式或图片变化（教学内容版本不变）直接 `git pull`，不需要发布包。
 
 主站 Nginx 与本地网站对全部静态文件设置 `Cache-Control: no-cache`，浏览器每次凭 ETag / Last-Modified 协商，未变化时得到 304。因此改共享脚本或样式只改它本身，不需要改引用它的页面。API 保留自身的缓存策略。Nginx 配置变化时复制到 `/etc/nginx/conf.d/` 后 `nginx -t` 并 reload。
 
