@@ -9,7 +9,7 @@ import {buildCity, homeChapters, recorded} from '../site/assets/knowledge-next/c
 import {makeRenderer, textHtml} from './lib/public-knowledge-html.mjs';
 import {loadTeaching} from './lib/public-knowledge-teaching.mjs';
 import {teachingOutputs} from './lib/public-knowledge-teaching-html.mjs';
-import {exportRows} from './lib/public-knowledge-export.mjs';
+import {exportRows, practiceCompatibility} from './lib/public-knowledge-export.mjs';
 import {redirectPage, legacyNodeOutputs} from './lib/public-knowledge-compat.mjs';
 
 import {repoRoot, loadSources} from './lib/public-knowledge-sources.mjs';
@@ -61,7 +61,8 @@ export async function generate(root = repoRoot) {
   }
   // Detection eligibility is private API state, never inferred from public IDs.
   manifest.drills=[];
-  const release=(await exportRows(root,{nodes,edges,manifest,teaching}))._meta;
+  const rows = await exportRows(root,{nodes,edges,manifest,teaching}), release = rows._meta;
+  const practiceVersions = Object.fromEntries(rows.practice_problems.map(problem => [problem.id, practiceCompatibility(problem)]));
   // Pages load scripts and styles straight from site/assets/knowledge-next. Those
   // are served no-cache, so editing a module never rewrites the generated pages.
   const render=makeRenderer(nodes,edges,manifest,city,homes,chapters);
@@ -86,7 +87,8 @@ export async function generate(root = repoRoot) {
     content_version: release.content_version,
   }, null, 2) + '\n');
   for (const [name,body] of outputs) if (/^teaching\/problems\/.+\.json$/.test(name)) {
-    outputs.set(name,JSON.stringify({...JSON.parse(body),content_version:release.content_version},null,2)+'\n');
+    const problem = JSON.parse(body);
+    outputs.set(name,JSON.stringify({...problem, ...practiceVersions[problem.id], content_version:release.content_version},null,2)+'\n');
   }
   for (const [name, body] of legacyNodeOutputs(teaching.migration, nodes)) outputs.set(name, body);
   // Bind personal state to the HTML that was actually opened. Fetching the

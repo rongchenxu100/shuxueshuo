@@ -16,7 +16,7 @@ from .function_domain import (
     source_pointer,
 )
 
-VERSION = 'function-range-answer-request/v8'
+VERSION = 'function-range-answer-request/v9'
 
 
 def _domain(ast):
@@ -80,7 +80,13 @@ def describe_range_goal(report, scope, ancestors, goal_index):
             else:
                 raise NotationError('range.additional_conditions_unsupported')
         _domain(value['input_domain_ast'])
-        if relation:
+        if body[:2] == ['call', 'piecewise']:
+            from ..piecewise_range import inputs, piecewise_latex
+            if relation or goal['kind'] != 'find_range':
+                raise NotationError('piecewise_range.function_image_goal_required')
+            inputs(value)
+            value.update(piecewise=True, radical=False, expression_latex=piecewise_latex(body, variable))
+        elif relation:
             value.update(substitution_family(body, relation_input=source['value'][2]))
             value['relation_input_ast'] = deepcopy(source['value'][2])
         else:

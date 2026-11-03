@@ -589,6 +589,39 @@ function cameraPage(id, box = [.1, .2, .6, .5], status = 'corrected') {
     regions: [{number: 3, box, crop: box}]};
 }
 
+test('textbook labels distinguish examples and variants without changing the submitted crop', async () => {
+  const {context, element} = setup('camera.js');
+  const source = cameraPage('textbook');
+  source.regions = [
+    {number: 11, label: '例11', box: [.1, .1, .9, .2]},
+    {number: 1, label: '变式1', box: [.1, .35, .9, .5]},
+    {number: 2, label: '变式2', box: [.1, .7, .9, .8]},
+  ];
+  const requests = [];
+  context.fetch = async (url, options) => {
+    requests.push({url, options});
+    return response(url === '/api/search/pages' ? source : {search_id: 'chosen'});
+  };
+  await context.openPick('photo', {type: 'image/png'}, []);
+  assert.match(element('#cm-chips').innerHTML, />例11<.*>变式1<.*>变式2</);
+  assert.equal(element('#cm-title').textContent, '变式1');
+  assert.match(element('#cm-boxes').innerHTML, /aria-label="例11"/);
+  await vm.runInContext('go(boxes[selected].crop)', context);
+  assert.deepEqual(JSON.parse(requests[1].options.body).box, source.regions[1].box);
+});
+
+test('uncertain segmentation opens manual selection without presenting a false question count', async () => {
+  const {context, element} = setup('camera.js');
+  context.fetch = async () => response({...page, mode: 'uncertain', regions: []});
+  await context.openPick('photo', {type: 'image/png'}, []);
+  assert.equal(element('#cm-title').textContent, '手动框选');
+  assert.equal(element('#cm-cropping').hidden, false);
+  assert.equal(element('#cm-choose').hidden, true);
+  assert.match(element('#cm-proto-note').textContent, /未能准确定位.*完整题干和选项/);
+  assert.doesNotMatch(element('#cm-proto-note').textContent, /\d 道/);
+  assert.equal(element('#cm-crop-go').disabled, false);
+});
+
 const recognitionFailures = [
   {name: 'unsupported image', reason: /图片格式不受支持或文件已损坏.*JPEG.*PNG.*WebP/,
     response: () => ({ok: false, status: 400, json: async () => ({detail: 'page.not_an_image'})})},
@@ -1594,4 +1627,67 @@ test('late interactions and route completion refresh the engine while QA has an 
   context.updateStreamView({...completed, lesson_version: 'obsolete', qa: [{step_id: 'old'}]});
   await tick();
   assert.equal(context.attached.length, 1, 'an obsolete lesson cannot attach questions');
+});
+
+test('new photo display uses original figure URLs and clears result/failure viewers on logout', async () => {
+  const {context, element} = setup('problem.js', '?search=0123456789ab');
+  const image = '/api/search/problems/0123456789ab/figures/original?version=' + 'a'.repeat(64);
+  const mounts = [], disposals = [];
+  context.testFigures = {
+    projectFigures(_value, options) { assert.equal(options.searchId, '0123456789ab'); return {source: {image_url: image}, rows: [{role: 'statement'}]}; },
+    mountQuestionFigures(host, _value, options) { mounts.push([host, options]); return () => disposals.push(host); },
+  };
+  vm.runInContext('figureRenderer = testFigures', context);
+  await context.showQuestionFigures({figures: {content_id: 'a'.repeat(64)}}, () => true);
+  assert.equal(element('#pq-photo').src, image);
+  assert.equal(element('#pq-viewer-img').src, image);
+  context.showFailedFigures();
+  assert.equal(element('.pq-fail-photo').hidden, true);
+  assert.equal(element('#pq-fail-figures').hidden, false);
+  assert.equal(mounts.length, 2);
+  context.stopPrivateLesson();
+  assert.equal(disposals.length, 2);
+  for (const id of ['#pq-photo', '#pq-thumb-img', '#pq-fail-img', '#pq-viewer-img']) assert.equal(element(id).src, undefined);
+});
+
+test('text-only questions keep the original in the thumbnail without repeating it in the result or lesson', async () => {
+  const {context, element} = setup('problem.js', '?search=0123456789ab');
+  const image = '/api/search/problems/0123456789ab/figures/original?version=' + 'a'.repeat(64);
+  const mounts = [];
+  context.testFigures = {
+    projectFigures() { return {source: {image_url: image}, rows: []}; },
+    mountQuestionFigures(host) { mounts.push(host); return () => {}; },
+  };
+  vm.runInContext('figureRenderer = testFigures', context);
+  await context.showQuestionFigures({figures: {content_id: 'a'.repeat(64)}}, () => true);
+  assert.equal(element('#pq-thumb-img').src, image);
+  assert.equal(element('#pq-viewer-img').src, image);
+  assert.equal(element('#pq-figures').hidden, true);
+  await context.openPart(0);
+  assert.equal(element('#pq-figures').hidden, true);
+  assert.equal(mounts.length, 0);
+  context.showFailedFigures();
+  assert.equal(mounts.length, 1, 'an unclear/failed question still provides its source image');
+  assert.equal(element('#pq-fail-figures').hidden, false);
+});
+
+test('a stale or invalid figure manifest never falls back to an unbound processed photo', async () => {
+  const {context, element} = setup('problem.js', '?search=0123456789ab');
+  context.setPhotos('/api/search/problems/0123456789ab/image');
+  await context.showQuestionFigures({figure_error: 'figure.source_changed'}, () => true);
+  assert.equal(element('#pq-photo').src, undefined);
+  assert.match(element('#pq-figures').textContent, /变更或不可用/);
+  context.showFailedFigures();
+  assert.match(element('#pq-fail-figures').textContent, /变更或不可用/);
+  await context.showQuestionFigures({}, () => true); // explicit old-server compatibility
+  assert.equal(element('#pq-photo').src, '/api/search/problems/0123456789ab/image');
+});
+
+for (const code of ['identity.unrepresented_figure', 'identity.incomplete_choices']) test(`figure admission failure keeps an explicit product boundary: ${code}`, async () => {
+  const {context, element} = setup('problem.js', '?search=0123456789ab');
+  context.fetch = async () => response({user_id: 'student-a', state: 'done', outcome: 'unclear', error_code: code});
+  await context.runLive();
+  if (code === 'identity.incomplete_choices') assert.match(element('#pq-fail-text').textContent, /全部选项.*跨页题暂不支持合并/);
+  else assert.match(element('#pq-fail-text').textContent, /暂时不能开始解题/);
+  assert.equal(element('#pq-fail').hidden, false);
 });

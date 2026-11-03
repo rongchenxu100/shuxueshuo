@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b10-v1",
+  "title": "分段解方程法 · 例 10 变式 1",
+  "page": "/topics/function-representations/q10b/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\begin{cases}x^2+1,&x>0\\\\-2x+2,&x\\le0\\end{cases}$，若 $f(x)=5$，则 $x$ 的值为（ ）。\nA. $-\\frac32$\nB. $2$\nC. $-\\frac32,\\ 2$\nD. $-2,\\ -\\frac32$",
+  "evidence": "site/data/graph-walk/function-representations-b10-v1.evidence.json"
+}

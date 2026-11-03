@@ -1,0 +1,2541 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+    "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+    "input_sha256": "bae7f9d44869f2db36264814120fee400e436f1eea87e45c8d5f66fbf863a348",
+    "checkpoint_sha256": "ae59ddc78fc3c33b9a844cbef2d7354d82cd75df263eb7368e7ebfe2a524ab80",
+    "result_sha256": "84a2e0811a8fad03c09156b9271eaa2e4652ffef5a799245f86ad88f89065b8f",
+    "stage_one_sha256": "69c0335dc4d3b41108ad96482c9762c1b46d278a8bece964ac2cc0ecd97b7b50",
+    "stage_two_sha256": "abe31d06e6c45011353d76df341651e7ebf97dcfc8c3ea4d0e5d462c20939998",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "a3973ff04d8c5ad262b017286cd95ecee66c19201e3be07d8975cccae11d45d3",
+    "teaching_revision": "87072a154e3f01d4f9fa29b72bdbba68ff647d9ecaa5b1983e367ecaac1d5849"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-domain",
+        "supported": [
+          "type-function-domain"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 49,
+                  "end": 52,
+                  "text": "定义域"
+                },
+                {
+                  "start": 68,
+                  "end": 81,
+                  "text": "求实数 $m$ 的取值范围"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements",
+                "quantifiers#universal"
+              ],
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0"
+              ],
+              "signature": "9b66a351189b5687",
+              "options": [
+                {
+                  "text": "使定义域恰为题给集合的参数 $m$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "自变量 $x$ 的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题面已给出定义域，要求的是参数 $m$；不是再求自变量 $x$ 的集合。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ]
+            }
+          ],
+          "givens": [
+            {
+              "id": "/root/goals/0:expression",
+              "kind": "expression",
+              "quote": [
+                {
+                  "start": 6,
+                  "end": 46,
+                  "text": "$f(x)=\\dfrac{\\sqrt{x^2-3x-m}}{\\sqrt{x-1}}$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements",
+                "quadratic-inequality#signs",
+                "square-root-expression#meaning"
+              ],
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0"
+              ],
+              "signature": "83fd2da9cf1cab22",
+              "source_ref": "/root/definitions/0"
+            }
+          ],
+          "interaction": "choice",
+          "question": "题目已知定义域，实际要求确定什么？",
+          "summary": "题面已给出函数的定义域。本题要求使 $f(x)$ 的全部合法输入恰好是题给集合的 参数 $m$ 的取值范围。集合内每个输入都要合法，集合外的输入都不能合法。"
+        },
+        "d2": [
+          {
+            "type_id": "type-abstract-function-domain",
+            "label": "抽象函数的定义域问题",
+            "role": "conflict",
+            "feedback": "只知道抽象函数的输入范围，要求新复合表达式的定义域",
+            "reasons": [],
+            "choice_hint": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域"
+          },
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+            ],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#elements",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "函数的三要素"
+          },
+          {
+            "ref": "square-root-expression#meaning",
+            "node": "square-root-expression",
+            "label": "二次根式",
+            "title": "有意义的条件与算术平方根"
+          },
+          {
+            "ref": "quantifiers#universal",
+            "node": "quantifiers",
+            "label": "全称量词与存在量词",
+            "title": "全称量词"
+          },
+          {
+            "ref": "quadratic-inequality#signs",
+            "node": "quadratic-inequality",
+            "label": "一元二次不等式",
+            "title": "开口与根决定符号"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#elements"
+            ]
+          },
+          {
+            "from": "quadratic-inequality",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "quadratic-inequality#signs"
+            ]
+          },
+          {
+            "from": "quantifiers",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "quantifiers#universal"
+            ]
+          },
+          {
+            "from": "square-root-expression",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "square-root-expression#meaning"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-q23b-v2//root/goals/0",
+            "graphVersion": "980b513e5b7fcbe36d318ed1789f620bb668ed4af9f478f434d49b36f8177221",
+            "problem": {
+              "text": "已知函数 $f(x)=\\dfrac{\\sqrt{x^2-3x-m}}{\\sqrt{x-1}}$ 的定义域为 $(1,+\\infty)$，求实数 $m$ 的取值范围。",
+              "givens": [
+                {
+                  "id": "/root/goals/0:expression",
+                  "kind": "expression",
+                  "quote": [
+                    {
+                      "start": 6,
+                      "end": 46,
+                      "text": "$f(x)=\\dfrac{\\sqrt{x^2-3x-m}}{\\sqrt{x-1}}$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/0:d1:1"
+                  ],
+                  "knowledge_refs": [
+                    "function-concept#elements",
+                    "quadratic-inequality#signs",
+                    "square-root-expression#meaning"
+                  ],
+                  "source_refs": [
+                    "/root/definitions/0",
+                    "/root/goals/0"
+                  ],
+                  "signature": "83fd2da9cf1cab22",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目已知定义域，实际要求确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "使定义域恰为题给集合的参数 $m$ 的取值范围"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "自变量 $x$ 的取值范围",
+                      "feedback": "题面已给出定义域，要求的是参数 $m$；不是再求自变量 $x$ 的集合。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再想一想，定义域描述的是输入还是输出的取值范围。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "quantifiers",
+                  "quadratic-inequality",
+                  "square-root-expression",
+                  "type-abstract-function-domain",
+                  "type-function-domain",
+                  "type-function-formula",
+                  "type-function-range",
+                  "type-quantified-quadratic",
+                  "type-amgm-quantified",
+                  "type-function-equality",
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept",
+                    "quantifiers",
+                    "quadratic-inequality",
+                    "square-root-expression"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "题面已给出函数的定义域。本题要求使 $f(x)$ 的全部合法输入恰好是题给集合的 参数 $m$ 的取值范围。集合内每个输入都要合法，集合外的输入都不能合法。"
+                  ],
+                  "log": "图谱查询：从 4 个知识线索反查，找到 8 个相关题型；最高覆盖 4/4。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-abstract-function-domain",
+                      "label": "抽象函数的定义域问题",
+                      "note": "未给出 $f$ 的解析式，已知原函数或复合调用的定义域",
+                      "feedback": "只知道抽象函数的输入范围，要求新复合表达式的定义域"
+                    },
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-domain"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-abstract-function-domain",
+                  "type-function-domain"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-domain"
+                  ],
+                  "edges": [
+                    "type-function-domain|involves|function-concept",
+                    "type-function-domain|involves|quantifiers",
+                    "type-function-domain|involves|quadratic-inequality",
+                    "type-function-domain|involves|square-root-expression"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  ],
+                  "log": "作答判断：选择主要题型「具体函数的定义域问题」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "quantifiers",
+                  "kind": "knowledge",
+                  "label": "全称量词与存在量词",
+                  "summary": "先明确“对谁、在哪个范围内”，再区分全部满足与至少一次满足。",
+                  "aliases": [
+                    "恒成立",
+                    "存在成立",
+                    "任意",
+                    "有解"
+                  ],
+                  "home": "compulsory-1-ch1"
+                },
+                {
+                  "id": "quadratic-inequality",
+                  "kind": "knowledge",
+                  "label": "一元二次不等式",
+                  "summary": "二次不等式的解集由二次式的符号决定；图像在横轴上方或下方对应不同解集。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "square-root-expression",
+                  "kind": "knowledge",
+                  "label": "二次根式",
+                  "summary": "在实数范围内，二次根式要求被开方数非负，结果表示非负的算术平方根。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "junior-knowledge"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-quantified-quadratic",
+                  "kind": "problem_type",
+                  "label": "含参一元二次不等式的恒成立与存在成立问题",
+                  "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围、最小值或最大值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "type-amgm-quantified",
+                  "kind": "problem_type",
+                  "label": "应用基本不等式的恒成立与存在成立问题",
+                  "summary": "不等式要对所有取值（或某个取值）成立，求参数范围、最小值或最大值；参数另一边式子的最值用基本不等式求，再看最值取不取得到。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-domain-intersection",
+                  "kind": "method",
+                  "label": "列条件求交集法",
+                  "summary": "求具体函数定义域时，按原式列出有意义的条件，分别求解，再与题给范围取交集并检查端点。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "extract",
+                      "title": "找限制位置并列条件",
+                      "calls": [
+                        "skill-expression-defined"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "解每个条件",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "intersect",
+                      "title": "把全部条件与题给范围取交集",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "检查原式与端点",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-domain-parameter",
+                  "kind": "method",
+                  "label": "定义域求参法",
+                  "summary": "已知含参具体解析式的定义域恰为给定集合时，先按原式列出有意义条件，再要求其解集恰等于该集合，从而求出参数范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "extract",
+                      "title": "按原式列出有意义的条件",
+                      "calls": [
+                        "skill-expression-defined"
+                      ]
+                    },
+                    {
+                      "id": "reduce",
+                      "title": "把“定义域恰为给定集合”写成全称条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "solve",
+                      "title": "选择已学方法求参数",
+                      "calls": [
+                        "method-discriminant",
+                        "method-separation"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验定义域条件",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|quantifiers",
+                  "from": "type-abstract-function-domain",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|square-root-expression",
+                  "from": "type-abstract-function-domain",
+                  "to": "square-root-expression",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-amgm-quantified|involves|quantifiers",
+                  "from": "type-amgm-quantified",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|candidate|method-domain-intersection",
+                  "from": "type-function-domain",
+                  "to": "method-domain-intersection",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|candidate|method-domain-parameter",
+                  "from": "type-function-domain",
+                  "to": "method-domain-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|quadratic-inequality",
+                  "from": "type-function-domain",
+                  "to": "quadratic-inequality",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|quantifiers",
+                  "from": "type-function-domain",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|square-root-expression",
+                  "from": "type-function-domain",
+                  "to": "square-root-expression",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-concept",
+                  "from": "type-function-formula",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|square-root-expression",
+                  "from": "type-function-formula",
+                  "to": "square-root-expression",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|square-root-expression",
+                  "from": "type-function-range",
+                  "to": "square-root-expression",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-quantified-quadratic|involves|quadratic-inequality",
+                  "from": "type-quantified-quadratic",
+                  "to": "quadratic-inequality",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-quantified-quadratic|involves|quantifiers",
+                  "from": "type-quantified-quadratic",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept",
+                    "quantifiers",
+                    "quadratic-inequality",
+                    "square-root-expression"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "e9d9d71b492a1fe690873d86cf8151c755381bcceb22e4f92ae51043576095bf"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-q23b-v2//root/goals/0",
+            "bundleVersion": "e9d9d71b492a1fe690873d86cf8151c755381bcceb22e4f92ae51043576095bf",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "题面已给出函数的定义域。本题要求使 $f(x)$ 的全部合法输入恰好是题给集合的 参数 $m$ 的取值范围。集合内每个输入都要合法，集合外的输入都不能合法。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-domain",
+                "reason": "选「具体函数的定义域问题」：已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+    "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+    "input_sha256": "bae7f9d44869f2db36264814120fee400e436f1eea87e45c8d5f66fbf863a348",
+    "stream_id": "1c60c9857af34de6b21c348417cfe7b9",
+    "last_seq": 45,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_conditions",
+        "explanation": "原式为 $\\frac{\\sqrt{x^{2}-3\\cdot x-m}}{\\sqrt{x-1}}$。分子根号与分母根号都要求各自被开方数非负，分母还必须非零；三条限制须同时保留。",
+        "highlight": {
+          "caption": "列出根式有意义的条件",
+          "connector": "→",
+          "items": [
+            {
+              "label": "原式",
+              "math": "\\frac{\\sqrt{x^{2}-3\\cdot x-m}}{\\sqrt{x-1}}"
+            },
+            {
+              "label": "同时满足的原始条件",
+              "math": "x^{2} - 3 x - m \\geq 0\\quad\\text{且}\\quad x - 1 \\geq 0\\quad\\text{且}\\quad \\sqrt{x - 1} \\neq 0"
+            }
+          ]
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "2f6ccaecda0896a86d3e5f13c1d6fcf9860f112f410aa24e0b53fab56532b466",
+        "method_ref": "method-domain-parameter#extract",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions",
+        "target_ref": "/root/goals/0",
+        "title": "列出根式有意义的条件",
+        "used_basis": [
+          "rational-expression#meaning",
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "-m + x**2 - 3*x >= 0",
+            "latex": "x^{2} - 3 x - m \\geq 0"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_universal",
+        "explanation": "分母的两条限制合为 $x - 1 > 0$，其解集恰好是 $\\left(1, \\infty\\right)$。在 $\\left(-\\infty, 1\\right]$ 内，分母根号无意义或分母为零，原式自动被排除。因此只需保证域内每一个输入都使分子根号有意义，即 $\\forall x\\in\\left(1, \\infty\\right),\\quad x^{2} - 3 x - m \\geq 0$；无需要求域外的分子非负。",
+        "highlight": {
+          "caption": "转化为恒成立问题",
+          "connector": "⇔",
+          "items": [
+            {
+              "label": "已知定义域",
+              "math": "D_{f}=\\left(1, \\infty\\right)"
+            },
+            {
+              "label": "等价的恒成立问题",
+              "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad x^{2} - 3 x - m \\geq 0"
+            }
+          ]
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "79955862df99fa7b6cfe63d5f1d18efcc7aa5d6b94c4b61987e5b0ee8b106cba",
+        "method_ref": "method-domain-parameter#reduce",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal",
+        "target_ref": "/root/goals/0",
+        "title": "转化为恒成立问题",
+        "used_basis": [
+          "function-concept#elements",
+          "quantifiers#universal",
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "-m + x**2 - 3*x >= 0",
+            "latex": "x^{2} - 3 x - m \\geq 0"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_borrow",
+        "explanation": "当前子问题是 $\\forall x\\in\\left(1, \\infty\\right),\\quad x^{2} - 3 x - m \\geq 0$。在题给范围内求恒成立的参数，可借用分离参数法。",
+        "highlight": {
+          "caption": "按选法判断借用方法",
+          "connector": "→",
+          "items": [
+            {
+              "label": "恒成立子问题",
+              "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad x^{2} - 3 x - m \\geq 0"
+            },
+            {
+              "label": "借用方法",
+              "math": "\\text{分离参数法}"
+            }
+          ]
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "88ff6598197588541d7df29684b32189ad10d8ee6232629cf42227f72cdb5a06",
+        "method_ref": "method-domain-parameter#reduce",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow",
+        "target_ref": "/root/goals/0",
+        "title": "选择已学方法",
+        "used_basis": [
+          "function-concept#elements",
+          "quantifiers#universal",
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "-m >= -x**2 + 3*x",
+            "latex": "- m \\geq - x^{2} + 3 x"
+          },
+          {
+            "expression": "m <= x**2 - 3*x",
+            "latex": "m \\leq x^{2} - 3 x"
+          }
+        ],
+        "before": [
+          {
+            "expression": "-m + x**2 - 3*x >= 0",
+            "latex": "x^{2} - 3 x - m \\geq 0"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "constant_divided",
+        "explanation": "移项得 $- m \\geq - x^{2} + 3 x$，\n两边同除以 $-1$，不等号变向，得 $m \\leq x^{2} - 3 x$。记 $h(x)=x^{2} - 3 x$，则 $m \\leq h(x)$。",
+        "highlight": {
+          "caption": "两边同除以负数",
+          "items": [
+            {
+              "label": "移项后",
+              "math": "- m \\geq - x^{2} + 3 x"
+            },
+            {
+              "label": "两边除以 $-1$",
+              "math": "m \\leq x^{2} - 3 x",
+              "note": "不等号方向改变"
+            }
+          ],
+          "result": "$m \\leq h(x)$，其中 $h(x)=x^{2} - 3 x$"
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "55e8bac8a7c59f9e2f5c4870198c992d545e59651726306bac3f46a253b18de4",
+        "method_ref": "method-separation#separate",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/3/calls/0",
+          "/steps/3/calls/1"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-004-constant_divided",
+        "target_ref": "/root/goals/0",
+        "title": "除以常数分离参数",
+        "used_basis": [
+          "inequality-properties#addition",
+          "inequality-properties#multiplication"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "policy",
+        "explanation": "对所有 $x \\in \\left(1, \\infty\\right)$，$m \\leq h(x)$ $\\iff m \\leq h(x)_{\\text{下端}}$。这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+        "highlight": {
+          "caption": "恒成立转化为最值条件",
+          "connector": "⇔",
+          "items": [
+            {
+              "label": "对所有 $x \\in \\left(1, \\infty\\right)$ 都成立",
+              "math": "m \\leq h(x)"
+            },
+            {
+              "label": "只需看值域下端",
+              "math": "m \\leq h(x)_{\\text{下端}}"
+            }
+          ],
+          "result": "$m \\leq h(x)_{\\text{下端}}$"
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "ee0fc6e0ba0e9acbe4663c691b281e465fe69cf1ec20fa1492b8a4a6ca8c42e5",
+        "method_ref": "method-separation#quantifier",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-005-policy",
+        "target_ref": "/root/goals/0",
+        "title": "转化为最值条件",
+        "used_basis": [
+          "function-range-extrema#quantified",
+          "quantifiers#universal"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(-9/4, oo)",
+            "latex": "\\left[- \\frac{9}{4}, \\infty\\right)"
+          }
+        ],
+        "before": [
+          {
+            "expression": "x**2 - 3*x",
+            "latex": "x^{2} - 3 x"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "interval_range",
+        "explanation": "只在题目给定的 $\\left(1, \\infty\\right)$ 上求值，比较端点的值或极限，并检查区间内的转折点。$h(x)$ 的最小值为 $- \\frac{9}{4}$，能取得；最大值不存在，只能趋近 $\\infty$。",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "6274627cda4d8a4408a641a7425ec2f90953b166c1d54bb2cc42d54b1d6d9a4a",
+        "method_ref": "method-separation#range",
+        "ordinal": 6,
+        "premise_refs": [
+          "/steps/5/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/5/calls/0",
+          "/steps/5/judgments/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-006-interval_range",
+        "target_ref": "/root/goals/0",
+        "title": "计算区间值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "m + 9/4 <= 0",
+            "latex": "m + \\frac{9}{4} \\leq 0"
+          },
+          {
+            "expression": "Interval(-oo, -9/4)",
+            "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+          }
+        ],
+        "before": [
+          {
+            "expression": "m <= -9/4",
+            "latex": "m \\leq - \\frac{9}{4}"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "solution",
+        "explanation": "$\\therefore$ $m \\leq - \\frac{9}{4}$，即 $m \\in \\left(-\\infty, - \\frac{9}{4}\\right]$。",
+        "highlight": {
+          "caption": "解出参数范围",
+          "items": [
+            {
+              "label": "取值范围",
+              "math": "m \\in \\left(-\\infty, - \\frac{9}{4}\\right]"
+            }
+          ],
+          "result": "$m \\in \\left(-\\infty, - \\frac{9}{4}\\right]$"
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "040c4e90238a88834e55f3921b9a42f5fb531a73562a550e28edb589a8803001",
+        "method_ref": "method-separation#restore",
+        "ordinal": 7,
+        "premise_refs": [
+          "/steps/5/judgments/0",
+          "/steps/7/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/6/calls/0",
+          "/steps/6/calls/1",
+          "/steps/6/calls/2",
+          "/steps/7/skipped_calls/0",
+          "/steps/7/skipped_calls/1",
+          "/steps/7/judgments/0",
+          "/steps/8/calls/0",
+          "/steps/9/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-007-solution",
+        "target_ref": "/root/goals/0",
+        "title": "求参数范围",
+        "used_basis": [
+          "function-range-extrema#quantified",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(-oo, -9/4)",
+            "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_return",
+        "explanation": "分离参数法得到 $m\\in \\left(-\\infty, - \\frac{9}{4}\\right]$。回到原题：这些参数恰好使 $D_{f}=\\left(1, \\infty\\right)$ 成立。",
+        "highlight": {
+          "caption": "回到定义域求参",
+          "connector": "→",
+          "items": [
+            {
+              "label": "参数范围",
+              "math": "m\\in \\left(-\\infty, - \\frac{9}{4}\\right]"
+            },
+            {
+              "label": "原题目标",
+              "math": "D_{f}=\\left(1, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "local_check": "passed",
+        "math_step_sha256": "61de4c65dc100698651390df5a0d68ae34901808ace0629d86a850f6fd5a7fbe",
+        "method_ref": "method-domain-parameter#solve",
+        "ordinal": 8,
+        "premise_refs": [
+          "/steps/5/judgments/0",
+          "/steps/7/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/merges/0",
+          "/steps/3/calls/0",
+          "/steps/3/calls/1",
+          "/steps/3/skipped_calls/0",
+          "/steps/3/merges/0",
+          "/steps/4/calls/0",
+          "/steps/5/calls/0",
+          "/steps/5/skipped_calls/0",
+          "/steps/5/skipped_calls/1",
+          "/steps/5/skipped_calls/2",
+          "/steps/5/skipped_calls/3",
+          "/steps/5/skipped_calls/4",
+          "/steps/5/skipped_calls/5",
+          "/steps/5/skipped_calls/6",
+          "/steps/5/skipped_calls/7",
+          "/steps/5/skipped_calls/8",
+          "/steps/5/skipped_calls/9",
+          "/steps/5/skipped_calls/10",
+          "/steps/5/judgments/0",
+          "/steps/5/merges/0",
+          "/steps/6/calls/0",
+          "/steps/6/calls/1",
+          "/steps/6/calls/2",
+          "/steps/7/skipped_calls/0",
+          "/steps/7/skipped_calls/1",
+          "/steps/7/judgments/0",
+          "/steps/8/calls/0",
+          "/steps/9/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-008-domain_parameter_return",
+        "target_ref": "/root/goals/0",
+        "title": "回到定义域求参",
+        "used_basis": [
+          "function-range-extrema#quantified",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs",
+          "quadratic-interval-extremum",
+          "quantifiers#universal"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "match_domain",
+          "set": {
+            "expression": "Interval(-oo, -9/4)",
+            "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(-oo, -9/4)",
+          "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "match_domain",
+          "set": {
+            "expression": "Interval(-oo, -9/4)",
+            "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(-oo, -9/4)",
+          "latex": "\\left(-\\infty, - \\frac{9}{4}\\right]"
+        },
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "math_steps": [
+          {
+            "math_step_sha256": "2f6ccaecda0896a86d3e5f13c1d6fcf9860f112f410aa24e0b53fab56532b466",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions"
+          },
+          {
+            "math_step_sha256": "79955862df99fa7b6cfe63d5f1d18efcc7aa5d6b94c4b61987e5b0ee8b106cba",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal"
+          },
+          {
+            "math_step_sha256": "88ff6598197588541d7df29684b32189ad10d8ee6232629cf42227f72cdb5a06",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow"
+          },
+          {
+            "math_step_sha256": "55e8bac8a7c59f9e2f5c4870198c992d545e59651726306bac3f46a253b18de4",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-domain-parameter-004-constant_divided"
+          },
+          {
+            "math_step_sha256": "ee0fc6e0ba0e9acbe4663c691b281e465fe69cf1ec20fa1492b8a4a6ca8c42e5",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-domain-parameter-005-policy"
+          },
+          {
+            "math_step_sha256": "6274627cda4d8a4408a641a7425ec2f90953b166c1d54bb2cc42d54b1d6d9a4a",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-domain-parameter-006-interval_range"
+          },
+          {
+            "math_step_sha256": "040c4e90238a88834e55f3921b9a42f5fb531a73562a550e28edb589a8803001",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-domain-parameter-007-solution"
+          },
+          {
+            "math_step_sha256": "61de4c65dc100698651390df5a0d68ae34901808ace0629d86a850f6fd5a7fbe",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-domain-parameter-008-domain_parameter_return"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "dc9fd43ae28efb2317ac52c6c36861f3374dd49b7cb6bad68f9c2dc4795ce26c",
+        "verified_route_sha256": "e7ef73c8f295a44cdb849535eb61eb0d0da64138ee59beeef6ed6e2498b9ccd5"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-function-domain",
+            "op": "methods"
+          },
+          "question": "已知定义域恰为给定集合，列出有意义条件并化为参数范围。",
+          "submit_label": "用定义域求参法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-domain-parameter",
+              "recommendation": "preferred",
+              "route_id": "domain-parameter",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions",
+        "ordinal": 1,
+        "math_step_sha256": "2f6ccaecda0896a86d3e5f13c1d6fcf9860f112f410aa24e0b53fab56532b466",
+        "status": "interactive",
+        "interaction_id": "a3e2a0cd00f1f34e49fbfdd7"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal",
+        "ordinal": 2,
+        "math_step_sha256": "79955862df99fa7b6cfe63d5f1d18efcc7aa5d6b94c4b61987e5b0ee8b106cba",
+        "status": "interactive",
+        "interaction_id": "ad46cb4da9f6b3e1c7779396"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow",
+        "ordinal": 3,
+        "math_step_sha256": "88ff6598197588541d7df29684b32189ad10d8ee6232629cf42227f72cdb5a06",
+        "status": "interactive",
+        "interaction_id": "eda1d24c0c58008de3df71a3"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-004-constant_divided",
+        "ordinal": 4,
+        "math_step_sha256": "55e8bac8a7c59f9e2f5c4870198c992d545e59651726306bac3f46a253b18de4",
+        "status": "interactive",
+        "interaction_id": "ed2caf5cf5fd7d6b042da2b1"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-005-policy",
+        "ordinal": 5,
+        "math_step_sha256": "ee0fc6e0ba0e9acbe4663c691b281e465fe69cf1ec20fa1492b8a4a6ca8c42e5",
+        "status": "interactive",
+        "interaction_id": "3ac4e86ecac27304ff7826b0"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-006-interval_range",
+        "ordinal": 6,
+        "math_step_sha256": "6274627cda4d8a4408a641a7425ec2f90953b166c1d54bb2cc42d54b1d6d9a4a",
+        "status": "interactive",
+        "interaction_id": "75252b7a8ef63291b76863e8"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-007-solution",
+        "ordinal": 7,
+        "math_step_sha256": "040c4e90238a88834e55f3921b9a42f5fb531a73562a550e28edb589a8803001",
+        "status": "interactive",
+        "interaction_id": "13745c69e0bdec65bbddae59"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-008-domain_parameter_return",
+        "ordinal": 8,
+        "math_step_sha256": "61de4c65dc100698651390df5a0d68ae34901808ace0629d86a850f6fd5a7fbe",
+        "status": "interactive",
+        "interaction_id": "cdf528faa74dbc1aca8aab4c"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:domain-parameter:complete",
+        "last_seq": 45
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-domain-parameter",
+            "step": "extract",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "rational-expression#meaning",
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-domain-parameter",
+            "step": "reduce",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "quantifiers#universal",
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-domain-parameter",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-separation",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-separation",
+            "step": "separate",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-separation",
+            "step": "quantifier",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-quantified-range",
+                "used_basis": [
+                  "function-range-extrema#quantified",
+                  "quantifiers#universal"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-separation",
+            "step": "range",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "quadratic-interval-extremum",
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-separation",
+            "step": "restore",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-range-extrema#quantified"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "quadratic-inequality-solve",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 8,
+            "method": "quadratic-inequality-solve",
+            "step": "normalize",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 9,
+            "method": "quadratic-inequality-solve",
+            "step": "roots",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-solve-quadratic",
+                "used_basis": [
+                  "quadratic-equation#roots"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 10,
+            "method": "quadratic-inequality-solve",
+            "step": "signs",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-quadratic-sign",
+                "used_basis": [
+                  "quadratic-inequality#signs"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 11,
+            "method": "quadratic-inequality-solve",
+            "step": "solution",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 12,
+            "method": "method-domain-parameter",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#elements",
+                "quantifiers#universal"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a3e2a0cd00f1f34e49fbfdd7",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "1f5041d89e7399471f53d8259db7a60010f53969b39d77797eeaf7e965b9f67d",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1",
+                "s3o1"
+              ]
+            },
+            "feedback": {
+              "answer": "根号要求被开方数非负，分母还须非零，各条条件都要保留。"
+            },
+            "id": "a3e2a0cd00f1f34e49fbfdd7#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "被开方数 $x^{2} - 3 x - m$",
+                  "options": [
+                    {
+                      "feedback": "这里只填写平方根本身的要求：被开方数可以为 0，但不能为负。分母限制须另行保留。",
+                      "label": "$x^{2} - 3 x - m > 0$",
+                      "value": "s1o2"
+                    },
+                    {
+                      "label": "$x^{2} - 3 x - m \\geq 0$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "feedback": "这里只填写平方根本身的要求：被开方数可以为 0，但不能为负。分母限制须另行保留。",
+                      "label": "$x^{2} - 3 x - m \\neq 0$",
+                      "value": "s1o3"
+                    }
+                  ]
+                },
+                {
+                  "label": "被开方数 $x - 1$",
+                  "options": [
+                    {
+                      "feedback": "这里只填写平方根本身的要求：被开方数可以为 0，但不能为负。分母限制须另行保留。",
+                      "label": "$x - 1 > 0$",
+                      "value": "s2o2"
+                    },
+                    {
+                      "label": "$x - 1 \\geq 0$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "feedback": "这里只填写平方根本身的要求：被开方数可以为 0，但不能为负。分母限制须另行保留。",
+                      "label": "$x - 1 \\neq 0$",
+                      "value": "s2o3"
+                    }
+                  ]
+                },
+                {
+                  "label": "分母 $\\sqrt{x - 1}$",
+                  "options": [
+                    {
+                      "label": "$\\sqrt{x - 1} \\neq 0$",
+                      "value": "s3o1"
+                    },
+                    {
+                      "feedback": "分母不能为 0；只要求非负会遗漏分母为 0 的情形。",
+                      "label": "$\\sqrt{x - 1} = 0$",
+                      "value": "s3o3"
+                    },
+                    {
+                      "feedback": "分母不能为 0；只要求非负会遗漏分母为 0 的情形。",
+                      "label": "$\\sqrt{x - 1} \\geq 0$",
+                      "value": "s3o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "分别保留原式限制",
+              "type": "checklist"
+            },
+            "question": "原式为 $\\frac{\\sqrt{x^{2}-3\\cdot x-m}}{\\sqrt{x-1}}$。按根号与分母的基本要求，分别填写各条原始条件。",
+            "submit_label": "确认判断",
+            "title": "列出根号与分母的条件"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2f6ccaecda0896a86d3e5f13c1d6fcf9860f112f410aa24e0b53fab56532b466",
+            "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ad46cb4da9f6b3e1c7779396",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "d1bac90218b604f8ab09f7aa0830408b8b73593f06f7d4bb69ab9d6b0f32f800",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "实数平方根先要求被开方数非负；分母再排除平方根为 0，所以被开方数必须严格大于 0。"
+            },
+            "id": "ad46cb4da9f6b3e1c7779396#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "实数平方根先要求被开方数非负；分母再排除平方根为 0，所以被开方数必须严格大于 0。",
+                  "label": "$u\\ne 0$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "实数平方根先要求被开方数非负；分母再排除平方根为 0，所以被开方数必须严格大于 0。",
+                  "label": "$u\\geq 0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$u>0$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把分母根号的被开方数 $x - 1$ 记作 $u$。对实数 $u$，把 $u\\geq 0$ 与 $\\sqrt{u}\\ne 0$ 合在一起，相当于什么条件？",
+            "submit_label": "确认判断",
+            "title": "合并有意义的条件"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "分母已把域外输入排除；要使定义域恰为题给范围，域内每一个输入都必须使分子根号有意义。"
+            },
+            "id": "ad46cb4da9f6b3e1c7779396#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "分母已把域外输入排除；要使定义域恰为题给范围，域内每一个输入都必须使分子根号有意义。",
+                  "label": "只需找到一个 $x\\in \\left(1, \\infty\\right)$ 使分子根号有意义",
+                  "value": "o2"
+                },
+                {
+                  "label": "每一个 $x\\in \\left(1, \\infty\\right)$ 都应使分子根号有意义",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "分母的条件合为 $x - 1 > 0$，恰好允许 $\\left(1, \\infty\\right)$，域外原式已因分母根号无意义或分母为零而被排除。要使定义域恰为 $\\left(1, \\infty\\right)$，对域内输入应怎样检查分子的条件 $x^{2} - 3 x - m \\geq 0$？",
+            "submit_label": "确认判断",
+            "title": "转化为恒成立问题"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "79955862df99fa7b6cfe63d5f1d18efcc7aa5d6b94c4b61987e5b0ee8b106cba",
+            "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "eda1d24c0c58008de3df71a3",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "a3246b88e2c69a7cb097642c5e0dc1be9db266a8c35980eb80d1767786ad5e53",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "alternatives": {
+              "interval": {
+                "href": "/knowledge/method-interval-extremum/",
+                "message": "区间最值法适用于当前子问题，但本次尚未展开这条子方法路线。可以选择分离参数法继续。"
+              }
+            },
+            "effects": {
+              "log": "借用已学方法：分离参数法。",
+              "nodes": [
+                "rule-quadratic-method",
+                "method-separation"
+              ]
+            },
+            "expected_answer": {
+              "cell": [
+                "interval",
+                "free"
+              ],
+              "method": "separation"
+            },
+            "feedback": {
+              "method": "这种方法不在这一格里，请从这一格列出的方法中选一种。",
+              "method_choice": "当前恒成立子问题使用分离参数法；其它适用方法不在本路线展开。",
+              "x": "再看横轴：$x$ 的给定范围不是全体实数。",
+              "y": "再看纵轴：$m$ 是所求参数。"
+            },
+            "id": "eda1d24c0c58008de3df71a3#1",
+            "interaction": {
+              "methods": [
+                {
+                  "cells": [
+                    [
+                      "real",
+                      "free"
+                    ]
+                  ],
+                  "label": "判别式法",
+                  "target": "method-discriminant",
+                  "value": "discriminant"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "区间最值法",
+                  "route_plan": "capability_gap",
+                  "target": "method-interval-extremum",
+                  "value": "interval"
+                },
+                {
+                  "cells": [
+                    [
+                      "real",
+                      "free"
+                    ],
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "分离参数法",
+                  "route": "domain-parameter",
+                  "route_plan": "planned",
+                  "target": "method-separation",
+                  "value": "separation"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "given"
+                    ],
+                    [
+                      "real",
+                      "given"
+                    ]
+                  ],
+                  "label": "更换主元法",
+                  "target": "method-variable-swap",
+                  "value": "swap"
+                }
+              ],
+              "title": "方法坐标图",
+              "type": "plane",
+              "x": {
+                "label": "$x$ 取全体实数吗？",
+                "options": [
+                  {
+                    "label": "否",
+                    "note": "$x$ 在给定范围内",
+                    "value": "interval"
+                  },
+                  {
+                    "label": "是",
+                    "note": "$x\\in\\mathbb R$",
+                    "value": "real"
+                  }
+                ]
+              },
+              "y": {
+                "label": "参数 $m$ 有给定范围吗？",
+                "options": [
+                  {
+                    "label": "有",
+                    "note": "给定 $m$ 的范围，求 $x$ 的范围",
+                    "value": "given"
+                  },
+                  {
+                    "label": "没有",
+                    "note": "要求的就是参数 $m$",
+                    "value": "free"
+                  }
+                ]
+              }
+            },
+            "question": "当前子问题是：对所有 $x\\in \\left(1, \\infty\\right)$，都有 $x^{2} - 3 x - m \\geq 0$。本题落在选法坐标的哪一格？应借用哪一种已学方法？",
+            "submit_label": "用这种方法解题",
+            "title": "选择已学方法"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "88ff6598197588541d7df29684b32189ad10d8ee6232629cf42227f72cdb5a06",
+            "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ed2caf5cf5fd7d6b042da2b1",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "d3b67917a6f2bc2a6927606995bcfb4440fe6415c857aba5cd870cc8663685b8",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "移到另一边的每一项都要变号；移项不改变不等号方向。"
+            },
+            "id": "ed2caf5cf5fd7d6b042da2b1#1",
+            "interaction": {
+              "field": "ed2caf5cf5fd7d6b042da2b1#1",
+              "options": [
+                {
+                  "label": "$- m \\geq - x^{2} + 3 x$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "把一项移到不等号另一边时要变号。",
+                  "label": "$- m \\geq x^{2} - 3 x$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "移过去的每一项都要变号，不能只改其中一项。",
+                  "label": "$- m \\geq - x^{2} - 3 x$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "移项相当于两边同时加减同一个式子，不等号方向不变。",
+                  "label": "$- m \\leq - x^{2} + 3 x$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "从 $x^{2} - 3 x - m \\geq 0$ 出发，把含 $m$ 的项留在左边、其余项移到右边，得到哪个不等式？",
+            "submit_label": "确认判断",
+            "title": "移项"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "右边每一项都要除以 $-1$，再按除数的符号决定不等号方向。"
+            },
+            "id": "ed2caf5cf5fd7d6b042da2b1#2",
+            "interaction": {
+              "field": "ed2caf5cf5fd7d6b042da2b1#2",
+              "options": [
+                {
+                  "label": "$m \\leq x^{2} - 3 x$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "右边每一项都要除以 $-1$。除以负数时，各项的正负与不等号方向都要改变。",
+                  "label": "$m \\leq - x^{2} + 3 x$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "除数 $-1$ 为负，两边同除时不等号方向要改变。",
+                  "label": "$m \\geq x^{2} - 3 x$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "右边每一项都要除以 $-1$，不能漏掉。",
+                  "label": "$m \\leq x^{2} + 3 x$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "移项得 $- m \\geq - x^{2} + 3 x$，两边同除以负数 $-1$，得到哪个不等式？",
+            "submit_label": "确认判断",
+            "title": "分离参数"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "55e8bac8a7c59f9e2f5c4870198c992d545e59651726306bac3f46a253b18de4",
+            "step_id": "39e5646dcb-domain-parameter-004-constant_divided"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "3ac4e86ecac27304ff7826b0",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "e1d58fc5d2c695a320282045f675a97bd97d6e466ac4bea1bbcecd45c312cce0",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "把“对所有 $x$ 都成立”转化为比较函数在区间上的值域下端。"
+            },
+            "id": "3ac4e86ecac27304ff7826b0#1",
+            "interaction": {
+              "field": "3ac4e86ecac27304ff7826b0#1",
+              "options": [
+                {
+                  "feedback": "比较的方向要与原关系 $m \\leq h(x)$ 一致。",
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$m \\geq h(x)_{\\text{下端}}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "注意原题是否允许等号。",
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$m < h(x)_{\\text{下端}}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$m \\leq h(x)_{\\text{下端}}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "由量词和不等号方向决定看值域上端还是下端；能取到时才称最大值或最小值。",
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$m \\leq h(x)_{\\text{上端}}$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "对所有 $x \\in \\left(1, \\infty\\right)$，$m \\leq h(x)$ 成立，等价于什么？这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+            "submit_label": "确认判断",
+            "title": "转化为最值条件"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ee0fc6e0ba0e9acbe4663c691b281e465fe69cf1ec20fa1492b8a4a6ca8c42e5",
+            "step_id": "39e5646dcb-domain-parameter-005-policy"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "75252b7a8ef63291b76863e8",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "e68c397642cde5dc47c3f1631d84aa5bd4239dd3d99c29ed0884d46f814eb0f7",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "completion_graph": {
+              "caption": "$h(x)=x^{2} - 3 x$，$x\\in\\left(1, \\infty\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  4.25,
+                  -3.0,
+                  2.5
+                ],
+                "coefficient": 1.0,
+                "description": "x=1 取不到，函数值趋近 -2（空心点）",
+                "interval": [
+                  1.0,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 1.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "y=x^2 - 3x 在 (1, +∞) 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.5,
+                  -2.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    1.5,
+                    "3/2"
+                  ]
+                ],
+                "yLabel": "-9/4"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "同时核对最值及其能否取到；无穷不是可以取得的端点。"
+            },
+            "graph": {
+              "caption": "$h(x)=x^{2} - 3 x$，$x\\in\\left(1, \\infty\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  4.25,
+                  -3.0,
+                  2.5
+                ],
+                "coefficient": 1.0,
+                "description": "x=1 取不到，函数值趋近 -2（空心点）",
+                "interval": [
+                  1.0,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 1.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "y=x^2 - 3x 在 (1, +∞) 上的图像",
+                "variable": "x",
+                "vertex": [
+                  1.5,
+                  -2.25
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    1.5,
+                    "3/2"
+                  ]
+                ],
+                "yLabel": "-9/4"
+              }
+            },
+            "id": "75252b7a8ef63291b76863e8#1",
+            "interaction": {
+              "field": "75252b7a8ef63291b76863e8#1",
+              "options": [
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.0,
+                        -1.5
+                      ],
+                      "description": "y 的取值集合：(-9/4, +∞)",
+                      "pieces": [
+                        {
+                          "from": -2.25,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -2.25,
+                          "-9/4"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left(- \\frac{9}{4}, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.0,
+                        -1.5
+                      ],
+                      "description": "y 的取值集合：(-∞, -9/4)",
+                      "pieces": [
+                        {
+                          "from": null,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": -2.25
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -2.25,
+                          "-9/4"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left(-\\infty, - \\frac{9}{4}\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.0,
+                        -1.5
+                      ],
+                      "description": "y 的取值集合：[-9/4, +∞)",
+                      "pieces": [
+                        {
+                          "from": -2.25,
+                          "left_closed": true,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -2.25,
+                          "-9/4"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left[- \\frac{9}{4}, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.0,
+                        -1.5
+                      ],
+                      "description": "y 的取值集合：{-9/4}",
+                      "pieces": [],
+                      "points": [
+                        {
+                          "x": -2.25
+                        }
+                      ],
+                      "ticks": [
+                        [
+                          -2.25,
+                          "-9/4"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left\\{- \\frac{9}{4}\\right\\}$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "$h(x)$ 在 $\\left(1, \\infty\\right)$ 上的值域是？",
+            "submit_label": "确认判断",
+            "title": "确定函数值的范围"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "6274627cda4d8a4408a641a7425ec2f90953b166c1d54bb2cc42d54b1d6d9a4a",
+            "step_id": "39e5646dcb-domain-parameter-006-interval_range"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "13745c69e0bdec65bbddae59",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "74692d8d108f01ac9fb3153c8a236df20bf394a79e0a6cbbd736cf3c8e0c39bc",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "看清边界能否取等。"
+            },
+            "id": "13745c69e0bdec65bbddae59#1",
+            "interaction": {
+              "field": "13745c69e0bdec65bbddae59#1",
+              "options": [
+                {
+                  "label": "$\\left(-\\infty, - \\frac{9}{4}\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "先在根分隔的区间检查符号，不要把满足条件的部分与不满足的部分交换。",
+                  "label": "$\\left(- \\frac{9}{4}, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "将边界代回条件，确定不等式是否允许等号。",
+                  "label": "$\\left(-\\infty, - \\frac{9}{4}\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $m \\leq - \\frac{9}{4}$，$m$ 的取值范围是？",
+            "submit_label": "确认范围",
+            "title": "求参数范围"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "040c4e90238a88834e55f3921b9a42f5fb531a73562a550e28edb589a8803001",
+            "step_id": "39e5646dcb-domain-parameter-007-solution"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "cdf528faa74dbc1aca8aab4c",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "80b302c8ab02919e42ef976bbe66bf16cba41da92c69fae3343328cb4d412107",
+        "lesson_version": "6b7c6c5ccd3f2f48371f01660422278350c2f566f6cc17c54014895e0e962de8",
+        "parts": [
+          {
+            "effects": {
+              "log": "回到定义域求参：参数范围保证定义域恰为题给范围。",
+              "nodes": [
+                "method-domain-parameter"
+              ]
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "子方法求出的是参数范围；它要保证原题的定义域恰为题给范围，而不是另求一个输入集合。"
+            },
+            "id": "cdf528faa74dbc1aca8aab4c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "使 $D_{f}=\\left(1, \\infty\\right)$ 成立的参数 $m$ 的取值范围",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "子方法求出的是参数范围；它要保证原题的定义域恰为题给范围，而不是另求一个输入集合。",
+                  "label": "自变量的定义域，不再管参数 $m$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "子方法求出的是参数范围；它要保证原题的定义域恰为题给范围，而不是另求一个输入集合。",
+                  "label": "原式在某个真子集上有意义即可",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "借用的方法已得到 $m\\in \\left(-\\infty, - \\frac{9}{4}\\right]$。这个结果在原题中保证什么？",
+            "submit_label": "确认判断",
+            "title": "回到定义域求参"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "1c60c9857af34de6b21c348417cfe7b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "61de4c65dc100698651390df5a0d68ae34901808ace0629d86a850f6fd5a7fbe",
+            "step_id": "39e5646dcb-domain-parameter-008-domain_parameter_return"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

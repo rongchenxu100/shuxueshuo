@@ -75,6 +75,8 @@ def _prepare_substitution(expression, variable, domain, new_variable, forward):
         raise CapabilityGap("substitution_fresh_variable_required")
     if any(symbol.is_real is not True for symbol in expression.free_symbols):
         raise CapabilityGap("substitution_real_symbols_required")
+    if forward == 1 / variable:
+        return _prepare_reciprocal(expression, variable, domain, new_variable)
     affine = polynomial(forward, variable, maximum=1)
     slope, intercept = affine.nth(1), affine.nth(0)
     if any(value.free_symbols or value.is_real is not True or value.is_finite is not True
@@ -113,11 +115,58 @@ def _prepare_substitution(expression, variable, domain, new_variable, forward):
 
 
 def substitution(expression, variable, domain, new_variable, forward):
-    """Apply t=a*x+b, preserving the original expression's interval domain."""
+    """Apply an affine or reciprocal bijection, preserving the exact domain."""
     mapping, checks = _prepare_substitution(expression, variable, domain, new_variable, forward)
     return result({"expression": mapping["expression"], "variable": new_variable,
                    "domain": mapping["domain"], "mapping": mapping},
                   ["substitution"], checks)
+
+
+def _reciprocal_interval(domain):
+    sign = nonzero_interval_sign(domain)
+    def inverse(point):
+        return sign * sp.oo if point == 0 else 1 / point
+    return sp.Interval(inverse(domain.end), inverse(domain.start),
+                       left_open=domain.right_open, right_open=domain.left_open)
+
+
+def _prepare_reciprocal(expression, variable, domain, new_variable):
+    target_domain = _reciprocal_interval(domain)
+    excluded = _defined_on_interval(expression, variable, domain)
+    target = sp.cancel(expression.subs(variable, 1 / new_variable))
+    _defined_on_interval(target, new_variable, target_domain)
+    mapping = {
+        "original_expression": expression, "original_variable": variable,
+        "original_domain": domain, "new_variable": new_variable,
+        "forward": 1 / variable, "inverse": 1 / new_variable,
+        "expression": target, "domain": target_domain,
+        "slope": None, "intercept": None, "kind": "reciprocal",
+    }
+    checks = [
+        {"kind": "reciprocal_substitution_identity", "passed":
+         _equal(target.subs(new_variable, 1 / variable), expression)},
+        {"kind": "reciprocal_interval_bijection", "passed":
+         exact_set_equal(_reciprocal_interval(target_domain), domain),
+         "original_domain": domain, "domain": target_domain},
+        {"kind": "original_definition_domain_preserved", "passed": True,
+         "excluded_points": excluded},
+    ]
+    if any(row["passed"] is not True for row in checks):
+        raise LocalCheckFailed("substitution_identity_or_bijection_failed", evidence=checks)
+    return mapping, checks
+
+
+def inspect_reciprocal_quadratic(expression, variable, domain, *, reserved_symbols=()):
+    """Recognise A/x²+B/x+C on a nonzero interval; no problem-specific formula."""
+    if expression.free_symbols - {variable}:
+        raise CapabilityGap("numeric_reciprocal_quadratic_required")
+    t = _fresh_variable(expression, variable, domain, reserved_symbols)
+    mapping, _ = _prepare_substitution(expression, variable, domain, t, 1 / variable)
+    poly = polynomial(mapping["expression"], t)
+    if poly.degree() != 2:
+        raise CapabilityGap("reciprocal_quadratic_required")
+    return {"new_variable": t, "forward": 1 / variable, **{
+        key: mapping[key] for key in ("expression", "domain")}, "mapping": mapping}
 
 
 def _fresh_variable(expression, variable, domain, reserved_symbols):
@@ -173,6 +222,8 @@ def _validate_mapping(mapping):
         mapping["new_variable"], mapping["forward"],
     )
     for key in ("inverse", "expression", "slope", "intercept"):
+        if mapping[key] is None and expected[key] is None:
+            continue
         if not isinstance(mapping[key], sp.Expr) or not _equal(mapping[key], expected[key]):
             raise LocalCheckFailed("substitution_mapping_disagrees")
     if not exact_set_equal(mapping["domain"], expected["domain"]):
@@ -209,8 +260,11 @@ def _point_row(row, mapping, *, endpoint=False):
     domain, source_domain = mapping["domain"], mapping["original_domain"]
     variable, source_variable = mapping["new_variable"], mapping["original_variable"]
     expression, source_expression = mapping["expression"], mapping["original_expression"]
-    restored = sp.simplify(mapping["inverse"].subs(variable, point))
-    if not _equal(mapping["forward"].subs(source_variable, restored), point):
+    restored = (_endpoint_value(mapping["inverse"], variable, point, domain) if endpoint
+                else sp.simplify(mapping["inverse"].subs(variable, point)))
+    roundtrip = (_endpoint_value(mapping["forward"], source_variable, restored, source_domain)
+                 if endpoint else mapping["forward"].subs(source_variable, restored))
+    if not _equal(roundtrip, point):
         raise LocalCheckFailed("substitution_point_roundtrip_failed")
     expected_attained = _contains(domain, point)
     if type(attained) is not bool or attained is not expected_attained:
@@ -266,6 +320,15 @@ def _restore_turn(turn, mapping, critical_points):
 def _complete_reciprocal_stationary_evidence(mapping, critical_points, turning_point):
     """Check completeness from the quadratic derivative numerator, not a range solve."""
     variable, domain = mapping["new_variable"], mapping["domain"]
+    if mapping.get("kind") == "reciprocal":
+        poly = polynomial(mapping["expression"], variable)
+        vertex = -poly.nth(1) / (2 * poly.nth(2))
+        expected = [vertex] if _contains(domain, vertex) else []
+        actual = [row["point"] for row in critical_points]
+        if actual != expected or turning_point is not None:
+            raise LocalCheckFailed("substitution_incomplete_critical_point_evidence")
+        return {"kind": "complete_quadratic_stationary_evidence", "passed": True,
+                "points": actual, "domain": domain}
     a, _, b = reciprocal_coefficients(mapping["expression"], variable)
     domain_sign = nonzero_interval_sign(domain)
     expected_turn = None

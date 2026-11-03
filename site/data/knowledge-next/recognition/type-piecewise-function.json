@@ -1,0 +1,62 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-piecewise-function",
+  "branches": [
+    {
+      "branch_id": "single-layer-equation",
+      "checks": [
+        {
+          "id": "supported-source-equation",
+          "feature_id": "piecewise_equation",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "single-layer-inequality",
+      "checks": [
+        {
+          "id": "supported-source-inequality",
+          "feature_id": "piecewise_inequality",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "range-parameter",
+      "checks": [
+        {
+          "id": "supported-source-range-parameter",
+          "feature_id": "piecewise_range_parameter",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 2
+        }
+      ]
+    },
+    {
+      "branch_id": "marginal-pricing",
+      "checks": [
+        {
+          "id": "supported-source-pricing",
+          "feature_id": "piecewise_modeling",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 3
+        }
+      ]
+    }
+  ]
+}

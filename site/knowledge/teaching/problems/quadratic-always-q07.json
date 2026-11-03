@@ -228,9 +228,20 @@
     "/topics/function-representations/q07/",
     "/topics/function-representations/q07a/",
     "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
     "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
     "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
     "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
     "/topics/function-representations/q14/",
     "/topics/function-representations/variant01/",
     "/topics/function-representations/variant02/",
@@ -239,5 +250,7 @@
     "/topics/function-representations/variant06/",
     "/topics/function-representations/variant07/"
   ],
-  "content_version": "ee37fea2417bf22f42816e0e1ccf457b7f828abdc032a57c3201257784a5f515"
+  "page_contract_hash": "a0d21ed219150adb20db3c9458202944cc626a846c1700c57108dca7bfb2c2dc",
+  "practice_version": "9d264b14790b21f74981e0491a614c0c6b1458924c8e7422b0d6a92bbce5a9c0",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
 }

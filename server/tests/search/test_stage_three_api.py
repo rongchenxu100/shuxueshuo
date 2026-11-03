@@ -38,7 +38,7 @@ def no_live_llm(monkeypatch):
     monkeypatch.setattr(dev_api, "run_question_image", forbidden)
 
 
-def seed(tmp_path):
+def seed(tmp_path, *, refresh_features=False):
     """Register a recorded private lesson; it does not claim a public identity review."""
     root = tmp_path / "search"
     session = session_for(root)
@@ -49,7 +49,7 @@ def seed(tmp_path):
     value = {**search_result("q01"), "question_sha256": "recorded", "sent_image_sha256": ["recorded"]}
     save(directory / dev_api.RESULT_FILE, value)
     save(directory / "crop.json", {"page_id": page_id})
-    result = replay_run(Q01_SELECTION, directory / "stage-two-1")
+    result = replay_run(Q01_SELECTION, directory / "stage-two-1", refresh_features=refresh_features)
     assert result["replay_comparison"]["ok"] and result["llm"]["new_network_attempts"] == 0
     shutil.copyfile(directory / "stage-two-1/source.png", directory / "question.png")
     shutil.copyfile(directory / "question.png", directory / "original.png")
@@ -89,6 +89,29 @@ def start(client):
     response = client.post(f"/api/search/problems/{client.search_id}/lesson/start")
     assert response.status_code == 200, response.text
     return wait_done(client)
+
+
+def test_open_upgrades_teaching_without_ocr_and_preserves_historical_run(tmp_path, monkeypatch):
+    root, directory = seed(tmp_path, refresh_features=True)
+    with client_for(root) as client:
+        old = start(client)
+        old_id = old['stream']['run_id']
+        old_snapshot = client.get(old['stream']['snapshot_url']).json()
+        monkeypatch.setattr(stage_three, 'teaching_revision', lambda: 'new-shared-flow')
+        # A GET continues to show the captured version without starting work.
+        assert status(client)['stream']['run_id'] == old_id
+        assert len(stage_three.attempts(directory)) == 1
+        response = client.post(f'/api/search/problems/{client.search_id}/lesson/current')
+        assert response.status_code == 200 and response.json()['updating'] is True
+        new = wait_done(client)
+        assert new['stream']['run_id'] != old_id
+        assert client.get(old['stream']['snapshot_url']).json() == old_snapshot
+        attempt = stage_three.latest_attempt(directory)
+        assert stage_three.read(attempt/stage_three.RESULT)['llm']['new_network_attempts'] == 0
+        assert not stage_three.needs_teaching_update(attempt)
+        response = client.post(f'/api/search/problems/{client.search_id}/lesson/current')
+        assert response.status_code == 200 and response.json()['updating'] is False
+        assert len(stage_three.attempts(directory)) == 2
 
 
 def test_status_pins_material_and_stream_to_one_attempt_during_concurrent_retry(tmp_path, monkeypatch):

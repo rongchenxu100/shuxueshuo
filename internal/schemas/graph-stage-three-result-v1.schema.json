@@ -533,7 +533,11 @@
                             "find_value",
                             "check_constant",
                             "finite_sum",
-                            "find_function_formula"
+                            "find_function_formula",
+                            "select_function_graph",
+                            "draw_function_graph",
+                            "solve_graph_inequality",
+                            "find_equation"
                           ]
                         }
                       }
@@ -726,6 +730,10 @@
                 },
                 "layout": {
                   "const": "connections"
+                },
+                "cue_heading": {
+                  "type": "string",
+                  "minLength": 1
                 },
                 "connections": {
                   "type": "array",
@@ -1224,7 +1232,8 @@
                 "find_abstract_domain",
                 "find_abstract_domain_parameter",
                 "find_abstract_range",
-                "find_translation_range"
+                "find_translation_range",
+                "match_range"
               ]
             },
             "status": {
@@ -1236,6 +1245,23 @@
             "object": {
               "type": "string",
               "minLength": 1
+            },
+            "quantity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "symbol",
+                "unit"
+              ],
+              "properties": {
+                "symbol": {
+                  "type": "string",
+                  "pattern": "^[a-z]$"
+                },
+                "unit": {
+                  "const": "千瓦时"
+                }
+              }
             }
           },
           "additionalProperties": false,
@@ -1244,6 +1270,20 @@
               "if": {
                 "required": [
                   "object"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "kind": {
+                    "const": "find_range"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "required": [
+                  "quantity"
                 ]
               },
               "then": {
@@ -2222,6 +2262,223 @@
                   "type": "null"
                 }
               ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "comparison",
+            "correct_option_id",
+            "correct_labels",
+            "option_verdicts"
+          ],
+          "properties": {
+            "kind": {
+              "const": "select_function_graph"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "comparison": {
+              "const": "rough_shape"
+            },
+            "correct_option_id": {
+              "type": "string"
+            },
+            "correct_labels": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "option_verdicts": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "option_id",
+                  "label",
+                  "matches",
+                  "differences"
+                ],
+                "properties": {
+                  "option_id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "matches": {
+                    "type": "boolean"
+                  },
+                  "differences": {
+                    "type": "array",
+                    "items": {
+                      "enum": [
+                        "vertex_x",
+                        "vertex_y",
+                        "left_direction",
+                        "right_direction",
+                        "domain",
+                        "outer_direction",
+                        "left_corner_x",
+                        "left_corner_y",
+                        "center_x",
+                        "center_y",
+                        "right_corner_x",
+                        "right_corner_y",
+                        "symmetry",
+                        "shown_direction",
+                        "x_intercept"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "latex"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draw_function_graph"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "latex"
+          ],
+          "properties": {
+            "kind": {
+              "const": "solve_graph_inequality"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "pricing",
+            "pieces"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_equation"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "pricing": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mode",
+                "quantity",
+                "amount",
+                "quantity_unit",
+                "amount_unit",
+                "quantity_domain",
+                "thresholds",
+                "rates"
+              ],
+              "properties": {
+                "mode": {
+                  "const": "marginal"
+                },
+                "quantity": {
+                  "type": "string",
+                  "pattern": "^[a-z]$"
+                },
+                "amount": {
+                  "type": "string",
+                  "pattern": "^[a-z]$"
+                },
+                "quantity_unit": {
+                  "const": "千瓦时"
+                },
+                "amount_unit": {
+                  "const": "元"
+                },
+                "quantity_domain": {
+                  "const": "nonnegative_real"
+                },
+                "thresholds": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+                  }
+                },
+                "rates": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+                  }
+                }
+              }
+            },
+            "pieces": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "expression",
+                  "domain"
+                ],
+                "properties": {
+                  "expression": {
+                    "$ref": "#/$defs/mathValue"
+                  },
+                  "domain": {
+                    "$ref": "#/$defs/mathValue"
+                  }
+                }
+              }
             }
           }
         }

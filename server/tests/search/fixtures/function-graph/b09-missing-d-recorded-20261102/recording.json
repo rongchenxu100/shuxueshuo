@@ -1,0 +1,52 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-06.png",
+  "source_crop_xyxy": [
+    95,
+    914,
+    875,
+    1222
+  ],
+  "source_kind": "original_page_rectangular_crop_product_preprocessing",
+  "recorded_date": "2026-11-02",
+  "usage": "development_regression_not_unseen_holdout",
+  "upload_source_sha256": "4f14ebfdc34d5e9aa6ab30d8713aeb029a0847274402552ee6d15324ab91907d",
+  "historical_semantic_calls": 1,
+  "historical_network_attempts": 1,
+  "call_stages": [
+    "extract"
+  ],
+  "notes": "Actual photograph extraction/review/repair as applicable; no gold supplied. No browser-upload or holdout claim. Model text is unchanged.",
+  "sanitization": {
+    "removed": "Provider file/request identifiers and signed URLs only.",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "original.png": "4f14ebfdc34d5e9aa6ab30d8713aeb029a0847274402552ee6d15324ab91907d",
+    "question.png": "e43b36ace4dd4183a2f44b0a34b0753a68554674d5690af231e66e9863279aa2",
+    "result.json": "c11cf5c158a67eb1769e521605f8869049c2df61f43ded88569db16428a43e0a",
+    "workflow/ledger.json": "7b6120bb1b6ad1d9de28efa88d9d95020bc7026cfed315839957f986b3e6ac53",
+    "workflow/candidate.json": "52e42e22ffd24d30229a9e81fcb6b9511855932c7702e689be4083ea146d68f2",
+    "workflow/workflow-result.json": "34b30a60564e8528eafa632542ea776c5f38b7f3c1dc7ec2ca56aa12bbd04538",
+    "workflow/calls/01-extract/request.json": "3622095804db7e05e4f5986d22587c238c969d835cc070ab4af8b8637889d4ce",
+    "workflow/calls/01-extract/response.json": "b621e95480d68d4187463b14699d4f5a332edf4133ca13c72b84471ced3b14dc"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "0e85fa7b9a9315d8ac93e25feb7a9a3bc45e4e28437b6c8385013944e408da5f"
+  },
+  "files": {
+    "original.png": "4f14ebfdc34d5e9aa6ab30d8713aeb029a0847274402552ee6d15324ab91907d",
+    "question.png": "e43b36ace4dd4183a2f44b0a34b0753a68554674d5690af231e66e9863279aa2",
+    "result.json": "efc486774e06611b2e01a38cc3f0bfbaae6b23f81a58ac9c0b67251bce316199",
+    "workflow/ledger.json": "b4bb0e8c87e9d65fd3717c545aab7cf873b68534187616e14ec6cb10849da2fa",
+    "workflow/candidate.json": "914273fa8a2d90573a434cf6761134fa89f091db9efbbb73bc3d81fa753e35dc",
+    "workflow/workflow-result.json": "f98f965c44793881cdeb5357c42160c2cda0cd2cbf4c46e5dfd80baeb3b01c43",
+    "workflow/calls/01-extract/request.json": "4e367839c443031dbe9d5b611bb6b6e78af24818652d72ba5de452d89d5865af",
+    "workflow/calls/01-extract/response.json": "71648c0118a3d0147d8b3b22cb4aced6383a062ade1349e5d69e5fd6b521a7e2"
+  }
+}

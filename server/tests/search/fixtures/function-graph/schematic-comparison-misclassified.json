@@ -1,0 +1,204 @@
+{
+  "provenance": "Recorded text classification failure c6abbca01536; reviewed figure facts. No successful photo claim.",
+  "text_candidate": {
+    "original_text": "【变式3】若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）\n\nA. [图象]\nB. [图象]\nC. [图象]\nD. [图象]",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "exact_equivalence",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "a",
+              "label": "A"
+            },
+            {
+              "option_id": "b",
+              "label": "B"
+            },
+            {
+              "option_id": "c",
+              "label": "C"
+            },
+            {
+              "option_id": "d",
+              "label": "D"
+            }
+          ],
+          "source_graph": {
+            "function": "f"
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "图象"
+                },
+                {
+                  "label": "B",
+                  "text": "图象"
+                },
+                {
+                  "label": "C",
+                  "text": "图象"
+                },
+                {
+                  "label": "D",
+                  "text": "图象"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "present",
+        "regions": [
+          {
+            "id": "figure-1",
+            "role": "statement",
+            "target_ref": "/root/goals/0",
+            "box": [
+              0.405,
+              0.1,
+              0.585,
+              0.245
+            ]
+          },
+          {
+            "id": "figure-2",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "a",
+            "label": "A",
+            "box": [
+              0.065,
+              0.285,
+              0.255,
+              0.445
+            ]
+          },
+          {
+            "id": "figure-3",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "b",
+            "label": "B",
+            "box": [
+              0.295,
+              0.285,
+              0.485,
+              0.445
+            ]
+          },
+          {
+            "id": "figure-4",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "c",
+            "label": "C",
+            "box": [
+              0.525,
+              0.285,
+              0.715,
+              0.445
+            ]
+          },
+          {
+            "id": "figure-5",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "d",
+            "label": "D",
+            "box": [
+              0.755,
+              0.285,
+              0.945,
+              0.445
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "figures": [
+    {
+      "figure_id": "figure-1",
+      "facts": {
+        "shape": "shown_monotone_curve",
+        "direction": "increasing",
+        "x_intercept": {
+          "x": "0",
+          "evidence": "origin"
+        }
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-2",
+      "facts": {
+        "shape": "shown_monotone_curve",
+        "direction": "increasing",
+        "x_intercept": {
+          "x": "2",
+          "evidence": "labelled"
+        }
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-3",
+      "facts": {
+        "shape": "shown_monotone_curve",
+        "direction": "increasing",
+        "x_intercept": {
+          "x": "-2",
+          "evidence": "labelled"
+        }
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-4",
+      "facts": {
+        "shape": "shown_monotone_curve",
+        "direction": "decreasing",
+        "x_intercept": {
+          "x": "2",
+          "evidence": "labelled"
+        }
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-5",
+      "facts": {
+        "shape": "shown_monotone_curve",
+        "direction": "decreasing",
+        "x_intercept": {
+          "x": "-2",
+          "evidence": "labelled"
+        }
+      },
+      "uncertainties": []
+    }
+  ]
+}

@@ -7,16 +7,17 @@
   <meta name="theme-color" content="#f5f7f5">
   <title>拍题学 · 数学说</title>
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
-  <link rel="stylesheet" href="/assets/graph-walk/walk.css?v=20261031-derivation-stack" id="pq-walk-css">
+  <link rel="stylesheet" href="/assets/graph-walk/walk.css?v=20261103-formula-fit" id="pq-walk-css">
   <link rel="stylesheet" href="search.css">
   <link rel="stylesheet" href="problem.css">
+  <link rel="stylesheet" href="/assets/practice/question-figures.css?v=20261102-g1-actions">
   <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
   <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
   <script src="/assets/practice/math-text.js" defer></script>
-  <script src="/assets/practice/components.js?v=20261022-axis-family" defer></script>
+  <script src="/assets/practice/components.js?v=20261102-graph-g1-actions" defer></script>
   <script src="search-session.js?v=1" defer></script>
   <script src="search-errors.js?v=20261025-admission-review" defer></script>
-  <script src="problem.js?v=20261030-function-range" defer></script>
+  <script src="problem.js?v=20261103-formula-fit" defer></script>
   <script type="module" src="../../assets/auth/site-auth.js?v=4"></script>
 </head>
 <body class="sq-page" data-walk="mount">
@@ -48,6 +49,7 @@
         </div>
         <nav class="pq-parts" id="pq-parts" aria-label="跳到小问" hidden></nav>
         <div class="pq-text" id="pq-text"></div>
+        <div id="pq-figures" hidden></div>
         <section class="pq-meaning" id="pq-meaning" aria-labelledby="pq-meaning-title" hidden>
           <h2 id="pq-meaning-title">题意整理</h2>
           <div id="pq-meaning-body"></div>
@@ -75,6 +77,7 @@
     <!-- 失败 -->
     <section class="pq-fail" id="pq-fail" hidden>
       <div class="pq-fail-photo"><img id="pq-fail-img" alt="你拍的题目"></div>
+      <div id="pq-fail-figures" hidden></div>
       <div class="pq-fail-card">
         <span class="pq-fail-icon" id="pq-fail-icon" aria-hidden="true"></span>
         <h1 id="pq-fail-title"></h1>

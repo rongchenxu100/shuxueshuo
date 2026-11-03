@@ -1,0 +1,1135 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式1】设函数 $f(x)=|x^2-2x-3|$。\n（1）在平面直角坐标系中画出它的图象；\n（2）解不等式 $f(x)≥3$。",
+    "root": {
+      "definitions": [
+        "f(x)=abs(x^2-2*x-3)"
+      ],
+      "children": [
+        {
+          "label": "（1）",
+          "goals": [
+            {
+              "kind": "draw_function_graph",
+              "expression": "abs(x^2-2*x-3)",
+              "variable": "x"
+            }
+          ]
+        },
+        {
+          "label": "（2）",
+          "goals": [
+            {
+              "kind": "solve_graph_inequality",
+              "expression": "abs(x^2-2*x-3)",
+              "variable": "x",
+              "operator": ">=",
+              "level": "3"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)=|x^2-2x-3|$。",
+          "choices": []
+        },
+        {
+          "scope_ref": "/root/children/0",
+          "statement": "在平面直角坐标系中画出它的图象。",
+          "choices": [
+            {
+              "target_ref": "/root/children/0/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        },
+        {
+          "scope_ref": "/root/children/1",
+          "statement": "解不等式 $f(x)≥3$。",
+          "choices": [
+            {
+              "target_ref": "/root/children/1/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【变式1】设函数 $f(x)=|x^2-2x-3|$。\n（1）在平面直角坐标系中画出它的图象；\n（2）解不等式 $f(x)≥3$。",
+    "root": {
+      "definitions": [
+        "f(x)=abs(x^2-2*x-3)"
+      ],
+      "children": [
+        {
+          "label": "（1）",
+          "goals": [
+            {
+              "kind": "draw_function_graph",
+              "expression": "abs(x^2-2*x-3)",
+              "variable": "x"
+            }
+          ]
+        },
+        {
+          "label": "（2）",
+          "goals": [
+            {
+              "kind": "solve_graph_inequality",
+              "expression": "abs(x^2-2*x-3)",
+              "variable": "x",
+              "operator": ">=",
+              "level": "3"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)=|x^2-2x-3|$。",
+          "choices": []
+        },
+        {
+          "scope_ref": "/root/children/0",
+          "statement": "在平面直角坐标系中画出它的图象。",
+          "choices": [
+            {
+              "target_ref": "/root/children/0/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        },
+        {
+          "scope_ref": "/root/children/1",
+          "statement": "解不等式 $f(x)≥3$。",
+          "choices": [
+            {
+              "target_ref": "/root/children/1/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "abs",
+                  [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "abs",
+                  [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Symbol('n_cd8d3b947bdc3fc16b63ff7091808b17cd581805991a49944df1947680cbbe5b', real=True)"
+            ]
+          ]
+        ],
+        "goals": [],
+        "uncertainties": [],
+        "children": [
+          {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "draw_function_graph",
+                "expression": "abs(x^2-2*x-3)",
+                "variable": "x"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "solve_graph_inequality",
+                "expression": "abs(x^2-2*x-3)",
+                "variable": "x",
+                "operator": ">=",
+                "level": "3"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          }
+        ]
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "abs",
+              [
+                "-",
+                [
+                  "-",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [],
+        "uncertainties": [],
+        "children": [
+          {
+            "scope": "r.c0",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "draw_function_graph",
+                "expression": "abs(x^2-2*x-3)",
+                "variable": "x",
+                "target": [
+                  "call",
+                  "abs",
+                  [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r.c0.goals[0]:scalar:x",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r.c0.goals[0]:scalar:x",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          {
+            "scope": "r.c1",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "solve_graph_inequality",
+                "expression": "abs(x^2-2*x-3)",
+                "variable": "x",
+                "operator": ">=",
+                "level": "3",
+                "target": [
+                  "call",
+                  "abs",
+                  [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r.c1.goals[0]:scalar:x",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r.c1.goals[0]:scalar:x",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          }
+        ]
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"abs\",[\"-\",[\"-\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"number\",\"3\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=abs(x^2-2*x-3)"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "abs",
+                [
+                  "-",
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "abs",
+                [
+                  "-",
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t2-b09-v1-photo",
+      "source_sha256": "a1c9ee5942e1b04b7f711d395ce51d7ddc214ef4b8092f55bf8f8f0c3c581bf1"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "abs",
+                      [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Symbol('n_cd8d3b947bdc3fc16b63ff7091808b17cd581805991a49944df1947680cbbe5b', real=True)"
+                ]
+              ]
+            ],
+            "goals": [],
+            "uncertainties": [],
+            "children": [
+              {
+                "facts": [
+                  []
+                ],
+                "goals": [
+                  {
+                    "kind": "draw_function_graph",
+                    "expression": "abs(x^2-2*x-3)",
+                    "variable": "x"
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              },
+              {
+                "facts": [
+                  []
+                ],
+                "goals": [
+                  {
+                    "kind": "solve_graph_inequality",
+                    "expression": "abs(x^2-2*x-3)",
+                    "variable": "x",
+                    "operator": ">=",
+                    "level": "3"
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              }
+            ]
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "abs",
+                  [
+                    "-",
+                    [
+                      "-",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [],
+            "uncertainties": [],
+            "children": [
+              {
+                "scope": "r.c0",
+                "facts": [],
+                "goals": [
+                  {
+                    "kind": "draw_function_graph",
+                    "expression": "abs(x^2-2*x-3)",
+                    "variable": "x",
+                    "target": [
+                      "call",
+                      "abs",
+                      [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "ref",
+                              "r.c0.goals[0]:scalar:x",
+                              "scalar"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "ref",
+                              "r.c0.goals[0]:scalar:x",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              },
+              {
+                "scope": "r.c1",
+                "facts": [],
+                "goals": [
+                  {
+                    "kind": "solve_graph_inequality",
+                    "expression": "abs(x^2-2*x-3)",
+                    "variable": "x",
+                    "operator": ">=",
+                    "level": "3",
+                    "target": [
+                      "call",
+                      "abs",
+                      [
+                        "-",
+                        [
+                          "-",
+                          [
+                            "^",
+                            [
+                              "ref",
+                              "r.c1.goals[0]:scalar:x",
+                              "scalar"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "ref",
+                              "r.c1.goals[0]:scalar:x",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ]
+                  }
+                ],
+                "uncertainties": [],
+                "children": []
+              }
+            ]
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"abs\",[\"-\",[\"-\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"number\",\"3\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=abs(x^2-2*x-3)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "-",
+                      [
+                        "-",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "-",
+                      [
+                        "-",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t2-b09-v1-photo",
+          "source_sha256": "a1c9ee5942e1b04b7f711d395ce51d7ddc214ef4b8092f55bf8f8f0c3c581bf1"
+        }
+      },
+      "revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "62fe9708df6e1bcce2de23dacc2e047597f5629899672147b853be66b14fb074",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

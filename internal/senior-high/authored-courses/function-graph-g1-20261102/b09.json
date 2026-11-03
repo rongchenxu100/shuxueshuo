@@ -1,0 +1,97 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b09",
+  "reviewer": "Codex：对照用户提供的第95页例9题干、坐标标注与原选项。此记录是人工转录，不是照片识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-06.png",
+      "sha256": "6608a3df5ccd629a706eb5b45c528be8ffd8e6c24a0316da0764bb31dde67373",
+      "location": "第95页例9，原图第6张"
+    }
+  ],
+  "candidate": {
+    "original_text": "函数 $f(x)=|x-1|+1$ 的部分图像大致是（ ）。选项 A、B、C、D 见原图。",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(x-1)+1",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "expected": {
+    "option_id": "option-a",
+    "label": "A",
+    "vertex": [
+      "1",
+      "1"
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

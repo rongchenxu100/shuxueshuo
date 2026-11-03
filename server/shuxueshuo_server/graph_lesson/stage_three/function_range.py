@@ -120,6 +120,15 @@ def admitted(context, method=None):
             and 'object' in context['goal']
             and context.get('range_goal', {}).get('structure_supported') is True):
         return False
+    if context['range_goal'].get('piecewise'):
+        from ...problem_understanding.notation_parser import NotationError
+        from ..piecewise_range import METHOD
+        from ..piecewise_range import inputs as piecewise_inputs
+        try:
+            piecewise_inputs(context['range_goal'])
+        except (NotationError, CapabilityGap, ValueError):
+            return False
+        return method in (None, METHOD)
     try:
         _, _, domain = inputs(context['range_goal'])
         from .finite_range import finite_task, input_rows
@@ -438,6 +447,9 @@ def process_context(context, feasible_set):
     if context['goal']['kind'] == 'select_range_domain':
         if not admitted(context):
             raise CapabilityGap('range_task.unsupported_domain_options')
+    elif context.get('range_goal', {}).get('piecewise'):
+        from ..piecewise_range import inputs as piecewise_inputs
+        piecewise_inputs(context['range_goal'])
     else:
         inputs(context['range_goal'])
     # Definition, declared domain and extra restrictions have all been read by
@@ -476,6 +488,9 @@ def independent_verify(candidate, target_ref, context, proposed):
                 'diagnostics': [{'code': 'range.source_context_mismatch'}]}
     from .verification import check_context, collect_original
     check_context(collect_original(candidate, target_ref), context)
+    if description.get('piecewise'):
+        from ..piecewise_range import independent_verify as verify_pieces
+        return verify_pieces(description, proposed)
     expression, variable, domain = inputs(description)
     if isinstance(domain, sp.FiniteSet) or description.get('rational'):
         expected, pieces = original_image(expression, variable, domain)
@@ -520,6 +535,9 @@ def independent_verify(candidate, target_ref, context, proposed):
 
 def image_endpoints(candidate, target_ref, image):
     desc = inspect_range_target(candidate, target_ref)
+    if desc.get('piecewise'):
+        from ..piecewise_range import endpoint_witnesses
+        return endpoint_witnesses(desc, image)
     expression, variable, domain = inputs(desc)
     if desc['radical']:
         expression = sp.Rational(desc['shift']) + sp.Rational(desc['scale'])*sp.sqrt(expression)

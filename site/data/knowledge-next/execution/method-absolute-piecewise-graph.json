@@ -1,0 +1,115 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-absolute-piecewise-graph",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "construct",
+      "calls": [
+        {
+          "id": "model",
+          "capability": "construct_absolute_graph",
+          "public_ref": "skill-absolute-sign-split",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "graph_result": "graph_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "zeros",
+          "after": "model",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "zeros",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        },
+        {
+          "id": "segments",
+          "after": "model",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "segments",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        },
+        {
+          "id": "assemble",
+          "after": "model",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "assemble",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "graph_result": "$graph_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "absolute_graph",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -468,6 +468,45 @@
               },
               {
                 "$ref": "#/$defs/FindRelationRangeGoal"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object",
+                  "range",
+                  "symbol"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "match_range",
+                    "description": "已知函数值域恰为题给集合，求参数范围"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "range": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "题面给出的完整值域，不是求解答案"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "additionalProperties": false,
+                "description": "已知函数值域恰为题给集合，求参数范围。"
+              },
+              {
+                "$ref": "#/$defs/BuildPiecewiseModelGoal"
+              },
+              {
+                "$ref": "#/$defs/FindPricingInputGoal"
               }
             ]
           },
@@ -1602,6 +1641,122 @@
         }
       },
       "description": "由题给函数关系与类型，求满足原不等式的自变量范围。"
+    },
+    "PiecewisePricing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "quantity",
+        "amount",
+        "quantity_unit",
+        "amount_unit",
+        "quantity_domain",
+        "thresholds",
+        "rates"
+      ],
+      "properties": {
+        "mode": {
+          "const": "marginal"
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "quantity_unit": {
+          "const": "千瓦时"
+        },
+        "amount_unit": {
+          "const": "元"
+        },
+        "quantity_domain": {
+          "const": "nonnegative_real"
+        },
+        "thresholds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          }
+        },
+        "rates": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          }
+        }
+      }
+    },
+    "BuildPiecewiseModelGoal": {
+      "type": "object",
+      "description": "按题给分档规则，求总费用与用量的函数关系。",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "object",
+        "pricing",
+        "source_text",
+        "bill"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_equation"
+        },
+        "object": {
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/PiecewisePricing"
+        },
+        "source_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bill": {
+          "type": "string",
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+        }
+      }
+    },
+    "FindPricingInputGoal": {
+      "type": "object",
+      "description": "按题给分档规则及总费用，求用量范围。",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "symbol",
+        "pricing",
+        "source_text",
+        "bill"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_range"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/PiecewisePricing"
+        },
+        "source_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bill": {
+          "type": "string",
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+        }
+      }
     }
   },
   "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"

@@ -12,6 +12,7 @@ async function checkPracticeContent() {
   practiceAccess.enabled = false;
   practiceAccess.reason = '';
   practiceAccess.contentVersion = null;
+  practiceAccess.practiceVersion = null;
   practiceAccess.problem = null;
   const read = async url => {
     const response = await fetch(url, {cache: 'no-cache', signal: AbortSignal.timeout(15000)});
@@ -28,17 +29,12 @@ async function checkPracticeContent() {
     practiceAccess.published = Boolean(entry && entry.path === location.pathname.replace(/index\.html$/, ''));
     practiceKnowledgeNext = practiceAccess.published;
     if (!practiceAccess.published || practiceKnowledgePreview) return practiceAccess;
-    const [content, version, problem] = await Promise.all([
-      read('/api/learning/content'),
-      read('/knowledge/teaching/version.json'),
+    const [compatibility, problem] = await Promise.all([
+      import(new URL('../learning/practice-compatibility.mjs', practiceRuntimeSrc).href),
       read(`/knowledge/teaching/problems/${encodeURIComponent(lessonId)}.json`)
     ]);
-    if (content.schema_version !== 2 || !content.content_version) throw Error('学习服务版本信息不完整');
-    if (registry.content_version !== content.content_version || version.content_version !== content.content_version ||
-        problem.content_version !== version.content_version) {
-      throw Error('页面与学习服务的内容版本不同，请刷新页面后再保存。');
-    }
-    practiceAccess.contentVersion = version.content_version;
+    Object.assign(practiceAccess, await compatibility.checkPracticeCompatibility(
+      JSON.parse(document.getElementById('practice-config').textContent), problem, read));
     practiceAccess.problem = problem;
     practiceAccess.enabled = true;
   } catch (error) {
@@ -113,7 +109,7 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
     const moduleURL = new URL('../learning/practice-records.js', runtimeSrc);
     if (recorderLoadAttempts++) moduleURL.searchParams.set('retry', String(recorderLoadAttempts));
     const module = await import(moduleURL.href);
-    recorder = module.createRecorder(lesson, restorePractice, {contentVersion: access.contentVersion, onConfirmed: history => {
+    recorder = module.createRecorder(lesson, restorePractice, {contentVersion: access.contentVersion, practiceVersion: access.practiceVersion, onConfirmed: history => {
       if (history.route_id !== state.method) return;
       confirmedProgress(history);
       if (preview) preview.update(snapshot);
@@ -269,7 +265,7 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
           if (thisGeneration !== generation) return;
           if (!remote) {
             const started = await post(`${api}/sessions`, {lesson_id: lesson.id,
-              ...(payload.practice_attempt_id ? {practice_attempt_id:payload.practice_attempt_id, content_version:practiceAccess.contentVersion} : {})});
+              ...(payload.practice_attempt_id ? {practice_attempt_id:payload.practice_attempt_id, practice_version:practiceAccess.practiceVersion} : {})});
             if (thisGeneration !== generation) return;
             if (payload.practice_attempt_id) {
               // Confirmed submissions were restored by the server. Only synchronize
@@ -286,9 +282,11 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
               payload.pending_operations = structuredClone(pendingOperations);
               payload.revision = started.revision;
             }
-            remote = {session_id: started.session_id, revision: started.revision, user_id: user.id, practiceAttemptId: payload.practice_attempt_id || null};
+            remote = {session_id: started.session_id, revision: started.revision, user_id: user.id, practiceAttemptId: payload.practice_attempt_id || null,
+              lessonVersion: started.lesson_version};
           }
           if (remote.user_id !== user.id) { restart(); return; }
+          if (remote.practiceAttemptId && remote.lessonVersion != null) payload.lesson_version = remote.lessonVersion;
           data = await post(`${api}/sessions/${remote.session_id}/events`, payload);
           break;
         } catch (error) {
@@ -312,7 +310,8 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
       const acknowledged = new Set(payload.pending_operations.map(operation => operation.event_id));
       const tail = pendingOperations.filter(operation => !acknowledged.has(operation.event_id));
       const merged = PracticeContext.reconcile(data, tail, lesson);
-      remote = {session_id: data.session_id, revision: data.revision, user_id: user.id, practiceAttemptId: payload.practice_attempt_id || remote?.practiceAttemptId || null};
+      remote = {session_id: data.session_id, revision: data.revision, user_id: user.id, practiceAttemptId: payload.practice_attempt_id || remote?.practiceAttemptId || null,
+        lessonVersion: data.lesson_version};
       pendingOperations = merged.remaining;
       acceptSnapshot(merged.view);
       if (payload.practice_attempt_id) recorderReady.then(r => practiceAccess.enabled && r?.routed(snapshot));
@@ -842,7 +841,7 @@ const practiceAuthReady = !practiceKnowledgePreview && practiceRuntimeSrc
         preview = await module.createPreview(lesson, host, {
           learning: !practiceKnowledgePreview,
           useServerProgress,
-          expectedContentVersion: access.contentVersion,
+          expectedPracticeVersion: access.practiceVersion,
           problem: access.problem,
           getConfirmedChoices: () => confirmedOnServer,
           getPassedFields: () => passedFieldsOnServer,

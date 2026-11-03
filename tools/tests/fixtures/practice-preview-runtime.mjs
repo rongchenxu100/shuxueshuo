@@ -54,6 +54,8 @@ class Element {
 }
 const { nodes, manifest } = await loadSources(),
   teaching = await loadTeaching(repoRoot, nodes, manifest);
+const legacyLessons = [...teaching.lessons].filter(([, lesson]) => lesson.runtime !== 'graph-walk');
+const routeCount = legacyLessons.reduce((sum, [, lesson]) => sum + Object.keys(lesson.routes).length, 0);
 const scripts = await Promise.all(
   ['context.js', 'components.js', 'runtime.js'].map((f) =>
     fs.readFile(path.join(repoRoot, 'site/assets/practice', f), 'utf8')
@@ -63,7 +65,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
 let total = 0;
 for (const previewSearch of ['?knowledge=next', '?preview=1&knowledge=next&learning=1'])
 for (const signedIn of [false, true])
-  for (const [pid, lesson] of teaching.lessons) {
+  for (const [pid, lesson] of legacyLessons) {
     const document = new Element(),
       window = new Element(),
       requests = [],
@@ -237,5 +239,5 @@ for (const signedIn of [false, true])
     assert.equal(imports.length, 2);
     assert.deepEqual(events, []);
   }
-assert.equal(total, teaching.counts.routes * 2);
-console.log(`${teaching.counts.routes} routes, 2 preview modes, 2 login states, failure and retry: passed`);
+assert.equal(total, routeCount * 2);
+console.log(`${routeCount} routes, 2 preview modes, 2 login states, failure and retry: passed`);

@@ -87,6 +87,18 @@ def _advance_visible(state, contracts):
 
 def dispatch(payload):
     operation = payload["operation"]
+    if operation == 'verify_function_graph':
+        from .graph_transform_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'], payload['graph_result_exact'])
+    if operation == 'finish_function_graph':
+        from .graph_transform_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_model':
+        from ..piecewise_modeling import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'], payload['model_result_exact'])
+    if operation == 'finish_model':
+        from ..piecewise_modeling import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
     if operation == 'verify_formula':
         from .formula_runtime import verify_frozen
         return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],

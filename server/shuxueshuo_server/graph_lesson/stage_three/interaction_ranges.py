@@ -51,12 +51,14 @@ def register(api):
         if function is None and values.get("before") and isinstance(values["before"][0], sp.Expr):
             function = values["before"][0]
         variable = values.get("x", context["x"])
-        name = api.named_function(values, function, variable)
+        name = values.get('range_label') or api.named_function(values, function, variable)
         return {"answer": answer, "function": function, "parameter": context.get("parameter"),
                 "x": variable, "domain": values.get("domain", context["domain"]),
                 "case_domain": values.get("case", {}).get("domain", sp.S.Reals),
                 "display": {"function": name or (function if function is not None else "该函数"),
                             "subject": f"${name}$ " if name else "本步的函数",
+                            "range_title": values.get('range_title', '确定函数值的范围'),
+                            "range_identity": values.get('range_identity', ''), "x": variable,
                             "domain": values.get("domain", context["domain"])}}
 
     def answer_set(facts):
@@ -87,6 +89,15 @@ def register(api):
     def range_graph(facts, values, context):
         if facts["function"] is None:
             raise api.GraphUnavailable("function_missing")
+        function, variable, domain = facts['function'], facts['x'], facts['domain']
+        if function.free_symbols <= {variable} and function.is_polynomial(variable) and sp.degree(function, variable) == 2:
+            name = values.get('range_label') or api.named_function(values, function, variable)
+            formula = f'{name}={api.latex(function)}' if name else f'y={api.latex(function)}'
+            return api.drawing.interval_function_graph(
+                function, variable, domain,
+                title=f'y={api.drawing.plain(function)} 在 {api.drawing.plain(domain)} 上的图像',
+                caption=f'${formula}$，${api.latex(variable)}\\in{api.latex(domain)}$。'
+                        '深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取')
         return api.function_stem({**facts, "known": sp.Intersection(facts["known"], facts["case_domain"])},
                                    values, context)
 
@@ -162,9 +173,11 @@ def register(api):
         function = values.get("function")
         if function is None:
             raise api.GraphUnavailable("function_missing")
-        return api.function_stem({"function": function, "x": values["x"], "domain": values["domain"],
-                                    "parameter": context.get("parameter"), "known": api.known_set(seeds[0])},
-                                   values, context)
+        return range_graph({"function": function, "x": values.get("x", context["x"]),
+                            "domain": values.get("domain", context["domain"]),
+                            "case_domain": values.get("case", {}).get("domain", sp.S.Reals),
+                            "parameter": context.get("parameter"), "known": api.known_set(seeds[0])},
+                           values, context)
 
     # --- The hook ax+b/x+c: its turn, where the interval sits, then the range ---------
 

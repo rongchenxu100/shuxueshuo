@@ -6,7 +6,7 @@ root.label 存在时，用 root_label_role 区分来源题号与有题意的标�
 
 每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none、selection_mode=none、options=[]。有选项时逐项保留原标签和原顺序，包括文本选项。完整三选题合法，选项缺失、被截断或无法确认数量必须标 incomplete/unknown。单选、多选按原文，明确不定项选择记 multiple；原题未明示选择模式时为 unspecified，不能由常见题型或正确项数量推断。比较题未注明模式时系统默认按不定项选择处理，选出全部符合题意的项、项数不预设、精确集合评分；公开来源字段仍保留 unspecified。compare_functions 的目标与对应公开 choices 必须保留同一个选择模式，包括 unspecified；它不表示题目缺失，也不要求把完整选项改为 incomplete。不得从 root 或答案推断选项。选项属于哪一问不确定时不得声明完整。
 
-completeness=complete 需要完整共同题干、完整条件、全部小问和各问所求；只截到单个小问、末尾被截断等必须 incomplete/unknown。figure=not_required 仅限无需图形即可确定完整题意；图形提供额外必要信息、图形选项或不能确定图形作用时均为 unrepresented。本版不将图形题按文字合并，但仍保留其私有提取结果。
+completeness=complete 需要完整共同题干、完整条件、全部小问和各问所求；只截到单个小问、末尾被截断等必须 incomplete/unknown。figure=not_required 仅限无需读取配图即可确定完整题意；需要读取配图或无法确认时为 unrepresented，图形事实由后续独立补充，不根据题干或答案猜测。
 
 抽象函数定义域题的 public_content.statement 同时保留已知调用、它的原给定域和所求调用；例如 f(t) 的已知定义域与 f(2x-1) 的所求定义域不能合并为一个“f 的定义域”。没有给具体解析式本身不构成不完整；不要补造解析式、把已知域移到所求域、把推导答案写入公开题干，或改变已知哑变量与目标外层变量。root 使用共用规则中的 find_abstract_domain，公开投影仍是完整题面原文；这同样适用于提取、复核和修复。
 
@@ -23,3 +23,5 @@ completeness=complete 需要完整共同题干、完整条件、全部小问和�
 ### 值域作为中间结果的原题目标
 - 题给值域并从选项选择定义域端点组合时，用 `select_range_domain`。保留 `object`、原区间 `domain_template`（如 `[a,b]`）、有序 `parameters`、题给 `expected_range`、`select_relation`（可能为 `matches`，不可能为 `differs`）、选择模式和完整 `options`；每项只抄 `label`、原 `text`、按参数顺序的 `values`。未知端点不是固定系数，不把 `[a,b]` 填成已知的 `Dom(f)`。选项原文、顺序和选择模式须与 public_content 一致；有缺项或遮挡则报告不确定，不补猜。
 - 函数的提问方式通过 `find_range` 的 `answer_request` 保留，`object` 引用原函数，题给输入范围照录。`kind="extremum"` 指定 `quantity="minimum"/"maximum"`；最大值为 a、最小值为 b，求 a+b 时，用 `answer_request={"kind":"expression","bindings":[{"symbol":"a","quantity":"maximum"},{"symbol":"b","quantity":"minimum"}],"expression":"a+b"}`。只记录原题角色和运算，不计算结果。题目直接说“最大值与最小值的和/差/积/商”时，可用 a、b 作为这两个量的内部别名；运算及顺序严格对应原文。明确问上确界/下确界才用 supremum/infimum，不能替代最大/最小值。判断值域是否为题给集合时，用 `answer_request={"kind":"compare_set","relation":"equal","expected":"原题给定集合"}`；明确问不等于时 relation 为 not_equal。普通求值域省略 answer_request。兼容历史 find_extrema_expression，但新提取优先使用此统一表示。不能把命名最值当作解析式的自由参数，也不能把原题要求丢成仅求值域。
+
+同时填写 figure_detection：无配图为 none，有配图为 present，不能确定或题干引用的图未拍到为 uncertain。有图时只标出区域及其对应目标；role 区分题干图 statement、选项图 option、空白作图区 workspace。裁框覆盖坐标轴、曲线及标注，使用同一裁剪框归一化坐标（same-crop-normalized），与 processed/original 像素尺寸无关；依次为左、上、右、下，范围 0 到 1。不把公式排版或解析里的图当题给配图。本轮只提取文字内容及图形位置，不读取图中的数学事实。

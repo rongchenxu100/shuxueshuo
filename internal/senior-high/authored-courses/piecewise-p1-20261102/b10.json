@@ -1,0 +1,26 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b10",
+  "reviewer": "Codex · 2026-11-02 核对图8第97页例10题干与分段开闭",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-08.png",
+      "sha256": "15671e61ea0ea57d21b73415ebb42f2959bc25161b35b622c40a915e63bd24fe",
+      "location": "第97页底部例10，原题完整，无需续页解析"
+    }
+  ],
+  "candidate": {
+    "original_text": "设函数 $f(x)=\\begin{cases}x+1,&x\\le0\\\\x^2-3,&x>0\\end{cases}$，则 $f(f(\\sqrt2))$ 的值为____。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x+1,x<=0,x^2-3,x>0)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(f(sqrt(2)))"
+        }
+      ]
+    }
+  }
+}

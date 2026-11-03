@@ -51,7 +51,15 @@
       "method-function-matching",
       "method-function-coefficients",
       "method-function-equation-system",
-      "method-function-assignment"
+      "method-function-assignment",
+      "method-function-graph-transform",
+      "method-absolute-piecewise-graph",
+      "method-piecewise-graph-inequality",
+      "method-piecewise-equation",
+      "method-piecewise-inequality",
+      "method-piecewise-range",
+      "method-piecewise-range-parameter",
+      "method-piecewise-modeling"
     ]
   }
 }

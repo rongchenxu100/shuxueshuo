@@ -43,6 +43,19 @@ def test_student_input_never_claims_gold_evaluation():
     assert "evaluation" not in statuses and "passed" not in statuses
 
 
+def test_saved_plain_question_can_generate_and_retry_without_rewriting_recognition(tmp_path):
+    result = search_result('q04')
+    original = deepcopy(result)
+    def no_selection():
+        raise AssertionError('this recorded question has one supported type')
+    for attempt in ('initial', 'retry'):
+        output = run_stage_two(tmp_path / attempt, result, provider=no_selection,
+                               unsupported_root=tmp_path / 'unsupported')
+        assert output['status'] == 'completed', output['input_diagnostics']
+        assert output['goals'][0]['primary'] == 'type-quantified-quadratic'
+    assert result == original
+
+
 @pytest.mark.parametrize("case", ["q02", "q03", "q04", "q05", "q06", "q07", "q08", "q09", "q10", "q11"])
 def test_every_row_has_one_correct_reading_and_whole_formulas(case, tmp_path):
     for goal in lesson(case, tmp_path)["goals"]:
@@ -191,7 +204,7 @@ def client(tmp_path, monkeypatch):
 
 
 def start(client, monkeypatch, case):
-    def fake_run(png, output, provider, *, problem_id):
+    def fake_run(png, output, provider, *, problem_id, original_png=None, read_graph_details=False):
         result = {**search_result(case), "question_sha256": "a", "sent_image_sha256": ["a"]}
         candidate = deepcopy(result["candidate"])
         children = candidate["root"].get("children", [])

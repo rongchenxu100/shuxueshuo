@@ -21,6 +21,7 @@ def public_candidate(case="q01"):
     candidate = json.loads((CORPUS / case / "notation.gold.json").read_text(encoding="utf-8"))
     candidate["public_content"] = {
         "completeness": "complete", "privacy": "separated", "figure": "not_required",
+        "figure_detection": {"status": "none", "regions": []},
         "scopes": [{"scope_ref": "/root", "statement": candidate["original_text"],
                     "choices": [{"target_ref": "/root/goals/0", "status": "none", "selection_mode": "none", "options": []}]}],
     }

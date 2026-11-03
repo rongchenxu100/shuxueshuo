@@ -1,0 +1,384 @@
+{
+  "provenance": {
+    "source": "b66ff9aa2c49; same developer photo as b09-v3-reviewed-recorded-20261102",
+    "note": "Recorded initial text and review; box-patch reply is authored from the final reviewed coordinates, not a new live result."
+  },
+  "candidate": {
+    "original_text": "【变式3】 若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）\nA. （图）\nB. （图）\nC. （图）\nD. （图）",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "a",
+              "label": "A"
+            },
+            {
+              "option_id": "b",
+              "label": "B"
+            },
+            {
+              "option_id": "c",
+              "label": "C"
+            },
+            {
+              "option_id": "d",
+              "label": "D"
+            }
+          ],
+          "source_graph": {
+            "function": "f"
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "B",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "C",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "D",
+                  "text": "（图形选项）"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "present",
+        "regions": [
+          {
+            "id": "figure-1",
+            "role": "statement",
+            "target_ref": "/root/goals/0",
+            "box": [
+              0.42,
+              0.115,
+              0.61,
+              0.25
+            ]
+          },
+          {
+            "id": "figure-2",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "a",
+            "label": "A",
+            "box": [
+              0.105,
+              0.28,
+              0.235,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-3",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "b",
+            "label": "B",
+            "box": [
+              0.32,
+              0.28,
+              0.45,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-4",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "c",
+            "label": "C",
+            "box": [
+              0.52,
+              0.28,
+              0.65,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-5",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "d",
+            "label": "D",
+            "box": [
+              0.75,
+              0.28,
+              0.88,
+              0.475
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "review": {
+    "status": "correction_required",
+    "findings": [
+      {
+        "path": "/public_content/figure_detection/regions/0/box",
+        "kind": "wrong_public_content",
+        "source_excerpt": "题给 f(x) 图象的 y 轴顶端箭头及曲线上部。",
+        "message": "候选框上边界为 0.115，低于原图题给函数图象的 y 轴箭头和曲线上端，未完整覆盖坐标轴与曲线；应上移或扩大上边界以覆盖完整题干配图。"
+      },
+      {
+        "path": "/public_content/figure_detection/regions/1/box",
+        "kind": "wrong_public_content",
+        "source_excerpt": "A图：x轴标有 0、1、2、3、4，曲线向右上延伸。",
+        "message": "候选框右边界为 0.235（约 x=303/1290），过窄，未覆盖 A 图右侧刻度 4 及曲线末端；应扩大右边界覆盖完整 A 图。"
+      },
+      {
+        "path": "/public_content/figure_detection/regions/2/box",
+        "kind": "wrong_public_content",
+        "source_excerpt": "B图：x轴标有 -4、-3、-2、-1、O，曲线向右上延伸。",
+        "message": "候选框右边界为 0.45（约 x=581/1290），未覆盖 B 图右端的 O 标注和曲线末端；应向右扩大该区域。"
+      },
+      {
+        "path": "/public_content/figure_detection/regions/3/box",
+        "kind": "wrong_public_content",
+        "source_excerpt": "C图：x轴标有 O、1、2、3、4，曲线向右下延伸。",
+        "message": "候选框右边界为 0.65（约 x=839/1290），未覆盖 C 图右侧刻度 3、4 及曲线末端；应扩大右边界覆盖完整 C 图。"
+      },
+      {
+        "path": "/public_content/figure_detection/regions/4/box",
+        "kind": "wrong_public_content",
+        "source_excerpt": "D图：x轴标有 -4、-3、-2、-1、O，曲线向右下延伸。",
+        "message": "候选框右边界为 0.88（约 x=1135/1290），未覆盖 D 图右端的 O 标注和曲线末端；应向右扩大该区域。"
+      }
+    ]
+  },
+  "corrected": {
+    "original_text": "【变式3】 若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）\nA. （图）\nB. （图）\nC. （图）\nD. （图）",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "a",
+              "label": "A"
+            },
+            {
+              "option_id": "b",
+              "label": "B"
+            },
+            {
+              "option_id": "c",
+              "label": "C"
+            },
+            {
+              "option_id": "d",
+              "label": "D"
+            }
+          ],
+          "source_graph": {
+            "function": "f"
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "B",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "C",
+                  "text": "（图形选项）"
+                },
+                {
+                  "label": "D",
+                  "text": "（图形选项）"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "present",
+        "regions": [
+          {
+            "id": "figure-1",
+            "role": "statement",
+            "target_ref": "/root/goals/0",
+            "box": [
+              0.42,
+              0.06,
+              0.61,
+              0.25
+            ]
+          },
+          {
+            "id": "figure-2",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "a",
+            "label": "A",
+            "box": [
+              0.105,
+              0.28,
+              0.26,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-3",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "b",
+            "label": "B",
+            "box": [
+              0.32,
+              0.28,
+              0.49,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-4",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "c",
+            "label": "C",
+            "box": [
+              0.52,
+              0.28,
+              0.71,
+              0.475
+            ]
+          },
+          {
+            "id": "figure-5",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "d",
+            "label": "D",
+            "box": [
+              0.75,
+              0.28,
+              0.94,
+              0.475
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "figures": {
+    "base_revision": "e551861606777fb7b9d0d60e2e3933feb821a6429a3648901ad109cb39973492",
+    "figures": [
+      {
+        "figure_id": "figure-1",
+        "facts": {
+          "shape": "shown_monotone_curve",
+          "direction": "increasing",
+          "x_intercept": {
+            "x": "0",
+            "evidence": "origin"
+          }
+        },
+        "uncertainties": []
+      },
+      {
+        "figure_id": "figure-2",
+        "facts": {
+          "shape": "shown_monotone_curve",
+          "direction": "increasing",
+          "x_intercept": {
+            "x": "2",
+            "evidence": "labelled"
+          }
+        },
+        "uncertainties": []
+      },
+      {
+        "figure_id": "figure-3",
+        "facts": {
+          "shape": "shown_monotone_curve",
+          "direction": "increasing",
+          "x_intercept": {
+            "x": "-2",
+            "evidence": "labelled"
+          }
+        },
+        "uncertainties": []
+      },
+      {
+        "figure_id": "figure-4",
+        "facts": {
+          "shape": "shown_monotone_curve",
+          "direction": "decreasing",
+          "x_intercept": {
+            "x": "2",
+            "evidence": "labelled"
+          }
+        },
+        "uncertainties": []
+      },
+      {
+        "figure_id": "figure-5",
+        "facts": {
+          "shape": "shown_monotone_curve",
+          "direction": "decreasing",
+          "x_intercept": {
+            "x": "-2",
+            "evidence": "labelled"
+          }
+        },
+        "uncertainties": []
+      }
+    ]
+  }
+}

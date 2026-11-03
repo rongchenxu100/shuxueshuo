@@ -1,0 +1,187 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-inequality",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "level",
+      "calls": [
+        {
+          "id": "level",
+          "capability": "evaluate_piecewise_level",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "level": "level"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "level",
+          "after": "level",
+          "template": "piecewise_inequality_level",
+          "bindings": {
+            "description": "$description",
+            "level": "$level",
+            "phase": "level",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "level"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "roots",
+      "calls": [
+        {
+          "id": "roots",
+          "capability": "solve_piecewise_inequality_roots",
+          "public_ref": "skill-solve-quadratic",
+          "inputs": {
+            "description": "$description",
+            "level": "$level"
+          },
+          "outputs": {
+            "branch_roots": "branch_roots"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "signs",
+      "calls": [
+        {
+          "id": "signs",
+          "capability": "solve_piecewise_signs",
+          "public_ref": "skill-quadratic-sign",
+          "inputs": {
+            "description": "$description",
+            "level": "$level",
+            "branch_roots": "$branch_roots"
+          },
+          "outputs": {
+            "branch_solutions": "branch_solutions"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "filter",
+      "calls": [
+        {
+          "id": "filter",
+          "capability": "filter_piecewise_inequality",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "level": "$level",
+            "branch_solutions": "$branch_solutions"
+          },
+          "outputs": {
+            "branch_results": "branch_results",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "branches",
+          "after": "filter",
+          "template": "piecewise_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "level": "$level",
+            "branch_results": "$branch_results",
+            "feasible_set": "$feasible_set",
+            "phase": "branches",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "level",
+            "branch_results",
+            "feasible_set"
+          ]
+        },
+        {
+          "id": "merge",
+          "after": "filter",
+          "template": "piecewise_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "level": "$level",
+            "branch_results": "$branch_results",
+            "feasible_set": "$feasible_set",
+            "phase": "merge",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "level",
+            "branch_results",
+            "feasible_set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "feasible_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "piecewise_inequality",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

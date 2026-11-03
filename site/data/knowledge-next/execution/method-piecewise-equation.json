@@ -1,0 +1,124 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-equation",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "roots",
+          "capability": "solve_piecewise_branches",
+          "public_ref": "skill-solve-quadratic",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "branch_roots": "branch_roots"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "filter",
+      "calls": [
+        {
+          "id": "filter",
+          "capability": "filter_piecewise_branches",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "branch_roots": "$branch_roots"
+          },
+          "outputs": {
+            "branch_results": "branch_results",
+            "feasible_set": "feasible_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "branches",
+          "after": "filter",
+          "template": "piecewise_equation_derivation",
+          "bindings": {
+            "description": "$description",
+            "branch_results": "$branch_results",
+            "feasible_set": "$feasible_set",
+            "phase": "branches",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "branch_results",
+            "feasible_set"
+          ]
+        },
+        {
+          "id": "merge",
+          "after": "filter",
+          "template": "piecewise_equation_derivation",
+          "bindings": {
+            "description": "$description",
+            "branch_results": "$branch_results",
+            "feasible_set": "$feasible_set",
+            "phase": "merge",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "branch_results",
+            "feasible_set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "feasible_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "piecewise_equation",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

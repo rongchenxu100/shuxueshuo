@@ -1,0 +1,3068 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "72b39c4163144c95868f852503406e38",
+    "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+    "input_sha256": "c7bd9a4ef211fb6211bf99f707419ff734d632b9f74817e57b3283145be2ca4c",
+    "checkpoint_sha256": "96c2413c6b0b8245ddc5c77e140aca9dc450ee74facc67b41b96fb3900c4a292",
+    "result_sha256": "26219474b6b7dbc1e2c96cc22a582c23f0e432d116d59d9ca05d5723e333d0c2",
+    "stage_one_sha256": "48b086fb94c086d6fa8a5f2407330a372145978dcb1df2a91f64b3d16cc9fc4c",
+    "stage_two_sha256": "325cad847e146ec056d8e5164b3cc5cc292de4f4fc405890c20aa93cc5ab2ba1",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "7871dafa43f65f8d590c996a10006930abc2e7216ca0304057a9409bf6da15b2"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-range",
+        "supported": [
+          "type-function-range"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 72,
+                  "end": 74,
+                  "text": "值域"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求给定输入范围内，全部函数值组成的集合",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求自变量的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "df2cd830fea3ff61"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目要求求值域，需要确定什么？",
+          "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。",
+          "summary": "先确定定义域，再求全部实际能取到的函数值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "conflict",
+            "feedback": "要求原式有意义的全部输入",
+            "reasons": [],
+            "choice_hint": "给出了具体解析式，据此确定合法输入（或求参）"
+          },
+          {
+            "type_id": "type-function-range",
+            "label": "求函数的值域",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+            ],
+            "choice_hint": "求给定定义域内的全部函数值"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-b11//root/goals/0",
+            "graphVersion": "b4e77111297b103ed8fbebd5574f1933828244bc4fba2af14adab5b41c2752fc",
+            "problem": {
+              "text": "函数 $f(x)=\\begin{cases}x^2-4x+3,&0\\le x\\le3\\\\x+3,&-3\\le x<0\\end{cases}$ 的值域为（ ）。\nA. $[-1,+\\infty)$\nB. $[3,+\\infty)$\nC. $[-1,0]$\nD. $[-1,3]$"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目要求求值域，需要确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求给定输入范围内，全部函数值组成的集合"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求自变量的取值范围",
+                      "feedback": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "定义域是输入的取值范围；值域是在这个范围内得到的全部函数值组成的集合。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "type-function-domain",
+                  "type-function-range",
+                  "type-abstract-function-domain",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-formula",
+                  "type-piecewise-composition",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "先确定定义域，再求全部实际能取到的函数值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题",
+                      "note": "给出了具体解析式，据此确定合法输入（或求参）",
+                      "feedback": "要求原式有意义的全部输入"
+                    },
+                    {
+                      "value": "type-function-range",
+                      "label": "求函数的值域",
+                      "note": "求给定定义域内的全部函数值"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-range"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-range"
+                  ],
+                  "edges": [
+                    "type-function-range|involves|function-concept"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数的值域」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-composition",
+                  "kind": "problem_type",
+                  "label": "复合型分段函数问题",
+                  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "已开放单层分段方程与不等式：先确定比较值，再逐段求解、核对本段范围后合并；数值求值复用代入法。值域、参数和阶梯计费按后续批次开放。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-range-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "求函数值域的选法判断",
+                  "summary": "先确定原定义域，再根据函数结构核验各条方法路线；多种适用方法均可选择。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-equation-real-root-range",
+                  "kind": "method",
+                  "label": "方程有实根法",
+                  "summary": "将输出值转为关于输入的方程，分别判断二次、一次及常量方程有解的条件。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "equation",
+                      "title": "转为输入方程",
+                      "calls": [
+                        "skill-equality-transform"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "分次数求有解条件",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-fraction-split-range",
+                  "kind": "method",
+                  "label": "分式分离求值域法",
+                  "summary": "保留原定义域，分离常数；求分母或对勾函数的范围，再取倒数、还原并合并零点分支。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "separate",
+                      "title": "分离常数与整理分式",
+                      "calls": [
+                        "method-fraction-split"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求中间函数的范围",
+                      "calls": [
+                        "method-quadratic-interval-range",
+                        "skill-reciprocal-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "取倒数并还原值域",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-direct-range",
+                  "kind": "method",
+                  "label": "直接求值域法",
+                  "summary": "先确定定义域，依据一次函数与平方根性质，经过比例和平移得到全部实际输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "range",
+                      "title": "确定基本范围",
+                      "calls": [
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-finite-range",
+                  "kind": "method",
+                  "label": "枚举法",
+                  "summary": "确定有限的合法输入，逐一代入，收集并去重得到全部输出。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "列出全部合法输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "依次选择输入",
+                      "calls": []
+                    },
+                    {
+                      "id": "evaluate",
+                      "title": "逐一代入求值",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "collect",
+                      "title": "收集输出并去重",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-range",
+                  "kind": "method",
+                  "label": "分段求值域法",
+                  "summary": "分别求出各段能取到的函数值，再取并集。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "保留各段的输入范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "读取当前段",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "二次段配方",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求本段的输出范围",
+                      "calls": [
+                        "quadratic-interval-extremum",
+                        "skill-linear-range"
+                      ]
+                    },
+                    {
+                      "id": "merge",
+                      "title": "合并各段值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quadratic-interval-range",
+                  "kind": "method",
+                  "label": "二次函数区间值域法",
+                  "summary": "先确定定义域，结合开口、顶点与区间端点求全部输出，并检查端点可达性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare-inputs",
+                      "title": "整理输入范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "逐个输入范围求值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "square",
+                      "title": "配方，判断顶点位置",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "range",
+                      "title": "求区间值域",
+                      "calls": [
+                        "quadratic-interval-extremum"
+                      ]
+                    },
+                    {
+                      "id": "transform",
+                      "title": "传递到原函数值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "compare-option",
+                      "title": "核对题给值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "collect-options",
+                      "title": "返回本题结论",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range",
+                  "kind": "method",
+                  "label": "换元求值域法",
+                  "summary": "先确定原定义域，再建立新变量的准确范围，将函数完全改写后求值域。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "substitute",
+                      "title": "换元并确定范围",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求新变量下的值域",
+                      "calls": [
+                        "method-quadratic-interval-range"
+                      ]
+                    },
+                    {
+                      "id": "restore",
+                      "title": "回到原函数值域",
+                      "calls": [
+                        "method-substitution"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整值域",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-translation-range",
+                  "kind": "method",
+                  "label": "整段平移求值域法",
+                  "summary": "已知某一完整周期段上的值域；把这段按整数次平移铺满目标输入范围，再把各段值域合并。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "translate",
+                      "title": "整段平移并合并值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验铺满与可达性",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
+                  "from": "method-fraction-split-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "method-substitution-range|calls|method-quadratic-interval-range",
+                  "from": "method-substitution-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "solve",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-equation-real-root-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-equation-real-root-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "equation",
+                      "condition": "原定义域为实数全域，原分母为无实根二次式，分子至多二次。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-range-method|selects|method-fraction-split-range",
+                  "from": "rule-function-range-method",
+                  "to": "method-fraction-split-range",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "fraction",
+                      "condition": "常数商、至多一次余项和至多二次分母；常数余项求分母范围，一次余项通过换元与对勾函数等中间函数求范围，并合并合法零点输出。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-concept",
+                  "from": "type-function-formula",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-direct-range",
+                  "from": "type-function-range",
+                  "to": "method-direct-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-equation-real-root-range",
+                  "from": "type-function-range",
+                  "to": "method-equation-real-root-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-finite-range",
+                  "from": "type-function-range",
+                  "to": "method-finite-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-fraction-split-range",
+                  "from": "type-function-range",
+                  "to": "method-fraction-split-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-piecewise-range",
+                  "from": "type-function-range",
+                  "to": "method-piecewise-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-quadratic-interval-range",
+                  "from": "type-function-range",
+                  "to": "method-quadratic-interval-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-substitution-range",
+                  "from": "type-function-range",
+                  "to": "method-substitution-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|candidate|method-translation-range",
+                  "from": "type-function-range",
+                  "to": "method-translation-range",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|method_rule|rule-function-range-method",
+                  "from": "type-function-range",
+                  "to": "rule-function-range-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-composition|involves|function-concept",
+                  "from": "type-piecewise-composition",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-concept",
+                  "from": "type-piecewise-function",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "8b44accfd9ebb550d32678f43e81b3cfe9f76e70a0d28c04d793d2e49c6327c3"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-b11//root/goals/0",
+            "bundleVersion": "8b44accfd9ebb550d32678f43e81b3cfe9f76e70a0d28c04d793d2e49c6327c3",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "先确定定义域，再求全部实际能取到的函数值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-range",
+                "reason": "选「求函数的值域」：已知函数或相关条件，要求在定义域内所有实际能取到的函数值组成的集合。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "72b39c4163144c95868f852503406e38",
+    "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+    "input_sha256": "c7bd9a4ef211fb6211bf99f707419ff734d632b9f74817e57b3283145be2ca4c",
+    "stream_id": "72b39c4163144c95868f852503406e38",
+    "last_seq": 35,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-1"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_square",
+        "explanation": "$f(x)=x^{2} - 4 x + 3=\\left(x - 2\\right)^{2} - 1$",
+        "highlight": {
+          "caption": "第1段：配方",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数",
+              "math": "f(x)=x^{2} - 4 x + 3"
+            },
+            {
+              "label": "顶点式",
+              "math": "f(x)=\\left(x - 2\\right)^{2} - 1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "e8b2ead8836f6b34d87e292a0acced5012f7267238b36c046bfcde8c10704fbf",
+        "method_ref": "method-piecewise-range#square",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-001-range_square",
+        "target_ref": "/root/goals/0",
+        "title": "第1段：配方",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-1"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_position",
+        "explanation": "$2\\in\\left[0, 3\\right]$",
+        "highlight": {
+          "caption": "第1段：判断顶点位置",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围与顶点",
+              "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(2,-1\\right)\\end{gathered}"
+            },
+            {
+              "label": "顶点位置",
+              "math": "2\\in\\left[0, 3\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "38f71aa6052f1c9f5abc0bfc6b3f8724cfa7741402e40c6c0b0a520fa43b756c",
+        "method_ref": "method-piecewise-range#square",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-002-range_position",
+        "target_ref": "/root/goals/0",
+        "title": "第1段：判断顶点位置",
+        "used_basis": [
+          "equality-properties#identity",
+          "square-nonnegative#nonnegative"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-1"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_values-quadratic",
+        "explanation": "$f(0)=3$\n$f(3)=0$\n$f(2)=-1$",
+        "highlight": {
+          "caption": "第1段：比较函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围",
+              "math": "x\\in\\left[0, 3\\right]"
+            },
+            {
+              "label": "端点与顶点",
+              "math": "\\begin{gathered}f(0)=3\\\\f(3)=0\\\\f(2)=-1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "03e2e9492e583e06c19081f6f5054e0167c061e6b9745bba864f0805138abc8a",
+        "method_ref": "method-piecewise-range#range",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-003-range_values-quadratic",
+        "target_ref": "/root/goals/0",
+        "title": "第1段：比较函数值",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-1"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_image-quadratic",
+        "explanation": "$f(x)\\in\\left[-1, 3\\right]$",
+        "highlight": {
+          "caption": "第1段：写出值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "函数值的边界",
+              "math": "\\begin{gathered}f(0)=3\\\\f(3)=0\\\\f(2)=-1\\end{gathered}"
+            },
+            {
+              "label": "值域",
+              "math": "\\left[-1, 3\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "64388a38499624111418c7a876f4f002c5033baadc7c1f3a7781ce89cf991ecd",
+        "method_ref": "method-piecewise-range#range",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-004-range_image-quadratic",
+        "target_ref": "/root/goals/0",
+        "title": "第1段：写出值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-2"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_values-linear",
+        "explanation": "$-3\\le x<0\\Rightarrow 0\\le x + 3<3$",
+        "highlight": {
+          "caption": "第2段：比较函数值",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "输入范围",
+              "math": "x\\in\\left[-3, 0\\right)"
+            },
+            {
+              "label": "函数值的边界",
+              "math": "-3\\le x<0\\Rightarrow 0\\le x + 3<3"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "612aa425d50c4e783b3e16c3d76a66701412d6dc0d454b94815ae9e573fba47c",
+        "method_ref": "method-piecewise-range#range",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/7/calls/0",
+          "/steps/7/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-005-range_values-linear",
+        "target_ref": "/root/goals/0",
+        "title": "第2段：比较函数值",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-2"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "range_image-linear",
+        "explanation": "$f(x)\\in\\left[0, 3\\right)$",
+        "highlight": {
+          "caption": "第2段：写出值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "当前函数与输入范围",
+              "math": "\\begin{gathered}f(x)=x + 3\\\\x\\in\\left[-3, 0\\right)\\end{gathered}"
+            },
+            {
+              "label": "值域",
+              "math": "\\left[0, 3\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "8db8a1a248a310fe637bf1f5eaab0e4969fd59f4407e8cc5af2eae6ce6339507",
+        "method_ref": "method-piecewise-range#range",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/7/calls/0",
+          "/steps/7/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-006-range_image-linear",
+        "target_ref": "/root/goals/0",
+        "title": "第2段：写出值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "union",
+        "explanation": "$$\\begin{gathered}R=\\left[-1, 3\\right]\\cup\\left[0, 3\\right)=\\left[-1, 3\\right]\\\\\\text{第1段}:\\quad f(2)=-1\\Rightarrow -1\\in R\\\\\\text{第1段}:\\quad f(0)=3\\Rightarrow 3\\in R\\end{gathered}$$",
+        "highlight": {
+          "caption": "合并各段值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "各段能取到的函数值",
+              "math": "\\begin{gathered}R_{1}=\\left[-1, 3\\right]\\\\R_{2}=\\left[0, 3\\right)\\end{gathered}"
+            },
+            {
+              "label": "整个函数的值域",
+              "math": "R=\\left[-1, 3\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "local_check": "passed",
+        "math_step_sha256": "12d3baca822cc970c8c3331e7f523c4f0b27bf8edbe183cf766cd233b44c4867",
+        "method_ref": "method-piecewise-range#merge",
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "source_refs": [
+          "/steps/8/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-007-union",
+        "target_ref": "/root/goals/0",
+        "title": "合并各段值域",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval(-1, 3)",
+            "latex": "\\left[-1, 3\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(-1, 3)",
+          "latex": "\\left[-1, 3\\right]"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "object": "f",
+          "set": {
+            "expression": "Interval(-1, 3)",
+            "latex": "\\left[-1, 3\\right]"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(-1, 3)",
+          "latex": "\\left[-1, 3\\right]"
+        },
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "math_steps": [
+          {
+            "math_step_sha256": "e8b2ead8836f6b34d87e292a0acced5012f7267238b36c046bfcde8c10704fbf",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-piecewise-range-001-range_square"
+          },
+          {
+            "math_step_sha256": "38f71aa6052f1c9f5abc0bfc6b3f8724cfa7741402e40c6c0b0a520fa43b756c",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-piecewise-range-002-range_position"
+          },
+          {
+            "math_step_sha256": "03e2e9492e583e06c19081f6f5054e0167c061e6b9745bba864f0805138abc8a",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-piecewise-range-003-range_values-quadratic"
+          },
+          {
+            "math_step_sha256": "64388a38499624111418c7a876f4f002c5033baadc7c1f3a7781ce89cf991ecd",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-piecewise-range-004-range_image-quadratic"
+          },
+          {
+            "math_step_sha256": "612aa425d50c4e783b3e16c3d76a66701412d6dc0d454b94815ae9e573fba47c",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-piecewise-range-005-range_values-linear"
+          },
+          {
+            "math_step_sha256": "8db8a1a248a310fe637bf1f5eaab0e4969fd59f4407e8cc5af2eae6ce6339507",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-piecewise-range-006-range_image-linear"
+          },
+          {
+            "math_step_sha256": "12d3baca822cc970c8c3331e7f523c4f0b27bf8edbe183cf766cd233b44c4867",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-piecewise-range-007-union"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "D"
+          ],
+          "kind": "multiple_choice",
+          "matching": "set_equality",
+          "options": [
+            {
+              "label": "A",
+              "text": "$[-1,+\\infty)$"
+            },
+            {
+              "label": "B",
+              "text": "$[3,+\\infty)$"
+            },
+            {
+              "label": "C",
+              "text": "$[-1,0]$"
+            },
+            {
+              "label": "D",
+              "text": "$[-1,3]$"
+            }
+          ],
+          "selection_mode": "unspecified",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "c8a6ba5851027afb03451ea3895c91e9b32adf2949a4fadd3a5649f16fe6a64d",
+        "verified_route_sha256": "6d9a6d71f53b7479365c08bbc785833d9d014fa3482fbd0c602411d44620cc5d"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "prerequisites": [],
+          "query": {
+            "from": "type-function-range",
+            "op": "methods"
+          },
+          "question": "分别求出各段能取到的函数值，再合并各段值域；只要有一段能取到，就保留这个值。",
+          "submit_label": "开始解题",
+          "title": "解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-piecewise-range",
+              "recommendation": "preferred",
+              "route_id": "piecewise-range",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-001-range_square",
+        "ordinal": 1,
+        "math_step_sha256": "e8b2ead8836f6b34d87e292a0acced5012f7267238b36c046bfcde8c10704fbf",
+        "status": "interactive",
+        "interaction_id": "638a454525206e275a3aeec1"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-002-range_position",
+        "ordinal": 2,
+        "math_step_sha256": "38f71aa6052f1c9f5abc0bfc6b3f8724cfa7741402e40c6c0b0a520fa43b756c",
+        "status": "interactive",
+        "interaction_id": "2e6be22505e453511f9dc89f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-003-range_values-quadratic",
+        "ordinal": 3,
+        "math_step_sha256": "03e2e9492e583e06c19081f6f5054e0167c061e6b9745bba864f0805138abc8a",
+        "status": "interactive",
+        "interaction_id": "bf8584c2e042af8862a82bbd"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-004-range_image-quadratic",
+        "ordinal": 4,
+        "math_step_sha256": "64388a38499624111418c7a876f4f002c5033baadc7c1f3a7781ce89cf991ecd",
+        "status": "interactive",
+        "interaction_id": "a6c8d487fbc04c55ed821079"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-005-range_values-linear",
+        "ordinal": 5,
+        "math_step_sha256": "612aa425d50c4e783b3e16c3d76a66701412d6dc0d454b94815ae9e573fba47c",
+        "status": "interactive",
+        "interaction_id": "6b92e2c0dee1a9ce95a3c249"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-006-range_image-linear",
+        "ordinal": 6,
+        "math_step_sha256": "8db8a1a248a310fe637bf1f5eaab0e4969fd59f4407e8cc5af2eae6ce6339507",
+        "status": "interactive",
+        "interaction_id": "f9a8142cd3ecbadf602cabae"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "step_id": "39e5646dcb-piecewise-range-007-union",
+        "ordinal": 7,
+        "math_step_sha256": "12d3baca822cc970c8c3331e7f523c4f0b27bf8edbe183cf766cd233b44c4867",
+        "status": "interactive",
+        "interaction_id": "e52e95da47485a9435ae75f7"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "230d8ebdd72220419ba8b655519a902967ff98315efbda115167eeac2b3fc016",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:piecewise-range:complete",
+        "last_seq": 35
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-piecewise-range",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "piecewise-function#domain-range",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-piecewise-range",
+            "step": "inputs",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 3,
+            "method": "method-piecewise-range",
+            "step": "inputs",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "piecewise-function#domain-range",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-piecewise-range",
+            "step": "square",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "square-nonnegative#nonnegative"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-piecewise-range",
+            "step": "range",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": "quadratic-interval-extremum",
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-piecewise-range",
+            "step": "inputs",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "piecewise-function#domain-range",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-piecewise-range",
+            "step": "square",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 8,
+            "method": "method-piecewise-range",
+            "step": "range",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": "skill-linear-range",
+                "used_basis": [
+                  "quadratic-interval-extremum"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 9,
+            "method": "method-piecewise-range",
+            "step": "merge",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "piecewise-function#domain-range",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 10,
+            "method": "method-piecewise-range",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "638a454525206e275a3aeec1",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "64f2dbfedaa3f96e5c330bccab34c4ef435f843f5fcc70024d0772b0b91434ff",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第1段：配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x^{2} - 4 x + 3"
+                },
+                {
+                  "label": "顶点式",
+                  "math": "f(x)=\\left(x - 2\\right)^{2} - 1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)=x^{2} - 4 x + 3=\\left(x - 2\\right)^{2} - 1$"
+            },
+            "id": "638a454525206e275a3aeec1#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(x)=\\left(x - 2\\right)^{2} - 1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 2\\right)^{2} - 2$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 2\\right)^{2}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第1段 $f(x)=x^{2} - 4 x + 3,\\quad x\\in\\left[0, 3\\right]$。把函数式写成顶点式。",
+            "stem_board": {
+              "caption": "第1段：配方",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x^{2} - 4 x + 3"
+                },
+                {
+                  "label": "顶点式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第1段：配方"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e8b2ead8836f6b34d87e292a0acced5012f7267238b36c046bfcde8c10704fbf",
+            "step_id": "39e5646dcb-piecewise-range-001-range_square"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2e6be22505e453511f9dc89f",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "f5de91a8686065cfca4f8cf5c7b59d1eca2fd9a6e6a8721c893bdad4c1ffa963",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第1段：判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(2,-1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": "2\\in\\left[0, 3\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.75,
+                  3.75
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  2.0,
+                  -1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ],
+                "yLabel": "-1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$2\\in\\left[0, 3\\right]$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.75,
+                  3.75
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  2.0,
+                  -1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ],
+                "yLabel": "-1"
+              }
+            },
+            "id": "2e6be22505e453511f9dc89f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "顶点在区间右侧或右侧开端点处",
+                  "value": "o3"
+                },
+                {
+                  "label": "顶点在区间左侧或左侧开端点处",
+                  "value": "o2"
+                },
+                {
+                  "label": "顶点在定义域中，可以取到顶点值",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第1段 $f(x)=x^{2} - 4 x + 3,\\quad x\\in\\left[0, 3\\right]$。抛物线开口向上。结合定义域，顶点能否取到？",
+            "stem_board": {
+              "caption": "第1段：判断顶点位置",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围与顶点",
+                  "math": "\\begin{gathered}x\\in\\left[0, 3\\right]\\\\P\\left(2,-1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "顶点位置",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第1段：判断顶点位置"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "38f71aa6052f1c9f5abc0bfc6b3f8724cfa7741402e40c6c0b0a520fa43b756c",
+            "step_id": "39e5646dcb-piecewise-range-002-range_position"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "bf8584c2e042af8862a82bbd",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "d16b80c0322b2ea79308562465023a17a67cf31ab86ca2569adb9b6414094348",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第1段：比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[0, 3\\right]"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": "\\begin{gathered}f(0)=3\\\\f(3)=0\\\\f(2)=-1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.75,
+                  3.75
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  2.0,
+                  -1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ],
+                "yLabel": "-1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(0)=3$\n$f(3)=0$\n$f(2)=-1$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.75,
+                  3.75
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  2.0,
+                  -1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ],
+                "yLabel": "-1"
+              }
+            },
+            "id": "bf8584c2e042af8862a82bbd#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "最小值：$-1$；最大值：$4$",
+                  "value": "o3"
+                },
+                {
+                  "label": "最小值：$-1$；最大值：$3$",
+                  "value": "o1"
+                },
+                {
+                  "label": "最小值：$0$；最大值：$3$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第1段 $f(x)=x^{2} - 4 x + 3,\\quad x\\in\\left[0, 3\\right]$。计算两个端点的函数值，再与本段内的顶点值比较。最小值和最大值分别是多少？",
+            "stem_board": {
+              "caption": "第1段：比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[0, 3\\right]"
+                },
+                {
+                  "label": "端点与顶点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第1段：比较函数值"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "03e2e9492e583e06c19081f6f5054e0167c061e6b9745bba864f0805138abc8a",
+            "step_id": "39e5646dcb-piecewise-range-003-range_values-quadratic"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a6c8d487fbc04c55ed821079",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "6bc1b07423b9681cf89571047484df928934dffc588ff1a856bf2198f8af2545",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第1段：写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}f(0)=3\\\\f(3)=0\\\\f(2)=-1\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": "\\left[-1, 3\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.75,
+                    -1.75,
+                    3.75
+                  ],
+                  "coefficient": 1.0,
+                  "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                  "interval": [
+                    0.0,
+                    3.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "points": [
+                    {
+                      "x": 0.0
+                    },
+                    {
+                      "x": 3.0
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "f 在 [0, 3] 上的图像",
+                  "variable": "x",
+                  "vertex": [
+                    2.0,
+                    -1.0
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ],
+                    [
+                      2.0,
+                      "2"
+                    ]
+                  ],
+                  "yLabel": "-1"
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -2.0,
+                    4.0
+                  ],
+                  "description": "y 的取值集合：[-1, 3]",
+                  "pieces": [
+                    {
+                      "from": -1.0,
+                      "left_closed": true,
+                      "right_closed": true,
+                      "to": 3.0
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      -1.0,
+                      "-1"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ]
+                  ],
+                  "title": "输出范围",
+                  "variable": "y"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)\\in\\left[-1, 3\\right]$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -1.75,
+                  3.75
+                ],
+                "coefficient": 1.0,
+                "description": "x=0 处函数值为 3（实心点）；x=3 处函数值为 0（实心点）",
+                "interval": [
+                  0.0,
+                  3.0
+                ],
+                "interval_closed": [
+                  true,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 0.0
+                  },
+                  {
+                    "x": 3.0
+                  }
+                ],
+                "showVertex": true,
+                "title": "f 在 [0, 3] 上的图像",
+                "variable": "x",
+                "vertex": [
+                  2.0,
+                  -1.0
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ]
+                ],
+                "yLabel": "-1"
+              }
+            },
+            "id": "a6c8d487fbc04c55ed821079#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(-1, 3\\right]$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[-1, 3\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[-1, 3\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第1段 $f(x)=x^{2} - 4 x + 3,\\quad x\\in\\left[0, 3\\right]$。结合图像和边界能否取到，确定全部取值。",
+            "stem_board": {
+              "caption": "第1段：写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数值的边界",
+                  "math": "\\begin{gathered}f(0)=3\\\\f(3)=0\\\\f(2)=-1\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第1段：写出值域"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "64388a38499624111418c7a876f4f002c5033baadc7c1f3a7781ce89cf991ecd",
+            "step_id": "39e5646dcb-piecewise-range-004-range_image-quadratic"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6b92e2c0dee1a9ce95a3c249",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "6ec9583ce379c24925f1152a4e48298a02989a48c700ea71d97206d474ced40f",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第2段：比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[-3, 0\\right)"
+                },
+                {
+                  "label": "函数值的边界",
+                  "math": "-3\\le x<0\\Rightarrow 0\\le x + 3<3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  0.75,
+                  -0.75,
+                  3.75
+                ],
+                "description": "x=-3 处函数值为 0（实心点）；x=0 取不到，函数值趋近 3（空心点）",
+                "intercept": 3.0,
+                "interval": [
+                  -3.0,
+                  0.0
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "points": [
+                  {
+                    "x": -3.0
+                  },
+                  {
+                    "open": true,
+                    "x": 0.0
+                  }
+                ],
+                "slope": 1.0,
+                "title": "f 在 [-3, 0) 上的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$-3\\le x<0\\Rightarrow 0\\le x + 3<3$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  0.75,
+                  -0.75,
+                  3.75
+                ],
+                "description": "x=-3 处函数值为 0（实心点）；x=0 取不到，函数值趋近 3（空心点）",
+                "intercept": 3.0,
+                "interval": [
+                  -3.0,
+                  0.0
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "points": [
+                  {
+                    "x": -3.0
+                  },
+                  {
+                    "open": true,
+                    "x": 0.0
+                  }
+                ],
+                "slope": 1.0,
+                "title": "f 在 [-3, 0) 上的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "6b92e2c0dee1a9ce95a3c249#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "最小值：$1$；上界（取不到）：$3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "最小值：$0$；上界（取不到）：$3$",
+                  "value": "o1"
+                },
+                {
+                  "label": "最小值：$0$；上界（取不到）：$4$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第2段 $f(x)=x + 3,\\quad x\\in\\left[-3, 0\\right)$。本段函数递增。把输入范围代入一次式，函数值最小、最大能到哪里？边界能否取到？",
+            "stem_board": {
+              "caption": "第2段：比较函数值",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "输入范围",
+                  "math": "x\\in\\left[-3, 0\\right)"
+                },
+                {
+                  "label": "函数值的边界",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第2段：比较函数值"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "612aa425d50c4e783b3e16c3d76a66701412d6dc0d454b94815ae9e573fba47c",
+            "step_id": "39e5646dcb-piecewise-range-005-range_values-linear"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f9a8142cd3ecbadf602cabae",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "861ec257123038175d9da4e0a13135d04f88bd15f7b828fea7d8b18efe71f578",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第2段：写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "当前函数与输入范围",
+                  "math": "\\begin{gathered}f(x)=x + 3\\\\x\\in\\left[-3, 0\\right)\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": "\\left[0, 3\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+                "kind": "linear",
+                "params": {
+                  "bounds": [
+                    -3.75,
+                    0.75,
+                    -0.75,
+                    3.75
+                  ],
+                  "description": "x=-3 处函数值为 0（实心点）；x=0 取不到，函数值趋近 3（空心点）",
+                  "intercept": 3.0,
+                  "interval": [
+                    -3.0,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "points": [
+                    {
+                      "x": -3.0
+                    },
+                    {
+                      "open": true,
+                      "x": 0.0
+                    }
+                  ],
+                  "slope": 1.0,
+                  "title": "f 在 [-3, 0) 上的图像",
+                  "variable": "x",
+                  "xTicks": [
+                    [
+                      -3.0,
+                      "-3"
+                    ],
+                    [
+                      0.0,
+                      "0"
+                    ]
+                  ]
+                }
+              },
+              {
+                "kind": "number_line",
+                "params": {
+                  "bounds": [
+                    -0.75,
+                    3.75
+                  ],
+                  "description": "y 的取值集合：[0, 3)",
+                  "pieces": [
+                    {
+                      "from": 0.0,
+                      "left_closed": true,
+                      "right_closed": false,
+                      "to": 3.0
+                    }
+                  ],
+                  "points": [],
+                  "ticks": [
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ]
+                  ],
+                  "title": "输出范围",
+                  "variable": "y"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$f(x)\\in\\left[0, 3\\right)$"
+            },
+            "graph": {
+              "caption": "深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  0.75,
+                  -0.75,
+                  3.75
+                ],
+                "description": "x=-3 处函数值为 0（实心点）；x=0 取不到，函数值趋近 3（空心点）",
+                "intercept": 3.0,
+                "interval": [
+                  -3.0,
+                  0.0
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "points": [
+                  {
+                    "x": -3.0
+                  },
+                  {
+                    "open": true,
+                    "x": 0.0
+                  }
+                ],
+                "slope": 1.0,
+                "title": "f 在 [-3, 0) 上的图像",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "f9a8142cd3ecbadf602cabae#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(0, 3\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[0, 3\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[0, 3\\right]$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第2段 $f(x)=x + 3,\\quad x\\in\\left[-3, 0\\right)$。在给定输入范围内，$f(x)$ 能取到哪些值？",
+            "stem_board": {
+              "caption": "第2段：写出值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "当前函数与输入范围",
+                  "math": "\\begin{gathered}f(x)=x + 3\\\\x\\in\\left[-3, 0\\right)\\end{gathered}"
+                },
+                {
+                  "label": "值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "第2段：写出值域"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8db8a1a248a310fe637bf1f5eaab0e4969fd59f4407e8cc5af2eae6ce6339507",
+            "step_id": "39e5646dcb-piecewise-range-006-range_image-linear"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e52e95da47485a9435ae75f7",
+        "interaction_revision": "e61c1a6d980c1d62792f39b1b1785b398d80c017a503e67be570759035656d3a",
+        "interaction_sha256": "777ee4c80cb761dfed204e14432cf48c1ef8bee3868923db065499e1f9353be6",
+        "lesson_version": "2fbbe8372b26ea9a16a94d256ba813a4224a827629b414063c060fef46f6fc5e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合并各段值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各段能取到的函数值",
+                  "math": "\\begin{gathered}R_{1}=\\left[-1, 3\\right]\\\\R_{2}=\\left[0, 3\\right)\\end{gathered}"
+                },
+                {
+                  "label": "整个函数的值域",
+                  "math": "R=\\left[-1, 3\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_number_line": {
+              "bounds": [
+                -2.0,
+                4.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "3"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                },
+                "expression": "Interval(-1, 3)",
+                "latex": "\\left[-1, 3\\right]"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-1"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "3"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-1, 3)",
+                    "latex": "\\left[-1, 3\\right]"
+                  },
+                  "left": -1.0,
+                  "left_closed": true,
+                  "right": 3.0,
+                  "right_closed": true
+                }
+              ],
+              "label": "\\text{整个函数的值域}:\\quad R=\\left[-1, 3\\right]",
+              "points": [],
+              "ticks": [
+                {
+                  "at": -1.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    "expression": "-1",
+                    "latex": "-1"
+                  },
+                  "label": "-1"
+                },
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                },
+                {
+                  "at": 3.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "3"
+                    },
+                    "expression": "3",
+                    "latex": "3"
+                  },
+                  "label": "3"
+                }
+              ],
+              "variable": "y"
+            },
+            "condition_number_lines": [
+              {
+                "bounds": [
+                  -2.0,
+                  4.0
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "3"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      }
+                    ]
+                  },
+                  "expression": "Interval(-1, 3)",
+                  "latex": "\\left[-1, 3\\right]"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-1"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "3"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(-1, 3)",
+                      "latex": "\\left[-1, 3\\right]"
+                    },
+                    "left": -1.0,
+                    "left_closed": true,
+                    "right": 3.0,
+                    "right_closed": true
+                  }
+                ],
+                "label": "\\text{第1段值域}:\\quad R_{1}=\\left[-1, 3\\right]",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": -1.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      "expression": "-1",
+                      "latex": "-1"
+                    },
+                    "label": "-1"
+                  },
+                  {
+                    "at": 0.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "0"
+                      },
+                      "expression": "0",
+                      "latex": "0"
+                    },
+                    "label": "0"
+                  },
+                  {
+                    "at": 3.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "3"
+                      },
+                      "expression": "3",
+                      "latex": "3"
+                    },
+                    "label": "3"
+                  }
+                ],
+                "variable": "y"
+              },
+              {
+                "bounds": [
+                  -2.0,
+                  4.0
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "0"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "3"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.Ropen(0, 3)",
+                  "latex": "\\left[0, 3\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "0"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "3"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.Ropen(0, 3)",
+                      "latex": "\\left[0, 3\\right)"
+                    },
+                    "left": 0.0,
+                    "left_closed": true,
+                    "right": 3.0,
+                    "right_closed": false
+                  }
+                ],
+                "label": "\\text{第2段值域}:\\quad R_{2}=\\left[0, 3\\right)",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": -1.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      "expression": "-1",
+                      "latex": "-1"
+                    },
+                    "label": "-1"
+                  },
+                  {
+                    "at": 0.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "0"
+                      },
+                      "expression": "0",
+                      "latex": "0"
+                    },
+                    "label": "0"
+                  },
+                  {
+                    "at": 3.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "3"
+                      },
+                      "expression": "3",
+                      "latex": "3"
+                    },
+                    "label": "3"
+                  }
+                ],
+                "variable": "y"
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}R=\\left[-1, 3\\right]\\cup\\left[0, 3\\right)=\\left[-1, 3\\right]\\\\\\text{第1段}:\\quad f(2)=-1\\Rightarrow -1\\in R\\\\\\text{第1段}:\\quad f(0)=3\\Rightarrow 3\\in R\\end{gathered}$$"
+            },
+            "id": "e52e95da47485a9435ae75f7#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[-1, 3\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left[-1, 3\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(-1, 3\\right]$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "这里的数轴表示函数值 y。只要任意一段能取到，就属于函数的值域。把各段值域合起来，结果是什么？",
+            "stem_board": {
+              "caption": "合并各段值域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各段能取到的函数值",
+                  "math": "\\begin{gathered}R_{1}=\\left[-1, 3\\right]\\\\R_{2}=\\left[0, 3\\right)\\end{gathered}"
+                },
+                {
+                  "label": "整个函数的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认值域",
+            "title": "合并各段值域"
+          }
+        ],
+        "route_id": "piecewise-range",
+        "run_id": "72b39c4163144c95868f852503406e38",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "12d3baca822cc970c8c3331e7f523c4f0b27bf8edbe183cf766cd233b44c4867",
+            "step_id": "39e5646dcb-piecewise-range-007-union"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

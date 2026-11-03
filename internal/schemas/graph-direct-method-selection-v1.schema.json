@@ -34,7 +34,10 @@
         "function_evaluation",
         "function_range",
         "function_range_routes",
-        "function_formula"
+        "function_formula",
+        "function_graph",
+        "piecewise_equation",
+        "piecewise_routes"
       ]
     },
     "routes": {
@@ -72,7 +75,13 @@
               "function_matching",
               "function_coefficients",
               "function_system",
-              "function_assignment"
+              "function_assignment",
+              "function_graph",
+              "piecewise_equation",
+              "piecewise_inequality",
+              "function_range_piecewise",
+              "piecewise_range_parameter",
+              "piecewise_modeling"
             ]
           },
           "label": {
@@ -108,7 +117,9 @@
             "abstract_function_domain",
             "function_evaluation",
             "function_range",
-            "function_formula"
+            "function_formula",
+            "function_graph",
+            "piecewise_equation"
           ]
         }
       }
@@ -136,7 +147,9 @@
           "enum": [
             "function_domain_routes",
             "function_range_routes",
-            "function_formula"
+            "function_formula",
+            "function_graph",
+            "piecewise_routes"
           ]
         }
       }

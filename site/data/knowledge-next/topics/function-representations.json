@@ -4,7 +4,7 @@
   "label": "函数的表示法",
   "path": "/topics/function-representations/",
   "presentation": "topic-overview",
-  "introduction": "理解解析式、表格与图像怎样表示函数，再学习求解析式、图像变换、分段函数及复合分段问题。",
+  "introduction": "理解解析式、表格与图像怎样表示函数，再学习求解析式、图像变换和分段函数常规问题。",
   "chapter": {
     "book": "人教 A 版 · 必修第一册",
     "number": "第三章",
@@ -109,24 +109,50 @@
       "label": "函数图像及其应用",
       "type": "type-function-graph",
       "description": "由表达式选图、作图，理解图像变换，并结合关键点判断方程或不等式的解。",
-      "problems": []
+      "problems": [
+        "function-representations-b09",
+        "function-representations-b09-v1",
+        "function-representations-b09-v2",
+        "function-representations-b09-v3"
+      ],
+      "groupBy": "method"
     },
     {
       "id": "piecewise",
       "label": "分段函数常规问题",
       "type": "type-piecewise-function",
-      "description": "按段求值、求输入或值域，处理值域求参与阶梯计费，核对分界点和各段范围。",
-      "problems": []
-    },
-    {
-      "id": "piecewise-composition",
-      "label": "复合型分段函数问题",
-      "type": "type-piecewise-composition",
-      "description": "先求外层条件允许的中间值，再回到内层逐段求原输入。",
-      "problems": []
+      "groupBy": "method",
+      "description": "求值时按输入选段；方程、不等式逐段求解后验段；值域逐段取并，求参时判断不越界或补齐；阶梯计费逐档累计。",
+      "problems": [
+        "function-representations-b10",
+        "function-representations-b10-v1",
+        "function-representations-b10-v2",
+        "function-representations-b11",
+        "function-representations-b11-v1",
+        "function-representations-b11-v2",
+        "function-representations-b12"
+      ]
     }
   ],
   "problems": {
+    "function-representations-b10-v1": {
+      "label": "分段解方程法 · 例 10 变式 1",
+      "path": "/topics/function-representations/q10b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b10-v1.json",
+      "types": [
+        "type-piecewise-function"
+      ]
+    },
+    "function-representations-b10": {
+      "label": "分段函数的两层求值 · 例 10",
+      "path": "/topics/function-representations/q10a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b10.json",
+      "types": [
+        "type-function-evaluation"
+      ]
+    },
     "function-representations-b05-v1": {
       "label": "分式换元求函数解析式 · 例 5 变式 1",
       "path": "/topics/function-representations/variant01/",
@@ -324,6 +350,87 @@
       "bundle": "/data/graph-walk/function-representations-w11.json",
       "types": [
         "type-function-formula"
+      ]
+    },
+    "function-representations-b09": {
+      "label": "图像变换法 · 例 9",
+      "path": "/topics/function-representations/q09a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b09.json",
+      "types": [
+        "type-function-graph"
+      ]
+    },
+    "function-representations-b09-v1": {
+      "label": "分段作图与图像解不等式 · 例9变式1",
+      "path": "/topics/function-representations/q09b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b09-v1.json",
+      "types": [
+        "type-function-graph"
+      ]
+    },
+    "function-representations-b09-v2": {
+      "label": "图像变换法 · 例 9 变式 2",
+      "path": "/topics/function-representations/q09c/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b09-v2.json",
+      "types": [
+        "type-function-graph"
+      ]
+    },
+    "function-representations-b09-v3": {
+      "label": "图像变换法 · 例 9 变式 3",
+      "path": "/topics/function-representations/q09d/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b09-v3.json",
+      "types": [
+        "type-function-graph"
+      ]
+    },
+    "function-representations-b10-v2": {
+      "label": "分段解不等式法 · 例 10 变式 2",
+      "path": "/topics/function-representations/q10c/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b10-v2.json",
+      "types": [
+        "type-piecewise-function"
+      ]
+    },
+    "function-representations-b11": {
+      "label": "分段求值域法 · 例 11",
+      "path": "/topics/function-representations/q11a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b11.json",
+      "types": [
+        "type-function-range"
+      ]
+    },
+    "function-representations-b11-v1": {
+      "label": "分段值域求参法 · 例 11 变式 1",
+      "path": "/topics/function-representations/q11b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b11-v1.json",
+      "types": [
+        "type-piecewise-function"
+      ]
+    },
+    "function-representations-b11-v2": {
+      "label": "分段值域求参法 · 例 11 变式 2",
+      "path": "/topics/function-representations/q11c/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b11-v2.json",
+      "types": [
+        "type-piecewise-function"
+      ]
+    },
+    "function-representations-b12": {
+      "label": "分段建模与反求用量 · 例12（两问）",
+      "path": "/topics/function-representations/q12a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-representations-b12.json",
+      "types": [
+        "type-piecewise-function"
       ]
     }
   }

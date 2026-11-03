@@ -1,0 +1,455 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-range",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_piecewise_range",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "branch_cases": "branch_cases",
+            "original_description": "description"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "inputs",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "cases": {
+        "source": "branch_cases",
+        "binding": "branch_case",
+        "through": "range",
+        "collect": "branch_results",
+        "outputs": {
+          "branch": "$branch",
+          "image": "$feasible_set"
+        },
+        "entry": {
+          "id": "inputs",
+          "calls": [
+            {
+              "id": "bind",
+              "capability": "bind_piecewise_range",
+              "public_ref": null,
+              "inputs": {
+                "branch_case": "$branch_case"
+              },
+              "outputs": {
+                "description": "description",
+                "branch": "branch",
+                "variable": "variable",
+                "function": "function",
+                "domain": "domain",
+                "quadratic": "quadratic"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": []
+        }
+      }
+    },
+    {
+      "id": "square",
+      "calls": [
+        {
+          "id": "square",
+          "capability": "complete_square",
+          "public_ref": "method-complete-square",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$variable"
+          },
+          "outputs": {
+            "square": "square",
+            "coefficient": "coefficient",
+            "vertex": "vertex",
+            "value": "value"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "range_square",
+          "after": "square",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "square",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "square": "$square",
+            "vertex": "$vertex",
+            "value": "$value",
+            "coefficient": "$coefficient",
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "square",
+            "vertex",
+            "value",
+            "coefficient"
+          ],
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        },
+        {
+          "id": "range_position",
+          "after": "square",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "position",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "vertex": "$vertex",
+            "value": "$value",
+            "coefficient": "$coefficient",
+            "square": null,
+            "range": null,
+            "endpoint_values": null,
+            "critical_points": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "vertex",
+            "value",
+            "coefficient"
+          ],
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "range",
+      "calls": [
+        {
+          "id": "image",
+          "capability": "polynomial_image",
+          "public_ref": "quadratic-interval-extremum",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "range": "range",
+            "endpoint_values": "endpoint_values",
+            "critical_points": "critical_points",
+            "quadratic_image": "feasible_set"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        },
+        {
+          "id": "linear-image",
+          "capability": "polynomial_image",
+          "public_ref": "skill-linear-range",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$variable",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "range": "range",
+            "endpoint_values": "endpoint_values",
+            "critical_points": "critical_points",
+            "linear_image": "feasible_set"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "quadratic",
+            "equals": false
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "range_values-quadratic",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "values",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "after": "image",
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        },
+        {
+          "id": "range_image-quadratic",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "image",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "after": "image",
+          "guard": {
+            "ref": "quadratic",
+            "equals": true
+          }
+        },
+        {
+          "id": "range_values-linear",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "values",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "after": "linear-image",
+          "guard": {
+            "ref": "quadratic",
+            "equals": false
+          }
+        },
+        {
+          "id": "range_image-linear",
+          "template": "function_range_derivation",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "phase": "image",
+            "description": "$description",
+            "function": "$function",
+            "variable": "$variable",
+            "domain": "$domain",
+            "range": "$range",
+            "endpoint_values": "$endpoint_values",
+            "critical_points": "$critical_points",
+            "square": null,
+            "vertex": null,
+            "value": null,
+            "coefficient": null
+          },
+          "depends_on": [
+            "description",
+            "function",
+            "variable",
+            "domain",
+            "range",
+            "endpoint_values",
+            "critical_points"
+          ],
+          "after": "linear-image",
+          "guard": {
+            "ref": "quadratic",
+            "equals": false
+          }
+        }
+      ],
+      "merges": [
+        {
+          "id": "select-image",
+          "order": 2,
+          "branches": [
+            {
+              "guard": {
+                "ref": "quadratic",
+                "equals": true
+              },
+              "bindings": {
+                "feasible_set": "$quadratic_image"
+              }
+            },
+            {
+              "guard": {
+                "ref": "quadratic",
+                "equals": false
+              },
+              "bindings": {
+                "feasible_set": "$linear_image"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "merge",
+      "calls": [
+        {
+          "id": "merge",
+          "capability": "merge_piecewise_range",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context",
+            "branch_results": "$branch_results"
+          },
+          "outputs": {
+            "feasible_set": "feasible_set",
+            "branch_results": "branch_results"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "union",
+          "after": "merge",
+          "template": "piecewise_range_union",
+          "bindings": {
+            "description": "$original_description",
+            "branch_results": "$branch_results",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "original_description",
+            "branch_results",
+            "feasible_set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "feasible_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_range",
+        "inputs": {
+          "context": "$context",
+          "method": "method-piecewise-range"
+        }
+      }
+    ]
+  }
+}

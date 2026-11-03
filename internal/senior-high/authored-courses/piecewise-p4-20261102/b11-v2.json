@@ -1,0 +1,31 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b11-v2",
+  "reviewer": "Codex · 2026-11-02 核对图10第99页例11变式题干及分段开闭；图11为变式2答案续页",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-10.png",
+      "sha256": "1de03d2cb3d83ef56ce1028e8a8c5383823f615ce64aa04655002c877a1af7e9",
+      "location": "第99页例11变式2，原题干，续页仅为解析"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $a\\in\\mathbb R$，若函数 $f(x)=\\begin{cases}x+1,&x>1\\\\ax^2-2x,&x\\le1\\end{cases}$ 的值域为 $\\mathbb R$，则实数 $a$ 的取值范围是____。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x+1,x>1,a*x^2-2*x,x<=1)"
+      ],
+      "facts": [
+        "a∈ℝ"
+      ],
+      "goals": [
+        {
+          "kind": "match_range",
+          "object": "f",
+          "range": "ℝ",
+          "symbol": "a"
+        }
+      ]
+    }
+  }
+}

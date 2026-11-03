@@ -17,6 +17,44 @@ const context = vm.createContext({
 vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'utf8'), context);
 const tex = expression => context.tex(expression);
 
+test('photographed formula questions show the given relation and requested formula without solving it', () => {
+  const goal = {kind: 'find_function_formula', function: 'f', variable: 'x',
+    relation: 'f(sqrt(x)+1)=x+2*sqrt(x)'};
+  const text = context.meaningBlocks({goals: [goal]}, '', []).join('');
+  assert.ok(text.includes('已知 $f(\\sqrt{x}+1)=x+2\\sqrt{x}$；求 $f(x)$ 的解析式'));
+  assert.doesNotMatch(text, /undefined|定义域|所求范围|\\in|x\^\{2\}-1/);
+  for (const [, formula] of text.matchAll(/\$([^$]+)\$/g)) {
+    assert.doesNotThrow(() => katex.renderToString(formula, {throwOnError: true}));
+  }
+});
+
+test('formula meaning preserves stated domains and both variables in a functional relation', () => {
+  const goal = {kind: 'find_function_formula', function: 'f', variable: 'x',
+    relation: 'f(x+y)=2*f(y)+x^2+2*x*y-y^2+3*x-3*y',
+    relation_variables: ['x', 'y'], relation_domain: 'ℝ', declared_domain: 'ℝ', requested_domain: 'ℝ'};
+  const text = context.meaningBlocks({goals: [goal]}, '', []).join('');
+  assert.ok(text.includes('$f$ 的定义域为 $\\mathbb{R}$'));
+  assert.ok(text.includes('对任意 $x,y\\in \\mathbb{R}$'));
+  assert.ok(text.includes('求 $f(x)$ 的解析式（所求范围 $\\mathbb{R}$）'));
+  assert.doesNotMatch(text, /undefined/);
+});
+
+test('relation value and inequality targets keep function type and additional conditions', () => {
+  const given = {function: 'f', variable: 'x', function_type: 'quadratic',
+    relation: 'f(x-1)=f(x)+3*x-5', additional_relations: ['f(0)=0']};
+  const text = context.meaningBlocks({goals: [
+    {...given, kind: 'find_value', expression: 'f(1)'},
+    {...given, kind: 'find_range', expression: 'f(x)>0', symbol: 'x'},
+  ]}, '', []).join('');
+  assert.match(text, /\$f\$ 是二次函数/);
+  assert.match(text, /\$f\(x-1\)=f\(x\)\+3x-5\$/);
+  assert.match(text, /\$f\(0\)=0\$/);
+  assert.match(text, /求 \$f\(1\)\$ 的值/);
+  assert.match(text, /求 满足 \$f\(x\)&gt;0\$ 的 \$x\$ 的取值范围/);
+  assert.equal((text.match(/f\(0\)=0/g) || []).length, 1, 'shared given conditions appear once');
+  assert.doesNotMatch(text, /undefined/);
+});
+
 test('translation-range meaning retains both functions, the known image and the target interval', () => {
   const candidate = JSON.parse(fs.readFileSync(new URL('server/tests/solver/fixtures/function-range/q18-candidate.json', base), 'utf8'));
   const text = context.meaningBlocks(candidate.root, '', []).join('');

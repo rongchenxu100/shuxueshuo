@@ -1,0 +1,66 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-08.png",
+  "source_sha256": "15671e61ea0ea57d21b73415ebb42f2959bc25161b35b622c40a915e63bd24fe",
+  "source_kind": "original_page_question_crop_dual_view",
+  "recorded_date": "2026-11-02",
+  "usage": "development_regression_not_unseen_holdout",
+  "product_crop": {
+    "box": [
+      0.09773260359655982,
+      0.205158264947245,
+      0.9069585613760751,
+      0.4718640093786635
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1035,
+      455
+    ]
+  },
+  "historical_semantic_calls": 1,
+  "historical_network_attempts": 1,
+  "call_stages": [
+    "extract"
+  ],
+  "notes": "Actual dual-view extraction: the unchanged original crop and its processed rendition were both sent, without authored facts or answers. The model still reported uncertainty in source and option intercepts. One extraction call stopped for confirmation, with no repair or review. Retained failure evidence, not successful photo acceptance or unseen holdout.",
+  "sanitization": {
+    "removed": "Provider file/request identifiers only.",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/image_files/1/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/1/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "original.png": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "question.png": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010",
+    "crop.json": "0acf874a50e77bc69b7e41c2f38cf80ee51f0a987c3f6bd5854ae08a08007e37",
+    "result.json": "8c57a6de5ffc76df3f86542c75ac0b25e08c3c159a82ae914f8347ed17fd7133",
+    "workflow/ledger.json": "d610ff006db0c34e9f77b5887c3de9789fe3f7b6972c7d5ba6363608237d5350",
+    "workflow/candidate.json": "b76e0e4488918f61b4a18c377395435a3bf1050d00588ff1824033923999910c",
+    "workflow/workflow-result.json": "db659a450355f23aa90adbfac47312380832a6a29e99ed841175365517d37e28",
+    "workflow/calls/01-extract/request.json": "18cfb4f1ea098326f5834b3458fae961f328ad4605304b8252171893d7278e93",
+    "workflow/calls/01-extract/response.json": "f117f10b9982c7895a1816652bd4f0c64b547bfaf98143ec296cbdbfdda2b512"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "146099aea14589b045d5b8c67fc2b42ef5ad49da64531d2862166bb0c076cbc7"
+  },
+  "files": {
+    "original.png": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "question.png": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010",
+    "crop.json": "0acf874a50e77bc69b7e41c2f38cf80ee51f0a987c3f6bd5854ae08a08007e37",
+    "result.json": "8c57a6de5ffc76df3f86542c75ac0b25e08c3c159a82ae914f8347ed17fd7133",
+    "workflow/ledger.json": "d610ff006db0c34e9f77b5887c3de9789fe3f7b6972c7d5ba6363608237d5350",
+    "workflow/candidate.json": "b76e0e4488918f61b4a18c377395435a3bf1050d00588ff1824033923999910c",
+    "workflow/workflow-result.json": "db659a450355f23aa90adbfac47312380832a6a29e99ed841175365517d37e28",
+    "workflow/calls/01-extract/request.json": "18cfb4f1ea098326f5834b3458fae961f328ad4605304b8252171893d7278e93",
+    "workflow/calls/01-extract/response.json": "d6f842f2586ace76dd94a9cf112de813f15e160dacc9983a42fc75a29a9f0c33"
+  }
+}

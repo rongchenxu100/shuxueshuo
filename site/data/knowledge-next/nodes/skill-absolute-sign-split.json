@@ -1,0 +1,32 @@
+{
+  "id": "skill-absolute-sign-split",
+  "kind": "skill",
+  "label": "绝对值按符号分段",
+  "summary": "求绝对值内的零点，依据各段正负决定保留或取相反数。",
+  "source": "函数的表示法 FR-T2 G2",
+  "input": "至多二次的 p(x) 与输入范围。",
+  "output": "每段的表达式与包含开闭的有效区间。",
+  "conditions": "由符号证明整段恒等，不用采样近似判断符号。",
+  "basis": [
+    "absolute-value-concept#definition"
+  ],
+  "operations": [
+    {
+      "id": "split",
+      "title": "分段并去绝对值",
+      "body": [
+        "p(x)≥0 时 |p(x)|=p(x)；p(x)<0 时 |p(x)|=−p(x)。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "负值区间翻折",
+      "prompt": "当 $-1\\le x<3$ 时，怎样去掉 $|x^2-2x-3|$ 的绝对值？",
+      "solution": [
+        "$(x+1)(x-3)\\le0$，因此 $|x^2-2x-3|=-x^2+2x+3$。"
+      ],
+      "source": "函数的表示法 B09-v1"
+    }
+  ]
+}

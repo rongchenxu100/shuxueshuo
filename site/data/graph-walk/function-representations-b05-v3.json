@@ -44,7 +44,6 @@
         "type-function-equality",
         "type-function-formula",
         "type-function-range",
-        "type-piecewise-composition",
         "type-piecewise-function"
       ],
       "effects": {
@@ -56,7 +55,7 @@
         "results": [
           "求出给定输入对应的函数值"
         ],
-        "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+        "log": "图谱查询：根据本题知识线索展示相关题型。"
       },
       "target_ref": "/root/goals/0"
     },
@@ -351,7 +350,6 @@
             "type-function-equality",
             "type-function-evaluation",
             "type-function-range",
-            "type-piecewise-composition",
             "type-piecewise-function"
           ],
           "effects": {
@@ -363,7 +361,7 @@
             "results": [
               "求出函数解析式，并写出适用范围"
             ],
-            "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+            "log": "图谱查询：根据本题知识线索展示相关题型。"
           },
           "target_ref": "/root/goals/1",
           "route_id": "function-matching"
@@ -1348,15 +1346,6 @@
         "home": "compulsory-1-ch3"
       },
       {
-        "id": "type-piecewise-composition",
-        "kind": "problem_type",
-        "label": "复合型分段函数问题",
-        "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
-        "aliases": [],
-        "status": "planned",
-        "home": "compulsory-1-ch3"
-      },
-      {
         "id": "type-piecewise-function",
         "kind": "problem_type",
         "label": "分段函数常规问题",
@@ -1626,15 +1615,6 @@
         ]
       },
       {
-        "id": "type-piecewise-composition|involves|function-concept",
-        "from": "type-piecewise-composition",
-        "to": "function-concept",
-        "type": "involves",
-        "occurrences": [
-          {}
-        ]
-      },
-      {
         "id": "type-piecewise-function|involves|function-concept",
         "from": "type-piecewise-function",
         "to": "function-concept",
@@ -1797,13 +1777,13 @@
       }
     ]
   },
-  "bundleVersion": "df66054df31bfac356081241a7b20fab2b7c4d2678493e0f7d3ef2b31ee3572f",
+  "bundleVersion": "73fdabf6654120675b49821cb5fb9d14bd606f0f2df4a691f0c86cce32fdb6ed",
   "stream": {
     "run_id": "3fb7be5e70984e059a6ea2db782e856e",
     "lesson_version": "bafb780fff7b72d1e91c90e5ca3b0aa9b10ded02612e5fc9e544013874569d33",
     "stream_id": "3fb7be5e70984e059a6ea2db782e856e",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "728be6f42dcf0de4731a6777e97dcc6096e17c8efdf10130240dc74a0f40690c",
+    "base_bundle_version": "f8b572399ac17ee64714cbae076efbbbc9f0e6ce6fb91022aa7994df35eb2dcf",
     "d3": {
       "expected_answer": {},
       "id": "D3",

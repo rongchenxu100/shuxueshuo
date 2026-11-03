@@ -18,13 +18,14 @@ export function methodConnectionsHTML(decision, answer, interactive) {
       <svg class="gw-method-link-lines" aria-hidden="true">${methods.map(method => `<g data-method-edge="${h(method.value)}" class="${method.value === answer.method ? 'is-selected' : ''}"><path class="gw-method-link-path"/><path class="gw-method-link-arrow"/></g>`).join('')}</svg>
       <div class="gw-method-choices">${methods.map(method => {
         const picked = method.value === answer.method, tag = interactive ? 'button' : 'div';
-        return `<${tag} class="gw-method-node${picked ? ' is-selected' : ''}" data-method-node="${h(method.value)}"${interactive ? ` type="button" data-card-method="${h(method.value)}" aria-pressed="${picked}"` : ''}><strong>${h(method.label)}</strong>${picked ? `<span class="gw-method-picked-state">${interactive ? '已选择' : '✓ 本题选择'}</span>` : ''}</${tag}>`;
+        const note = component.method_notes?.[method.value];
+        return `<${tag} class="gw-method-node${picked ? ' is-selected' : ''}" data-method-node="${h(method.value)}"${interactive ? ` type="button" data-card-method="${h(method.value)}" aria-pressed="${picked}"` : ''}><strong>${h(method.label)}</strong>${note ? `<span class="gw-method-note" data-math-text>${h(note)}</span>` : ''}${picked ? `<span class="gw-method-picked-state">${interactive ? '已选择' : '✓ 本题选择'}</span>` : ''}</${tag}>`;
       }).join('')}</div>
     </div>`;
   }).join('');
   const selected = component.methods.find(method => method.value === answer.method);
   const explanation = !interactive && selected ? `<div class="gw-method-map-explanation"><p data-math-text>${h(decision.verdicts?.[selected.value]?.message)}</p>${component.methods.filter(method => method.value !== selected.value && decision.verdicts?.[method.value]?.value === 'fit').map(method => `<p class="gw-method-also" data-math-text>${h(decision.verdicts[method.value].message)}</p>`).join('')}</div>` : '';
-  return `<div class="gw-method-connections" data-method-connections role="group" aria-label="${interactive ? '选法关系图' : '已确认的选法关系图'}"><div class="gw-method-map-head"><span>题目线索</span><span>可尝试的方法</span></div>${rows}</div>${explanation}`;
+  return `<div class="gw-method-connections" data-method-connections role="group" aria-label="${interactive ? '选法关系图' : '已确认的选法关系图'}"><div class="gw-method-map-head"><span>${h(component.cue_heading || '题目线索')}</span><span>可尝试的方法</span></div>${rows}</div>${explanation}`;
 }
 
 // Geometry is display-only. All authored edges are drawn before a choice is made.

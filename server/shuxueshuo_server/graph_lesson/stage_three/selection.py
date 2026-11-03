@@ -20,9 +20,9 @@ def load_contract(primary):
         schema = json.loads((DATA.parents[2] / "internal/schemas/graph-direct-method-selection-v1.schema.json").read_text())
         Draft202012Validator(schema).validate(contract)
         methods = nodes[primary].get('methods', [])
-        if contract.get('admission') in ('function_domain_routes', 'function_range_routes') or contract.get('display') == 'method_cards':
+        rules = nodes[primary].get('rules', [])
+        if contract.get('admission') in ('function_domain_routes', 'function_range_routes', 'piecewise_routes') or contract.get('display') == 'method_cards':
             route_methods = [row['method'] for row in contract['routes']] if 'routes' in contract else [contract['method']]
-            rules = nodes[primary].get('rules', [])
             card_rule = contract.get('display') == 'method_cards' and contract.get('rule') in rules
             if (contract['type'] != primary or (rules and not card_rule)
                     or not route_methods or any(method not in methods for method in route_methods)):
@@ -32,7 +32,7 @@ def load_contract(primary):
                 if node['kind'] != 'judgment_rule' or any(b['target'] not in route_methods for b in node['branches']):
                     raise ValueError('selection.card_rule_node_mismatch')
         elif (contract['type'] != primary or contract.get('method') not in methods
-                or nodes[primary].get('rules')):
+                or rules):
             raise ValueError('selection.direct_contract_node_mismatch')
         return contract
     for rule in nodes.get(primary, {}).get("rules", []):
@@ -119,20 +119,29 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
         if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula'):
+                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
+        from ..piecewise_equation import admitted as admitted_piecewise
+        from ..piecewise_inequality import admitted as admitted_piecewise_inequality
+        from ..piecewise_modeling import admitted as admitted_pricing
+        from ..piecewise_range_parameter import (
+            admitted as admitted_piecewise_range_parameter,
+        )
+        from .assignment_runtime import admitted as admitted_assignment
+        from .coefficients_runtime import admitted as admitted_coefficients
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
         from .evaluation_runtime import admitted as admitted_evaluation
         from .formula_runtime import admitted as admitted_formula
-        from .matching_runtime import admitted as admitted_matching
-        from .coefficients_runtime import admitted as admitted_coefficients
-        from .system_runtime import admitted as admitted_system
-        from .assignment_runtime import admitted as admitted_assignment
         from .function_domain import admitted, admitted_parameter
         from .function_range import admitted as admitted_range
+        from .matching_runtime import admitted as admitted_matching
         from .method_admission import _abstract_function_domain as admitted_abstract
+        from .system_runtime import admitted as admitted_system
         context = build_context(candidate, target_ref)
+        if admission == 'function_graph':
+            from .graph_transform_selection import select_graph
+            return select_graph(context, contract, primary)
         if admission == 'function_formula' and (admitted_formula(context) or admitted_matching(context) or admitted_coefficients(context) or admitted_system(context) or admitted_assignment(context)):
             from .formula_selection import select_formula
             return select_formula(context, contract, primary)
@@ -144,6 +153,10 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Re-read the candidate. A supplied type/feature/method override never
         # grants admission to a different mathematical category.
         checks = {
+            'piecewise_modeling': lambda ctx: admitted_pricing(ctx) and ctx['goal']['kind'] == 'find_equation',
+            'piecewise_equation': admitted_piecewise,
+            'piecewise_range_parameter': admitted_piecewise_range_parameter,
+            'piecewise_inequality': admitted_piecewise_inequality,
             'function_formula': admitted_formula,
             'function_matching': admitted_matching,
             'function_coefficients': admitted_coefficients,
@@ -161,13 +174,17 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_range_equation': lambda context: admitted_range(context, 'method-equation-real-root-range'),
             'function_range_translation': lambda context: admitted_range(context, 'method-translation-range'),
             'function_range_finite': lambda context: admitted_range(context, 'method-finite-range'),
+            'function_range_piecewise': lambda context: admitted_range(context, 'method-piecewise-range'),
             'abstract_function_domain': admitted_abstract,
         }
-        if admission == 'function_formula':
+        if admission in ('function_formula', 'piecewise_routes'):
             routes = contract['routes']
         elif admission == 'function_range':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '二次函数区间值域法'}]
+        elif admission == 'piecewise_equation':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '分段解方程法'}]
         elif admission == 'function_evaluation':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '代入法'}]
@@ -209,7 +226,20 @@ def evaluate_goal(candidate, target_ref, features, primary):
                   'missing_capabilities': [f"execution:{chosen['method']}"]}
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
                      'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
+        piecewise_evaluation = chosen['admission'] == 'function_evaluation' and any(
+            row.get('expression_ast', [])[:2] == ['call', 'piecewise']
+            for row in context.get('evaluation_goal', {}).get('functions', []))
         question = (
+            '按用量分档，每一档的总费用等于前面各档的费用，加上本档新增用量的费用。'
+            if chosen['admission'] == 'piecewise_modeling' else
+            '先求不含参数那一段函数的值域，再对照整个函数的目标值域，确定含参数那一段函数需要满足的条件，最后求参数范围。'
+            if chosen['admission'] == 'piecewise_range_parameter' else
+            '分别求出各段能取到的函数值，再合并各段值域；只要有一段能取到，就保留这个值。'
+            if chosen['admission'] == 'function_range_piecewise' else
+            '分别用每一段的解析式列方程，求出的解必须符合该段范围，最后把保留的解合起来。'
+            if chosen['admission'] == 'piecewise_equation' else
+            '先算出比较值，再逐段解不等式；各段结果与本段范围取交，最后合并。'
+            if chosen['admission'] == 'piecewise_inequality' else
             '先选一个合法的原变量，让函数括号里的值等于所求输入，再代入题目右边求值。'
             if context.get('evaluation_goal', {}).get('relation_ast') else
             '把函数括号里的整体设为新变量，核对新变量的范围，再合法反解、恢复规则并回验。'
@@ -227,6 +257,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
             ('先求被开方数在定义域上的完整范围，再开平方并完成比例和平移。'
              if context['range_goal']['radical'] else '结合顶点与区间边界，确定全部能取到的函数值。')
             if chosen['admission'] in ('function_range', 'function_range_quadratic') else
+            '先根据当前输入选段，再代入这一段计算；有内外两层时，先求内层，再用中间值重新选段。'
+            if piecewise_evaluation else
             '把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。'
             '这里用代入法；换元则是引入新变量来转换问题。'
             if chosen['admission'] == 'function_evaluation' else
@@ -243,8 +275,14 @@ def evaluate_goal(candidate, target_ref, features, primary):
         d3 = {'id': 'D3', 'title': '选择解题方法', 'question': question,
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
               'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
+        if chosen['admission'] in ('piecewise_modeling', 'piecewise_equation', 'piecewise_inequality', 'piecewise_range_parameter', 'function_range_piecewise') or piecewise_evaluation:
+            d3.update(title='解题方法', submit_label='开始解题')
         if admission in ('function_range', 'function_range_routes'):
-            if context['goal']['kind'] == 'select_range_domain':
+            if context.get('range_goal', {}).get('piecewise'):
+                from ..piecewise_range import inputs as piecewise_inputs
+                _, domain, _ = piecewise_inputs(context['range_goal'])
+                d3['prerequisites'] = []
+            elif context['goal']['kind'] == 'select_range_domain':
                 task = context['goal']
                 domain = '各选项给定的区间'
                 d3['prerequisites'] = []

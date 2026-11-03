@@ -1,0 +1,1101 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "needs_confirmation",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "needs_confirmation"
+  },
+  "diagnostics": [
+    {
+      "stage": "source",
+      "code": "occluded",
+      "path": "/root/uncertainties/0",
+      "source": {
+        "kind": "occluded",
+        "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+      },
+      "message": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。",
+      "action": "needs_confirmation"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式2】将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(-x^2+1)+2",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "left_corner",
+                    "x": "-1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "center",
+                    "x": "0",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "left_corner",
+                    "x": "-2",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "center",
+                    "x": "-1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "0",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "-1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "unknown"
+              },
+              "uncertainties": [
+                "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+              ]
+            }
+          ],
+          "transformations": [
+            {
+              "direction": "left",
+              "distance": "2"
+            },
+            {
+              "direction": "down",
+              "distance": "3"
+            }
+          ]
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "incomplete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【变式2】将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(-x^2+1)+2",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "left_corner",
+                    "x": "-1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "center",
+                    "x": "0",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "left_corner",
+                    "x": "-2",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "center",
+                    "x": "-1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "0",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "-1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "unknown"
+              },
+              "uncertainties": [
+                "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+              ]
+            }
+          ],
+          "transformations": [
+            {
+              "direction": "left",
+              "distance": "2"
+            },
+            {
+              "direction": "down",
+              "distance": "3"
+            }
+          ]
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "occluded",
+          "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "incomplete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "incomplete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "d1b849a5a460567435129265cf7d79c8bfe5e8bfc370cff0f0c8646c28456ebc",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "abs(-x^2+1)+2",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "left_corner",
+                      "x": "-1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "center",
+                      "x": "0",
+                      "y": "1",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "left_corner",
+                      "x": "-2",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "center",
+                      "x": "-1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "0",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "center",
+                      "x": "-2",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "-1",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "center",
+                      "x": "-2",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "unknown"
+                },
+                "uncertainties": [
+                  "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+                ]
+              }
+            ],
+            "transformations": [
+              {
+                "direction": "left",
+                "distance": "2"
+              },
+              {
+                "direction": "down",
+                "distance": "3"
+              }
+            ]
+          }
+        ],
+        "uncertainties": [
+          "occluded"
+        ],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "abs(-x^2+1)+2",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "left_corner",
+                      "x": "-1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "center",
+                      "x": "0",
+                      "y": "1",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "left_corner",
+                      "x": "-2",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "center",
+                      "x": "-1",
+                      "y": "0",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "0",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "center",
+                      "x": "-2",
+                      "evidence": "labelled"
+                    },
+                    {
+                      "role": "right_corner",
+                      "x": "-1",
+                      "y": "-1",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "symmetric"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "turning_points",
+                  "outer_direction": "up",
+                  "landmarks": [
+                    {
+                      "role": "center",
+                      "x": "-2",
+                      "evidence": "labelled"
+                    }
+                  ],
+                  "symmetry": "unknown"
+                },
+                "uncertainties": [
+                  "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+                ]
+              }
+            ],
+            "transformations": [
+              {
+                "direction": "left",
+                "distance": "2"
+              },
+              {
+                "direction": "down",
+                "distance": "3"
+              }
+            ],
+            "target": [
+              "+",
+              [
+                "call",
+                "abs",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "occluded",
+            "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+          }
+        ],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t2-b09-v2-photo",
+      "source_sha256": "71238e4c9b225dc9290cf88945f6756605d0a045f16fad08d7d2fd4c1d406146"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "source",
+          "code": "occluded",
+          "path": "/root/uncertainties/0",
+          "source": {
+            "kind": "occluded",
+            "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+          },
+          "message": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。",
+          "action": "needs_confirmation"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "d1b849a5a460567435129265cf7d79c8bfe5e8bfc370cff0f0c8646c28456ebc",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(-x^2+1)+2",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "left_corner",
+                          "x": "-1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "center",
+                          "x": "0",
+                          "y": "1",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "left_corner",
+                          "x": "-2",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "center",
+                          "x": "-1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "0",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "center",
+                          "x": "-2",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "-1",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "center",
+                          "x": "-2",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "unknown"
+                    },
+                    "uncertainties": [
+                      "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+                    ]
+                  }
+                ],
+                "transformations": [
+                  {
+                    "direction": "left",
+                    "distance": "2"
+                  },
+                  {
+                    "direction": "down",
+                    "distance": "3"
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [
+              "occluded"
+            ],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(-x^2+1)+2",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "left_corner",
+                          "x": "-1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "center",
+                          "x": "0",
+                          "y": "1",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "left_corner",
+                          "x": "-2",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "center",
+                          "x": "-1",
+                          "y": "0",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "0",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "center",
+                          "x": "-2",
+                          "evidence": "labelled"
+                        },
+                        {
+                          "role": "right_corner",
+                          "x": "-1",
+                          "y": "-1",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "symmetric"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "turning_points",
+                      "outer_direction": "up",
+                      "landmarks": [
+                        {
+                          "role": "center",
+                          "x": "-2",
+                          "evidence": "labelled"
+                        }
+                      ],
+                      "symmetry": "unknown"
+                    },
+                    "uncertainties": [
+                      "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+                    ]
+                  }
+                ],
+                "transformations": [
+                  {
+                    "direction": "left",
+                    "distance": "2"
+                  },
+                  {
+                    "direction": "down",
+                    "distance": "3"
+                  }
+                ],
+                "target": [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r.goals[0]:scalar:x",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "occluded",
+                "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+              }
+            ],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t2-b09-v2-photo",
+          "source_sha256": "71238e4c9b225dc9290cf88945f6756605d0a045f16fad08d7d2fd4c1d406146"
+        }
+      },
+      "revision": "d1b849a5a460567435129265cf7d79c8bfe5e8bfc370cff0f0c8646c28456ebc"
+    }
+  ]
+}

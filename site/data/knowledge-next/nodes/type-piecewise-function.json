@@ -1,22 +1,62 @@
 {
   "id": "type-piecewise-function",
   "kind": "problem_type",
-  "status": "planned",
   "label": "分段函数常规问题",
-  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+  "summary": "分段求值、方程、不等式、值域求参及阶梯建模：保留各段范围，按题目要求直接使用对应方法。",
   "source": "函数的表示法专题建设计划（2026-10-30）；教辅例 10—12；P0 登记（2026-11-01）",
   "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点",
   "features": [
-    {"cue": "给定输入求值时先选段；嵌套数值每算完一层，都根据中间值重新选段。"},
-    {"cue": "由函数值反求输入或解不等式时，各段结果先与本段范围取交，再合并。"},
-    {"cue": "值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"},
-    {"cue": "阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"}
+    {
+      "cue": "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+    },
+    {
+      "cue": "由函数值反求输入或解不等式时，各段结果先与本段范围取交，再合并。"
+    },
+    {
+      "cue": "值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"
+    },
+    {
+      "cue": "阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"
+    }
   ],
-  "confuse": [
-    {"text": "未知输入出现在两层分段函数中，须从外层条件逐层反求", "ref": "type-piecewise-composition"}
+  "confuse": [],
+  "knowledge": [
+    "piecewise-function",
+    "function-representations",
+    "function-concept",
+    "interval-notation",
+    "set-intersection-union",
+    "linear-interval-extremum",
+    "quadratic-function-properties"
   ],
-  "knowledge": ["piecewise-function", "function-representations", "function-concept", "interval-notation", "set-intersection-union", "linear-interval-extremum", "quadratic-function-properties"],
-  "methods": [],
+  "methods": [
+    "method-piecewise-equation",
+    "method-piecewise-inequality",
+    "method-piecewise-range-parameter",
+    "method-piecewise-modeling"
+  ],
   "rules": [],
-  "examples": []
+  "examples": [
+    {
+      "title": "分段解方程并筛选根",
+      "prompt": "已知 $f(x)=\\begin{cases}x^2+1,&x>0\\\\-2x+2,&x\\le0\\end{cases}$，若 $f(x)=5$，求 $x$。",
+      "solution": [
+        "$x>0$ 时，$x^2+1=5\\Rightarrow x=\\pm2$；只保留 $2$。",
+        "$x\\le0$ 时，$-2x+2=5\\Rightarrow x=-\\frac32$，符合该段范围。",
+        "全部解为 $x=-\\frac32$ 或 $x=2$。"
+      ],
+      "source": "高中数学一本通·必修一（RJA版）第98页例10变式1"
+    },
+    {
+      "title": "先求比较值，再分段解不等式",
+      "prompt": "已知 $f(x)=\\begin{cases}x^2-4x+6,&x\\ge0\\\\x+6,&x<0\\end{cases}$，求 $f(x)>f(1)$ 的解集。",
+      "solution": [
+        "$f(1)=1^2-4+6=3$。",
+        "$x\\ge0$：$(x-1)(x-3)>0$，与 $[0,+\\infty)$ 取交得 $[0,1)\\cup(3,+\\infty)$。",
+        "$x<0$：$x+6>3\\Rightarrow x>-3$，与 $(-\\infty,0)$ 取交得 $(-3,0)$。",
+        "合并得到 $(-3,1)\\cup(3,+\\infty)$，选择 A。"
+      ],
+      "source": "高中数学一本通·必修一（RJA版）第98页例10变式2"
+    }
+  ]
 }

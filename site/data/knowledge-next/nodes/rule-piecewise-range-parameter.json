@@ -1,0 +1,52 @@
+{
+  "id": "rule-piecewise-range-parameter",
+  "kind": "judgment_rule",
+  "label": "分段值域求参的步骤判断",
+  "summary": "把固定段的值域与题目要求的值域放在函数值数轴上比较。",
+  "source": "FR-T3 P4；教辅例11两个变式",
+  "subtype": "step_selection",
+  "input": "固定段值域 R₀、目标值域 V。",
+  "output": "不越界、补齐且不越界、或无解。",
+  "conditions": "固定段值域已经完整求出；比较的是函数值集合。",
+  "branches": [
+    {
+      "id": "contained",
+      "title": "固定段已经取到所有目标值",
+      "condition": "R₀=V：只要求含参段值域包含于V。",
+      "target": "method-piecewise-range-parameter"
+    },
+    {
+      "id": "cover",
+      "title": "固定段还缺一部分目标值",
+      "condition": "R₀严格包含于V：含参段必须补齐V∖R₀，且不越界。",
+      "target": "method-piecewise-range-parameter"
+    },
+    {
+      "id": "impossible",
+      "title": "固定段已经超出目标值域",
+      "condition": "R₀不包含于V：参数无法消除已有函数值，无解。",
+      "target": "method-piecewise-range-parameter"
+    }
+  ],
+  "examples": [
+    {
+      "title": "固定段已取到全部目标值",
+      "prompt": "已知 $f(x)=\\begin{cases}x^2-2,&x\\le1\\\\ax^2-x+2,&x>1\\end{cases}$ 的值域为 $[-2,+\\infty)$，求 $a$。",
+      "solution": [
+        "$R_0=[-2,+\\infty)=V$，含参段只需不越界。",
+        "$ax^2-x+2\\ge-2\\iff a\\ge\\frac{x-4}{x^2}$，对所有 $x>1$ 成立。",
+        "令 $t=\\frac1x\\in(0,1)$，$t-4t^2=-4(t-\\frac18)^2+\\frac1{16}$，故 $a\\ge\\frac1{16}$。"
+      ],
+      "source": "教辅第99页例11变式1"
+    },
+    {
+      "title": "固定段缺少一个半区间",
+      "prompt": "固定段的值域为 $(2,+\\infty)$，整个函数的值域要为 $\\mathbb R$，含参段需要取到哪些值？",
+      "solution": [
+        "$\\mathbb R\\setminus(2,+\\infty)=(-\\infty,2]$。",
+        "含参段要补齐 $(-\\infty,2]$；特别要能取到 $2$。"
+      ],
+      "source": "教辅第99页例11变式2"
+    }
+  ]
+}

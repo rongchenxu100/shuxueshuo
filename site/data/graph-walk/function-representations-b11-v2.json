@@ -1,0 +1,4022 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b11-v2",
+  "graphVersion": "980b513e5b7fcbe36d318ed1789f620bb668ed4af9f478f434d49b36f8177221",
+  "problem": {
+    "text": "已知 $a\\in\\mathbb R$，若函数 $f(x)=\\begin{cases}x+1,&x>1\\\\ax^2-2x,&x\\le1\\end{cases}$ 的值域为 $\\mathbb R$，则实数 $a$ 的取值范围是____。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-piecewise-function"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "type-piecewise-function"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "判断依据：值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"
+        ],
+        "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "分段值域求参法",
+            "target": "method-piecewise-range-parameter",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "piecewise-range-parameter"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "使用分段值域求参法：先求不含参数那一段函数的值域，再对照整个函数的目标值域，确定含参数那一段函数需要满足的条件，最后求参数范围。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-piecewise-range-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "method-piecewise-range-parameter"
+        ],
+        "edges": [
+          "type-piecewise-function|candidate|method-piecewise-range-parameter"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "piecewise-range-parameter"
+      }
+    }
+  ],
+  "routes": {
+    "piecewise-range-parameter": {
+      "id": "piecewise-range-parameter",
+      "method": "method-piecewise-range-parameter",
+      "label": "分段值域求参法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "第 1 段函数（不含参数）：$f(x)=x + 1$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数（不含参数）",
+                "math": "\\begin{gathered}f(x)=x + 1\\\\x > 1\\end{gathered}"
+              },
+              {
+                "label": "第 1 段函数的值域",
+                "math": "R_{1}=\\left(2, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "第 1 段函数：$y=x + 1$，$x > 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -0.75,
+                3.75,
+                -0.75,
+                4.75
+              ],
+              "description": "x=1 取不到，函数值趋近 2（空心点）",
+              "intercept": 1,
+              "interval": [
+                1,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [
+                {
+                  "label": "(1, 2)",
+                  "open": true,
+                  "x": 1
+                }
+              ],
+              "slope": 1,
+              "title": "第 1 段函数 y=x + 1，x∈(1, +∞)",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}x>1\\Rightarrow x + 1>2\\\\R_{1}=\\left(2, \\infty\\right)\\end{gathered}$$"
+          },
+          "graph": {
+            "caption": "第 1 段函数：$y=x + 1$，$x > 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -0.75,
+                3.75,
+                -0.75,
+                4.75
+              ],
+              "description": "x=1 取不到，函数值趋近 2（空心点）",
+              "intercept": 1,
+              "interval": [
+                1,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [
+                {
+                  "label": "(1, 2)",
+                  "open": true,
+                  "x": 1
+                }
+              ],
+              "slope": 1,
+              "title": "第 1 段函数 y=x + 1，x∈(1, +∞)",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "de7b0198a4f32c48d1218683#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(2, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left[2, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left\\{2\\right\\}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $x > 1$ 时，$f(x)=x + 1$。这段函数的值域是什么？",
+          "stem_board": {
+            "caption": "第 1 段函数（不含参数）：$f(x)=x + 1$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数（不含参数）",
+                "math": "\\begin{gathered}f(x)=x + 1\\\\x > 1\\end{gathered}"
+              },
+              {
+                "label": "第 1 段函数的值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "先求不含参数那一段函数的值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "03db6de975435ea296402b445747a85cc62d74fd65ba28c13eddf099a1cfe56b",
+              "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f0355c0b27d18795f92bb9db",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "先求不含参数那一段函数的值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：先求不含参数那一段函数的值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与整个函数的目标值域",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\V=\\mathbb{R}\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "第 2 段函数的值域要求（含参数 $a$）",
+                "math": "\\left(-\\infty, 2\\right]\\subseteq R_{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_number_line": {
+            "bounds": [
+              1.25,
+              2.75
+            ],
+            "exact_set": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, 2)",
+              "latex": "\\left(-\\infty, 2\\right]"
+            },
+            "intervals": [
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "NegativeInfinity"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      }
+                    ]
+                  },
+                  "expression": "Interval(-oo, 2)",
+                  "latex": "\\left(-\\infty, 2\\right]"
+                },
+                "left": null,
+                "left_closed": false,
+                "right": 2,
+                "right_closed": true
+              }
+            ],
+            "label": "\\text{第 2 段函数必须补齐的函数值}:\\quad \\left(-\\infty, 2\\right]",
+            "points": [],
+            "ticks": [
+              {
+                "at": 2,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  "expression": "2",
+                  "latex": "2"
+                },
+                "label": "2"
+              }
+            ],
+            "variable": "y"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                1.25,
+                2.75
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                "expression": "Interval.open(2, oo)",
+                "latex": "\\left(2, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "2"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(2, oo)",
+                    "latex": "\\left(2, \\infty\\right)"
+                  },
+                  "left": 2,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\begin{gathered}\\text{第 1 段函数（不含参数）}:\\quad f(x)=x + 1,\\ x > 1\\\\\\text{已求得的值域}:\\quad R_{1}=\\left(2, \\infty\\right)\\end{gathered}",
+              "points": [],
+              "ticks": [
+                {
+                  "at": 2,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    "expression": "2",
+                    "latex": "2"
+                  },
+                  "label": "2"
+                }
+              ],
+              "variable": "y"
+            },
+            {
+              "bounds": [
+                1.25,
+                2.75
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, oo)",
+                    "latex": "\\left(-\\infty, \\infty\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\text{题目要求整个函数的值域}:\\quad V=\\mathbb{R}",
+              "points": [],
+              "ticks": [
+                {
+                  "at": 2,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    "expression": "2",
+                    "latex": "2"
+                  },
+                  "label": "2"
+                }
+              ],
+              "variable": "y"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}R_{1}=\\left(2, \\infty\\right),\\quad V=\\mathbb{R}\\\\V\\setminus R_{1}=\\left(-\\infty, 2\\right]\\Rightarrow \\left(-\\infty, 2\\right]\\subseteq R_{2}\\end{gathered}$$"
+          },
+          "id": "e32c410e2f6dc8bc7e738774#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "第 2 段函数必须取到第 1 段函数未取到的值，且不能超出 $V$",
+                "value": "o1"
+              },
+              {
+                "label": "第 2 段函数的值都在 $V$ 内即可，无须补齐",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "已知第 1 段函数的值域是 $R_{1}$，题目要求整个函数的值域为 $V$。第 2 段函数的值域 $R_{2}$ 应满足什么条件？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与整个函数的目标值域",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\V=\\mathbb{R}\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "第 2 段函数的值域要求（含参数 $a$）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "判断含参数这一段函数需要满足什么条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "14a5b021eb2e0c82c83cecae75e189fe829d9fa4c0e3a3ef26a440567e32b8f7",
+              "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "6bb85cb471e1db617a51b093",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "判断含参数这一段函数需要满足什么条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：判断含参数这一段函数需要满足什么条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与参数为零时的第 2 段函数",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\f(x)=- 2 x,\\quad x\\le1\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "这时的整个值域",
+                "math": "\\left[-2, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "第 2 段函数（$a=0$）：$y=- 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -1.5,
+                1.5,
+                -2.75,
+                2.75
+              ],
+              "description": "x=1 处函数值为 -2（实心点）",
+              "intercept": 0,
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "label": "(1, -2)",
+                  "x": 1
+                }
+              ],
+              "slope": -2,
+              "title": "第 2 段函数（a=0） y=-2x，x∈(-∞, 1]",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}x\\le1\\Rightarrow - 2 x\\ge-2\\\\a=0:\\quad R_{2}=\\left[-2, \\infty\\right)\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\ne\\mathbb R\\end{gathered}$$"
+          },
+          "graph": {
+            "caption": "第 2 段函数（$a=0$）：$y=- 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -1.5,
+                1.5,
+                -2.75,
+                2.75
+              ],
+              "description": "x=1 处函数值为 -2（实心点）",
+              "intercept": 0,
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "label": "(1, -2)",
+                  "x": 1
+                }
+              ],
+              "slope": -2,
+              "title": "第 2 段函数（a=0） y=-2x，x∈(-∞, 1]",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "8a8e9b29435aaf6214d04294#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "能；一次函数也能取到所有实数",
+                "value": "o2"
+              },
+              {
+                "label": "不能；两段都取不到足够小的负数",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a=0$ 时，第 2 段函数的解析式变为 $f(x)=- 2 x$，仍只取 $x \\leq 1$。与第 1 段函数合起来，能取到任意实数吗？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与参数为零时的第 2 段函数",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\f(x)=- 2 x,\\quad x\\le1\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "这时的整个值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "先检查参数等于零",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "57f0610b88d49eef4d9520a15b88f479326fc2e4fd791777d00bf9eceb792cdd",
+              "step_id": "39e5646dcb-piecewise-range-parameter-003-zero"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "6e4c9a623b12a61d45f14e91",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "先检查参数等于零",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：先检查参数等于零"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与第 2 段函数",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\ne0\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "参数的符号",
+                "math": "a<0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graphs": [
+            {
+              "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  1.75,
+                  -3.75,
+                  1.75
+                ],
+                "coefficient": -1,
+                "description": "x=1 处函数值为 -3（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  -1,
+                  1
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    -1,
+                    "-1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            {
+              "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -2,
+                  1.5,
+                  -2,
+                  9
+                ],
+                "coefficient": 2,
+                "description": "x=1 处函数值为 0（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=2） y=2x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  0.5,
+                  -0.5
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    0.5,
+                    "1/2"
+                  ]
+                ],
+                "yLabel": "-1/2"
+              }
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}a>0:\\quad a x^{2} - 2 x=a(x+\\frac{-2}{2a})^2+0-\\frac{4}{4a}\\\\a>0\\Rightarrow R_{2}\\text{有下界，不能取到任意小的值}\\\\a<0,\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\end{gathered}$$"
+          },
+          "id": "6021904a41a556fa24b97b2a#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "graph": {
+                  "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                  "kind": "quadratic",
+                  "params": {
+                    "bounds": [
+                      -2,
+                      1.5,
+                      -2,
+                      9
+                    ],
+                    "coefficient": 2,
+                    "description": "x=1 处函数值为 0（实心点）",
+                    "interval": [
+                      null,
+                      1
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "points": [
+                      {
+                        "x": 1
+                      }
+                    ],
+                    "showVertex": true,
+                    "title": "第 2 段函数示意（a=2） y=2x^2 - 2x，x∈(-∞, 1]",
+                    "variable": "x",
+                    "vertex": [
+                      0.5,
+                      -0.5
+                    ],
+                    "vertexLabel": "",
+                    "xTicks": [
+                      [
+                        1,
+                        "1"
+                      ],
+                      [
+                        0.5,
+                        "1/2"
+                      ]
+                    ],
+                    "yLabel": "-1/2"
+                  }
+                },
+                "label": "向上开口，参数大于零",
+                "value": "o2"
+              },
+              {
+                "graph": {
+                  "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                  "kind": "quadratic",
+                  "params": {
+                    "bounds": [
+                      -3.75,
+                      1.75,
+                      -3.75,
+                      1.75
+                    ],
+                    "coefficient": -1,
+                    "description": "x=1 处函数值为 -3（实心点）",
+                    "interval": [
+                      null,
+                      1
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "points": [
+                      {
+                        "x": 1
+                      }
+                    ],
+                    "showVertex": true,
+                    "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                    "variable": "x",
+                    "vertex": [
+                      -1,
+                      1
+                    ],
+                    "vertexLabel": "",
+                    "xTicks": [
+                      [
+                        1,
+                        "1"
+                      ],
+                      [
+                        -1,
+                        "-1"
+                      ]
+                    ],
+                    "yLabel": "1"
+                  }
+                },
+                "label": "向下开口，参数小于零",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "第 1 段函数的值域为 $\\left(2, \\infty\\right)$。要使整个函数能取到任意小的值，第 2 段函数对应的抛物线应怎样开口？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与第 2 段函数",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\ne0\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "参数的符号",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "判断含参数那一段抛物线的开口方向",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "707fd868c8ab5eca22909bbeb1d47a8baf2d631f5ad8a07541924a6f44179bc5",
+              "step_id": "39e5646dcb-piecewise-range-parameter-004-sign"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "bd71557cf1af9ad19e1ed020",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "判断含参数那一段抛物线的开口方向",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：判断含参数那一段抛物线的开口方向"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与参数条件",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a<0\\end{gathered}"
+              },
+              {
+                "label": "顶点横坐标",
+                "math": "x_0=\\frac{1}{a}<0<1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -3.75,
+                1.75,
+                -3.75,
+                1.75
+              ],
+              "coefficient": -1,
+              "description": "x=1 处函数值为 -3（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                -1,
+                1
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  -1,
+                  "-1"
+                ]
+              ],
+              "yLabel": "1"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}x_0=-\\frac{-2}{2a}=\\frac{1}{a}\\\\a<0\\Rightarrow x_0<0<1\\end{gathered}$$"
+          },
+          "graph": {
+            "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -3.75,
+                1.75,
+                -3.75,
+                1.75
+              ],
+              "coefficient": -1,
+              "description": "x=1 处函数值为 -3（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                -1,
+                1
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  -1,
+                  "-1"
+                ]
+              ],
+              "yLabel": "1"
+            }
+          },
+          "id": "fc4bc5ef64ef6599f4d37fc7#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "不满足第 2 段函数的条件，只能看分界点",
+                "value": "o2"
+              },
+              {
+                "label": "满足第 2 段函数的条件，最大值在顶点取得",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "已知 $a<0$，第 2 段函数只取 $x \\leq 1$。顶点横坐标是否在这个范围内？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与参数条件",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a<0\\end{gathered}"
+              },
+              {
+                "label": "顶点横坐标",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "检查顶点横坐标是否满足这段函数的条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b5fa91539b21b8414409f0ff4d244212fcf8e898fef993b7ddf9107c5f864502",
+              "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "c079384f19f979a90e905351",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "检查顶点横坐标是否满足这段函数的条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：检查顶点横坐标是否满足这段函数的条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确定的顶点与开口",
+                "math": "\\begin{gathered}a<0\\\\x_0=\\frac{1}{a}\\le1\\\\a x^{2} - 2 x\\end{gathered}"
+              },
+              {
+                "label": "第 2 段函数的值域",
+                "math": "R_{2}=(-\\infty,- \\frac{1}{a}]"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -3.75,
+                1.75,
+                -3.75,
+                1.75
+              ],
+              "coefficient": -1,
+              "description": "x=1 处函数值为 -3（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                -1,
+                1
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  -1,
+                  "-1"
+                ]
+              ],
+              "yLabel": "1"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}a x^{2} - 2 x=a(x-(\\frac{1}{a}))^2+(- \\frac{1}{a})\\\\M=- \\frac{1}{a},\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}$$"
+          },
+          "graph": {
+            "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -3.75,
+                1.75,
+                -3.75,
+                1.75
+              ],
+              "coefficient": -1,
+              "description": "x=1 处函数值为 -3（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                -1,
+                1
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  -1,
+                  "-1"
+                ]
+              ],
+              "yLabel": "1"
+            }
+          },
+          "id": "a6240a18470b6da294bdfce9#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$R_{2}=(-\\infty,- \\frac{1}{a} )$",
+                "value": "o2"
+              },
+              {
+                "label": "$R_{2}=(-\\infty,- \\frac{1}{a}]$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "第 2 段函数对应的抛物线向下开口，顶点横坐标满足 $x \\leq 1$。这段函数的值域是什么？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确定的顶点与开口",
+                "math": "\\begin{gathered}a<0\\\\x_0=\\frac{1}{a}\\le1\\\\a x^{2} - 2 x\\end{gathered}"
+              },
+              {
+                "label": "第 2 段函数的值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "写出含参数那一段函数的值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bf43e5c915fd69109418fb8ec02c4bc38ec43227a212595a6d843a9990d2c551",
+              "step_id": "39e5646dcb-piecewise-range-parameter-006-image"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "1ec7018f74b766adcc10bf6a",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "写出含参数那一段函数的值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：写出含参数那一段函数的值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数与第 2 段函数的值域",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "没有遗漏的条件",
+                "math": "- \\frac{1}{a}\\ge2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}(-\\infty,- \\frac{1}{a}]\\cup\\left(2, \\infty\\right)=\\mathbb R\\\\\\iff - \\frac{1}{a}\\ge2\\end{gathered}$$"
+          },
+          "id": "6db7b17040ecae0ecb387b43#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$- \\frac{1}{a}>2$",
+                "value": "o2"
+              },
+              {
+                "label": "$- \\frac{1}{a}\\le2$",
+                "value": "o3"
+              },
+              {
+                "label": "$- \\frac{1}{a}\\ge2$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "第 1 段函数的值域为 $\\left(2, \\infty\\right)$，取不到 $2$。第 2 段函数的最大值至少是多少，合起来才能取到所有实数？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数与第 2 段函数的值域",
+                "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "没有遗漏的条件",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "让两段函数的值域合起来没有遗漏",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "108c4d95354e5ab86cb458080ac8719285231a6ff2109c3a373bfb97dda92606",
+              "step_id": "39e5646dcb-piecewise-range-parameter-007-join"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "a18f76a336c3a3c1997ce34d",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "让两段函数的值域合起来没有遗漏",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：让两段函数的值域合起来没有遗漏"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已经得到的条件",
+                "math": "\\begin{gathered}a<0\\\\- \\frac{1}{a}\\ge2\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}- \\frac{1}{a}\\ge2\\\\a<0\\Rightarrow -1\\le 2 a\\\\a\\ge- \\frac{1}{2}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
+          },
+          "id": "17811199bd335161de8ab72c#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left[- \\frac{1}{2}, 0\\right]$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(- \\frac{1}{2}, 0\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left[- \\frac{1}{2}, 0\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把前面得到的条件合在一起，参数可以取哪些值？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已经得到的条件",
+                "math": "\\begin{gathered}a<0\\\\- \\frac{1}{a}\\ge2\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "求出参数范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "6c8744934facb08830935e848ca3f78c282f50c6e772e6416cfbaea129996b23",
+              "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "699e5f86c02394ed740694ac",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求出参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求出参数范围"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与已求出的参数范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "核对结果",
+                "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}a=- \\frac{1}{2}:\\quad x_0=-2\\le1,\\quad f(-2)=2\\\\R_{2}=(-\\infty,2],\\quad R_{1}\\cup R_{2}=\\mathbb R\\\\a=0:\\quad R=\\left[-2, \\infty\\right)\\ne\\mathbb R\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
+          },
+          "id": "3f2b676e11752a9840d02896#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "两个端点都不保留",
+                "value": "o3"
+              },
+              {
+                "label": "两个端点都保留",
+                "value": "o2"
+              },
+              {
+                "label": "保留 $- \\frac{1}{2}$，不保留 $0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将 $a=- \\frac{1}{2}$ 和 $a=0$ 分别代入第 2 段函数，再与第 1 段函数的值域合并。参数范围的两个端点分别能保留吗？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与已求出的参数范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+              },
+              {
+                "label": "核对结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "代回原分段式检查参数范围的端点",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bac2f275d38ad17a44f9d7c560b583e540756bb35ef22f34470967608ae68417",
+              "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "dbb4de178b4d4086f2daa08f",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "代回原分段式检查参数范围的端点",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回原分段式检查参数范围的端点"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "match_range",
+          "set": {
+            "expression": "Interval.Ropen(-1/2, 0)",
+            "latex": "\\left[- \\frac{1}{2}, 0\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval.Ropen(-1/2, 0)",
+          "latex": "\\left[- \\frac{1}{2}, 0\\right)"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "math_steps": [
+          {
+            "math_step_sha256": "03db6de975435ea296402b445747a85cc62d74fd65ba28c13eddf099a1cfe56b",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+          },
+          {
+            "math_step_sha256": "14a5b021eb2e0c82c83cecae75e189fe829d9fa4c0e3a3ef26a440567e32b8f7",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+          },
+          {
+            "math_step_sha256": "57f0610b88d49eef4d9520a15b88f479326fc2e4fd791777d00bf9eceb792cdd",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-piecewise-range-parameter-003-zero"
+          },
+          {
+            "math_step_sha256": "707fd868c8ab5eca22909bbeb1d47a8baf2d631f5ad8a07541924a6f44179bc5",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-piecewise-range-parameter-004-sign"
+          },
+          {
+            "math_step_sha256": "b5fa91539b21b8414409f0ff4d244212fcf8e898fef993b7ddf9107c5f864502",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex"
+          },
+          {
+            "math_step_sha256": "bf43e5c915fd69109418fb8ec02c4bc38ec43227a212595a6d843a9990d2c551",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-piecewise-range-parameter-006-image"
+          },
+          {
+            "math_step_sha256": "108c4d95354e5ab86cb458080ac8719285231a6ff2109c3a373bfb97dda92606",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-piecewise-range-parameter-007-join"
+          },
+          {
+            "math_step_sha256": "6c8744934facb08830935e848ca3f78c282f50c6e772e6416cfbaea129996b23",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover"
+          },
+          {
+            "math_step_sha256": "bac2f275d38ad17a44f9d7c560b583e540756bb35ef22f34470967608ae68417",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "ab32d74d74d1dc0d8c06dc5180309f3eb97ac7d111a98c7f4373d1d4c15e7802",
+        "verified_route_sha256": "b9f739bd28ef55245c277575253ac0f2c1f9daf8e3c7a0d69a6562bc96ecb7a0"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "分段求值、方程、不等式、值域求参及阶梯建模：保留各段范围，按题目要求直接使用对应方法。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-piecewise-equation",
+        "kind": "method",
+        "label": "分段解方程法",
+        "summary": "每段列方程、检查该段范围，再合并保留的解。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "solve",
+            "title": "逐段列方程并求解",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-inequality",
+        "kind": "method",
+        "label": "分段解不等式法",
+        "summary": "先确定比较值，逐段解不等式并与本段范围取交，最后合并。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "level",
+            "title": "求出比较值",
+            "calls": [
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "roots",
+            "title": "求各段不等式的零点",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "signs",
+            "title": "确定每段不等式的解集",
+            "calls": [
+              "skill-quadratic-sign"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查本段范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-modeling",
+        "kind": "method",
+        "label": "分段建模法",
+        "summary": "按规则分档，每档累计前档费用与本档新增费用，再写成分段函数。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "build",
+            "title": "逐档累计费用",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "汇总并核对边界",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-range-parameter",
+        "kind": "method",
+        "label": "分段值域求参法",
+        "summary": "先求不含参段值域，再判断含参段要不越界还是补齐，最后求参数范围。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "fixed",
+            "title": "先求不含参段值域",
+            "calls": []
+          },
+          {
+            "id": "decide",
+            "title": "比较已有值域与目标值域",
+            "calls": [],
+            "rule": "rule-piecewise-range-parameter"
+          },
+          {
+            "id": "solve",
+            "title": "求含参段的条件",
+            "calls": [
+              "method-separation"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "回验原分段式",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "piecewise-function",
+        "kind": "knowledge",
+        "label": "分段函数",
+        "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "quadratic-function-properties",
+        "kind": "knowledge",
+        "label": "二次函数",
+        "summary": "二次函数的表达式、抛物线和零点共同描述函数在各处的取值。",
+        "aliases": [
+          "抛物线"
+        ],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "set-intersection-union|prerequisite|piecewise-function",
+        "from": "set-intersection-union",
+        "to": "piecewise-function",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-equation",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-equation",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-inequality",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-inequality",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-modeling",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-modeling",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-range-parameter",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-range-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|piecewise-function",
+        "from": "type-piecewise-function",
+        "to": "piecewise-function",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|quadratic-function-properties",
+        "from": "type-piecewise-function",
+        "to": "quadratic-function-properties",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|set-intersection-union",
+        "from": "type-piecewise-function",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": []
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "piecewise-function",
+          "set-intersection-union",
+          "quadratic-function-properties"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"dd7c395dd56ae0c1d2ff7d8c17b6ad605d5f587eef256127a1aaf3e8156ceeb6\",\"db0947d5872f8253c93b76f355e3cfee04dbe9178e351f3656139524cd0cc0ac\",\"d14dc8243c974d1ea1820780c9bce6a6\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+    "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+    "stream_id": "d2561524760c48ac91e3d3dd2495dcb6",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "dd7c395dd56ae0c1d2ff7d8c17b6ad605d5f587eef256127a1aaf3e8156ceeb6",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "先求不含参数那一段函数的值域，再对照整个函数的目标值域，确定含参数那一段函数需要满足的条件，最后求参数范围。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-piecewise-range-parameter",
+          "recommendation": "preferred",
+          "route_id": "piecewise-range-parameter",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fixed",
+        "explanation": "$$\\begin{gathered}x>1\\Rightarrow x + 1>2\\\\R_{1}=\\left(2, \\infty\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 1 段函数（不含参数）：$f(x)=x + 1$，$x > 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数（不含参数）",
+              "math": "\\begin{gathered}f(x)=x + 1\\\\x > 1\\end{gathered}"
+            },
+            {
+              "label": "第 1 段函数的值域",
+              "math": "R_{1}=\\left(2, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "03db6de975435ea296402b445747a85cc62d74fd65ba28c13eddf099a1cfe56b",
+        "method_ref": "method-piecewise-range-parameter#fixed",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed",
+        "target_ref": "/root/goals/0",
+        "title": "先求不含参数那一段函数的值域",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "decision",
+        "explanation": "$$\\begin{gathered}R_{1}=\\left(2, \\infty\\right),\\quad V=\\mathbb{R}\\\\V\\setminus R_{1}=\\left(-\\infty, 2\\right]\\Rightarrow \\left(-\\infty, 2\\right]\\subseteq R_{2}\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数的值域与整个函数的目标值域",
+              "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\V=\\mathbb{R}\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+            },
+            {
+              "label": "第 2 段函数的值域要求（含参数 $a$）",
+              "math": "\\left(-\\infty, 2\\right]\\subseteq R_{2}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "14a5b021eb2e0c82c83cecae75e189fe829d9fa4c0e3a3ef26a440567e32b8f7",
+        "method_ref": "method-piecewise-range-parameter#decide",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-002-decision",
+        "target_ref": "/root/goals/0",
+        "title": "判断含参数这一段函数需要满足什么条件",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "zero",
+        "explanation": "$$\\begin{gathered}x\\le1\\Rightarrow - 2 x\\ge-2\\\\a=0:\\quad R_{2}=\\left[-2, \\infty\\right)\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\ne\\mathbb R\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数的值域与参数为零时的第 2 段函数",
+              "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\f(x)=- 2 x,\\quad x\\le1\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+            },
+            {
+              "label": "这时的整个值域",
+              "math": "\\left[-2, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "57f0610b88d49eef4d9520a15b88f479326fc2e4fd791777d00bf9eceb792cdd",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 3,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-003-zero",
+        "target_ref": "/root/goals/0",
+        "title": "先检查参数等于零",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "sign",
+        "explanation": "$$\\begin{gathered}a>0:\\quad a x^{2} - 2 x=a(x+\\frac{-2}{2a})^2+0-\\frac{4}{4a}\\\\a>0\\Rightarrow R_{2}\\text{有下界，不能取到任意小的值}\\\\a<0,\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数的值域与第 2 段函数",
+              "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\ne0\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+            },
+            {
+              "label": "参数的符号",
+              "math": "a<0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "707fd868c8ab5eca22909bbeb1d47a8baf2d631f5ad8a07541924a6f44179bc5",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 4,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-004-sign",
+        "target_ref": "/root/goals/0",
+        "title": "判断含参数那一段抛物线的开口方向",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "vertex",
+        "explanation": "$$\\begin{gathered}x_0=-\\frac{-2}{2a}=\\frac{1}{a}\\\\a<0\\Rightarrow x_0<0<1\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 2 段函数与参数条件",
+              "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a<0\\end{gathered}"
+            },
+            {
+              "label": "顶点横坐标",
+              "math": "x_0=\\frac{1}{a}<0<1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "b5fa91539b21b8414409f0ff4d244212fcf8e898fef993b7ddf9107c5f864502",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 5,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex",
+        "target_ref": "/root/goals/0",
+        "title": "检查顶点横坐标是否满足这段函数的条件",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "image",
+        "explanation": "$$\\begin{gathered}a x^{2} - 2 x=a(x-(\\frac{1}{a}))^2+(- \\frac{1}{a})\\\\M=- \\frac{1}{a},\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已确定的顶点与开口",
+              "math": "\\begin{gathered}a<0\\\\x_0=\\frac{1}{a}\\le1\\\\a x^{2} - 2 x\\end{gathered}"
+            },
+            {
+              "label": "第 2 段函数的值域",
+              "math": "R_{2}=(-\\infty,- \\frac{1}{a}]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "bf43e5c915fd69109418fb8ec02c4bc38ec43227a212595a6d843a9990d2c551",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 6,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-006-image",
+        "target_ref": "/root/goals/0",
+        "title": "写出含参数那一段函数的值域",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "join",
+        "explanation": "$$\\begin{gathered}(-\\infty,- \\frac{1}{a}]\\cup\\left(2, \\infty\\right)=\\mathbb R\\\\\\iff - \\frac{1}{a}\\ge2\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数与第 2 段函数的值域",
+              "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+            },
+            {
+              "label": "没有遗漏的条件",
+              "math": "- \\frac{1}{a}\\ge2"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "108c4d95354e5ab86cb458080ac8719285231a6ff2109c3a373bfb97dda92606",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 7,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-007-join",
+        "target_ref": "/root/goals/0",
+        "title": "让两段函数的值域合起来没有遗漏",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer_cover",
+        "explanation": "$$\\begin{gathered}- \\frac{1}{a}\\ge2\\\\a<0\\Rightarrow -1\\le 2 a\\\\a\\ge- \\frac{1}{2}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已经得到的条件",
+              "math": "\\begin{gathered}a<0\\\\- \\frac{1}{a}\\ge2\\end{gathered}"
+            },
+            {
+              "label": "参数范围",
+              "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "6c8744934facb08830935e848ca3f78c282f50c6e772e6416cfbaea129996b23",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 8,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover",
+        "target_ref": "/root/goals/0",
+        "title": "求出参数范围",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "verify_cover",
+        "explanation": "$$\\begin{gathered}a=- \\frac{1}{2}:\\quad x_0=-2\\le1,\\quad f(-2)=2\\\\R_{2}=(-\\infty,2],\\quad R_{1}\\cup R_{2}=\\mathbb R\\\\a=0:\\quad R=\\left[-2, \\infty\\right)\\ne\\mathbb R\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 2 段函数与已求出的参数范围",
+              "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+            },
+            {
+              "label": "核对结果",
+              "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "local_check": "passed",
+        "math_step_sha256": "bac2f275d38ad17a44f9d7c560b583e540756bb35ef22f34470967608ae68417",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 9,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/skipped_calls/2",
+          "/steps/2/skipped_calls/3",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover",
+        "target_ref": "/root/goals/0",
+        "title": "代回原分段式检查参数范围的端点",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-001-fixed\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "fixed",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-003-zero\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-004-sign\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-005-vertex\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-006-image\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-007-join\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-008-answer_cover\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-009-verify_cover\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed",
+        "ordinal": 1,
+        "math_step_sha256": "03db6de975435ea296402b445747a85cc62d74fd65ba28c13eddf099a1cfe56b",
+        "status": "interactive",
+        "interaction_id": "f0355c0b27d18795f92bb9db"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-002-decision",
+        "ordinal": 2,
+        "math_step_sha256": "14a5b021eb2e0c82c83cecae75e189fe829d9fa4c0e3a3ef26a440567e32b8f7",
+        "status": "interactive",
+        "interaction_id": "6bb85cb471e1db617a51b093"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-003-zero",
+        "ordinal": 3,
+        "math_step_sha256": "57f0610b88d49eef4d9520a15b88f479326fc2e4fd791777d00bf9eceb792cdd",
+        "status": "interactive",
+        "interaction_id": "6e4c9a623b12a61d45f14e91"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-004-sign",
+        "ordinal": 4,
+        "math_step_sha256": "707fd868c8ab5eca22909bbeb1d47a8baf2d631f5ad8a07541924a6f44179bc5",
+        "status": "interactive",
+        "interaction_id": "bd71557cf1af9ad19e1ed020"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex",
+        "ordinal": 5,
+        "math_step_sha256": "b5fa91539b21b8414409f0ff4d244212fcf8e898fef993b7ddf9107c5f864502",
+        "status": "interactive",
+        "interaction_id": "c079384f19f979a90e905351"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-006-image",
+        "ordinal": 6,
+        "math_step_sha256": "bf43e5c915fd69109418fb8ec02c4bc38ec43227a212595a6d843a9990d2c551",
+        "status": "interactive",
+        "interaction_id": "1ec7018f74b766adcc10bf6a"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-007-join",
+        "ordinal": 7,
+        "math_step_sha256": "108c4d95354e5ab86cb458080ac8719285231a6ff2109c3a373bfb97dda92606",
+        "status": "interactive",
+        "interaction_id": "a18f76a336c3a3c1997ce34d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover",
+        "ordinal": 8,
+        "math_step_sha256": "6c8744934facb08830935e848ca3f78c282f50c6e772e6416cfbaea129996b23",
+        "status": "interactive",
+        "interaction_id": "699e5f86c02394ed740694ac"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover",
+        "ordinal": 9,
+        "math_step_sha256": "bac2f275d38ad17a44f9d7c560b583e540756bb35ef22f34470967608ae68417",
+        "status": "interactive",
+        "interaction_id": "dbb4de178b4d4086f2daa08f"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f0355c0b27d18795f92bb9db",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "3ee708a373654a8d8fb29af6318f5d89ddc1cf1bddc0b98e0de37e52d5935f74",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 1 段函数（不含参数）：$f(x)=x + 1$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数（不含参数）",
+                  "math": "\\begin{gathered}f(x)=x + 1\\\\x > 1\\end{gathered}"
+                },
+                {
+                  "label": "第 1 段函数的值域",
+                  "math": "R_{1}=\\left(2, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "第 1 段函数：$y=x + 1$，$x > 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -0.75,
+                  4.75
+                ],
+                "description": "x=1 取不到，函数值趋近 2（空心点）",
+                "intercept": 1,
+                "interval": [
+                  1,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(1, 2)",
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "slope": 1,
+                "title": "第 1 段函数 y=x + 1，x∈(1, +∞)",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}x>1\\Rightarrow x + 1>2\\\\R_{1}=\\left(2, \\infty\\right)\\end{gathered}$$"
+            },
+            "graph": {
+              "caption": "第 1 段函数：$y=x + 1$，$x > 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  3.75,
+                  -0.75,
+                  4.75
+                ],
+                "description": "x=1 取不到，函数值趋近 2（空心点）",
+                "intercept": 1,
+                "interval": [
+                  1,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(1, 2)",
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "slope": 1,
+                "title": "第 1 段函数 y=x + 1，x∈(1, +∞)",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "f0355c0b27d18795f92bb9db#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{2\\right\\}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(2, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left[2, \\infty\\right)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x > 1$ 时，$f(x)=x + 1$。这段函数的值域是什么？",
+            "stem_board": {
+              "caption": "第 1 段函数（不含参数）：$f(x)=x + 1$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数（不含参数）",
+                  "math": "\\begin{gathered}f(x)=x + 1\\\\x > 1\\end{gathered}"
+                },
+                {
+                  "label": "第 1 段函数的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "先求不含参数那一段函数的值域"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "03db6de975435ea296402b445747a85cc62d74fd65ba28c13eddf099a1cfe56b",
+            "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6bb85cb471e1db617a51b093",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "d009ae4292bd75511f73ef4a20194bef15f563bccab8256e48192fa49ef9a3ad",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与整个函数的目标值域",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\V=\\mathbb{R}\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "第 2 段函数的值域要求（含参数 $a$）",
+                  "math": "\\left(-\\infty, 2\\right]\\subseteq R_{2}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_number_line": {
+              "bounds": [
+                1.25,
+                2.75
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                },
+                "expression": "Interval(-oo, 2)",
+                "latex": "\\left(-\\infty, 2\\right]"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "2"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-oo, 2)",
+                    "latex": "\\left(-\\infty, 2\\right]"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": 2,
+                  "right_closed": true
+                }
+              ],
+              "label": "\\text{第 2 段函数必须补齐的函数值}:\\quad \\left(-\\infty, 2\\right]",
+              "points": [],
+              "ticks": [
+                {
+                  "at": 2,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    "expression": "2",
+                    "latex": "2"
+                  },
+                  "label": "2"
+                }
+              ],
+              "variable": "y"
+            },
+            "condition_number_lines": [
+              {
+                "bounds": [
+                  1.25,
+                  2.75
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.open(2, oo)",
+                  "latex": "\\left(2, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(2, oo)",
+                      "latex": "\\left(2, \\infty\\right)"
+                    },
+                    "left": 2,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "\\begin{gathered}\\text{第 1 段函数（不含参数）}:\\quad f(x)=x + 1,\\ x > 1\\\\\\text{已求得的值域}:\\quad R_{1}=\\left(2, \\infty\\right)\\end{gathered}",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": 2,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      "expression": "2",
+                      "latex": "2"
+                    },
+                    "label": "2"
+                  }
+                ],
+                "variable": "y"
+              },
+              {
+                "bounds": [
+                  1.25,
+                  2.75
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Reals"
+                  },
+                  "expression": "Reals",
+                  "latex": "\\mathbb{R}"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(-oo, oo)",
+                      "latex": "\\left(-\\infty, \\infty\\right)"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "\\text{题目要求整个函数的值域}:\\quad V=\\mathbb{R}",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": 2,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      "expression": "2",
+                      "latex": "2"
+                    },
+                    "label": "2"
+                  }
+                ],
+                "variable": "y"
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}R_{1}=\\left(2, \\infty\\right),\\quad V=\\mathbb{R}\\\\V\\setminus R_{1}=\\left(-\\infty, 2\\right]\\Rightarrow \\left(-\\infty, 2\\right]\\subseteq R_{2}\\end{gathered}$$"
+            },
+            "id": "6bb85cb471e1db617a51b093#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "第 2 段函数必须取到第 1 段函数未取到的值，且不能超出 $V$",
+                  "value": "o1"
+                },
+                {
+                  "label": "第 2 段函数的值都在 $V$ 内即可，无须补齐",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已知第 1 段函数的值域是 $R_{1}$，题目要求整个函数的值域为 $V$。第 2 段函数的值域 $R_{2}$ 应满足什么条件？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与整个函数的目标值域",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\V=\\mathbb{R}\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "第 2 段函数的值域要求（含参数 $a$）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "判断含参数这一段函数需要满足什么条件"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "14a5b021eb2e0c82c83cecae75e189fe829d9fa4c0e3a3ef26a440567e32b8f7",
+            "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "6e4c9a623b12a61d45f14e91",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "5654d46a8d378662d603286c11ab64007cd5ca23ae38223187d067136867afaf",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与参数为零时的第 2 段函数",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\f(x)=- 2 x,\\quad x\\le1\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "这时的整个值域",
+                  "math": "\\left[-2, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "第 2 段函数（$a=0$）：$y=- 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  1.5,
+                  -2.75,
+                  2.75
+                ],
+                "description": "x=1 处函数值为 -2（实心点）",
+                "intercept": 0,
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(1, -2)",
+                    "x": 1
+                  }
+                ],
+                "slope": -2,
+                "title": "第 2 段函数（a=0） y=-2x，x∈(-∞, 1]",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}x\\le1\\Rightarrow - 2 x\\ge-2\\\\a=0:\\quad R_{2}=\\left[-2, \\infty\\right)\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\ne\\mathbb R\\end{gathered}$$"
+            },
+            "graph": {
+              "caption": "第 2 段函数（$a=0$）：$y=- 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "linear",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  1.5,
+                  -2.75,
+                  2.75
+                ],
+                "description": "x=1 处函数值为 -2（实心点）",
+                "intercept": 0,
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "label": "(1, -2)",
+                    "x": 1
+                  }
+                ],
+                "slope": -2,
+                "title": "第 2 段函数（a=0） y=-2x，x∈(-∞, 1]",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "6e4c9a623b12a61d45f14e91#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "能；一次函数也能取到所有实数",
+                  "value": "o2"
+                },
+                {
+                  "label": "不能；两段都取不到足够小的负数",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $a=0$ 时，第 2 段函数的解析式变为 $f(x)=- 2 x$，仍只取 $x \\leq 1$。与第 1 段函数合起来，能取到任意实数吗？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与参数为零时的第 2 段函数",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\f(x)=- 2 x,\\quad x\\le1\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "这时的整个值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "先检查参数等于零"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "57f0610b88d49eef4d9520a15b88f479326fc2e4fd791777d00bf9eceb792cdd",
+            "step_id": "39e5646dcb-piecewise-range-parameter-003-zero"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "bd71557cf1af9ad19e1ed020",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "f71866ca3aeff5ccb260f80f9e47a71439cb6d6b385b926e77eba98d298f0585",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与第 2 段函数",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\ne0\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "参数的符号",
+                  "math": "a<0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graphs": [
+              {
+                "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -3.75,
+                    1.75,
+                    -3.75,
+                    1.75
+                  ],
+                  "coefficient": -1,
+                  "description": "x=1 处函数值为 -3（实心点）",
+                  "interval": [
+                    null,
+                    1
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ],
+                  "points": [
+                    {
+                      "x": 1
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                  "variable": "x",
+                  "vertex": [
+                    -1,
+                    1
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      1,
+                      "1"
+                    ],
+                    [
+                      -1,
+                      "-1"
+                    ]
+                  ],
+                  "yLabel": "1"
+                }
+              },
+              {
+                "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -2,
+                    1.5,
+                    -2,
+                    9
+                  ],
+                  "coefficient": 2,
+                  "description": "x=1 处函数值为 0（实心点）",
+                  "interval": [
+                    null,
+                    1
+                  ],
+                  "interval_closed": [
+                    false,
+                    true
+                  ],
+                  "points": [
+                    {
+                      "x": 1
+                    }
+                  ],
+                  "showVertex": true,
+                  "title": "第 2 段函数示意（a=2） y=2x^2 - 2x，x∈(-∞, 1]",
+                  "variable": "x",
+                  "vertex": [
+                    0.5,
+                    -0.5
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [
+                    [
+                      1,
+                      "1"
+                    ],
+                    [
+                      0.5,
+                      "1/2"
+                    ]
+                  ],
+                  "yLabel": "-1/2"
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}a>0:\\quad a x^{2} - 2 x=a(x+\\frac{-2}{2a})^2+0-\\frac{4}{4a}\\\\a>0\\Rightarrow R_{2}\\text{有下界，不能取到任意小的值}\\\\a<0,\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\end{gathered}$$"
+            },
+            "id": "bd71557cf1af9ad19e1ed020#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "graph": {
+                    "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -3.75,
+                        1.75,
+                        -3.75,
+                        1.75
+                      ],
+                      "coefficient": -1,
+                      "description": "x=1 处函数值为 -3（实心点）",
+                      "interval": [
+                        null,
+                        1
+                      ],
+                      "interval_closed": [
+                        false,
+                        true
+                      ],
+                      "points": [
+                        {
+                          "x": 1
+                        }
+                      ],
+                      "showVertex": true,
+                      "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                      "variable": "x",
+                      "vertex": [
+                        -1,
+                        1
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [
+                        [
+                          1,
+                          "1"
+                        ],
+                        [
+                          -1,
+                          "-1"
+                        ]
+                      ],
+                      "yLabel": "1"
+                    }
+                  },
+                  "label": "向下开口，参数小于零",
+                  "value": "o1"
+                },
+                {
+                  "graph": {
+                    "caption": "第 2 段函数示意：取 $a=2$：$y=2 x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -2,
+                        1.5,
+                        -2,
+                        9
+                      ],
+                      "coefficient": 2,
+                      "description": "x=1 处函数值为 0（实心点）",
+                      "interval": [
+                        null,
+                        1
+                      ],
+                      "interval_closed": [
+                        false,
+                        true
+                      ],
+                      "points": [
+                        {
+                          "x": 1
+                        }
+                      ],
+                      "showVertex": true,
+                      "title": "第 2 段函数示意（a=2） y=2x^2 - 2x，x∈(-∞, 1]",
+                      "variable": "x",
+                      "vertex": [
+                        0.5,
+                        -0.5
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [
+                        [
+                          1,
+                          "1"
+                        ],
+                        [
+                          0.5,
+                          "1/2"
+                        ]
+                      ],
+                      "yLabel": "-1/2"
+                    }
+                  },
+                  "label": "向上开口，参数大于零",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第 1 段函数的值域为 $\\left(2, \\infty\\right)$。要使整个函数能取到任意小的值，第 2 段函数对应的抛物线应怎样开口？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与第 2 段函数",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\ne0\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "参数的符号",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "判断含参数那一段抛物线的开口方向"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "707fd868c8ab5eca22909bbeb1d47a8baf2d631f5ad8a07541924a6f44179bc5",
+            "step_id": "39e5646dcb-piecewise-range-parameter-004-sign"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "c079384f19f979a90e905351",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "bc5bf241a46bff7a32899b1e80f2d6b4c59def035e583668b25a8126520cd21c",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与参数条件",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a<0\\end{gathered}"
+                },
+                {
+                  "label": "顶点横坐标",
+                  "math": "x_0=\\frac{1}{a}<0<1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  1.75,
+                  -3.75,
+                  1.75
+                ],
+                "coefficient": -1,
+                "description": "x=1 处函数值为 -3（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  -1,
+                  1
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    -1,
+                    "-1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}x_0=-\\frac{-2}{2a}=\\frac{1}{a}\\\\a<0\\Rightarrow x_0<0<1\\end{gathered}$$"
+            },
+            "graph": {
+              "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  1.75,
+                  -3.75,
+                  1.75
+                ],
+                "coefficient": -1,
+                "description": "x=1 处函数值为 -3（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  -1,
+                  1
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    -1,
+                    "-1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "id": "c079384f19f979a90e905351#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "满足第 2 段函数的条件，最大值在顶点取得",
+                  "value": "o1"
+                },
+                {
+                  "label": "不满足第 2 段函数的条件，只能看分界点",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已知 $a<0$，第 2 段函数只取 $x \\leq 1$。顶点横坐标是否在这个范围内？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与参数条件",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a<0\\end{gathered}"
+                },
+                {
+                  "label": "顶点横坐标",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "检查顶点横坐标是否满足这段函数的条件"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b5fa91539b21b8414409f0ff4d244212fcf8e898fef993b7ddf9107c5f864502",
+            "step_id": "39e5646dcb-piecewise-range-parameter-005-vertex"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1ec7018f74b766adcc10bf6a",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "36d83557727f440d8e56769f9441207e5b1c648932f9b1a4873daf33ad5b2d72",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已确定的顶点与开口",
+                  "math": "\\begin{gathered}a<0\\\\x_0=\\frac{1}{a}\\le1\\\\a x^{2} - 2 x\\end{gathered}"
+                },
+                {
+                  "label": "第 2 段函数的值域",
+                  "math": "R_{2}=(-\\infty,- \\frac{1}{a}]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  1.75,
+                  -3.75,
+                  1.75
+                ],
+                "coefficient": -1,
+                "description": "x=1 处函数值为 -3（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  -1,
+                  1
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    -1,
+                    "-1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}a x^{2} - 2 x=a(x-(\\frac{1}{a}))^2+(- \\frac{1}{a})\\\\M=- \\frac{1}{a},\\quad x\\to-\\infty\\Rightarrow f(x)\\to-\\infty\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}$$"
+            },
+            "graph": {
+              "caption": "第 2 段函数示意：取 $a=-1$：$y=- x^{2} - 2 x$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -3.75,
+                  1.75,
+                  -3.75,
+                  1.75
+                ],
+                "coefficient": -1,
+                "description": "x=1 处函数值为 -3（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 2 段函数示意（a=-1） y=-x^2 - 2x，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  -1,
+                  1
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    -1,
+                    "-1"
+                  ]
+                ],
+                "yLabel": "1"
+              }
+            },
+            "id": "1ec7018f74b766adcc10bf6a#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$R_{2}=(-\\infty,- \\frac{1}{a} )$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$R_{2}=(-\\infty,- \\frac{1}{a}]$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第 2 段函数对应的抛物线向下开口，顶点横坐标满足 $x \\leq 1$。这段函数的值域是什么？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已确定的顶点与开口",
+                  "math": "\\begin{gathered}a<0\\\\x_0=\\frac{1}{a}\\le1\\\\a x^{2} - 2 x\\end{gathered}"
+                },
+                {
+                  "label": "第 2 段函数的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "写出含参数那一段函数的值域"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bf43e5c915fd69109418fb8ec02c4bc38ec43227a212595a6d843a9990d2c551",
+            "step_id": "39e5646dcb-piecewise-range-parameter-006-image"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a18f76a336c3a3c1997ce34d",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "68b394c5664f61f554808cfd5136691fd2eff9a64d65c2ad63cfdc6d733630df",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数与第 2 段函数的值域",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "没有遗漏的条件",
+                  "math": "- \\frac{1}{a}\\ge2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}(-\\infty,- \\frac{1}{a}]\\cup\\left(2, \\infty\\right)=\\mathbb R\\\\\\iff - \\frac{1}{a}\\ge2\\end{gathered}$$"
+            },
+            "id": "a18f76a336c3a3c1997ce34d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$- \\frac{1}{a}>2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$- \\frac{1}{a}\\ge2$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$- \\frac{1}{a}\\le2$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第 1 段函数的值域为 $\\left(2, \\infty\\right)$，取不到 $2$。第 2 段函数的最大值至少是多少，合起来才能取到所有实数？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数与第 2 段函数的值域",
+                  "math": "\\begin{gathered}R_{1}=\\left(2, \\infty\\right)\\\\R_{2}=(-\\infty,- \\frac{1}{a}]\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "没有遗漏的条件",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "让两段函数的值域合起来没有遗漏"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "108c4d95354e5ab86cb458080ac8719285231a6ff2109c3a373bfb97dda92606",
+            "step_id": "39e5646dcb-piecewise-range-parameter-007-join"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "699e5f86c02394ed740694ac",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "9477c6f7b3bf940f125f4535ad24b2b2dd9562435f7a7405b96d8b2b20cb91ff",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已经得到的条件",
+                  "math": "\\begin{gathered}a<0\\\\- \\frac{1}{a}\\ge2\\end{gathered}"
+                },
+                {
+                  "label": "参数范围",
+                  "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}- \\frac{1}{a}\\ge2\\\\a<0\\Rightarrow -1\\le 2 a\\\\a\\ge- \\frac{1}{2}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
+            },
+            "id": "699e5f86c02394ed740694ac#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[- \\frac{1}{2}, 0\\right]$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left[- \\frac{1}{2}, 0\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(- \\frac{1}{2}, 0\\right)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把前面得到的条件合在一起，参数可以取哪些值？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已经得到的条件",
+                  "math": "\\begin{gathered}a<0\\\\- \\frac{1}{a}\\ge2\\end{gathered}"
+                },
+                {
+                  "label": "参数范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "求出参数范围"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "6c8744934facb08830935e848ca3f78c282f50c6e772e6416cfbaea129996b23",
+            "step_id": "39e5646dcb-piecewise-range-parameter-008-answer_cover"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "dbb4de178b4d4086f2daa08f",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "1bbb2d66e514311c408c8ecf114f0d0e0b8e726e6ac2fbdeeb7a936eb6912512",
+        "lesson_version": "51f697cdae5c677eb852a0b856c748be759188ad297ec050beff2410351e5b36",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与已求出的参数范围",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "核对结果",
+                  "math": "a\\in\\left[- \\frac{1}{2}, 0\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}a=- \\frac{1}{2}:\\quad x_0=-2\\le1,\\quad f(-2)=2\\\\R_{2}=(-\\infty,2],\\quad R_{1}\\cup R_{2}=\\mathbb R\\\\a=0:\\quad R=\\left[-2, \\infty\\right)\\ne\\mathbb R\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}$$"
+            },
+            "id": "dbb4de178b4d4086f2daa08f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "两个端点都保留",
+                  "value": "o2"
+                },
+                {
+                  "label": "两个端点都不保留",
+                  "value": "o3"
+                },
+                {
+                  "label": "保留 $- \\frac{1}{2}$，不保留 $0$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将 $a=- \\frac{1}{2}$ 和 $a=0$ 分别代入第 2 段函数，再与第 1 段函数的值域合并。参数范围的两个端点分别能保留吗？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - 2 x$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与已求出的参数范围",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - 2 x\\\\x \\leq 1\\end{gathered}\\\\a\\in\\left[- \\frac{1}{2}, 0\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x + 1$（$x > 1$）的值域。"
+                },
+                {
+                  "label": "核对结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "代回原分段式检查参数范围的端点"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "d2561524760c48ac91e3d3dd2495dcb6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bac2f275d38ad17a44f9d7c560b583e540756bb35ef22f34470967608ae68417",
+            "step_id": "39e5646dcb-piecewise-range-parameter-009-verify_cover"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

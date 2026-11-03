@@ -66,10 +66,6 @@
       "relation": "contains"
     },
     {
-      "ref": "type-piecewise-composition",
-      "relation": "contains"
-    },
-    {
       "ref": "reciprocal-function",
       "relation": "extends"
     },

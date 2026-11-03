@@ -352,6 +352,20 @@ def function_graph(drawn, variable, domain, *, bounds, x_ticks, marks=(), show_v
     return graph
 
 
+def interval_function_graph(function, variable, domain, *, title, caption=None):
+    """Draw an exact numeric curve on its domain; never choose unknown parameters."""
+    if not isinstance(domain, sp.Interval):
+        raise GraphUnavailable("domain_unsupported")
+    drawn = family(function, variable)
+    marks = drawable(drawn, variable, domain_points(domain))
+    vertex = drawn['kind'] == 'quadratic'
+    bounds, x_ticks = function_frame(drawn, variable, domain, marks=marks, show_vertex=vertex)
+    return function_graph(
+        drawn, variable, domain, bounds=bounds, x_ticks=x_ticks, marks=marks,
+        show_vertex=vertex and drawn['vertex'][0] in domain,
+        title=title, description=endpoint_story(drawn, variable, domain), caption=caption)
+
+
 def reciprocal_image_graph(domain, *, source):
     """One v=1/u picture, with every allowed denominator interval kept separate."""
     if domain.contains(0) is not sp.false:

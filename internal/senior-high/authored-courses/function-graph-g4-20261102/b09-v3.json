@@ -1,0 +1,93 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b09-v3",
+  "reviewer": "Codex：只核对第97页变式3的原图与A–D的横轴交点、展示部分的增减方向，不使用下方解析，不拟合函数。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-08.png",
+      "sha256": "15671e61ea0ea57d21b73415ebb42f2959bc25161b35b622c40a915e63bd24fe",
+      "location": "第97页变式3原图与四幅原选项"
+    }
+  ],
+  "candidate": {
+    "original_text": "若函数 $y=f(x)$ 的图像如下图所示，则函数 $y=f(2-x)$ 的图像为（　）。选项 A、B、C、D 见原图。",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": []
+          },
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "labelled"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "labelled"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "labelled"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "labelled"
+                }
+              },
+              "uncertainties": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

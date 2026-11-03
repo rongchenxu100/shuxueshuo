@@ -153,6 +153,8 @@ def render_unit(state, frame, step, unit, bindings, source_refs, used_basis, pre
     values = prepare_values(specification, bindings, has_case=bool(case_path))
     before, after, explanation = render_template(specification, bindings, has_case=bool(case_path))
     highlight = render_highlight(specification, bindings, has_case=bool(case_path))
+    # Source provenance stays in the frame/seed. The entry interaction presents
+    # it once; child cards retain their own mathematical captions and proofs.
     case = decode_value(frame["bindings"]).get("case") if case_path else None
     if case and isinstance(case.get("condition"), sp.Basic) and specification.get("case_prefix", True):
         explanation = render_case_prefix(registry, case["condition"]) + explanation
@@ -216,6 +218,19 @@ def append_boundary(state, evidence, *, feasible_set=None):
     records.append(operation)
     updated["trajectory"]["finalization"] = deepcopy(records)
     goal_kind = updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind")
+    if goal_kind == 'match_range':
+        return updated
+    if 'piecewise_inequality' in updated['trajectory'].get('constraint_context', {}):
+        operation['used_basis'] = ['piecewise-function#inequality']
+        records[index] = deepcopy(operation)
+        updated['trajectory']['finalization'] = deepcopy(records)
+        return updated
+    if 'piecewise_equation' in updated['trajectory'].get('constraint_context', {}):
+        # Each branch card already checks root membership in its original domain.
+        operation['used_basis'] = ['piecewise-function#equation']
+        records[index] = deepcopy(operation)
+        updated['trajectory']['finalization'] = deepcopy(records)
+        return updated
     if goal_kind in ('find_abstract_range', 'find_translation_range') or 'range_goal' in updated['trajectory'].get('constraint_context', {}):
         # The image card already displays endpoint attainment. Keep independent
         # evidence here without adding a duplicate parameter-boundary lesson.
@@ -310,7 +325,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"):
+    if kind in ("find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

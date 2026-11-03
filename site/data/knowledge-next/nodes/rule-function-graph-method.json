@@ -1,0 +1,42 @@
+{
+  "id": "rule-function-graph-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "函数图像题的选法判断",
+  "summary": "结合解析式或原图及所求，选择图像变换、分段作图等方法。",
+  "source": "函数的表示法 FR-T2 G1",
+  "input": "题给表达式及图像任务。",
+  "output": "适用方法及可展开路线。",
+  "conditions": "同一题可有多种正确方法；尚未展开不算数学错误。",
+  "branches": [
+    {
+      "id": "transform",
+      "title": "由基本图像变换",
+      "condition": "含绝对值的一次式，可由基本图建立点的对应。",
+      "target": "method-function-graph-transform"
+    },
+    {
+      "id": "piecewise",
+      "title": "分段作图法",
+      "condition": "含绝对值的多项式，要求画出完整图像。",
+      "target": "method-absolute-piecewise-graph"
+    },
+    {
+      "id": "inequality",
+      "title": "分段图像解不等式法",
+      "condition": "已知绝对值函数，要求解与水平线比较的不等式。",
+      "target": "method-piecewise-graph-inequality"
+    }
+  ],
+  "examples": [
+    {
+      "title": "绝对值函数平移选图",
+      "prompt": "判断 $y=|x-1|+1$ 的大致图像。",
+      "solution": [
+        "由 $y=|x|$ 向右平移 1，再向上平移 1。",
+        "$(0,0)\\mapsto(1,1)$，左侧递减、右侧递增；核对原选项的标注。"
+      ],
+      "source": "函数的表示法 B09"
+    }
+  ]
+}

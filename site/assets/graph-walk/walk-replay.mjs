@@ -1,4 +1,4 @@
-import {methodAnswer} from './method-cards.mjs?v=20261101-method-map';
+import {methodAnswer} from './method-cards.mjs?v=20261102-piecewise-j1';
 // Static lessons and streamed AI playback answer the same verified decisions.
 export function replayAnswer(decision, route) {
   route = decision.route_id || route;

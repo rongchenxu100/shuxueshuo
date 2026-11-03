@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-q28a-v2",
+  "bundleVersion": "35469e6157ac65c1268d91b22ee442788edf01258a413d728f0af57561c40c2e",
+  "status": "completed",
+  "routes": [
+    "function-evaluation"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/children/0/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-evaluation"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "7441b9d32e2dd3166125b276#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "b71ab22692b176a5040c5070#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "a4d321e3680e4f655f10153e#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "goal-2-D1",
+      "answer": "/root/children/0/goals/1:goal:o0"
+    },
+    {
+      "decision": "722a0e0882529b70c156be54#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "189d198c74a798264afae45b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "d08412eeb4a0bba5d7f5ff70#1",
+      "answer": "o1"
+    }
+  ]
+}

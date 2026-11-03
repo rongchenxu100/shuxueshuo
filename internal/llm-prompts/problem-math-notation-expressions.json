@@ -15,6 +15,12 @@
       "examples": ["f(t) = t^2+1", "f(2) = 5", "f(x) ≥ g(x)"]
     },
     {
+      "id": "piecewise_function_definition",
+      "syntax": "f(t)=piecewise(表达式1,条件1,表达式2,条件2)",
+      "meaning": "按原题顺序记录每段的解析式及适用条件，保留开闭边界，不补默认分段。",
+      "examples": ["f(t)=piecewise(t+1,t<=0,t^2-3,t>0)"]
+    },
+    {
       "id": "point_coordinates",
       "syntax": "P = (横坐标,纵坐标)",
       "meaning": "题面给定的点坐标，优先放facts；不要在同一字符串后拼接中文说明。",

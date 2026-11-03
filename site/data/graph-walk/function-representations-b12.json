@@ -1,0 +1,3512 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b12",
+  "graphVersion": "85da74bc4175cee53bb41932e26fee628dd1e435eed805119d36bb4df76ebf10",
+  "problem": {
+    "text": "某地居民用电采用阶梯电价：每月不超过180千瓦时的用电，每千瓦时0.6元；超过180千瓦时、但不超过350千瓦时的部分，每千瓦时0.65元；超过350千瓦时的部分，每千瓦时0.9元。设该户居民该月用电量为 $x$ 千瓦时，电费为 $y$ 元。\n\n（1）求 $y$ 关于 $x$ 的函数关系式。\n\n（2）若该户居民该月电费为199元，求该月用电量。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这一问需要求什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "写出总电费随用电量变化的分段关系式"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "把最高档单价乘以全部用电量",
+            "feedback": "超出部分才使用新单价，前面各档仍按原单价计费。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "超出部分才使用新单价，前面各档仍按原单价计费。"
+      },
+      "candidateNodes": [
+        "piecewise-function",
+        "type-piecewise-function",
+        "type-function-evaluation",
+        "type-function-range"
+      ],
+      "effects": {
+        "nodes": [
+          "piecewise-function"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "写出总电费随用电量变化的分段关系式。"
+        ],
+        "log": "图谱查询：根据本题知识线索展示相关题型。"
+      },
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-piecewise-function"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "type-piecewise-function"
+        ],
+        "edges": [
+          "type-piecewise-function|involves|piecewise-function"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"
+        ],
+        "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+      },
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "分段建模法",
+            "target": "method-piecewise-modeling",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "piecewise-modeling"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "使用分段建模法：按用量分档，每一档的总费用等于前面各档的费用，加上本档新增用量的费用。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-piecewise-modeling"
+      ],
+      "effects": {
+        "nodes": [
+          "method-piecewise-modeling"
+        ],
+        "edges": [
+          "type-piecewise-function|candidate|method-piecewise-modeling"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "piecewise-modeling"
+      },
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "routes": {
+    "piecewise-modeling": {
+      "id": "piecewise-modeling",
+      "method": "method-piecewise-modeling",
+      "label": "第（1）问：建立电费关系式 → 第（2）问：已知电费求用电量",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "第一档：全部按第一档单价计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "用量范围与单价",
+                "math": "\\begin{gathered}0\\le x\\le180\\\\\\text{单价}=0.6\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "总电费（元）",
+                "math": "y=0.6x"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$y=0.6\\times x=0.6x,\\quad 0\\le x\\le180$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$y=0.6(x-180)$",
+                "value": "o3"
+              },
+              {
+                "label": "$y=0.65x$",
+                "value": "o2"
+              },
+              {
+                "label": "$y=0.6x$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "用电量不超过 $180$ 千瓦时，每千瓦时 $0.6$ 元。$x\\ge0$，这时总电费是多少？",
+          "stem_board": {
+            "caption": "第一档：全部按第一档单价计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "用量范围与单价",
+                "math": "\\begin{gathered}0\\le x\\le180\\\\\\text{单价}=0.6\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "总电费（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第一档：全部按第一档单价计费",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 0,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第一档：全部按第一档单价计费"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第2档：先算前面各档的费用",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面各档分别计费",
+                "math": "0.6\\times 180"
+              },
+              {
+                "label": "前档费用（元）",
+                "math": "108"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$0.6\\times 180=108$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0.65\\times 180$",
+                "value": "o2"
+              },
+              {
+                "label": "$0$",
+                "value": "o3"
+              },
+              {
+                "label": "$108$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $180<x\\le350$ 时，前 $180$ 千瓦时已经用完。前面各档合计收费多少元？",
+          "stem_board": {
+            "caption": "第2档：先算前面各档的费用",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面各档分别计费",
+                "math": "0.6\\times 180"
+              },
+              {
+                "label": "前档费用（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第2档：先算前面各档的费用",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 1,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第2档：先算前面各档的费用"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第2档：只给新增用量计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本档新增用量与单价",
+                "math": "\\begin{gathered}x-180\\\\0.65\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "本档费用（元）",
+                "math": "0.65(x-180)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\text{新增费用}=(x-180)\\times 0.65=0.65(x-180)$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0.65(x+180)$",
+                "value": "o3"
+              },
+              {
+                "label": "$0.65(x-180)$",
+                "value": "o1"
+              },
+              {
+                "label": "$0.65x$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "现在只计算超过 $180$ 千瓦时的部分。这部分用电量是 $x-180$，每千瓦时 $0.65$ 元，新增费用是多少？",
+          "stem_board": {
+            "caption": "第2档：只给新增用量计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本档新增用量与单价",
+                "math": "\\begin{gathered}x-180\\\\0.65\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "本档费用（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第2档：只给新增用量计费",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 2,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第2档：只给新增用量计费"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第2档：把两部分费用相加",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前档费用＋本档费用",
+                "math": "108+0.65(x-180)"
+              },
+              {
+                "label": "总电费（元）",
+                "math": "y=0.65x-9"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$y=108+0.65(x-180)=0.65x-9$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$y=0.65x-9$",
+                "value": "o1"
+              },
+              {
+                "label": "$y=0.65(x-180)$",
+                "value": "o3"
+              },
+              {
+                "label": "$y=0.65x$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "前面各档收费 $108$ 元，本档新增费用为 $0.65(x-180)$ 元。总电费怎样表示？",
+          "stem_board": {
+            "caption": "第2档：把两部分费用相加",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前档费用＋本档费用",
+                "math": "108+0.65(x-180)"
+              },
+              {
+                "label": "总电费（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第2档：把两部分费用相加",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 3,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第2档：把两部分费用相加"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第3档：先算前面各档的费用",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面各档分别计费",
+                "math": "0.6\\times 180+0.65\\times(350-180)"
+              },
+              {
+                "label": "前档费用（元）",
+                "math": "218.5"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$0.6\\times 180+0.65\\times(350-180)=218.5$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#5",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0$",
+                "value": "o3"
+              },
+              {
+                "label": "$218.5$",
+                "value": "o1"
+              },
+              {
+                "label": "$0.9\\times 350$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $x>350$ 时，前 $350$ 千瓦时已经用完。前面各档合计收费多少元？",
+          "stem_board": {
+            "caption": "第3档：先算前面各档的费用",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前面各档分别计费",
+                "math": "0.6\\times 180+0.65\\times(350-180)"
+              },
+              {
+                "label": "前档费用（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第3档：先算前面各档的费用",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 4,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第3档：先算前面各档的费用"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第3档：只给新增用量计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本档新增用量与单价",
+                "math": "\\begin{gathered}x-350\\\\0.9\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "本档费用（元）",
+                "math": "0.9(x-350)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\text{新增费用}=(x-350)\\times 0.9=0.9(x-350)$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#6",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0.9(x+350)$",
+                "value": "o3"
+              },
+              {
+                "label": "$0.9(x-350)$",
+                "value": "o1"
+              },
+              {
+                "label": "$0.9x$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "现在只计算超过 $350$ 千瓦时的部分。这部分用电量是 $x-350$，每千瓦时 $0.9$ 元，新增费用是多少？",
+          "stem_board": {
+            "caption": "第3档：只给新增用量计费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本档新增用量与单价",
+                "math": "\\begin{gathered}x-350\\\\0.9\\text{ 元/千瓦时}\\end{gathered}"
+              },
+              {
+                "label": "本档费用（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第3档：只给新增用量计费",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 5,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第3档：只给新增用量计费"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "第3档：把两部分费用相加",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前档费用＋本档费用",
+                "math": "218.5+0.9(x-350)"
+              },
+              {
+                "label": "总电费（元）",
+                "math": "y=0.9x-96.5"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$y=218.5+0.9(x-350)=0.9x-96.5$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#7",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$y=0.9x$",
+                "value": "o2"
+              },
+              {
+                "label": "$y=0.9(x-350)$",
+                "value": "o3"
+              },
+              {
+                "label": "$y=0.9x-96.5$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "前面各档收费 $218.5$ 元，本档新增费用为 $0.9(x-350)$ 元。总电费怎样表示？",
+          "stem_board": {
+            "caption": "第3档：把两部分费用相加",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前档费用＋本档费用",
+                "math": "218.5+0.9(x-350)"
+              },
+              {
+                "label": "总电费（元）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第3档：把两部分费用相加",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 6,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第3档：把两部分费用相加"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "汇总：按用量分段写出电费",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各档累计费用（元）",
+                "math": "\\begin{array}{c|c|c|c}\\text{用量范围}&\\text{前档费用}&\\text{新增费用}&\\text{总费用}\\\\0\\le x\\le180&0&0.6x&0.6x\\\\180<x\\le350&108&0.65(x-180)&0.65x-9\\\\x>350&218.5&0.9(x-350)&0.9x-96.5\\\\\\end{array}"
+              },
+              {
+                "label": "费用关系式",
+                "math": "y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#8",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "把三档结果合起来。注意：超过分界点后，前面各档仍按原单价收费。",
+          "stem_board": {
+            "caption": "汇总：按用量分段写出电费",
+            "lines": [
+              "$$\\begin{array}{c|c|c|c}\\text{用量范围}&\\text{前档费用}&\\text{新增费用}&\\text{总费用}\\\\0\\le x\\le180&0&0.6x&0.6x\\\\180<x\\le350&108&0.65(x-180)&0.65x-9\\\\x>350&218.5&0.9(x-350)&0.9x-96.5\\\\\\end{array}$$",
+              "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+            ]
+          },
+          "submit_label": "确认这一步",
+          "title": "汇总：按用量分段写出电费",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 7,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：汇总：按用量分段写出电费"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "核对分界点",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分界点代入",
+                "math": "\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}"
+              },
+              {
+                "label": "检查结果",
+                "math": "\\text{三档衔接一致}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "$$\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}$$"
+          },
+          "id": "cebcc1eb0ab37ca75646707f#9",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "用量恰好到分界点时，按截至这一档的累计费用计算；不重复收费，也不漏掉分界点。",
+          "stem_board": {
+            "caption": "核对分界点",
+            "lines": [
+              "$$\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}$$",
+              "$$\\text{三档衔接一致}$$"
+            ]
+          },
+          "submit_label": "确认这一步",
+          "title": "核对分界点",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "cebcc1eb0ab37ca75646707f",
+          "stream_part_index": 8,
+          "stream_part_count": 9,
+          "stream_group_title": "逐档累计费用，建立分段函数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：核对分界点"
+          },
+          "target_ref": "/root/goals/0"
+        },
+        {
+          "id": "goal-2-D1",
+          "title": "第（2）问：已知电费求用电量",
+          "question": "这一问需要求什么？",
+          "source": "authored",
+          "submit_label": "读懂了，看图谱怎么走",
+          "interaction": {
+            "type": "choice",
+            "field": "reading",
+            "options": [
+              {
+                "value": "/root/goals/1:goal:o0",
+                "label": "已知电费，求符合计费规则的用电量"
+              },
+              {
+                "value": "/root/goals/1:goal:o1",
+                "label": "把题给电费当作用电量，代入算电费",
+                "feedback": "题目给出的是电费，要求的是用电量，还要检查它是否属于对应档位。"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "/root/goals/1:goal:o0"
+            ]
+          },
+          "feedback": {
+            "answer": "题目给出的是电费，要求的是用电量，还要检查它是否属于对应档位。"
+          },
+          "candidateNodes": [
+            "piecewise-function",
+            "type-piecewise-function",
+            "type-function-evaluation",
+            "type-function-range"
+          ],
+          "effects": {
+            "nodes": [
+              "piecewise-function"
+            ],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "已知电费，求符合计费规则的用电量。"
+            ],
+            "log": "图谱查询：根据本题知识线索展示相关题型。"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "id": "goal-2-D2",
+          "title": "确定题型",
+          "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+          "source": "authored",
+          "submit_label": "确认题型",
+          "interaction": {
+            "type": "choice",
+            "field": "problem_type",
+            "options": [
+              {
+                "value": "type-piecewise-function",
+                "label": "分段函数常规问题",
+                "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "type-piecewise-function"
+            ]
+          },
+          "feedback": {
+            "answer": "再对照这一问的条件和问法想一想。"
+          },
+          "alternatives": {},
+          "candidateNodes": [
+            "type-piecewise-function"
+          ],
+          "effects": {
+            "nodes": [
+              "type-piecewise-function"
+            ],
+            "edges": [
+              "type-piecewise-function|involves|piecewise-function"
+            ],
+            "calls": [],
+            "results": [
+              "判断依据：阶梯收费须区分超出部分与全部用量，建模时累计前段费用。"
+            ],
+            "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "expected_answer": {},
+          "id": "goal-2-D3",
+          "interaction": {
+            "type": "read",
+            "methods": [
+              {
+                "value": "direct",
+                "label": "分段解方程法",
+                "target": "method-piecewise-equation",
+                "cells": [],
+                "route_plan": "planned",
+                "route": "piecewise-equation"
+              }
+            ]
+          },
+          "query": {
+            "from": "type-piecewise-function",
+            "op": "methods"
+          },
+          "question": "使用分段解方程法：分别用每一段的解析式列方程，求出的解必须符合该段范围，最后把保留的解合起来。",
+          "submit_label": "开始解题",
+          "title": "解题方法",
+          "verdicts": {},
+          "source": "authored",
+          "alternatives": {},
+          "candidateNodes": [
+            "method-piecewise-equation"
+          ],
+          "effects": {
+            "nodes": [
+              "method-piecewise-equation"
+            ],
+            "edges": [
+              "type-piecewise-function|candidate|method-piecewise-equation"
+            ],
+            "calls": [],
+            "results": [],
+            "log": "本题可直接使用这条已验证的方法路线。"
+          },
+          "route_by_answer": {
+            "read": "piecewise-equation"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "先看费用关系，再反求用量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "核对后的费用关系（元）",
+                "math": "y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}"
+              },
+              {
+                "label": "本问已知的电费",
+                "math": "y=199"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "按题目的阶梯单价累计，费用关系如下。已知电费 $199$ 元，接下来分别在三档中令总费用等于这个数，再检查用量范围。",
+          "stem_board": {
+            "caption": "先看费用关系，再反求用量",
+            "lines": [
+              "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$",
+              "$$y=199$$"
+            ]
+          },
+          "submit_label": "确认这一步",
+          "title": "先看费用关系，再反求用量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 0,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：先看费用关系，再反求用量"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第1段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}0\\le x,\\quad x\\le 180\\\\\\frac{3 x}{5}=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": "x\\in \\left\\{\\frac{995}{3}\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}\\frac{3 x}{5}=199\\\\x=\\frac{995}{3}\\\\x\\in \\left\\{\\frac{995}{3}\\right\\}\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left\\{\\frac{995}{3}\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $0\\le x,\\quad x\\le 180$ 时，$y=\\frac{3 x}{5}$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+          "stem_board": {
+            "caption": "第1段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}0\\le x,\\quad x\\le 180\\\\\\frac{3 x}{5}=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第1段：解方程",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 1,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第1段：解方程"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第1段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{\\frac{995}{3}\\right\\}\\\\0\\le x,\\quad x\\le 180\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": "x\\in \\emptyset"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}\\frac{995}{3}\\notin\\left[0, 180\\right]\\quad\\text{舍去}\\\\\\left\\{\\frac{995}{3}\\right\\}\\cap \\left[0, 180\\right]=\\emptyset\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left\\{\\frac{995}{3}\\right\\}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "刚才解的是 $\\frac{3 x}{5}=199$，但这一段只适用于 $0\\le x,\\quad x\\le 180$。哪些解可以保留？",
+          "stem_board": {
+            "caption": "第1段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{\\frac{995}{3}\\right\\}\\\\0\\le x,\\quad x\\le 180\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第1段：检查范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 2,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第1段：检查范围"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第2段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}180<x,\\quad x\\le 350\\\\\\frac{13 x}{20} - 9=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": "x\\in \\left\\{320\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}\\frac{13 x}{20} - 9=199\\\\\\frac{13 x}{20}=208\\\\x=320\\\\x\\in \\left\\{320\\right\\}\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left\\{320\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $180<x,\\quad x\\le 350$ 时，$y=\\frac{13 x}{20} - 9$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+          "stem_board": {
+            "caption": "第2段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}180<x,\\quad x\\le 350\\\\\\frac{13 x}{20} - 9=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第2段：解方程",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 3,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第2段：解方程"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第2段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{320\\right\\}\\\\180<x,\\quad x\\le 350\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": "x\\in \\left\\{320\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}320\\in\\left(180, 350\\right]\\quad\\text{保留}\\\\\\left\\{320\\right\\}\\cap \\left(180, 350\\right]=\\left\\{320\\right\\}\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#5",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\emptyset$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left\\{320\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "刚才解的是 $\\frac{13 x}{20} - 9=199$，但这一段只适用于 $180<x,\\quad x\\le 350$。哪些解可以保留？",
+          "stem_board": {
+            "caption": "第2段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{320\\right\\}\\\\180<x,\\quad x\\le 350\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第2段：检查范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 4,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第2段：检查范围"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第3段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}x>350\\\\\\frac{9 x}{10} - \\frac{193}{2}=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": "x\\in \\left\\{\\frac{985}{3}\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}\\frac{9 x}{10} - \\frac{193}{2}=199\\\\\\frac{9 x}{10}=\\frac{591}{2}\\\\x=\\frac{985}{3}\\\\x\\in \\left\\{\\frac{985}{3}\\right\\}\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#6",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\emptyset$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left\\{\\frac{985}{3}\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $x>350$ 时，$y=\\frac{9 x}{10} - \\frac{193}{2}$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+          "stem_board": {
+            "caption": "第3段：解方程",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段范围与方程",
+                "math": "\\begin{gathered}x>350\\\\\\frac{9 x}{10} - \\frac{193}{2}=199\\end{gathered}"
+              },
+              {
+                "label": "方程的解（下一步检查范围）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第3段：解方程",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 5,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第3段：解方程"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "第3段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{\\frac{985}{3}\\right\\}\\\\x>350\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": "x\\in \\emptyset"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}\\frac{985}{3}\\notin\\left(350, \\infty\\right)\\quad\\text{舍去}\\\\\\left\\{\\frac{985}{3}\\right\\}\\cap \\left(350, \\infty\\right)=\\emptyset\\end{gathered}$$"
+          },
+          "id": "f62aaac9864bbd0f0451a81b#7",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left\\{\\frac{985}{3}\\right\\}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "刚才解的是 $\\frac{9 x}{10} - \\frac{193}{2}=199$，但这一段只适用于 $x>350$。哪些解可以保留？",
+          "stem_board": {
+            "caption": "第3段：检查范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "方程的解与本段范围",
+                "math": "\\begin{gathered}x\\in \\left\\{\\frac{985}{3}\\right\\}\\\\x>350\\end{gathered}"
+              },
+              {
+                "label": "本段保留的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "第3段：检查范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f62aaac9864bbd0f0451a81b",
+          "stream_part_index": 6,
+          "stream_part_count": 7,
+          "stream_group_title": "逐段解方程并检查范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：第3段：检查范围"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "合并各段保留的解",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "每段保留的解",
+                "math": "\\begin{gathered}\\text{第1段}:\\ \\emptyset\\\\\\text{第2段}:\\ \\left\\{320\\right\\}\\\\\\text{第3段}:\\ \\emptyset\\end{gathered}"
+              },
+              {
+                "label": "原方程的全部解",
+                "math": "x\\in \\left\\{320\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\emptyset\\cup\\left\\{320\\right\\}\\cup\\emptyset=\\left\\{320\\right\\}$$"
+          },
+          "id": "2694fc293ad7121beb865365#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left\\{320\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left\\{320, \\frac{985}{3}, \\frac{995}{3}\\right\\}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "满足任意一段的条件即可。把各段保留的解合起来，$x$ 的全部取值是什么？",
+          "stem_board": {
+            "caption": "合并各段保留的解",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "每段保留的解",
+                "math": "\\begin{gathered}\\text{第1段}:\\ \\emptyset\\\\\\text{第2段}:\\ \\left\\{320\\right\\}\\\\\\text{第3段}:\\ \\emptyset\\end{gathered}"
+              },
+              {
+                "label": "原方程的全部解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "合并各段保留的解",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+              "step_id": "cbd98ea750-piecewise-equation-002-merge"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "2694fc293ad7121beb865365",
+          "stream_part_index": 0,
+          "stream_part_count": 2,
+          "stream_group_title": "合并各段保留的解",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：合并各段保留的解"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        },
+        {
+          "completion_board": {
+            "caption": "代回计费规则，写出用电量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "前档费用＋本档新增费用",
+                "math": "108+0.65(320-180)=199"
+              },
+              {
+                "label": "该月用电量",
+                "math": "320\\text{ 千瓦时}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "$$108+0.65(320-180)=199\\quad\\text{（元）}$$"
+          },
+          "id": "2694fc293ad7121beb865365#2",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "用电量为 $320$ 千瓦时时，按对应档位累计计算电费。结果是否等于题给的 $199$ 元？",
+          "stem_board": {
+            "caption": "代回计费规则，写出用电量",
+            "lines": [
+              "$$108+0.65(320-180)=199$$",
+              "$$320\\text{ 千瓦时}$$"
+            ]
+          },
+          "submit_label": "确认这一步",
+          "title": "代回计费规则，写出用电量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+              "step_id": "cbd98ea750-piecewise-equation-002-merge"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "2694fc293ad7121beb865365",
+          "stream_part_index": 1,
+          "stream_part_count": 2,
+          "stream_group_title": "合并各段保留的解",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回计费规则，写出用电量"
+          },
+          "target_ref": "/root/goals/1",
+          "route_id": "piecewise-equation"
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "status": "verified",
+        "available": true,
+        "composition": "sequential_goals",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "target_ref": "/root/goals/0",
+        "target_refs": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "route_id": "piecewise-modeling",
+        "answer": {
+          "kind": "goal_group",
+          "status": "complete",
+          "answers": [
+            {
+              "target_ref": "/root/goals/0",
+              "title": "第（1）问：建立电费关系式",
+              "answer": {
+                "kind": "find_equation",
+                "pieces": [
+                  {
+                    "domain": {
+                      "expression": "Interval(0, 180)",
+                      "latex": "\\left[0, 180\\right]"
+                    },
+                    "expression": {
+                      "expression": "3*x/5",
+                      "latex": "\\frac{3 x}{5}"
+                    }
+                  },
+                  {
+                    "domain": {
+                      "expression": "Interval.Lopen(180, 350)",
+                      "latex": "\\left(180, 350\\right]"
+                    },
+                    "expression": {
+                      "expression": "13*x/20 - 9",
+                      "latex": "\\frac{13 x}{20} - 9"
+                    }
+                  },
+                  {
+                    "domain": {
+                      "expression": "Interval.open(350, oo)",
+                      "latex": "\\left(350, \\infty\\right)"
+                    },
+                    "expression": {
+                      "expression": "9*x/10 - 193/2",
+                      "latex": "\\frac{9 x}{10} - \\frac{193}{2}"
+                    }
+                  }
+                ],
+                "pricing": {
+                  "amount": "y",
+                  "amount_unit": "元",
+                  "mode": "marginal",
+                  "quantity": "x",
+                  "quantity_domain": "nonnegative_real",
+                  "quantity_unit": "千瓦时",
+                  "rates": [
+                    "0.6",
+                    "0.65",
+                    "0.9"
+                  ],
+                  "thresholds": [
+                    "180",
+                    "350"
+                  ]
+                },
+                "status": "complete"
+              }
+            },
+            {
+              "target_ref": "/root/goals/1",
+              "title": "第（2）问：已知电费求用电量",
+              "answer": {
+                "kind": "find_range",
+                "quantity": {
+                  "symbol": "x",
+                  "unit": "千瓦时"
+                },
+                "set": {
+                  "expression": "{320}",
+                  "latex": "\\left\\{320\\right\\}"
+                },
+                "status": "set"
+              }
+            }
+          ]
+        }
+      },
+      "interactions_complete": true,
+      "pending_count": 0,
+      "methods": [
+        "method-piecewise-modeling",
+        "method-piecewise-equation"
+      ],
+      "goal_completions": [
+        {
+          "answer": {
+            "kind": "find_equation",
+            "pieces": [
+              {
+                "domain": {
+                  "expression": "Interval(0, 180)",
+                  "latex": "\\left[0, 180\\right]"
+                },
+                "expression": {
+                  "expression": "3*x/5",
+                  "latex": "\\frac{3 x}{5}"
+                }
+              },
+              {
+                "domain": {
+                  "expression": "Interval.Lopen(180, 350)",
+                  "latex": "\\left(180, 350\\right]"
+                },
+                "expression": {
+                  "expression": "13*x/20 - 9",
+                  "latex": "\\frac{13 x}{20} - 9"
+                }
+              },
+              {
+                "domain": {
+                  "expression": "Interval.open(350, oo)",
+                  "latex": "\\left(350, \\infty\\right)"
+                },
+                "expression": {
+                  "expression": "9*x/10 - 193/2",
+                  "latex": "\\frac{9 x}{10} - \\frac{193}{2}"
+                }
+              }
+            ],
+            "pricing": {
+              "amount": "y",
+              "amount_unit": "元",
+              "mode": "marginal",
+              "quantity": "x",
+              "quantity_domain": "nonnegative_real",
+              "quantity_unit": "千瓦时",
+              "rates": [
+                "0.6",
+                "0.65",
+                "0.9"
+              ],
+              "thresholds": [
+                "180",
+                "350"
+              ]
+            },
+            "status": "complete"
+          },
+          "available": true,
+          "contract": "graph-stage-four-handoff/v1",
+          "feasible_set": null,
+          "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+          "math_steps": [
+            {
+              "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+              "ordinal": 1,
+              "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+            }
+          ],
+          "route_id": "piecewise-modeling",
+          "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+          "status": "verified",
+          "target_ref": "/root/goals/0",
+          "task_id": "780f697a160c450930a65d8c3afa13796aa7f4b2dd959c2c8f0a5ad5b03949b7",
+          "verified_route_sha256": "addb70c1a4171b1dccb2dc0b52cceb23b05794ea337ececffc5b54e4a03b251e",
+          "title": "第（1）问：建立电费关系式"
+        },
+        {
+          "answer": {
+            "kind": "find_range",
+            "quantity": {
+              "symbol": "x",
+              "unit": "千瓦时"
+            },
+            "set": {
+              "expression": "{320}",
+              "latex": "\\left\\{320\\right\\}"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "contract": "graph-stage-four-handoff/v1",
+          "feasible_set": {
+            "expression": "{320}",
+            "latex": "\\left\\{320\\right\\}"
+          },
+          "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+          "math_steps": [
+            {
+              "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+              "ordinal": 1,
+              "step_id": "cbd98ea750-piecewise-equation-001-branches"
+            },
+            {
+              "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+              "ordinal": 2,
+              "step_id": "cbd98ea750-piecewise-equation-002-merge"
+            }
+          ],
+          "original_choice": {
+            "reason": "choice.ambiguous_scope",
+            "status": "unavailable",
+            "target_ref": "/root/goals/1"
+          },
+          "route_id": "piecewise-equation",
+          "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+          "status": "verified",
+          "target_ref": "/root/goals/1",
+          "task_id": "a17a5c1a25c18ece21ecfef3581a02a73d1e614a3104747552dbfcabf467c40c",
+          "verified_route_sha256": "b8b1201d91e28b4731771f80d4436e6062e6d457ab43abea8b516951ea6ae920",
+          "title": "第（2）问：已知电费求用电量"
+        }
+      ]
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "piecewise-function",
+        "kind": "knowledge",
+        "label": "分段函数",
+        "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "分段求值、方程、不等式、值域求参及阶梯建模：保留各段范围，按题目要求直接使用对应方法。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-piecewise-equation",
+        "kind": "method",
+        "label": "分段解方程法",
+        "summary": "每段列方程、检查该段范围，再合并保留的解。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "solve",
+            "title": "逐段列方程并求解",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-inequality",
+        "kind": "method",
+        "label": "分段解不等式法",
+        "summary": "先确定比较值，逐段解不等式并与本段范围取交，最后合并。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "level",
+            "title": "求出比较值",
+            "calls": [
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "roots",
+            "title": "求各段不等式的零点",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "signs",
+            "title": "确定每段不等式的解集",
+            "calls": [
+              "skill-quadratic-sign"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查本段范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-modeling",
+        "kind": "method",
+        "label": "分段建模法",
+        "summary": "按规则分档，每档累计前档费用与本档新增费用，再写成分段函数。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "build",
+            "title": "逐档累计费用",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "汇总并核对边界",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-range-parameter",
+        "kind": "method",
+        "label": "分段值域求参法",
+        "summary": "先求不含参段值域，再判断含参段要不越界还是补齐，最后求参数范围。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "fixed",
+            "title": "先求不含参段值域",
+            "calls": []
+          },
+          {
+            "id": "decide",
+            "title": "比较已有值域与目标值域",
+            "calls": [],
+            "rule": "rule-piecewise-range-parameter"
+          },
+          {
+            "id": "solve",
+            "title": "求含参段的条件",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "回验原分段式",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      }
+    ],
+    "edges": [
+      {
+        "id": "type-function-evaluation|involves|piecewise-function",
+        "from": "type-function-evaluation",
+        "to": "piecewise-function",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|piecewise-function",
+        "from": "type-function-range",
+        "to": "piecewise-function",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-equation",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-equation",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-inequality",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-inequality",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-modeling",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-modeling",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-range-parameter",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-range-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|piecewise-function",
+        "from": "type-piecewise-function",
+        "to": "piecewise-function",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "set-intersection-union|prerequisite|piecewise-function",
+        "from": "set-intersection-union",
+        "to": "piecewise-function",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|set-intersection-union",
+        "from": "type-function-range",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|set-intersection-union",
+        "from": "type-piecewise-function",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "piecewise-function"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "equality-properties",
+          "set-intersection-union"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "3bd486def7d7e8bd9c2c7080a3b7b82a3f4b01b19459c12c4e937f01c72619bd",
+  "stream": {
+    "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+    "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+    "stream_id": "e64ab9a214f040038f23deb5e4d00b5e",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "5bc8e900ce5c8d95ed819decd84d4a8f193704b4fd4a9712c445610673f50a7d",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "按用量分档，每一档的总费用等于前面各档的费用，加上本档新增用量的费用。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-piecewise-modeling",
+          "recommendation": "preferred",
+          "route_id": "piecewise-modeling",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "tiers",
+        "explanation": "$$y=0.6\\times x=0.6x,\\quad 0\\le x\\le180$$\n\n$$0.6\\times 180=108$$\n\n$$\\text{新增费用}=(x-180)\\times 0.65=0.65(x-180)$$\n\n$$y=108+0.65(x-180)=0.65x-9$$\n\n$$0.6\\times 180+0.65\\times(350-180)=218.5$$\n\n$$\\text{新增费用}=(x-350)\\times 0.9=0.9(x-350)$$\n\n$$y=218.5+0.9(x-350)=0.9x-96.5$$\n\n$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$\n\n$$\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}$$",
+        "highlight": {
+          "caption": "第一档：全部按第一档单价计费",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "用量范围与单价",
+              "math": "\\begin{gathered}0\\le x\\le180\\\\\\text{单价}=0.6\\text{ 元/千瓦时}\\end{gathered}"
+            },
+            {
+              "label": "总电费（元）",
+              "math": "y=0.6x"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "local_check": "passed",
+        "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+        "method_ref": "method-piecewise-modeling#build",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "d936116e6f868c29b66a6776ae131324b47055869628acd22ed9fef6ad8ad4f6",
+        "route_id": "piecewise-modeling",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-modeling-001-tiers",
+        "target_ref": "/root/goals/0",
+        "title": "逐档累计费用，建立分段函数",
+        "used_basis": [
+          "equality-properties#identity",
+          "piecewise-function#definition"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "branches",
+        "explanation": "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$\n\n$$\\begin{gathered}\\frac{3 x}{5}=199\\\\x=\\frac{995}{3}\\\\x\\in \\left\\{\\frac{995}{3}\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}\\frac{995}{3}\\notin\\left[0, 180\\right]\\quad\\text{舍去}\\\\\\left\\{\\frac{995}{3}\\right\\}\\cap \\left[0, 180\\right]=\\emptyset\\end{gathered}$$\n\n$$\\begin{gathered}\\frac{13 x}{20} - 9=199\\\\\\frac{13 x}{20}=208\\\\x=320\\\\x\\in \\left\\{320\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}320\\in\\left(180, 350\\right]\\quad\\text{保留}\\\\\\left\\{320\\right\\}\\cap \\left(180, 350\\right]=\\left\\{320\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}\\frac{9 x}{10} - \\frac{193}{2}=199\\\\\\frac{9 x}{10}=\\frac{591}{2}\\\\x=\\frac{985}{3}\\\\x\\in \\left\\{\\frac{985}{3}\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}\\frac{985}{3}\\notin\\left(350, \\infty\\right)\\quad\\text{舍去}\\\\\\left\\{\\frac{985}{3}\\right\\}\\cap \\left(350, \\infty\\right)=\\emptyset\\end{gathered}$$",
+        "highlight": {
+          "caption": "先看费用关系，再反求用量",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "核对后的费用关系（元）",
+              "math": "y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}"
+            },
+            {
+              "label": "本问已知的电费",
+              "math": "y=199"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "local_check": "passed",
+        "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+        "method_ref": "method-piecewise-equation#filter",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "d936116e6f868c29b66a6776ae131324b47055869628acd22ed9fef6ad8ad4f6",
+        "route_id": "piecewise-equation",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "cbd98ea750-piecewise-equation-001-branches",
+        "target_ref": "/root/goals/1",
+        "title": "逐段解方程并检查范围",
+        "used_basis": [
+          "piecewise-function#equation",
+          "set-intersection-union#intersection",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "merge",
+        "explanation": "$$\\emptyset\\cup\\left\\{320\\right\\}\\cup\\emptyset=\\left\\{320\\right\\}$$\n\n$$108+0.65(320-180)=199\\quad\\text{（元）}$$",
+        "highlight": {
+          "caption": "合并各段保留的解",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "每段保留的解",
+              "math": "\\begin{gathered}\\text{第1段}:\\ \\emptyset\\\\\\text{第2段}:\\ \\left\\{320\\right\\}\\\\\\text{第3段}:\\ \\emptyset\\end{gathered}"
+            },
+            {
+              "label": "原方程的全部解",
+              "math": "x\\in \\left\\{320\\right\\}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "local_check": "passed",
+        "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+        "method_ref": "method-piecewise-equation#filter",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "d936116e6f868c29b66a6776ae131324b47055869628acd22ed9fef6ad8ad4f6",
+        "route_id": "piecewise-equation",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "cbd98ea750-piecewise-equation-002-merge",
+        "target_ref": "/root/goals/1",
+        "title": "合并各段保留的解",
+        "used_basis": [
+          "piecewise-function#equation",
+          "set-intersection-union#intersection",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"piecewise-modeling\",\"39e5646dcb-piecewise-modeling-001-tiers\"]": [
+        {
+          "method": "method-piecewise-modeling",
+          "step": "build",
+          "ref": null,
+          "usedBasis": [
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"piecewise-equation\",\"cbd98ea750-piecewise-equation-001-branches\"]": [
+        {
+          "method": "method-piecewise-equation",
+          "step": "filter",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/1/calls/0"
+        }
+      ],
+      "[\"piecewise-equation\",\"cbd98ea750-piecewise-equation-002-merge\"]": [
+        {
+          "method": "method-piecewise-equation",
+          "step": "filter",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/1/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-modeling",
+        "step_id": "39e5646dcb-piecewise-modeling-001-tiers",
+        "ordinal": 1,
+        "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+        "status": "interactive",
+        "interaction_id": "cebcc1eb0ab37ca75646707f"
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "piecewise-equation",
+        "step_id": "cbd98ea750-piecewise-equation-001-branches",
+        "ordinal": 1,
+        "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+        "status": "interactive",
+        "interaction_id": "f62aaac9864bbd0f0451a81b"
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "route_id": "piecewise-equation",
+        "step_id": "cbd98ea750-piecewise-equation-002-merge",
+        "ordinal": 2,
+        "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+        "status": "interactive",
+        "interaction_id": "2694fc293ad7121beb865365"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "cebcc1eb0ab37ca75646707f",
+        "interaction_revision": "e1485727d8a1792b611a9c737b248a4f444e70cd5a2f94f19311526e64533f8b",
+        "interaction_sha256": "77b860c6546cad6e4c38f2133aa5c5c62f8c4965b060cd04553995ec209da168",
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第一档：全部按第一档单价计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "用量范围与单价",
+                  "math": "\\begin{gathered}0\\le x\\le180\\\\\\text{单价}=0.6\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": "y=0.6x"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$y=0.6\\times x=0.6x,\\quad 0\\le x\\le180$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$y=0.6(x-180)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$y=0.65x$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$y=0.6x$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "用电量不超过 $180$ 千瓦时，每千瓦时 $0.6$ 元。$x\\ge0$，这时总电费是多少？",
+            "stem_board": {
+              "caption": "第一档：全部按第一档单价计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "用量范围与单价",
+                  "math": "\\begin{gathered}0\\le x\\le180\\\\\\text{单价}=0.6\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第一档：全部按第一档单价计费"
+          },
+          {
+            "completion_board": {
+              "caption": "第2档：先算前面各档的费用",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面各档分别计费",
+                  "math": "0.6\\times 180"
+                },
+                {
+                  "label": "前档费用（元）",
+                  "math": "108"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$0.6\\times 180=108$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$0.65\\times 180$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$108$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $180<x\\le350$ 时，前 $180$ 千瓦时已经用完。前面各档合计收费多少元？",
+            "stem_board": {
+              "caption": "第2档：先算前面各档的费用",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面各档分别计费",
+                  "math": "0.6\\times 180"
+                },
+                {
+                  "label": "前档费用（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2档：先算前面各档的费用"
+          },
+          {
+            "completion_board": {
+              "caption": "第2档：只给新增用量计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本档新增用量与单价",
+                  "math": "\\begin{gathered}x-180\\\\0.65\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "本档费用（元）",
+                  "math": "0.65(x-180)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\text{新增费用}=(x-180)\\times 0.65=0.65(x-180)$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$0.65(x+180)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$0.65(x-180)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$0.65x$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "现在只计算超过 $180$ 千瓦时的部分。这部分用电量是 $x-180$，每千瓦时 $0.65$ 元，新增费用是多少？",
+            "stem_board": {
+              "caption": "第2档：只给新增用量计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本档新增用量与单价",
+                  "math": "\\begin{gathered}x-180\\\\0.65\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "本档费用（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2档：只给新增用量计费"
+          },
+          {
+            "completion_board": {
+              "caption": "第2档：把两部分费用相加",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前档费用＋本档费用",
+                  "math": "108+0.65(x-180)"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": "y=0.65x-9"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$y=108+0.65(x-180)=0.65x-9$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$y=0.65x-9$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$y=0.65(x-180)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$y=0.65x$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "前面各档收费 $108$ 元，本档新增费用为 $0.65(x-180)$ 元。总电费怎样表示？",
+            "stem_board": {
+              "caption": "第2档：把两部分费用相加",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前档费用＋本档费用",
+                  "math": "108+0.65(x-180)"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2档：把两部分费用相加"
+          },
+          {
+            "completion_board": {
+              "caption": "第3档：先算前面各档的费用",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面各档分别计费",
+                  "math": "0.6\\times 180+0.65\\times(350-180)"
+                },
+                {
+                  "label": "前档费用（元）",
+                  "math": "218.5"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$0.6\\times 180+0.65\\times(350-180)=218.5$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$218.5$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$0.9\\times 350$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x>350$ 时，前 $350$ 千瓦时已经用完。前面各档合计收费多少元？",
+            "stem_board": {
+              "caption": "第3档：先算前面各档的费用",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前面各档分别计费",
+                  "math": "0.6\\times 180+0.65\\times(350-180)"
+                },
+                {
+                  "label": "前档费用（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第3档：先算前面各档的费用"
+          },
+          {
+            "completion_board": {
+              "caption": "第3档：只给新增用量计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本档新增用量与单价",
+                  "math": "\\begin{gathered}x-350\\\\0.9\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "本档费用（元）",
+                  "math": "0.9(x-350)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\text{新增费用}=(x-350)\\times 0.9=0.9(x-350)$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#6",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$0.9(x+350)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$0.9(x-350)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$0.9x$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "现在只计算超过 $350$ 千瓦时的部分。这部分用电量是 $x-350$，每千瓦时 $0.9$ 元，新增费用是多少？",
+            "stem_board": {
+              "caption": "第3档：只给新增用量计费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本档新增用量与单价",
+                  "math": "\\begin{gathered}x-350\\\\0.9\\text{ 元/千瓦时}\\end{gathered}"
+                },
+                {
+                  "label": "本档费用（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第3档：只给新增用量计费"
+          },
+          {
+            "completion_board": {
+              "caption": "第3档：把两部分费用相加",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前档费用＋本档费用",
+                  "math": "218.5+0.9(x-350)"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": "y=0.9x-96.5"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$y=218.5+0.9(x-350)=0.9x-96.5$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#7",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$y=0.9x$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$y=0.9(x-350)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$y=0.9x-96.5$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "前面各档收费 $218.5$ 元，本档新增费用为 $0.9(x-350)$ 元。总电费怎样表示？",
+            "stem_board": {
+              "caption": "第3档：把两部分费用相加",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前档费用＋本档费用",
+                  "math": "218.5+0.9(x-350)"
+                },
+                {
+                  "label": "总电费（元）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第3档：把两部分费用相加"
+          },
+          {
+            "completion_board": {
+              "caption": "汇总：按用量分段写出电费",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "各档累计费用（元）",
+                  "math": "\\begin{array}{c|c|c|c}\\text{用量范围}&\\text{前档费用}&\\text{新增费用}&\\text{总费用}\\\\0\\le x\\le180&0&0.6x&0.6x\\\\180<x\\le350&108&0.65(x-180)&0.65x-9\\\\x>350&218.5&0.9(x-350)&0.9x-96.5\\\\\\end{array}"
+                },
+                {
+                  "label": "费用关系式",
+                  "math": "y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#8",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "把三档结果合起来。注意：超过分界点后，前面各档仍按原单价收费。",
+            "stem_board": {
+              "caption": "汇总：按用量分段写出电费",
+              "lines": [
+                "$$\\begin{array}{c|c|c|c}\\text{用量范围}&\\text{前档费用}&\\text{新增费用}&\\text{总费用}\\\\0\\le x\\le180&0&0.6x&0.6x\\\\180<x\\le350&108&0.65(x-180)&0.65x-9\\\\x>350&218.5&0.9(x-350)&0.9x-96.5\\\\\\end{array}$$",
+                "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+              ]
+            },
+            "submit_label": "确认这一步",
+            "title": "汇总：按用量分段写出电费"
+          },
+          {
+            "completion_board": {
+              "caption": "核对分界点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分界点代入",
+                  "math": "\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}"
+                },
+                {
+                  "label": "检查结果",
+                  "math": "\\text{三档衔接一致}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$$\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}$$"
+            },
+            "id": "cebcc1eb0ab37ca75646707f#9",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "用量恰好到分界点时，按截至这一档的累计费用计算；不重复收费，也不漏掉分界点。",
+            "stem_board": {
+              "caption": "核对分界点",
+              "lines": [
+                "$$\\begin{gathered}x=0:\\ y=0\\\\x=180:\\ y=0.6\\times 180=108\\\\x=350:\\ y=108+0.65(350-180)=218.5\\end{gathered}$$",
+                "$$\\text{三档衔接一致}$$"
+              ]
+            },
+            "submit_label": "确认这一步",
+            "title": "核对分界点"
+          }
+        ],
+        "route_id": "piecewise-modeling",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b3f9d7c46e60563f95be5ec65673ed0bf13a6771c16b99222bb5ea71a501df09",
+            "step_id": "39e5646dcb-piecewise-modeling-001-tiers"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f62aaac9864bbd0f0451a81b",
+        "interaction_revision": "e1485727d8a1792b611a9c737b248a4f444e70cd5a2f94f19311526e64533f8b",
+        "interaction_sha256": "1500236ff2ba6fb8c09e371b2edc1550024ab7998fabe6746076229b48785e0b",
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "先看费用关系，再反求用量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "核对后的费用关系（元）",
+                  "math": "y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}"
+                },
+                {
+                  "label": "本问已知的电费",
+                  "math": "y=199"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "按题目的阶梯单价累计，费用关系如下。已知电费 $199$ 元，接下来分别在三档中令总费用等于这个数，再检查用量范围。",
+            "stem_board": {
+              "caption": "先看费用关系，再反求用量",
+              "lines": [
+                "$$y=\\begin{cases}0.6x,&0\\le x\\le 180\\\\0.65x-9,&180<x\\le 350\\\\0.9x-96.5,&x>350\\end{cases}$$",
+                "$$y=199$$"
+              ]
+            },
+            "submit_label": "确认这一步",
+            "title": "先看费用关系，再反求用量"
+          },
+          {
+            "completion_board": {
+              "caption": "第1段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}0\\le x,\\quad x\\le 180\\\\\\frac{3 x}{5}=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": "x\\in \\left\\{\\frac{995}{3}\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}\\frac{3 x}{5}=199\\\\x=\\frac{995}{3}\\\\x\\in \\left\\{\\frac{995}{3}\\right\\}\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{\\frac{995}{3}\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $0\\le x,\\quad x\\le 180$ 时，$y=\\frac{3 x}{5}$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+            "stem_board": {
+              "caption": "第1段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}0\\le x,\\quad x\\le 180\\\\\\frac{3 x}{5}=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第1段：解方程"
+          },
+          {
+            "completion_board": {
+              "caption": "第1段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{\\frac{995}{3}\\right\\}\\\\0\\le x,\\quad x\\le 180\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": "x\\in \\emptyset"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}\\frac{995}{3}\\notin\\left[0, 180\\right]\\quad\\text{舍去}\\\\\\left\\{\\frac{995}{3}\\right\\}\\cap \\left[0, 180\\right]=\\emptyset\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left\\{\\frac{995}{3}\\right\\}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "刚才解的是 $\\frac{3 x}{5}=199$，但这一段只适用于 $0\\le x,\\quad x\\le 180$。哪些解可以保留？",
+            "stem_board": {
+              "caption": "第1段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{\\frac{995}{3}\\right\\}\\\\0\\le x,\\quad x\\le 180\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第1段：检查范围"
+          },
+          {
+            "completion_board": {
+              "caption": "第2段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}180<x,\\quad x\\le 350\\\\\\frac{13 x}{20} - 9=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": "x\\in \\left\\{320\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}\\frac{13 x}{20} - 9=199\\\\\\frac{13 x}{20}=208\\\\x=320\\\\x\\in \\left\\{320\\right\\}\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{320\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $180<x,\\quad x\\le 350$ 时，$y=\\frac{13 x}{20} - 9$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+            "stem_board": {
+              "caption": "第2段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}180<x,\\quad x\\le 350\\\\\\frac{13 x}{20} - 9=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2段：解方程"
+          },
+          {
+            "completion_board": {
+              "caption": "第2段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{320\\right\\}\\\\180<x,\\quad x\\le 350\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": "x\\in \\left\\{320\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}320\\in\\left(180, 350\\right]\\quad\\text{保留}\\\\\\left\\{320\\right\\}\\cap \\left(180, 350\\right]=\\left\\{320\\right\\}\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#5",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{320\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "刚才解的是 $\\frac{13 x}{20} - 9=199$，但这一段只适用于 $180<x,\\quad x\\le 350$。哪些解可以保留？",
+            "stem_board": {
+              "caption": "第2段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{320\\right\\}\\\\180<x,\\quad x\\le 350\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2段：检查范围"
+          },
+          {
+            "completion_board": {
+              "caption": "第3段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x>350\\\\\\frac{9 x}{10} - \\frac{193}{2}=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": "x\\in \\left\\{\\frac{985}{3}\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}\\frac{9 x}{10} - \\frac{193}{2}=199\\\\\\frac{9 x}{10}=\\frac{591}{2}\\\\x=\\frac{985}{3}\\\\x\\in \\left\\{\\frac{985}{3}\\right\\}\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#6",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{\\frac{985}{3}\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x>350$ 时，$y=\\frac{9 x}{10} - \\frac{193}{2}$。由 $y=199$ 列出下面的方程，先求出它的全部实数解。",
+            "stem_board": {
+              "caption": "第3段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x>350\\\\\\frac{9 x}{10} - \\frac{193}{2}=199\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第3段：解方程"
+          },
+          {
+            "completion_board": {
+              "caption": "第3段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{\\frac{985}{3}\\right\\}\\\\x>350\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": "x\\in \\emptyset"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}\\frac{985}{3}\\notin\\left(350, \\infty\\right)\\quad\\text{舍去}\\\\\\left\\{\\frac{985}{3}\\right\\}\\cap \\left(350, \\infty\\right)=\\emptyset\\end{gathered}$$"
+            },
+            "id": "f62aaac9864bbd0f0451a81b#7",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{\\frac{985}{3}\\right\\}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "刚才解的是 $\\frac{9 x}{10} - \\frac{193}{2}=199$，但这一段只适用于 $x>350$。哪些解可以保留？",
+            "stem_board": {
+              "caption": "第3段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{\\frac{985}{3}\\right\\}\\\\x>350\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第3段：检查范围"
+          }
+        ],
+        "route_id": "piecewise-equation",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "74df126c1210a85d4d5d3c356511cfa6bd0de3ab0d873fbb0ed860d4c50c5d51",
+            "step_id": "cbd98ea750-piecewise-equation-001-branches"
+          }
+        ],
+        "target_ref": "/root/goals/1"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2694fc293ad7121beb865365",
+        "interaction_revision": "e1485727d8a1792b611a9c737b248a4f444e70cd5a2f94f19311526e64533f8b",
+        "interaction_sha256": "4184e051c7b0aac2b428e5c05a98adec16adcaf595aeb288be58e2a3846c86d2",
+        "lesson_version": "104cdfb0ac1ee19219d350d0469eb57242830348c66f9706c62293506424c303",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合并各段保留的解",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "每段保留的解",
+                  "math": "\\begin{gathered}\\text{第1段}:\\ \\emptyset\\\\\\text{第2段}:\\ \\left\\{320\\right\\}\\\\\\text{第3段}:\\ \\emptyset\\end{gathered}"
+                },
+                {
+                  "label": "原方程的全部解",
+                  "math": "x\\in \\left\\{320\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\emptyset\\cup\\left\\{320\\right\\}\\cup\\emptyset=\\left\\{320\\right\\}$$"
+            },
+            "id": "2694fc293ad7121beb865365#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{320\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{320, \\frac{985}{3}, \\frac{995}{3}\\right\\}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "满足任意一段的条件即可。把各段保留的解合起来，$x$ 的全部取值是什么？",
+            "stem_board": {
+              "caption": "合并各段保留的解",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "每段保留的解",
+                  "math": "\\begin{gathered}\\text{第1段}:\\ \\emptyset\\\\\\text{第2段}:\\ \\left\\{320\\right\\}\\\\\\text{第3段}:\\ \\emptyset\\end{gathered}"
+                },
+                {
+                  "label": "原方程的全部解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "合并各段保留的解"
+          },
+          {
+            "completion_board": {
+              "caption": "代回计费规则，写出用电量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "前档费用＋本档新增费用",
+                  "math": "108+0.65(320-180)=199"
+                },
+                {
+                  "label": "该月用电量",
+                  "math": "320\\text{ 千瓦时}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "$$108+0.65(320-180)=199\\quad\\text{（元）}$$"
+            },
+            "id": "2694fc293ad7121beb865365#2",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "用电量为 $320$ 千瓦时时，按对应档位累计计算电费。结果是否等于题给的 $199$ 元？",
+            "stem_board": {
+              "caption": "代回计费规则，写出用电量",
+              "lines": [
+                "$$108+0.65(320-180)=199$$",
+                "$$320\\text{ 千瓦时}$$"
+              ]
+            },
+            "submit_label": "确认这一步",
+            "title": "代回计费规则，写出用电量"
+          }
+        ],
+        "route_id": "piecewise-equation",
+        "run_id": "e64ab9a214f040038f23deb5e4d00b5e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1d55ddc505b071bb5c06623a4dc35dc1e51446c089a7e51c0d87210add5147ff",
+            "step_id": "cbd98ea750-piecewise-equation-002-merge"
+          }
+        ],
+        "target_ref": "/root/goals/1"
+      }
+    ],
+    "target_refs": [
+      "/root/goals/0",
+      "/root/goals/1"
+    ]
+  }
+}

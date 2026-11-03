@@ -81,7 +81,7 @@ def recorded_pipeline(monkeypatch, *, entered=None, release=None, verified=True)
                         provider_factory)
     monkeypatch.setattr("shuxueshuo_server.graph_lesson.stage_two.selection.live_provider_factory", lambda: object())
 
-    def recognize(png, directory, _provider, *, problem_id):
+    def recognize(png, directory, _provider, *, problem_id, original_png=None, read_graph_details=False):
         calls.append(problem_id)
         if entered:
             entered.set()
@@ -230,7 +230,7 @@ def test_cross_account_expected_user_and_legacy_directory_are_rejected(private_a
         row, _ = submission(repository, first, page["page_id"])
         second, _token = login(client, auth)
         assert first != second
-        for suffix in ("", "/image", "/lesson/" + "c" * 32 + "/snapshot"):
+        for suffix in ("", "/image", "/figures", "/figures/original", "/lesson/" + "c" * 32 + "/snapshot"):
             assert client.get(f"/api/search/problems/{row['id']}{suffix}").status_code == 404
         assert client.get(page["image_url"]).status_code == 404
         assert client.delete(f"/api/search/problems/{row['id']}").status_code == 404
@@ -242,6 +242,35 @@ def test_cross_account_expected_user_and_legacy_directory_are_rejected(private_a
         (legacy / "question.png").write_bytes(b"old private bytes")
         assert client.get("/api/search/problems/" + "e" * 12 + "/image").status_code == 404
         assert legacy.exists()
+
+
+def test_private_figures_keep_high_fidelity_and_obey_lifecycle(private_app, repository):
+    app, auth = private_app
+    with TestClient(app, base_url=auth.config.origin) as client:
+        owner, _ = login(client, auth)
+        row, _ = submission(repository, owner)
+        repository.associate(row['id'], build_identity(reviewed_result(public_candidate())))
+        save(row['path'] / 'crop.json', {'box': [0, 0, 1, 1]})
+        original = row['path'] / 'original.png'
+        Image.new('RGB', (240, 80), '#1258ab').save(original)
+        base = f"/api/search/problems/{row['id']}"
+        manifest = client.get(base + '/figures')
+        assert manifest.status_code == 200
+        assert manifest.headers['cache-control'] == 'no-store'
+        assert client.get(base).json()['figures'] == manifest.json()
+        url = manifest.json()['figures'][0]['image_url']
+        image = client.get(url)
+        assert image.content == original.read_bytes()
+        assert image.headers['cache-control'] == 'no-store'
+        assert client.get(base + '/image').content == (row['path'] / 'question.png').read_bytes()
+        assert client.get(base + '/figures/unknown').status_code == 404
+        assert client.get(base + '/figures/original?version=' + '0' * 64).status_code == 409
+        repository.test_time[0] = row['expires_at']
+        assert client.get(base + '/figures').status_code == 410
+        assert client.get(url).status_code == 410
+        repository.delete(owner, row['id'])
+        assert client.get(base + '/figures').status_code == 404
+        assert client.get(url).status_code == 404
 
 
 def test_every_owned_http_and_websocket_route_rejects_other_account(private_app, repository):

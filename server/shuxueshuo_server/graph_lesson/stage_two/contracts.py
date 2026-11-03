@@ -72,6 +72,25 @@ def _visible_sources(candidate):
     return visible
 
 
+def _required_piecewise_features(root):
+    """Use the validated AST to require only the applicable new input feature."""
+    from ..piecewise_equation import relevant as equation_relevant
+    from ..piecewise_inequality import relevant as inequality_relevant
+
+    own, required = {}, {}
+    for path, scope, ancestors in scopes(root):
+        own[path] = [{'value': fact} for fact in scope['facts']]
+        records = [row for ancestor in ancestors for row in own[ancestor]] + own[path]
+        for index, goal in enumerate(scope['goals']):
+            if 'pricing' in goal or goal['kind'] == 'match_range':
+                continue
+            if inequality_relevant(goal, records):
+                required[f'{path}/goals/{index}'] = 'piecewise_inequality'
+            elif equation_relevant(goal, records):
+                required[f'{path}/goals/{index}'] = 'piecewise_equation'
+    return required
+
+
 # Acceptance inputs come from recorded batches checked against gold fixtures.
 # Student uploads have no gold: they must say so explicitly and are admitted on
 # extraction, source review and features alone, never by claiming evaluation.
@@ -139,6 +158,7 @@ def validate_input(value, admission="acceptance"):
     if not expected:
         issue("input.no_targets", "/candidate/root", "候选没有可判型的目标。")
     registry = {spec.feature_id for spec in FEATURE_REGISTRY}
+    piecewise_required = _required_piecewise_features(checked['compiled']['root'])
     grouped = {target: set() for target in expected}
     for index, row in enumerate(value["features"]):
         path = f"/features/{index}"
@@ -189,13 +209,23 @@ def validate_input(value, admission="acceptance"):
                     issue("input.feature_source_scope", source_path,
                           "出处仅可引用本作用域及祖先的事实、定义，或当前目标。")
     for target, found in grouped.items():
-        # Saved v1 results predate concrete-domain extraction. Its additional
-        # feature is mandatory for that new goal, but cannot invalidate older
-        # reviewed goals that never used it. Present rows still receive every
-        # ordinary shape/source check above.
+        # Additive type features are required only for their own goals. Older
+        # reviewed results do not contain irrelevant features introduced later;
+        # any rows they do contain still receive all shape/source checks above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range'}
+        required = registry - {'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
+                               'function_graph', 'piecewise_equation', 'piecewise_inequality'}
+        if target in piecewise_required:
+            required.add(piecewise_required[target])
+        if kind in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+            required.add('function_graph')
         required.discard('function_formula')
+        required.discard('piecewise_modeling')
+        if 'pricing' in expected[target]['goal']:
+            required.add('piecewise_modeling')
+        required.discard('piecewise_range_parameter')
+        if kind == 'match_range':
+            required.add('piecewise_range_parameter')
         if kind == 'find_function_formula' or (kind in ('find_value', 'find_range') and 'relation' in expected[target]['goal']):
             required.add('function_formula')
         elif kind in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in expected[target]['goal']:

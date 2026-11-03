@@ -1,0 +1,27 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b11",
+  "reviewer": "Codex · 2026-11-02 核对图10第99页例11题干、分段开闭及原选项；按设计复核端点",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-10.png",
+      "sha256": "1de03d2cb3d83ef56ce1028e8a8c5383823f615ce64aa04655002c877a1af7e9",
+      "location": "第99页顶部例11；仅题干和选项，不读入印刷解析"
+    }
+  ],
+  "candidate": {
+    "original_text": "函数 $f(x)=\\begin{cases}x^2-4x+3,&0\\le x\\le3\\\\x+3,&-3\\le x<0\\end{cases}$ 的值域为（ ）。\nA. $[-1,+\\infty)$\nB. $[3,+\\infty)$\nC. $[-1,0]$\nD. $[-1,3]$",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2-4*x+3,0<=x ∧ x<=3,x+3,-3<=x ∧ x<0)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "object": "f"
+        }
+      ]
+    }
+  }
+}

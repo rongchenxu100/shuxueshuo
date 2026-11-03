@@ -1,0 +1,170 @@
+{
+  "original_text": "【变式2】将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+  "root": {
+    "goals": [
+      {
+        "kind": "select_function_graph",
+        "expression": "abs(-x^2+1)+2",
+        "variable": "x",
+        "comparison": "rough_shape",
+        "selection_mode": "unspecified",
+        "options": [
+          {
+            "option_id": "option-a",
+            "label": "A",
+            "facts": {
+              "shape": "turning_points",
+              "outer_direction": "up",
+              "landmarks": [
+                {
+                  "role": "left_corner",
+                  "x": "-1",
+                  "y": "0",
+                  "evidence": "labelled"
+                },
+                {
+                  "role": "center",
+                  "x": "0",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                {
+                  "role": "right_corner",
+                  "x": "1",
+                  "y": "0",
+                  "evidence": "labelled"
+                }
+              ],
+              "symmetry": "symmetric"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-b",
+            "label": "B",
+            "facts": {
+              "shape": "turning_points",
+              "outer_direction": "up",
+              "landmarks": [
+                {
+                  "role": "left_corner",
+                  "x": "-2",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                {
+                  "role": "center",
+                  "x": "-1",
+                  "y": "0",
+                  "evidence": "labelled"
+                },
+                {
+                  "role": "right_corner",
+                  "x": "0",
+                  "y": "-1",
+                  "evidence": "labelled"
+                }
+              ],
+              "symmetry": "symmetric"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-c",
+            "label": "C",
+            "facts": {
+              "shape": "turning_points",
+              "outer_direction": "up",
+              "landmarks": [
+                {
+                  "role": "center",
+                  "x": "-2",
+                  "evidence": "labelled"
+                },
+                {
+                  "role": "right_corner",
+                  "x": "-1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                }
+              ],
+              "symmetry": "symmetric"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-d",
+            "label": "D",
+            "facts": {
+              "shape": "turning_points",
+              "outer_direction": "up",
+              "landmarks": [
+                {
+                  "role": "center",
+                  "x": "-2",
+                  "evidence": "labelled"
+                }
+              ],
+              "symmetry": "unknown"
+            },
+            "uncertainties": [
+              "右侧图象被截断，部分关键坐标和转折点无法完整核对"
+            ]
+          }
+        ],
+        "transformations": [
+          {
+            "direction": "left",
+            "distance": "2"
+          },
+          {
+            "direction": "down",
+            "distance": "3"
+          }
+        ]
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "occluded",
+        "text": "选项D右侧图象被图片边缘截断，部分关键坐标和转折点无法完整核对。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "incomplete",
+    "privacy": "separated",
+    "figure": "unrepresented",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "将函数 $y=|-x^2+1|+2$ 向左、向下分别平移2个、3个单位长度，所得图象为（　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "incomplete",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "label": "A",
+                "text": "见原图"
+              },
+              {
+                "label": "B",
+                "text": "见原图"
+              },
+              {
+                "label": "C",
+                "text": "见原图"
+              },
+              {
+                "label": "D",
+                "text": "见原图"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

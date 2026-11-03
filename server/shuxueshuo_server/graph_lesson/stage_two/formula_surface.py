@@ -113,6 +113,15 @@ def formula_source_spans(candidate, target_ref, ranges, desc, matches):
         return None
     rows = [*relations, (target, [target_ref, target_ref+'/function', target_ref+'/variable',
                                                         *([target_ref+'/expression'] if 'expression' in goal else [])])]
+    # “已知函数 f(x) 满足 ...” names the same unknown function; it is
+    # not another given value. Bind that exact call and its source wording,
+    # rather than ignoring every uncovered call before the relation. Extra
+    # properties between the introduction and relation must still fail closed.
+    for part in formulas:
+        if (part[1] < relation[0] and matches(part[2], goal['function']+'('+goal['variable']+')')
+                and re.search(r'函数\s*\$\s*$', text[:part[0]])
+                and re.fullmatch(r'\s*\$\s*[，,]?\s*满足\s*\$\s*', text[part[1]:relation[0]])):
+            rows.append((part, [target_ref+'/function', target_ref+'/variable']))
     if pair:
         rows.append((pair[0], [target_ref+'/relation_domain',
                               *[f'{target_ref}/relation_variables/{i}' for i in range(2)]]))
@@ -124,7 +133,8 @@ def formula_source_spans(candidate, target_ref, ranges, desc, matches):
         m = found[0]
         rows.append(((m.start(), m.end(), m[0]), [target_ref+'/function_type']))
         for part in formulas:
-            if part[1] < relation[0] and matches(part[2], goal['function']+'('+goal['variable']+')'):
+            if (part[1] < relation[0] and matches(part[2], goal['function']+'('+goal['variable']+')')
+                    and not any(row[0] == part for row in rows)):
                 rows.append((part, [target_ref+'/function']))
     for field in ('relation_domain', 'declared_domain', 'requested_domain'):
         if field not in goal:

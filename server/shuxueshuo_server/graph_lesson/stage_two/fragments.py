@@ -540,7 +540,71 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             **({"reading_transform": transform} if transform else {}),
         })
 
+    if values.get('piecewise_modeling', {}).get('structure_supported'):
+        from ..piecewise_modeling import inspect_target
+        desc = inspect_target(candidate, target_ref)
+        if not desc['structure_supported']:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.pricing_source_not_located'}]}
+        first, second = text.index('（1）'), text.index('（2）')
+        span = (first, second) if desc['goal_ast']['kind'] == 'find_equation' else (second, len(text))
+        for index, (start, end, kind) in enumerate([(0, first, 'condition'), (*span, 'goal')], 1):
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_modeling'])
+            fragments[-1].update(id=f'{target_ref}:d1:{index}', source_refs=[target_ref], knowledge_refs=['piecewise-function#definition'])
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     domain = values.get("function_domain", {})
+    if values.get('piecewise_range_parameter', {}).get('structure_supported'):
+        from .piecewise_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['piecewise_range_parameter'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.piecewise_range_parameter_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_range_parameter'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['piecewise-function#domain-range']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('piecewise_inequality', {}).get('structure_supported'):
+        from .piecewise_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['piecewise_inequality'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.piecewise_inequality_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_inequality'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['piecewise-function#inequality']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('piecewise_equation', {}).get('structure_supported'):
+        from .piecewise_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['piecewise_equation'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.piecewise_equation_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_equation'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['piecewise-function#equation']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('function_graph', {}).get('structure_supported'):
+        from .graph_surface import graph_source_spans
+        spans = graph_source_spans(candidate, target_ref, ranges, values['function_graph'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.graph_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'function_graph'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-representations#graph']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('function_formula', {}).get('structure_supported'):
         from .formula_surface import formula_source_spans
         spans = formula_source_spans(candidate, target_ref, ranges,

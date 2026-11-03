@@ -67,16 +67,9 @@ def _graph(values):
     expression, variable, domain = (values[key] for key in ('function', 'variable', 'domain'))
     if not isinstance(domain, sp.Interval):
         return None
-    drawn = drawing.family(expression, variable)
-    marks = drawing.drawable(drawn, variable, drawing.domain_points(domain))
-    vertex = drawn['kind'] == 'quadratic'
-    # Keep the reference curve in frame, but only mark an attainable vertex.
-    bounds, ticks = drawing.function_frame(drawn, variable, domain, marks=marks, show_vertex=vertex)
-    return drawing.function_graph(
-        drawn, variable, domain, bounds=bounds, x_ticks=ticks, marks=marks,
-        show_vertex=vertex and drawn['vertex'][0] in domain,
+    return drawing.interval_function_graph(
+        expression, variable, domain,
         title=f'{"被开方数" if values["description"].get("radical") else values["description"]["function_name"]} 在 {drawing.plain(domain)} 上的图像',
-        description=drawing.endpoint_story(drawn, variable, domain),
         caption='深色曲线表示本题范围，浅色曲线仅作参考；实心点可取，空心端点不取')
 
 
@@ -115,6 +108,12 @@ def phase_view(values):
     if desc.get('radical') and phase not in ('root', 'affine', 'domain'):
         definition = rf'P({latex(values["variable"])})={latex(values["function"])}'
         label = '当前被开方数'
+    if desc.get('piecewise_index'):
+        prefix = f'第{desc["piecewise_index"]}段'
+        view['title'] = prefix + '：' + view['title']
+        view['derivation']['caption'] = view['title']
+        definition += rf',\quad {latex(values["variable"])}\in{_set_latex(values["domain"])}'
+        label = prefix
     return _function_context(view, definition, label)
 
 
@@ -300,6 +299,17 @@ def _range_view(values):
             equations.append(rf'\lim_{{{latex(x)}\to{approach}}}{call}={latex(value)}')
     if not equations:
         equations = [f'{call}={latex(f)}', input_math]
+    piecewise_linear = bool(desc.get('piecewise_index')) and sp.degree(f, x) == 1 and isinstance(domain, sp.Interval)
+    if piecewise_linear:
+        # A first-year linear piece needs only an inequality chain, not limits.
+        def chain(expression, interval):
+            text = latex(expression)
+            if interval.start.is_finite:
+                text = latex(interval.start) + (r'<' if interval.left_open else r'\le ') + text
+            if interval.end.is_finite:
+                text += (r'<' if interval.right_open else r'\le ') + latex(interval.end)
+            return text if interval != sp.S.Reals else text + r'\in\mathbb R'
+        equations = [chain(x, domain) + r'\Rightarrow ' + chain(f, image)]
     if phase == 'values':
         if low == high:
             return _card('确定函数值', '在这个非空定义域内，函数值保持不变。' if not f.has(x)
@@ -318,8 +328,15 @@ def _range_view(values):
         interaction, expected = _choice(text, alternatives)
         question = ('比较区间端点的值或极限，以及区间内的顶点值。' if sp.degree(f, x) == 2 else
                     '根据函数的增减情况，比较区间端点的值或极限。')
+        if piecewise_linear:
+            direction = '递增' if sp.diff(f, x) > 0 else '递减'
+            question = f'本段函数{direction}。把输入范围代入一次式，函数值最小、最大能到哪里？边界能否取到？'
+        elif desc.get('piecewise_index') and isinstance(domain, sp.Interval) and not domain.left_open and not domain.right_open:
+            question = ('计算两个端点的函数值，再与本段内的顶点值比较。' if values['critical_points'] else
+                        '计算本段两个端点的函数值。') + '最小值和最大值分别是多少？'
         return _card('比较函数值', question,
-                     '输入范围', input_math, '端点与顶点', _lines(equations), _math(*equations), interaction, expected)
+                     '输入范围', input_math, '函数值的边界' if piecewise_linear else '端点与顶点',
+                     _lines(equations), _math(*equations), interaction, expected)
     interaction, expected = _image_choices(image, domain)
     title = '确定被开方数范围' if desc.get('radical') else '写出值域'
     from .function_range import needs_value_comparison

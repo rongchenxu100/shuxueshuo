@@ -1,0 +1,2393 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q28a-v2",
+  "graphVersion": "16384f441ab919c063a37348662155423657e31d88db941c27ea79f5978704ac",
+  "problem": {
+    "text": "已知 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求 $f(1)$，$g(1)$ 的值。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "本问要求处理 $f(1)$。需要完成什么任务？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/children/0/goals/0:goal:o0",
+            "label": "把题目指定的输入代入对应函数，求出输出值"
+          },
+          {
+            "value": "/root/children/0/goals/0:goal:o1",
+            "label": "收集函数在整个定义域上的所有输出，求出值域",
+            "feedback": "这里求的是给定输入对应的输出；值域才是全部输入产生的输出集合。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/children/0/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "这里求的是给定输入对应的输出；值域才是全部输入产生的输出集合。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "type-function-evaluation",
+        "type-abstract-function-domain",
+        "type-function-domain",
+        "type-function-equality",
+        "type-function-range"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "代入是把完整输入放进已有函数规则；复合函数从内向外依次代入。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+      },
+      "target_ref": "/root/children/0/goals/0"
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-evaluation",
+            "label": "求函数值",
+            "note": "根据函数关系，求给定输入或组合的输出"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-evaluation"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-evaluation"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-evaluation"
+        ],
+        "edges": [
+          "type-function-evaluation|involves|function-concept"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+        ],
+        "log": "作答判断：选择主要题型「求函数值」；另外 0 个题型保留为对照。"
+      },
+      "target_ref": "/root/children/0/goals/0"
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "代入法",
+            "target": "method-function-evaluation",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "function-evaluation"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-evaluation",
+        "op": "methods"
+      },
+      "question": "使用代入法：把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。这里用代入法；换元则是引入新变量来转换问题。",
+      "submit_label": "用代入法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-function-evaluation"
+      ],
+      "effects": {
+        "nodes": [
+          "method-function-evaluation"
+        ],
+        "edges": [
+          "type-function-evaluation|candidate|method-function-evaluation"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "function-evaluation"
+      },
+      "target_ref": "/root/children/0/goals/0"
+    }
+  ],
+  "routes": {
+    "function-evaluation": {
+      "id": "function-evaluation",
+      "method": "method-function-evaluation",
+      "label": "代入法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "明确完整输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "f\\left(1\\right)"
+              },
+              {
+                "label": "首先处理的完整输入",
+                "math": "\\begin{gathered}\\text{先算 }f\\\\1\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "括号里的内容是输入；把完整输入代入对应函数的全部自变量位置。"
+          },
+          "id": "7441b9d32e2dd3166125b276#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "把括号内的内容当作函数值，反过来求自变量",
+                "value": "o2"
+              },
+              {
+                "label": "把括号内的完整输入，代入对应函数的全部自变量位置",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "观察函数调用：代入时应该替换什么？",
+          "stem_board": {
+            "caption": "明确完整输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "f\\left(1\\right)"
+              },
+              {
+                "label": "首先处理的完整输入",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "明确完整输入",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "cf2358e69a800f77405efca31b5c4e3a2ad87fa269a7f3441434cb23c92e4cdc",
+              "step_id": "a4fff7fe80-function-evaluation-001-evaluation_input"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "7441b9d32e2dd3166125b276",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "明确完整输入",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：明确完整输入"
+          },
+          "target_ref": "/root/children/0/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "整体代入 f",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "完整输入与对应规则",
+                "math": "\\begin{gathered}\\text{输入：}1\\\\f(x)=3\\cdot x^{2}-1\\end{gathered}"
+              },
+              {
+                "label": "本层输出",
+                "math": "f\\left(1\\right)=2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "把完整输入替换规则中的每个自变量位置；保留括号后，再按运算顺序计算。"
+          },
+          "id": "b71ab22692b176a5040c5070#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$3$",
+                "value": "o2"
+              },
+              {
+                "label": "$2$",
+                "value": "o1"
+              },
+              {
+                "label": "$1$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把完整输入 $1$ 放进 $f$ 的对应规则，计算输出。",
+          "stem_board": {
+            "caption": "整体代入 f",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "完整输入与对应规则",
+                "math": "\\begin{gathered}\\text{输入：}1\\\\f(x)=3\\cdot x^{2}-1\\end{gathered}"
+              },
+              {
+                "label": "本层输出",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "整体代入 f",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bd5de27180ffb28668f61ad6205cd22b8663d85d332c3e2a435a39860530cd0a",
+              "step_id": "a4fff7fe80-function-evaluation-002-evaluation_substitute"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b71ab22692b176a5040c5070",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "整体代入 f",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：整体代入 f"
+          },
+          "target_ref": "/root/children/0/goals/0"
+        },
+        {
+          "completion_board": {
+            "caption": "返回本目标结果",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "f\\left(1\\right)"
+              },
+              {
+                "label": "结果",
+                "math": "2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "核对原目标的函数调用顺序与输入限制。"
+          },
+          "id": "a4d321e3680e4f655f10153e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2$",
+                "value": "o1"
+              },
+              {
+                "label": "$3$",
+                "value": "o2"
+              },
+              {
+                "label": "$1$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "确认本目标的结果。",
+          "stem_board": {
+            "caption": "返回本目标结果",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "f\\left(1\\right)"
+              },
+              {
+                "label": "结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "返回本目标结果",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "211d48986a7bf673f821ff1da5b1f1b85ec45b2f41c1b683debe166d2413e42a",
+              "step_id": "a4fff7fe80-function-evaluation-003-evaluation_conclusion"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "a4d321e3680e4f655f10153e",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "返回本目标结果",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：返回本目标结果"
+          },
+          "target_ref": "/root/children/0/goals/0"
+        },
+        {
+          "id": "goal-2-D1",
+          "title": "求 $g(1)$",
+          "question": "本问要求处理 $g(1)$。需要完成什么任务？",
+          "source": "authored",
+          "submit_label": "读懂了，看图谱怎么走",
+          "interaction": {
+            "type": "choice",
+            "field": "reading",
+            "options": [
+              {
+                "value": "/root/children/0/goals/1:goal:o0",
+                "label": "把题目指定的输入代入对应函数，求出输出值"
+              },
+              {
+                "value": "/root/children/0/goals/1:goal:o1",
+                "label": "收集函数在整个定义域上的所有输出，求出值域",
+                "feedback": "这里求的是给定输入对应的输出；值域才是全部输入产生的输出集合。"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "/root/children/0/goals/1:goal:o0"
+            ]
+          },
+          "feedback": {
+            "answer": "这里求的是给定输入对应的输出；值域才是全部输入产生的输出集合。"
+          },
+          "candidateNodes": [
+            "function-concept",
+            "type-function-evaluation",
+            "type-abstract-function-domain",
+            "type-function-domain",
+            "type-function-equality",
+            "type-function-range"
+          ],
+          "effects": {
+            "nodes": [
+              "function-concept"
+            ],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "代入是把完整输入放进已有函数规则；复合函数从内向外依次代入。"
+            ],
+            "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+          },
+          "target_ref": "/root/children/0/goals/1"
+        },
+        {
+          "completion_board": {
+            "caption": "明确完整输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "g\\left(1\\right)"
+              },
+              {
+                "label": "首先处理的完整输入",
+                "math": "\\begin{gathered}\\text{先算 }g\\\\1\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "括号里的内容是输入；把完整输入代入对应函数的全部自变量位置。"
+          },
+          "id": "722a0e0882529b70c156be54#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "把括号内的完整输入，代入对应函数的全部自变量位置",
+                "value": "o1"
+              },
+              {
+                "label": "把括号内的内容当作函数值，反过来求自变量",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "观察函数调用：代入时应该替换什么？",
+          "stem_board": {
+            "caption": "明确完整输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "g\\left(1\\right)"
+              },
+              {
+                "label": "首先处理的完整输入",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "明确完整输入",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "df3c68b63f63bee3983c0cd9cf68c4e7ce84c6f0e26d8fe50d3d857546c80906",
+              "step_id": "97a165d063-function-evaluation-001-evaluation_input"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "722a0e0882529b70c156be54",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "明确完整输入",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：明确完整输入"
+          },
+          "target_ref": "/root/children/0/goals/1"
+        },
+        {
+          "completion_board": {
+            "caption": "整体代入 g",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "完整输入与对应规则",
+                "math": "\\begin{gathered}\\text{输入：}1\\\\g(x)=\\frac{1}{x+2}\\end{gathered}"
+              },
+              {
+                "label": "本层输出",
+                "math": "g\\left(1\\right)=\\frac{1}{3}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "把完整输入替换规则中的每个自变量位置；保留括号后，再按运算顺序计算。"
+          },
+          "id": "189d198c74a798264afae45b#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\frac{1}{3}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\frac{4}{3}$",
+                "value": "o2"
+              },
+              {
+                "label": "$- \\frac{2}{3}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把完整输入 $1$ 放进 $g$ 的对应规则，计算输出。",
+          "stem_board": {
+            "caption": "整体代入 g",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "完整输入与对应规则",
+                "math": "\\begin{gathered}\\text{输入：}1\\\\g(x)=\\frac{1}{x+2}\\end{gathered}"
+              },
+              {
+                "label": "本层输出",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "整体代入 g",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "090c7ea4a56b418c072a91d3835d0ae61f17ada3851dab208c92995558c3c927",
+              "step_id": "97a165d063-function-evaluation-002-evaluation_substitute"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "189d198c74a798264afae45b",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "整体代入 g",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：整体代入 g"
+          },
+          "target_ref": "/root/children/0/goals/1"
+        },
+        {
+          "completion_board": {
+            "caption": "返回本目标结果",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "g\\left(1\\right)"
+              },
+              {
+                "label": "结果",
+                "math": "\\frac{1}{3}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "核对原目标的函数调用顺序与输入限制。"
+          },
+          "id": "d08412eeb4a0bba5d7f5ff70#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\frac{4}{3}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\frac{1}{3}$",
+                "value": "o1"
+              },
+              {
+                "label": "$- \\frac{2}{3}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "确认本目标的结果。",
+          "stem_board": {
+            "caption": "返回本目标结果",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本目标",
+                "math": "g\\left(1\\right)"
+              },
+              {
+                "label": "结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "返回本目标结果",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "18bdfe87123311e8da711e9df1ed03d6d6081abd93034f1fb63c0ce54f4dec87",
+              "step_id": "97a165d063-function-evaluation-003-evaluation_conclusion"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "d08412eeb4a0bba5d7f5ff70",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "返回本目标结果",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：返回本目标结果"
+          },
+          "target_ref": "/root/children/0/goals/1"
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "status": "verified",
+        "available": true,
+        "composition": "sequential_goals",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "target_ref": "/root/children/0/goals/0",
+        "target_refs": [
+          "/root/children/0/goals/0",
+          "/root/children/0/goals/1"
+        ],
+        "route_id": "function-evaluation",
+        "answer": {
+          "kind": "goal_group",
+          "status": "complete",
+          "answers": [
+            {
+              "target_ref": "/root/children/0/goals/0",
+              "title": "求 $f(1)$",
+              "answer": {
+                "defined": true,
+                "domain": {
+                  "expression": "Reals",
+                  "latex": "\\mathbb{R}"
+                },
+                "expression": {
+                  "expression": "2",
+                  "latex": "2"
+                },
+                "is_constant": null,
+                "kind": "find_value",
+                "result_type": "scalar_value",
+                "status": "complete",
+                "value": {
+                  "expression": "2",
+                  "latex": "2"
+                }
+              }
+            },
+            {
+              "target_ref": "/root/children/0/goals/1",
+              "title": "求 $g(1)$",
+              "answer": {
+                "defined": true,
+                "domain": {
+                  "expression": "Reals",
+                  "latex": "\\mathbb{R}"
+                },
+                "expression": {
+                  "expression": "1/3",
+                  "latex": "\\frac{1}{3}"
+                },
+                "is_constant": null,
+                "kind": "find_value",
+                "result_type": "scalar_value",
+                "status": "complete",
+                "value": {
+                  "expression": "1/3",
+                  "latex": "\\frac{1}{3}"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "interactions_complete": true,
+      "pending_count": 0,
+      "goal_completions": [
+        {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": {
+              "expression": "2",
+              "latex": "2"
+            },
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "2",
+              "latex": "2"
+            }
+          },
+          "available": true,
+          "contract": "graph-stage-four-handoff/v1",
+          "feasible_set": null,
+          "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+          "math_steps": [
+            {
+              "math_step_sha256": "cf2358e69a800f77405efca31b5c4e3a2ad87fa269a7f3441434cb23c92e4cdc",
+              "ordinal": 1,
+              "step_id": "a4fff7fe80-function-evaluation-001-evaluation_input"
+            },
+            {
+              "math_step_sha256": "bd5de27180ffb28668f61ad6205cd22b8663d85d332c3e2a435a39860530cd0a",
+              "ordinal": 2,
+              "step_id": "a4fff7fe80-function-evaluation-002-evaluation_substitute"
+            },
+            {
+              "math_step_sha256": "211d48986a7bf673f821ff1da5b1f1b85ec45b2f41c1b683debe166d2413e42a",
+              "ordinal": 3,
+              "step_id": "a4fff7fe80-function-evaluation-003-evaluation_conclusion"
+            }
+          ],
+          "route_id": "function-evaluation",
+          "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+          "status": "verified",
+          "target_ref": "/root/children/0/goals/0",
+          "task_id": "482854349eb530126c321fb52f6e1c9e1eb9ad493a41cd3037442ef54c4133e2",
+          "verified_route_sha256": "ab6ef738990f8bfd51b0c503dc9b74bddd51fc4fcf5db84d4fa23430fb230e6c",
+          "title": "求 $f(1)$"
+        },
+        {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": {
+              "expression": "1/3",
+              "latex": "\\frac{1}{3}"
+            },
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "1/3",
+              "latex": "\\frac{1}{3}"
+            }
+          },
+          "available": true,
+          "contract": "graph-stage-four-handoff/v1",
+          "feasible_set": null,
+          "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+          "math_steps": [
+            {
+              "math_step_sha256": "df3c68b63f63bee3983c0cd9cf68c4e7ce84c6f0e26d8fe50d3d857546c80906",
+              "ordinal": 1,
+              "step_id": "97a165d063-function-evaluation-001-evaluation_input"
+            },
+            {
+              "math_step_sha256": "090c7ea4a56b418c072a91d3835d0ae61f17ada3851dab208c92995558c3c927",
+              "ordinal": 2,
+              "step_id": "97a165d063-function-evaluation-002-evaluation_substitute"
+            },
+            {
+              "math_step_sha256": "18bdfe87123311e8da711e9df1ed03d6d6081abd93034f1fb63c0ce54f4dec87",
+              "ordinal": 3,
+              "step_id": "97a165d063-function-evaluation-003-evaluation_conclusion"
+            }
+          ],
+          "route_id": "function-evaluation",
+          "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+          "status": "verified",
+          "target_ref": "/root/children/0/goals/1",
+          "task_id": "beb5497e4a5a421e6b97543585f0a483fd352cfffc7e57bd3e31e74c382917ba",
+          "verified_route_sha256": "bf8ec3a4a2c28e6cce1c40ec7dec2365ad041815ca97859ccc2ed153be857e1c",
+          "title": "求 $g(1)$"
+        }
+      ]
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-concepts/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "区分「表达式的定义域（自变量的范围）」与「对应关系 f 的输入范围」，由后者约束完整输入，求出新式的定义域，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-function-evaluation",
+        "kind": "method",
+        "label": "代入法",
+        "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "evaluate",
+            "title": "代入并计算",
+            "calls": [
+              "skill-expression-defined",
+              "skill-simplify",
+              "skill-equality-transform",
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验原式与目标结果",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined",
+        "kind": "skill",
+        "label": "提取表达式有意义的条件",
+        "summary": "按原式结构找到根号、分母、零次幂底数等限制位置，逐条列出有意义的条件并保留出处。",
+        "aliases": []
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-equality-transform",
+        "kind": "skill",
+        "label": "等式变形与推导",
+        "summary": "用两边同加减、同乘除等办法整理等式，并分清每一步能不能倒推回去。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "rational-expression",
+        "kind": "knowledge",
+        "label": "分式",
+        "summary": "分式以分母非零为有意义的前提，约分后的表达式仍受原分母限制。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-function-evaluation|calls|skill-equality-transform",
+        "from": "method-function-evaluation",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "evaluate",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-evaluation|calls|skill-expression-defined",
+        "from": "method-function-evaluation",
+        "to": "skill-expression-defined",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "evaluate",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-function-evaluation|calls|skill-simplify",
+        "from": "method-function-evaluation",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "evaluate",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "skill-equality-transform|uses|equality-properties",
+        "from": "skill-equality-transform",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "identity"
+          },
+          {
+            "entry": "universal-substitution"
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify|uses|equality-properties",
+        "from": "skill-simplify",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|candidate|method-function-evaluation",
+        "from": "type-function-evaluation",
+        "to": "method-function-evaluation",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "skill-expression-defined|uses|rational-expression",
+        "from": "skill-expression-defined",
+        "to": "rational-expression",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "meaning"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|rational-expression",
+        "from": "type-abstract-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|set-intersection-union",
+        "from": "type-abstract-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|rational-expression",
+        "from": "type-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|set-intersection-union",
+        "from": "type-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|set-intersection-union",
+        "from": "type-function-range",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-expression-defined",
+          "skill-simplify",
+          "equality-properties",
+          "skill-equality-transform",
+          "rational-expression",
+          "set-intersection-union"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "35469e6157ac65c1268d91b22ee442788edf01258a413d728f0af57561c40c2e",
+  "stream": {
+    "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+    "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+    "stream_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+    "target_ref": "/root/children/0/goals/0",
+    "base_bundle_version": "48720a1d706f6a72d8964af3871797289a55b1141916c12db1c9db6f4b061f12",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-function-evaluation",
+        "op": "methods"
+      },
+      "question": "把完整输入放进已有函数规则，复合函数调用先计算内层函数、再计算外层函数。这里用代入法；换元则是引入新变量来转换问题。",
+      "submit_label": "用代入法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-function-evaluation",
+          "recommendation": "preferred",
+          "route_id": "function-evaluation",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_input",
+        "explanation": "$1\\xrightarrow{f}f\\left(1\\right)$",
+        "highlight": {
+          "caption": "明确完整输入",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "本目标",
+              "math": "f\\left(1\\right)"
+            },
+            {
+              "label": "首先处理的完整输入",
+              "math": "\\begin{gathered}\\text{先算 }f\\\\1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "cf2358e69a800f77405efca31b5c4e3a2ad87fa269a7f3441434cb23c92e4cdc",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "a4fff7fe80-function-evaluation-001-evaluation_input",
+        "target_ref": "/root/children/0/goals/0",
+        "title": "明确完整输入",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_substitute",
+        "explanation": "$f\\left(1\\right)=3\\cdot \\left(1\\right)^{2}-1=2$",
+        "highlight": {
+          "caption": "整体代入 f",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "完整输入与对应规则",
+              "math": "\\begin{gathered}\\text{输入：}1\\\\f(x)=3\\cdot x^{2}-1\\end{gathered}"
+            },
+            {
+              "label": "本层输出",
+              "math": "f\\left(1\\right)=2"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "bd5de27180ffb28668f61ad6205cd22b8663d85d332c3e2a435a39860530cd0a",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "a4fff7fe80-function-evaluation-002-evaluation_substitute",
+        "target_ref": "/root/children/0/goals/0",
+        "title": "整体代入 f",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_conclusion",
+        "explanation": "$f\\left(1\\right)=2$",
+        "highlight": {
+          "caption": "返回本目标结果",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "本目标",
+              "math": "f\\left(1\\right)"
+            },
+            {
+              "label": "结果",
+              "math": "2"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "211d48986a7bf673f821ff1da5b1f1b85ec45b2f41c1b683debe166d2413e42a",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "a4fff7fe80-function-evaluation-003-evaluation_conclusion",
+        "target_ref": "/root/children/0/goals/0",
+        "title": "返回本目标结果",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_input",
+        "explanation": "$1\\xrightarrow{g}g\\left(1\\right)$",
+        "highlight": {
+          "caption": "明确完整输入",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "本目标",
+              "math": "g\\left(1\\right)"
+            },
+            {
+              "label": "首先处理的完整输入",
+              "math": "\\begin{gathered}\\text{先算 }g\\\\1\\end{gathered}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "df3c68b63f63bee3983c0cd9cf68c4e7ce84c6f0e26d8fe50d3d857546c80906",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "97a165d063-function-evaluation-001-evaluation_input",
+        "target_ref": "/root/children/0/goals/1",
+        "title": "明确完整输入",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements",
+          "rational-expression#cancellation",
+          "rational-expression#meaning",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_substitute",
+        "explanation": "$g\\left(1\\right)=\\frac{1}{\\left(1\\right)+2}=\\frac{1}{3}$",
+        "highlight": {
+          "caption": "整体代入 g",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "完整输入与对应规则",
+              "math": "\\begin{gathered}\\text{输入：}1\\\\g(x)=\\frac{1}{x+2}\\end{gathered}"
+            },
+            {
+              "label": "本层输出",
+              "math": "g\\left(1\\right)=\\frac{1}{3}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "090c7ea4a56b418c072a91d3835d0ae61f17ada3851dab208c92995558c3c927",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "97a165d063-function-evaluation-002-evaluation_substitute",
+        "target_ref": "/root/children/0/goals/1",
+        "title": "整体代入 g",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements",
+          "rational-expression#cancellation",
+          "rational-expression#meaning",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "evaluation_conclusion",
+        "explanation": "$g\\left(1\\right)=\\frac{1}{3}$",
+        "highlight": {
+          "caption": "返回本目标结果",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "本目标",
+              "math": "g\\left(1\\right)"
+            },
+            {
+              "label": "结果",
+              "math": "\\frac{1}{3}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "local_check": "passed",
+        "math_step_sha256": "18bdfe87123311e8da711e9df1ed03d6d6081abd93034f1fb63c0ce54f4dec87",
+        "method_ref": "method-function-evaluation#evaluate",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "3d0b766b9be3ae53f33f22da0d6640caff8110dba334982e5f537040ca3aa087",
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/0/calls/1",
+          "/steps/0/calls/2",
+          "/steps/0/calls/3",
+          "/steps/0/calls/4",
+          "/steps/0/skipped_calls/0"
+        ],
+        "step_id": "97a165d063-function-evaluation-003-evaluation_conclusion",
+        "target_ref": "/root/children/0/goals/1",
+        "title": "返回本目标结果",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-concept#definition",
+          "function-concept#elements",
+          "rational-expression#cancellation",
+          "rational-expression#meaning",
+          "set-intersection-union#intersection"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"function-evaluation\",\"a4fff7fe80-function-evaluation-001-evaluation_input\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-evaluation\",\"a4fff7fe80-function-evaluation-002-evaluation_substitute\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-evaluation\",\"a4fff7fe80-function-evaluation-003-evaluation_conclusion\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-evaluation\",\"97a165d063-function-evaluation-001-evaluation_input\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity",
+            "rational-expression#cancellation"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-evaluation\",\"97a165d063-function-evaluation-002-evaluation_substitute\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity",
+            "rational-expression#cancellation"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ],
+      "[\"function-evaluation\",\"97a165d063-function-evaluation-003-evaluation_conclusion\"]": [
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#definition",
+            "function-concept#elements"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/1"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/0/calls/2"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-simplify",
+          "usedBasis": [
+            "equality-properties#identity",
+            "rational-expression#cancellation"
+          ],
+          "source": "/steps/0/calls/3"
+        },
+        {
+          "method": "method-function-evaluation",
+          "step": "evaluate",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#identity"
+          ],
+          "source": "/steps/0/calls/4"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/children/0/goals/0",
+        "route_id": "function-evaluation",
+        "step_id": "a4fff7fe80-function-evaluation-001-evaluation_input",
+        "ordinal": 1,
+        "math_step_sha256": "cf2358e69a800f77405efca31b5c4e3a2ad87fa269a7f3441434cb23c92e4cdc",
+        "status": "interactive",
+        "interaction_id": "7441b9d32e2dd3166125b276"
+      },
+      {
+        "target_ref": "/root/children/0/goals/0",
+        "route_id": "function-evaluation",
+        "step_id": "a4fff7fe80-function-evaluation-002-evaluation_substitute",
+        "ordinal": 2,
+        "math_step_sha256": "bd5de27180ffb28668f61ad6205cd22b8663d85d332c3e2a435a39860530cd0a",
+        "status": "interactive",
+        "interaction_id": "b71ab22692b176a5040c5070"
+      },
+      {
+        "target_ref": "/root/children/0/goals/0",
+        "route_id": "function-evaluation",
+        "step_id": "a4fff7fe80-function-evaluation-003-evaluation_conclusion",
+        "ordinal": 3,
+        "math_step_sha256": "211d48986a7bf673f821ff1da5b1f1b85ec45b2f41c1b683debe166d2413e42a",
+        "status": "interactive",
+        "interaction_id": "a4d321e3680e4f655f10153e"
+      },
+      {
+        "target_ref": "/root/children/0/goals/1",
+        "route_id": "function-evaluation",
+        "step_id": "97a165d063-function-evaluation-001-evaluation_input",
+        "ordinal": 1,
+        "math_step_sha256": "df3c68b63f63bee3983c0cd9cf68c4e7ce84c6f0e26d8fe50d3d857546c80906",
+        "status": "interactive",
+        "interaction_id": "722a0e0882529b70c156be54"
+      },
+      {
+        "target_ref": "/root/children/0/goals/1",
+        "route_id": "function-evaluation",
+        "step_id": "97a165d063-function-evaluation-002-evaluation_substitute",
+        "ordinal": 2,
+        "math_step_sha256": "090c7ea4a56b418c072a91d3835d0ae61f17ada3851dab208c92995558c3c927",
+        "status": "interactive",
+        "interaction_id": "189d198c74a798264afae45b"
+      },
+      {
+        "target_ref": "/root/children/0/goals/1",
+        "route_id": "function-evaluation",
+        "step_id": "97a165d063-function-evaluation-003-evaluation_conclusion",
+        "ordinal": 3,
+        "math_step_sha256": "18bdfe87123311e8da711e9df1ed03d6d6081abd93034f1fb63c0ce54f4dec87",
+        "status": "interactive",
+        "interaction_id": "d08412eeb4a0bba5d7f5ff70"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "7441b9d32e2dd3166125b276",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "931ac7b7a6bb319b74b9dfb50fdbdb4c1cb8beded4fb33a36819225249c6e7e8",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "明确完整输入",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "f\\left(1\\right)"
+                },
+                {
+                  "label": "首先处理的完整输入",
+                  "math": "\\begin{gathered}\\text{先算 }f\\\\1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "括号里的内容是输入；把完整输入代入对应函数的全部自变量位置。"
+            },
+            "id": "7441b9d32e2dd3166125b276#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "把括号内的内容当作函数值，反过来求自变量",
+                  "value": "o2"
+                },
+                {
+                  "label": "把括号内的完整输入，代入对应函数的全部自变量位置",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "观察函数调用：代入时应该替换什么？",
+            "stem_board": {
+              "caption": "明确完整输入",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "f\\left(1\\right)"
+                },
+                {
+                  "label": "首先处理的完整输入",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "明确完整输入"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "cf2358e69a800f77405efca31b5c4e3a2ad87fa269a7f3441434cb23c92e4cdc",
+            "step_id": "a4fff7fe80-function-evaluation-001-evaluation_input"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b71ab22692b176a5040c5070",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "25a70f70299b5d369aa08f28f08ead5e8f7812b1cd2d65412d53e4cf497035a5",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "整体代入 f",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "完整输入与对应规则",
+                  "math": "\\begin{gathered}\\text{输入：}1\\\\f(x)=3\\cdot x^{2}-1\\end{gathered}"
+                },
+                {
+                  "label": "本层输出",
+                  "math": "f\\left(1\\right)=2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把完整输入替换规则中的每个自变量位置；保留括号后，再按运算顺序计算。"
+            },
+            "id": "b71ab22692b176a5040c5070#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$2$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$1$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把完整输入 $1$ 放进 $f$ 的对应规则，计算输出。",
+            "stem_board": {
+              "caption": "整体代入 f",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "完整输入与对应规则",
+                  "math": "\\begin{gathered}\\text{输入：}1\\\\f(x)=3\\cdot x^{2}-1\\end{gathered}"
+                },
+                {
+                  "label": "本层输出",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "整体代入 f"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bd5de27180ffb28668f61ad6205cd22b8663d85d332c3e2a435a39860530cd0a",
+            "step_id": "a4fff7fe80-function-evaluation-002-evaluation_substitute"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a4d321e3680e4f655f10153e",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "dff6c52892570ea2089cbef0fc1ad1233b462e78b5170ce0c0ed7eb11ee79b1f",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "返回本目标结果",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "f\\left(1\\right)"
+                },
+                {
+                  "label": "结果",
+                  "math": "2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "核对原目标的函数调用顺序与输入限制。"
+            },
+            "id": "a4d321e3680e4f655f10153e#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$2$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$1$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "确认本目标的结果。",
+            "stem_board": {
+              "caption": "返回本目标结果",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "f\\left(1\\right)"
+                },
+                {
+                  "label": "结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "返回本目标结果"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "211d48986a7bf673f821ff1da5b1f1b85ec45b2f41c1b683debe166d2413e42a",
+            "step_id": "a4fff7fe80-function-evaluation-003-evaluation_conclusion"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "722a0e0882529b70c156be54",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "4dfa1a3f5119cebeb6f1786a2ad7307ccd9d700d04c2aeefc6d3659d35e04c9d",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "明确完整输入",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "g\\left(1\\right)"
+                },
+                {
+                  "label": "首先处理的完整输入",
+                  "math": "\\begin{gathered}\\text{先算 }g\\\\1\\end{gathered}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "括号里的内容是输入；把完整输入代入对应函数的全部自变量位置。"
+            },
+            "id": "722a0e0882529b70c156be54#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "把括号内的完整输入，代入对应函数的全部自变量位置",
+                  "value": "o1"
+                },
+                {
+                  "label": "把括号内的内容当作函数值，反过来求自变量",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "观察函数调用：代入时应该替换什么？",
+            "stem_board": {
+              "caption": "明确完整输入",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "g\\left(1\\right)"
+                },
+                {
+                  "label": "首先处理的完整输入",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "明确完整输入"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "df3c68b63f63bee3983c0cd9cf68c4e7ce84c6f0e26d8fe50d3d857546c80906",
+            "step_id": "97a165d063-function-evaluation-001-evaluation_input"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/1"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "189d198c74a798264afae45b",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "6f26a603d089e12527fefb2fbc95a6db21b56c9397f09d177c1a26fa11adeb78",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "整体代入 g",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "完整输入与对应规则",
+                  "math": "\\begin{gathered}\\text{输入：}1\\\\g(x)=\\frac{1}{x+2}\\end{gathered}"
+                },
+                {
+                  "label": "本层输出",
+                  "math": "g\\left(1\\right)=\\frac{1}{3}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "把完整输入替换规则中的每个自变量位置；保留括号后，再按运算顺序计算。"
+            },
+            "id": "189d198c74a798264afae45b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\frac{1}{3}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\frac{4}{3}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$- \\frac{2}{3}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把完整输入 $1$ 放进 $g$ 的对应规则，计算输出。",
+            "stem_board": {
+              "caption": "整体代入 g",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "完整输入与对应规则",
+                  "math": "\\begin{gathered}\\text{输入：}1\\\\g(x)=\\frac{1}{x+2}\\end{gathered}"
+                },
+                {
+                  "label": "本层输出",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "整体代入 g"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "090c7ea4a56b418c072a91d3835d0ae61f17ada3851dab208c92995558c3c927",
+            "step_id": "97a165d063-function-evaluation-002-evaluation_substitute"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/1"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "d08412eeb4a0bba5d7f5ff70",
+        "interaction_revision": "1cfb94f94b8021924f0eddb31f638a6c3e7ca4692fad5da522bda69b54a6e0bd",
+        "interaction_sha256": "9e498b1e527f51b10f86860b1cb9743fb4e314d6842ba28205903c12e9be0bd2",
+        "lesson_version": "7d6da46fbf2d8453f4669458dc75e235eb6324788ec9363f22b81fceafb71ff1",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "返回本目标结果",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "g\\left(1\\right)"
+                },
+                {
+                  "label": "结果",
+                  "math": "\\frac{1}{3}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "核对原目标的函数调用顺序与输入限制。"
+            },
+            "id": "d08412eeb4a0bba5d7f5ff70#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\frac{4}{3}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\frac{1}{3}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$- \\frac{2}{3}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "确认本目标的结果。",
+            "stem_board": {
+              "caption": "返回本目标结果",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本目标",
+                  "math": "g\\left(1\\right)"
+                },
+                {
+                  "label": "结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "返回本目标结果"
+          }
+        ],
+        "route_id": "function-evaluation",
+        "run_id": "9596c442e7694a5f8d4c1b5c2407bd5f",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "18bdfe87123311e8da711e9df1ed03d6d6081abd93034f1fb63c0ce54f4dec87",
+            "step_id": "97a165d063-function-evaluation-003-evaluation_conclusion"
+          }
+        ],
+        "target_ref": "/root/children/0/goals/1"
+      }
+    ],
+    "target_refs": [
+      "/root/children/0/goals/0",
+      "/root/children/0/goals/1"
+    ]
+  }
+}

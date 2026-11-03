@@ -82,15 +82,17 @@ def finalize_goal_with_evidence(goal, feasible_set):
         if not isinstance(feasible_set, sp.Set):
             raise TypeError('goal_finalize.expected_set')
         return close_goal(goal, feasible_set)
-    if kind not in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range",
+    if kind not in ("find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range",
                     "find_minimum", "find_maximum"):
         raise VerificationGap("goal_finalize.unsupported_kind:" + kind)
     if not isinstance(feasible_set, sp.Set):
         raise TypeError("goal_finalize.expected_set")
-    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"):
+    if kind in ("find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"):
         answer = {"kind": kind, "status": "set", "set": math_value(feasible_set)}
         if kind == "find_range" and "object" in goal:
             answer["object"] = goal["object"]
+        if kind == 'find_range' and 'pricing' in goal:
+            answer['quantity'] = {'symbol': goal['pricing']['quantity'], 'unit': goal['pricing']['quantity_unit']}
         check_kind = (
             "domain_identity" if kind == "find_domain"
             else "domain_parameter_identity" if kind == "match_domain"
@@ -205,16 +207,23 @@ def equivalent_answers(first, second):
         if status == 'undefined' and all(set(a) == {'kind', 'status', 'reason'} for a in (first, second)):
             return first['reason'] == second['reason'] and first['reason'] in ('extremum_not_attained', 'undefined_expression')
         raise _InvalidGoalAnswer('range_task.invalid_extrema_answer')
-    if kind in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range") and status == "set":
+    if kind in ("find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range") and status == "set":
         for answer in (first, second):
             fields = {"kind", "status", "set"}
             if "object" in answer:
                 if kind != "find_range" or not isinstance(answer["object"], str) or not answer["object"].strip():
                     raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
                 fields.add("object")
+            if 'quantity' in answer:
+                q = answer['quantity']
+                if (kind != 'find_range' or not isinstance(q, dict) or set(q) != {'symbol', 'unit'}
+                        or not isinstance(q['symbol'], str) or len(q['symbol']) != 1
+                        or not q['symbol'].isascii() or not q['symbol'].islower() or q['unit'] != '千瓦时'):
+                    raise _InvalidGoalAnswer('goal_finalize.quantity_required')
+                fields.add('quantity')
             if set(answer) != fields or not isinstance(answer["set"], dict):
                 raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
-        return first.get("object") == second.get("object")
+        return first.get("object") == second.get("object") and first.get('quantity') == second.get('quantity')
     if kind not in ("find_minimum", "find_maximum"):
         raise _InvalidGoalAnswer("goal_finalize.unsupported_answer_kind")
     allowed = {"attained", "not_attained", "empty_feasible_set",
@@ -248,7 +257,7 @@ def verify_goal_answer(goal, feasible_set, answer):
         raise GoalClosureMismatch("goal_finalize.answer_mismatch") from exc
     if not matches:
         raise GoalClosureMismatch("goal_finalize.answer_mismatch")
-    if expected["kind"] in ("find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range") and answer["set"].get("expression") != expected["set"]["expression"]:
+    if expected["kind"] in ("find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range") and answer["set"].get("expression") != expected["set"]["expression"]:
         raise GoalClosureMismatch("goal_finalize.answer_mismatch")
     evidence["checks"].append({"kind": "goal_answer_matches_feasible_set", "passed": True,
                                "answer_kind": expected["kind"], "answer_status": expected["status"]})

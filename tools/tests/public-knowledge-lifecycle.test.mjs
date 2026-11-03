@@ -11,9 +11,13 @@ const edges=validateGraph(nodes,manifest),graph={nodes,edges,defaultScope:manife
 const planned=nodes.filter(n=>n.status==='planned');
 
 test('only explicit planned types and knowledge-only nodes may omit examples or method entry',()=>{
-  assert.equal(planned.length,4);
-  const check=(id,change,pattern)=>{const copy=structuredClone(nodes);change(copy.find(n=>n.id===id));assert.throws(()=>validateGraph(copy,manifest),pattern);};
-  const id=planned[0].id, knowledge=nodes.find(n=>n.status==='knowledge_only').id;
+  // All current types have been implemented. Keep lifecycle validation covered
+  // with an explicit planned fixture instead of depending on unfinished content.
+  const fixture=structuredClone(nodes), id='type-function-graph';
+  Object.assign(fixture.find(n=>n.id===id),{status:'planned',examples:[],methods:[],rules:[]});
+  validateGraph(fixture,manifest);
+  const check=(id,change,pattern)=>{const copy=structuredClone(fixture);change(copy.find(n=>n.id===id));assert.throws(()=>validateGraph(copy,manifest),pattern);};
+  const knowledge=nodes.find(n=>n.status==='knowledge_only').id;
   check(id,n=>delete n.status,/缺少 examples|题型缺少方法入口/);
   check(id,n=>n.status='active',/缺少 examples|题型缺少方法入口/);
   check(id,n=>n.methods=['method-discriminant'],/待建设题型的 methods/);

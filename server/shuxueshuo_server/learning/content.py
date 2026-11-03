@@ -183,7 +183,7 @@ def validate_content(rows):
     problems = {row['id'] for row in rows['practice_problems']}
     routes = {(row['problem_id'], row['route_id']) for row in rows['practice_routes']}
     steps = {(row['problem_id'], row['route_id'], row['step_id']) for row in rows['practice_steps']}
-    from .graph_walk import validate_contract, route_steps
+    from .graph_walk import route_steps, validate_contract
     for problem in rows['practice_problems']:
         contract = problem['problem_data'].get('_graph_walk')
         if contract is not None:
@@ -284,7 +284,12 @@ def publish(db, rows):
                 if not existing:
                     continue
                 if name == 'practice_problems' and existing['contract_hash'] != row['contract_hash']:
-                    raise ValueError(f"{row['id']}: teaching contract changed; allocate a new ID")
+                    from .compatibility import teaching_contract
+                    # Source hashes may change for wording fixes. Grading and
+                    # step semantics still require a new course identity.
+                    if (existing['problem_data'] == row['problem_data'] or
+                            teaching_contract(existing['problem_data']) != teaching_contract(row['problem_data'])):
+                        raise ValueError(f"{row['id']}: teaching contract changed; allocate a new ID")
                 if name == 'knowledge_nodes' and (existing['kind'], existing['subtype']) != (row['kind'], row['subtype']):
                     raise ValueError(f"{row['id']}: node identity changed")
         route_hashes = {(row['problem_id'], row['route_id']): row['association_hash'] for row in rows['practice_routes']}

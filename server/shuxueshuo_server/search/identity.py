@@ -106,6 +106,31 @@ def public_structure_errors(candidate):
                     if (len(errors) == previous_errors
                             and (choice['selection_mode'] != goal['selection_mode'] or shown != original)):
                         errors.append((f'{location}/{number}', '公开选项须与函数比较目标的标签、顺序和原文一致。'))
+            if number < len(goals) and goals[number]['kind'] == 'select_function_graph':
+                goal = goals[number]
+                if (choice['selection_mode'] != goal['selection_mode'] or
+                        [o['label'] for o in options] != [o['label'] for o in goal['options']]):
+                    errors.append((f'{location}/{number}', '图形选项须保留原标签、顺序和选择模式。'))
+    public = candidate['public_content']
+    if public['figure'] == 'represented':
+        from ..graph_lesson.function_graph import describe
+        # A represented figure constrains graph goals, not other questions in the same problem.
+        goals = [(f'{path}/goals/{i}', goal) for path, scope, _ in expected
+                 for i, goal in enumerate(scope.get('goals', [])) if goal['kind'] == 'select_function_graph']
+        if not goals or any(not describe(goal, ref)['structure_supported'] for ref, goal in goals):
+            errors.append(('/public_content/figure', 'represented 需要可核对的受支持图形事实。'))
+        else:
+            required = [(ref, option['option_id'], option['label']) for ref, goal in goals for option in goal['options']]
+            regions = public.get('figure_regions', [])
+            actual = [(r['target_ref'], r['option_id'], r['label']) for r in regions]
+            if actual != required or any(r['box'][0] >= r['box'][2] or r['box'][1] >= r['box'][3] for r in regions):
+                errors.append(('/public_content/figure_regions', '裁框须完整、按顺序对应每个原选项。'))
+            original_graphs = public.get('statement_figure_regions', [])
+            if ([r['target_ref'] for r in original_graphs] != [ref for ref, goal in goals if 'source_graph' in goal]
+                    or any(r['box'][0] >= r['box'][2] or r['box'][1] >= r['box'][3] for r in original_graphs)):
+                errors.append(('/public_content/statement_figure_regions', '纯图像题须绑定题干原图，不能只保留选项图。'))
+    elif public.get('figure_regions') or public.get('statement_figure_regions'):
+        errors.append(('/public_content/figure_regions', '尚未核对的题图不发布选项裁框。'))
     return errors
 
 
@@ -205,8 +230,34 @@ def build_identity(result):
         raise IdentityUnavailable("identity.incomplete_problem")
     if public["privacy"] != "separated":
         raise IdentityUnavailable("identity.private_content_unseparated")
-    if public["figure"] != "not_required":
+    if public["figure"] not in {"not_required", "represented"}:
         raise IdentityUnavailable("identity.unrepresented_figure")
+    graph_goals = [goal for _, scope, _ in scopes(candidate['root']) for goal in scope.get('goals', [])
+                   if goal['kind'] == 'select_function_graph']
+    binding = result.get('figure_binding')
+    if graph_goals and (public['figure'] != 'represented' or not isinstance(binding, dict)
+                       or binding.get('candidate_revision') != revision(candidate)
+                       or not binding.get('option_figures')):
+        raise IdentityUnavailable('identity.unbound_figure')
+    if graph_goals:
+        expected = [{key: region[key] for key in ('target_ref', 'option_id', 'label')}
+                    for region in public.get('figure_regions', [])]
+        rows = binding['option_figures']
+        if (not isinstance(rows, list) or len(rows) != len(expected) or
+                not re.fullmatch('[a-f0-9]{64}', str(binding.get('source_sha256', ''))) or
+                any(not isinstance(row, dict) or set(row) != {*item, 'sha256'} or
+                    {key: row.get(key) for key in item} != item or
+                    not re.fullmatch('[a-f0-9]{64}', str(row.get('sha256', '')))
+                    for row, item in zip(rows, expected, strict=True))):
+            raise IdentityUnavailable('identity.unbound_figure')
+        expected_statements = [{'target_ref': region['target_ref']} for region in public.get('statement_figure_regions', [])]
+        originals = binding.get('statement_figures', [])
+        if (not isinstance(originals, list) or len(originals) != len(expected_statements)
+                or any(not isinstance(row, dict) or set(row) != {'target_ref', 'sha256'}
+                       or row['target_ref'] != expected['target_ref']
+                       or not re.fullmatch('[a-f0-9]{64}', str(row['sha256']))
+                       for row, expected in zip(originals, expected_statements, strict=True))):
+            raise IdentityUnavailable('identity.unbound_source_graph')
     if public_structure_errors(candidate):
         raise IdentityUnavailable("identity.invalid_public_structure")
     normalized_scopes, statements = [], []
@@ -232,5 +283,11 @@ def build_identity(result):
     if any("[无法辨认]" in text for text in statements):
         raise IdentityUnavailable("identity.unreadable_content")
     identity = {"identity_version": IDENTITY_VERSION, "root": _root(candidate["root"], exclude_label=exclude_root_label), "scopes": normalized_scopes}
+    if graph_goals:
+        # Conservative G1 dedup: different photos may remain separate; different
+        # original pictures must never merge just because their text matches.
+        identity['option_figures'] = deepcopy(binding['option_figures'])
+        if binding.get('statement_figures'):
+            identity['statement_figures'] = deepcopy(binding['statement_figures'])
     return {"identity_version": IDENTITY_VERSION, "fingerprint": revision(identity), "identity": identity,
             "statement": "\n".join(statements), "structured_problem": deepcopy(identity)}

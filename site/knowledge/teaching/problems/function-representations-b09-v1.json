@@ -1,0 +1,239 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b09-v1",
+  "label": "分段作图与图像解不等式 · 例9变式1",
+  "path": "/topics/function-representations/q09b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b09-v1.json",
+  "types": [
+    "type-function-graph"
+  ],
+  "statement": "设函数 $f(x)=|x^2-2x-3|$。\n（1）在平面直角坐标系中画出它的图像；\n（2）解不等式 $f(x)\\ge 3$。",
+  "routes": {
+    "absolute-piecewise-graph": {
+      "label": "分段作图 → 解图像不等式",
+      "methods": [
+        "method-absolute-piecewise-graph",
+        "method-piecewise-graph-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-representations"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "62da32b51f7589ef5f121a02#1": {
+          "title": "找出分段的位置",
+          "position": 4,
+          "refs": [
+            "method-absolute-piecewise-graph#construct",
+            "skill-absolute-sign-split",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "920cff3b219a459e4ff49607#1": {
+          "title": "画第 1 段",
+          "position": 5,
+          "refs": [
+            "method-absolute-piecewise-graph#construct",
+            "skill-absolute-sign-split",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "920cff3b219a459e4ff49607#2": {
+          "title": "画第 2 段",
+          "position": 6,
+          "refs": [
+            "method-absolute-piecewise-graph#construct",
+            "skill-absolute-sign-split",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "920cff3b219a459e4ff49607#3": {
+          "title": "画第 3 段",
+          "position": 7,
+          "refs": [
+            "method-absolute-piecewise-graph#construct",
+            "skill-absolute-sign-split",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "f3367ced41c7811b52db819c#1": {
+          "title": "合成图像，检查四件事",
+          "position": 8,
+          "refs": [
+            "method-absolute-piecewise-graph#construct",
+            "skill-absolute-sign-split",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "解图像不等式",
+          "position": 9,
+          "refs": [
+            "function-representations"
+          ]
+        },
+        "goal-2-D2": {
+          "title": "确定题型",
+          "position": 10,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "goal-2-D3": {
+          "title": "选择解题方法",
+          "position": 11,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "953aee3910c419c3318d027b#1": {
+          "title": "找图像与水平线的交点",
+          "position": 12,
+          "refs": [
+            "method-piecewise-graph-inequality#construct",
+            "skill-quadratic-sign",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "119608ad845ee97d53cbf749#1": {
+          "title": "先选水平线上下的区间",
+          "position": 13,
+          "refs": [
+            "method-piecewise-graph-inequality#construct",
+            "skill-quadratic-sign",
+            "absolute-value-concept#definition"
+          ]
+        },
+        "60ae692178e00b0938bedad2#1": {
+          "title": "判断端点，写出解集",
+          "position": 14,
+          "refs": [
+            "method-piecewise-graph-inequality#construct",
+            "skill-quadratic-sign",
+            "absolute-value-concept#definition"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "e8e538c07fca224121d1f88e7a213491cf0ff0cd803b6194acdfc797d4feb5d1",
+  "practice_version": "894ec1b23dde8864590949a8b129c79312607fa7688ff73deaa992de04080607",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

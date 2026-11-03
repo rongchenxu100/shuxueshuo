@@ -9,6 +9,7 @@ import * as optionWorkspace from '../../site/assets/graph-walk/option-workspace.
 import * as methodCards from '../../site/assets/graph-walk/method-cards.mjs';
 import {mountMethodConnections, connectedMethodAnswer} from '../../site/assets/graph-walk/method-connections.mjs';
 import {formulaAnswerHTML} from '../../site/assets/graph-walk/formula-answer.mjs';
+import {createFormulaFitter, renderFittedFormula} from '../../site/assets/graph-walk/formula-fit.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -147,12 +148,12 @@ test('original choices wait for pending mathematical interactions before being a
 function documentFixture() {
   const roots = new Map(), document = {body: {dataset: {}, hasAttribute(name) {
     return name.startsWith('data-') && Object.hasOwn(this.dataset, dataKey(name.slice(5)));
-  }, classList: {contains: () => false, toggle() {}}}};
+  }, classList: {contains: () => false, toggle() {}, remove() {}}}};
   const dataKey = name => name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
   const decode = value => value.replace(/&(quot|amp|lt|gt|#39);/g,
     (_, entity) => ({quot: '"', amp: '&', lt: '<', gt: '>', '#39': "'"})[entity]);
   class Element {
-    constructor(tag = 'div') { this.tagName = tag; this.ownerDocument = document; this.children = []; this.dataset = {}; this.hidden = false; this._text = ''; this._html = ''; this.classList = {contains: () => false}; }
+    constructor(tag = 'div') { this.tagName = tag; this.ownerDocument = document; this.children = []; this.dataset = {}; this.hidden = false; this._text = ''; this._html = ''; this.classList = {contains: name => this.className?.split(/\s+/).includes(name) || false}; }
     get childNodes() { return this.children; }
     get textContent() { return this._text + this.children.map(child => child.textContent).join(''); }
     set textContent(value) { this._text = String(value ?? ''); this.children = []; }
@@ -212,6 +213,7 @@ function engine(value = fixture()) {
   const {document, roots} = documentFixture(), storage = new Map();
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL, structuredClone,
     setTimeout, clearTimeout, ...stateAPI, ...mathDOM, ...optionWorkspace, ...methodCards, mountMethodConnections, connectedMethodAnswer, formulaAnswerHTML, buildStreamReplay,
+    createFormulaFitter, renderFittedFormula,
     PracticeMath: {render(node, text) { node.textContent = text; }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, text) => storage.set(key, text)}});
   context.window = context;
@@ -567,6 +569,63 @@ test('interactive parts hide frozen formulas; only the last completed part mount
   assert.ok(mounted.every(card => !card.heading.hidden), 'distinct mathematical substeps retain their headings');
 });
 
+test('completed child cards retain the original branch context, safely escaped', () => {
+  const child = part('child');
+  child.source_context = '第 2 段函数：$f(x)=ax^2-x+2$，$x>1$。<script>bad</script>';
+  const {run} = engine(fixture({parts: [child]}));
+  const html = run(`completedHTML({decision:'child',answer:'yes'},5,1,'discriminant')`);
+  assert.match(html, /第 2 段函数/);
+  assert.match(html, /ax\^2-x\+2/);
+  assert.match(html, /x&gt;1/);
+  assert.doesNotMatch(html, /<script>/);
+});
+
+test('completed submethod selection keeps the shared selection plane instead of a math summary', () => {
+  const value = fixture({parts: [part('borrow')]});
+  const selection = value.bundle.intro.find(item => item.interaction.type === 'plane');
+  for (const route of Object.values(value.bundle.routes)) Object.assign(route.steps[0], {
+    interaction: structuredClone(selection.interaction), expected_answer: selection.expected_answer,
+  });
+  const chosen = selection.interaction.methods.find(method => method.route === routes[0]);
+  const answer = [...selection.expected_answer.cell, chosen.value];
+  const {run, roots} = engine(value);
+  run('renderInteraction(currentDecision(bundle,state))');
+  assert.match(roots.get('#gw-active').innerHTML, /gw-plane/);
+  const html = run(`completedHTML({decision:'borrow',answer:${JSON.stringify(answer)}},7,1,'discriminant')`);
+  const plane = run(`planeHTML(currentDecision(bundle,state),${JSON.stringify(answer)},false)`);
+  assert.ok(html.includes(plane), 'reuse the same readonly plane renderer as the parent selection');
+  assert.match(html, /gw-plane-pin/);
+  assert.ok(html.includes(`data-method="${chosen.value}" data-chosen>${chosen.label}</span>`));
+  assert.doesNotMatch(html, /data-stream-completed|gw-answer|data-plane-cell/);
+});
+
+test('completed shared math cards show one derivation without repeating answers or part feedback', () => {
+  for (const grouped of [false, true]) for (const conclusionOnly of [false, true]) {
+    const parts = (grouped ? [part('move'), part('divide')] : [part('policy')]).map(value => ({
+      ...value, feedback: {answer: '重复的步骤说明'},
+      interaction: {...value.interaction, options: [{value: 'yes', label: '重复的答案'}, {value: 'no', label: '不成立'}]},
+    }));
+    const value = fixture({parts});
+    for (const step of value.bundle.stream.math_steps) step.highlight = {
+      caption: '数学关系', items: [{label: '结论', math: 'a\\ge h(x)'}], conclusion_only: conclusionOnly,
+    };
+    const {run, roots} = engine(value);
+    for (const p of parts) run(`state=submitAnswer(bundle,state,{decision:'${p.id}',answer:'yes'});`);
+    const html = grouped ? 'groupCompletedHTML(stepUnits().units.at(-1),5)'
+      : "completedHTML(state.run.completed.at(-1),5,1,'discriminant')";
+    run(`document.querySelector('#gw-steps').innerHTML=${html}; mountCompletedMath();`);
+    const completed = roots.get('#gw-steps');
+    assert.match(completed.textContent, /a\\ge h\(x\)/);
+    if (conclusionOnly) {
+      assert.match(completed.innerHTML, /重复的步骤说明/, 'feedback remains when the math card has no derivation');
+    } else {
+      assert.doesNotMatch(completed.innerHTML, /重复的答案|重复的步骤说明/);
+      assert.match(completed.textContent, /secret-explanation-1/);
+      assert.equal(completed.querySelectorAll('.stage-three-derivation').length, 1);
+    }
+  }
+});
+
 test('a local deduction reveals its result only after passing, with no repeated carry, answer or feedback', () => {
   const value = fixture({parts: [part('deduction')]});
   const board = {layout: 'derivation', caption: '求 $f(x)$ 的定义域', connector: '⇒', items: [
@@ -588,6 +647,8 @@ test('a local deduction reveals its result only after passing, with no repeated 
   assert.equal(pending.dataset.state, 'pending');
   assert.equal(pending.querySelector('.gw-derivation-caption').dataset.mathText, 'true');
   assert.equal(pending.querySelector('.gw-derivation-unknown').textContent, '?');
+  assert.equal(pending.querySelector('.gw-derivation-formula').dataset.fittedFormula, 'true');
+  assert.equal(pending.querySelectorAll('.gw-formula-line').length, 1, 'the unknown answer stays hidden');
   assert.match(pending.textContent, /-3\\le 2x-1\\le2/);
   assert.doesNotMatch(active.textContent, /secret-|\\frac32/);
   run(`state=submitAnswer(bundle,state,{decision:'deduction',answer:'no'}); renderInteraction(currentDecision(bundle,state));`);
@@ -599,6 +660,7 @@ test('a local deduction reveals its result only after passing, with no repeated 
   assert.doesNotMatch(completed.innerHTML, /gw-answer|gw-result|已选答案总结|重复的正确反馈/);
   assert.equal(completed.querySelector('.gw-derivation-board').dataset.state, 'complete');
   assert.equal(completed.querySelector('.gw-derivation-unknown'), null);
+  assert.equal(completed.querySelectorAll('.gw-formula-line').length, 2, 'given and verified result both use responsive formulas');
   assert.match(completed.querySelector('.gw-derivation-formula').textContent, /-3\\le 2x-1\\le2/);
   assert.match(completed.textContent, /\\frac32/);
   assert.equal(completed.querySelector('.stage-three-derivation').open, false);
@@ -1048,6 +1110,7 @@ test('streamed stem, option and completion pictures render beside the question a
   const options = [
     {value: 'yes', label: '$[-5/2,-1]$', graph: line([{from: -2.5, to: -1, left_closed: true, right_closed: true}], '[-5/2, -1]')},
     {value: 'no', label: '$(-5/2,-1]$', graph: line([{from: -2.5, to: -1, left_closed: false, right_closed: true}], '(-5/2, -1]')}];
+  options[0].graph.caption = '示意图：取 $a=-1$，只看 $x\\le1$';
   const pictured = {...part('last'), graph: quadratic, completion_graph: {...quadratic, caption: '完成图'}};
   pictured.interaction = {...pictured.interaction, options};
   const {run, roots} = engine(fixture({parts: [pictured]}));
@@ -1057,6 +1120,8 @@ test('streamed stem, option and completion pictures render beside the question a
   assert.match(html, /<figcaption data-math-text>示意图：取 \$a=0\$<\/figcaption>/);
   assert.match(html, /class="gw-graph-options"[^>]*data-count="2" data-kind="number_line"/);
   assert.equal((html.match(/class="gw-graph-figure" data-graph=/g) || []).length, 2);
+  assert.match(html, /<span class="gw-graph-option-caption" data-math-text>示意图：取 \$a=-1\$，只看 \$x\\le1\$<\/span>/,
+    'sample values must remain visible on clickable graph options, not only in SVG accessibility text');
   assert.doesNotMatch(html, /data-quadratic-graph/);
   assert.doesNotMatch(html, /完成图/, 'the completion picture waits for the answer');
   run(`state = studentState = submitAnswer(bundle,state,{decision:'last',answer:'yes'})`);

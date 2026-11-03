@@ -231,7 +231,7 @@ def record_run(source, destination):
     return destination
 
 
-def replay_run(recording, output):
+def replay_run(recording, output, *, refresh_features=False):
     """Recompute from a frozen input and exact recorded selections, never a provider."""
     from .selection import RecordedSelectionProvider
 
@@ -253,6 +253,16 @@ def replay_run(recording, output):
     value = strict_json((recording / "input.json").read_text())
     if revision(value) != frozen.get("input_sha256"):
         raise ValueError("recording.input_mismatch")
+    if refresh_features:
+        # Teaching upgrades reuse reviewed notation, not obsolete derived feature
+        # rows. The input hash above authenticates the old record first; run_result
+        # binds the new deterministic features to a new immutable attempt.
+        from ..stage_one.runner import candidate_features
+        features = candidate_features(value['candidate'])
+        if not features['ok']:
+            raise ValueError('recording.feature_refresh_failed')
+        value['features'] = features['features']
+        value['statuses']['features'] = True
     result = run_result(value, output, provider=RecordedSelectionProvider.from_run(recording),
                         verify=original["options"]["verify_amgm"], input_reference=recording / "input.json",
                         contracts=frozen.get("recognition_contracts"),

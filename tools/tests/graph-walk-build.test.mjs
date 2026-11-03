@@ -69,6 +69,7 @@ test('candidate traversal retains real directions and applicability separate fro
   assert.deepEqual(d1.candidates, [
     {id: 'type-function-domain', coverage: 2},
     {id: 'type-quantified-quadratic', coverage: 2},
+    {id: 'type-abstract-function-domain', coverage: 1},
     {id: 'type-amgm-quantified', coverage: 1},
     {id: 'type-parameter-quadratic-solve', coverage: 1},
     {id: 'type-quadratic-solve', coverage: 1},

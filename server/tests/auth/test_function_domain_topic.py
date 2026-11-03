@@ -14,7 +14,9 @@ from shuxueshuo_server.product.db import engine
 
 @pytest.mark.parametrize("problem_id", [
     "function-concepts-q15", "function-concepts-q01", "function-concepts-q22-v2", "function-concepts-q04",
-    "function-concepts-q12", "function-concepts-q23b",
+    "function-concepts-q12", "function-concepts-q23b-v2",
+    "function-concepts-q28a-v2", "function-concepts-q28b-v2",
+    "function-concepts-q28c-v2", "function-concepts-q28d-v2", "function-concepts-q29b-v2",
     "function-representations-b05-v2-r4",
 ])
 def test_published_course_records_each_step_and_restores(client, auth, phone, problem_id):

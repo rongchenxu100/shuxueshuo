@@ -99,6 +99,32 @@ def uncertainty_diagnostics(candidate):
                         else "needs_confirmation",
                     }
                 )
+        goals = scope.get("goals", [])
+        for i, goal in enumerate(goals if isinstance(goals, list) else []):
+            if not isinstance(goal, dict) or goal.get("kind") != "select_function_graph":
+                continue
+            goal_path = f"{path}/goals/{i}"
+            pictures = [(goal.get("source_graph"), f"{goal_path}/source_graph", "题干原图")]
+            options = goal.get("options", [])
+            pictures.extend(
+                (option, f"{goal_path}/options/{j}", f"选项 {option.get('label', j + 1)}")
+                for j, option in enumerate(options if isinstance(options, list) else [])
+                if isinstance(option, dict)
+            )
+            for picture, picture_path, label in pictures:
+                if not isinstance(picture, dict):
+                    continue
+                uncertainties = picture.get("uncertainties", [])
+                for j, uncertainty in enumerate(uncertainties if isinstance(uncertainties, list) else []):
+                    if isinstance(uncertainty, str) and uncertainty.strip():
+                        # Unreadable source facts need a clearer picture. They
+                        # must not enter a schema repair that erases uncertainty.
+                        findings.append({
+                            "stage": "source", "code": "ambiguous",
+                            "path": f"{picture_path}/uncertainties/{j}",
+                            "source": uncertainty, "message": f"{label}：{uncertainty}",
+                            "action": "needs_confirmation",
+                        })
         for i, child in enumerate(scope.get("children", [])):
             visit(child, f"{path}/children/{i}")
 

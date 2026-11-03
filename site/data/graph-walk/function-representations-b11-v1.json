@@ -1,0 +1,5905 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b11-v1",
+  "graphVersion": "980b513e5b7fcbe36d318ed1789f620bb668ed4af9f478f434d49b36f8177221",
+  "problem": {
+    "text": "已知函数 $f(x)=\\begin{cases}x^2-2,&x\\le1\\\\ax^2-x+2,&x>1\\end{cases}$ 的值域为 $[-2,+\\infty)$，则实数 $a$ 的取值范围是（ ）。\nA. $(-\\infty,\\frac1{16}]$\nB. $(0,\\frac1{16}]$\nC. $[\\frac1{16},+\\infty)$\nD. $[\\frac18,+\\infty)$"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-piecewise-function"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-piecewise-function"
+      ],
+      "effects": {
+        "nodes": [
+          "type-piecewise-function"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "判断依据：值域由各段实际输出取并；给定整体值域求参数时，同时检查覆盖与不越界。"
+        ],
+        "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "分段值域求参法",
+            "target": "method-piecewise-range-parameter",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "piecewise-range-parameter"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "使用分段值域求参法：先求不含参数那一段函数的值域，再对照整个函数的目标值域，确定含参数那一段函数需要满足的条件，最后求参数范围。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-piecewise-range-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "method-piecewise-range-parameter"
+        ],
+        "edges": [
+          "type-piecewise-function|candidate|method-piecewise-range-parameter"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "piecewise-range-parameter"
+      }
+    }
+  ],
+  "routes": {
+    "piecewise-range-parameter": {
+      "id": "piecewise-range-parameter",
+      "method": "method-piecewise-range-parameter",
+      "label": "分段值域求参法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "第 1 段函数（不含参数）：$f(x)=x^{2} - 2$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数（不含参数）",
+                "math": "\\begin{gathered}f(x)=x^{2} - 2\\\\x \\leq 1\\end{gathered}"
+              },
+              {
+                "label": "第 1 段函数的值域",
+                "math": "R_{1}=\\left[-2, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "第 1 段函数：$y=x^{2} - 2$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -2.75,
+                1.75,
+                -2.75,
+                2.75
+              ],
+              "coefficient": 1,
+              "description": "x=1 处函数值为 -1（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 1 段函数 y=x^2 - 2，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                0,
+                -2
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  0,
+                  "0"
+                ]
+              ],
+              "yLabel": "-2"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}x^{2} - 2=1(x-(0))^2+(-2)\\\\0\\in\\left(-\\infty, 1\\right]\\\\f(0)=-2\\\\x\\to-\\infty\\Rightarrow f(x)\\to+\\infty\\\\R_{1}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+          },
+          "graph": {
+            "caption": "第 1 段函数：$y=x^{2} - 2$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -2.75,
+                1.75,
+                -2.75,
+                2.75
+              ],
+              "coefficient": 1,
+              "description": "x=1 处函数值为 -1（实心点）",
+              "interval": [
+                null,
+                1
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [
+                {
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "第 1 段函数 y=x^2 - 2，x∈(-∞, 1]",
+              "variable": "x",
+              "vertex": [
+                0,
+                -2
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  0,
+                  "0"
+                ]
+              ],
+              "yLabel": "-2"
+            }
+          },
+          "id": "ce6666737c709058758f45ae#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left[-2, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left\\{-2\\right\\}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(-2, \\infty\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $x \\leq 1$ 时，$f(x)=x^{2} - 2$。这段函数的值域是什么？",
+          "stem_board": {
+            "caption": "第 1 段函数（不含参数）：$f(x)=x^{2} - 2$，$x \\leq 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数（不含参数）",
+                "math": "\\begin{gathered}f(x)=x^{2} - 2\\\\x \\leq 1\\end{gathered}"
+              },
+              {
+                "label": "第 1 段函数的值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "先求不含参数那一段函数的值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3b696e99e73fb7e108cc02c417594a444c97b9a2a3c5eea69ae71bf8f7dfbdf8",
+              "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "73645cad371bcedc60b537bf",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "先求不含参数那一段函数的值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：先求不含参数那一段函数的值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与整个函数的目标值域",
+                "math": "\\begin{gathered}R_{1}=\\left[-2, \\infty\\right)\\\\V=\\left[-2, \\infty\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+              },
+              {
+                "label": "第 2 段函数的值域要求（含参数 $a$）",
+                "math": "R_{2}\\subseteq \\left[-2, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -2.75,
+                -1.25
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-2"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                "expression": "Interval(-2, oo)",
+                "latex": "\\left[-2, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-2"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-2, oo)",
+                    "latex": "\\left[-2, \\infty\\right)"
+                  },
+                  "left": -2,
+                  "left_closed": true,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\begin{gathered}\\text{第 1 段函数（不含参数）}:\\quad f(x)=x^{2} - 2,\\ x \\leq 1\\\\\\text{已求得的值域}:\\quad R_{1}=\\left[-2, \\infty\\right)\\end{gathered}",
+              "points": [],
+              "ticks": [
+                {
+                  "at": -2,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-2"
+                    },
+                    "expression": "-2",
+                    "latex": "-2"
+                  },
+                  "label": "-2"
+                }
+              ],
+              "variable": "y"
+            },
+            {
+              "bounds": [
+                -2.75,
+                -1.25
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "-2"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                "expression": "Interval(-2, oo)",
+                "latex": "\\left[-2, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-2"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(-2, oo)",
+                    "latex": "\\left[-2, \\infty\\right)"
+                  },
+                  "left": -2,
+                  "left_closed": true,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\text{题目要求整个函数的值域}:\\quad V=\\left[-2, \\infty\\right)",
+              "points": [],
+              "ticks": [
+                {
+                  "at": -2,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-2"
+                    },
+                    "expression": "-2",
+                    "latex": "-2"
+                  },
+                  "label": "-2"
+                }
+              ],
+              "variable": "y"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}R_{1}=\\left[-2, \\infty\\right),\\quad V=\\left[-2, \\infty\\right)\\\\R_{1}=V\\Rightarrow (R_{1}\\cup R_{2}=V\\iff R_{2}\\subseteq V)\\end{gathered}$$"
+          },
+          "id": "89d124e3ab675a4bbf0da03b#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "第 2 段函数的值都在 $V$ 内即可，无须再补充函数值",
+                "value": "o1"
+              },
+              {
+                "label": "第 2 段函数的值域也必须恰好等于 $V$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "已知第 1 段函数的值域是 $R_{1}$，题目要求整个函数的值域为 $V$。第 2 段函数的值域 $R_{2}$ 应满足什么条件？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 1 段函数的值域与整个函数的目标值域",
+                "math": "\\begin{gathered}R_{1}=\\left[-2, \\infty\\right)\\\\V=\\left[-2, \\infty\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+              },
+              {
+                "label": "第 2 段函数的值域要求（含参数 $a$）",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "判断含参数这一段函数需要满足什么条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bb6b15905594b7a8d9dc0b3db7d6dde25ab6d5791c17cc5cbeb83a11d56a9513",
+              "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f686891d483878efc06c84fa",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "判断含参数这一段函数需要满足什么条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：判断含参数这一段函数需要满足什么条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数（含参数 $a$）",
+                "math": "\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}"
+              },
+              {
+                "label": "对每个 $x > 1$ 都成立",
+                "math": "a x^{2} - x + 2\\ge -2,\\quad\\forall x>1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$R_{2}\\subseteq\\left[-2, \\infty\\right)\\iff a x^{2} - x + 2\\ge -2,\\quad\\forall x>1$$"
+          },
+          "id": "d4dc307a5244c6a47dad5fab#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a x^{2} - x + 2\\le -2,\\quad\\forall x>1$",
+                "value": "o2"
+              },
+              {
+                "label": "$a x^{2} - x + 2\\ge -2,\\quad\\forall x>1$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "第 2 段函数不能取到 $-2$ 以下的值。因此，对每个 $x > 1$，解析式应满足什么不等式？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数（含参数 $a$）",
+                "math": "\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}"
+              },
+              {
+                "label": "对每个 $x > 1$ 都成立",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "把这段函数的值域要求写成不等式",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "bc3e6f38e149f1c4e5dc34fca55ba9f6918543eb9a0cc0c3173f41802a0d32d7",
+              "step_id": "39e5646dcb-piecewise-range-parameter-003-constraint"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b8b83fdd57695a44657754a2",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把这段函数的值域要求写成不等式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把这段函数的值域要求写成不等式"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "转化后的不等式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "刚得到的条件",
+                "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+              },
+              {
+                "label": "现在要解决的问题",
+                "math": "\\text{一元二次不等式恒成立问题}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "effects": {
+            "nodes": [
+              "type-quantified-quadratic"
+            ],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "识别恒成立子问题。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "universal"
+            ]
+          },
+          "feedback": {
+            "answer": "条件要求每个满足 $x > 1$ 的 $x$ 都成立，因此求的是恒成立时的参数范围。"
+          },
+          "id": "9f5f4fa385f06601e44cc560#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "求使不等式对所有 $x > 1$ 都成立的 $a$（一元二次不等式恒成立问题）",
+                "value": "universal"
+              },
+              {
+                "label": "求使不等式至少对一个满足 $x > 1$ 的 $x$ 成立的 $a$（一元二次不等式存在问题）",
+                "value": "existential"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本步条件来自第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。\n\n注意“对所有”这一条件：现在要解决的是哪一种问题？",
+          "source_context": "本步条件来自第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+          "stem_board": {
+            "caption": "转化后的不等式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "刚得到的条件",
+                "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+              },
+              {
+                "label": "现在要解决的问题",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认问题类型",
+          "title": "判断转化后的问题",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "5c5ad28e34c2f33ba168f00369bee4b02cd84f2fc369338667cf7733e65df561",
+              "step_id": "39e5646dcb-piecewise-range-parameter-004-subproblem_recognize"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "07f1ab8a5f33e8a2164815cb",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "判断转化后的问题"
+        },
+        {
+          "alternatives": {
+            "interval": {
+              "href": "/knowledge/method-interval-extremum/",
+              "message": "区间最值法适用于当前子问题，但本次尚未展开这条子方法路线。可以选择分离参数法继续。"
+            }
+          },
+          "effects": {
+            "nodes": [
+              "rule-quadratic-method",
+              "method-separation"
+            ],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "借用已学方法：分离参数法。"
+          },
+          "expected_answer": {
+            "cell": [
+              "interval",
+              "free"
+            ],
+            "method": "separation"
+          },
+          "feedback": {
+            "method": "这种方法不在这一格里，请从这一格列出的方法中选一种。",
+            "method_choice": "当前恒成立子问题使用分离参数法；其它适用方法不在本路线展开。",
+            "x": "再看横轴：$x$ 的给定范围不是全体实数。",
+            "y": "再看纵轴：$a$ 是所求参数。"
+          },
+          "id": "f31d9ee5505b714dbae20625#1",
+          "interaction": {
+            "methods": [
+              {
+                "cells": [
+                  [
+                    "real",
+                    "free"
+                  ]
+                ],
+                "label": "判别式法",
+                "target": "method-discriminant",
+                "value": "discriminant"
+              },
+              {
+                "cells": [
+                  [
+                    "interval",
+                    "free"
+                  ]
+                ],
+                "label": "区间最值法",
+                "route_plan": "capability_gap",
+                "target": "method-interval-extremum",
+                "value": "interval"
+              },
+              {
+                "cells": [
+                  [
+                    "real",
+                    "free"
+                  ],
+                  [
+                    "interval",
+                    "free"
+                  ]
+                ],
+                "label": "分离参数法",
+                "route": "piecewise-range-parameter",
+                "route_plan": "planned",
+                "target": "method-separation",
+                "value": "separation"
+              },
+              {
+                "cells": [
+                  [
+                    "interval",
+                    "given"
+                  ],
+                  [
+                    "real",
+                    "given"
+                  ]
+                ],
+                "label": "更换主元法",
+                "target": "method-variable-swap",
+                "value": "swap"
+              }
+            ],
+            "title": "方法坐标图",
+            "type": "plane",
+            "x": {
+              "label": "$x$ 取全体实数吗？",
+              "options": [
+                {
+                  "label": "否",
+                  "note": "$x$ 在给定范围内",
+                  "value": "interval"
+                },
+                {
+                  "label": "是",
+                  "note": "$x\\in\\mathbb R$",
+                  "value": "real"
+                }
+              ]
+            },
+            "y": {
+              "label": "参数 $a$ 有给定范围吗？",
+              "options": [
+                {
+                  "label": "有",
+                  "note": "给定 $a$ 的范围，求 $x$ 的范围",
+                  "value": "given"
+                },
+                {
+                  "label": "没有",
+                  "note": "要求的就是参数 $a$",
+                  "value": "free"
+                }
+              ]
+            }
+          },
+          "question": "当前子问题是：对所有 $x\\in \\left(1, \\infty\\right)$，都有 $a x^{2} - x + 2 \\geq -2$。本题落在选法坐标的哪一格？应借用哪一种已学方法？",
+          "submit_label": "用这种方法解题",
+          "title": "选择恒成立问题的解题方法",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "df4f3e9363ac6793d25146f7af7140638ca7b06fe4fb5730796585c370a4c282",
+              "step_id": "39e5646dcb-piecewise-range-parameter-005-subproblem_select"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "eade5b5d78e33789cfa72798",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "选择恒成立问题的解题方法"
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o3"
+            ]
+          },
+          "feedback": {
+            "answer": "移到另一边的每一项都要变号；移项不改变不等号方向。"
+          },
+          "id": "5fddf625aacece1bfa3d63c8#1",
+          "interaction": {
+            "field": "5fddf625aacece1bfa3d63c8#1",
+            "options": [
+              {
+                "feedback": "移过去的每一项都要变号，不能只改其中一项。",
+                "label": "$a x^{2} \\geq x + 4$",
+                "value": "o1"
+              },
+              {
+                "feedback": "把一项移到不等号另一边时要变号。",
+                "label": "$a x^{2} \\geq - x + 4$",
+                "value": "o2"
+              },
+              {
+                "label": "$a x^{2} \\geq x - 4$",
+                "value": "o3"
+              },
+              {
+                "feedback": "移项相当于两边同时加减同一个式子，不等号方向不变。",
+                "label": "$a x^{2} \\leq x - 4$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "从 $a x^{2} - x + 4 \\geq 0$ 出发，把含 $a$ 的项留在左边、其余项移到右边，得到哪个不等式？",
+          "submit_label": "确认判断",
+          "title": "移项",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+              "step_id": "39e5646dcb-piecewise-range-parameter-006-divided"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "b700059c3079bcc0fa40eded",
+          "stream_part_index": 0,
+          "stream_part_count": 3,
+          "stream_group_title": "分离参数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：移项"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "s1o3",
+              "s2o1"
+            ]
+          },
+          "feedback": {
+            "terms": "先确定除数在整个给定区间上的严格符号：除以正数方向不变，除以负数方向反向。"
+          },
+          "id": "5fddf625aacece1bfa3d63c8#2",
+          "interaction": {
+            "slots": [
+              {
+                "label": "除数 $x^{2}$ 的符号",
+                "options": [
+                  {
+                    "label": "可能为零或变号，不能直接除",
+                    "value": "s1o1"
+                  },
+                  {
+                    "label": "恒负",
+                    "value": "s1o2"
+                  },
+                  {
+                    "label": "恒正",
+                    "value": "s1o3"
+                  }
+                ]
+              },
+              {
+                "label": "不等号方向",
+                "options": [
+                  {
+                    "label": "保持不变",
+                    "value": "s2o1"
+                  },
+                  {
+                    "label": "反向",
+                    "value": "s2o2"
+                  }
+                ]
+              }
+            ],
+            "title": "判断除数符号与不等号方向",
+            "type": "checklist"
+          },
+          "question": "移项得 $a x^{2} \\geq x - 4$。要把 $a$ 单独留下，需要两边同除以 $x^{2}$。在 $x\\in \\left(1, \\infty\\right)$ 上逐项判断：",
+          "submit_label": "确认判断",
+          "title": "判断除数符号与不等号方向",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+              "step_id": "39e5646dcb-piecewise-range-parameter-006-divided"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "b700059c3079bcc0fa40eded",
+          "stream_part_index": 1,
+          "stream_part_count": 3,
+          "stream_group_title": "分离参数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：判断除数符号与不等号方向"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "右边每一项都要除以 $x^{2}$，再按除数的符号决定不等号方向。"
+          },
+          "id": "5fddf625aacece1bfa3d63c8#3",
+          "interaction": {
+            "field": "5fddf625aacece1bfa3d63c8#3",
+            "options": [
+              {
+                "label": "$a \\geq \\frac{x - 4}{x^{2}}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "除数 $x^{2}$ 为正，两边同除时不等号方向不变。",
+                "label": "$a \\leq \\frac{x - 4}{x^{2}}$",
+                "value": "o2"
+              },
+              {
+                "feedback": "右边每一项都要除以 $x^{2}$，不能漏掉。",
+                "label": "$a \\geq -4 + \\frac{1}{x}$",
+                "value": "o3"
+              },
+              {
+                "feedback": "右边每一项都要除以 $x^{2}$。除以负数时，各项的正负与不等号方向都要改变。",
+                "label": "$a \\geq - \\frac{x - 4}{x^{2}}$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "移项得 $a x^{2} \\geq x - 4$，两边同除以 $x^{2}$，得到哪个不等式？",
+          "submit_label": "确认判断",
+          "title": "分离参数",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+              "step_id": "39e5646dcb-piecewise-range-parameter-006-divided"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b700059c3079bcc0fa40eded",
+          "stream_part_index": 2,
+          "stream_part_count": 3,
+          "stream_group_title": "分离参数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "$a \\geq h(x)$，其中 $h(x)=\\frac{x - 4}{x^{2}}$"
+            ],
+            "log": "完成判断：分离参数"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "把“对所有 $x$ 都成立”转化为比较函数在区间上的值域上端。"
+          },
+          "id": "8c2e0ca5da0001d16ffc1227#1",
+          "interaction": {
+            "field": "8c2e0ca5da0001d16ffc1227#1",
+            "options": [
+              {
+                "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\geq h(x)_{\\text{上端}}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "比较的方向要与原关系 $a \\geq h(x)$ 一致。",
+                "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\leq h(x)_{\\text{上端}}$",
+                "value": "o2"
+              },
+              {
+                "feedback": "由量词和不等号方向决定看值域上端还是下端；能取到时才称最大值或最小值。",
+                "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\geq h(x)_{\\text{下端}}$",
+                "value": "o3"
+              },
+              {
+                "feedback": "核对原题量词：全称要求所有值成立，存在只要求至少一个值成立。",
+                "label": "存在 $x \\in \\left(1, \\infty\\right)$，使 $a \\geq h(x)$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "对所有 $x \\in \\left(1, \\infty\\right)$，$a \\geq h(x)$ 成立，等价于什么？这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+          "submit_label": "确认判断",
+          "title": "转化为最值条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "ef78f83fb23ea63650529405edc7118033e757550b6fa7d161b4c1a6d518c7a3",
+              "step_id": "39e5646dcb-piecewise-range-parameter-007-policy"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "8d013a74a5794de10da955b2",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "转化为最值条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "$a \\geq h(x)_{\\text{上端}}$"
+            ],
+            "log": "完成判断：转化为最值条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "换元时，表达式和变量范围一起变化",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原变量与换元关系",
+                "math": "x\\in\\left(1, \\infty\\right),\\quad t=\\frac{1}{x}"
+              },
+              {
+                "label": "新变量的范围",
+                "math": "t\\in\\left(0, 1\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "choice-0"
+            ]
+          },
+          "feedback": {
+            "answer": "$$ x\\in\\left(1, \\infty\\right)\\iff t\\in\\left(0, 1\\right),\\qquad x=\\frac{1}{t} $$$$ \\frac{x - 4}{x^{2}}=- 4 t^{2} + t $$"
+          },
+          "id": "cda4855db00b5c7b6da89d1e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$t\\in\\left(0, 1\\right)$",
+                "value": "choice-0"
+              },
+              {
+                "label": "$t\\in\\left[0, 1\\right]$",
+                "value": "choice-1"
+              },
+              {
+                "label": "$t\\in\\left(1, \\infty\\right)$",
+                "value": "choice-2"
+              },
+              {
+                "label": "$t\\in\\mathbb{R}$",
+                "value": "choice-3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "令 $t=\\frac{1}{x}$，原来 $x\\in\\left(1, \\infty\\right)$。新变量 $t$ 能取哪些值？",
+          "stem_board": {
+            "caption": "换元时，表达式和变量范围一起变化",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原变量与换元关系",
+                "math": "x\\in\\left(1, \\infty\\right),\\quad t=\\frac{1}{x}"
+              },
+              {
+                "label": "新变量的范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认换元范围",
+          "title": "换元，并确定新变量的范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "f82a393ad8fa21541eb79e659f1a88f53148e85c9c0d6549f8a1ec90b0434a70",
+              "step_id": "39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "8c7da81541b69a0bbd2e421c",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "换元，并确定新变量的范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：换元，并确定新变量的范围"
+          }
+        },
+        {
+          "completion_graph": {
+            "caption": "$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -0.25,
+                1.25,
+                -3.75,
+                0.75
+              ],
+              "coefficient": -4,
+              "description": "t=0 取不到，函数值趋近 0（空心点）；t=1 取不到，函数值趋近 -3（空心点）",
+              "interval": [
+                0,
+                1
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [
+                {
+                  "open": true,
+                  "x": 0
+                },
+                {
+                  "open": true,
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "y=-4t^2 + t 在 (0, 1) 上的图像",
+              "variable": "t",
+              "vertex": [
+                0.125,
+                0.0625
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  0.125,
+                  "1/8"
+                ]
+              ],
+              "yLabel": "1/16"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同时核对最值及其能否取到；无穷不是可以取得的端点。"
+          },
+          "graph": {
+            "caption": "$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+            "kind": "quadratic",
+            "params": {
+              "bounds": [
+                -0.25,
+                1.25,
+                -3.75,
+                0.75
+              ],
+              "coefficient": -4,
+              "description": "t=0 取不到，函数值趋近 0（空心点）；t=1 取不到，函数值趋近 -3（空心点）",
+              "interval": [
+                0,
+                1
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "points": [
+                {
+                  "open": true,
+                  "x": 0
+                },
+                {
+                  "open": true,
+                  "x": 1
+                }
+              ],
+              "showVertex": true,
+              "title": "y=-4t^2 + t 在 (0, 1) 上的图像",
+              "variable": "t",
+              "vertex": [
+                0.125,
+                0.0625
+              ],
+              "vertexLabel": "",
+              "xTicks": [
+                [
+                  0,
+                  "0"
+                ],
+                [
+                  1,
+                  "1"
+                ],
+                [
+                  0.125,
+                  "1/8"
+                ]
+              ],
+              "yLabel": "1/16"
+            }
+          },
+          "id": "588cc426c0651695bd0c7826#1",
+          "interaction": {
+            "field": "588cc426c0651695bd0c7826#1",
+            "options": [
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -3.765625,
+                      0.828125
+                    ],
+                    "description": "y 的取值集合：(-3, 1/16]",
+                    "pieces": [
+                      {
+                        "from": -3,
+                        "left_closed": false,
+                        "right_closed": true,
+                        "to": 0.0625
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -3,
+                        "-3"
+                      ],
+                      [
+                        0.0625,
+                        "1/16"
+                      ]
+                    ],
+                    "title": "函数值的范围",
+                    "variable": "y"
+                  }
+                },
+                "label": "$\\left(-3, \\frac{1}{16}\\right]$",
+                "value": "o1"
+              },
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -3.765625,
+                      0.828125
+                    ],
+                    "description": "y 的取值集合：[-3, 1/16]",
+                    "pieces": [
+                      {
+                        "from": -3,
+                        "left_closed": true,
+                        "right_closed": true,
+                        "to": 0.0625
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -3,
+                        "-3"
+                      ],
+                      [
+                        0.0625,
+                        "1/16"
+                      ]
+                    ],
+                    "title": "函数值的范围",
+                    "variable": "y"
+                  }
+                },
+                "label": "$\\left[-3, \\frac{1}{16}\\right]$",
+                "value": "o2"
+              },
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -3.765625,
+                      0.828125
+                    ],
+                    "description": "y 的取值集合：(-∞, -3] ∪ (1/16, +∞)",
+                    "pieces": [
+                      {
+                        "from": null,
+                        "left_closed": false,
+                        "right_closed": true,
+                        "to": -3
+                      },
+                      {
+                        "from": 0.0625,
+                        "left_closed": false,
+                        "right_closed": false,
+                        "to": null
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -3,
+                        "-3"
+                      ],
+                      [
+                        0.0625,
+                        "1/16"
+                      ]
+                    ],
+                    "title": "函数值的范围",
+                    "variable": "y"
+                  }
+                },
+                "label": "$\\left(-\\infty, -3\\right] \\cup \\left(\\frac{1}{16}, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -3.765625,
+                      0.828125
+                    ],
+                    "description": "y 的取值集合：(-3, 1/16)",
+                    "pieces": [
+                      {
+                        "from": -3,
+                        "left_closed": false,
+                        "right_closed": false,
+                        "to": 0.0625
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -3,
+                        "-3"
+                      ],
+                      [
+                        0.0625,
+                        "1/16"
+                      ]
+                    ],
+                    "title": "函数值的范围",
+                    "variable": "y"
+                  }
+                },
+                "label": "$\\left(-3, \\frac{1}{16}\\right)$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "换元后，$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。$h(x)$ 的值域是什么？",
+          "submit_label": "确认判断",
+          "title": "求 $h(x)$ 的值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "1542f255ed8db4046b18818ca1c27d5f3616fac83d9efcaf6f6445bd96533498",
+              "step_id": "39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "2d641c07dcb52369540e3620",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求 $h(x)$ 的值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：求 $h(x)$ 的值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把 $h(x)$ 取到最大值时的新变量换回原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元关系与取值点",
+                "math": "t=\\frac{1}{8},\\quad x=\\frac{1}{t}"
+              },
+              {
+                "label": "原变量的取值",
+                "math": "x=8"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "choice-0"
+            ]
+          },
+          "feedback": {
+            "answer": "$$ t=\\frac{1}{8}\\Rightarrow x=\\frac{1}{t}=8 $$此时 $h(x)=\\frac{1}{16}$。"
+          },
+          "id": "ee3277231ea46b8b8fd27b72#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x=8$",
+                "value": "choice-0"
+              },
+              {
+                "label": "$x=\\frac{1}{8}$",
+                "value": "choice-1"
+              },
+              {
+                "label": "$x=-8$",
+                "value": "choice-2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在 $t=\\frac{1}{8}$ 时，$h(x)$ 取到最大值。由 $x=\\frac{1}{t}$，此时 $x$ 等于多少？",
+          "stem_board": {
+            "caption": "把 $h(x)$ 取到最大值时的新变量换回原变量",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "换元关系与取值点",
+                "math": "t=\\frac{1}{8},\\quad x=\\frac{1}{t}"
+              },
+              {
+                "label": "原变量的取值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认原变量",
+          "title": "把取值点换回原变量",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "f3d12cb3665abef6deaadf8f3f076d597c93eb56614480e8bbe7f03d724ecf1e",
+              "step_id": "39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "f97b517457bc5037b58d6dcd",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把取值点换回原变量",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "$h(x)$ 的值域为 $\\left(-3, \\frac{1}{16}\\right]$"
+            ],
+            "log": "完成判断：把取值点换回原变量"
+          }
+        },
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "看清边界能否取等。"
+          },
+          "id": "271e4e55f475a0edc55863d4#1",
+          "interaction": {
+            "field": "271e4e55f475a0edc55863d4#1",
+            "options": [
+              {
+                "label": "$\\left[\\frac{1}{16}, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "将边界代回条件，确定不等式是否允许等号。",
+                "label": "$\\left(\\frac{1}{16}, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "feedback": "先在根分隔的区间检查符号，不要把满足条件的部分与不满足的部分交换。",
+                "label": "$\\left(-\\infty, \\frac{1}{16}\\right)$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "由 $a \\geq \\frac{1}{16}$，$a$ 的取值范围是？",
+          "submit_label": "确认范围",
+          "title": "求参数范围",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "c6da9c25d97b2d8a979f757c8adb9c140905c2fefe63afa23f284589803c4b96",
+              "step_id": "39e5646dcb-piecewise-range-parameter-011-solution"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "636a8b2fa06a7fd046b5be20",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求参数范围",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [
+              "$a \\in \\left[\\frac{1}{16}, \\infty\\right)$"
+            ],
+            "log": "完成判断：求参数范围"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "恒成立子问题返回的参数范围",
+                "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+              },
+              {
+                "label": "原分段函数的值域",
+                "math": "R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}a\\in\\left[\\frac{1}{16}, \\infty\\right)\\Rightarrow R_{2}\\subseteq\\left[-2, \\infty\\right)\\\\R_{1}=\\left[-2, \\infty\\right)\\Rightarrow R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+          },
+          "id": "4a96170326a985877fb036c0#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left[-2, \\infty\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "恒成立子问题已求得 $a\\in\\left[\\frac{1}{16}, \\infty\\right)$。回到原分段式，两段函数的值域并集是什么？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "恒成立子问题返回的参数范围",
+                "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+              },
+              {
+                "label": "原分段函数的值域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "回到原题，合并两段函数的值域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "120c14ad7e579e2d1c08571cdf2910226354eeddf125a88182531fb925b2ff40",
+              "step_id": "39e5646dcb-piecewise-range-parameter-012-answer_contained"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "2625cfe1a2a21840061fe9eb",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "回到原题，合并两段函数的值域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：回到原题，合并两段函数的值域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与已求出的参数范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}\\\\a\\in\\left[\\frac{1}{16}, \\infty\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+              },
+              {
+                "label": "核对结果",
+                "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "$$\\begin{gathered}a=\\frac{1}{16}:\\quad \\frac{x^{2}}{16} - x + 2=\\frac{\\left(x - 8\\right)^{2}}{16}+(-2)\\ge-2\\\\x=8\\Rightarrow f(x)=-2\\\\a>\\frac{1}{16}:\\quad a x^{2} - x + 2=(a-\\frac{1}{16})x^2+\\frac{x^{2}}{16} - x + 2\\ge-2\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+          },
+          "id": "e76453a507045e0852ed7587#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "会，必须去掉这个端点",
+                "value": "o2"
+              },
+              {
+                "label": "不会，等号可以保留",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将参数边界 $a=\\frac{1}{16}$ 代入第 2 段函数，仍只取 $x > 1$。函数值会不会小于 $-2$？",
+          "stem_board": {
+            "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "第 2 段函数与已求出的参数范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}\\\\a\\in\\left[\\frac{1}{16}, \\infty\\right)\\end{gathered}",
+                "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+              },
+              {
+                "label": "核对结果",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "代回原分段式检查参数范围的端点",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "7b15faeb9b0be898b56ef3111951a1ea039b32dfedbc61beb53baaacc0e34974",
+              "step_id": "39e5646dcb-piecewise-range-parameter-013-verify_contained"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b3028777b697066cfd82b834",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "代回原分段式检查参数范围的端点",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回原分段式检查参数范围的端点"
+          }
+        },
+        {
+          "id": "[\"original-choice\",\"/root/goals/0\",\"piecewise-range-parameter\",\"03a1d1380884c74defe6639138531f6646588a62b096c1237cdd2acedc1c0204\"]",
+          "source": "original_choice",
+          "title": "选择原题答案",
+          "question": "根据求得的集合，按不定项选择作答，选出全部符合题意的选项。",
+          "matching": "set_equality",
+          "target_ref": "/root/goals/0",
+          "interaction": {
+            "type": "original_choice_exact_set",
+            "field": "original_choice",
+            "options": [
+              {
+                "value": "A",
+                "label": "A. $(-\\infty,\\frac1{16}]$"
+              },
+              {
+                "value": "B",
+                "label": "B. $(0,\\frac1{16}]$"
+              },
+              {
+                "value": "C",
+                "label": "C. $[\\frac1{16},+\\infty)$"
+              },
+              {
+                "value": "D",
+                "label": "D. $[\\frac18,+\\infty)$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "correct_labels": [
+              "C"
+            ],
+            "option_labels": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "submit_label": "确认答案",
+          "feedback": {
+            "answer": "请把求得的集合与各选项比较，注意端点是否包含，再检查是否漏选或多选。"
+          },
+          "stream_steps": [],
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "已确认原题选项答案。"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "match_range",
+          "set": {
+            "expression": "Interval(1/16, oo)",
+            "latex": "\\left[\\frac{1}{16}, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(1/16, oo)",
+          "latex": "\\left[\\frac{1}{16}, \\infty\\right)"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "math_steps": [
+          {
+            "math_step_sha256": "3b696e99e73fb7e108cc02c417594a444c97b9a2a3c5eea69ae71bf8f7dfbdf8",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+          },
+          {
+            "math_step_sha256": "bb6b15905594b7a8d9dc0b3db7d6dde25ab6d5791c17cc5cbeb83a11d56a9513",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+          },
+          {
+            "math_step_sha256": "bc3e6f38e149f1c4e5dc34fca55ba9f6918543eb9a0cc0c3173f41802a0d32d7",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-piecewise-range-parameter-003-constraint"
+          },
+          {
+            "math_step_sha256": "5c5ad28e34c2f33ba168f00369bee4b02cd84f2fc369338667cf7733e65df561",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-piecewise-range-parameter-004-subproblem_recognize"
+          },
+          {
+            "math_step_sha256": "df4f3e9363ac6793d25146f7af7140638ca7b06fe4fb5730796585c370a4c282",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-piecewise-range-parameter-005-subproblem_select"
+          },
+          {
+            "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-piecewise-range-parameter-006-divided"
+          },
+          {
+            "math_step_sha256": "ef78f83fb23ea63650529405edc7118033e757550b6fa7d161b4c1a6d518c7a3",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-piecewise-range-parameter-007-policy"
+          },
+          {
+            "math_step_sha256": "f82a393ad8fa21541eb79e659f1a88f53148e85c9c0d6549f8a1ec90b0434a70",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution"
+          },
+          {
+            "math_step_sha256": "1542f255ed8db4046b18818ca1c27d5f3616fac83d9efcaf6f6445bd96533498",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range"
+          },
+          {
+            "math_step_sha256": "f3d12cb3665abef6deaadf8f3f076d597c93eb56614480e8bbe7f03d724ecf1e",
+            "ordinal": 10,
+            "step_id": "39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore"
+          },
+          {
+            "math_step_sha256": "c6da9c25d97b2d8a979f757c8adb9c140905c2fefe63afa23f284589803c4b96",
+            "ordinal": 11,
+            "step_id": "39e5646dcb-piecewise-range-parameter-011-solution"
+          },
+          {
+            "math_step_sha256": "120c14ad7e579e2d1c08571cdf2910226354eeddf125a88182531fb925b2ff40",
+            "ordinal": 12,
+            "step_id": "39e5646dcb-piecewise-range-parameter-012-answer_contained"
+          },
+          {
+            "math_step_sha256": "7b15faeb9b0be898b56ef3111951a1ea039b32dfedbc61beb53baaacc0e34974",
+            "ordinal": 13,
+            "step_id": "39e5646dcb-piecewise-range-parameter-013-verify_contained"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "C"
+          ],
+          "kind": "multiple_choice",
+          "matching": "set_equality",
+          "options": [
+            {
+              "label": "A",
+              "text": "$(-\\infty,\\frac1{16}]$"
+            },
+            {
+              "label": "B",
+              "text": "$(0,\\frac1{16}]$"
+            },
+            {
+              "label": "C",
+              "text": "$[\\frac1{16},+\\infty)$"
+            },
+            {
+              "label": "D",
+              "text": "$[\\frac18,+\\infty)$"
+            }
+          ],
+          "selection_mode": "unspecified",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "cfb4038de740c029b0991a47a6d2dc19f622345ac44393b10627085b2b3b8060",
+        "verified_route_sha256": "49996545420f04ae09f27919282ee0a95dd778f47ce3f03c19c21166e37c45fe"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-representations/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "type-piecewise-function",
+        "kind": "problem_type",
+        "label": "分段函数常规问题",
+        "summary": "分段求值、方程、不等式、值域求参及阶梯建模：保留各段范围，按题目要求直接使用对应方法。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-piecewise-equation",
+        "kind": "method",
+        "label": "分段解方程法",
+        "summary": "每段列方程、检查该段范围，再合并保留的解。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "solve",
+            "title": "逐段列方程并求解",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-inequality",
+        "kind": "method",
+        "label": "分段解不等式法",
+        "summary": "先确定比较值，逐段解不等式并与本段范围取交，最后合并。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "level",
+            "title": "求出比较值",
+            "calls": [
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "roots",
+            "title": "求各段不等式的零点",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "signs",
+            "title": "确定每段不等式的解集",
+            "calls": [
+              "skill-quadratic-sign"
+            ]
+          },
+          {
+            "id": "filter",
+            "title": "检查本段范围并合并",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "核验原条件",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-modeling",
+        "kind": "method",
+        "label": "分段建模法",
+        "summary": "按规则分档，每档累计前档费用与本档新增费用，再写成分段函数。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "build",
+            "title": "逐档累计费用",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "汇总并核对边界",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-range-parameter",
+        "kind": "method",
+        "label": "分段值域求参法",
+        "summary": "先求不含参段值域，再判断含参段要不越界还是补齐，最后求参数范围。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "fixed",
+            "title": "先求不含参段值域",
+            "calls": []
+          },
+          {
+            "id": "decide",
+            "title": "比较已有值域与目标值域",
+            "calls": [],
+            "rule": "rule-piecewise-range-parameter"
+          },
+          {
+            "id": "solve",
+            "title": "求含参段的条件",
+            "calls": [
+              "method-separation"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "回验原分段式",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "piecewise-function",
+        "kind": "knowledge",
+        "label": "分段函数",
+        "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "quadratic-function-properties",
+        "kind": "knowledge",
+        "label": "二次函数",
+        "summary": "二次函数的表达式、抛物线和零点共同描述函数在各处的取值。",
+        "aliases": [
+          "抛物线"
+        ],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "method-separation",
+        "kind": "method",
+        "label": "分离参数法",
+        "summary": "把参数单独移到不等号一边，另一边是不含参数的函数，再用这个函数的最大值或最小值求出参数范围。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "separate",
+            "title": "把参数单独移到一边",
+            "calls": [
+              "skill-inequality-transform",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "quantifier",
+            "title": "看恒成立要用最大值还是最小值",
+            "calls": [
+              "skill-quantified-range"
+            ]
+          },
+          {
+            "id": "range",
+            "title": "求另一边函数在区间上的最值",
+            "calls": [
+              "quadratic-interval-extremum",
+              "skill-linear-range",
+              "skill-reciprocal-range",
+              "method-square-extremum",
+              "skill-inequality-transform",
+              "method-substitution"
+            ]
+          },
+          {
+            "id": "restore",
+            "title": "写出参数范围，检查等号",
+            "calls": [
+              "skill-inequality-transform",
+              "quadratic-inequality-solve"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform",
+        "kind": "skill",
+        "label": "不等式变形与推导",
+        "summary": "对不等式两边加减、乘除或取倒数时，先看乘除的数是正是负，再决定不等号要不要改方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "inequality-properties",
+        "kind": "knowledge",
+        "label": "不等式的性质",
+        "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-quantified-range",
+        "kind": "skill",
+        "label": "将恒成立与存在成立转化为值域或最值条件",
+        "summary": "把「对所有 x 都成立」「存在 x 使之成立」翻译成函数的值域或最大值、最小值要满足的条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "function-range-extrema",
+        "kind": "knowledge",
+        "label": "函数的值域与最值",
+        "summary": "值域是所有实际函数值的集合；最大值、最小值必须属于这个集合。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "quantifiers",
+        "kind": "knowledge",
+        "label": "全称量词与存在量词",
+        "summary": "先明确“对谁、在哪个范围内”，再区分全部满足与至少一次满足。",
+        "aliases": [
+          "恒成立",
+          "存在成立",
+          "任意",
+          "有解"
+        ],
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "method-substitution",
+        "kind": "skill",
+        "label": "换元",
+        "summary": "把一个碍事或反复出现的整体设成新字母，条件、要求的式子和取值范围都跟着换成新字母。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "quadratic-interval-extremum",
+        "kind": "skill",
+        "label": "求二次函数在区间上的最值与值域",
+        "summary": "看开口方向和对称轴落在区间的哪一边，找出最大值、最小值在哪里取，再检查端点取不取得到。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "quadratic-inequality-solve",
+        "kind": "method",
+        "label": "二次函数图像法",
+        "summary": "先求出二次式的根，再根据开口方向看图像哪一段在 x 轴上方、哪一段在下方，写出不等式的解集。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "normalize",
+            "title": "移项，让一边是 0",
+            "calls": [
+              "skill-inequality-transform",
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "roots",
+            "title": "求出根，从小到大排好",
+            "calls": [
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "signs",
+            "title": "画草图，看哪段在 x 轴上方",
+            "calls": [
+              "skill-quadratic-sign"
+            ]
+          },
+          {
+            "id": "solution",
+            "title": "按不等号写出解集",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-solve-quadratic",
+        "kind": "skill",
+        "label": "求解一元二次方程",
+        "summary": "把方程整理成 ax² + bx + c = 0，先用判别式看有几个实根，再用因式分解或求根公式求出它们。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "quadratic-equation",
+        "kind": "knowledge",
+        "label": "一元二次方程",
+        "summary": "用判别式判断实根情况，用求根公式或因式分解确定根，并通过根与系数关系连接表达式。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-quadratic-sign",
+        "kind": "skill",
+        "label": "根据开口与零点判断二次式的正负",
+        "summary": "由开口方向与零点判断二次式正、零、负的取值范围，再判断指定关系对所有实数成立，还是至少有一个实数解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "quadratic-inequality",
+        "kind": "knowledge",
+        "label": "一元二次不等式",
+        "summary": "二次不等式的解集由二次式的符号决定；图像在横轴上方或下方对应不同解集。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "type-quantified-quadratic",
+        "kind": "problem_type",
+        "label": "含参一元二次不等式的恒成立与存在成立问题",
+        "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围、最小值或最大值。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "rule-quadratic-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "含参一元二次不等式的选法判断",
+        "summary": "遇到含参数的一元二次不等式，先看清「哪个字母在什么范围里变化」，再挑能用的方法，常常不止一种方法可用。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "method-discriminant",
+        "kind": "method",
+        "label": "判别式法",
+        "summary": "量词变量取全体实数时，用开口方向和判别式判断二次不等式恒成立还是至少有一个解；二次项系数可能为 0 时，先处理一次式或常数。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "degree",
+            "title": "先看 x² 的系数能不能是 0",
+            "calls": []
+          },
+          {
+            "id": "normalize",
+            "title": "移项整理成与 0 比较",
+            "calls": [
+              "skill-inequality-transform",
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "conditions",
+            "title": "写出开口和判别式的条件",
+            "calls": [
+              "skill-quadratic-sign",
+              "skill-simplify",
+              "skill-inequality-transform"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "解出参数",
+            "calls": [
+              "skill-simplify",
+              "skill-inequality-transform",
+              "quadratic-inequality-solve"
+            ]
+          },
+          {
+            "id": "merge",
+            "title": "把各种情况合起来，检查边界",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-interval-extremum",
+        "kind": "method",
+        "label": "区间最值法",
+        "summary": "x 只在某个区间上取值时，把「恒成立」「有解」变成函数在这个区间上的最大值或最小值和参数比较，求出参数范围。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "quantifier",
+            "title": "判断要区间上的最大值还是最小值",
+            "calls": [
+              "skill-quantified-range"
+            ]
+          },
+          {
+            "id": "select",
+            "title": "按函数类型求区间上的取值范围",
+            "calls": [],
+            "rule": "rule-interval-skill"
+          },
+          {
+            "id": "conditions",
+            "title": "用最值写出参数条件",
+            "calls": [
+              "skill-inequality-transform"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "检查边界带不带等号",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-variable-swap",
+        "kind": "method",
+        "label": "更换主元法",
+        "summary": "题目让哪个字母在范围里变化，就把它当主角，把式子整理成关于它的一次函数，看区间两端求出另一个字母的范围。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "reorder",
+            "title": "更换主元",
+            "calls": [
+              "skill-simplify"
+            ]
+          },
+          {
+            "id": "quantifier",
+            "title": "看恒成立要用最大值还是最小值",
+            "calls": [
+              "skill-quantified-range"
+            ]
+          },
+          {
+            "id": "range",
+            "title": "由系数正负找最值在哪一端",
+            "calls": [
+              "skill-linear-range"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "解出要求的字母",
+            "calls": [
+              "skill-inequality-transform",
+              "quadratic-inequality-solve"
+            ]
+          },
+          {
+            "id": "merge",
+            "title": "合并各情况的结果",
+            "calls": []
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-discriminant|calls|quadratic-inequality-solve",
+        "from": "method-discriminant",
+        "to": "quadratic-inequality-solve",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": "参数满足的条件是一元二次不等式时"
+          }
+        ]
+      },
+      {
+        "id": "method-discriminant|calls|skill-inequality-transform",
+        "from": "method-discriminant",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "normalize",
+            "when": ""
+          },
+          {
+            "step": "conditions",
+            "when": "把判别式条件改写成参数的不等式时"
+          },
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-discriminant|calls|skill-quadratic-sign",
+        "from": "method-discriminant",
+        "to": "skill-quadratic-sign",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "conditions",
+            "when": "把全称或存在的正负要求翻译成开口方向与交点条件时"
+          }
+        ]
+      },
+      {
+        "id": "method-interval-extremum|calls|skill-inequality-transform",
+        "from": "method-interval-extremum",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "conditions",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-interval-extremum|calls|skill-quantified-range",
+        "from": "method-interval-extremum",
+        "to": "skill-quantified-range",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "quantifier",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-equation|calls|skill-solve-quadratic",
+        "from": "method-piecewise-equation",
+        "to": "skill-solve-quadratic",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-inequality|calls|skill-quadratic-sign",
+        "from": "method-piecewise-inequality",
+        "to": "skill-quadratic-sign",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "signs",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-inequality|calls|skill-solve-quadratic",
+        "from": "method-piecewise-inequality",
+        "to": "skill-solve-quadratic",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "roots",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-piecewise-range-parameter|calls|method-separation",
+        "from": "method-piecewise-range-parameter",
+        "to": "method-separation",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": "固定部分已覆盖目标值域，将另一段不能越界转化为恒成立子问题时"
+          }
+        ]
+      },
+      {
+        "id": "method-separation|calls|method-substitution",
+        "from": "method-separation",
+        "to": "method-substitution",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "range",
+            "when": "另一边可以通过一次式换元或倒数换元化为已有的求值域形式时；同步转换区间并回代取等点"
+          }
+        ]
+      },
+      {
+        "id": "method-separation|calls|quadratic-inequality-solve",
+        "from": "method-separation",
+        "to": "quadratic-inequality-solve",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "restore",
+            "when": "还原后的参数条件是一元二次不等式时"
+          }
+        ]
+      },
+      {
+        "id": "method-separation|calls|quadratic-interval-extremum",
+        "from": "method-separation",
+        "to": "quadratic-interval-extremum",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "range",
+            "when": "另一边是二次函数时"
+          }
+        ]
+      },
+      {
+        "id": "method-separation|calls|skill-inequality-transform",
+        "from": "method-separation",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "separate",
+            "when": ""
+          },
+          {
+            "step": "range",
+            "when": "另一边是符号确定函数的倒数，先求分母范围，再取倒数时"
+          },
+          {
+            "step": "restore",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-separation|calls|skill-quantified-range",
+        "from": "method-separation",
+        "to": "skill-quantified-range",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "quantifier",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-substitution|uses|equality-properties",
+        "from": "method-substitution",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "method-variable-swap|calls|quadratic-inequality-solve",
+        "from": "method-variable-swap",
+        "to": "quadratic-inequality-solve",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": "得到关于要求字母的二次不等式时"
+          }
+        ]
+      },
+      {
+        "id": "method-variable-swap|calls|skill-inequality-transform",
+        "from": "method-variable-swap",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-variable-swap|calls|skill-quantified-range",
+        "from": "method-variable-swap",
+        "to": "skill-quantified-range",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "quantifier",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "quadratic-equation|prerequisite|quadratic-inequality",
+        "from": "quadratic-equation",
+        "to": "quadratic-inequality",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "quadratic-function-properties|prerequisite|quadratic-inequality",
+        "from": "quadratic-function-properties",
+        "to": "quadratic-inequality",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "quadratic-inequality-solve|calls|skill-inequality-transform",
+        "from": "quadratic-inequality-solve",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "normalize",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "quadratic-inequality-solve|calls|skill-quadratic-sign",
+        "from": "quadratic-inequality-solve",
+        "to": "skill-quadratic-sign",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "signs",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "quadratic-inequality-solve|calls|skill-solve-quadratic",
+        "from": "quadratic-inequality-solve",
+        "to": "skill-solve-quadratic",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "roots",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "quadratic-interval-extremum|uses|function-range-extrema",
+        "from": "quadratic-interval-extremum",
+        "to": "function-range-extrema",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "attainability"
+          }
+        ]
+      },
+      {
+        "id": "quadratic-interval-extremum|uses|quadratic-function-properties",
+        "from": "quadratic-interval-extremum",
+        "to": "quadratic-function-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "vertex"
+          },
+          {
+            "entry": "interval"
+          }
+        ]
+      },
+      {
+        "id": "rule-quadratic-method|selects|method-discriminant",
+        "from": "rule-quadratic-method",
+        "to": "method-discriminant",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "discriminant",
+            "condition": "量词变量取全体实数，式子关于它是二次的，要求恒成立或存在实数使其成立；四种关系 $>$、$\\ge$、$<$、$\\le$ 都要结合量词和开口判断。二次项系数含参数时，先单独处理系数为 $0$ 的情况。"
+          }
+        ]
+      },
+      {
+        "id": "rule-quadratic-method|selects|method-interval-extremum",
+        "from": "rule-quadratic-method",
+        "to": "method-interval-extremum",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "interval",
+            "condition": "$x$ 在给定区间内取值，区间可以是有限区间、半无限区间或全体实数 $\\mathbb R$；能求出相关函数在该范围上的最大值、最小值（二次函数、一次函数或对勾函数），最值取不到时要单独看等号。$x$ 取全体实数时，判别式法通常更直接，优先用判别式法。"
+          }
+        ]
+      },
+      {
+        "id": "rule-quadratic-method|selects|method-separation",
+        "from": "rule-quadratic-method",
+        "to": "method-separation",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "separation",
+            "condition": "$x$ 在题目给定的范围里取值（常见是某个区间，全体实数也可以）；能把参数（或含参数的式子）移到不等号一边，另一边只含 $x$，并且能求出这一边在该范围上的最大值或最小值。除以含 $x$ 的式子之前，要能确定它在这个范围上的正负。"
+          }
+        ]
+      },
+      {
+        "id": "rule-quadratic-method|selects|method-variable-swap",
+        "from": "rule-quadratic-method",
+        "to": "method-variable-swap",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "swap",
+            "condition": "给出范围的是参数（如 $m\\in[1,3]$），要求的却是 $x$；把式子按这个参数整理后是一次式或常数，就看区间两端。"
+          }
+        ]
+      },
+      {
+        "id": "set-intersection-union|prerequisite|piecewise-function",
+        "from": "set-intersection-union",
+        "to": "piecewise-function",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "skill-inequality-transform|uses|inequality-properties",
+        "from": "skill-inequality-transform",
+        "to": "inequality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "reciprocal"
+          }
+        ]
+      },
+      {
+        "id": "skill-quadratic-sign|uses|quadratic-equation",
+        "from": "skill-quadratic-sign",
+        "to": "quadratic-equation",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "discriminant"
+          }
+        ]
+      },
+      {
+        "id": "skill-quadratic-sign|uses|quadratic-function-properties",
+        "from": "skill-quadratic-sign",
+        "to": "quadratic-function-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "zeros"
+          }
+        ]
+      },
+      {
+        "id": "skill-quadratic-sign|uses|quadratic-inequality",
+        "from": "skill-quadratic-sign",
+        "to": "quadratic-inequality",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "signs"
+          },
+          {
+            "entry": "all-real"
+          }
+        ]
+      },
+      {
+        "id": "skill-quantified-range|uses|function-range-extrema",
+        "from": "skill-quantified-range",
+        "to": "function-range-extrema",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "quantified"
+          },
+          {
+            "entry": "extremum-conditions"
+          }
+        ]
+      },
+      {
+        "id": "skill-quantified-range|uses|quantifiers",
+        "from": "skill-quantified-range",
+        "to": "quantifiers",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "universal"
+          },
+          {
+            "entry": "existential"
+          }
+        ]
+      },
+      {
+        "id": "skill-solve-quadratic|uses|quadratic-equation",
+        "from": "skill-solve-quadratic",
+        "to": "quadratic-equation",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "discriminant"
+          },
+          {
+            "entry": "roots"
+          },
+          {
+            "entry": "vieta"
+          }
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-equation",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-equation",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-inequality",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-inequality",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-modeling",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-modeling",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|candidate|method-piecewise-range-parameter",
+        "from": "type-piecewise-function",
+        "to": "method-piecewise-range-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|piecewise-function",
+        "from": "type-piecewise-function",
+        "to": "piecewise-function",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|quadratic-function-properties",
+        "from": "type-piecewise-function",
+        "to": "quadratic-function-properties",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-piecewise-function|involves|set-intersection-union",
+        "from": "type-piecewise-function",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-quantified-quadratic|involves|function-range-extrema",
+        "from": "type-quantified-quadratic",
+        "to": "function-range-extrema",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-quantified-quadratic|involves|quadratic-function-properties",
+        "from": "type-quantified-quadratic",
+        "to": "quadratic-function-properties",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-quantified-quadratic|involves|quadratic-inequality",
+        "from": "type-quantified-quadratic",
+        "to": "quadratic-inequality",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-quantified-quadratic|involves|quantifiers",
+        "from": "type-quantified-quadratic",
+        "to": "quantifiers",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-quantified-quadratic|method_rule|rule-quadratic-method",
+        "from": "type-quantified-quadratic",
+        "to": "rule-quadratic-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": []
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "piecewise-function",
+          "set-intersection-union",
+          "quadratic-function-properties",
+          "skill-inequality-transform",
+          "inequality-properties",
+          "skill-quantified-range",
+          "function-range-extrema",
+          "quantifiers",
+          "method-substitution",
+          "equality-properties",
+          "quadratic-interval-extremum",
+          "skill-solve-quadratic",
+          "quadratic-equation",
+          "skill-quadratic-sign",
+          "quadratic-inequality"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"7352fa369feb9641cff5af82e49ca74944a693fcb1337954c4ef1352912f0ac2\",\"3f59da49a6d14865f12e93355c02a903a100a3afaab122be76d96d760907888c\",\"acc1474205504a56a7575b900aff262e\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "bb304ca3548843ef9072f452061db2fd",
+    "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+    "stream_id": "bb304ca3548843ef9072f452061db2fd",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "7352fa369feb9641cff5af82e49ca74944a693fcb1337954c4ef1352912f0ac2",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-piecewise-function",
+        "op": "methods"
+      },
+      "question": "先求不含参数那一段函数的值域，再对照整个函数的目标值域，确定含参数那一段函数需要满足的条件，最后求参数范围。",
+      "submit_label": "开始解题",
+      "title": "解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-piecewise-range-parameter",
+          "recommendation": "preferred",
+          "route_id": "piecewise-range-parameter",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "fixed",
+        "explanation": "$$\\begin{gathered}x^{2} - 2=1(x-(0))^2+(-2)\\\\0\\in\\left(-\\infty, 1\\right]\\\\f(0)=-2\\\\x\\to-\\infty\\Rightarrow f(x)\\to+\\infty\\\\R_{1}=\\left[-2, \\infty\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 1 段函数（不含参数）：$f(x)=x^{2} - 2$，$x \\leq 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数（不含参数）",
+              "math": "\\begin{gathered}f(x)=x^{2} - 2\\\\x \\leq 1\\end{gathered}"
+            },
+            {
+              "label": "第 1 段函数的值域",
+              "math": "R_{1}=\\left[-2, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "3b696e99e73fb7e108cc02c417594a444c97b9a2a3c5eea69ae71bf8f7dfbdf8",
+        "method_ref": "method-piecewise-range-parameter#fixed",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed",
+        "target_ref": "/root/goals/0",
+        "title": "先求不含参数那一段函数的值域",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "decision",
+        "explanation": "$$\\begin{gathered}R_{1}=\\left[-2, \\infty\\right),\\quad V=\\left[-2, \\infty\\right)\\\\R_{1}=V\\Rightarrow (R_{1}\\cup R_{2}=V\\iff R_{2}\\subseteq V)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 1 段函数的值域与整个函数的目标值域",
+              "math": "\\begin{gathered}R_{1}=\\left[-2, \\infty\\right)\\\\V=\\left[-2, \\infty\\right)\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+            },
+            {
+              "label": "第 2 段函数的值域要求（含参数 $a$）",
+              "math": "R_{2}\\subseteq \\left[-2, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "bb6b15905594b7a8d9dc0b3db7d6dde25ab6d5791c17cc5cbeb83a11d56a9513",
+        "method_ref": "method-piecewise-range-parameter#decide",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-002-decision",
+        "target_ref": "/root/goals/0",
+        "title": "判断含参数这一段函数需要满足什么条件",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "constraint",
+        "explanation": "$$R_{2}\\subseteq\\left[-2, \\infty\\right)\\iff a x^{2} - x + 2\\ge -2,\\quad\\forall x>1$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 2 段函数（含参数 $a$）",
+              "math": "\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}"
+            },
+            {
+              "label": "对每个 $x > 1$ 都成立",
+              "math": "a x^{2} - x + 2\\ge -2,\\quad\\forall x>1"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "bc3e6f38e149f1c4e5dc34fca55ba9f6918543eb9a0cc0c3173f41802a0d32d7",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 3,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-003-constraint",
+        "target_ref": "/root/goals/0",
+        "title": "把这段函数的值域要求写成不等式",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "a*x**2 - x + 2 >= -2",
+            "latex": "a x^{2} - x + 2 \\geq -2"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "subproblem_recognize",
+        "explanation": "求使 $\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2$ 成立的 $a$。",
+        "highlight": {
+          "caption": "转化后的不等式",
+          "items": [
+            {
+              "label": "当前子问题",
+              "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+            }
+          ]
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "5c5ad28e34c2f33ba168f00369bee4b02cd84f2fc369338667cf7733e65df561",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 4,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-004-subproblem_recognize",
+        "target_ref": "/root/goals/0",
+        "title": "判断转化后的问题",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "a*x**2 - x + 2 >= -2",
+            "latex": "a x^{2} - x + 2 \\geq -2"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "subproblem_select",
+        "explanation": "求使 $\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2$ 成立的 $a$。",
+        "highlight": {
+          "caption": "转化后的不等式",
+          "items": [
+            {
+              "label": "当前子问题",
+              "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+            }
+          ]
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "df4f3e9363ac6793d25146f7af7140638ca7b06fe4fb5730796585c370a4c282",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 5,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/2/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-005-subproblem_select",
+        "target_ref": "/root/goals/0",
+        "title": "选择恒成立问题的解题方法",
+        "used_basis": [
+          "piecewise-function#domain-range",
+          "quadratic-function-properties#vertex",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "a*x**2 >= x - 4",
+            "latex": "a x^{2} \\geq x - 4"
+          },
+          {
+            "expression": "a >= (x - 4)/x**2",
+            "latex": "a \\geq \\frac{x - 4}{x^{2}}"
+          }
+        ],
+        "before": [
+          {
+            "expression": "a*x**2 - x + 4 >= 0",
+            "latex": "a x^{2} - x + 4 \\geq 0"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "divided",
+        "explanation": "$\\because\\ x \\in \\left(1, \\infty\\right)$，$\\therefore\\ x^{2}>0$，\n移项得 $a x^{2} \\geq x - 4$，\n两边同除以 $x^{2}$ 得 $a \\geq \\frac{x - 4}{x^{2}}$。记 $h(x)=\\frac{x - 4}{x^{2}}$，则 $a \\geq h(x)$。",
+        "highlight": {
+          "caption": "两边同除以正数",
+          "items": [
+            {
+              "label": "移项后",
+              "math": "a x^{2} \\geq x - 4"
+            },
+            {
+              "label": "两边除以 $x^{2}$",
+              "math": "a \\geq \\frac{x - 4}{x^{2}}",
+              "note": "$x^{2}>0$，不等号方向不变"
+            }
+          ],
+          "result": "$a \\geq h(x)$，其中 $h(x)=\\frac{x - 4}{x^{2}}$"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+        "method_ref": "method-separation#separate",
+        "ordinal": 6,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/3/calls/0",
+          "/steps/3/calls/1"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-006-divided",
+        "target_ref": "/root/goals/0",
+        "title": "分离参数",
+        "used_basis": [
+          "inequality-properties#addition",
+          "inequality-properties#multiplication"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "policy",
+        "explanation": "对所有 $x \\in \\left(1, \\infty\\right)$，$a \\geq h(x)$ $\\iff a \\geq h(x)_{\\text{上端}}$。这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+        "highlight": {
+          "caption": "恒成立转化为最值条件",
+          "connector": "⇔",
+          "items": [
+            {
+              "label": "对所有 $x \\in \\left(1, \\infty\\right)$ 都成立",
+              "math": "a \\geq h(x)"
+            },
+            {
+              "label": "只需看值域上端",
+              "math": "a \\geq h(x)_{\\text{上端}}"
+            }
+          ],
+          "result": "$a \\geq h(x)_{\\text{上端}}$"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "ef78f83fb23ea63650529405edc7118033e757550b6fa7d161b4c1a6d518c7a3",
+        "method_ref": "method-separation#quantifier",
+        "ordinal": 7,
+        "premise_refs": [
+          "/steps/1/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-007-policy",
+        "target_ref": "/root/goals/0",
+        "title": "转化为最值条件",
+        "used_basis": [
+          "function-range-extrema#quantified",
+          "quantifiers#universal"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "-4*t**2 + t",
+            "latex": "- 4 t^{2} + t"
+          },
+          {
+            "expression": "Interval.open(0, 1)",
+            "latex": "\\left(0, 1\\right)"
+          }
+        ],
+        "before": [
+          {
+            "expression": "(x - 4)/x**2",
+            "latex": "\\frac{x - 4}{x^{2}}"
+          },
+          {
+            "expression": "Interval.open(1, oo)",
+            "latex": "\\left(1, \\infty\\right)"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "reciprocal_substitution",
+        "explanation": "$$ t=\\frac{1}{x}\\iff x=\\frac{1}{t} $$$$ x\\in\\left(1, \\infty\\right)\\iff t\\in\\left(0, 1\\right) $$$$ h(x)=- 4 t^{2} + t $$",
+        "highlight": {
+          "caption": "新变量与对应区间",
+          "connector": "→",
+          "items": [
+            {
+              "label": "换元关系",
+              "math": "t=\\frac{1}{x}"
+            },
+            {
+              "label": "对应区间",
+              "math": "t \\in \\left(0, 1\\right)"
+            },
+            {
+              "label": "换元后的表达式",
+              "math": "- 4 t^{2} + t"
+            }
+          ]
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "f82a393ad8fa21541eb79e659f1a88f53148e85c9c0d6549f8a1ec90b0434a70",
+        "method_ref": "method-separation#range",
+        "ordinal": 8,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/5/calls/0",
+          "/steps/5/skipped_calls/0",
+          "/steps/5/skipped_calls/1",
+          "/steps/5/skipped_calls/2",
+          "/steps/5/skipped_calls/3",
+          "/steps/5/skipped_calls/4",
+          "/steps/5/skipped_calls/5",
+          "/steps/5/skipped_calls/6",
+          "/steps/5/skipped_calls/7",
+          "/steps/5/judgments/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution",
+        "target_ref": "/root/goals/0",
+        "title": "换元，并确定新变量的范围",
+        "used_basis": [
+          "equality-properties#identity",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval.Lopen(-3, 1/16)",
+            "latex": "\\left(-3, \\frac{1}{16}\\right]"
+          }
+        ],
+        "before": [
+          {
+            "expression": "-4*t**2 + t",
+            "latex": "- 4 t^{2} + t"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "reciprocal_quadratic_range",
+        "explanation": "$$h(x)=- 4 t^{2} + t,\\quad t\\in\\left(0, 1\\right)$$\n$$h(x)=\\frac{1}{16} - 4 \\left(t - \\frac{1}{8}\\right)^{2}$$\n$$t=\\frac{1}{8}\\in\\left(0, 1\\right)\\Rightarrow h(x)=\\frac{1}{16}$$\n$$t\\to0^+\\Rightarrow h(x)\\to0$$\n$$t\\to1^-\\Rightarrow h(x)\\to-3$$\n$$h(x)\\in\\left(-3, \\frac{1}{16}\\right]$$",
+        "highlight": {
+          "caption": "求 $h(x)$ 的值域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "换元后的表达式与范围",
+              "math": "h(x)=- 4 t^{2} + t,\\quad t\\in\\left(0, 1\\right)"
+            },
+            {
+              "label": "$h(x)$ 的值域",
+              "math": "h(x)\\in\\left(-3, \\frac{1}{16}\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "1542f255ed8db4046b18818ca1c27d5f3616fac83d9efcaf6f6445bd96533498",
+        "method_ref": "method-separation#range",
+        "ordinal": 9,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/5/calls/1"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range",
+        "target_ref": "/root/goals/0",
+        "title": "求 $h(x)$ 的值域",
+        "used_basis": [
+          "quadratic-interval-extremum"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval.Lopen(-3, 1/16)",
+            "latex": "\\left(-3, \\frac{1}{16}\\right]"
+          }
+        ],
+        "before": [
+          {
+            "expression": "Interval.Lopen(-3, 1/16)",
+            "latex": "\\left(-3, \\frac{1}{16}\\right]"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "reciprocal_quadratic_restore",
+        "explanation": "按 $x=\\frac{1}{t}$ 回代。当 $t=\\frac{1}{8}$ 时，$x=8$，$h(x)$ 的值为 $\\frac{1}{16}$，可以取得。在题目区间内，$t \\to 1$ 对应 $x \\to 1$，$h(x)$ 的值趋近 $-3$，对应端点不能取到。在题目区间内，$t \\to 0$ 对应 $x \\to \\infty$，$h(x)$ 的值趋近 $0$，对应端点不能取到。换元前后的函数值逐一相同，所以$h(x)$ 的值域仍为 $\\left(-3, \\frac{1}{16}\\right]$。值域下端为 $-3$，只能趋近、不能取得。最大值为 $\\frac{1}{16}$，可以取得。",
+        "highlight": {
+          "caption": "回代后的值域",
+          "items": [
+            {
+              "label": "回代关系",
+              "math": "x=\\frac{1}{t}"
+            },
+            {
+              "label": "$h(x)$ 的值域",
+              "math": "\\left(-3, \\frac{1}{16}\\right]"
+            }
+          ],
+          "result": "$h(x)$ 的值域为 $\\left(-3, \\frac{1}{16}\\right]$"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "f3d12cb3665abef6deaadf8f3f076d597c93eb56614480e8bbe7f03d724ecf1e",
+        "method_ref": "method-separation#range",
+        "ordinal": 10,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/5/calls/2",
+          "/steps/5/skipped_calls/8"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore",
+        "target_ref": "/root/goals/0",
+        "title": "把取值点换回原变量",
+        "used_basis": [
+          "function-range-extrema#attainability",
+          "method-substitution#range"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "a - 1/16 >= 0",
+            "latex": "a - \\frac{1}{16} \\geq 0"
+          },
+          {
+            "expression": "Interval(1/16, oo)",
+            "latex": "\\left[\\frac{1}{16}, \\infty\\right)"
+          }
+        ],
+        "before": [
+          {
+            "expression": "a >= 1/16",
+            "latex": "a \\geq \\frac{1}{16}"
+          }
+        ],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "solution",
+        "explanation": "$\\therefore$ $a \\geq \\frac{1}{16}$，即 $a \\in \\left[\\frac{1}{16}, \\infty\\right)$。",
+        "highlight": {
+          "caption": "解出参数范围",
+          "items": [
+            {
+              "label": "取值范围",
+              "math": "a \\in \\left[\\frac{1}{16}, \\infty\\right)"
+            }
+          ],
+          "result": "$a \\in \\left[\\frac{1}{16}, \\infty\\right)$"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "c6da9c25d97b2d8a979f757c8adb9c140905c2fefe63afa23f284589803c4b96",
+        "method_ref": "method-separation#restore",
+        "ordinal": 11,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0",
+          "/steps/7/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/6/calls/0",
+          "/steps/6/calls/1",
+          "/steps/6/calls/2",
+          "/steps/7/skipped_calls/0",
+          "/steps/7/skipped_calls/1",
+          "/steps/7/judgments/0",
+          "/steps/8/calls/0",
+          "/steps/9/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-011-solution",
+        "target_ref": "/root/goals/0",
+        "title": "求参数范围",
+        "used_basis": [
+          "function-range-extrema#quantified",
+          "inequality-properties#addition",
+          "quadratic-equation#roots",
+          "quadratic-inequality#signs"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer_contained",
+        "explanation": "$$\\begin{gathered}a\\in\\left[\\frac{1}{16}, \\infty\\right)\\Rightarrow R_{2}\\subseteq\\left[-2, \\infty\\right)\\\\R_{1}=\\left[-2, \\infty\\right)\\Rightarrow R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "恒成立子问题返回的参数范围",
+              "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+            },
+            {
+              "label": "原分段函数的值域",
+              "math": "R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "120c14ad7e579e2d1c08571cdf2910226354eeddf125a88182531fb925b2ff40",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 12,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0",
+          "/steps/7/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/2/calls/1",
+          "/steps/2/calls/2",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/merges/0",
+          "/steps/3/calls/0",
+          "/steps/3/calls/1",
+          "/steps/3/skipped_calls/0",
+          "/steps/3/merges/0",
+          "/steps/4/calls/0",
+          "/steps/5/calls/0",
+          "/steps/5/calls/1",
+          "/steps/5/calls/2",
+          "/steps/5/skipped_calls/0",
+          "/steps/5/skipped_calls/1",
+          "/steps/5/skipped_calls/2",
+          "/steps/5/skipped_calls/3",
+          "/steps/5/skipped_calls/4",
+          "/steps/5/skipped_calls/5",
+          "/steps/5/skipped_calls/6",
+          "/steps/5/skipped_calls/7",
+          "/steps/5/skipped_calls/8",
+          "/steps/5/judgments/0",
+          "/steps/5/merges/0",
+          "/steps/6/calls/0",
+          "/steps/6/calls/1",
+          "/steps/6/calls/2",
+          "/steps/7/skipped_calls/0",
+          "/steps/7/skipped_calls/1",
+          "/steps/7/judgments/0",
+          "/steps/8/calls/0",
+          "/steps/9/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-012-answer_contained",
+        "target_ref": "/root/goals/0",
+        "title": "回到原题，合并两段函数的值域",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "function-range-extrema#quantified",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "method-substitution#range",
+          "piecewise-function#domain-range",
+          "quadratic-equation#roots",
+          "quadratic-function-properties#vertex",
+          "quadratic-inequality#signs",
+          "quadratic-interval-extremum",
+          "quantifiers#universal",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "verify_contained",
+        "explanation": "$$\\begin{gathered}a=\\frac{1}{16}:\\quad \\frac{x^{2}}{16} - x + 2=\\frac{\\left(x - 8\\right)^{2}}{16}+(-2)\\ge-2\\\\x=8\\Rightarrow f(x)=-2\\\\a>\\frac{1}{16}:\\quad a x^{2} - x + 2=(a-\\frac{1}{16})x^2+\\frac{x^{2}}{16} - x + 2\\ge-2\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "第 2 段函数与已求出的参数范围",
+              "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}\\\\a\\in\\left[\\frac{1}{16}, \\infty\\right)\\end{gathered}",
+              "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+            },
+            {
+              "label": "核对结果",
+              "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "local_check": "passed",
+        "math_step_sha256": "7b15faeb9b0be898b56ef3111951a1ea039b32dfedbc61beb53baaacc0e34974",
+        "method_ref": "method-piecewise-range-parameter#solve",
+        "ordinal": 13,
+        "premise_refs": [
+          "/steps/1/judgments/0",
+          "/steps/5/judgments/0",
+          "/steps/7/judgments/0"
+        ],
+        "revisions_ref": "9dc05c659b96c929004139e755e76597eaa906c785b5b6fd87fed8774a3250ca",
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "source_refs": [
+          "/steps/2/calls/1",
+          "/steps/2/calls/2",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/skipped_calls/1",
+          "/steps/2/merges/0",
+          "/steps/3/calls/0",
+          "/steps/3/calls/1",
+          "/steps/3/skipped_calls/0",
+          "/steps/3/merges/0",
+          "/steps/4/calls/0",
+          "/steps/5/calls/0",
+          "/steps/5/calls/1",
+          "/steps/5/calls/2",
+          "/steps/5/skipped_calls/0",
+          "/steps/5/skipped_calls/1",
+          "/steps/5/skipped_calls/2",
+          "/steps/5/skipped_calls/3",
+          "/steps/5/skipped_calls/4",
+          "/steps/5/skipped_calls/5",
+          "/steps/5/skipped_calls/6",
+          "/steps/5/skipped_calls/7",
+          "/steps/5/skipped_calls/8",
+          "/steps/5/judgments/0",
+          "/steps/5/merges/0",
+          "/steps/6/calls/0",
+          "/steps/6/calls/1",
+          "/steps/6/calls/2",
+          "/steps/7/skipped_calls/0",
+          "/steps/7/skipped_calls/1",
+          "/steps/7/judgments/0",
+          "/steps/8/calls/0",
+          "/steps/9/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-range-parameter-013-verify_contained",
+        "target_ref": "/root/goals/0",
+        "title": "代回原分段式检查参数范围的端点",
+        "used_basis": [
+          "equality-properties#identity",
+          "function-range-extrema#attainability",
+          "function-range-extrema#quantified",
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "method-substitution#range",
+          "piecewise-function#domain-range",
+          "quadratic-equation#roots",
+          "quadratic-function-properties#vertex",
+          "quadratic-inequality#signs",
+          "quadratic-interval-extremum",
+          "quantifiers#universal",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-001-fixed\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "fixed",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-003-constraint\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-004-subproblem_recognize\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-005-subproblem_select\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-006-divided\"]": [
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ],
+          "source": "/steps/3/calls/1"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-007-policy\"]": [
+        {
+          "method": "method-separation",
+          "step": "quantifier",
+          "ref": "skill-quantified-range",
+          "usedBasis": [
+            "function-range-extrema#quantified",
+            "quantifiers#universal"
+          ],
+          "source": "/steps/4/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution\"]": [
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "equality-properties#identity",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range\"]": [
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "quadratic-interval-extremum",
+          "usedBasis": [
+            "quadratic-interval-extremum"
+          ],
+          "source": "/steps/5/calls/1"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore\"]": [
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/2"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-011-solution\"]": [
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": null,
+          "usedBasis": [
+            "function-range-extrema#quantified"
+          ],
+          "source": "/steps/6/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition"
+          ],
+          "source": "/steps/6/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "quadratic-inequality-solve",
+          "usedBasis": [],
+          "source": "/steps/6/calls/2"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "roots",
+          "ref": "skill-solve-quadratic",
+          "usedBasis": [
+            "quadratic-equation#roots"
+          ],
+          "source": "/steps/8/calls/0"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "signs",
+          "ref": "skill-quadratic-sign",
+          "usedBasis": [
+            "quadratic-inequality#signs"
+          ],
+          "source": "/steps/9/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-012-answer_contained\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": "method-separation",
+          "usedBasis": [],
+          "source": "/steps/2/calls/1"
+        },
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/2"
+        },
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ],
+          "source": "/steps/3/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "quantifier",
+          "ref": "skill-quantified-range",
+          "usedBasis": [
+            "function-range-extrema#quantified",
+            "quantifiers#universal"
+          ],
+          "source": "/steps/4/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "equality-properties#identity",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "quadratic-interval-extremum",
+          "usedBasis": [
+            "quadratic-interval-extremum"
+          ],
+          "source": "/steps/5/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/2"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": null,
+          "usedBasis": [
+            "function-range-extrema#quantified"
+          ],
+          "source": "/steps/6/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition"
+          ],
+          "source": "/steps/6/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "quadratic-inequality-solve",
+          "usedBasis": [],
+          "source": "/steps/6/calls/2"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "roots",
+          "ref": "skill-solve-quadratic",
+          "usedBasis": [
+            "quadratic-equation#roots"
+          ],
+          "source": "/steps/8/calls/0"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "signs",
+          "ref": "skill-quadratic-sign",
+          "usedBasis": [
+            "quadratic-inequality#signs"
+          ],
+          "source": "/steps/9/calls/0"
+        }
+      ],
+      "[\"piecewise-range-parameter\",\"39e5646dcb-piecewise-range-parameter-013-verify_contained\"]": [
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": "method-separation",
+          "usedBasis": [],
+          "source": "/steps/2/calls/1"
+        },
+        {
+          "method": "method-piecewise-range-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ],
+          "source": "/steps/2/calls/2"
+        },
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "separate",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ],
+          "source": "/steps/3/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "quantifier",
+          "ref": "skill-quantified-range",
+          "usedBasis": [
+            "function-range-extrema#quantified",
+            "quantifiers#universal"
+          ],
+          "source": "/steps/4/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "equality-properties#identity",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "quadratic-interval-extremum",
+          "usedBasis": [
+            "quadratic-interval-extremum"
+          ],
+          "source": "/steps/5/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "range",
+          "ref": "method-substitution",
+          "usedBasis": [
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ],
+          "source": "/steps/5/calls/2"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": null,
+          "usedBasis": [
+            "function-range-extrema#quantified"
+          ],
+          "source": "/steps/6/calls/0"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition"
+          ],
+          "source": "/steps/6/calls/1"
+        },
+        {
+          "method": "method-separation",
+          "step": "restore",
+          "ref": "quadratic-inequality-solve",
+          "usedBasis": [],
+          "source": "/steps/6/calls/2"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "roots",
+          "ref": "skill-solve-quadratic",
+          "usedBasis": [
+            "quadratic-equation#roots"
+          ],
+          "source": "/steps/8/calls/0"
+        },
+        {
+          "method": "quadratic-inequality-solve",
+          "step": "signs",
+          "ref": "skill-quadratic-sign",
+          "usedBasis": [
+            "quadratic-inequality#signs"
+          ],
+          "source": "/steps/9/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed",
+        "ordinal": 1,
+        "math_step_sha256": "3b696e99e73fb7e108cc02c417594a444c97b9a2a3c5eea69ae71bf8f7dfbdf8",
+        "status": "interactive",
+        "interaction_id": "73645cad371bcedc60b537bf"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-002-decision",
+        "ordinal": 2,
+        "math_step_sha256": "bb6b15905594b7a8d9dc0b3db7d6dde25ab6d5791c17cc5cbeb83a11d56a9513",
+        "status": "interactive",
+        "interaction_id": "f686891d483878efc06c84fa"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-003-constraint",
+        "ordinal": 3,
+        "math_step_sha256": "bc3e6f38e149f1c4e5dc34fca55ba9f6918543eb9a0cc0c3173f41802a0d32d7",
+        "status": "interactive",
+        "interaction_id": "b8b83fdd57695a44657754a2"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-004-subproblem_recognize",
+        "ordinal": 4,
+        "math_step_sha256": "5c5ad28e34c2f33ba168f00369bee4b02cd84f2fc369338667cf7733e65df561",
+        "status": "interactive",
+        "interaction_id": "07f1ab8a5f33e8a2164815cb"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-005-subproblem_select",
+        "ordinal": 5,
+        "math_step_sha256": "df4f3e9363ac6793d25146f7af7140638ca7b06fe4fb5730796585c370a4c282",
+        "status": "interactive",
+        "interaction_id": "eade5b5d78e33789cfa72798"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-006-divided",
+        "ordinal": 6,
+        "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+        "status": "interactive",
+        "interaction_id": "b700059c3079bcc0fa40eded"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-007-policy",
+        "ordinal": 7,
+        "math_step_sha256": "ef78f83fb23ea63650529405edc7118033e757550b6fa7d161b4c1a6d518c7a3",
+        "status": "interactive",
+        "interaction_id": "8d013a74a5794de10da955b2"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution",
+        "ordinal": 8,
+        "math_step_sha256": "f82a393ad8fa21541eb79e659f1a88f53148e85c9c0d6549f8a1ec90b0434a70",
+        "status": "interactive",
+        "interaction_id": "8c7da81541b69a0bbd2e421c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range",
+        "ordinal": 9,
+        "math_step_sha256": "1542f255ed8db4046b18818ca1c27d5f3616fac83d9efcaf6f6445bd96533498",
+        "status": "interactive",
+        "interaction_id": "2d641c07dcb52369540e3620"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore",
+        "ordinal": 10,
+        "math_step_sha256": "f3d12cb3665abef6deaadf8f3f076d597c93eb56614480e8bbe7f03d724ecf1e",
+        "status": "interactive",
+        "interaction_id": "f97b517457bc5037b58d6dcd"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-011-solution",
+        "ordinal": 11,
+        "math_step_sha256": "c6da9c25d97b2d8a979f757c8adb9c140905c2fefe63afa23f284589803c4b96",
+        "status": "interactive",
+        "interaction_id": "636a8b2fa06a7fd046b5be20"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-012-answer_contained",
+        "ordinal": 12,
+        "math_step_sha256": "120c14ad7e579e2d1c08571cdf2910226354eeddf125a88182531fb925b2ff40",
+        "status": "interactive",
+        "interaction_id": "2625cfe1a2a21840061fe9eb"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-range-parameter",
+        "step_id": "39e5646dcb-piecewise-range-parameter-013-verify_contained",
+        "ordinal": 13,
+        "math_step_sha256": "7b15faeb9b0be898b56ef3111951a1ea039b32dfedbc61beb53baaacc0e34974",
+        "status": "interactive",
+        "interaction_id": "b3028777b697066cfd82b834"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "73645cad371bcedc60b537bf",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "896e20e8a9cb9d47b18ff66b8ea60bdf78315416ddf2c5822e2a403e1fcbb2fb",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 1 段函数（不含参数）：$f(x)=x^{2} - 2$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数（不含参数）",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2\\\\x \\leq 1\\end{gathered}"
+                },
+                {
+                  "label": "第 1 段函数的值域",
+                  "math": "R_{1}=\\left[-2, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "第 1 段函数：$y=x^{2} - 2$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -2.75,
+                  1.75,
+                  -2.75,
+                  2.75
+                ],
+                "coefficient": 1,
+                "description": "x=1 处函数值为 -1（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 1 段函数 y=x^2 - 2，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  0,
+                  -2
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ]
+                ],
+                "yLabel": "-2"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}x^{2} - 2=1(x-(0))^2+(-2)\\\\0\\in\\left(-\\infty, 1\\right]\\\\f(0)=-2\\\\x\\to-\\infty\\Rightarrow f(x)\\to+\\infty\\\\R_{1}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+            },
+            "graph": {
+              "caption": "第 1 段函数：$y=x^{2} - 2$，$x \\leq 1$。深色为本段，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -2.75,
+                  1.75,
+                  -2.75,
+                  2.75
+                ],
+                "coefficient": 1,
+                "description": "x=1 处函数值为 -1（实心点）",
+                "interval": [
+                  null,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  true
+                ],
+                "points": [
+                  {
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "第 1 段函数 y=x^2 - 2，x∈(-∞, 1]",
+                "variable": "x",
+                "vertex": [
+                  0,
+                  -2
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    0,
+                    "0"
+                  ]
+                ],
+                "yLabel": "-2"
+              }
+            },
+            "id": "73645cad371bcedc60b537bf#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(-2, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[-2, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left\\{-2\\right\\}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x \\leq 1$ 时，$f(x)=x^{2} - 2$。这段函数的值域是什么？",
+            "stem_board": {
+              "caption": "第 1 段函数（不含参数）：$f(x)=x^{2} - 2$，$x \\leq 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数（不含参数）",
+                  "math": "\\begin{gathered}f(x)=x^{2} - 2\\\\x \\leq 1\\end{gathered}"
+                },
+                {
+                  "label": "第 1 段函数的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "先求不含参数那一段函数的值域"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3b696e99e73fb7e108cc02c417594a444c97b9a2a3c5eea69ae71bf8f7dfbdf8",
+            "step_id": "39e5646dcb-piecewise-range-parameter-001-fixed"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f686891d483878efc06c84fa",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "420aac0d2ee27995588851c96c836115250a6f8df49b0e7f07ce88edad22f925",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与整个函数的目标值域",
+                  "math": "\\begin{gathered}R_{1}=\\left[-2, \\infty\\right)\\\\V=\\left[-2, \\infty\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+                },
+                {
+                  "label": "第 2 段函数的值域要求（含参数 $a$）",
+                  "math": "R_{2}\\subseteq \\left[-2, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "condition_number_lines": [
+              {
+                "bounds": [
+                  -2.75,
+                  -1.25
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval(-2, oo)",
+                  "latex": "\\left[-2, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-2"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(-2, oo)",
+                      "latex": "\\left[-2, \\infty\\right)"
+                    },
+                    "left": -2,
+                    "left_closed": true,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "\\begin{gathered}\\text{第 1 段函数（不含参数）}:\\quad f(x)=x^{2} - 2,\\ x \\leq 1\\\\\\text{已求得的值域}:\\quad R_{1}=\\left[-2, \\infty\\right)\\end{gathered}",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": -2,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      "expression": "-2",
+                      "latex": "-2"
+                    },
+                    "label": "-2"
+                  }
+                ],
+                "variable": "y"
+              },
+              {
+                "bounds": [
+                  -2.75,
+                  -1.25
+                ],
+                "exact_set": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval(-2, oo)",
+                  "latex": "\\left[-2, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-2"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(-2, oo)",
+                      "latex": "\\left[-2, \\infty\\right)"
+                    },
+                    "left": -2,
+                    "left_closed": true,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "\\text{题目要求整个函数的值域}:\\quad V=\\left[-2, \\infty\\right)",
+                "points": [],
+                "ticks": [
+                  {
+                    "at": -2,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      "expression": "-2",
+                      "latex": "-2"
+                    },
+                    "label": "-2"
+                  }
+                ],
+                "variable": "y"
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}R_{1}=\\left[-2, \\infty\\right),\\quad V=\\left[-2, \\infty\\right)\\\\R_{1}=V\\Rightarrow (R_{1}\\cup R_{2}=V\\iff R_{2}\\subseteq V)\\end{gathered}$$"
+            },
+            "id": "f686891d483878efc06c84fa#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "第 2 段函数的值域也必须恰好等于 $V$",
+                  "value": "o2"
+                },
+                {
+                  "label": "第 2 段函数的值都在 $V$ 内即可，无须再补充函数值",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "已知第 1 段函数的值域是 $R_{1}$，题目要求整个函数的值域为 $V$。第 2 段函数的值域 $R_{2}$ 应满足什么条件？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 1 段函数的值域与整个函数的目标值域",
+                  "math": "\\begin{gathered}R_{1}=\\left[-2, \\infty\\right)\\\\V=\\left[-2, \\infty\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+                },
+                {
+                  "label": "第 2 段函数的值域要求（含参数 $a$）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "判断含参数这一段函数需要满足什么条件"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bb6b15905594b7a8d9dc0b3db7d6dde25ab6d5791c17cc5cbeb83a11d56a9513",
+            "step_id": "39e5646dcb-piecewise-range-parameter-002-decision"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b8b83fdd57695a44657754a2",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "4278c4fb094743470110d20dcff10daa37d8e582404bf034ef446b6e4f85430f",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数（含参数 $a$）",
+                  "math": "\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}"
+                },
+                {
+                  "label": "对每个 $x > 1$ 都成立",
+                  "math": "a x^{2} - x + 2\\ge -2,\\quad\\forall x>1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$R_{2}\\subseteq\\left[-2, \\infty\\right)\\iff a x^{2} - x + 2\\ge -2,\\quad\\forall x>1$$"
+            },
+            "id": "b8b83fdd57695a44657754a2#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$a x^{2} - x + 2\\le -2,\\quad\\forall x>1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a x^{2} - x + 2\\ge -2,\\quad\\forall x>1$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "第 2 段函数不能取到 $-2$ 以下的值。因此，对每个 $x > 1$，解析式应满足什么不等式？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数（含参数 $a$）",
+                  "math": "\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}"
+                },
+                {
+                  "label": "对每个 $x > 1$ 都成立",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "把这段函数的值域要求写成不等式"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bc3e6f38e149f1c4e5dc34fca55ba9f6918543eb9a0cc0c3173f41802a0d32d7",
+            "step_id": "39e5646dcb-piecewise-range-parameter-003-constraint"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "07f1ab8a5f33e8a2164815cb",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "9e7e4c32fa4acd561b48d882162a9cf8187f936d2ebf5efe9323a6b3e5957dee",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "转化后的不等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "刚得到的条件",
+                  "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+                },
+                {
+                  "label": "现在要解决的问题",
+                  "math": "\\text{一元二次不等式恒成立问题}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "effects": {
+              "log": "识别恒成立子问题。",
+              "nodes": [
+                "type-quantified-quadratic"
+              ]
+            },
+            "expected_answer": {
+              "one_of": [
+                "universal"
+              ]
+            },
+            "feedback": {
+              "answer": "条件要求每个满足 $x > 1$ 的 $x$ 都成立，因此求的是恒成立时的参数范围。"
+            },
+            "id": "07f1ab8a5f33e8a2164815cb#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "求使不等式对所有 $x > 1$ 都成立的 $a$（一元二次不等式恒成立问题）",
+                  "value": "universal"
+                },
+                {
+                  "label": "求使不等式至少对一个满足 $x > 1$ 的 $x$ 成立的 $a$（一元二次不等式存在问题）",
+                  "value": "existential"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "本步条件来自第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。\n\n注意“对所有”这一条件：现在要解决的是哪一种问题？",
+            "source_context": "本步条件来自第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+            "stem_board": {
+              "caption": "转化后的不等式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "刚得到的条件",
+                  "math": "\\forall x\\in\\left(1, \\infty\\right),\\quad a x^{2} - x + 2 \\geq -2"
+                },
+                {
+                  "label": "现在要解决的问题",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认问题类型",
+            "title": "判断转化后的问题"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "5c5ad28e34c2f33ba168f00369bee4b02cd84f2fc369338667cf7733e65df561",
+            "step_id": "39e5646dcb-piecewise-range-parameter-004-subproblem_recognize"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "eade5b5d78e33789cfa72798",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "a9dc7ced8f0c411d504ceaa52fdc2b5989af9cfb0a9f2763285bff06f59b4b59",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "alternatives": {
+              "interval": {
+                "href": "/knowledge/method-interval-extremum/",
+                "message": "区间最值法适用于当前子问题，但本次尚未展开这条子方法路线。可以选择分离参数法继续。"
+              }
+            },
+            "effects": {
+              "log": "借用已学方法：分离参数法。",
+              "nodes": [
+                "rule-quadratic-method",
+                "method-separation"
+              ]
+            },
+            "expected_answer": {
+              "cell": [
+                "interval",
+                "free"
+              ],
+              "method": "separation"
+            },
+            "feedback": {
+              "method": "这种方法不在这一格里，请从这一格列出的方法中选一种。",
+              "method_choice": "当前恒成立子问题使用分离参数法；其它适用方法不在本路线展开。",
+              "x": "再看横轴：$x$ 的给定范围不是全体实数。",
+              "y": "再看纵轴：$a$ 是所求参数。"
+            },
+            "id": "eade5b5d78e33789cfa72798#1",
+            "interaction": {
+              "methods": [
+                {
+                  "cells": [
+                    [
+                      "real",
+                      "free"
+                    ]
+                  ],
+                  "label": "判别式法",
+                  "target": "method-discriminant",
+                  "value": "discriminant"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "区间最值法",
+                  "route_plan": "capability_gap",
+                  "target": "method-interval-extremum",
+                  "value": "interval"
+                },
+                {
+                  "cells": [
+                    [
+                      "real",
+                      "free"
+                    ],
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "分离参数法",
+                  "route": "piecewise-range-parameter",
+                  "route_plan": "planned",
+                  "target": "method-separation",
+                  "value": "separation"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "given"
+                    ],
+                    [
+                      "real",
+                      "given"
+                    ]
+                  ],
+                  "label": "更换主元法",
+                  "target": "method-variable-swap",
+                  "value": "swap"
+                }
+              ],
+              "title": "方法坐标图",
+              "type": "plane",
+              "x": {
+                "label": "$x$ 取全体实数吗？",
+                "options": [
+                  {
+                    "label": "否",
+                    "note": "$x$ 在给定范围内",
+                    "value": "interval"
+                  },
+                  {
+                    "label": "是",
+                    "note": "$x\\in\\mathbb R$",
+                    "value": "real"
+                  }
+                ]
+              },
+              "y": {
+                "label": "参数 $a$ 有给定范围吗？",
+                "options": [
+                  {
+                    "label": "有",
+                    "note": "给定 $a$ 的范围，求 $x$ 的范围",
+                    "value": "given"
+                  },
+                  {
+                    "label": "没有",
+                    "note": "要求的就是参数 $a$",
+                    "value": "free"
+                  }
+                ]
+              }
+            },
+            "question": "当前子问题是：对所有 $x\\in \\left(1, \\infty\\right)$，都有 $a x^{2} - x + 2 \\geq -2$。本题落在选法坐标的哪一格？应借用哪一种已学方法？",
+            "submit_label": "用这种方法解题",
+            "title": "选择恒成立问题的解题方法"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "df4f3e9363ac6793d25146f7af7140638ca7b06fe4fb5730796585c370a4c282",
+            "step_id": "39e5646dcb-piecewise-range-parameter-005-subproblem_select"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b700059c3079bcc0fa40eded",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "837c5a731f2afac1f3110cacdda80bc68cd6df3dd56a587af9d20a538bebfa7b",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "移到另一边的每一项都要变号；移项不改变不等号方向。"
+            },
+            "id": "b700059c3079bcc0fa40eded#1",
+            "interaction": {
+              "field": "b700059c3079bcc0fa40eded#1",
+              "options": [
+                {
+                  "feedback": "移过去的每一项都要变号，不能只改其中一项。",
+                  "label": "$a x^{2} \\geq x + 4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$a x^{2} \\geq x - 4$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "把一项移到不等号另一边时要变号。",
+                  "label": "$a x^{2} \\geq - x + 4$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "移项相当于两边同时加减同一个式子，不等号方向不变。",
+                  "label": "$a x^{2} \\leq x - 4$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "从 $a x^{2} - x + 4 \\geq 0$ 出发，把含 $a$ 的项留在左边、其余项移到右边，得到哪个不等式？",
+            "submit_label": "确认判断",
+            "title": "移项"
+          },
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o2",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "先确定除数在整个给定区间上的严格符号：除以正数方向不变，除以负数方向反向。"
+            },
+            "id": "b700059c3079bcc0fa40eded#2",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "除数 $x^{2}$ 的符号",
+                  "options": [
+                    {
+                      "label": "可能为零或变号，不能直接除",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "恒正",
+                      "value": "s1o2"
+                    },
+                    {
+                      "label": "恒负",
+                      "value": "s1o3"
+                    }
+                  ]
+                },
+                {
+                  "label": "不等号方向",
+                  "options": [
+                    {
+                      "label": "保持不变",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "反向",
+                      "value": "s2o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "判断除数符号与不等号方向",
+              "type": "checklist"
+            },
+            "question": "移项得 $a x^{2} \\geq x - 4$。要把 $a$ 单独留下，需要两边同除以 $x^{2}$。在 $x\\in \\left(1, \\infty\\right)$ 上逐项判断：",
+            "submit_label": "确认判断",
+            "title": "判断除数符号与不等号方向"
+          },
+          {
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "右边每一项都要除以 $x^{2}$，再按除数的符号决定不等号方向。"
+            },
+            "id": "b700059c3079bcc0fa40eded#3",
+            "interaction": {
+              "field": "b700059c3079bcc0fa40eded#3",
+              "options": [
+                {
+                  "feedback": "除数 $x^{2}$ 为正，两边同除时不等号方向不变。",
+                  "label": "$a \\leq \\frac{x - 4}{x^{2}}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "右边每一项都要除以 $x^{2}$，不能漏掉。",
+                  "label": "$a \\geq -4 + \\frac{1}{x}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$a \\geq \\frac{x - 4}{x^{2}}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "右边每一项都要除以 $x^{2}$。除以负数时，各项的正负与不等号方向都要改变。",
+                  "label": "$a \\geq - \\frac{x - 4}{x^{2}}$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "移项得 $a x^{2} \\geq x - 4$，两边同除以 $x^{2}$，得到哪个不等式？",
+            "submit_label": "确认判断",
+            "title": "分离参数"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "daa7dcb88cd6448f6325f40253e808c45f810930c10952c64fbcdd887d8074b7",
+            "step_id": "39e5646dcb-piecewise-range-parameter-006-divided"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8d013a74a5794de10da955b2",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "15f529f4c686d746f3bdcf167eab46c2bdf9637508b8727db53b9c12f718b411",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "把“对所有 $x$ 都成立”转化为比较函数在区间上的值域上端。"
+            },
+            "id": "8d013a74a5794de10da955b2#1",
+            "interaction": {
+              "field": "8d013a74a5794de10da955b2#1",
+              "options": [
+                {
+                  "feedback": "比较的方向要与原关系 $a \\geq h(x)$ 一致。",
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\leq h(x)_{\\text{上端}}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\geq h(x)_{\\text{上端}}$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "由量词和不等号方向决定看值域上端还是下端；能取到时才称最大值或最小值。",
+                  "label": "$x \\in \\left(1, \\infty\\right)$ 时，$a \\geq h(x)_{\\text{下端}}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "核对原题量词：全称要求所有值成立，存在只要求至少一个值成立。",
+                  "label": "存在 $x \\in \\left(1, \\infty\\right)$，使 $a \\geq h(x)$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "对所有 $x \\in \\left(1, \\infty\\right)$，$a \\geq h(x)$ 成立，等价于什么？这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+            "submit_label": "确认判断",
+            "title": "转化为最值条件"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ef78f83fb23ea63650529405edc7118033e757550b6fa7d161b4c1a6d518c7a3",
+            "step_id": "39e5646dcb-piecewise-range-parameter-007-policy"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8c7da81541b69a0bbd2e421c",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "45e9f65e019ec1f1d5b4a375add750bcd8947c5c085116270c5a05882cda21fb",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "换元时，表达式和变量范围一起变化",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原变量与换元关系",
+                  "math": "x\\in\\left(1, \\infty\\right),\\quad t=\\frac{1}{x}"
+                },
+                {
+                  "label": "新变量的范围",
+                  "math": "t\\in\\left(0, 1\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "choice-0"
+              ]
+            },
+            "feedback": {
+              "answer": "$$ x\\in\\left(1, \\infty\\right)\\iff t\\in\\left(0, 1\\right),\\qquad x=\\frac{1}{t} $$$$ \\frac{x - 4}{x^{2}}=- 4 t^{2} + t $$"
+            },
+            "id": "8c7da81541b69a0bbd2e421c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$t\\in\\left(0, 1\\right)$",
+                  "value": "choice-0"
+                },
+                {
+                  "label": "$t\\in\\left[0, 1\\right]$",
+                  "value": "choice-1"
+                },
+                {
+                  "label": "$t\\in\\left(1, \\infty\\right)$",
+                  "value": "choice-2"
+                },
+                {
+                  "label": "$t\\in\\mathbb{R}$",
+                  "value": "choice-3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "令 $t=\\frac{1}{x}$，原来 $x\\in\\left(1, \\infty\\right)$。新变量 $t$ 能取哪些值？",
+            "stem_board": {
+              "caption": "换元时，表达式和变量范围一起变化",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原变量与换元关系",
+                  "math": "x\\in\\left(1, \\infty\\right),\\quad t=\\frac{1}{x}"
+                },
+                {
+                  "label": "新变量的范围",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认换元范围",
+            "title": "换元，并确定新变量的范围"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "f82a393ad8fa21541eb79e659f1a88f53148e85c9c0d6549f8a1ec90b0434a70",
+            "step_id": "39e5646dcb-piecewise-range-parameter-008-reciprocal_substitution"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2d641c07dcb52369540e3620",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "6b738cf4d0b6ae9fb8d12ff575ccbb0af9bf570b95fd76fb2025c4736134dcbd",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_graph": {
+              "caption": "$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.25,
+                  1.25,
+                  -3.75,
+                  0.75
+                ],
+                "coefficient": -4,
+                "description": "t=0 取不到，函数值趋近 0（空心点）；t=1 取不到，函数值趋近 -3（空心点）",
+                "interval": [
+                  0,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0
+                  },
+                  {
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "y=-4t^2 + t 在 (0, 1) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.125,
+                  0.0625
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    0.125,
+                    "1/8"
+                  ]
+                ],
+                "yLabel": "1/16"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o4"
+              ]
+            },
+            "feedback": {
+              "answer": "同时核对最值及其能否取到；无穷不是可以取得的端点。"
+            },
+            "graph": {
+              "caption": "$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。深色曲线表示本题范围，浅色仅作参考；实心点可取，空心端点不取",
+              "kind": "quadratic",
+              "params": {
+                "bounds": [
+                  -0.25,
+                  1.25,
+                  -3.75,
+                  0.75
+                ],
+                "coefficient": -4,
+                "description": "t=0 取不到，函数值趋近 0（空心点）；t=1 取不到，函数值趋近 -3（空心点）",
+                "interval": [
+                  0,
+                  1
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "open": true,
+                    "x": 0
+                  },
+                  {
+                    "open": true,
+                    "x": 1
+                  }
+                ],
+                "showVertex": true,
+                "title": "y=-4t^2 + t 在 (0, 1) 上的图像",
+                "variable": "t",
+                "vertex": [
+                  0.125,
+                  0.0625
+                ],
+                "vertexLabel": "",
+                "xTicks": [
+                  [
+                    0,
+                    "0"
+                  ],
+                  [
+                    1,
+                    "1"
+                  ],
+                  [
+                    0.125,
+                    "1/8"
+                  ]
+                ],
+                "yLabel": "1/16"
+              }
+            },
+            "id": "2d641c07dcb52369540e3620#1",
+            "interaction": {
+              "field": "2d641c07dcb52369540e3620#1",
+              "options": [
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.765625,
+                        0.828125
+                      ],
+                      "description": "y 的取值集合：(-∞, -3] ∪ (1/16, +∞)",
+                      "pieces": [
+                        {
+                          "from": null,
+                          "left_closed": false,
+                          "right_closed": true,
+                          "to": -3
+                        },
+                        {
+                          "from": 0.0625,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -3,
+                          "-3"
+                        ],
+                        [
+                          0.0625,
+                          "1/16"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left(-\\infty, -3\\right] \\cup \\left(\\frac{1}{16}, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.765625,
+                        0.828125
+                      ],
+                      "description": "y 的取值集合：(-3, 1/16)",
+                      "pieces": [
+                        {
+                          "from": -3,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": 0.0625
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -3,
+                          "-3"
+                        ],
+                        [
+                          0.0625,
+                          "1/16"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left(-3, \\frac{1}{16}\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.765625,
+                        0.828125
+                      ],
+                      "description": "y 的取值集合：[-3, 1/16]",
+                      "pieces": [
+                        {
+                          "from": -3,
+                          "left_closed": true,
+                          "right_closed": true,
+                          "to": 0.0625
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -3,
+                          "-3"
+                        ],
+                        [
+                          0.0625,
+                          "1/16"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left[-3, \\frac{1}{16}\\right]$",
+                  "value": "o3"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        -3.765625,
+                        0.828125
+                      ],
+                      "description": "y 的取值集合：(-3, 1/16]",
+                      "pieces": [
+                        {
+                          "from": -3,
+                          "left_closed": false,
+                          "right_closed": true,
+                          "to": 0.0625
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          -3,
+                          "-3"
+                        ],
+                        [
+                          0.0625,
+                          "1/16"
+                        ]
+                      ],
+                      "title": "函数值的范围",
+                      "variable": "y"
+                    }
+                  },
+                  "label": "$\\left(-3, \\frac{1}{16}\\right]$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "换元后，$h(x)=- 4 t^{2} + t$，$t\\in\\left(0, 1\\right)$。$h(x)$ 的值域是什么？",
+            "submit_label": "确认判断",
+            "title": "求 $h(x)$ 的值域"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1542f255ed8db4046b18818ca1c27d5f3616fac83d9efcaf6f6445bd96533498",
+            "step_id": "39e5646dcb-piecewise-range-parameter-009-reciprocal_quadratic_range"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f97b517457bc5037b58d6dcd",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "db141f1228382b8d637964ab2d2ab703a2af71378de5259e5c0b18de62d7074c",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把 $h(x)$ 取到最大值时的新变量换回原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元关系与取值点",
+                  "math": "t=\\frac{1}{8},\\quad x=\\frac{1}{t}"
+                },
+                {
+                  "label": "原变量的取值",
+                  "math": "x=8"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "choice-0"
+              ]
+            },
+            "feedback": {
+              "answer": "$$ t=\\frac{1}{8}\\Rightarrow x=\\frac{1}{t}=8 $$此时 $h(x)=\\frac{1}{16}$。"
+            },
+            "id": "f97b517457bc5037b58d6dcd#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x=8$",
+                  "value": "choice-0"
+                },
+                {
+                  "label": "$x=\\frac{1}{8}$",
+                  "value": "choice-1"
+                },
+                {
+                  "label": "$x=-8$",
+                  "value": "choice-2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在 $t=\\frac{1}{8}$ 时，$h(x)$ 取到最大值。由 $x=\\frac{1}{t}$，此时 $x$ 等于多少？",
+            "stem_board": {
+              "caption": "把 $h(x)$ 取到最大值时的新变量换回原变量",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "换元关系与取值点",
+                  "math": "t=\\frac{1}{8},\\quad x=\\frac{1}{t}"
+                },
+                {
+                  "label": "原变量的取值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认原变量",
+            "title": "把取值点换回原变量"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "f3d12cb3665abef6deaadf8f3f076d597c93eb56614480e8bbe7f03d724ecf1e",
+            "step_id": "39e5646dcb-piecewise-range-parameter-010-reciprocal_quadratic_restore"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "636a8b2fa06a7fd046b5be20",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "4fd3bb0ff17c0ae0e9b9377a7b69c5d727a6029a6b2e7b6ae91aee0954294263",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "看清边界能否取等。"
+            },
+            "id": "636a8b2fa06a7fd046b5be20#1",
+            "interaction": {
+              "field": "636a8b2fa06a7fd046b5be20#1",
+              "options": [
+                {
+                  "feedback": "先在根分隔的区间检查符号，不要把满足条件的部分与不满足的部分交换。",
+                  "label": "$\\left(-\\infty, \\frac{1}{16}\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "将边界代回条件，确定不等式是否允许等号。",
+                  "label": "$\\left(\\frac{1}{16}, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[\\frac{1}{16}, \\infty\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $a \\geq \\frac{1}{16}$，$a$ 的取值范围是？",
+            "submit_label": "确认范围",
+            "title": "求参数范围"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c6da9c25d97b2d8a979f757c8adb9c140905c2fefe63afa23f284589803c4b96",
+            "step_id": "39e5646dcb-piecewise-range-parameter-011-solution"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2625cfe1a2a21840061fe9eb",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "cbf27e6917a7c6138d962ea95e6384ae2f219eff50d0dc2f8ae2852522b0991b",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "恒成立子问题返回的参数范围",
+                  "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+                },
+                {
+                  "label": "原分段函数的值域",
+                  "math": "R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}a\\in\\left[\\frac{1}{16}, \\infty\\right)\\Rightarrow R_{2}\\subseteq\\left[-2, \\infty\\right)\\\\R_{1}=\\left[-2, \\infty\\right)\\Rightarrow R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+            },
+            "id": "2625cfe1a2a21840061fe9eb#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left[-2, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "恒成立子问题已求得 $a\\in\\left[\\frac{1}{16}, \\infty\\right)$。回到原分段式，两段函数的值域并集是什么？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "恒成立子问题返回的参数范围",
+                  "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+                },
+                {
+                  "label": "原分段函数的值域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "回到原题，合并两段函数的值域"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "120c14ad7e579e2d1c08571cdf2910226354eeddf125a88182531fb925b2ff40",
+            "step_id": "39e5646dcb-piecewise-range-parameter-012-answer_contained"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b3028777b697066cfd82b834",
+        "interaction_revision": "cf013ac0cd0a7e4708910c293df0fd9c3287661b4a2f692d5b0ae8c545ac4c1c",
+        "interaction_sha256": "79f2ba655246d090fd7c7996e70a29bfc1103694e61e45e9e1fba56788ba809a",
+        "lesson_version": "23fdd3f6842f4a3b8e72017945613637577659df68fc4282a1abd9938f7b682e",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与已求出的参数范围",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}\\\\a\\in\\left[\\frac{1}{16}, \\infty\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+                },
+                {
+                  "label": "核对结果",
+                  "math": "a\\in\\left[\\frac{1}{16}, \\infty\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "$$\\begin{gathered}a=\\frac{1}{16}:\\quad \\frac{x^{2}}{16} - x + 2=\\frac{\\left(x - 8\\right)^{2}}{16}+(-2)\\ge-2\\\\x=8\\Rightarrow f(x)=-2\\\\a>\\frac{1}{16}:\\quad a x^{2} - x + 2=(a-\\frac{1}{16})x^2+\\frac{x^{2}}{16} - x + 2\\ge-2\\\\R_{1}\\cup R_{2}=\\left[-2, \\infty\\right)\\end{gathered}$$"
+            },
+            "id": "b3028777b697066cfd82b834#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "不会，等号可以保留",
+                  "value": "o1"
+                },
+                {
+                  "label": "会，必须去掉这个端点",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将参数边界 $a=\\frac{1}{16}$ 代入第 2 段函数，仍只取 $x > 1$。函数值会不会小于 $-2$？",
+            "stem_board": {
+              "caption": "第 2 段函数（含参数 $a$）：$f(x)=a x^{2} - x + 2$，$x > 1$。",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "第 2 段函数与已求出的参数范围",
+                  "math": "\\begin{gathered}\\begin{gathered}f(x)=a x^{2} - x + 2\\\\x > 1\\end{gathered}\\\\a\\in\\left[\\frac{1}{16}, \\infty\\right)\\end{gathered}",
+                  "note": "$R_{1}$ 是第 1 段函数 $f(x)=x^{2} - 2$（$x \\leq 1$）的值域。"
+                },
+                {
+                  "label": "核对结果",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "代回原分段式检查参数范围的端点"
+          }
+        ],
+        "route_id": "piecewise-range-parameter",
+        "run_id": "bb304ca3548843ef9072f452061db2fd",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "7b15faeb9b0be898b56ef3111951a1ea039b32dfedbc61beb53baaacc0e34974",
+            "step_id": "39e5646dcb-piecewise-range-parameter-013-verify_contained"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

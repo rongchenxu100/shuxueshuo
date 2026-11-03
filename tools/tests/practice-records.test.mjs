@@ -39,6 +39,40 @@ function harness(handler, {store = new Map(), onResume = () => true, user = {id:
   };
 }
 
+test('unrelated release retains queued answers and restores with this problem version', async () => {
+  const practiceVersion = 'a'.repeat(64), key = 'sss-practice:user:test-problem:next';
+  const store = new Map([[key, JSON.stringify({aid:'saved',route:'direct',contentVersion:'old-release',practiceVersion,
+    queue:[{kind:'answer',id:'stable-id',step:'first',answer:{value:'yes'}}]})]]);
+  let restored = 0;
+  const h = harness((url, body) => {
+    if (url.endsWith('/answers')) { assert.equal(body.id, 'stable-id'); return response(history('direct','saved')); }
+    assert.equal(url, `/api/learning/practice/saved?practice_version=${practiceVersion}`);
+    return response(history('direct', 'saved'));
+  }, {store, options:{contentVersion:'new-release',practiceVersion}, onResume:() => {restored++;}});
+  await h.recorder.dialogue(view());
+  assert.equal(restored, 1);
+  assert.equal(h.posted.filter(row => row.url.endsWith('/answers')).length, 1);
+  assert.deepEqual(JSON.parse(store.get(key)).queue, []);
+  assert.equal(JSON.parse(store.get(key)).practiceVersion, practiceVersion);
+});
+
+test('a changed problem contract never replays pending answers even in the same release', async () => {
+  const key = 'sss-practice:user:test-problem:next';
+  const store = new Map([[key, JSON.stringify({aid:'saved',route:'direct',contentVersion:'release',practiceVersion:'a'.repeat(64),
+    queue:[{kind:'answer',id:'stale-answer',step:'first',answer:{value:'yes'}}]})]]);
+  const h = harness(() => {throw Error('must not replay');}, {store, options:{contentVersion:'release',practiceVersion:'b'.repeat(64)}});
+  await tick(); await h.recorder.flush();
+  assert.equal(h.posted.length, 0);
+});
+
+test('new starts use the problem token instead of the site release', async () => {
+  const practiceVersion = 'b'.repeat(64);
+  const h = harness((_url, body) => response({...history(), id:body.id}), {options:{contentVersion:'unrelated-release',practiceVersion}});
+  h.recorder.start('direct', 'new-attempt'); await h.recorder.flush();
+  assert.equal(h.posted[0].body.practice_version, practiceVersion);
+  assert.equal(h.posted[0].body.content_version, undefined);
+});
+
 for (const status of [404, 409, 422]) test(`${status} clears rejected/dependent operations and refresh restores confirmed progress`, async () => {
   const h = harness((url, body) => url.endsWith('/practice')
     ? response({...history(), id: body.id}) : response({detail: '不能接受此记录'}, status));

@@ -6,7 +6,8 @@ import sympy as sp
 
 from .. import function_evaluation as math_kernel
 from ..function_evaluation import evaluate, structural_inspect, verify
-from .capabilities import CapabilityGap, LocalCheckFailed, result as capability_result
+from .capabilities import CapabilityGap, LocalCheckFailed
+from .capabilities import result as capability_result
 from .math_values import math_value
 from .trajectory import decode_value, encode_value
 
@@ -63,8 +64,8 @@ def _verify_evaluation(description, evaluated):
 def admitted(context):
     description = context.get('evaluation_goal') or {}
     if 'relation_ast' in description:
-        from ..function_matching import evaluate_relation, verify_value
         from ...problem_understanding.notation_parser import NotationError
+        from ..function_matching import evaluate_relation, verify_value
         try:
             return (context.get('goal', {}).get('kind') == 'find_value' and not context.get('entries')
                     and verify_value(description, evaluate_relation(description)))
@@ -110,20 +111,32 @@ def _substitute_source(ast, functions, symbols, constraints, expressions, operat
     if kind == 'number':
         value = sp.Rational(ast[1])
         return value, value
+    if ast[:2] == ['call', 'sqrt']:
+        value = math_kernel._radical(ast)
+        return value, value
     if kind == 'ref':
         return symbols[ast[1]], symbols[ast[1]]
     if kind == 'function_call':
         function = functions[ast[1][1]]
+        start = len(constraints)
         value = _substitute_source(ast[2], functions, symbols, constraints, expressions, operations,
                                    path=path + '/input', source_ref=source_ref)
+        input_defined = (math_kernel._guard_domain(constraints[start:], sp.Symbol('_input', real=True)) != sp.S.EmptySet
+                         if math_kernel.is_piecewise(function['expression_ast']) else True)
+        body, branch_info, suffix, branch_domain = math_kernel._selected_body(
+            function, value[1], input_defined=input_defined)
         allowed = math_kernel._set(function.get('input_domain_ast', ['real']))
         if allowed != sp.S.Reals:
             constraints.append({'kind': 'membership', 'expression': value[1], 'allowed': allowed,
                                 'path': path + '/declared-domain',
                                 'source_ref': function.get('input_domain_source_ref') or function['source_ref']})
             operations.add('function_evaluation_input_domain')
-        output = _substitute_source(function['expression_ast'], functions, symbols, constraints,
-                                    expressions, operations, path=path + '/body',
+        if branch_info:
+            constraints.append({'kind': 'membership', 'expression': value[1], 'allowed': branch_domain,
+                                'path': path + '/branch-domain', 'source_ref': function['source_ref']})
+            operations.add('function_evaluation_branch_selection')
+        output = _substitute_source(body, functions, symbols, constraints,
+                                    expressions, operations, path=path + '/body' + suffix,
                                     source_ref=function['source_ref'], argument=value)
         expressions[path] = output[0]
         return output
@@ -243,7 +256,7 @@ def simplify_evaluation_expressions(substitutions, raw_terms, evaluation_result)
     if 'relation_description' in substitutions:
         from ..function_matching import matching_source
         desc = substitutions['relation_description']
-        g, h = matching_source(desc).expressions(evaluation_result['variable'])
+        _g, h = matching_source(desc).expressions(evaluation_result['variable'])
         value = sp.simplify(h.subs(evaluation_result['variable'], evaluation_result['source_input']))
         if raw_terms or value != evaluation_result['value'] or not _verify_evaluation(desc, evaluation_result):
             raise LocalCheckFailed('function_value.arithmetic_mismatch')

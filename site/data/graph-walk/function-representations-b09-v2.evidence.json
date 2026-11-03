@@ -1,0 +1,2210 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+    "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+    "input_sha256": "3d36e9069e6721004d71d68377680b9164218a0b7f3658f468912a5daa097651",
+    "checkpoint_sha256": "f97f079c5e7a5b2557052eb5711a16ff7b7414d962421c252bc39553efcab228",
+    "result_sha256": "946149cbb06c7f7aabb881b982f230a43600d39d7821aff513aa26100c2d4f1a",
+    "stage_one_sha256": "0878addaf26001b78e612facdb963576998f8bfd505891716bb0daa0e842bf9a",
+    "stage_two_sha256": "92f06b7d1a3259474caa2c395639a50ac97282f1a66d4d2495ddf96d9b3222a0",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "71aec7b5770856fbeb8bab1319db96d2b88f5a45e99958720b7f17e9eb3e0006"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-graph",
+        "supported": [
+          "type-function-graph"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 4,
+                  "end": 46,
+                  "text": "$y=|-x^2+1|+2$ 向左、向下分别平移 2 个、3 个单位长度，所得图像为"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-representations#graph"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "根据图像求解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目给了原解析式和平移要求，要判断移动后的图像。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "按要求平移图像，再选择对应的图像",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "e1862f70b21ad82c"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要做什么？",
+          "feedback": "题目给了原解析式和平移要求，要判断移动后的图像。",
+          "summary": "按要求平移图像，再选择对应的图像"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-graph",
+            "label": "函数图像及其应用",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+            ],
+            "choice_hint": "需要建立表达式与图像的对应，或由原图得到变换后的图像"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-b09-v2//root/goals/0",
+            "graphVersion": "a8e6d0947b98f3eb86447b6ac8ea0bbd0ce2208611401f2aa39113d7c617ebe3",
+            "problem": {
+              "text": "将函数 $y=|-x^2+1|+2$ 向左、向下分别平移 2 个、3 个单位长度，所得图像为（　）。选项 A、B、C、D 见原图。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要做什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "根据图像求解析式",
+                      "feedback": "题目给了原解析式和平移要求，要判断移动后的图像。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "按要求平移图像，再选择对应的图像"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目给了原解析式和平移要求，要判断移动后的图像。"
+                },
+                "candidateNodes": [
+                  "function-representations",
+                  "type-function-graph",
+                  "type-function-formula",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-representations"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "按要求平移图像，再选择对应的图像"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 3 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-graph",
+                      "label": "函数图像及其应用",
+                      "note": "需要建立表达式与图像的对应，或由原图得到变换后的图像"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-graph"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-graph"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-graph"
+                  ],
+                  "edges": [
+                    "type-function-graph|involves|function-representations"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  ],
+                  "log": "作答判断：选择主要题型「函数图像及其应用」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-representations",
+                  "kind": "knowledge",
+                  "label": "函数的表示法",
+                  "summary": "解析法、列表法和图像法从不同角度表达同一输入输出关系。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-graph",
+                  "kind": "problem_type",
+                  "label": "函数图像及其应用",
+                  "summary": "根据表达式或已有图像选图、作图与变换，再用精确关键点分析方程或不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-graph-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "函数图像题的选法判断",
+                  "summary": "结合解析式或原图及所求，选择图像变换、分段作图等方法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-absolute-piecewise-graph",
+                  "kind": "method",
+                  "label": "分段作图法",
+                  "summary": "按绝对值内的正负分段，逐段确认表达式、区间、方向和端点后作图。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "construct",
+                      "title": "分段作图法",
+                      "calls": [
+                        "skill-absolute-sign-split"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整范围与边界",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-graph-transform",
+                  "kind": "method",
+                  "label": "图像变换法",
+                  "summary": "从基本图像的点出发，确定坐标变换、保留范围，再核对原选项。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "transform",
+                      "title": "变换点并对照原图",
+                      "calls": [
+                        "skill-graph-coordinate-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原式和全部选项",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-graph-inequality",
+                  "kind": "method",
+                  "label": "分段图像解不等式法",
+                  "summary": "用水平线确定交点，在各段范围内解不等式并核对端点。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "construct",
+                      "title": "分段图像解不等式法",
+                      "calls": [
+                        "skill-quadratic-sign"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整范围与边界",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-function-graph-method|selects|method-absolute-piecewise-graph",
+                  "from": "rule-function-graph-method",
+                  "to": "method-absolute-piecewise-graph",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "piecewise",
+                      "condition": "含绝对值的多项式，要求画出完整图像。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-graph-method|selects|method-function-graph-transform",
+                  "from": "rule-function-graph-method",
+                  "to": "method-function-graph-transform",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "transform",
+                      "condition": "含绝对值的一次式，可由基本图建立点的对应。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-graph-method|selects|method-piecewise-graph-inequality",
+                  "from": "rule-function-graph-method",
+                  "to": "method-piecewise-graph-inequality",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "inequality",
+                      "condition": "已知绝对值函数，要求解与水平线比较的不等式。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-representations",
+                  "from": "type-function-formula",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-absolute-piecewise-graph",
+                  "from": "type-function-graph",
+                  "to": "method-absolute-piecewise-graph",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-function-graph-transform",
+                  "from": "type-function-graph",
+                  "to": "method-function-graph-transform",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-piecewise-graph-inequality",
+                  "from": "type-function-graph",
+                  "to": "method-piecewise-graph-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|involves|function-representations",
+                  "from": "type-function-graph",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|method_rule|rule-function-graph-method",
+                  "from": "type-function-graph",
+                  "to": "rule-function-graph-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-representations",
+                  "from": "type-piecewise-function",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-representations"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "6d3c4f0b29de4d3208b8924b8ceed7f703ed68e2d703676e34e23c15d1bb4a01"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-b09-v2//root/goals/0",
+            "bundleVersion": "6d3c4f0b29de4d3208b8924b8ceed7f703ed68e2d703676e34e23c15d1bb4a01",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "按要求平移图像，再选择对应的图像"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-graph",
+                "reason": "选「函数图像及其应用」：给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+    "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+    "input_sha256": "3d36e9069e6721004d71d68377680b9164218a0b7f3658f468912a5daa097651",
+    "stream_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+    "last_seq": 15,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "transform",
+        "explanation": "$$\\begin{gathered}\\begin{gathered}y=\\left|- x^{2} + 1\\right|+2\\xrightarrow{\\text{向左平移}\\,2\\,\\text{个单位}}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2\\\\(u,v)\\longmapsto(u - 2,v)\\end{gathered}\\\\\\begin{gathered}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2\\xrightarrow{\\text{向下平移}\\,3\\,\\text{个单位}}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1\\\\(u,v)\\longmapsto(u,v - 3)\\end{gathered}\\end{gathered}$$",
+        "highlight": {
+          "caption": "向左平移 2 个单位",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "移动前的解析式",
+              "math": "y=\\left|- x^{2} + 1\\right|+2"
+            },
+            {
+              "label": "移动后的解析式",
+              "math": "y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "local_check": "passed",
+        "math_step_sha256": "41a7dfec4ed64fc53f11715587f50153e63b2221dd3d7d6d57d2f70aff4ffe44",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "fbe6b1a2c2a67a71deef06c3557767ab621bb50dcd9825cc424c1c107f169fef",
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-001-transform",
+        "target_ref": "/root/goals/0",
+        "title": "分步移动图像",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "vertex",
+        "explanation": "$$\\begin{gathered}(-1,2)\\longmapsto (-3,-1)\\\\(0,3)\\longmapsto (-2,0)\\\\(1,2)\\longmapsto (-1,-1)\\end{gathered}$$",
+        "highlight": {
+          "caption": "总结平移后的关键点",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原图的三个关键点",
+              "math": "(-1,2)\\quad(0,3)\\quad(1,2)"
+            },
+            {
+              "label": "移动后的三个点",
+              "math": "(-3,-1)\\quad(-2,0)\\quad(-1,-1)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "local_check": "passed",
+        "math_step_sha256": "b99cdaad293f9a470915a7df9266b086cb1795e7ef19f937fc986c1b8e3eb193",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "fbe6b1a2c2a67a71deef06c3557767ab621bb50dcd9825cc424c1c107f169fef",
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-002-vertex",
+        "target_ref": "/root/goals/0",
+        "title": "总结平移后的关键点",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "options",
+        "explanation": "$$\\begin{gathered}\\text{A}:\\ \\text{中间转折点}:\\ x=-1,y=0,\\ \\text{两端向下},\\ \\text{左右对称}\\quad\\text{两端方向不符、中间转折点横坐标不符}\\\\\\text{B}:\\ \\text{中间转折点}:\\ x=-2,y=-1,\\ \\text{两端向下},\\ \\text{左右对称}\\quad\\text{两端方向不符、中间转折点纵坐标不符}\\\\\\text{C}:\\ \\text{中间转折点}:\\ x=-2,y=0,\\ \\text{右折点}:\\ x=-1,y=-1,\\ \\text{两端向上},\\ \\text{左右对称}\\quad\\text{已标坐标、对称性和两端方向均符合}\\\\\\text{D}:\\ \\text{左折点}:\\ y=0\\quad\\text{左折点纵坐标不符}\\end{gathered}$$",
+        "highlight": {
+          "caption": "对照原图，选择图像",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "平移后的图像特征",
+              "math": "\\begin{gathered}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1\\\\\\text{最低点}\\ (-3,-1),\\ (-1,-1)\\\\\\text{中间的最高点}\\ (-2,0),\\quad\\text{两端向上}\\end{gathered}"
+            },
+            {
+              "label": "原题选择",
+              "math": "\\text{C}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "local_check": "passed",
+        "math_step_sha256": "efbfaec171681eacad8ee86acc75b0172d9be828860517d9e2a51dad59c19ea4",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "fbe6b1a2c2a67a71deef06c3557767ab621bb50dcd9825cc424c1c107f169fef",
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-003-options",
+        "target_ref": "/root/goals/0",
+        "title": "对照原图，选择图像",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "comparison": "rough_shape",
+          "correct_labels": [
+            "C"
+          ],
+          "correct_option_id": "option-c",
+          "kind": "select_function_graph",
+          "option_verdicts": [
+            {
+              "differences": [
+                "outer_direction",
+                "center_x"
+              ],
+              "label": "A",
+              "matches": false,
+              "option_id": "option-a"
+            },
+            {
+              "differences": [
+                "outer_direction",
+                "center_y"
+              ],
+              "label": "B",
+              "matches": false,
+              "option_id": "option-b"
+            },
+            {
+              "differences": [],
+              "label": "C",
+              "matches": true,
+              "option_id": "option-c"
+            },
+            {
+              "differences": [
+                "left_corner_y"
+              ],
+              "label": "D",
+              "matches": false,
+              "option_id": "option-d"
+            }
+          ],
+          "status": "complete"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "comparison": "rough_shape",
+          "correct_labels": [
+            "C"
+          ],
+          "correct_option_id": "option-c",
+          "kind": "select_function_graph",
+          "option_verdicts": [
+            {
+              "differences": [
+                "outer_direction",
+                "center_x"
+              ],
+              "label": "A",
+              "matches": false,
+              "option_id": "option-a"
+            },
+            {
+              "differences": [
+                "outer_direction",
+                "center_y"
+              ],
+              "label": "B",
+              "matches": false,
+              "option_id": "option-b"
+            },
+            {
+              "differences": [],
+              "label": "C",
+              "matches": true,
+              "option_id": "option-c"
+            },
+            {
+              "differences": [
+                "left_corner_y"
+              ],
+              "label": "D",
+              "matches": false,
+              "option_id": "option-d"
+            }
+          ],
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "math_steps": [
+          {
+            "math_step_sha256": "41a7dfec4ed64fc53f11715587f50153e63b2221dd3d7d6d57d2f70aff4ffe44",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-graph-transform-001-transform"
+          },
+          {
+            "math_step_sha256": "b99cdaad293f9a470915a7df9266b086cb1795e7ef19f937fc986c1b8e3eb193",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-graph-transform-002-vertex"
+          },
+          {
+            "math_step_sha256": "efbfaec171681eacad8ee86acc75b0172d9be828860517d9e2a51dad59c19ea4",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-graph-transform-003-options"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "de37124744f6586930d98d9a25abe9df0902842dc05c2649bf39467d568f0d40",
+        "verified_route_sha256": "9b12ad0004c49a1dff2d1e38d7c2974e0a2950b4e105378a45e608931eb8312c"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "source_structure": "translation"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "可以先看基本图像经过了哪些变换。",
+                "id": "source_structure",
+                "options": [
+                  {
+                    "label": "已给出平移方向和距离",
+                    "note": "按题给顺序，一次完成一个移动。",
+                    "value": "translation"
+                  },
+                  {
+                    "label": "绝对值内是二次式",
+                    "note": "如 $|x^2-2x-3|$，可先找零点，再分段作图。",
+                    "value": "quadratic"
+                  }
+                ],
+                "question": "题目给了什么？",
+                "resolved": "由含绝对值的解析式判断图像。"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "translation",
+                "method": "transform"
+              },
+              {
+                "cue": "quadratic",
+                "method": "piecewise"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "图像变换法",
+                "value": "transform"
+              },
+              {
+                "label": "分段作图法",
+                "value": "piecewise"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-graph",
+            "op": "methods"
+          },
+          "question": "沿着题目线索，选择一种方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "piecewise": {
+              "message": "分段作图法也适用；这条路线尚未展开，可用图像变换法继续。",
+              "value": "fit"
+            },
+            "transform": {
+              "message": "从原图出发，分别平移，再核对关键点和原图选项。",
+              "value": "fit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "transform",
+              "message": "开始解题",
+              "method": "method-function-graph-transform",
+              "recommendation": "preferred",
+              "route_id": "function-graph-transform",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-001-transform",
+        "ordinal": 1,
+        "math_step_sha256": "41a7dfec4ed64fc53f11715587f50153e63b2221dd3d7d6d57d2f70aff4ffe44",
+        "status": "interactive",
+        "interaction_id": "19c49776b46f375d3dd8fc81"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-002-vertex",
+        "ordinal": 2,
+        "math_step_sha256": "b99cdaad293f9a470915a7df9266b086cb1795e7ef19f937fc986c1b8e3eb193",
+        "status": "interactive",
+        "interaction_id": "261a1be6ab71df192f92b070"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-003-options",
+        "ordinal": 3,
+        "math_step_sha256": "efbfaec171681eacad8ee86acc75b0172d9be828860517d9e2a51dad59c19ea4",
+        "status": "interactive",
+        "interaction_id": "f7443f9f0c445987f9ca181c"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "fbe6b1a2c2a67a71deef06c3557767ab621bb50dcd9825cc424c1c107f169fef",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-graph-transform:complete",
+        "last_seq": 14
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-graph-transform",
+            "step": "transform",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-graph-coordinate-transform",
+                "used_basis": [
+                  "function-graph-transformations#symmetry",
+                  "function-graph-transformations#translation"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-graph-transform",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "19c49776b46f375d3dd8fc81",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "c3a44e4f9cf485cb0a48ee83c4f19e87b739f0bfc01f61c3486e48b48b11f4bf",
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "向左平移 2 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "移动前的解析式",
+                  "math": "y=\\left|- x^{2} + 1\\right|+2"
+                },
+                {
+                  "label": "移动后的解析式",
+                  "math": "y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "虚线：这一步移动前；实线：移动后。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, 2)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 3)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, 2)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "reference": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      0.0,
+                      3.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "横坐标减去 2；新解析式把原来的 $x$ 换成 $x + 2$。"
+            },
+            "graph": {
+              "caption": "当前图像与三个关键点。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-1, 2)",
+                    "place": "below-left",
+                    "x": -1.0
+                  },
+                  {
+                    "label": "(0, 3)",
+                    "place": "above-right",
+                    "x": 0.0
+                  },
+                  {
+                    "label": "(1, 2)",
+                    "place": "below-right",
+                    "x": 1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      0.0,
+                      3.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "19c49776b46f375d3dd8fc81#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$y=\\left|- \\left(x - 2\\right)^{2} + 1\\right|+2$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先向左平移 $2$ 个单位。$y=\\left|- x^{2} + 1\\right|+2$ 变成哪个解析式？",
+            "stem_board": {
+              "caption": "向左平移 2 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "移动前的解析式",
+                  "math": "y=\\left|- x^{2} + 1\\right|+2"
+                },
+                {
+                  "label": "移动后的解析式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "向左平移 2 个单位"
+          },
+          {
+            "completion_board": {
+              "caption": "向下平移 3 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "移动前的解析式",
+                  "math": "y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2"
+                },
+                {
+                  "label": "移动后的解析式",
+                  "math": "y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "虚线：这一步移动前；实线：移动后。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, -1)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 0)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, -1)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "reference": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "纵坐标减去 3；绝对值里面的式子不变。"
+            },
+            "graph": {
+              "caption": "虚线：这一步移动前；实线：移动后。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, 2)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 3)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, 2)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "reference": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      0.0,
+                      3.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      5.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    2.0,
+                    "2"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "19c49776b46f375d3dd8fc81#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+5$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$y=\\left|- \\left(x + 2\\right)^{2} - 2\\right|+2$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "接着向下平移 $3$ 个单位。$y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2$ 变成哪个解析式？",
+            "stem_board": {
+              "caption": "向下平移 3 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "移动前的解析式",
+                  "math": "y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|+2"
+                },
+                {
+                  "label": "移动后的解析式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "向下平移 3 个单位"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "41a7dfec4ed64fc53f11715587f50153e63b2221dd3d7d6d57d2f70aff4ffe44",
+            "step_id": "39e5646dcb-function-graph-transform-001-transform"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "261a1be6ab71df192f92b070",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "a890248711427c81c1b2eb54464129cd4e99d663a5830f2c066028f71668d512",
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "总结平移后的关键点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图的三个关键点",
+                  "math": "(-1,2)\\quad(0,3)\\quad(1,2)"
+                },
+                {
+                  "label": "移动后的三个点",
+                  "math": "(-3,-1)\\quad(-2,0)\\quad(-1,-1)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "虚线：原图；实线：完成全部平移后的图像。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, -1)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 0)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, -1)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "reference": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      0.0,
+                      3.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "261a1be6ab71df192f92b070#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-3,-1)\\quad(-2,0)\\quad(-1,-1)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(-3,0)\\quad(-2,1)\\quad(-1,0)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "两个折点和中间的最高点一起移动。完成这些平移后，三个点分别在哪里？",
+            "stem_board": {
+              "caption": "总结平移后的关键点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图的三个关键点",
+                  "math": "(-1,2)\\quad(0,3)\\quad(1,2)"
+                },
+                {
+                  "label": "移动后的三个点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "总结平移后的关键点"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b99cdaad293f9a470915a7df9266b086cb1795e7ef19f937fc986c1b8e3eb193",
+            "step_id": "39e5646dcb-function-graph-transform-002-vertex"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "f7443f9f0c445987f9ca181c",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "b08dca13388f9e88bbaee688d6dd84669d899b41fc2791353539328c02fc6ec3",
+        "lesson_version": "cf9d57e43e66a66affc77ae41eb9e89de3f4ea697dd5f15c51eb9b6ff1eaf58a",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "对照原图，选择图像",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "平移后的图像特征",
+                  "math": "\\begin{gathered}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1\\\\\\text{最低点}\\ (-3,-1),\\ (-1,-1)\\\\\\text{中间的最高点}\\ (-2,0),\\quad\\text{两端向上}\\end{gathered}"
+                },
+                {
+                  "label": "原题选择",
+                  "math": "\\text{C}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "当前图像与三个关键点。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, -1)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 0)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, -1)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "option-c"
+              ]
+            },
+            "feedback": {
+              "answer": "先核对上下位置，再看横坐标和两端方向。"
+            },
+            "figure_choices": [
+              "option-a",
+              "option-b",
+              "option-c",
+              "option-d"
+            ],
+            "graph": {
+              "caption": "当前图像与三个关键点。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -4.0,
+                  2.0,
+                  -2.0,
+                  5.0
+                ],
+                "description": "按当前解析式绘制。三个标记点随图像一起平移。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [
+                  {
+                    "label": "(-3, -1)",
+                    "place": "below-left",
+                    "x": -3.0
+                  },
+                  {
+                    "label": "(-2, 0)",
+                    "place": "above-right",
+                    "x": -2.0
+                  },
+                  {
+                    "label": "(-1, -1)",
+                    "place": "below-right",
+                    "x": -1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      null,
+                      -3.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      -1.0,
+                      -4.0,
+                      -4.0
+                    ],
+                    "interval": [
+                      -3.0,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      4.0,
+                      2.0
+                    ],
+                    "interval": [
+                      -1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ]
+                  }
+                ],
+                "title": "绝对值二次函数的平移",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -3.0,
+                    "-3"
+                  ],
+                  [
+                    -2.0,
+                    "-2"
+                  ],
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "yTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            "id": "f7443f9f0c445987f9ca181c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "A",
+                  "value": "option-a"
+                },
+                {
+                  "label": "B",
+                  "value": "option-b"
+                },
+                {
+                  "label": "C",
+                  "value": "option-c"
+                },
+                {
+                  "label": "D",
+                  "value": "option-d"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "核对最低点的位置、中间的最高点和两端方向。哪幅原图符合？",
+            "stem_board": {
+              "caption": "对照原图，选择图像",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "平移后的图像特征",
+                  "math": "\\begin{gathered}y=\\left|- \\left(x + 2\\right)^{2} + 1\\right|-1\\\\\\text{最低点}\\ (-3,-1),\\ (-1,-1)\\\\\\text{中间的最高点}\\ (-2,0),\\quad\\text{两端向上}\\end{gathered}"
+                },
+                {
+                  "label": "原题选择",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "对照原图，选择图像"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f3b8a0e6d0ba436b88861c4b5d788a56",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "efbfaec171681eacad8ee86acc75b0172d9be828860517d9e2a51dad59c19ea4",
+            "step_id": "39e5646dcb-function-graph-transform-003-options"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

@@ -7,6 +7,8 @@ import vm from 'node:vm';
 import { execFileSync } from 'node:child_process';
 import { repoRoot, loadSources, generate } from '../build-public-knowledge-graph.mjs';
 import { loadTeaching, validateSelector, checkRef } from '../lib/public-knowledge-teaching.mjs';
+import {createState, currentDecision, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
+import {replayAnswer} from '../../site/assets/graph-walk/walk-replay.mjs';
 import {
   branches,
   select,
@@ -18,6 +20,8 @@ import {
 
 const { nodes, manifest } = await loadSources();
 const teaching = await loadTeaching(repoRoot, nodes, manifest);
+const legacyLessons = new Map([...teaching.lessons].filter(([, lesson]) => lesson.runtime !== 'graph-walk'));
+const legacyRoutes = [...legacyLessons.values()].flatMap(lesson => Object.values(lesson.routes));
 const problem = (id) => teaching.topics.flatMap((t) => Object.entries(t.problems)).find(([p]) => p === id)[1];
 const actual = (tree, choices) => select(tree, choices).actual.flatMap((b) => b.value);
 
@@ -82,7 +86,7 @@ test('unanswered choices never reveal which options are accepted', () => {
     );
   }
   // What a student sees at a step must not depend on picks that have not been submitted yet.
-  for (const [pid, lesson] of teaching.lessons)
+  for (const [pid, lesson] of legacyLessons)
     for (const [rid, steps] of Object.entries(lesson.routes)) {
       const choiceSteps = steps.filter((s) => s.interaction.type === 'choice');
       const all = Object.fromEntries(
@@ -173,7 +177,7 @@ test('selector validation rejects missing accepted branches, invented choices an
   assert.throws(() => checkRef('amgm-formula#missing', nodes), /条目失效/);
 });
 
-test('all routes and every accepted choice combination complete; wrong answers cannot advance', async () => {
+test('all legacy routes and every accepted choice combination complete; wrong answers cannot advance', async () => {
   const scope = vm.createContext({ structuredClone });
   new vm.Script(
     await fs.readFile(path.join(repoRoot, 'site/assets/practice/context.js'), 'utf8')
@@ -182,7 +186,7 @@ test('all routes and every accepted choice combination complete; wrong answers c
   let routes = 0,
     scenarios = 0,
     submissions = 0;
-  for (const [pid, lesson] of teaching.lessons)
+  for (const [pid, lesson] of legacyLessons)
     for (const [rid, steps] of Object.entries(lesson.routes)) {
       routes++;
       const alternatives = steps
@@ -235,9 +239,32 @@ test('all routes and every accepted choice combination complete; wrong answers c
         assert.equal(view.attempts.find((a) => a.id === 'initial').status, 'completed');
       }
     }
-  assert.equal(routes, teaching.counts.routes);
+  assert.equal(routes, legacyRoutes.length);
   assert.ok(scenarios > routes);
-  assert.ok(submissions >= teaching.counts.steps);
+  assert.ok(submissions >= legacyRoutes.reduce((sum, steps) => sum + steps.length, 0));
+});
+
+test('all published graph-walk routes complete through their own runtime and reject unanswered decisions', async () => {
+  let routes = 0;
+  for (const [pid, lesson] of teaching.lessons) {
+    if (lesson.runtime !== 'graph-walk') continue;
+    const bundle = JSON.parse(await fs.readFile(path.join(repoRoot, 'site', problem(pid).bundle), 'utf8'));
+    for (const rid of Object.keys(bundle.routes)) {
+      routes++;
+      let state = createState(bundle), steps = 0;
+      while (!state.done && steps++ < 500) {
+        const decision = currentDecision(bundle, state);
+        assert.ok(decision, `${pid}/${rid}: missing decision`);
+        const unanswered = submitAnswer(bundle, state, {decision: decision.id, answer: null});
+        assert.equal(currentDecision(bundle, unanswered)?.id, decision.id, `${pid}/${rid}: empty answer advanced`);
+        state = submitAnswer(bundle, state, {decision: decision.id, answer: replayAnswer(decision, rid)});
+        assert.equal(state.lastFeedback.status, 'passed', `${pid}/${rid}/${decision.id}`);
+      }
+      assert.equal(state.done, true, `${pid}/${rid}: not complete`);
+      assert.equal(state.run.route, rid);
+    }
+  }
+  assert.equal(routes + legacyRoutes.length, teaching.counts.routes);
 });
 
 test('publisher rejects corrupted teaching contracts and resource branches', async () => {
@@ -428,7 +455,8 @@ test('builder works without legacy sources and accepts additional problems and n
       path.join(root, 'site/data/knowledge-next'),
       { recursive: true }
     );
-    for (const part of ['assets', '1', '2'])
+    await fs.symlink(path.join(repoRoot, 'site/data/graph-walk'), path.join(root, 'site/data/graph-walk'), 'dir');
+    for (const part of ['assets', '1', '2', 'topics'])
       await fs.symlink(path.join(repoRoot, 'site', part), path.join(root, 'site', part), 'dir');
     const base = 'server/shuxueshuo_server';
     for (const part of ['tutor_demo/lessons', 'learning/drills-next']) {
@@ -500,7 +528,7 @@ test('real runtime keeps preview isolated for both login states, including failu
   );
   assert.match(
     result,
-    new RegExp(`${teaching.counts.routes} routes, 2 preview modes, 2 login states, failure and retry: passed`)
+    new RegExp(`${legacyRoutes.length} routes, 2 preview modes, 2 login states, failure and retry: passed`)
   );
 });
 

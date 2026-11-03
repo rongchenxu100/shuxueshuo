@@ -28,6 +28,28 @@ uv run --project server python server/tools/run_site.py
 
 仅新机器首次运行 `./deploy/product/manage.sh --mode local install`。已有实例需要升级表结构或导入新题目时，先停止连接它的网站与产品服务，再运行 `./deploy/product/manage.sh --mode local deploy`（先备份，再迁移、导入和自检）。日常重启不需要安装、迁移或恢复数据库。自动化测试仍使用第 5 节的隔离实例，不能使用日常或生产数据库。
 
+### 专题内容同步
+
+部署验收仍核对静态目录、源码导出和数据库的整体发布版本；日常专题练习改用本题的 `practice_version`。新增其他题目、修改无关图谱或展示提示，不再让未改动的题目暂停保存。修改课程后，仅重启 `run_site.py` 不会同步目录；启动器仍输出部署校验警告。
+
+本题版本由作答契约和能力关联计算。页面先按实际加载的 HTML 配置或课包核对 `page_contract_hash`，再与 `/api/learning/content/problems/{id}` 比较；开始练习、恢复进度、关联导师均校验本题版本。步骤顺序、答案、选项含义、题干和能力关联变化仍受保护。标题、反馈、普通提示、样式、构建时间不作为作答契约。已有练习从冻结快照恢复，待保存队列也按本题版本判断兼容性。旧客户端暂时保留原全局版本检查，更新公共脚本后使用新协议。
+
+静态练习先展示，学习服务不可用或本题不匹配仅暂停保存并提供重试；不会让整张图谱课页加载失败。本次不调整知识测评题池和图谱统计的版本协议，也不修改拍题识别流程。
+
+1. 若已有题目的步骤或判定规则发生变化，沿用课程版本惯例分配新的内部 ID（例如 `function-concepts-q23b-v2`），更新专题登记与页面课包引用，保留学生使用的页面地址。仅标题、反馈和提示等展示修订可沿用 ID。旧 ID 的发布内容和学习记录保留；不能直接改数据库摘要绕过检查。
+2. 编译本次改动的课程，再运行 `node tools/build-public-knowledge-graph.mjs` 和 `node tools/build-topic-overviews.mjs`。用两条命令的 `--check` 确认生成文件与源码一致。
+3. 停止连接日常实例的网站和产品服务，运行 `./deploy/product/manage.sh --mode local deploy`。该命令先备份，再事务发布；不要使用清空个人记录的重建操作。
+4. 运行 `./deploy/product/manage.sh --mode local verify-release --site-version site/knowledge/teaching/version.json`，确认返回 `site: match` 后重新启动网站，并刷新原题页。
+
+2026-11-03 的本地同步将函数概念 Q23（2）、Q28（1）—（4）、Q29（2）的已更新课包登记为 `-v2`；基本不等式、恒成立专题的题目身份与教学契约保持原样。
+
+2026-11-03 按题兼容性调整验收：
+
+- 101 道已发布题目的实际 HTML/课包、公开摘要、Python 判定投影和运行中的本地 API 全部一致；`build-public-knowledge-graph.mjs --check` 无需再生成文件。
+- 前端兼容性、待提交队列、导师入口、图谱课页异步加载共 55 项通过。隔离数据库中的按题兼容性、导师续接及启动保护共 52 项通过；既有学习记录、图谱课程、导师重试回归 58 项通过、1 项跳过。
+- 本地浏览器核对 `/1/q01/`、`/2/q01/`、`/topics/function-representations/q11c/` 和 `/lab/search/`，未提交学生答案。本次仅重启服务，没有运行数据库发布、迁移或改写学生记录。
+- 扩展检查仍有 3 项既有断言失败：`test_learning_publish.py::test_shared_export_has_complete_next_content` 将题量写死为 45（现为 101）；`graph-walk-topic.test.mjs` 的 2 项构建一致性检查发现此前的 Q15 页面资源引用和 `function-representations-b11-v1` authored flow 尚未重建。本次未修改这些课包或批量重建课程；其余发布保护 39 项通过。
+
 ## 2. 模拟短信登录
 
 默认使用模拟短信，不产生真实短信费用：

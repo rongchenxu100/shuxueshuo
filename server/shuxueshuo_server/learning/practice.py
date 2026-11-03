@@ -10,7 +10,7 @@ from ..product.db import lock, transaction
 from ..tutor_demo.contracts import InvalidAction, apply_action, fresh_state, slot_count
 from ..tutor_demo.llm import Action
 from ..tutor_demo.session import load_lesson
-from . import associations, graph_walk
+from . import associations, compatibility, graph_walk
 from .drills import one
 from .identity import canonical_id
 
@@ -216,12 +216,16 @@ def result(c, a):
          'associations': a['association_snapshot']}
 
 
-def start(db, user, pid, route, identity, previous=None, *, content_version=None):
+def start(db, user, pid, route, identity, previous=None, *, content_version=None, practice_version=None):
     pid = canonical_id(pid)
     with transaction(db) as c:
         lock(c, 'learning.publish', shared=True)
         current_version = associations.content_metadata(c)['content_version']
-        associations.require_content(c, content_version if content_version is not None else current_version)
+        if practice_version is not None:
+            compatibility.require_problem(c, pid, practice_version)
+        else:
+            # Keep the old API fail-closed during rolling client upgrades.
+            associations.require_content(c, content_version if content_version is not None else current_version)
         lock(c, "practice", str(user), pid)
         old = one(
             c, "SELECT * FROM student_practice_attempts WHERE id=:id", id=identity
@@ -233,6 +237,8 @@ def start(db, user, pid, route, identity, previous=None, *, content_version=None
                 or old["route_id"] != route
             ):
                 raise HTTPException(409, "尝试编号已被使用。")
+            if practice_version is not None:
+                compatibility.require_attempt(c, old, practice_version)
             return result(c, old)
         current = one(
             c,
@@ -249,6 +255,8 @@ def start(db, user, pid, route, identity, previous=None, *, content_version=None
         elif current:
             if current["route_id"] != route:
                 raise_start_conflict(current)
+            if practice_version is not None:
+                compatibility.require_attempt(c, current, practice_version)
             return result(c, current)
         p = one(c, "SELECT * FROM practice_problems WHERE id=:p AND is_active", p=pid)
         if not p:
@@ -542,17 +550,21 @@ def acknowledge(db, user, aid, identity):
         return {"saved": True}
 
 
-def restore_session(db, user, aid, session, content_version=None):
+def restore_session(db, user, aid, session, content_version=None, practice_version=None):
     """Restore confirmed conclusions and original dialogue, never unsubmitted input."""
     from copy import deepcopy
 
     with transaction(db) as c:
         lock(c, 'learning.publish', shared=True)
-        if content_version is not None:
+        if practice_version is None and content_version is not None:
             associations.require_content(c, content_version)
         a = owned(c, aid, user)
+        if practice_version is not None:
+            compatibility.require_attempt(c, a, practice_version)
         if a["problem_id"] != session.lesson["id"] or a["status"] == "closed":
             raise HTTPException(409, "练习题目或状态已改变。")
+        session.lesson = deepcopy(lesson(a))
+        session.state = fresh_state(session.lesson)
         session.learning_practice_attempt_id = a['id']
         session.learning_content_version = a['content_version']
         session.learning_confirmed_choices = confirmed_choices(c, a)

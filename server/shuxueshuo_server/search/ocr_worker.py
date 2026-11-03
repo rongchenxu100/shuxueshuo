@@ -27,6 +27,7 @@ from shuxueshuo_server.search.page_orientation import (
     uncertain_orientation,
 )
 from shuxueshuo_server.search.segmentation import page_head_candidates
+from shuxueshuo_server.search.segmentation_labels import incomplete_heading
 
 MAX_SIDE = 1600
 DETECT_SIDE = 736
@@ -109,6 +110,15 @@ def observe(models, path, *, auto_orient=True):
     crops = [np.asarray(head_crop(image, polys[i])) for i in wanted]
     started = monotonic()
     heads = dict(zip(wanted, (r.json["res"] for r in models["rec"].predict(crops)), strict=True)) if crops else {}
+    # Worksheet numbers keep the short fast path. Only a visibly clipped
+    # textbook heading is re-read once, far enough to include its closing
+    # bracket and full number. This never re-recognises the whole page.
+    extended = [i for i in wanted if incomplete_heading(heads[i].get("rec_text", ""))]
+    if extended:
+        wider = [np.asarray(head_crop(image, polys[i], head_heights=8)) for i in extended]
+        for i, result in zip(extended, models["rec"].predict(wider), strict=True):
+            if result.json["res"].get("rec_text"):
+                heads[i] = result.json["res"]
     timings["recognize_heads"] = round((monotonic() - started) * 1000)
 
     return {

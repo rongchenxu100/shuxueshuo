@@ -29,14 +29,48 @@ def test_all_actual_stage_one_value_shapes_remain_accepted(case, sample):
     assert checked["ok"], checked
 
 
-def test_legacy_goals_accept_absent_new_domain_feature_but_keep_existing_requirements():
+def test_legacy_goals_accept_absent_new_type_features_but_keep_existing_requirements():
     value = accepted()
-    assert not any(row["feature_id"] == "function_domain" for row in value["features"])
+    assert not {'function_domain', 'function_graph', 'piecewise_equation', 'piecewise_inequality'} & {
+        row['feature_id'] for row in value['features']}
     assert validate_input(value)["ok"]
     value["features"] = [row for row in value["features"] if row["feature_id"] != "relation"]
     checked = validate_input(value)
     assert any(row["code"] == "input.features_incomplete" and "relation" in row["message"]
                for row in checked["diagnostics"])
+
+
+@pytest.mark.parametrize('candidate,required', [
+    ({'original_text': '画出 y=abs(x-1)+1 的图像。', 'root': {
+        'goals': [{'kind': 'draw_function_graph', 'expression': 'abs(x-1)+1', 'variable': 'x'}],
+    }}, 'function_graph'),
+    ({'original_text': '已知分段函数 f，解 f(x)=2。', 'root': {
+        'definitions': ['f(x)=piecewise(x^2,x>=0,-x,x<0)'],
+        'facts': ['f(x)=2'], 'goals': [{'kind': 'find_range', 'symbol': 'x'}],
+    }}, 'piecewise_equation'),
+    ({'original_text': '已知分段函数 f，解 f(x)>2。', 'root': {
+        'definitions': ['f(x)=piecewise(x^2,x>=0,-x,x<0)'],
+        'children': [{'facts': ['f(x)>2'], 'goals': [{'kind': 'find_range', 'symbol': 'x'}]}],
+    }}, 'piecewise_inequality'),
+])
+def test_new_types_require_their_own_feature_but_not_unrelated_features(candidate, required):
+    value = accepted()
+    value.update(candidate=candidate, features=extract_features(candidate)['features'])
+    unrelated = {'function_graph', 'piecewise_equation', 'piecewise_inequality'} - {required}
+    value['features'] = [row for row in value['features'] if row['feature_id'] not in unrelated]
+    assert validate_input(value)['ok']
+    value['features'] = [row for row in value['features'] if row['feature_id'] != required]
+    checked = validate_input(value)
+    assert any(row['code'] == 'input.features_incomplete' and required in row['message']
+               for row in checked['diagnostics'])
+
+
+def test_optional_new_features_still_validate_their_values_on_old_goals():
+    value = accepted()
+    value['features'] = extract_features(value['candidate'])['features']
+    row = next(row for row in value['features'] if row['feature_id'] == 'function_graph')
+    row.update(status='known', value={})
+    assert any(d['code'] == 'input.feature_value' for d in validate_input(value)['diagnostics'])
 
 
 def test_find_domain_requires_its_new_feature_even_in_saved_result_envelope():

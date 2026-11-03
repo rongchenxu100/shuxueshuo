@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b11-v1",
+  "title": "分段值域求参法 · 例 11 变式 1",
+  "page": "/topics/function-representations/q11b/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\begin{cases}x^2-2,&x\\le1\\\\ax^2-x+2,&x>1\\end{cases}$ 的值域为 $[-2,+\\infty)$，则实数 $a$ 的取值范围是（ ）。\nA. $(-\\infty,\\frac1{16}]$\nB. $(0,\\frac1{16}]$\nC. $[\\frac1{16},+\\infty)$\nD. $[\\frac18,+\\infty)$",
+  "evidence": "site/data/graph-walk/function-representations-b11-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/piecewise-p4-20261102/b11-v1.json"
+}

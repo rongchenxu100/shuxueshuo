@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-b11-v1",
+  "bundleVersion": "[\"stream\",\"7352fa369feb9641cff5af82e49ca74944a693fcb1337954c4ef1352912f0ac2\",\"3f59da49a6d14865f12e93355c02a903a100a3afaab122be76d96d760907888c\",\"acc1474205504a56a7575b900aff262e\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "piecewise-range-parameter"
+  ],
+  "actions": [
+    {
+      "decision": "D2",
+      "answer": "type-piecewise-function"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "ce6666737c709058758f45ae#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "89d124e3ab675a4bbf0da03b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "d4dc307a5244c6a47dad5fab#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "9f5f4fa385f06601e44cc560#1",
+      "answer": "universal"
+    },
+    {
+      "decision": "f31d9ee5505b714dbae20625#1",
+      "answer": [
+        "interval",
+        "free",
+        "separation"
+      ]
+    },
+    {
+      "decision": "5fddf625aacece1bfa3d63c8#1",
+      "answer": "o3"
+    },
+    {
+      "decision": "5fddf625aacece1bfa3d63c8#2",
+      "answer": [
+        "s1o3",
+        "s2o1"
+      ]
+    },
+    {
+      "decision": "5fddf625aacece1bfa3d63c8#3",
+      "answer": "o1"
+    },
+    {
+      "decision": "8c2e0ca5da0001d16ffc1227#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "cda4855db00b5c7b6da89d1e#1",
+      "answer": "choice-0"
+    },
+    {
+      "decision": "588cc426c0651695bd0c7826#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "ee3277231ea46b8b8fd27b72#1",
+      "answer": "choice-0"
+    },
+    {
+      "decision": "271e4e55f475a0edc55863d4#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "4a96170326a985877fb036c0#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "e76453a507045e0852ed7587#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "[\"original-choice\",\"/root/goals/0\",\"piecewise-range-parameter\",\"03a1d1380884c74defe6639138531f6646588a62b096c1237cdd2acedc1c0204\"]",
+      "answer": [
+        "C"
+      ]
+    }
+  ]
+}

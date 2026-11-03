@@ -1,0 +1,97 @@
+{
+  "schema_version": "question-figures/v1",
+  "source": {
+    "sha256": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "width": 1035,
+    "height": 455,
+    "quality": "original"
+  },
+  "figures": [
+    {
+      "id": "original",
+      "role": "source",
+      "scope_ref": "/root",
+      "box": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/original.png"
+    },
+    {
+      "id": "given-graph",
+      "role": "statement",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.3864734299516908,
+        0.14725274725274726,
+        0.6125603864734299,
+        0.4945054945054945
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/given-graph.png"
+    },
+    {
+      "id": "option-a",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.030917874396135265,
+        0.5340659340659341,
+        0.2560386473429952,
+        0.9868131868131869
+      ],
+      "option_id": "option-a",
+      "label": "A",
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/option-a.png"
+    },
+    {
+      "id": "option-b",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.2772946859903382,
+        0.5208791208791209,
+        0.48985507246376814,
+        0.9868131868131869
+      ],
+      "option_id": "option-b",
+      "label": "B",
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/option-b.png"
+    },
+    {
+      "id": "option-c",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.523671497584541,
+        0.5054945054945055,
+        0.7545893719806763,
+        0.9802197802197802
+      ],
+      "option_id": "option-c",
+      "label": "C",
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/option-c.png"
+    },
+    {
+      "id": "option-d",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.770048309178744,
+        0.4857142857142857,
+        0.9806763285024155,
+        0.9736263736263736
+      ],
+      "option_id": "option-d",
+      "label": "D",
+      "image_url": "/assets/question-figures/fr-t2-b09-v3/option-d.png"
+    }
+  ],
+  "content_id": "87360d28a0c99f5c765984b09b85b1a74c7683df8a2505b502f145c2e53ed76a"
+}

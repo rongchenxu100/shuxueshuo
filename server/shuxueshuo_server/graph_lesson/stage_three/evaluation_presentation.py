@@ -5,13 +5,14 @@ from hashlib import sha256
 
 import sympy as sp
 
-from ..function_evaluation import _check_source, _set as evaluation_set
+from ..function_evaluation import _check_source
+from ..function_evaluation import _set as evaluation_set
+from ..piecewise_evaluation import branches, is_piecewise
 from ..stage_one.function_domain import expression_latex
 from .abstract_domain_presentation import _answer_options, _derivation, _set_latex
 from .evaluation_algebra import rational_sum_derivation
 from .math_values import latex
 from .trajectory import decode_value
-
 
 PHASES = ('input', 'inner', 'substitute', 'domain', 'conclusion',
           'trial', 'constant', 'pairing', 'leftovers', 'sum')
@@ -147,6 +148,46 @@ def _call_card(call, description, *, inner=False):
                  feedback='把完整输入替换规则中的每个自变量位置；保留括号后，再按运算顺序计算。')
 
 
+def _condition_latex(ast, variable):
+    if ast[0] == 'and':
+        return r',\quad '.join(_condition_latex(child, variable) for child in ast[1:])
+    op = {'<=': r'\le ', '>=': r'\ge '}.get(ast[0], ast[0])
+    return expression_latex(ast[1], variable) + op + expression_latex(ast[2], variable)
+
+
+def _piecewise_call_cards(call, description, *, inner=False):
+    function = next(row for row in description['functions'] if row['function_ref'] == call['function_ref'])
+    name, variable, value = call['function_name'], function.get('variable', 'x'), latex(call['input'])
+    rows = branches(call['definition_ast'])
+    cases = r'\begin{cases}' + r'\\'.join(
+        _ast(row['expression_ast'], description, variable) + '&' + _condition_latex(row['condition_ast'], variable)
+        for row in rows) + r'\end{cases}'
+    selected = rows[call['branch_index']]
+    condition = _condition_latex(selected['condition_ast'], value)
+    rule = _ast(call['rule_ast'], description, variable)
+    chosen = rf'{name}({variable})={rule}'
+    labels = [f'${_condition_latex(row["condition_ast"], variable)}$，用 '
+              f'${name}({variable})={_ast(row["expression_ast"], description, variable)}$'
+              for row in rows]
+    interaction, expected = _choice(labels[call['branch_index']], labels)
+    outer = call['input_ast'][:1] == ['function_call']
+    title = '用中间值重新选段' if outer else ('判断内层用哪一段' if inner else '选择对应的一段')
+    question = (f'内层已经算出 ${value}$。现在求 ${name}({value})$，应该用哪一段？' if outer else
+                f'这次输入是 ${value}$。它满足哪个条件，应该用哪一段？')
+    selection = _card(title, question, '当前输入与原分段函数',
+                      _lines([rf'\text{{当前输入：}}{value}', rf'{name}({variable})={cases}']),
+                      '本次使用的条件与解析式', _lines([condition, chosen]),
+                      _math(rf'{condition}\Longrightarrow {name}\left({value}\right)={call["substitution_latex"]}'), interaction, expected,
+                      feedback='先看当前输入满足哪个分段条件，再选这一段的解析式。每次调用都要重新判断。')
+    calculation = _call_card(call, description, inner=inner)
+    calculation['title'] = '计算外层函数值' if outer else ('计算内层函数值' if inner else '代入这一段计算')
+    calculation['derivation']['caption'] = calculation['title']
+    calculation['question'] = f'由 ${condition}$，使用 ${chosen}$。代入 ${value}$，得到多少？'
+    calculation['derivation']['items'][0]['math'] = _lines([condition, chosen])
+    calculation['explanation'] = _math(condition, _call_equation(call))
+    return [selection, calculation]
+
+
 def _constraints(result, description=None):
     rows = []
     if description and description.get('input_domain_ast', ['real']) != ['real']:
@@ -278,8 +319,8 @@ def _composite_input_card(description, target):
             current, phrases = leaf, []
             for index, node in enumerate(nodes):
                 name = names[node[1][1]]
-                phrases.append((f'先把 ${_ast(current, description)}$ 代入 ${name}$' if index == 0 else
-                                f'再把 ${_ast(current, description)}$ 的结果代入 ${name}$'))
+                phrases.append(f'先把 ${_ast(current, description)}$ 代入 ${name}$' if index == 0 else
+                               f'再把 ${_ast(current, description)}$ 的结果代入 ${name}$')
                 current = ['function_call', node[1], current]
             return '，'.join(phrases)
 
@@ -313,6 +354,15 @@ def phase_views(values):
     domain = _domain_latex(result['domain'])
     variable = latex(result.get('variable', sp.Symbol('x')))
     if phase == 'input':
+        if defined and any(is_piecewise(row['expression_ast']) for row in description['functions']):
+            first = calls[0]
+            first_call = rf'{first["function_name"]}\left({latex(first["input"])}\right)'
+            interaction, expected = _choice('先求内层函数值，再把这个值作为外层输入',
+                                           ['两层都用最初的输入选段']) if len(calls) > 1 else _choice(
+                                               '先判断输入属于哪一段，再代入这一段的解析式', ['直接使用第一段解析式'])
+            return [_card('确定计算顺序', '求这个函数值，先做什么？', '要求的函数值', target,
+                          '先计算', first_call, _math(rf'\text{{先求 }}{first_call}'), interaction, expected,
+                          feedback='从内到外计算；外层用内层的结果重新选段。')]
         composite = _composite_input_card(description, target)
         if composite:
             return [composite]
@@ -330,7 +380,9 @@ def phase_views(values):
                       feedback='括号里的内容是输入；把完整输入代入对应函数的全部自变量位置。')]
     if phase in ('inner', 'substitute'):
         selected = calls[:-1] if phase == 'inner' else calls[-1:]
-        return [_call_card(call, description, inner=phase == 'inner') for call in selected]
+        return [card for call in selected for card in (
+            _piecewise_call_cards(call, description, inner=phase == 'inner') if 'definition_ast' in call
+            else [_call_card(call, description, inner=phase == 'inner')])]
     if phase == 'domain':
         return [_domain_card(description, result, target, variable, domain)]
     if phase == 'conclusion':
@@ -344,8 +396,11 @@ def phase_views(values):
         if result['kind'] == 'expression_with_domain':
             right = _lines([right, rf'{variable}\in {domain}'])
         interaction, expected = _choice('写出代入后的表达式，并注明自变量的取值范围', ['只写化简后的式子，原限制可以删除']) if result['kind'] == 'expression_with_domain' else _value_choices(answer)
+        chain = (rf'{target}=' + '='.join(
+            rf'{call["function_name"]}\left({latex(call["input"])}\right)' for call in calls[-1:])
+            + '=' + latex(answer)) if any('definition_ast' in call for call in calls) and len(calls) > 1 else rf'{target}={latex(answer)}'
         return [_card('返回本目标结果', '确认本目标的结果。', '本目标', target, '结果', right,
-                      _math(rf'{target}={latex(answer)}',
+                      _math(chain,
                             rf'{variable}\in {domain}' if result['kind'] == 'expression_with_domain' else ''),
                       interaction, expected, feedback='核对原目标的函数调用顺序与输入限制。')]
     if phase == 'trial':
@@ -427,8 +482,8 @@ def phase_views(values):
                 substitution = _ast(function['expression_ast'], description, rf'\left({latex(term["input"])}\right)') + '='
             proof.append(f'{_term_math(term, description)}={substitution}{latex(term["value"])}')
         if len(terms) > 1:
-            proof.append((('+'.join(rf'\left({latex(term["value"])}\right)' for term in terms) + '=' + latex(total))
-                          if len(terms) <= 4 else rf'\text{{单列项之和}}={latex(total)}'))
+            proof.append(('+'.join(rf'\left({latex(term["value"])}\right)' for term in terms) + '=' + latex(total))
+                         if len(terms) <= 4 else rf'\text{{单列项之和}}={latex(total)}')
         interaction, expected = _value_choices(total)
         card = _card('计算剩余项', '没有进入二元配对的项各算一次，它们的和是多少？',
                       '单列项的输入与输出', left, '单列项之和', latex(total),

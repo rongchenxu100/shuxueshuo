@@ -77,11 +77,17 @@ def range_skill(expression, variable, domain, reserved_symbols=()):
                 execute("reciprocal_of_range", {"range": bounds})
                 choice = "inverse"
             except CapabilityGap:
-                from .capabilities.substitution import inspect_affine_reciprocal
-
-                affine = inspect_affine_reciprocal(expression, variable, domain,
-                                                  reserved_symbols=reserved_symbols)
-                choice = "affine_reciprocal"
+                from .capabilities.substitution import (
+                    inspect_affine_reciprocal, inspect_reciprocal_quadratic,
+                )
+                try:
+                    affine = inspect_affine_reciprocal(expression, variable, domain,
+                                                      reserved_symbols=reserved_symbols)
+                    choice = "affine_reciprocal"
+                except CapabilityGap:
+                    affine = inspect_reciprocal_quadratic(expression, variable, domain,
+                                                          reserved_symbols=reserved_symbols)
+                    choice = "reciprocal_quadratic"
         degree = None
     else:
         poly = polynomial(expression, variable)
@@ -202,3 +208,11 @@ REGISTRY = {
                interval_case_plan, interval_case_skill, variable_roles,
                affine_slope_decision, endpoint_condition_plan, variable_case_plan)
 }
+
+
+def piecewise_range_parameter_route(description, fixed_range):
+    from ..piecewise_range_parameter import choose_route
+    return choose_route(description, fixed_range)
+
+
+REGISTRY['piecewise_range_parameter_route'] = piecewise_range_parameter_route

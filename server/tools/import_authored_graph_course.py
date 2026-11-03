@@ -12,6 +12,9 @@ from pathlib import Path
 
 from shuxueshuo_server.graph_lesson.stage_one.authored import prepare_authored
 from shuxueshuo_server.graph_lesson.stage_three.runner import run_sample
+from shuxueshuo_server.graph_lesson.stage_three.teaching_version import (
+    teaching_revision,
+)
 from shuxueshuo_server.graph_lesson.stage_two.contracts import ROOT
 from shuxueshuo_server.graph_lesson.stage_two.runner import run_result
 from shuxueshuo_server.problem_understanding.workflow_ledger import save
@@ -41,7 +44,13 @@ def import_course(record_path, recording, evidence_path):
     evidence = export_course(recording/'execution', record['problem_id'])
     evidence['provenance']['source_admission'] = 'authored_topic'
     evidence['provenance']['authoring_record_sha256'] = sha256(record_path.read_bytes()).hexdigest()
+    evidence['provenance']['teaching_revision'] = teaching_revision()
     save(evidence_path, evidence)
+    source_path = ROOT/'site/data/graph-walk'/f'{record["problem_id"]}.source.json'
+    if source_path.is_file() and record_path.resolve().is_relative_to(ROOT/'internal'):
+        source = json.loads(source_path.read_text())
+        source['authoringSource'] = str(record_path.resolve().relative_to(ROOT))
+        save(source_path, source)
     return {'problem_id': record['problem_id'], 'run_id': evidence['provenance']['run_id'],
             'evidence': str(evidence_path), 'answer': result['goals'][0]['answer']}
 

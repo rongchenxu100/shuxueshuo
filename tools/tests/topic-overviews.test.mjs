@@ -158,7 +158,7 @@ test('overview prefers original problem statement over short labels', () => {
 });
 
 test('real topic keeps all five courses and their knowledge links', async () => {
-  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
+  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b-v2'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   const comparison = 'function-concepts-q20-v2';
   const abstract = ['function-concepts-q25', 'function-concepts-q26', 'function-concepts-abstract-mixed-q03', 'function-concepts-parameter-variant02'];

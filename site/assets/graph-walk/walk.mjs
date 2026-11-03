@@ -1,13 +1,16 @@
-import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261101-method-map';
-import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261101-map';
+import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261102-piecewise-j1';
+import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261102-piecewise-j1';
 import {formulaAnswerHTML} from './formula-answer.mjs?v=20261101-fraction';
+import {createFormulaFitter, renderFittedFormula} from './formula-fit.mjs?v=20261103';
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261101-coefficients';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261101-coefficients';
+import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261102-piecewise-p2b';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
 import {buildStreamReplay} from './walk-replay.mjs?v=20261101-coefficients';
 import {optionProgress, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
+import {mountQuestionFigures} from '../practice/question-figures.mjs?v=20261102-g4-source';
+import {mountFigureChoices} from '../practice/figure-choices.mjs?v=20261102-g4-source';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';
 const REPLAY_INDEX_URL = '/data/graph-walk/replays/index.json';
@@ -24,6 +27,9 @@ let reviewOption = null;
 // The student's unsubmitted answer when this bundle was parked; picked up once its step renders again.
 let keptDraft = null;
 let disposeMethodConnections = () => {};
+let disposeProblemFigures = () => {};
+let formulaFitter = null;
+const choicePictureMounts = new Map(), choicePicturesReady = new Set();
 let actor = 'student', replay = null, replayPosition = 0, replayTimer = null, replayPlaying = false, replayTicket = 0, loadTicket = 0;
 let replayEntries = [], replayIndexLoaded = false, replayNotice = null, focusBeforeGraph = null, commitTimer = null;
 let graphMode = readGraphMode(), webglFailed = false, graphTicket = 0;
@@ -189,6 +195,7 @@ function hydrate(root) {
     catch { (host.closest('.gw-figure') || host).remove(); }
   }
   renderMath(root);
+  formulaFitter?.refresh();
 }
 
 /* A server-built picture beside a question or a completed step; the caption names the sample it shows. */
@@ -211,7 +218,9 @@ function caseFiguresHTML(decision, uid) {
 function completionFiguresHTML(decision, uid, answer) {
   if (decision.source !== 'stream') return '';
   const figures = (decision.completion_graph ? figureHTML(decision.completion_graph, uid, 'completion') : '') +
-    caseFiguresHTML(decision, uid) + domainCompletionHTML(decision, uid);
+    caseFiguresHTML(decision, uid) + domainCompletionHTML(decision, uid) +
+    (decision.show_source_graph ? `<div data-source-graph="${escapeHTML(decision.id)}" data-readonly="true"></div>` : '') +
+    (decision.figure_choices ? `<div data-figure-choices="${escapeHTML(decision.id)}" data-selected="${escapeHTML(answer)}" data-readonly="true"></div>` : '');
   if (!decision.completion_group) return figures;
   const heading = `${uid}-group`;
   return `<section class="gw-completion-group" aria-labelledby="${escapeHTML(heading)}"><h3 id="${escapeHTML(heading)}">${escapeHTML(decision.completion_group)}</h3>${figures || partAnswerHTML(decision, answer)}</section>`;
@@ -243,7 +252,7 @@ function domainEndpointCardHTML(checks) {
 
 function domainPremisesHTML(decision, uid) {
   if (!decision.completion_number_line || !decision.condition_number_lines) return '';
-  return `<div class="gw-condition-lines"><p>已求出的各条件解集</p>${conditionLinesHTML(decision, uid)}</div>`;
+  return `<div class="gw-condition-lines"><p>已求出的范围</p>${conditionLinesHTML(decision, uid)}</div>`;
 }
 
 // A server board states what the question works from, in place of the card's own premises.
@@ -293,6 +302,8 @@ function gridChoice(decision, answer) {
 }
 
 function ready(decision) {
+  if (decision.figure_choices && !choicePicturesReady.has(decision.id)) return false;
+  if (decision.show_source_graph && !choicePicturesReady.has(`${decision.id}:source`)) return false;
   if (decision.interaction.layout === 'connections') return draft.checks.every(Boolean) && Boolean(draft.method);
   if (decision.interaction.type === 'method_cards') return draft.confirmed === decision.interaction.checks.length && Boolean(draft.method);
   if (decision.interaction.type === 'read') return true;
@@ -420,8 +431,12 @@ function completedFeedbackHTML(decision) {
 }
 
 function streamCompletedAnswerHTML(decision, answer) {
-  // Choice cards keep the student's verdict + teaching feedback above the math conclusion board.
+  // The verified board owns the conclusion. Do not repeat its answer and
+  // feedback above it; choices without a mathematical conclusion still need them.
   if (decision.interaction.type === 'read' || decision.stem_board?.layout === 'derivation') return '';
+  if (!['plane', 'grid', 'method_cards'].includes(decision.interaction.type) &&
+      decisionMathSteps(decision).some(step => (step.highlight || step.after?.length) &&
+        !step.highlight?.conclusion_only && step.explanation?.trim())) return '';
   const summary = answerSummary(decision, answer);
   if (!summary) return '';
   return `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${completedFeedbackHTML(decision)}`;
@@ -437,18 +452,19 @@ function completedHTML(record, number, runId, route) {
   const methodNote = decision.interaction.type === 'read' && decision.question && decision.question !== summary
     ? `<p class="gw-result" data-math-text>${escapeHTML(decision.question.replace(/^使用[^：]+：/, ''))}</p>` : '';
   const body = decision.answer_completion ? formulaAnswerHTML(decision, record.answer, false)
+    : decision.interaction.type === 'plane' ? planeHTML(decision, record.answer, false)
+    : decision.interaction.type === 'method_cards' ? methodCardsHTML(decision, record.answer, false)
     : decision.source === 'stream' && decision.stream_last_part
     ? `${completionBoardHTML(decision)}${streamCompletedAnswerHTML(decision, record.answer)}<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
     : decision.completion_board ? completionBoardHTML(decision)
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
     : decision.display ? template(decision.display, uid)
     : decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, record.answer)
-    : decision.interaction.type === 'method_cards' ? methodCardsHTML(decision, record.answer, false)
-    : decision.interaction.type === 'plane' ? planeHTML(decision, record.answer, false)
     : `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${methodNote}`;
   const results = decision.source !== 'stream' && !decision.display && !decision.completion_board ? (record.results || []).map(resultText).filter(Boolean).map(text => `<p class="gw-result" data-math-text>${escapeHTML(text)}</p>`).join('') : '';
   const figure = completionFiguresHTML(decision, `${uid}-done`, record.answer);
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figure}${body}${results}</div></details>`;
+  const context = decision.source_context ? `<p class="gw-result" data-math-text>${escapeHTML(decision.source_context)}</p>` : '';
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${context}${figure}${body}${results}</div></details>`;
 }
 
 /* The parts of one streamed interaction are one step: they share a card and a step number,
@@ -489,10 +505,19 @@ function partRowsHTML(records) {
 
 function groupCompletedHTML(unit, number) {
   const decisions = unit.records.map(record => decisionById(record.decision, state.run.route)), last = decisions.at(-1);
-  const figures = decisions.map((item, index) => completionFiguresHTML(item, `gw-${activeRunId()}-${item.id}-done`, unit.records[index].answer)).join('');
+  const sourceTargets = new Set();
+  const figures = decisions.map((item, index) => {
+    const target = item.target_ref || bundle.stream?.target_ref || '';
+    const repeatedSource = item.show_source_graph && sourceTargets.has(target);
+    if (item.show_source_graph) sourceTargets.add(target);
+    return completionFiguresHTML(repeatedSource ? {...item, show_source_graph: false} : item,
+      `gw-${activeRunId()}-${item.id}-done`, unit.records[index].answer);
+  }).join('');
   // A merged card may keep its proof in each part's feedback rather than its
   // conclusion-only math boards. Preserve that explanation after all parts pass.
-  const feedback = decisions.map(decision => {
+  const hasDerivation = decisionMathSteps(last).some(step =>
+    !step.highlight?.conclusion_only && step.explanation?.trim());
+  const feedback = hasDerivation ? '' : decisions.map(decision => {
     const explanation = completedFeedbackHTML(decision);
     return explanation ? `<div class="gw-part-row"><p class="gw-part-label" data-math-text>${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
   }).join('');
@@ -521,7 +546,8 @@ function graphOptionsHTML(decision) {
     const pick = multi ? `data-multi="${escapeHTML(option.value)}"` : `data-choice="${escapeHTML(component.field)}" data-value="${escapeHTML(option.value)}"`;
     const graph = escapeHTML(JSON.stringify({...option.graph, uid: `${uid}-${option.value}`}));
     const figure = option.graph?.kind ? `<span class="gw-graph-figure" data-graph="${graph}"></span>` : `<span class="gw-graph-option-figure" data-quadratic-graph="${graph}"></span>`;
-    return `<button type="button" ${pick} aria-pressed="${selected}" aria-label="${escapeHTML(option.label)}"><span class="gw-checkbox" aria-hidden="true">${selected ? '✓' : ''}</span>${figure}${option.name ? `<span class="gw-graph-option-name">${escapeHTML(option.name)}</span>` : ''}</button>`;
+    const caption = option.graph?.caption ? `<span class="gw-graph-option-caption" data-math-text>${escapeHTML(option.graph.caption)}</span>` : '';
+    return `<button type="button" ${pick} aria-pressed="${selected}" aria-label="${escapeHTML(option.label)}"><span class="gw-checkbox" aria-hidden="true">${selected ? '✓' : ''}</span>${figure}${caption}${option.name ? `<span class="gw-graph-option-name">${escapeHTML(option.name)}</span>` : ''}</button>`;
   }).join('')}</div>`;
 }
 
@@ -667,6 +693,8 @@ function carrySummary(decision, answer) {
 function renderInteraction(decision, {focus, pending = null} = {}) {
   const host = $('#gw-active');
   if (!host) return;
+  for (const [node, dispose] of choicePictureMounts) if (host.contains(node)) { dispose(); choicePictureMounts.delete(node); }
+  choicePicturesReady.delete(decision.id);
   host.dataset.decisionId = decision.id;
   ensureDraft(decision);
   const disabled = actor === 'replay';
@@ -676,11 +704,16 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
   const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
-  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.stem_board && !decision.answer_completion ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
+  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.show_source_graph ? `<div data-source-graph="${escapeHTML(decision.id)}"></div>` : ''}${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.stem_board && !decision.answer_completion ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
   // Frozen before formulas are derivation inputs, not necessarily givens: they can be
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
   // or the completed-step carry above; only read cards reveal the mathematical record.
   mountCompletionBoards(host);
+  if (pending == null && decision.figure_choices) {
+    const interaction = host.querySelector('.gw-interaction');
+    interaction.innerHTML = `<div data-figure-choices="${escapeHTML(decision.id)}"></div>`;
+    mountChoicePictures(interaction);
+  }
   const context = pending == null && host.querySelector('[data-stream-context]');
   const derivation = pending == null && host.querySelector('[data-derivation-board]');
   if (derivation) {
@@ -1316,8 +1349,28 @@ function mountProblemBar() {
     dock.innerHTML = '<div class="gw-problem-bar"><span class="gw-problem-bar-label">原题</span><span class="gw-problem-bar-text"></span></div>';
     lesson.prepend(dock);
     new ResizeObserver(measureProblemBar).observe(dock.firstElementChild);
-    new IntersectionObserver(([entry]) => dock.classList.toggle('is-shown', !entry.isIntersecting)).observe(card);
+    new IntersectionObserver(([entry]) => {
+      dock.classList.toggle('is-shown', !entry.isIntersecting);
+      const button = dock.querySelector('.gw-figures-access');
+      dock.setAttribute('aria-hidden', String(entry.isIntersecting || !button));
+      if (button) button.tabIndex = entry.isIntersecting ? -1 : 0;
+    }).observe(card);
   }
+  dock.querySelector('.gw-figures-access')?.remove();
+  const pictures = card.querySelector('.qf-panel');
+  document.body.classList.toggle('gw-has-question-figures', Boolean(pictures));
+  if (pictures) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'gw-figures-access'; button.textContent = '查看题图';
+    const visible = dock.classList.contains('is-shown');
+    button.tabIndex = visible ? 0 : -1;
+    dock.setAttribute('aria-hidden', String(!visible));
+    button.addEventListener('click', () => {
+      pictures.scrollIntoView({behavior: reduced.matches ? 'instant' : 'smooth', block: 'start'});
+      pictures.querySelector('button')?.focus({preventScroll: true});
+    });
+    dock.firstElementChild.append(button);
+  } else dock.setAttribute('aria-hidden', 'true');
   renderProblemContext();
 }
 
@@ -1542,6 +1595,62 @@ function mountCompletionBoards(root) {
     host.replaceChildren(createDerivationBoard(document, decision.completion_board));
     renderStreamMath(host);
   }
+  mountChoicePictures(root);
+}
+
+function mountSourceGraphs(root) {
+  for (const host of root.querySelectorAll('[data-source-graph]')) {
+    if (choicePictureMounts.has(host)) continue;
+    const decision = decisionById(host.dataset.sourceGraph, state.run?.route);
+    if (!decision?.show_source_graph) continue;
+    const readOnly = host.dataset.readonly === 'true';
+    const key = `${decision.id}:source`;
+    try {
+      const dispose = mountQuestionFigures(host, options.figureManifest || bundle.problem.figures, {
+        searchId: options.figureSearchId || null, targetRef: decision.target_ref || bundle.stream?.target_ref || null,
+        statementOnly: true,
+        onReady: loaded => {
+          if (readOnly || !host.isConnected) return;
+          if (loaded) choicePicturesReady.add(key); else choicePicturesReady.delete(key);
+          const submit = $('#gw-submit');
+          if (submit && $('#gw-active')?.dataset.decisionId === decision.id) submit.disabled = actor === 'replay' || busy || !ready(decision);
+        },
+      });
+      choicePictureMounts.set(host, dispose);
+    } catch {
+      host.textContent = '题干原图缺失或未能加载，请重新打开题目。';
+      choicePicturesReady.delete(key);
+      if (!readOnly && $('#gw-submit')) $('#gw-submit').disabled = true;
+    }
+  }
+}
+
+function mountChoicePictures(root) {
+  mountSourceGraphs(root);
+  for (const [node, dispose] of choicePictureMounts) if (!node.isConnected) { dispose(); choicePictureMounts.delete(node); }
+  for (const host of root.querySelectorAll('[data-figure-choices]')) {
+    if (choicePictureMounts.has(host)) continue;
+    const decision = decisionById(host.dataset.figureChoices, state.run?.route);
+    if (!decision?.figure_choices) continue;
+    const readOnly = host.dataset.readonly === 'true';
+    try {
+      const dispose = mountFigureChoices(host, options.figureManifest || bundle.problem.figures, decision, {
+        searchId: options.figureSearchId || null, targetRef: decision.target_ref || bundle.stream?.target_ref || null,
+        selected: readOnly ? host.dataset.selected : draft, readOnly,
+        onReady: loaded => {
+          if (readOnly || !host.isConnected) return;
+          if (loaded) choicePicturesReady.add(decision.id); else choicePicturesReady.delete(decision.id);
+          const submit = $('#gw-submit');
+          if (submit && $('#gw-active')?.dataset.decisionId === decision.id) submit.disabled = actor === 'replay' || busy || !ready(decision);
+        },
+      });
+      choicePictureMounts.set(host, dispose);
+    } catch {
+      host.textContent = '原选项图片不完整或与当前题目不匹配，请重新打开题目。';
+      choicePicturesReady.delete(decision.id);
+      if (!readOnly && $('#gw-submit')) $('#gw-submit').disabled = true;
+    }
+  }
 }
 
 function mountCompletedMath() {
@@ -1656,6 +1765,15 @@ async function load({replayFollowing} = {}) {
     keptDraft = resume ? kept.draft : null;
     draftKey = ''; submitted = null;
     if ($('#gw-problem')) renderProblemText($('#gw-problem'), bundle.problem.text);
+    disposeProblemFigures();
+    $('#gw-question-figures')?.remove();
+    if (bundle.problem.figures) {
+      const host = document.createElement('div'); host.id = 'gw-question-figures';
+      $('.gw-lesson .problem-card').append(host);
+      // Static bundles can only reference curated public assets. Private photos
+      // are mounted by their authenticated host and never copied into a bundle.
+      disposeProblemFigures = mountQuestionFigures(host, bundle.problem.figures, {targetRef: config.stream?.target_ref || null});
+    }
     mountProblemBar();
     if (options.practicePage) void loadMeaning();
     if ($('#gw-version')) $('#gw-version').textContent = `版本 ${bundle.bundleVersion.slice(0, 12)} · 公共图谱 ${bundle.graphVersion.slice(0, 12)}`;
@@ -1847,7 +1965,12 @@ export function parkWalk() {
 
 export function disposeWalk() {
   disposed = true;
+  formulaFitter?.dispose(); formulaFitter = null;
   disposeMethodConnections();
+  disposeProblemFigures();
+  for (const dispose of choicePictureMounts.values()) dispose();
+  choicePictureMounts.clear(); choicePicturesReady.clear();
+  document.body.classList.remove('gw-has-question-figures');
   streamParked = true;
   ++graphTicket;
   ++streamUpdateTicket; ++mountTicket; ++loadTicket; ++replayTicket;
@@ -1857,7 +1980,7 @@ export function disposeWalk() {
   bundle = null; bundleScope = null; streamView = null; studentState = null; state = null;
   keptDraft = null; draft = null; submitted = null; replay = null; busy = false;
   draftKey = ''; selectedSlot = null; preview = null; story = null; replayRoutes = {}; replayRoute = null;
-  options = {...options, bundle: null, replay: null, stream: null, onState: null, onAnswer: null, onReset: null, progressScope: null, fetch: undefined};
+  options = {...options, bundle: null, replay: null, stream: null, onState: null, onAnswer: null, onReset: null, progressScope: null, fetch: undefined, figureManifest: null, figureSearchId: null};
 }
 
 /* The actor the walk currently shows, so a host can carry it across bundles. */
@@ -1985,10 +2108,15 @@ export function attachStreamQA(chunk) {
 /** The same safe text/LaTeX renderer used by authored walk steps. */
 export function renderStreamMath(root) {
   for (const node of root.querySelectorAll('[data-math-formula]:not([data-math-rendered])')) {
-    PracticeMath.render(node, `$${node.textContent}$`); node.dataset.mathRendered = 'true';
+    if (node.classList.contains('gw-derivation-formula')) {
+      renderFittedFormula(node, node.textContent, (line, value) => PracticeMath.render(line, value));
+      formulaFitter ||= createFormulaFitter(document);
+    } else PracticeMath.render(node, `$${node.textContent}$`);
+    node.dataset.mathRendered = 'true';
   }
   for (const node of root.querySelectorAll('.stage-three-qa p')) node.dataset.mathText = 'true';
   renderMath(root);
+  formulaFitter?.refresh();
 }
 
 if (document.body.dataset.walk !== 'mount') await mountWalk({});

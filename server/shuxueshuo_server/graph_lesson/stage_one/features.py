@@ -13,6 +13,7 @@ import sympy as sp
 from ...problem_understanding.notation_compile import NotationValidator, children
 from ...problem_understanding.notation_parser import NotationError, parse
 from ...problem_understanding.notation_semantics import Canonical, bounded_expand
+from ...problem_understanding.review_contract import pointer
 from . import contracts
 from .abstract_function_domain import VERSION as ABSTRACT_DOMAIN_VERSION
 from .abstract_function_domain import describe_abstract_domain_goal
@@ -49,6 +50,29 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('piecewise_modeling', ('goal',), 'piecewise_modeling',
+                ('piecewise-function#definition',), '根据超出部分的单价累计各档费用',
+                version='piecewise-modeling/v1', supported_structures=('marginal_electricity_pricing',),
+                computation_boundary='source terms, decimal prices, thresholds and units only'),
+    FeatureSpec('piecewise_range_parameter', ('goal',), 'piecewise_range_parameter',
+                ('piecewise-function#domain-range',), '已知完整值域，求分段函数中的参数范围',
+                version='piecewise-range-parameter/v1', supported_structures=('fixed_piece_parametric_quadratic',),
+                computation_boundary='original definition, given output set and fixed branch predicates only'),
+    FeatureSpec('piecewise_inequality', ('goal',), 'piecewise_inequality',
+                ('piecewise-function#definition', 'piecewise-function#inequality'),
+                '先确定比较值，再逐段解不等式并检查本段范围', version='piecewise-inequality/v1',
+                supported_structures=('single_layer_polynomial_piecewise_inequality',),
+                computation_boundary='bound source definition, relation, numeric threshold input, branch predicates and degree only'),
+    FeatureSpec('piecewise_equation', ('goal',), 'piecewise_equation',
+                ('piecewise-function#definition', 'piecewise-function#equation'),
+                '已知分段函数的值，逐段求输入并检查本段范围', version='piecewise-equation/v1',
+                supported_structures=('single_layer_polynomial_piecewise_equation',),
+                computation_boundary='bound source definition, equality, fixed branch predicates and degree only'),
+    FeatureSpec('function_graph', ('goal',), 'function_graph',
+                ('function-representations#graph', 'function-graph-transformations#translation'),
+                '由解析式或已核对的原图判断目标图像', version='function-graph/v5',
+                supported_structures=('affine_absolute_graph_choices', 'absolute_polynomial_graph_tasks', 'absolute_quadratic_translation_choices', 'schematic_horizontal_transform_choices'),
+                computation_boundary='inspect source formula, domain, goal and labelled graph facts; do not solve or infer option formulas'),
     FeatureSpec('function_formula', ('goal',), 'function_formula',
                 ('function-concept#elements', 'function-representations#analytic'),
                 '由未知函数的整体输入关系恢复规则', version='function-formula-root/v1',
@@ -477,6 +501,56 @@ def _scope_features(report, candidate, scope, ancestors, features):
             _produced[feature_id] = feature
             features.append(feature)
 
+        if 'pricing' in goal:
+            from ..piecewise_modeling import describe
+            desc = describe(report, scope, ancestors, goal_index, original_text=candidate['original_text'])
+            add('goal', {'kind': goal['kind'], 'symbol': goal['target'][1].rsplit(':', 1)[-1]}, source_refs=[target_ref])
+            add('piecewise_modeling', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_pricing'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] == 'match_range':
+            from ..piecewise_range_parameter import describe
+            desc = describe(report, scope, ancestors, goal_index)
+            add('goal', {'kind': 'match_range', 'symbol': desc['variable']}, source_refs=[target_ref])
+            add('piecewise_range_parameter', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_range_parameter'}, source_refs=[target_ref])
+            continue
+        from ..piecewise_inequality import describe as describe_piecewise_inequality
+        from ..piecewise_inequality import relevant as piecewise_inequality_relevant
+        if piecewise_inequality_relevant(goal, records):
+            desc = describe_piecewise_inequality(report, scope, ancestors, goal_index)
+            add('goal', {'kind': 'find_range', 'symbol': desc['variable']}, source_refs=[target_ref])
+            add('piecewise_inequality', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_piecewise_inequality'}, source_refs=[target_ref])
+            continue
+        from ..piecewise_equation import describe as describe_piecewise_equation
+        from ..piecewise_equation import relevant as piecewise_equation_relevant
+        if piecewise_equation_relevant(goal, records):
+            desc = describe_piecewise_equation(report, scope, ancestors, goal_index)
+            add('goal', {'kind': 'find_range', 'symbol': desc['variable']}, source_refs=[target_ref])
+            add('piecewise_equation', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_piecewise_equation'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+            from ..function_graph import describe_scoped
+            original = {key: value for key, value in goal.items() if key != 'target'}
+            sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))}
+                       for row in records]
+            description = describe_scoped(original, target_ref, sources)
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('function_graph', description, source_refs=[*description['source_refs'], *description['extra_source_refs']])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_applicable_to_graph_goal'}, source_refs=[target_ref])
+            continue
         if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
             from .function_formula import describe_function_formula
             description = describe_function_formula(report, scope, ancestors, goal_index)

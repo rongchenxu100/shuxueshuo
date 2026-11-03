@@ -1,0 +1,67 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b12",
+  "reviewer": "人工核对第100页例12；两问独立目标，超出部分计价；2026-11-02",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-11.png",
+      "sha256": "d77dd81cc0f639816922b21c56c0d2390922cd9c10f0cf69bf277daeacd32e98",
+      "location": "第100页例12，两问及阶梯单价"
+    }
+  ],
+  "candidate": {
+    "original_text": "某地居民用电采用阶梯电价，其标准如下：每户每月用电量不超过180千瓦时的，每千瓦时电费是0.6元；每户每月用电量超过180千瓦时，但不超过350千瓦时的部分，每千瓦时电费是0.65元；每户每月用电量超过350千瓦时的部分，每千瓦时电费是0.9元。设该户居民交电费y元，已知该户居民该月用电量为x千瓦时。（1）求y关于x的函数关系式；（2）若该户居民该月交电费199元，求该户居民该月的用电量。",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "pricing": {
+            "mode": "marginal",
+            "quantity": "x",
+            "amount": "y",
+            "quantity_unit": "千瓦时",
+            "amount_unit": "元",
+            "quantity_domain": "nonnegative_real",
+            "thresholds": [
+              "180",
+              "350"
+            ],
+            "rates": [
+              "0.6",
+              "0.65",
+              "0.9"
+            ]
+          },
+          "source_text": "某地居民用电采用阶梯电价，其标准如下：每户每月用电量不超过180千瓦时的，每千瓦时电费是0.6元；每户每月用电量超过180千瓦时，但不超过350千瓦时的部分，每千瓦时电费是0.65元；每户每月用电量超过350千瓦时的部分，每千瓦时电费是0.9元。设该户居民交电费y元，已知该户居民该月用电量为x千瓦时。（1）求y关于x的函数关系式；（2）若该户居民该月交电费199元，求该户居民该月的用电量。",
+          "bill": "199",
+          "kind": "find_equation",
+          "object": "y"
+        },
+        {
+          "pricing": {
+            "mode": "marginal",
+            "quantity": "x",
+            "amount": "y",
+            "quantity_unit": "千瓦时",
+            "amount_unit": "元",
+            "quantity_domain": "nonnegative_real",
+            "thresholds": [
+              "180",
+              "350"
+            ],
+            "rates": [
+              "0.6",
+              "0.65",
+              "0.9"
+            ]
+          },
+          "source_text": "某地居民用电采用阶梯电价，其标准如下：每户每月用电量不超过180千瓦时的，每千瓦时电费是0.6元；每户每月用电量超过180千瓦时，但不超过350千瓦时的部分，每千瓦时电费是0.65元；每户每月用电量超过350千瓦时的部分，每千瓦时电费是0.9元。设该户居民交电费y元，已知该户居民该月用电量为x千瓦时。（1）求y关于x的函数关系式；（2）若该户居民该月交电费199元，求该户居民该月的用电量。",
+          "bill": "199",
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ]
+    }
+  }
+}

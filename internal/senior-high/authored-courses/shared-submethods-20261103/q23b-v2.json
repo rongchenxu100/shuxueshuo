@@ -1,0 +1,29 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-concepts-q23b-v2",
+  "reviewer": "Codex · 2026-11-03 核对原图题干、根式分子分母及定义域开区间；保留原有题目身份",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-concepts-q23b/source-question.png",
+      "sha256": "16f0cc800d462884f08585bff5aac2a0c46299a60c3b611bd94daacfd18a4d0f",
+      "location": "第23题（2），已拼接的原题题干和第二问"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\dfrac{\\sqrt{x^2-3x-m}}{\\sqrt{x-1}}$ 的定义域为 $(1,+\\infty)$，求实数 $m$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(x^2-3*x-m)/sqrt(x-1)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "match_domain",
+          "object": "f",
+          "domain": "(1,∞)",
+          "symbol": "m"
+        }
+      ]
+    }
+  }
+}

@@ -1337,7 +1337,8 @@
           ],
           "graphs": {
             "options": "range_sets",
-            "stem": "range_function"
+            "stem": "range_function",
+            "completion": "range_evidence_function"
           }
         }
       ]
@@ -1363,7 +1364,8 @@
           ],
           "graphs": {
             "options": "range_sets",
-            "stem": "range_function"
+            "stem": "range_function",
+            "completion": "range_evidence_function"
           }
         }
       ]
@@ -1748,6 +1750,83 @@
       "repeat": "always",
       "compiler": "function_formula",
       "parts": []
+    },
+    "function_graph_derivation": {
+      "repeat": "always",
+      "compiler": "function_graph",
+      "parts": []
+    },
+    "piecewise_equation_derivation": {
+      "repeat": "always",
+      "compiler": "piecewise_equation",
+      "parts": []
+    },
+    "piecewise_inequality_derivation": {
+      "repeat": "always",
+      "compiler": "piecewise_inequality",
+      "parts": []
+    },
+    "piecewise_inequality_level": {
+      "repeat": "always",
+      "compiler": "piecewise_inequality",
+      "parts": []
+    },
+    "piecewise_range_union": {
+      "repeat": "always",
+      "compiler": "piecewise_range",
+      "parts": []
+    },
+    "piecewise_range_parameter": {
+      "repeat": "always",
+      "compiler": "piecewise_range_parameter",
+      "parts": []
+    },
+    "piecewise_modeling": {
+      "repeat": "always",
+      "compiler": "piecewise_modeling",
+      "parts": []
+    },
+    "quantified_subproblem": {
+      "repeat": "always",
+      "compiler": "quantified_subproblem",
+      "parts": []
+    },
+    "reciprocal_substitution": {
+      "repeat": "always",
+      "compiler": "substitution",
+      "parts": []
+    },
+    "reciprocal_restore": {
+      "repeat": "always",
+      "compiler": "substitution",
+      "parts": []
+    },
+    "substituted_range": {
+      "repeat": "first",
+      "parts": [
+        {
+          "component": "choice",
+          "title": "{range_title}",
+          "question": "换元后，${range_identity}$，${x}\\in{domain}$。{subject}的值域是什么？",
+          "min_options": 3,
+          "max_options": 4,
+          "feedback": "同时核对最值及其能否取到；无穷不是可以取得的端点。",
+          "submit_label": "确认判断",
+          "answer": {
+            "from": "certified_range"
+          },
+          "distractors": [
+            {
+              "generator": "range_alternatives"
+            }
+          ],
+          "graphs": {
+            "options": "range_sets",
+            "stem": "range_function",
+            "completion": "range_evidence_function"
+          }
+        }
+      ]
     }
   },
   "overrides": {

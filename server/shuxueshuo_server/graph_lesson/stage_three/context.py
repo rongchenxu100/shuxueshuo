@@ -127,7 +127,26 @@ def build_context(candidate, target_ref):
         context['answer_plan'] = (compile_candidate_plan(request) if goal['kind'] == 'select_range_domain'
                                   else compile_plan(request))
 
-    if 'relation' in goal and goal.get('function_type'):
+    from ..piecewise_equation import inspect_target as inspect_piecewise_equation
+    from ..piecewise_equation import relevant as piecewise_equation_relevant
+    from ..piecewise_inequality import inspect_target as inspect_piecewise_inequality
+    from ..piecewise_inequality import relevant as piecewise_inequality_relevant
+    if 'pricing' in goal_ast:
+        from ..piecewise_modeling import admitted, equation_description, inspect_target
+        context['piecewise_modeling'] = inspect_target(candidate, target_ref)
+        if goal_ast['kind'] == 'find_range' and admitted(context):
+            context['piecewise_equation'] = equation_description(context)
+    elif goal_ast['kind'] == 'match_range':
+        from ..piecewise_range_parameter import inspect_target
+        context['piecewise_range_parameter'] = inspect_target(candidate, target_ref)
+    elif piecewise_inequality_relevant(goal_ast, [{'value': e['ast']} for e in entries]):
+        context['piecewise_inequality'] = inspect_piecewise_inequality(candidate, target_ref)
+    elif piecewise_equation_relevant(goal_ast, [{'value': e['ast']} for e in entries]):
+        context['piecewise_equation'] = inspect_piecewise_equation(candidate, target_ref)
+    elif goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+        from ..function_graph import describe_scoped
+        context['graph_goal'] = describe_scoped(goal, target_ref, entries)
+    elif 'relation' in goal and goal.get('function_type'):
         from ..stage_one.function_formula import inspect_formula_target
         context['formula_goal'] = inspect_formula_target(candidate, target_ref)
     elif goal['kind'] in ('find_range', 'select_range_domain', 'find_extrema_expression') and 'object' in goal:

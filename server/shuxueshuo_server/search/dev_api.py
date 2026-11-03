@@ -26,7 +26,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from fastapi.routing import APIRoute
 from PIL import Image, ImageOps, UnidentifiedImageError
 from pydantic import BaseModel, Field
@@ -53,13 +53,13 @@ from shuxueshuo_server.solver.extraction.request_guard import (
     require_model_request_scope,
 )
 
-from . import stage_three
+from . import figures, stage_three
 from .admission import SearchLimits
 from .identity import IdentityUnavailable, build_identity
 from .lesson import present_lesson, public_problem_text, run_stage_two
 from .ocr_client import OcrClient, OcrWorkerError
 from .page_orientation import rotate_clockwise
-from .question_image import question_png
+from .question_image import expected_image_hashes, question_png
 from .repository import SearchError
 from .segmentation import segment
 from .stage_one import (
@@ -452,7 +452,8 @@ def create_search_router(root, *, stage_three_hooks=None):
                 # The image's code tree is read-only in containers; the cache lives in the data root.
                 provider = live_provider_factory(
                     "deepseek", file_cache_dir=repo.storage.root.parent / "deepseek-files-cache")()
-                result = run_question_image(png, output, provider, problem_id=search_id)
+                result = run_question_image(png, output, provider, problem_id=search_id,
+                                            original_png=(output / "original.png").read_bytes(), read_graph_details=True)
                 if result is None:
                     result = stage_three.read(output / RESULT_FILE)
                 if result["status"] == "reviewed_candidate":
@@ -541,7 +542,16 @@ def create_search_router(root, *, stage_three_hooks=None):
             usable = any(goal.get("status") == "solved" and any(route.get("status") == "verified"
                          for route in goal.get("routes", [])) for goal in result.get("goals", []))
             if result.get("status") == "completed" and usable and stage_three.stream_descriptor(search_id, output):
-                status = "ready"
+                solved = {goal.get("target_ref") for goal in result.get("goals", [])
+                          if goal.get("status") == "solved" and any(route.get("status") == "verified"
+                             for route in goal.get("routes", []))}
+                # The walk refuses an unbound D1 reading card even when the
+                # mathematical route verified. Do not advertise that lesson
+                # as ready in history/status while its entry is blocked.
+                readable = any(goal.get("target_ref") in solved and goal.get("status") == "resolved"
+                               and not goal.get("d1", {}).get("diagnostics")
+                               for goal in stage_two.get("goals", []))
+                status = "ready" if readable else "failed"
             elif result.get("status") == "completed" and not usable:
                 status = "unsupported"
             else:
@@ -756,6 +766,31 @@ def create_search_router(root, *, stage_three_hooks=None):
         except FileNotFoundError as exc:
             raise HTTPException(404, "lesson.run_not_found") from exc
 
+    @router.post("/problems/{search_id}/lesson/current")
+    def ensure_current_teaching(search_id: str, request: Request):
+        """Opening a lesson uses current shared methods without re-reading its photo."""
+        repo = repository(request)
+        directory = problem_dir(request, search_id, for_execution=True)
+        row = repo.submission(request.state.search_user, search_id, require_artifacts=True)
+        if row['recognition_status'] != 'reviewed':
+            raise HTTPException(409, 'stage_one.not_reviewed')
+        if stage_three.pending_retry(directory) is not None:
+            return {'status': 'running', 'updating': True}
+        attempt = stage_three.latest_attempt(directory)
+        if attempt is None or not stage_three.needs_teaching_update(attempt):
+            return {'updating': False, **stage_three.presentation(directory, search_id)}
+
+        def reserve():
+            stage_three.assert_current_attempt(directory, attempt)
+            if not stage_three.needs_teaching_update(attempt):
+                raise stage_three.LessonConflict('lesson.already_current')
+            stage_three.reserve_retry(directory)
+
+        queue_execution(search_id, directory,
+                        lambda: stage_three.refresh_teaching(directory, attempt, hooks=stage_three_hooks),
+                        repo=repo, user=request.state.search_user, app=request.app, validate=reserve)
+        return {'status': 'running', 'updating': True}
+
     @router.post("/problems/{search_id}/lesson/start")
     def start_existing_lesson(search_id: str, request: Request):
         """Explicitly start stage three for an already saved stage-two attempt."""
@@ -917,6 +952,12 @@ def create_search_router(root, *, stage_three_hooks=None):
         if unavailable:
             return {**state, "state": "done", "status": unavailable, "outcome": unavailable,
                     "original_text": row["statement"] or "", "lesson": None}
+        try:
+            state["figures"] = figures.present(directory, search_id)
+        except SearchError as exc:
+            # A missing/stale display asset must not change the recognition result.
+            # Do not silently substitute unbound option crops or a different source.
+            state["figure_error"] = exc.code
         calls = ledger_calls(directory / "workflow")
         state.update(calls=[{"stage": stage, "status": status} for stage, status in calls],
                      crop=stage_three.read(directory / "crop.json"))
@@ -948,12 +989,33 @@ def create_search_router(root, *, stage_three_hooks=None):
         with repository(request).storage.read_lock(search_id):
             return image_response(problem_dir(request, search_id) / "question.png", "image/png")
 
+    @router.get("/problems/{search_id}/figures")
+    def problem_figures(search_id: str, request: Request):
+        problem_dir(request, search_id)
+        with repository(request).storage.read_lock(search_id):
+            return figures.present(problem_dir(request, search_id), search_id)
+
+    @router.get("/problems/{search_id}/figures/{figure_id}")
+    def problem_figure(search_id: str, figure_id: str, request: Request,
+                       version: str | None = Query(default=None, max_length=64)):
+        problem_dir(request, search_id)
+        with repository(request).storage.read_lock(search_id):
+            content = figures.image_bytes(problem_dir(request, search_id), figure_id, version)
+            return Response(content, media_type="image/png", headers={"X-Content-Type-Options": "nosniff"})
+
     return router
 
 
 def _present(result):
     """What the problem page needs, plus the image identity check."""
     status = result["status"]
+    attempts = result.get("figure_attempts") or []
+    if status == "needs_confirmation" and attempts:
+        # Older results flattened every figure failure into a reading problem.
+        # Present the last attempt's actual failure without rewriting its evidence.
+        last_status = attempts[-1].get("status")
+        if last_status and last_status not in {"needs_confirmation", "reviewed_candidate"}:
+            status = last_status
     findings = [{"kind": f["kind"], "source_excerpt": f["source_excerpt"], "message": f["message"]}
                 for f in result.get("review_findings", [])]
     # Uncertainties the model declared while extracting (before any review).
@@ -961,6 +1023,10 @@ def _present(result):
                  for d in result.get("confirmation_diagnostics", [])]
     if status == "reviewed_candidate":
         outcome = "ok"
+    elif any(f['kind'] == 'figure.merge_invalid' for f in findings):
+        # Both image reviews succeeded; a contract failure is ours to retry.
+        # This also corrects presentation of retained failures without rewriting them.
+        outcome = "error"
     elif status == "needs_confirmation":
         kinds = [FAILURES.get(f["kind"]) for f in findings]
         outcome = "figure" if "figure" in kinds else "unclear"
@@ -971,6 +1037,7 @@ def _present(result):
     else:
         outcome = "error"
     candidate = result.get("candidate") or {}
+    image_hashes = expected_image_hashes(result)
     return {
         "status": status,
         "outcome": outcome,
@@ -983,7 +1050,8 @@ def _present(result):
         "image_check": {
             "question_sha256": result["question_sha256"],
             "sent_image_sha256": result["sent_image_sha256"],
-            "verified": result["sent_image_sha256"] == [result["question_sha256"]],
+            "original_sha256": image_hashes[1] if len(image_hashes) >= 2 else None,
+            "verified": bool(image_hashes) and result["sent_image_sha256"] == image_hashes,
         },
         "elapsed_seconds": result.get("elapsed_seconds"),
     }

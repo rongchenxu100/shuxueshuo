@@ -1,4 +1,4 @@
-import {gradeMethodCards, methodAnswer, selectedMethod} from './method-cards.mjs?v=20261101-method-map';
+import {gradeMethodCards, methodAnswer, selectedMethod} from './method-cards.mjs?v=20261102-piecewise-j1';
 // One local decision engine for the student UI, model recorder and replay.
 import '../practice/context.js?v=15';
 import {matchedOriginalChoice, exactOriginalAnswer} from './original-choice.mjs?v=20261028-domain-overlap';

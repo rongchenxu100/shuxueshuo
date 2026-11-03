@@ -53,8 +53,10 @@ def test_chosen_box_is_cropped_and_handed_to_stage_one(client, monkeypatch, tmp_
     monkeypatch.setenv("RUN_LLM_INTEGRATION", "1")
     received = {}
 
-    def fake_run(png, output, provider, *, problem_id):
+    def fake_run(png, output, provider, *, problem_id, original_png=None, read_graph_details=False):
+        assert read_graph_details
         received["png"] = png
+        received["original"] = original_png
         digest = sha256(png).hexdigest()
         (output / dev_api.RESULT_FILE).write_text(json.dumps({
             **reviewed_result(public_candidate()),
@@ -63,7 +65,7 @@ def test_chosen_box_is_cropped_and_handed_to_stage_one(client, monkeypatch, tmp_
 
     monkeypatch.setattr(dev_api, "run_question_image", fake_run)
     monkeypatch.setattr("shuxueshuo_server.problem_understanding.batch_smoke.live_provider_factory",
-                        lambda name: (lambda: object()))
+                        lambda name, **kwargs: (lambda: object()))
     page = _upload(client)
     box = page["regions"][4]["box"]
     started = client.post("/api/search/problems", json={"page_id": page["page_id"], "box": box}).json()
@@ -84,6 +86,11 @@ def test_chosen_box_is_cropped_and_handed_to_stage_one(client, monkeypatch, tmp_
     assert status["crop"]["bytes"] == len(received["png"])
     served = client.get(f"/api/search/problems/{started['search_id']}/image").content
     assert served == received["png"]
+    original_row = next(r for r in status['figures']['figures'] if r['id'] == 'original')
+    assert client.get(original_row['image_url']).content == received['original']
+    assert received['original'] != received['png']
+    with Image.open(BytesIO(received['original'])) as original:
+        assert original.mode == 'RGB' and original.size == expected
 
 
 def test_preview_is_the_candidate_under_review(client, monkeypatch):
@@ -98,7 +105,7 @@ def test_preview_is_the_candidate_under_review(client, monkeypatch):
         (output / "workflow/ledger.json").write_text(json.dumps({"identity": {}, "calls": [
             {"stage": stage, "status": "completed", "base_revision": base} for stage, base in calls]}))
 
-    def fake_run(png, output, provider, *, problem_id):
+    def fake_run(png, output, provider, *, problem_id, original_png=None, read_graph_details=False):
         ledger(output, ("extract", None))
         (output / "workflow/candidate.json").write_text(json.dumps(candidate))
         steps["extracted"].set()
@@ -113,7 +120,7 @@ def test_preview_is_the_candidate_under_review(client, monkeypatch):
     steps = {name: threading.Event() for name in ("extracted", "review", "reviewing", "repair", "repaired")}
     monkeypatch.setattr(dev_api, "run_question_image", fake_run)
     monkeypatch.setattr("shuxueshuo_server.problem_understanding.batch_smoke.live_provider_factory",
-                        lambda name: (lambda: object()))
+                        lambda name, **kwargs: (lambda: object()))
     page = _upload(client)
     sid = client.post("/api/search/problems", json={"page_id": page["page_id"], "box": page["regions"][0]["box"]}).json()["search_id"]
     status = lambda: client.get(f"/api/search/problems/{sid}").json()
@@ -161,3 +168,29 @@ def test_unsupported_mathematics_is_not_a_system_failure(status, unsupported, ou
     result = {"status": status, "unsupported_diagnostics": unsupported,
               "question_sha256": "a", "sent_image_sha256": ["a"]}
     assert dev_api._present(result)["outcome"] == outcome
+
+
+@pytest.mark.parametrize('code,outcome', [
+    ('figure.merge_invalid', 'error'),
+    ('figure.uncertain_facts', 'unclear'),
+    ('missing_figure', 'figure'),
+])
+def test_merge_contract_failure_is_not_reported_as_a_blurry_photo(code, outcome):
+    result = {'status': 'needs_confirmation', 'question_sha256': 'a', 'sent_image_sha256': ['a'],
+              'confirmation_diagnostics': [{'code': code, 'message': 'diagnostic'}]}
+    assert dev_api._present(result)['outcome'] == outcome
+    assert result['status'] == 'needs_confirmation'  # Historic evidence stays intact.
+
+
+@pytest.mark.parametrize('attempt_status,outcome', [
+    ('review.invalid_response', 'error'),
+    ('workflow.budget_exhausted', 'error'),
+    ('needs_confirmation', 'unclear'),
+])
+def test_retained_figure_failures_use_the_last_attempt_status(attempt_status, outcome):
+    result = {'status': 'needs_confirmation', 'question_sha256': 'a', 'sent_image_sha256': ['a'],
+              'figure_attempts': [{'status': 'review.invalid_response'}, {'status': attempt_status}]}
+    presented = dev_api._present(result)
+    assert presented['outcome'] == outcome
+    assert presented['status'] == attempt_status
+    assert result['status'] == 'needs_confirmation'

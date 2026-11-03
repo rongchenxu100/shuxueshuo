@@ -1,0 +1,75 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-graph",
+  "branches": [
+    {
+      "branch_id": "affine-absolute-options",
+      "checks": [
+        {
+          "id": "graph-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "select_function_graph",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-source",
+          "feature_id": "function_graph",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "draw_function_graph",
+      "checks": [
+        {
+          "id": "graph-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "draw_function_graph",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-source",
+          "feature_id": "function_graph",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "solve_graph_inequality",
+      "checks": [
+        {
+          "id": "graph-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "solve_graph_inequality",
+          "role": "required",
+          "student_cue": 2
+        },
+        {
+          "id": "supported-source",
+          "feature_id": "function_graph",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 2
+        }
+      ]
+    }
+  ]
+}

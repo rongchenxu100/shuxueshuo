@@ -142,8 +142,10 @@ def _goal(goal, features, text, candidate=None):
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
     source_goal = known.get("goal", {})
-    if (source_goal.get("kind") in ('find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
-            or source_goal.get("kind") == "find_range" and "object" in source_goal):
+    if (source_goal.get("kind") in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality', 'find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
+            or source_goal.get("kind") == "find_range" and "object" in source_goal
+            or known.get('piecewise_equation', {}).get('structure_supported')
+            or known.get('piecewise_inequality', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -406,6 +408,14 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('piecewise_modeling', {}).get('structure_supported'):
+        return _piecewise_modeling_d1_rows(target, fragments, known, text)
+    if known.get('piecewise_inequality', {}).get('structure_supported'):
+        return _piecewise_inequality_d1_rows(target, fragments, known, text)
+    if known.get('piecewise_equation', {}).get('structure_supported'):
+        return _piecewise_equation_d1_rows(target, fragments, known, text)
+    if known.get('function_graph', {}).get('structure_supported'):
+        return _graph_d1_rows(target, fragments, known, text)
     if known.get('function_formula', {}).get('structure_supported'):
         return _formula_d1_rows(target, fragments, known, text)
     if known.get('translation_range', {}).get('structure_supported'):
@@ -485,6 +495,33 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _graph_d1_rows(target, fragments, known, text):
+    selected = [row for row in fragments if row['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in selected]
+    correct = '根据解析式，选择对应的图像'
+    feedback = '题目给出了函数解析式，要核对原选项中的图像。'
+    kind = known['function_graph']['source']['kind']
+    if 'source_graph' in known['function_graph']['source']:
+        correct, feedback = '根据原图，选择变换后的图像', '题目只给了原图，先判断点的位置和图像方向怎样变化。'
+    if 'transformations' in known['function_graph']['source']:
+        correct, feedback = '按要求平移图像，再选择对应的图像', '题目给了原解析式和平移要求，要判断移动后的图像。'
+    if kind == 'draw_function_graph':
+        correct, feedback = '根据解析式画出函数图像', '按绝对值内的正负分段，画出各段图像。'
+    elif kind == 'solve_graph_inequality':
+        correct, feedback = '结合图像求不等式的解集', '找到图像与水平线的交点，再判断区间和端点。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-representations#graph'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option('根据图像求解析式', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, known['function_graph']], sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问需要做什么？',
+            'feedback': feedback, 'summary': correct}
 
 
 def _formula_d1_rows(target, fragments, known, text):
@@ -568,6 +605,67 @@ def _range_d1_rows(target, fragments, known, text):
                                          ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice',
             'question': question, 'feedback': feedback, 'summary': summary}
+
+
+def _piecewise_inequality_d1_rows(target, fragments, known, text):
+    description = known['piecewise_inequality']
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    variable = description['variable']
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    feedback = '题目要求的是使不等式成立的全部输入；先算比较值，再逐段判断。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [fragment['id'] for fragment in selected],
+           'knowledge_refs': ['piecewise-function#inequality'], 'source_refs': [target],
+           'options': _shuffle(row_id, [
+               _option(f'求出满足题中不等式的全部 ${variable}$'),
+               _option('只算出比较用的函数值就结束', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, description], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '题目给出了分段函数和一个不等式，需要求什么？',
+            'feedback': feedback, 'summary': f'找出满足题中不等式的全部 ${variable}$，每个解都要符合所在段的范围。'}
+
+
+def _piecewise_modeling_d1_rows(target, fragments, known, text):
+    description = known['piecewise_modeling']
+    selected = [f for f in fragments if f['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    modeling = description['goal_ast']['kind'] == 'find_equation'
+    correct = '写出总电费随用电量变化的分段关系式' if modeling else '已知电费，求符合计费规则的用电量'
+    wrong = '把最高档单价乘以全部用电量' if modeling else '把题给电费当作用电量，代入算电费'
+    feedback = '超出部分才使用新单价，前面各档仍按原单价计费。' if modeling else '题目给出的是电费，要求的是用电量，还要检查它是否属于对应档位。'
+    spans = [_spans([f], text) for f in selected]
+    row_id = f'{target}:goal'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [f['id'] for f in selected], 'knowledge_refs': ['piecewise-function#definition'],
+           'source_refs': [target], 'options': _shuffle(row_id, [_option(correct), _option(wrong, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, description], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '这一问需要求什么？', 'feedback': feedback, 'summary': correct+'。'}
+
+
+def _piecewise_equation_d1_rows(target, fragments, known, text):
+    description = known['piecewise_equation']
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    variable = description['variable']
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    feedback = '题目给出了函数值，要反过来找出所有符合条件的自变量。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [fragment['id'] for fragment in selected],
+           'knowledge_refs': ['piecewise-function#equation'], 'source_refs': [target],
+           'options': _shuffle(row_id, [
+               _option(f'求出满足题中等式的全部 ${variable}$'),
+               _option('把题中给出的函数值当作自变量，代入求值', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, description], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '题目给出了分段函数及其函数值，需要求什么？',
+            'feedback': feedback, 'summary': f'找出满足题中等式的全部 ${variable}$，每个解都要符合所在段的范围。'}
 
 
 def _evaluation_d1_rows(target, fragments, known, text):

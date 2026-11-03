@@ -1,0 +1,78 @@
+{
+  "schema_version": "question-figures/v1",
+  "source": {
+    "sha256": "e31585972669bd89920c888e4a3e1c5421da03345dcade3ab5a675b75a377df5",
+    "width": 1086,
+    "height": 381,
+    "quality": "original"
+  },
+  "figures": [
+    {
+      "id": "original",
+      "role": "source",
+      "scope_ref": "/root",
+      "box": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "option-a",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-a",
+      "label": "A",
+      "box": [
+        0.011970534069981584,
+        0.18635170603674542,
+        0.2578268876611418,
+        0.916010498687664
+      ]
+    },
+    {
+      "id": "option-b",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-b",
+      "label": "B",
+      "box": [
+        0.27900552486187846,
+        0.19160104986876642,
+        0.494475138121547,
+        0.9422572178477691
+      ]
+    },
+    {
+      "id": "option-c",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-c",
+      "label": "C",
+      "box": [
+        0.5248618784530387,
+        0.2283464566929134,
+        0.8158379373848987,
+        0.9921259842519685
+      ]
+    },
+    {
+      "id": "option-d",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-d",
+      "label": "D",
+      "box": [
+        0.8167587476979742,
+        0.2047244094488189,
+        0.998158379373849,
+        0.979002624671916
+      ]
+    }
+  ]
+}

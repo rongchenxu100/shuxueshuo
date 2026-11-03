@@ -1,5 +1,6 @@
 """Registered mathematical checks and input resolvers for method admission.
 
+
 Configuration selects existing operations; it never evaluates Python or SymPy
 source. These functions are called only from the supervised calculation worker.
 New methods can compose the same resolvers/checks without editing the driver.
@@ -13,6 +14,31 @@ import sympy as sp
 from . import capabilities, judgments
 from .capabilities import CapabilityGap
 from .premises import FeatureMath, UnknownPremise, parse_expression
+
+
+def _function_graph_admitted(context):
+    from .graph_transform_runtime import admitted
+    return admitted(context)
+
+
+def _piecewise_modeling_admitted(context):
+    from ..piecewise_modeling import admitted
+    return admitted(context) and context['goal']['kind'] == 'find_equation'
+
+
+def _piecewise_range_parameter_admitted(context):
+    from ..piecewise_range_parameter import admitted
+    return admitted(context)
+
+
+def _piecewise_inequality_admitted(context):
+    from ..piecewise_inequality import admitted
+    return admitted(context)
+
+
+def _piecewise_equation_admitted(context):
+    from ..piecewise_equation import admitted
+    return admitted(context)
 
 
 class Inputs:
@@ -165,6 +191,13 @@ def _function_matching(context):
 
 
 CHECKS = {
+    'piecewise_modeling': _piecewise_modeling_admitted,
+    'piecewise_range_parameter': _piecewise_range_parameter_admitted,
+    'piecewise_inequality': _piecewise_inequality_admitted,
+    'piecewise_equation': _piecewise_equation_admitted,
+    'function_graph': _function_graph_admitted,
+    'absolute_graph': lambda context: context.get('goal', {}).get('kind') == 'draw_function_graph' and _function_graph_admitted(context),
+    'absolute_graph_inequality': lambda context: context.get('goal', {}).get('kind') == 'solve_graph_inequality' and _function_graph_admitted(context),
     'function_formula': _function_formula,
     'function_matching': _function_matching,
     'function_coefficients': _function_coefficients,

@@ -109,7 +109,9 @@ def test_photo_workflow_keeps_original_goals_conditions_and_selectable_methods(c
 ])
 def test_rejected_photos_retain_diagnostics_and_never_become_reviewed(name, status, tmp_path, monkeypatch):
     from shuxueshuo_server.search.identity import IdentityUnavailable, build_identity
-    from shuxueshuo_server.search.stage_one import run_question_image
+    from shuxueshuo_server.search.stage_one import (
+        run_legacy_question_image as run_question_image,
+    )
 
     monkeypatch.setattr('shuxueshuo_server.problem_understanding.batch_smoke.live_provider_factory', forbidden)
     recording = RECORDINGS/'rejected'/name
@@ -149,8 +151,12 @@ def test_rejected_photos_retain_diagnostics_and_never_become_reviewed(name, stat
 ])
 def test_source_spelling_adapters_do_not_hide_changed_math_or_missing_conditions(name, before, after):
     from shuxueshuo_server.graph_lesson.stage_three.context import build_context
-    from shuxueshuo_server.graph_lesson.stage_two.formula_surface import formula_source_spans
-    from shuxueshuo_server.graph_lesson.stage_two.fragments import _abstract_formula_matches
+    from shuxueshuo_server.graph_lesson.stage_two.formula_surface import (
+        formula_source_spans,
+    )
+    from shuxueshuo_server.graph_lesson.stage_two.fragments import (
+        _abstract_formula_matches,
+    )
 
     candidate = json.loads((RECORDINGS/name/'result.json').read_text())['candidate']
     target = '/root/goals/0'

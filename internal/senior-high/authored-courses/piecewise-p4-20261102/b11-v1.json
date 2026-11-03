@@ -1,0 +1,29 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b11-v1",
+  "reviewer": "Codex · 2026-11-02 核对图10第99页例11变式题干及分段开闭；图11为变式2答案续页",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-10.png",
+      "sha256": "1de03d2cb3d83ef56ce1028e8a8c5383823f615ce64aa04655002c877a1af7e9",
+      "location": "第99页例11变式1，原题干与四个选项"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\begin{cases}x^2-2,&x\\le1\\\\ax^2-x+2,&x>1\\end{cases}$ 的值域为 $[-2,+\\infty)$，则实数 $a$ 的取值范围是（ ）。\nA. $(-\\infty,\\frac1{16}]$\nB. $(0,\\frac1{16}]$\nC. $[\\frac1{16},+\\infty)$\nD. $[\\frac18,+\\infty)$",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2-2,x<=1,a*x^2-x+2,x>1)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "match_range",
+          "object": "f",
+          "range": "[-2,+∞)",
+          "symbol": "a"
+        }
+      ]
+    }
+  }
+}

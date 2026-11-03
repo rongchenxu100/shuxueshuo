@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b09-v1",
+  "title": "分段作图与图像解不等式 · 例9变式1",
+  "page": "/topics/function-representations/q09b/",
+  "topicHref": "/topics/function-representations/",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "分段作图",
+    "解图像不等式"
+  ],
+  "statement": "设函数 $f(x)=|x^2-2x-3|$。\n（1）在平面直角坐标系中画出它的图像；\n（2）解不等式 $f(x)\\ge 3$。",
+  "evidence": "site/data/graph-walk/function-representations-b09-v1.evidence.json"
+}

@@ -467,6 +467,47 @@
               },
               {
                 "$ref": "#/$defs/FindRelationRangeGoal"
+              },
+              {
+                "$ref": "#/$defs/FunctionGraphGoal"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object",
+                  "range",
+                  "symbol"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "match_range",
+                    "description": "已知函数值域恰为题给集合，求参数范围"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "range": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "题面给出的完整值域，不是求解答案"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/$defs/BuildPiecewiseModelGoal"
+              },
+              {
+                "$ref": "#/$defs/FindPricingInputGoal"
               }
             ]
           },
@@ -1593,6 +1634,572 @@
         }
       },
       "description": "由题给函数关系与类型，求满足原不等式的自变量范围。"
+    },
+    "FunctionGraphGoal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "variable",
+            "comparison",
+            "selection_mode",
+            "options"
+          ],
+          "properties": {
+            "kind": {
+              "const": "select_function_graph"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "input_domain": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "comparison": {
+              "enum": [
+                "rough_shape",
+                "exact_equivalence"
+              ]
+            },
+            "selection_mode": {
+              "enum": [
+                "single",
+                "unspecified"
+              ]
+            },
+            "options": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "option_id",
+                  "label",
+                  "facts",
+                  "uncertainties"
+                ],
+                "properties": {
+                  "option_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$"
+                  },
+                  "label": {
+                    "type": "string",
+                    "pattern": "^[A-Z]$"
+                  },
+                  "facts": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "shape",
+                          "vertex",
+                          "left_direction",
+                          "right_direction"
+                        ],
+                        "properties": {
+                          "shape": {
+                            "enum": [
+                              "two_straight_branches",
+                              "unknown"
+                            ]
+                          },
+                          "vertex": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "x",
+                              "y",
+                              "evidence"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "y": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "evidence": {
+                                "enum": [
+                                  "labelled",
+                                  "estimated",
+                                  "unknown"
+                                ]
+                              }
+                            }
+                          },
+                          "left_direction": {
+                            "enum": [
+                              "decreasing",
+                              "increasing",
+                              "unknown"
+                            ]
+                          },
+                          "right_direction": {
+                            "enum": [
+                              "decreasing",
+                              "increasing",
+                              "unknown"
+                            ]
+                          },
+                          "domain": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 256
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "shape",
+                          "outer_direction",
+                          "landmarks",
+                          "symmetry"
+                        ],
+                        "properties": {
+                          "shape": {
+                            "const": "turning_points"
+                          },
+                          "outer_direction": {
+                            "enum": [
+                              "up",
+                              "down",
+                              "unknown"
+                            ]
+                          },
+                          "landmarks": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "role",
+                                "evidence"
+                              ],
+                              "anyOf": [
+                                {
+                                  "required": [
+                                    "x"
+                                  ]
+                                },
+                                {
+                                  "required": [
+                                    "y"
+                                  ]
+                                }
+                              ],
+                              "properties": {
+                                "role": {
+                                  "enum": [
+                                    "left_corner",
+                                    "center",
+                                    "right_corner"
+                                  ]
+                                },
+                                "x": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                },
+                                "y": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 80
+                                },
+                                "evidence": {
+                                  "enum": [
+                                    "labelled",
+                                    "axis",
+                                    "estimated",
+                                    "unknown"
+                                  ]
+                                }
+                              }
+                            }
+                          },
+                          "symmetry": {
+                            "enum": [
+                              "symmetric",
+                              "asymmetric",
+                              "unknown"
+                            ],
+                            "description": "原图是否关于中间转折点的竖直线左右对称；不可辨认时填unknown，不由题干推测。"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "shape",
+                          "direction",
+                          "x_intercept"
+                        ],
+                        "properties": {
+                          "shape": {
+                            "const": "shown_monotone_curve",
+                            "description": "仅指原图展示部分的一条单调曲线，不推断全定义域或具体解析式。"
+                          },
+                          "direction": {
+                            "enum": [
+                              "increasing",
+                              "decreasing",
+                              "unknown"
+                            ]
+                          },
+                          "x_intercept": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "x",
+                              "evidence"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 80
+                              },
+                              "evidence": {
+                                "enum": [
+                                  "labelled",
+                                  "origin",
+                                  "estimated",
+                                  "unknown"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "uncertainties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "maxItems": 16
+                  }
+                }
+              }
+            },
+            "transformations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "direction",
+                  "distance"
+                ],
+                "properties": {
+                  "direction": {
+                    "enum": [
+                      "left",
+                      "right",
+                      "up",
+                      "down"
+                    ]
+                  },
+                  "distance": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                }
+              },
+              "description": "按题干顺序抄录平移方向和正的距离；expression仍是移动前的原式，不预先换算。"
+            },
+            "source_graph": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "function",
+                "facts",
+                "uncertainties"
+              ],
+              "properties": {
+                "function": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                "facts": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "shape",
+                    "direction",
+                    "x_intercept"
+                  ],
+                  "properties": {
+                    "shape": {
+                      "const": "shown_monotone_curve",
+                      "description": "仅指原图展示部分的一条单调曲线，不推断全定义域或具体解析式。"
+                    },
+                    "direction": {
+                      "enum": [
+                        "increasing",
+                        "decreasing",
+                        "unknown"
+                      ]
+                    },
+                    "x_intercept": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "x",
+                        "evidence"
+                      ],
+                      "properties": {
+                        "x": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 80
+                        },
+                        "evidence": {
+                          "enum": [
+                            "labelled",
+                            "origin",
+                            "estimated",
+                            "unknown"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "uncertainties": {
+                  "type": "array",
+                  "maxItems": 16,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  }
+                }
+              },
+              "description": "只给原图的题，记录函数名与可见事实；expression保留所求函数式（如f(2-x)），不拟合原函数。"
+            }
+          },
+          "description": "原式选图或平移后选图。expression保留原式；transformations仅抄题给移动。G1记录顶点和方向；G3记录原图转折点、两端方向；坐标仅抄明示标注，点在坐标轴上可记对应坐标0，不补齐被遮挡的坐标或公式。未知方向写unknown，未标出的坐标省略；无法辨认的关键证据写uncertainties。"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "variable"
+          ],
+          "properties": {
+            "kind": {
+              "const": "draw_function_graph"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "input_domain": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "variable",
+            "operator",
+            "level"
+          ],
+          "properties": {
+            "kind": {
+              "const": "solve_graph_inequality"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16
+            },
+            "input_domain": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "operator": {
+              "enum": [
+                ">",
+                ">=",
+                "<",
+                "<="
+              ]
+            },
+            "level": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        }
+      ]
+    },
+    "PiecewisePricing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "quantity",
+        "amount",
+        "quantity_unit",
+        "amount_unit",
+        "quantity_domain",
+        "thresholds",
+        "rates"
+      ],
+      "properties": {
+        "mode": {
+          "const": "marginal"
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "quantity_unit": {
+          "const": "千瓦时"
+        },
+        "amount_unit": {
+          "const": "元"
+        },
+        "quantity_domain": {
+          "const": "nonnegative_real"
+        },
+        "thresholds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          }
+        },
+        "rates": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+          }
+        }
+      }
+    },
+    "BuildPiecewiseModelGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "object",
+        "pricing",
+        "source_text",
+        "bill"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_equation"
+        },
+        "object": {
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/PiecewisePricing"
+        },
+        "source_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bill": {
+          "type": "string",
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+        }
+      }
+    },
+    "FindPricingInputGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "symbol",
+        "pricing",
+        "source_text",
+        "bill"
+      ],
+      "properties": {
+        "kind": {
+          "const": "find_range"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "pricing": {
+          "$ref": "#/$defs/PiecewisePricing"
+        },
+        "source_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bill": {
+          "type": "string",
+          "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+        }
+      }
     }
   }
 }

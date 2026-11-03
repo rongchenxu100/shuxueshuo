@@ -2,6 +2,8 @@
 
 > 本文保留 P0 完成时的历史快照。2026-11-01 后续已实现 FR-T1 A0 根式换元，当前状态与运行范围见 [A0 验收记录](function-formula-a0-acceptance.md)；下文的 planned、零方法等描述不代表后续运行状态。
 
+> 2026-11-03按用户要求删除FR-T4本期规划及公共占位；当前专题为3个题型、33道题。下文的4个题型及35道候选仅记录P0时的历史范围，当前范围以[章节计划](function-representations-topic-and-photo-learning-plan.md)为准。
+
 日期：2026-11-01。结论：**P0 已完成，新增独立的“函数的表示法”零题专题；FR-T1 开发设计已编写，求解与拍题能力待实施。**
 
 对应[章节计划](function-representations-topic-and-photo-learning-plan.md)和[FR-T1 开发设计](function-formula-problem-type-design.md)。本次只完成章节基础与设计，没有提交、部署或运行真实模型。

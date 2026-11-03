@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-q28b-v2",
+  "bundleVersion": "a4af971dd74c2320b6b95ca09b54e88ef9401fffd183e582929c1acad3af6b31",
+  "status": "completed",
+  "routes": [
+    "function-evaluation"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/children/0/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-evaluation"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "9f9f299446ba545957d42f44#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "653345859d3a3d066f71caa1#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "29f307343a16b3df32d6f6cf#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "628c48f92c71c9c5f22b88d5#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "goal-2-D1",
+      "answer": "/root/children/0/goals/1:goal:o0"
+    },
+    {
+      "decision": "8b2e6eae05101f9cc0c9abb0#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "e512d930e09eb19ba91c5577#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "59e83fe8e2f15a72d6c0ec7f#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "a01811b87a7a1420f8b52ee8#1",
+      "answer": "o1"
+    }
+  ]
+}

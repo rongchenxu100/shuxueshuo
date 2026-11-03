@@ -11,7 +11,9 @@ from pathlib import Path
 
 from shuxueshuo_server.problem_understanding.identity import revision
 from shuxueshuo_server.search.extraction import SearchStageOneContract
-from shuxueshuo_server.search.stage_one import run_question_image
+from shuxueshuo_server.search.stage_one import (
+    run_legacy_question_image as run_question_image,
+)
 from tests.search.test_public_extraction import CONFIRMED, Responses
 
 FAILURE = Path(__file__).parent / "fixtures/function-domain/q04-failed-20261027"

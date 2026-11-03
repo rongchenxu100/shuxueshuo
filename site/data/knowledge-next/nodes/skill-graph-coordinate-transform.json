@@ -1,0 +1,60 @@
+{
+  "id": "skill-graph-coordinate-transform",
+  "kind": "skill",
+  "label": "点坐标与范围变换",
+  "summary": "对点及区间端点使用同一坐标映射，保留开闭。",
+  "source": "函数的表示法 FR-T2 G1、G3、G4",
+  "input": "已知点 (u,v)、输入 u=ax+b（a≠0）与竖直平移 c。题给平移时按顺序使用 (u,v)→(u+h,v+k)。",
+  "output": "新点 ((u-b)/a,v+c) 和对应输入范围。",
+  "conditions": "系数为固定有理数；除以 a 前确认 a≠0。",
+  "basis": [
+    "function-graph-transformations#translation",
+    "function-graph-transformations#symmetry",
+    "function-graph-transformations#graph"
+  ],
+  "operations": [
+    {
+      "id": "map",
+      "title": "建立点的对应",
+      "body": [
+        "由 u=ax+b 解得 x=(u-b)/a，纵坐标变为 v+c。"
+      ]
+    },
+    {
+      "id": "domain",
+      "title": "保留端点的取舍",
+      "body": [
+        "负系数会交换左右端点；空心点仍为空心，实心点仍为实心。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "绝对值函数平移选图",
+      "prompt": "判断 $y=|x-1|+1$ 的大致图像。",
+      "solution": [
+        "由 $y=|x|$ 向右平移 1，再向上平移 1。",
+        "$(0,0)\\mapsto(1,1)$，左侧递减、右侧递增；核对原选项的标注。"
+      ],
+      "source": "函数的表示法 B09"
+    },
+    {
+      "title": "绝对值二次函数的两步平移",
+      "prompt": "将 $y=|-x^2+1|+2$ 向左平移 2 个单位，再向下平移 3 个单位，选择所得图像。",
+      "solution": [
+        "先得到 $y=|-(x+2)^2+1|+2$，再得到 $y=|-(x+2)^2+1|-1$。",
+        "三个关键点依次移到 $(-3,-1)$、$(-2,0)$、$(-1,-1)$；核对原图标注，不能从示意图补造公式。"
+      ],
+      "source": "函数的表示法 B09-v2"
+    },
+    {
+      "title": "根据原图判断 f(2-x) 的图像",
+      "prompt": "原图 y=f(x) 在展示部分从左往右上升，并经过原点。选择 y=f(2-x) 的图像。",
+      "solution": [
+        "令 $u=2-x$，则 $x=2-u$，故 $(u,v)\\mapsto(2-u,v)$。",
+        "$(0,0)\\mapsto(2,0)$；水平方向反转，展示部分从左往右下降。核对原选项这两个特征，不补造 f 的解析式。"
+      ],
+      "source": "函数的表示法 B09-v3"
+    }
+  ]
+}

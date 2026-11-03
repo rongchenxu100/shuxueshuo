@@ -33,18 +33,23 @@
       "simplify_matching_expression",
       "expand_coefficient_relations",
       "simplify_system_formula",
-      "simplify_assignment_formula"
+      "simplify_assignment_formula",
+      "evaluate_piecewise_level"
     ],
     "skill-quadratic-sign": [
       "quadratic_sign_condition",
       "quadratic_sign_pattern",
-      "coefficient_target_signs"
+      "coefficient_target_signs",
+      "solve_absolute_graph_inequality",
+      "solve_piecewise_signs"
     ],
     "skill-solve-quadratic": [
       "solve_quadratic",
       "check_evaluation_quadratic_conditions",
       "solve_equation_range",
-      "coefficient_target_roots"
+      "coefficient_target_roots",
+      "solve_piecewise_branches",
+      "solve_piecewise_inequality_roots"
     ],
     "skill-quantified-range": [
       "select_quantifier_policy"
@@ -116,6 +121,12 @@
     ],
     "skill-polynomial-coefficient-comparison": [
       "compare_polynomial_coefficients"
+    ],
+    "skill-graph-coordinate-transform": [
+      "transform_function_graph"
+    ],
+    "skill-absolute-sign-split": [
+      "construct_absolute_graph"
     ]
   },
   "internal": {
@@ -239,6 +250,36 @@
     ],
     "prepare_function_assignment": [
       "method-function-assignment#recover"
+    ],
+    "filter_piecewise_branches": [
+      "method-piecewise-equation#filter"
+    ],
+    "filter_piecewise_inequality": [
+      "method-piecewise-inequality#filter"
+    ],
+    "prepare_piecewise_range": [
+      "method-piecewise-range#prepare"
+    ],
+    "bind_piecewise_range": [
+      "method-piecewise-range#inputs"
+    ],
+    "merge_piecewise_range": [
+      "method-piecewise-range#merge"
+    ],
+    "prepare_piecewise_range_parameter": [
+      "method-piecewise-range-parameter#fixed"
+    ],
+    "solve_piecewise_range_parameter": [
+      "method-piecewise-range-parameter#solve"
+    ],
+    "build_piecewise_model": [
+      "method-piecewise-modeling#build"
+    ],
+    "reduce_piecewise_range_to_universal": [
+      "method-piecewise-range-parameter#solve"
+    ],
+    "accept_piecewise_range_subproblem": [
+      "method-piecewise-range-parameter#solve"
     ]
   }
 }

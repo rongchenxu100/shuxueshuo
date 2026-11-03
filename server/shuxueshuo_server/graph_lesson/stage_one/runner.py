@@ -71,8 +71,13 @@ def build_request(fixture, store):
     return build_image_request((Path(fixture) / "source.png").read_bytes(), store)
 
 
-def build_image_request(content, store):
-    """Provider request for one PNG question image; the student search path uses this too."""
+def build_image_request(content, store, *, original_content=None):
+    """Question image, optionally with an unprocessed view of the very same crop.
+
+    The caller validates the crop correspondence. The supplemental image uses
+    the existing detail/zoom transport, on the same page, rather than pretending
+    this is a second question or a multi-page upload.
+    """
     source_hash = sha256(content).hexdigest()
     with Image.open(BytesIO(content)) as image:
         if image.format != "PNG":
@@ -86,6 +91,16 @@ def build_image_request(content, store):
         images=(MultimodalImageInput("primary", "page-1", "primary", artifact, width, height),),
         printed_text=(), recognized_formulas=(), unresolved_items=(), region_index=(),
     )
+    images = [MultimodalProviderImage("primary", "page-1", "primary", artifact, content, width, height)]
+    if original_content is not None:
+        with Image.open(BytesIO(original_content)) as original:
+            if original.format != "PNG":
+                raise ValueError("stage one expects a PNG original image")
+            original_size = original.size
+        original_artifact = store.put_bytes(kind="graph_stage_one_original", content=original_content,
+                                             media_type="image/png", suffix=".png")
+        images.append(MultimodalProviderImage("original", "page-1", "zoom", original_artifact,
+                                              original_content, *original_size))
     return MultimodalProviderRequest(
         evidence_pack=pack,
         prompt=MultimodalExtractionPrompt(
@@ -93,7 +108,7 @@ def build_image_request(content, store):
             json.dumps({"response_schema": contracts.schema(), "math_expression_catalog": contracts.expression_catalog()}, ensure_ascii=False),
             "读取完整题图，转录原题文字，按 Schema 提取数学题意。只返回 JSON。",
         ),
-        images=(MultimodalProviderImage("primary", "page-1", "primary", artifact, content, width, height),),
+        images=tuple(images),
         contract_version=contracts.CONTRACT, contract_schema=contracts.schema(),
         response_format={"type": "json_object"},
     )

@@ -1,0 +1,95 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-08.png",
+  "source_sha256": "15671e61ea0ea57d21b73415ebb42f2959bc25161b35b622c40a915e63bd24fe",
+  "source_kind": "original_page_question_crop_dual_view",
+  "recorded_date": "2026-11-02",
+  "usage": "development_regression_not_unseen_holdout",
+  "product_crop": {
+    "box": [
+      0.09773260359655982,
+      0.205158264947245,
+      0.9069585613760751,
+      0.4718640093786635
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1035,
+      455
+    ]
+  },
+  "historical_semantic_calls": 3,
+  "historical_network_attempts": 3,
+  "call_stages": [
+    "extract",
+    "repair",
+    "review"
+  ],
+  "detail_rereading_enabled": true,
+  "notes": "Actual dual-view extraction with unchanged original and processed pixels, no authored facts or answers. Three calls: extraction, schema repair of misplaced statement_figure_regions, independent full-source review confirmed. Graph detail rereading was enabled but NOT triggered; this is not live acceptance of detail crops or an unseen holdout. Earlier uncertain attempts remain retained separately.",
+  "sanitization": {
+    "removed": "Provider file/request identifiers only.",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/image_files/1/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/1/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id",
+      "workflow/calls/02-repair/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/02-repair/response.json/metadata/image_files/1/file_id",
+      "workflow/calls/02-repair/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/02-repair/response.json/metadata/file_operations/1/file_id",
+      "workflow/calls/02-repair/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/02-repair/response.json/raw_payload/id",
+      "workflow/calls/03-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/03-review/response.json/metadata/image_files/1/file_id",
+      "workflow/calls/03-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/03-review/response.json/metadata/file_operations/1/file_id",
+      "workflow/calls/03-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/03-review/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "original.png": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "question.png": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010",
+    "crop.json": "0acf874a50e77bc69b7e41c2f38cf80ee51f0a987c3f6bd5854ae08a08007e37",
+    "result.json": "01fd7fff60da1f2ef595c122b229b843c948c883c8f3a3a36671c7149d185197",
+    "workflow/ledger.json": "caa1b82d65d1b2fa3871012e4c8413a32898f2a376557f6efd99962503008bfd",
+    "workflow/candidate.json": "6d82da183c78059e799629d4b5e2bfa9dd7128ccb0f14edff6367b375a005f58",
+    "workflow/workflow-result.json": "e0e883d90f854ae21dd2fb2d24ea85dfbe3c3e999df0dd520a9a7b4967b7ade2",
+    "workflow/latest-review.json": "918ec0cd888e6432cad5c40ffe5b989bd7dc90bd0c8a70af0032ad14c565fe8b",
+    "question-figures.json": "8e828cc73119efa9c44815849fa97315d225783a849941d0c6f97481e70e1ef8",
+    "workflow/calls/01-extract/request.json": "ca248e10e92940cf77e896d2d4100b5b3a2a6a33faa79640fc17cb85d4b58f8e",
+    "workflow/calls/01-extract/response.json": "6dd60d7271a97ff7ebcc7cbf76bbe75ed96d3bf89db848b0ad3ecd31bcb29249",
+    "workflow/calls/02-repair/request.json": "dc8e99f0b06ed8cb65076a61eb07c126c6e1e11f8fc7a9a006d39190f0836877",
+    "workflow/calls/02-repair/response.json": "ac1832f9dfeb335feb7758af632b18398274b2a1b14730a81fdd43e5038ea96e",
+    "workflow/calls/03-review/request.json": "a9510441170b0b32e9a6914e2b4b3f0b3e07908b621824082bdd64f6d2396491",
+    "workflow/calls/03-review/response.json": "f0a94fa3a5a86cc0a7a5e04237fe57cc09c382a8339d20543123b7cd4c8c6e6f"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "73614a1845cb9ad471b1e5fb3cb0d1e35e4d6495bd4d300b566ea8bf061f3a02",
+    "workflow/calls/02-repair/response.json": "e4e15a9ee22211306412b019da1f750aa6f41d8ca51db201e96b14df38b9dee0",
+    "workflow/calls/03-review/response.json": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+  },
+  "files": {
+    "original.png": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "question.png": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010",
+    "crop.json": "0acf874a50e77bc69b7e41c2f38cf80ee51f0a987c3f6bd5854ae08a08007e37",
+    "result.json": "01fd7fff60da1f2ef595c122b229b843c948c883c8f3a3a36671c7149d185197",
+    "workflow/ledger.json": "caa1b82d65d1b2fa3871012e4c8413a32898f2a376557f6efd99962503008bfd",
+    "workflow/candidate.json": "6d82da183c78059e799629d4b5e2bfa9dd7128ccb0f14edff6367b375a005f58",
+    "workflow/workflow-result.json": "e0e883d90f854ae21dd2fb2d24ea85dfbe3c3e999df0dd520a9a7b4967b7ade2",
+    "workflow/latest-review.json": "918ec0cd888e6432cad5c40ffe5b989bd7dc90bd0c8a70af0032ad14c565fe8b",
+    "question-figures.json": "8e828cc73119efa9c44815849fa97315d225783a849941d0c6f97481e70e1ef8",
+    "workflow/calls/01-extract/request.json": "ca248e10e92940cf77e896d2d4100b5b3a2a6a33faa79640fc17cb85d4b58f8e",
+    "workflow/calls/01-extract/response.json": "293051371c8e0d089c4c6b51f347c651a4b61182c8ee9fff589ab191a7e79b08",
+    "workflow/calls/02-repair/request.json": "dc8e99f0b06ed8cb65076a61eb07c126c6e1e11f8fc7a9a006d39190f0836877",
+    "workflow/calls/02-repair/response.json": "bd5779440a787a38a8ca4f27a4bd7b502df4af240ff83f0496a938548dbec4ba",
+    "workflow/calls/03-review/request.json": "a9510441170b0b32e9a6914e2b4b3f0b3e07908b621824082bdd64f6d2396491",
+    "workflow/calls/03-review/response.json": "5d88c3e552f67c132e933f651c216c0142d20e6b057d0e7ccbfb072c7fbb00c8"
+  }
+}

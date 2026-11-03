@@ -2,6 +2,8 @@ LOCAL_GIT_WORKFLOW.md
 demo/
 !site/demo/
 .DS_Store
+__pycache__/
+*.py[cod]
 # Private environment configuration, at any depth. Only examples belong in Git.
 .env*
 *.env

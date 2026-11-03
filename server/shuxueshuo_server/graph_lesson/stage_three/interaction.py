@@ -18,7 +18,13 @@ from types import SimpleNamespace
 import sympy as sp
 from jsonschema import Draft202012Validator, ValidationError
 
-from . import domain_borrow, domain_interaction, domain_visuals, equality_presentation, evaluation_presentation
+from . import (
+    domain_borrow,
+    domain_interaction,
+    domain_visuals,
+    equality_presentation,
+    evaluation_presentation,
+)
 from . import interaction_graph_contract as graph_contract
 from . import interaction_graphs as drawing
 from .capabilities import CapabilityGap
@@ -53,7 +59,9 @@ CHUNK_SCHEMA = ROOT / "internal/schemas/graph-step-interaction-v1.schema.json"
 ENGINE_FILES = (Path(__file__).resolve(), Path(drawing.__file__).resolve(),
                 Path(graph_contract.__file__).resolve(), Path(domain_borrow.__file__).resolve(),
                 Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(),
-                Path(equality_presentation.__file__).resolve(), CHUNK_SCHEMA)
+                Path(equality_presentation.__file__).resolve(),
+                Path(__file__).with_name('quantified_subproblem.py'),
+                Path(__file__).with_name('substitution_interaction.py'), CHUNK_SCHEMA)
 MAX_REPRESENTATIVES = 12
 # Policies can need exact equality witnesses outside the generic constant grid.
 MAX_POLICY_REPRESENTATIVES = 2 * MAX_REPRESENTATIVES
@@ -348,12 +356,18 @@ def range_at(function, variable, domain):
         try:
             outputs = reciprocal_range(function, variable, domain)["outputs"]
         except CapabilityGap:
-            substitution = inspect_affine_reciprocal(function, variable, domain)
-            transformed = reciprocal_range(substitution["expression"], substitution["new_variable"],
-                                           substitution["domain"])["outputs"]
+            try:
+                substitution = inspect_affine_reciprocal(function, variable, domain)
+                transformed = reciprocal_range(substitution["expression"], substitution["new_variable"],
+                                               substitution["domain"])["outputs"]
+            except CapabilityGap:
+                from .capabilities.substitution import inspect_reciprocal_quadratic
+                substitution = inspect_reciprocal_quadratic(function, variable, domain)
+                transformed = quadratic_interval_range(substitution["expression"], substitution["new_variable"],
+                                                       substitution["domain"])["outputs"]
             outputs = restore_substitution_range(
                 substitution["mapping"], transformed["range"], transformed["critical_points"],
-                transformed["endpoint_values"], transformed["turning_point"],
+                transformed["endpoint_values"], transformed.get("turning_point"),
             )["outputs"]
         ends, critical, name = outputs["endpoint_values"], outputs["critical_points"], "critical"
     positions = []
@@ -1642,12 +1656,40 @@ def _checklist_part(part, number, part_id, seeds):
 
 
 def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
+    return _compile_interaction(seeds, rule, repeat_context, interaction_id=interaction_id)
+
+
+def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     """Return ``{"parts", "diagnostics"}``; raise NotInteractive for read-only.
 
     ``seeds`` hold one card, or two for a merge, in card order. Only these seeds,
     their exact thresholds and the fixed grid feed representatives; later cards
     are never read.
     """
+    if rule.get('compiler') == 'quantified_subproblem':
+        from .quantified_subproblem import compile_step
+        return compile_step(seeds, interaction_id)
+    if rule.get('compiler') == 'substitution':
+        from .substitution_interaction import compile_step
+        return compile_step(seeds, interaction_id)
+    if rule.get('compiler') == 'piecewise_range_parameter':
+        from .piecewise_range_parameter_presentation import compile_step
+        return compile_step(seeds, interaction_id)
+    if rule.get('compiler') == 'piecewise_range':
+        from .piecewise_range_presentation import compile_union
+        return compile_union(seeds, interaction_id)
+    if rule.get('compiler') == 'piecewise_inequality':
+        from .piecewise_inequality_presentation import compile_piecewise
+        return compile_piecewise(seeds, interaction_id)
+    if rule.get('compiler') == 'piecewise_modeling':
+        from .piecewise_modeling_presentation import compile_step
+        return compile_step(seeds, interaction_id)
+    if rule.get('compiler') == 'piecewise_equation':
+        from .piecewise_equation_presentation import compile_piecewise
+        return compile_piecewise(seeds, interaction_id)
+    if rule.get('compiler') == 'function_graph':
+        from .graph_transform_presentation import compile_graph
+        return compile_graph(seeds, interaction_id)
     if rule.get('compiler') == 'function_formula':
         from .formula_presentation import compile_formula
         return compile_formula(seeds, interaction_id)

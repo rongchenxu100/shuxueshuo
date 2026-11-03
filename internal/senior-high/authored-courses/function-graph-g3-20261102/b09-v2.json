@@ -1,0 +1,134 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b09-v2",
+  "reviewer": "Codex：对照第96页变式2的原题和四幅选项。D右端受页弯影响，只记录可见的左折点在横轴上，不补坐标或完整曲线。此记录是人工转录，不是照片识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-07.png",
+      "sha256": "02858651b8701a3923f4c5febea22c48d3a41ab867d8f92c33cd2a29a4f673aa",
+      "location": "第96页变式2；原题与A–D均在第7张，解析续至第8张，未用解析补全选项"
+    }
+  ],
+  "candidate": {
+    "original_text": "将函数 $y=|-x^2+1|+2$ 向左、向下分别平移 2 个、3 个单位长度，所得图像为（　）。选项 A、B、C、D 见原图。",
+    "root": {
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(-x^2+1)+2",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "transformations": [
+            {
+              "direction": "left",
+              "distance": "2"
+            },
+            {
+              "direction": "down",
+              "distance": "3"
+            }
+          ],
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "down",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-1",
+                    "y": "0",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "down",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "up",
+                "landmarks": [
+                  {
+                    "role": "center",
+                    "x": "-2",
+                    "y": "0",
+                    "evidence": "labelled"
+                  },
+                  {
+                    "role": "right_corner",
+                    "x": "-1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  }
+                ],
+                "symmetry": "symmetric"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "turning_points",
+                "outer_direction": "unknown",
+                "landmarks": [
+                  {
+                    "role": "left_corner",
+                    "y": "0",
+                    "evidence": "axis"
+                  }
+                ],
+                "symmetry": "unknown"
+              },
+              "uncertainties": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "expected": {
+    "option_id": "option-c",
+    "label": "C",
+    "landmarks": [
+      [
+        "-3",
+        "-1"
+      ],
+      [
+        "-2",
+        "0"
+      ],
+      [
+        "-1",
+        "-1"
+      ]
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

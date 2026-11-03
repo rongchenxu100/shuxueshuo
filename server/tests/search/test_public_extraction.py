@@ -13,11 +13,11 @@ from shuxueshuo_server.graph_lesson.stage_one.extraction import (
 from shuxueshuo_server.problem_understanding.identity import revision
 from shuxueshuo_server.search.extraction import (
     SearchStageOneContract,
-    candidate_schema,
     review_schema,
 )
 from shuxueshuo_server.search.identity import IdentityUnavailable, build_identity
 from shuxueshuo_server.search.stage_one import run_question_image
+from shuxueshuo_server.search.text_extraction import text_schema
 from shuxueshuo_server.solver.extraction.multimodal_provider import (
     DeepSeekMultimodalExtractionProvider,
 )
@@ -83,7 +83,7 @@ def test_public_repair_requires_fresh_full_review(tmp_path):
     assert len(provider.requests) == 4
     assert result["reviewed_candidate_revision"] == revision(repaired)
     assert result["public_candidate"] == repaired
-    assert json.loads(provider.requests[2].prompt.user_prefix)["response_schema"] == candidate_schema()
+    assert json.loads(provider.requests[2].prompt.user_prefix)["response_schema"] == text_schema()
     assert build_identity(result)["statement"] != "求范围。"
 
 

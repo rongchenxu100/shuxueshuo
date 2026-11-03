@@ -1,0 +1,217 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b11",
+  "label": "分段求值域法 · 例 11",
+  "path": "/topics/function-representations/q11a/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b11.json",
+  "types": [
+    "type-function-range"
+  ],
+  "statement": "函数 $f(x)=\\begin{cases}x^2-4x+3,&0\\le x\\le3\\\\x+3,&-3\\le x<0\\end{cases}$ 的值域为（ ）。\nA. $[-1,+\\infty)$\nB. $[3,+\\infty)$\nC. $[-1,0]$\nD. $[-1,3]$",
+  "routes": {
+    "piecewise-range": {
+      "label": "分段求值域法",
+      "methods": [
+        "method-piecewise-range"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 3,
+          "refs": [
+            "method-piecewise-range"
+          ]
+        },
+        "638a454525206e275a3aeec1#1": {
+          "title": "第1段：配方",
+          "position": 4,
+          "refs": [
+            "method-piecewise-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "2e6be22505e453511f9dc89f#1": {
+          "title": "第1段：判断顶点位置",
+          "position": 5,
+          "refs": [
+            "method-piecewise-range#square",
+            "method-complete-square",
+            "equality-properties#identity",
+            "square-nonnegative#nonnegative"
+          ]
+        },
+        "bf8584c2e042af8862a82bbd#1": {
+          "title": "第1段：比较函数值",
+          "position": 6,
+          "refs": [
+            "method-piecewise-range#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "a6c8d487fbc04c55ed821079#1": {
+          "title": "第1段：写出值域",
+          "position": 7,
+          "refs": [
+            "method-piecewise-range#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "6b92e2c0dee1a9ce95a3c249#1": {
+          "title": "第2段：比较函数值",
+          "position": 8,
+          "refs": [
+            "method-piecewise-range#range",
+            "skill-linear-range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "f9a8142cd3ecbadf602cabae#1": {
+          "title": "第2段：写出值域",
+          "position": 9,
+          "refs": [
+            "method-piecewise-range#range",
+            "skill-linear-range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "e52e95da47485a9435ae75f7#1": {
+          "title": "合并各段值域",
+          "position": 10,
+          "refs": [
+            "method-piecewise-range#merge",
+            "piecewise-function#domain-range",
+            "set-intersection-union#union"
+          ]
+        },
+        "[\"original-choice\",\"/root/goals/0\",\"piecewise-range\",\"6d9a6d71f53b7479365c08bbc785833d9d014fa3482fbd0c602411d44620cc5d\"]": {
+          "title": "选择原题答案",
+          "position": 11,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "668dfaecdd74a287713cd741ee18cc9d77cdfa68e588b696e325e435fed6bd8f",
+  "practice_version": "0f599bc232591eaeb8d6c353a42b5f97c60e2ebb1ddfb9ad8008b5cf0f6e2fc4",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

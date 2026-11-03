@@ -2639,6 +2639,399 @@
         ],
         "connector": "⇒"
       }
+    },
+    "function_graph_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "graph_result",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "function_graph_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_equation_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "branch_results",
+        "feasible_set",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_equation_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_inequality_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "level",
+        "phase",
+        "before",
+        "after",
+        "branch_results",
+        "feasible_set"
+      ],
+      "prepare": "piecewise_inequality_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_inequality_level": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "level",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_inequality_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_range_union": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "branch_results",
+        "feasible_set",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_range_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_range_parameter": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "fixed_range",
+        "phase",
+        "calculation",
+        "feasible_set",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_range_parameter_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_modeling": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "model_result",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_modeling_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "reciprocal_substitution": {
+      "title": "换元，并确定新变量的范围",
+      "explanation": "令新变量等于原变量的倒数，同时转换表达式和区间。",
+      "required_bindings": [
+        "before",
+        "after",
+        "original_expression",
+        "original_variable",
+        "original_domain",
+        "new_variable",
+        "forward",
+        "inverse",
+        "expression",
+        "domain",
+        "function_name"
+      ],
+      "prepare": "affine_substitution_view",
+      "render": [
+        "$$ {new_variable}={forward}\\iff {original_variable}={inverse} $$",
+        "$$ {original_variable}\\in{original_domain}\\iff {new_variable}\\in{domain} $$",
+        "$$ {affine_identity} $$"
+      ],
+      "highlight": {
+        "caption": "新变量与对应区间",
+        "connector": "→",
+        "items": [
+          {
+            "label": "换元关系",
+            "math": "{new_variable}={forward}"
+          },
+          {
+            "label": "对应区间",
+            "math": "{new_variable} \\in {domain}"
+          },
+          {
+            "label": "换元后的表达式",
+            "math": "{expression}"
+          }
+        ]
+      }
+    },
+    "quantified_subproblem": {
+      "title": "{subproblem_title}",
+      "explanation": "识别转化后的量词问题，使用已有选法交互进入公共方法。",
+      "required_bindings": [
+        "before",
+        "after",
+        "universal_statement",
+        "x",
+        "parameter",
+        "domain",
+        "borrowed_method",
+        "subproblem_context",
+        "phase",
+        "host_route"
+      ],
+      "prepare": "quantified_subproblem_view",
+      "render": "{subproblem_explanation}",
+      "highlight": {
+        "caption": "{subproblem_caption}",
+        "items": [
+          {
+            "label": "当前子问题",
+            "math": "{subproblem_statement}"
+          }
+        ]
+      }
+    },
+    "reciprocal_restore": {
+      "title": "把取值点换回原变量",
+      "explanation": "用逆变换把关键点还原到原变量，保留端点是否可取和函数值域。",
+      "required_bindings": [
+        "before",
+        "after",
+        "original_variable",
+        "new_variable",
+        "inverse",
+        "points",
+        "endpoints",
+        "turn",
+        "range",
+        "function_name",
+        "original_expression"
+      ],
+      "prepare": "affine_restore_view",
+      "render": [
+        "按 ${original_variable}={inverse}$ 回代。",
+        {
+          "for": "affine_restored_rows",
+          "as": "item",
+          "body": {
+            "if": "item.attained",
+            "then": "当 ${new_variable}={item.transformed_point}$ 时，${original_variable}={item.point}$，${affine_restored_label}$ 的值为 ${item.value}$，可以取得。",
+            "else": "在题目区间内，${new_variable} \\to {item.transformed_point}$ 对应 ${original_variable} \\to {item.point}$，${affine_restored_label}$ 的值趋近 ${item.value}$，对应端点不能取到。"
+          },
+          "separator": ""
+        },
+        {
+          "if": "affine_turn_outside",
+          "then": "对勾函数的拐点 ${new_variable}={turn.transformed_point}$ 对应 ${original_variable}={turn.point}$，该点不属于题目区间，不能把它作为区间内的取值点。"
+        },
+        "换元前后的函数值逐一相同，所以${affine_restored_label}$ 的值域仍为 ${range.set}$。",
+        {
+          "for": "affine_bounds",
+          "as": "item",
+          "body": {
+            "if": "item.finite",
+            "then": [
+              {
+                "if": "item.low",
+                "then": {
+                  "if": "item.attained",
+                  "then": "最小值",
+                  "else": "值域下端"
+                },
+                "else": {
+                  "if": "item.attained",
+                  "then": "最大值",
+                  "else": "值域上端"
+                }
+              },
+              "为 ${item.value}$，",
+              {
+                "if": "item.attained",
+                "then": "可以取得。",
+                "else": "只能趋近、不能取得。"
+              }
+            ],
+            "else": {
+              "if": "item.low",
+              "then": "函数值没有下界。",
+              "else": "函数值没有上界。"
+            }
+          },
+          "separator": ""
+        }
+      ],
+      "highlight": {
+        "caption": "回代后的值域",
+        "items": [
+          {
+            "label": "回代关系",
+            "math": "{original_variable}={inverse}"
+          },
+          {
+            "label": "${affine_restored_label}$ 的值域",
+            "math": "{range.set}"
+          }
+        ],
+        "result": "${affine_restored_label}$ 的值域为 ${range.set}$"
+      }
+    },
+    "substituted_range": {
+      "title": "{range_title}",
+      "explanation": "换元前后函数值相同，保留原函数名称并核对值域端点。",
+      "required_bindings": [
+        "before",
+        "after",
+        "range",
+        "domain",
+        "function",
+        "x",
+        "function_name",
+        "original_variable",
+        "original_expression",
+        "points",
+        "endpoints"
+      ],
+      "prepare": "substituted_range_view",
+      "render": "{range_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{range_title}",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "换元后的表达式与范围",
+            "math": "{range_identity},\\quad {x}\\in{domain}"
+          },
+          {
+            "label": "${range_label}$ 的值域",
+            "math": "{range_result}"
+          }
+        ]
+      }
     }
   },
   "boundary_steps": {
@@ -2662,7 +3055,15 @@
     "method-function-matching": "verify",
     "method-function-coefficients": "verify",
     "method-function-equation-system": "verify",
-    "method-function-assignment": "verify"
+    "method-function-assignment": "verify",
+    "method-function-graph-transform": "verify",
+    "method-absolute-piecewise-graph": "verify",
+    "method-piecewise-graph-inequality": "verify",
+    "method-piecewise-equation": "verify",
+    "method-piecewise-inequality": "verify",
+    "method-piecewise-range": "verify",
+    "method-piecewise-range-parameter": "verify",
+    "method-piecewise-modeling": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

@@ -1,5 +1,6 @@
 """Declarative prose rendering and registered, pure mathematical preparation."""
 
+
 import re
 from copy import deepcopy
 from string import Formatter
@@ -32,6 +33,39 @@ def _lookup(values, path):
     for part in path.split("."):
         result = result[part]
     return result
+
+
+def _piecewise_range_parameter_view(values):
+    from .piecewise_range_parameter_presentation import presentation
+    return presentation(values)
+
+
+def _piecewise_range_view(values):
+    from .piecewise_range_presentation import presentation
+    return presentation(values)
+
+
+def _piecewise_inequality_view(values):
+    from .piecewise_inequality_presentation import presentation
+    return presentation(values)
+
+
+def _piecewise_modeling_view(values):
+    from .piecewise_modeling_presentation import presentation
+    return presentation(values)
+
+
+def _piecewise_equation_view(values):
+    from .piecewise_equation_presentation import presentation
+    return presentation(values)
+
+
+def _function_graph_view(values):
+    if values['description']['source']['kind'] != 'select_function_graph':
+        from .absolute_graph_presentation import presentation as absolute_presentation
+        return absolute_presentation(values)
+    from .graph_transform_presentation import presentation
+    return presentation(values)
 
 
 class _MathFormatter(Formatter):
@@ -397,7 +431,11 @@ def _affine_restore_view(values):
     turn_attained = turn is not None and turn.get(
         "attained", any(row["point"] == turn["point"] and row["attained"] for row in points))
     bounds = values["range"]
+    label = (f"{values['function_name']}({math_value(values['original_variable'])['latex']})"
+             if values.get("function_name") else
+             math_value(values["original_expression"])["latex"] if "original_expression" in values else "")
     return {"affine_restored_rows": rows, "affine_turn_outside": turn is not None and not turn_attained,
+            "affine_restored_label": label,
             "affine_bounds": [{"low": key == "inf", "value": bounds[key],
                                "finite": bounds[key] not in (-sp.oo, sp.oo),
                                "attained": bounds[key + "_attained"]} for key in ("inf", "sup")]}
@@ -413,10 +451,20 @@ from .domain_presentation import parameter_view as domain_parameter_view
 from .domain_presentation import presentation as domain_presentation
 from .equality_presentation import view as equality_view
 from .evaluation_presentation import presentation as evaluation_presentation
-from .range_presentation import presentation as range_presentation
 from .formula_presentation import presentation as formula_presentation
+from .quantified_subproblem import presentation as quantified_subproblem_view
+from .range_presentation import presentation as range_presentation
+from .substitution_interaction import range_presentation as substituted_range_view
 
 PREPARERS = {
+    'substituted_range_view': substituted_range_view,
+    'quantified_subproblem_view': quantified_subproblem_view,
+    'piecewise_range_view': _piecewise_range_view,
+    'piecewise_range_parameter_view': _piecewise_range_parameter_view,
+    'piecewise_inequality_view': _piecewise_inequality_view,
+    'piecewise_modeling_view': _piecewise_modeling_view,
+    'piecewise_equation_view': _piecewise_equation_view,
+    'function_graph_view': _function_graph_view,
     'function_formula_view': formula_presentation,
     'function_range_view': range_presentation,
     'function_evaluation_view': evaluation_presentation,
@@ -448,6 +496,14 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    'substituted_range_view': {'range_label', 'range_identity', 'range_title', 'range_result', 'range_explanation'},
+    'quantified_subproblem_view': {'subproblem_statement', 'subproblem_title', 'subproblem_explanation', 'subproblem_caption'},
+    'piecewise_range_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'piecewise_range_parameter_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'piecewise_inequality_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'piecewise_modeling_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'piecewise_equation_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'function_graph_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'function_formula_view': {
         'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label',
         'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math',
@@ -514,7 +570,7 @@ PREPARED_FIELDS = {
     "hook_view": {"hook_label", "hook_left", "hook_right", "hook_minimum", "hook_turn", "hook_side",
                   "hook_relation", "hook_positive", "hook_amgm", "hook_equal", "hook_peak", "hook_ends"},
     "affine_substitution_view": {"affine_original", "affine_identity"},
-    "affine_restore_view": {"affine_restored_rows", "affine_turn_outside", "affine_bounds"},
+    "affine_restore_view": {"affine_restored_rows", "affine_turn_outside", "affine_bounds", "affine_restored_label"},
 }
 
 

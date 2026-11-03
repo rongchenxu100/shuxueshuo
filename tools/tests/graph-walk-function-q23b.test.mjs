@@ -8,7 +8,7 @@ import {loadSources} from '../lib/public-knowledge-sources.mjs';
 import {exportContent} from '../export-public-knowledge.mjs';
 
 const read = async path => JSON.parse(await fs.readFile(new URL(path, import.meta.url), 'utf8'));
-const id = 'function-concepts-q23b';
+const id = 'function-concepts-q23b-v2';
 const bundle = await read(`../../site/data/graph-walk/${id}.json`);
 const replay = await read(`../../site/data/graph-walk/${id}.replay.json`);
 const route = bundle.routes['domain-parameter'];
@@ -22,12 +22,12 @@ test('Q23 second question has an independent course identity without the first q
   assert.equal(topic.problems[id].path, source.page);
   assert.equal(topic.problems[id].bundle, `/data/graph-walk/${id}.json`);
   assert.equal(bundle.problemId, id);
-  assert.ok(bundle.problem.text.includes(String.raw`\frac{\sqrt{x^2-3x-m}}{\sqrt{x-1}}`));
+  assert.ok(bundle.problem.text.replaceAll('\\dfrac', '\\frac').includes(String.raw`\frac{\sqrt{x^2-3x-m}}{\sqrt{x-1}}`));
   assert.doesNotMatch(bundle.problem.text, /10|第一问|（1）/);
   const evidence = await read(`../../site/data/graph-walk/${id}.evidence.json`);
   assert.deepEqual(evidence.lesson.goals.map(goal => goal.target_ref), ['/root/goals/0']);
   const html = await fs.readFile(new URL('../../site/topics/function-concepts/q23b/index.html', import.meta.url), 'utf8');
-  assert.match(html, /"problemId":"function-concepts-q23b"/);
+  assert.match(html, /"problemId":"function-concepts-q23b-v2"/);
   const {nodes} = await loadSources();
   for (const page of ['/topics/function-concepts/q23b/../', '/topics/function-concepts/q23b/extra/', '/topics/function-concepts/q23bb/']) {
     assert.throws(() => compileCourse({...source, page}, evidence, bundle.graph, nodes), /Invalid topic problem path/);

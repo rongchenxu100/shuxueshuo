@@ -1,14 +1,15 @@
 """Local search adapter over the existing stage-three runner and authoritative store.
 
 Each stage-two attempt owns one immutable run directory. Reads never create or
-resume work; explicit retry makes a new stage-two attempt, and explicit resume
-continues the selected existing run after checking its frozen implementation.
+resume work. Opening an outdated lesson or explicitly retrying creates a new
+attempt; explicit resume checks the selected run's frozen implementation.
 """
 
 import fcntl
 import json
 import logging
 import re
+import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -24,6 +25,9 @@ from shuxueshuo_server.graph_lesson.stage_three.storage import (
     RunNotFound,
     RunUnavailable,
     read_run,
+)
+from shuxueshuo_server.graph_lesson.stage_three.teaching_version import (
+    teaching_revision,
 )
 from shuxueshuo_server.problem_understanding.workflow_ledger import save
 
@@ -136,10 +140,41 @@ def run_stage_three(stage_two_directory, *, hooks=None):
                 return read(output / "stage-three-result.json")
             raise LessonConflict("lesson.resume_required")
         try:
-            return runner.run_sample(stage_two_directory / RESULT, output, hooks=hooks)
+            revision = teaching_revision()
+            result = runner.run_sample(stage_two_directory / RESULT, output, hooks=hooks)
+            if result['status'] == 'completed':
+                save(output / 'teaching-version.json', {'revision': revision})
+            return result
         except Exception as exc:
             save(stage_two_directory / "stage-three-error.json", {"type": type(exc).__name__, "message": str(exc)})
             raise
+
+
+def needs_teaching_update(attempt):
+    """Historical run URLs remain immutable; only the current lesson is upgraded."""
+    output = Path(attempt) / 'stage-three'
+    final = output / 'stage-three-result.json'
+    if not final.is_file() or read(final).get('status') != 'completed':
+        return False
+    stamp = output / 'teaching-version.json'
+    return not stamp.is_file() or read(stamp).get('revision') != teaching_revision()
+
+
+def refresh_teaching(directory, source, *, hooks=None):
+    """Replay saved recognition into a NEW version, without OCR or model calls.
+
+    The caller owns the problem/lifecycle leases and publishes retry intent.
+    Existing run IDs, steps and practice history are never rewritten.
+    """
+    from shuxueshuo_server.graph_lesson.stage_two.runner import record_run, replay_run
+    assert_current_attempt(directory, source)
+    target = Path(directory) / f'stage-two-{len(attempts(directory)) + 1}'
+    with tempfile.TemporaryDirectory(prefix='lesson-teaching-update-') as scratch:
+        recording = record_run(source, Path(scratch) / 'recording')
+        replayed = replay_run(recording, target, refresh_features=True)
+    if replayed['status'] != 'completed' or not replayed['replay_comparison']['ok']:
+        raise LessonConflict('lesson.recognition_replay_changed')
+    return run_stage_three(target, hooks=hooks)
 
 
 def find_run(directory, run_id):

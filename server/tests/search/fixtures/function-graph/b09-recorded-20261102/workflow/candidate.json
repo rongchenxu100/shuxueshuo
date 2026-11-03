@@ -1,0 +1,158 @@
+{
+  "original_text": "【例9】函数 $f(x)=|x-1|+1$ 的部分图象大致是（　）\nA.\nB.\nC.\nD.",
+  "root": {
+    "goals": [
+      {
+        "kind": "select_function_graph",
+        "expression": "abs(x-1)+1",
+        "variable": "x",
+        "comparison": "rough_shape",
+        "selection_mode": "unspecified",
+        "options": [
+          {
+            "option_id": "option-a",
+            "label": "A",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "1",
+                "y": "1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-b",
+            "label": "B",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "-1",
+                "y": "1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-c",
+            "label": "C",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "-1",
+                "y": "-1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-d",
+            "label": "D",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "1",
+                "y": "-1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "represented",
+    "figure_regions": [
+      {
+        "option_id": "option-a",
+        "label": "A",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.01,
+          0.19,
+          0.245,
+          0.99
+        ]
+      },
+      {
+        "option_id": "option-b",
+        "label": "B",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.245,
+          0.19,
+          0.5,
+          0.99
+        ]
+      },
+      {
+        "option_id": "option-c",
+        "label": "C",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.5,
+          0.19,
+          0.755,
+          0.99
+        ]
+      },
+      {
+        "option_id": "option-d",
+        "label": "D",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.755,
+          0.19,
+          0.995,
+          0.99
+        ]
+      }
+    ],
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=|x-1|+1$ 的部分图象大致是（　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "label": "A",
+                "text": "见原图"
+              },
+              {
+                "label": "B",
+                "text": "见原图"
+              },
+              {
+                "label": "C",
+                "text": "见原图"
+              },
+              {
+                "label": "D",
+                "text": "见原图"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "original_text": "【变式3】若函数 y=f(x) 的图象如下图所示，则函数 y=f(2-x) 的图象为（　）\nA.\nB.\nC.\nD.",
+  "root": {
+    "label": "【变式3】",
+    "goals": [
+      {
+        "kind": "select_function_graph",
+        "expression": "f(2-x)",
+        "variable": "x",
+        "comparison": "rough_shape",
+        "selection_mode": "unspecified",
+        "source_graph": {
+          "function": "f",
+          "facts": {
+            "shape": "shown_monotone_curve",
+            "direction": "increasing",
+            "x_intercept": {
+              "x": "0",
+              "evidence": "origin"
+            }
+          },
+          "uncertainties": []
+        },
+        "options": [
+          {
+            "option_id": "option-a",
+            "label": "A",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "2",
+                "evidence": "labelled"
+              }
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-b",
+            "label": "B",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "-2",
+                "evidence": "labelled"
+              }
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-c",
+            "label": "C",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "decreasing",
+              "x_intercept": {
+                "x": "2",
+                "evidence": "labelled"
+              }
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-d",
+            "label": "D",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "decreasing",
+              "x_intercept": {
+                "x": "-2",
+                "evidence": "labelled"
+              }
+            },
+            "uncertainties": []
+          }
+        ]
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "represented",
+    "root_label_role": "source",
+    "figure_regions": [
+      {
+        "option_id": "option-a",
+        "label": "A",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.02,
+          0.53,
+          0.26,
+          0.98
+        ]
+      },
+      {
+        "option_id": "option-b",
+        "label": "B",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.27,
+          0.53,
+          0.51,
+          0.98
+        ]
+      },
+      {
+        "option_id": "option-c",
+        "label": "C",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.52,
+          0.53,
+          0.76,
+          0.98
+        ]
+      },
+      {
+        "option_id": "option-d",
+        "label": "D",
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.77,
+          0.53,
+          1.0,
+          0.98
+        ]
+      }
+    ],
+    "statement_figure_regions": [
+      {
+        "target_ref": "/root/goals/0",
+        "box": [
+          0.43,
+          0.08,
+          0.63,
+          0.43
+        ]
+      }
+    ],
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　）",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "complete",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "label": "A",
+                "text": "见原图"
+              },
+              {
+                "label": "B",
+                "text": "见原图"
+              },
+              {
+                "label": "C",
+                "text": "见原图"
+              },
+              {
+                "label": "D",
+                "text": "见原图"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

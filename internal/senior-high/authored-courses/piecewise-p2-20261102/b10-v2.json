@@ -1,0 +1,29 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b10-v2",
+  "reviewer": "Codex · 2026-11-02 核对图9第98页例10变式2题干、分段开闭及四个原选项",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-09.png",
+      "sha256": "cec9c11b7983577f4caa76fbf485b93c062b59ecb63a78e0bd65f1b12578e611",
+      "location": "第98页下半部例10变式2；只转录题干和选项，不读入下方解析"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\begin{cases}x^2-4x+6,&x\\ge0\\\\x+6,&x<0\\end{cases}$，则满足 $f(x)>f(1)$ 的 $x$ 的取值范围是（ ）。\nA. $(-3,1)\\cup(3,+\\infty)$\nB. $(-3,1)\\cup(2,+\\infty)$\nC. $(-1,1)\\cup(3,+\\infty)$\nD. $(-\\infty,-3)\\cup(1,3)$",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2-4*x+6,x>=0,x+6,x<0)"
+      ],
+      "facts": [
+        "f(x)>f(1)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ]
+    }
+  }
+}

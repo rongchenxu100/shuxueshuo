@@ -1,21 +1,53 @@
 {
   "id": "type-function-graph",
   "kind": "problem_type",
-  "status": "planned",
   "label": "函数图像及其应用",
+  "status": "active",
   "summary": "根据表达式或已有图像选图、作图与变换，再用精确关键点分析方程或不等式。",
   "source": "函数的表示法专题建设计划（2026-10-30）；教辅例 9 及变式；P0 登记（2026-11-01）",
   "choice_hint": "需要建立表达式与图像的对应，或由原图得到变换后的图像",
   "features": [
-    {"cue": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"},
-    {"cue": "只给原函数示意图时，依据点的对应关系变换，不能自行补造解析式。"},
-    {"cue": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"}
+    {
+      "cue": "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+    },
+    {
+      "cue": "只给原函数示意图时，依据点的对应关系变换，不能自行补造解析式。"
+    },
+    {
+      "cue": "借助图像分析方程或不等式时，先确定临界点，再核对严格性及端点取舍。"
+    }
   ],
   "confuse": [
-    {"text": "主目标仅为全部输出的范围，图像只是辅助方法", "ref": "type-function-range"}
+    {
+      "text": "主目标仅为全部输出的范围，图像只是辅助方法",
+      "ref": "type-function-range"
+    }
   ],
-  "knowledge": ["function-representations", "function-graph-transformations", "absolute-value-function", "absolute-value-concept", "interval-notation", "quadratic-function-properties"],
-  "methods": [],
-  "rules": [],
-  "examples": []
+  "knowledge": [
+    "function-representations",
+    "function-graph-transformations",
+    "absolute-value-function",
+    "absolute-value-concept",
+    "interval-notation",
+    "quadratic-function-properties"
+  ],
+  "methods": [
+    "method-function-graph-transform",
+    "method-absolute-piecewise-graph",
+    "method-piecewise-graph-inequality"
+  ],
+  "rules": [
+    "rule-function-graph-method"
+  ],
+  "examples": [
+    {
+      "title": "绝对值函数平移选图",
+      "prompt": "判断 $y=|x-1|+1$ 的大致图像。",
+      "solution": [
+        "由 $y=|x|$ 向右平移 1，再向上平移 1。",
+        "$(0,0)\\mapsto(1,1)$，左侧递减、右侧递增；核对原选项的标注。"
+      ],
+      "source": "函数的表示法 B09"
+    }
+  ]
 }

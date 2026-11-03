@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "problemId": "function-representations-formula-a0",
-  "bundleVersion": "[\"stream\",\"3d6f9714e2c7b633135347562eb0f1e966f9d372752bd6f878bf4ca457e4f37e\",\"3d5c68513ed64ef8f27088652f3d9f15d1ef614001f84736ec2a5c6adb00dd00\",\"22c55be019f944b0a855b9230cfa86fb\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"35a2fc2cab742928eb17658251219e29561702cebf395c5705533fb2887b322d\",\"3d5c68513ed64ef8f27088652f3d9f15d1ef614001f84736ec2a5c6adb00dd00\",\"22c55be019f944b0a855b9230cfa86fb\",\"/root/goals/0\"]",
   "status": "completed",
   "routes": [
     "function-substitution"

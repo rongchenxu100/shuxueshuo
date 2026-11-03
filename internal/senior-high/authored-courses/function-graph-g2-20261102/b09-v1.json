@@ -1,0 +1,41 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-representations-b09-v1",
+  "reviewer": "Codex：对照第96页变式1题干及解答，冻结为 ≥；此记录为人工核对转录，不是独立照片识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-07.png",
+      "sha256": "02858651b8701a3923f4c5febea22c48d3a41ab867d8f92c33cd2a29a4f673aa",
+      "location": "第96页变式1，原图第7张"
+    }
+  ],
+  "candidate": {
+    "original_text": "设函数 $f(x)=|x^2-2x-3|$。\n（1）在平面直角坐标系中画出它的图像；\n（2）解不等式 $f(x)\\ge 3$。",
+    "root": {
+      "goals": [
+        {
+          "kind": "draw_function_graph",
+          "expression": "abs(x^2-2*x-3)",
+          "variable": "x"
+        },
+        {
+          "kind": "solve_graph_inequality",
+          "expression": "abs(x^2-2*x-3)",
+          "variable": "x",
+          "operator": ">=",
+          "level": "3"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "crossings": [
+      "1-sqrt(7)",
+      "0",
+      "2",
+      "1+sqrt(7)"
+    ],
+    "solution": "(-∞,1-sqrt(7)]∪[0,2]∪[1+sqrt(7),∞)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

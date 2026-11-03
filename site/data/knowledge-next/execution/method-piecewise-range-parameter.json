@@ -1,0 +1,621 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-range-parameter",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "fixed",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_piecewise_range_parameter",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "fixed_range": "fixed_range",
+            "missing": "missing"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "fixed",
+          "after": "prepare",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "fixed",
+            "calculation": null,
+            "feasible_set": null,
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decide",
+      "calls": [],
+      "judgments": [
+        {
+          "id": "route",
+          "function": "piecewise_range_parameter_route",
+          "inputs": {
+            "description": "$description",
+            "fixed_range": "$fixed_range"
+          },
+          "outputs": {
+            "route": "route"
+          },
+          "options": [
+            {
+              "id": "contained"
+            },
+            {
+              "id": "cover"
+            },
+            {
+              "id": "impossible"
+            }
+          ],
+          "order": 0,
+          "depends_on": [
+            "description",
+            "fixed_range"
+          ],
+          "rule_ref": "rule-piecewise-range-parameter"
+        }
+      ],
+      "display_units": [
+        {
+          "id": "decision",
+          "after": "route",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "decision",
+            "calculation": null,
+            "feasible_set": null,
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "reduce",
+          "capability": "reduce_piecewise_range_to_universal",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "fixed_range": "$fixed_range"
+          },
+          "outputs": {
+            "relation": "relation",
+            "expression": "expression",
+            "x": "x",
+            "parameter": "parameter",
+            "domain": "domain",
+            "quantifier": "quantifier",
+            "strict": "strict",
+            "goal": "goal",
+            "constraint_context": "constraint_context",
+            "universal_statement": "universal_statement",
+            "borrowed_method": "borrowed_method",
+            "subproblem_context": "subproblem_context"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "separation",
+          "capability": "submethod",
+          "public_ref": "method-separation",
+          "inputs": {
+            "relation": "$relation",
+            "expression": "$expression",
+            "x": "$x",
+            "parameter": "$parameter",
+            "domain": "$domain",
+            "quantifier": "$quantifier",
+            "strict": "$strict",
+            "goal": "$goal",
+            "constraint_context": "$constraint_context",
+            "relation_kind": "inequality",
+            "function_name": "h"
+          },
+          "outputs": {
+            "child_set": "candidate_set"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "return",
+          "capability": "accept_piecewise_range_subproblem",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "candidate_set": "$child_set"
+          },
+          "outputs": {
+            "child_calculation": "calculation",
+            "child_feasible_set": "feasible_set"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "solve",
+          "capability": "solve_piecewise_range_parameter",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "route": "$route"
+          },
+          "outputs": {
+            "local_calculation": "calculation",
+            "local_feasible_set": "feasible_set"
+          },
+          "order": 3,
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "impossible",
+          "capability": "solve_piecewise_range_parameter",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "route": "$route"
+          },
+          "outputs": {
+            "impossible_calculation": "calculation",
+            "impossible_feasible_set": "feasible_set"
+          },
+          "order": 4,
+          "guard": {
+            "ref": "route",
+            "equals": "impossible"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "constraint",
+          "after": "reduce",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "constraint",
+            "calculation": null,
+            "feasible_set": null,
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "subproblem_recognize",
+          "after": "reduce",
+          "template": "quantified_subproblem",
+          "bindings": {
+            "universal_statement": "$universal_statement",
+            "x": "$x",
+            "parameter": "$parameter",
+            "domain": "$domain",
+            "borrowed_method": "$borrowed_method",
+            "subproblem_context": "$subproblem_context",
+            "before": [],
+            "after": [
+              "$universal_statement"
+            ],
+            "phase": "recognize",
+            "host_route": "piecewise-range-parameter"
+          },
+          "depends_on": [
+            "borrowed_method",
+            "domain",
+            "parameter",
+            "subproblem_context",
+            "universal_statement",
+            "x"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "subproblem_select",
+          "after": "reduce",
+          "template": "quantified_subproblem",
+          "bindings": {
+            "universal_statement": "$universal_statement",
+            "x": "$x",
+            "parameter": "$parameter",
+            "domain": "$domain",
+            "borrowed_method": "$borrowed_method",
+            "subproblem_context": "$subproblem_context",
+            "before": [],
+            "after": [
+              "$universal_statement"
+            ],
+            "phase": "select",
+            "host_route": "piecewise-range-parameter"
+          },
+          "depends_on": [
+            "borrowed_method",
+            "domain",
+            "parameter",
+            "subproblem_context",
+            "universal_statement",
+            "x"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "zero",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "zero",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "sign",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "sign",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "vertex",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "vertex",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "image",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "image",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "join",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "join",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "answer_contained",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "answer",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "answer_cover",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "answer",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "verify_contained",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "verify",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "contained"
+          }
+        },
+        {
+          "id": "verify_cover",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "verify",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "cover"
+          }
+        },
+        {
+          "id": "impossible",
+          "after": "return_set",
+          "template": "piecewise_range_parameter",
+          "bindings": {
+            "description": "$description",
+            "fixed_range": "$fixed_range",
+            "phase": "impossible",
+            "calculation": "$calculation",
+            "feasible_set": "$feasible_set",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "fixed_range",
+            "calculation",
+            "feasible_set"
+          ],
+          "guard": {
+            "ref": "route",
+            "equals": "impossible"
+          }
+        }
+      ],
+      "merges": [
+        {
+          "id": "return_set",
+          "order": 5,
+          "branches": [
+            {
+              "guard": {
+                "ref": "route",
+                "equals": "contained"
+              },
+              "bindings": {
+                "calculation": "$child_calculation",
+                "feasible_set": "$child_feasible_set"
+              }
+            },
+            {
+              "guard": {
+                "ref": "route",
+                "equals": "cover"
+              },
+              "bindings": {
+                "calculation": "$local_calculation",
+                "feasible_set": "$local_feasible_set"
+              }
+            },
+            {
+              "guard": {
+                "ref": "route",
+                "equals": "impossible"
+              },
+              "bindings": {
+                "calculation": "$impossible_calculation",
+                "feasible_set": "$impossible_feasible_set"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "feasible_set": "$feasible_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "piecewise_range_parameter",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

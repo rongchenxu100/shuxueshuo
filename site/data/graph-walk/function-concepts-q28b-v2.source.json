@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q28b-v2",
+  "title": "逐层代入求函数值 · Q28（2）",
+  "page": "/topics/function-concepts/q28b/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/children/0/goals/0",
+    "/root/children/0/goals/1"
+  ],
+  "targetTitles": [
+    "求 $f(g(0))$",
+    "求 $g(f(0))$"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-q28b.evidence.json",
+  "statement": "已知 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求 $f(g(0))$，$g(f(0))$ 的值。"
+}

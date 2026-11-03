@@ -3,7 +3,7 @@
 import re
 from fractions import Fraction
 
-from ...problem_understanding.notation_parser import NotationError, parse
+from ...problem_understanding.notation_parser import NotationError, definition, parse
 from ...problem_understanding.review_contract import pointer
 from .surface_math import normalize_surface
 
@@ -104,6 +104,8 @@ def _formula_parts(body, start):
     separators, and a function call inside another expression cannot become
     a standalone task merely by sharing its text.
     """
+    if r'\begin{cases}' in body:
+        return [(start, start + len(body), body)]
     depth, previous, boundaries = 0, 0, []
     for offset, char in enumerate(body):
         if char in '({[（':
@@ -122,6 +124,45 @@ def _formula_parts(body, start):
             for begin, end in boundaries if body[begin:end].strip()]
 
 
+def _source_notation(ast):
+    if ast[0] in ('name', 'number'):
+        return ast[1]
+    if ast[0] == 'call':
+        return ast[1] + '(' + ','.join(_source_notation(child) for child in ast[2:]) + ')'
+    if ast[0] == 'neg':
+        return '-(' + _source_notation(ast[1]) + ')'
+    op = {'and': '∧', 'or': '∨'}.get(ast[0], ast[0])
+    return op.join('(' + _source_notation(child) + ')' for child in ast[1:])
+
+
+def _piecewise_source_matches(body, source, matches):
+    """Match each original cases row, including strictness; never infer a missing row."""
+    try:
+        expected = definition(source)
+        if expected[0] != 'function_definition' or expected[3][:2] != ['call', 'piecewise']:
+            return False
+        displayed = re.fullmatch(r'\s*(.+?)=\s*\\begin\{cases\}(.*?)\\end\{cases\}\s*', body, re.DOTALL)
+        if not displayed or not matches(displayed[1], f'{expected[1]}({expected[2]})'):
+            return False
+        rows = re.split(r'\\\\', displayed[2])
+        args = expected[3][2:]
+        if len(rows) * 2 != len(args):
+            return False
+        for index, row in enumerate(rows):
+            # A printed cases row may use punctuation instead of a TeX column.
+            # Reuse the grouped splitter so commas in calls/sets and spacing
+            # commands cannot become expression/condition boundaries.
+            cells = row.split('&') if '&' in row else [part[2] for part in _formula_parts(row, 0)]
+            if len(cells) != 2 or not all(
+                matches(cell.strip().strip(',，;；'), _source_notation(args[2*index + column]))
+                for column, cell in enumerate(cells)
+            ):
+                return False
+        return True
+    except (NotationError, ValueError, IndexError, TypeError):
+        return False
+
+
 def evaluation_source_spans(candidate, target_ref, ranges, description, matches):
     text, goal = candidate['original_text'], pointer(candidate, target_ref)
     formulas = [part for begin, end in ranges
@@ -130,7 +171,8 @@ def evaluation_source_spans(candidate, target_ref, ranges, description, matches)
     spans = []
     for function in description['functions']:
         source = pointer(candidate, function['source_ref'])
-        located = [(start, end) for start, end, body in formulas if matches(body, source)]
+        located = [(start, end) for start, end, body in formulas
+                   if matches(body, source) or _piecewise_source_matches(body, source, matches)]
         if not located:
             return None
         spans.append((*located[0], 'expression', [function['source_ref']]))
@@ -167,7 +209,10 @@ def evaluation_source_spans(candidate, target_ref, ranges, description, matches)
         if goal['kind'] == 'finite_sum':
             equal = sum_source_matches(body, goal['terms'], matches)
         else:
-            equal = matches(body, goal['expression'])
+            # TeX permits a single numeric atom without braces (\sqrt2).
+            # Match its grouped spelling while retaining the original span.
+            grouped = re.sub(r'\\sqrt\s*(\d)(?!\d)', lambda m: r'\sqrt{' + m[1] + '}', body)
+            equal = matches(grouped, goal['expression'])
         if equal:
             located.append((start, end))
     if not located:

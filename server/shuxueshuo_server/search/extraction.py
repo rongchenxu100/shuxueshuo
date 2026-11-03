@@ -20,6 +20,7 @@ from shuxueshuo_server.problem_understanding.review_contract import pointer
 from shuxueshuo_server.problem_understanding.workflow_ledger import WorkflowStop
 from shuxueshuo_server.solver.extraction.multimodal_provider import (
     MultimodalExtractionPrompt,
+    MultimodalProviderImage,
 )
 
 from .identity import (
@@ -29,9 +30,20 @@ from .identity import (
     mathematical_candidate,
     public_structure_errors,
 )
+from .question_image import image_inputs
 
 PUBLIC_PROMPT_PATH = contracts.ROOT / "internal/llm-prompts/search-stage-one-public.md"
 REVIEW_CONTRACT = "search-problem-review/v1"
+IMAGE_VIEWS_PROMPT = """前两张图片是同一道题、同一裁剪框的两个版本，不是两页或两道题。
+第 1 张 primary 是便于读文字的预处理图；第 2 张 original 是保留颜色、淡线、虚线及空实点的原裁图。
+逐项对照第 2 张核对图形和细小标记；预处理造成的缺失不代表原题不存在。
+所有 figure_regions 与 statement_figure_regions 使用同一裁图的归一化坐标，两图位置一一对应。
+原裁图仍不清楚或被遮挡时必须保留不确定性，不能根据题干、答案或解析补造图形事实。"""
+DETAIL_VIEWS_PROMPT = """第 3 张起是 original 的局部裁片，来源和裁框见 image_inputs.views；不是额外题目，也不是参考答案。
+裁框由上一轮未确认的识别提出，只是定位提示；必须回到完整原图确认图号、坐标轴、数字刻度及裁框是否完整。
+逐幅读取曲线穿过横轴的位置与该处刻度，核对原点、正负号和重合关系，不要求交点旁另写坐标对。
+重新独立提取整道题；所有公开区域坐标仍以 original 整图为准，不能填局部裁片坐标。
+如果细节仍不清楚或裁错图，保留具体不确定性。复核时同时检查整图和局部图，不按所求变换倒推选项事实。"""
 
 
 def review_schema():
@@ -40,15 +52,33 @@ def review_schema():
     return schema
 
 
-def build_search_request(content, store):
-    base = build_image_request(content, store)
+def build_search_request(content, store, *, original_png=None, detail_plan=None):
+    if detail_plan and (original_png is None or detail_plan['source_sha256'] != sha256(original_png).hexdigest()):
+        raise ValueError('image_input.detail_source_mismatch')
+    regions = detail_plan['regions'] if detail_plan else ()
+    inputs = image_inputs(content, original_png, detail_regions=regions) if original_png is not None else None
+    base = build_image_request(content, store, original_content=original_png)
+    if regions:
+        from .graph_details import detail_crops
+        images = list(base.images)
+        for view, pixels in detail_crops(original_png, regions):
+            artifact = store.put_bytes(kind='search_graph_detail', content=pixels, media_type='image/png', suffix='.png')
+            images.append(MultimodalProviderImage(view['image_id'], 'page-1', 'zoom', artifact, pixels,
+                                                   view['width'], view['height']))
+        base = replace(base, images=tuple(images))
+    payload = {"response_schema": candidate_schema(), "math_expression_catalog": contracts.expression_catalog()}
+    if inputs:
+        payload["image_inputs"] = inputs
+    if detail_plan:
+        payload['detail_reading'] = detail_plan
     return replace(
         base,
         contract_version=EXTRACTION_CONTRACT,
         contract_schema=candidate_schema(),
         prompt=MultimodalExtractionPrompt(
-            contracts.SYSTEM + "\n\n" + PUBLIC_PROMPT_PATH.read_text(encoding="utf-8"),
-            json.dumps({"response_schema": candidate_schema(), "math_expression_catalog": contracts.expression_catalog()}, ensure_ascii=False),
+            contracts.SYSTEM + "\n\n" + PUBLIC_PROMPT_PATH.read_text(encoding="utf-8") +
+            ("\n\n" + IMAGE_VIEWS_PROMPT if inputs else "") + ("\n\n" + DETAIL_VIEWS_PROMPT if detail_plan else ""),
+            json.dumps(payload, ensure_ascii=False),
             "对照完整题图，提取数学题意和可公开的完整题目内容。只返回指定 JSON。",
         ),
     )
@@ -65,6 +95,9 @@ class SearchStageOneContract(GraphStageOneContract):
     def frozen_files(self):
         files = super().frozen_files()
         for path in (PUBLIC_SCHEMA_PATH, PUBLIC_PROMPT_PATH, Path(__file__).with_name("identity.py"),
+                     Path(__file__).with_name('reviewed_figures.py'), Path(__file__).with_name('figures.py'),
+                     Path(__file__).with_name('question_image.py'),
+                     Path(__file__).with_name('graph_details.py'),
                      Path(__file__).with_name("stage_one.py"), __file__):
             path = Path(path)
             files[str(path.relative_to(contracts.ROOT))] = sha256(path.read_bytes()).hexdigest()
@@ -99,10 +132,17 @@ class SearchStageOneContract(GraphStageOneContract):
         schema = review_schema() if stage == "review" else candidate_schema()
         payload = json.loads(outgoing.prompt.user_prefix)
         payload["response_schema"] = schema
+        inputs = json.loads(base.prompt.user_prefix).get("image_inputs")
+        detail_plan = json.loads(base.prompt.user_prefix).get('detail_reading')
+        if inputs:
+            payload["image_inputs"] = inputs
+        if detail_plan:
+            payload['detail_reading'] = detail_plan
         return replace(outgoing, contract_version=REVIEW_CONTRACT if stage == "review" else EXTRACTION_CONTRACT,
                        contract_schema=schema,
                        prompt=MultimodalExtractionPrompt(
-                           outgoing.prompt.system + "\n\n" + PUBLIC_PROMPT_PATH.read_text(encoding="utf-8"),
+                           outgoing.prompt.system + "\n\n" + PUBLIC_PROMPT_PATH.read_text(encoding="utf-8") +
+                           ("\n\n" + IMAGE_VIEWS_PROMPT if inputs else "") + ("\n\n" + DETAIL_VIEWS_PROMPT if detail_plan else ""),
                            json.dumps(payload, ensure_ascii=False), outgoing.prompt.user_suffix))
 
     def validate_review(self, raw, candidate):

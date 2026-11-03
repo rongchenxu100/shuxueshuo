@@ -39,25 +39,49 @@
       "id": "function-inputs",
       "label": "函数与输入范围",
       "description": "判等先比较定义域与对应关系；复合写法要区分自变量的范围与 $f$ 的输入范围。多个条件同时满足取交集，分支结果合并取并集；求参时分清“全部满足”与“至少一次成立”。",
-      "refs": ["function-concept", "interval-notation", "set-intersection-union", "quantifiers"]
+      "refs": [
+        "function-concept",
+        "interval-notation",
+        "set-intersection-union",
+        "quantifiers"
+      ]
     },
     {
       "id": "expression-conditions",
       "label": "表达式条件与整体代入",
       "description": "从原式列出分母、根式与零次幂的限制，化简后仍保留。求值时把完整输入代入，复合调用从内到外计算；求参时，条件的解集须与题给定义域一致。",
-      "refs": ["rational-expression", "square-root-expression", "integer-power", "absolute-value-concept", "equality-properties", "inequality-properties"]
+      "refs": [
+        "rational-expression",
+        "square-root-expression",
+        "integer-power",
+        "absolute-value-concept",
+        "equality-properties",
+        "inequality-properties"
+      ]
     },
     {
       "id": "function-ranges",
       "label": "值域与函数性质",
       "description": "先确定定义域，再比较端点、顶点与边界。换元时同步求新变量的准确范围，有限输入逐项求值；值域的端点取舍由能否取到决定。",
-      "refs": ["function-range-extrema", "function-monotonicity", "linear-interval-extremum", "quadratic-function-properties", "square-nonnegative"]
+      "refs": [
+        "function-range-extrema",
+        "function-monotonicity",
+        "linear-interval-extremum",
+        "quadratic-function-properties",
+        "square-nonnegative"
+      ]
     },
     {
       "id": "range-transformations",
       "label": "分式与图像变换",
       "description": "分式先分离常数，再求分母或对勾函数的范围，分段取倒数并还原。方程有实根法要检查降次；由周期性得到整段平移时，确认完整输入段覆盖目标范围。",
-      "refs": ["reciprocal-function", "reciprocal-sum-function", "quadratic-equation", "quadratic-inequality", "function-graph-transformations"]
+      "refs": [
+        "reciprocal-function",
+        "reciprocal-sum-function",
+        "quadratic-equation",
+        "quadratic-inequality",
+        "function-graph-transformations"
+      ]
     }
   ],
   "groups": [
@@ -72,7 +96,7 @@
         "function-concepts-q22-v2",
         "function-concepts-q04",
         "function-concepts-q12",
-        "function-concepts-q23b"
+        "function-concepts-q23b-v2"
       ]
     },
     {
@@ -103,11 +127,11 @@
       "type": "type-function-evaluation",
       "description": "把完整输入代入函数规则，逐层求值，保留输入限制，并验证定值与配对求和。",
       "problems": [
-        "function-concepts-q28a",
-        "function-concepts-q28b",
-        "function-concepts-q28c",
-        "function-concepts-q28d",
-        "function-concepts-q29b"
+        "function-concepts-q28a-v2",
+        "function-concepts-q28b-v2",
+        "function-concepts-q28c-v2",
+        "function-concepts-q28d-v2",
+        "function-concepts-q29b-v2"
       ]
     },
     {
@@ -178,11 +202,11 @@
         "type-function-domain"
       ]
     },
-    "function-concepts-q23b": {
+    "function-concepts-q23b-v2": {
       "label": "定义域求参 · Q23（2）",
       "path": "/topics/function-concepts/q23b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q23b.json",
+      "bundle": "/data/graph-walk/function-concepts-q23b-v2.json",
       "types": [
         "type-function-domain"
       ]
@@ -241,47 +265,47 @@
         "type-abstract-function-domain"
       ]
     },
-    "function-concepts-q28a": {
+    "function-concepts-q28a-v2": {
       "label": "直接代入求函数值 · Q28（1）",
       "path": "/topics/function-concepts/q28a/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q28a.json",
+      "bundle": "/data/graph-walk/function-concepts-q28a-v2.json",
       "types": [
         "type-function-evaluation"
       ]
     },
-    "function-concepts-q28b": {
+    "function-concepts-q28b-v2": {
       "label": "逐层代入求函数值 · Q28（2）",
       "path": "/topics/function-concepts/q28b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q28b.json",
+      "bundle": "/data/graph-walk/function-concepts-q28b-v2.json",
       "types": [
         "type-function-evaluation"
       ]
     },
-    "function-concepts-q28c": {
+    "function-concepts-q28c-v2": {
       "label": "表达式代入与合法范围 · Q28（3）",
       "path": "/topics/function-concepts/q28c/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q28c.json",
+      "bundle": "/data/graph-walk/function-concepts-q28c-v2.json",
       "types": [
         "type-function-evaluation"
       ]
     },
-    "function-concepts-q28d": {
+    "function-concepts-q28d-v2": {
       "label": "复合表达式求值 · Q28（4）",
       "path": "/topics/function-concepts/q28d/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q28d.json",
+      "bundle": "/data/graph-walk/function-concepts-q28d-v2.json",
       "types": [
         "type-function-evaluation"
       ]
     },
-    "function-concepts-q29b": {
+    "function-concepts-q29b-v2": {
       "label": "验证定值与配对求和 · Q29（2）",
       "path": "/topics/function-concepts/q29b/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q29b.json",
+      "bundle": "/data/graph-walk/function-concepts-q29b-v2.json",
       "types": [
         "type-function-evaluation"
       ]

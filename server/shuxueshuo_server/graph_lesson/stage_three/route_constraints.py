@@ -232,6 +232,15 @@ def _context_atoms(context):
 @_sympy_gap_boundary
 def apply_visible_constraints(constraint_context, feasible_set):
     """Compute the route's restriction intersection from its own context only."""
+    if 'piecewise_range_parameter' in constraint_context:
+        from ..piecewise_range_parameter import process_context
+        return process_context(constraint_context, feasible_set)
+    if 'piecewise_inequality' in constraint_context:
+        from ..piecewise_inequality import process_context
+        return process_context(constraint_context, feasible_set)
+    if 'piecewise_equation' in constraint_context:
+        from ..piecewise_equation import process_context
+        return process_context(constraint_context, feasible_set)
     if constraint_context.get("goal", {}).get("kind") == "find_domain":
         from .function_domain import process_context
         return process_context(constraint_context, feasible_set)

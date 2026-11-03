@@ -3,9 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {isPreview, modeHref, preserveModeLink} from '../../site/assets/practice/learning-mode.mjs';
+import * as compatibility from '../../site/assets/learning/practice-compatibility.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/practice/runtime.js', import.meta.url), 'utf8');
-const gate = source.slice(0, source.indexOf('const practiceAuthReady'));
+const gate = source.slice(0, source.indexOf('const practiceAuthReady')).replace(
+  "import(new URL('../learning/practice-compatibility.mjs', practiceRuntimeSrc).href)", 'Promise.resolve(compatibilityModule)');
+const config = {id: 'q01', routes: {direct: [{id: 's1', question: '选择', interaction: {type: 'choice'}, expected_answer: {one_of: ['yes']}}]}};
+const pageHash = await compatibility.pageContractHash(config), practiceVersion = 'a'.repeat(64);
 const requestSource = source.slice(source.indexOf('  function updateBusy()'), source.indexOf('  function conversation(')) +
   source.slice(source.indexOf('  async function request(payload)'), source.indexOf('  function sendEvent('));
 const recorderFailureSource = source.slice(source.indexOf('  function recorderUnavailable()'), source.indexOf('  async function enableRecorder('));
@@ -15,10 +19,11 @@ function harness({search = '', registered = true, content = 'current', pathname 
   const calls = [], state = {method:null, active:0};
   let mode = content;
   const scope = {
+    compatibilityModule: compatibility,
     URL, URLSearchParams, AbortSignal, AbortController, Headers, setTimeout, clearTimeout, structuredClone,
     location:{search, pathname, href:`https://example.org${pathname}${search}`},
     document:{currentScript:{src:'https://example.org/assets/practice/runtime.js'},
-      getElementById:() => ({textContent:'{"id":"q01"}'}), querySelectorAll:() => [], querySelector:() => null},
+      getElementById:() => ({textContent:JSON.stringify(config)}), querySelectorAll:() => [], querySelector:() => null},
     busy:false, dialoguePause:null, generation:0, state, snapshot:{attempt_id:'local-attempt',state,completed:[]},
     retryRequest:null, requestController:null, remote:null, pendingOperations:[], practiceAuthReady:Promise.resolve(),
     recorderReady:Promise.resolve({dialogue:async () => ({practice_attempt_id:'saved'}), routed() {}}),
@@ -35,14 +40,15 @@ function harness({search = '', registered = true, content = 'current', pathname 
         if (mode === 'registry-offline') throw Error('offline');
         return reply({content_version:'current',problems:registered ? {q01:{path:'/1/q01/',topic:'basic-inequality'}} : {}});
       }
-      if (url === '/api/learning/content') {
+      if (url === '/api/learning/content/problems/q01') {
         if (mode === 'pending') return new Promise(() => {});
         if (mode === 'offline') throw Error('offline');
         if (mode === 'missing') return {ok:false,status:404};
         if (mode === 'malformed') return reply({});
-        return reply({schema_version:2,content_version:'current'});
+        return reply({practice_version:mode === 'mismatch' ? 'changed' : practiceVersion,content_version:'current'});
       }
-      if (url.startsWith('/knowledge/')) return reply({content_version:mode === 'mismatch' ? 'old' : 'current'});
+      if (url.startsWith('/knowledge/')) return reply({id:'q01', page_contract_hash:pageHash,
+        practice_version:practiceVersion, content_version:'old-release'});
       if (url.endsWith('/sessions')) return reply({session_id:'standalone',revision:0});
       return reply({session_id:'standalone',revision:1,attempt_id:'local-attempt',state,messages:[{text:'提示内容'}]});
     }
@@ -62,7 +68,7 @@ test('published registry identity and path enable ordinary learning without a mo
     assert.equal(h.run('practiceAccess.enabled'), true);
     await ask(h);
     assert.deepEqual(h.calls.find(call => call.url.endsWith('/sessions')).body,
-      {lesson_id:'q01',practice_attempt_id:'saved',content_version:'current'});
+      {lesson_id:'q01',practice_attempt_id:'saved',practice_version:practiceVersion});
   }
   const unrelated = harness({pathname:'/unpublished/q01/'});
   await unrelated.contentReady;
@@ -106,7 +112,7 @@ test('choosing a recorded route starts a bound tutor without reattributing earli
   const sessions = h.calls.filter(call => call.url.endsWith('/sessions'));
   assert.equal(sessions.length, 2);
   assert.deepEqual(sessions[0].body, {lesson_id:'q01'});
-  assert.deepEqual(sessions[1].body, {lesson_id:'q01',practice_attempt_id:'saved',content_version:'current'});
+  assert.deepEqual(sessions[1].body, {lesson_id:'q01',practice_attempt_id:'saved',practice_version:practiceVersion});
   const savedEvent = h.calls.filter(call => call.url.endsWith('/events')).at(-1);
   assert.equal(savedEvent.body.practice_attempt_id, 'saved');
   assert.deepEqual(savedEvent.body.pending_operations, []);

@@ -1,0 +1,192 @@
+{
+  "source_search_id": "917e13dc8369",
+  "purpose": "Recorded failed text classification and independently confirmed figure facts; offline correction tests do not claim a new model run.",
+  "text_candidate": {
+    "original_text": "【例9】函数 $f(x)=|x-1|+1$ 的部分图象大致是（　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+    "root": {
+      "definitions": [
+        "f(x)=abs(x-1)+1"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(x-1)+1",
+          "variable": "x",
+          "comparison": "exact_equivalence",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "a",
+              "label": "A"
+            },
+            {
+              "option_id": "b",
+              "label": "B"
+            },
+            {
+              "option_id": "c",
+              "label": "C"
+            },
+            {
+              "option_id": "d",
+              "label": "D"
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "unrepresented",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "函数 $f(x)=|x-1|+1$ 的部分图象大致是（　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "（图）"
+                },
+                {
+                  "label": "B",
+                  "text": "（图）"
+                },
+                {
+                  "label": "C",
+                  "text": "（图）"
+                },
+                {
+                  "label": "D",
+                  "text": "（图）"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "present",
+        "regions": [
+          {
+            "id": "figure-1",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "a",
+            "label": "A",
+            "box": [
+              0.095,
+              0.2,
+              0.272,
+              0.63
+            ]
+          },
+          {
+            "id": "figure-2",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "b",
+            "label": "B",
+            "box": [
+              0.335,
+              0.2,
+              0.509,
+              0.63
+            ]
+          },
+          {
+            "id": "figure-3",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "c",
+            "label": "C",
+            "box": [
+              0.581,
+              0.2,
+              0.74,
+              0.63
+            ]
+          },
+          {
+            "id": "figure-4",
+            "role": "option",
+            "target_ref": "/root/goals/0",
+            "option_id": "d",
+            "label": "D",
+            "box": [
+              0.783,
+              0.2,
+              0.941,
+              0.63
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "figures": [
+    {
+      "figure_id": "figure-1",
+      "facts": {
+        "shape": "two_straight_branches",
+        "vertex": {
+          "x": "1",
+          "y": "1",
+          "evidence": "labelled"
+        },
+        "left_direction": "decreasing",
+        "right_direction": "increasing"
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-2",
+      "facts": {
+        "shape": "two_straight_branches",
+        "vertex": {
+          "x": "-1",
+          "y": "1",
+          "evidence": "labelled"
+        },
+        "left_direction": "decreasing",
+        "right_direction": "increasing"
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-3",
+      "facts": {
+        "shape": "two_straight_branches",
+        "vertex": {
+          "x": "-1",
+          "y": "-1",
+          "evidence": "labelled"
+        },
+        "left_direction": "decreasing",
+        "right_direction": "increasing"
+      },
+      "uncertainties": []
+    },
+    {
+      "figure_id": "figure-4",
+      "facts": {
+        "shape": "two_straight_branches",
+        "vertex": {
+          "x": "1",
+          "y": "-1",
+          "evidence": "labelled"
+        },
+        "left_direction": "decreasing",
+        "right_direction": "increasing"
+      },
+      "uncertainties": []
+    }
+  ]
+}

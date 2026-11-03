@@ -1,0 +1,1278 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "f07b06b63ac340998deb333ef91111c8",
+    "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+    "input_sha256": "19b183fe20d5dbd78be2f96b88739da644bd31360ea58b5324891fc89fb9c92f",
+    "checkpoint_sha256": "929a53460439dd46c0f7018446c7569e77203e257c0909e4836d1efc4259e8aa",
+    "result_sha256": "e89e5917dc988b00cbe0984fc3d9afa588522b65e008a385b032fff8b44c371f",
+    "stage_one_sha256": "80f0eb103aa4d2a89b70db1a1353879b9d897b6e7e557cdb0972de043fc7faa2",
+    "stage_two_sha256": "dd429beb6cf72b5910405859a7a7a9e65db21781d23dc1f64b8aa6e66c35b7c2",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "bfac35c5899d4fc29b5f6017934f5dff24ed6d262c294e7be15c8864a006bf14"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-graph",
+        "supported": [
+          "type-function-graph"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 4,
+                  "end": 36,
+                  "text": "$y=f(x)$ 的图像如下图所示，则函数 $y=f(2-x)$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-representations#graph"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "根据原图，选择变换后的图像",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "根据图像求解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目只给了原图，先判断点的位置和图像方向怎样变化。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "7b71e46d9932c177"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要做什么？",
+          "feedback": "题目只给了原图，先判断点的位置和图像方向怎样变化。",
+          "summary": "根据原图，选择变换后的图像"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-graph",
+            "label": "函数图像及其应用",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+            ],
+            "choice_hint": "需要建立表达式与图像的对应，或由原图得到变换后的图像"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-b09-v3//root/goals/0",
+            "graphVersion": "d316d46ad4ae4a09fc0fae011a6e97fd493e1e05ad4cbe596cce9a636b339db7",
+            "problem": {
+              "text": "若函数 $y=f(x)$ 的图像如下图所示，则函数 $y=f(2-x)$ 的图像为（　）。选项 A、B、C、D 见原图。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要做什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "根据原图，选择变换后的图像"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "根据图像求解析式",
+                      "feedback": "题目只给了原图，先判断点的位置和图像方向怎样变化。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目只给了原图，先判断点的位置和图像方向怎样变化。"
+                },
+                "candidateNodes": [
+                  "function-representations",
+                  "type-function-graph",
+                  "type-function-formula",
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-representations"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "根据原图，选择变换后的图像"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 3 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-graph",
+                      "label": "函数图像及其应用",
+                      "note": "需要建立表达式与图像的对应，或由原图得到变换后的图像"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-graph"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-graph"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-graph"
+                  ],
+                  "edges": [
+                    "type-function-graph|involves|function-representations"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+                  ],
+                  "log": "作答判断：选择主要题型「函数图像及其应用」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-representations",
+                  "kind": "knowledge",
+                  "label": "函数的表示法",
+                  "summary": "解析法、列表法和图像法从不同角度表达同一输入输出关系。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-graph",
+                  "kind": "problem_type",
+                  "label": "函数图像及其应用",
+                  "summary": "根据表达式或已有图像选图、作图与变换，再用精确关键点分析方程或不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-formula",
+                  "kind": "problem_type",
+                  "label": "求函数的解析式",
+                  "summary": "由题给函数类型或恒等关系恢复函数规则，说明全部可能解析式及其可确定的输入范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "在各段有效范围内求值、求输入或值域，处理值域求参和阶梯计费，并按原目标合并结果。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-graph-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "函数图像题的选法判断",
+                  "summary": "结合解析式或原图及所求，选择图像变换、分段作图等方法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-absolute-piecewise-graph",
+                  "kind": "method",
+                  "label": "分段作图法",
+                  "summary": "按绝对值内的正负分段，逐段确认表达式、区间、方向和端点后作图。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "construct",
+                      "title": "分段作图法",
+                      "calls": [
+                        "skill-absolute-sign-split"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整范围与边界",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-graph-transform",
+                  "kind": "method",
+                  "label": "图像变换法",
+                  "summary": "根据解析式或原图中可核对的特征，确定点的移动，再核对原选项。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "transform",
+                      "title": "变换点并对照原图",
+                      "calls": [
+                        "skill-graph-coordinate-transform"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原式和全部选项",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-graph-inequality",
+                  "kind": "method",
+                  "label": "分段图像解不等式法",
+                  "summary": "用水平线确定交点，在各段范围内解不等式并核对端点。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "construct",
+                      "title": "分段图像解不等式法",
+                      "calls": [
+                        "skill-quadratic-sign"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验完整范围与边界",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-function-graph-method|selects|method-absolute-piecewise-graph",
+                  "from": "rule-function-graph-method",
+                  "to": "method-absolute-piecewise-graph",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "piecewise",
+                      "condition": "含绝对值的多项式，要求画出完整图像。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-graph-method|selects|method-function-graph-transform",
+                  "from": "rule-function-graph-method",
+                  "to": "method-function-graph-transform",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "transform",
+                      "condition": "含绝对值的一次式，可由基本图建立点的对应。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-graph-method|selects|method-piecewise-graph-inequality",
+                  "from": "rule-function-graph-method",
+                  "to": "method-piecewise-graph-inequality",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "inequality",
+                      "condition": "已知绝对值函数，要求解与水平线比较的不等式。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-formula|involves|function-representations",
+                  "from": "type-function-formula",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-absolute-piecewise-graph",
+                  "from": "type-function-graph",
+                  "to": "method-absolute-piecewise-graph",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-function-graph-transform",
+                  "from": "type-function-graph",
+                  "to": "method-function-graph-transform",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|candidate|method-piecewise-graph-inequality",
+                  "from": "type-function-graph",
+                  "to": "method-piecewise-graph-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|involves|function-representations",
+                  "from": "type-function-graph",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-graph|method_rule|rule-function-graph-method",
+                  "from": "type-function-graph",
+                  "to": "rule-function-graph-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|function-representations",
+                  "from": "type-piecewise-function",
+                  "to": "function-representations",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-representations"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "629c9cc621aad2bda5506e4d2b25eab3e658bc801995b034d580841db041ced5"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-b09-v3//root/goals/0",
+            "bundleVersion": "629c9cc621aad2bda5506e4d2b25eab3e658bc801995b034d580841db041ced5",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "根据原图，选择变换后的图像"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-graph",
+                "reason": "选「函数图像及其应用」：给出含平移、对称或绝对值的表达式，要求画图或判断图像选项。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "f07b06b63ac340998deb333ef91111c8",
+    "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+    "input_sha256": "19b183fe20d5dbd78be2f96b88739da644bd31360ea58b5324891fc89fb9c92f",
+    "stream_id": "f07b06b63ac340998deb333ef91111c8",
+    "last_seq": 15,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "transform",
+        "explanation": "$$\\begin{gathered}\\begin{gathered}u=-x\\Longrightarrow x=-u\\\\(u,v)\\longmapsto(-u,v)\\end{gathered}\\\\\\begin{gathered}y=f(- x)\\ \\xrightarrow{\\text{向右平移 }2}\\ y=f(-(x - 2))=f(- x + 2)\\\\(- u,v)\\longmapsto(2 - u,v)\\end{gathered}\\\\\\begin{gathered}x_{1}<x_{2}\\Longrightarrow 2 - x_{1}>2 - x_{2}\\\\\\text{原图从左往右上升}\\Longrightarrow\\text{新图从左往右下降}\\end{gathered}\\end{gathered}$$",
+        "highlight": {
+          "caption": "原图上的点会移到哪里",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原图与目标图的同一个函数值",
+              "math": "\\begin{gathered}v=f(u)\\\\- x + 2=u\\end{gathered}"
+            },
+            {
+              "label": "对应点",
+              "math": "(2 - u,v)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "local_check": "passed",
+        "math_step_sha256": "d2c4a6029c6b7370ffa2bcb135076dfc4a4d376e9adfaf121454c5f0efb1186e",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "b7b1d5022dbbb1e8977014915c5972aeca364b42f0d9f925a57adf721aad585f",
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-001-transform",
+        "target_ref": "/root/goals/0",
+        "title": "分步移动图像",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "vertex",
+        "explanation": "$$\\begin{gathered}f(0)=0\\\\- x + 2=0\\\\x=2,\\quad(0,0)\\longmapsto(2,0)\\end{gathered}$$",
+        "highlight": {
+          "caption": "横轴交点移到哪里",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原图的横轴交点",
+              "math": "(0,0)"
+            },
+            {
+              "label": "新图的横轴交点",
+              "math": "(2,0)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "local_check": "passed",
+        "math_step_sha256": "ce490c9671a9c495168f7772864cbc768d853f3f778e2b08fb1daa0e5c4d5e0f",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "b7b1d5022dbbb1e8977014915c5972aeca364b42f0d9f925a57adf721aad585f",
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-002-vertex",
+        "target_ref": "/root/goals/0",
+        "title": "横轴交点移到哪里",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "options",
+        "explanation": "$$\\begin{gathered}\\text{A}:\\ (2,0),\\ \\text{上升，方向不符}\\\\\\text{B}:\\ (-2,0),\\ \\text{上升，方向不符、交点位置不符}\\\\\\text{C}:\\ (2,0),\\ \\text{下降，两项均符合}\\\\\\text{D}:\\ (-2,0),\\ \\text{下降，交点位置不符}\\end{gathered}$$",
+        "highlight": {
+          "caption": "对照原图，选择图像",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "变换后的两个特征",
+              "math": "\\begin{gathered}y=f(- x + 2)\\\\\\text{横轴交点}\\ (2,0)\\\\\\text{从左往右下降}\\end{gathered}"
+            },
+            {
+              "label": "原题选择",
+              "math": "\\text{C}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "local_check": "passed",
+        "math_step_sha256": "ef086a1c677359dc55017432e2f8c87d945b949ed8fbd1eff41ad7e92857e92b",
+        "method_ref": "method-function-graph-transform#transform",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "b7b1d5022dbbb1e8977014915c5972aeca364b42f0d9f925a57adf721aad585f",
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-function-graph-transform-003-options",
+        "target_ref": "/root/goals/0",
+        "title": "对照原图，选择图像",
+        "used_basis": [
+          "function-graph-transformations#symmetry",
+          "function-graph-transformations#translation"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "comparison": "rough_shape",
+          "correct_labels": [
+            "C"
+          ],
+          "correct_option_id": "option-c",
+          "kind": "select_function_graph",
+          "option_verdicts": [
+            {
+              "differences": [
+                "shown_direction"
+              ],
+              "label": "A",
+              "matches": false,
+              "option_id": "option-a"
+            },
+            {
+              "differences": [
+                "shown_direction",
+                "x_intercept"
+              ],
+              "label": "B",
+              "matches": false,
+              "option_id": "option-b"
+            },
+            {
+              "differences": [],
+              "label": "C",
+              "matches": true,
+              "option_id": "option-c"
+            },
+            {
+              "differences": [
+                "x_intercept"
+              ],
+              "label": "D",
+              "matches": false,
+              "option_id": "option-d"
+            }
+          ],
+          "status": "complete"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "comparison": "rough_shape",
+          "correct_labels": [
+            "C"
+          ],
+          "correct_option_id": "option-c",
+          "kind": "select_function_graph",
+          "option_verdicts": [
+            {
+              "differences": [
+                "shown_direction"
+              ],
+              "label": "A",
+              "matches": false,
+              "option_id": "option-a"
+            },
+            {
+              "differences": [
+                "shown_direction",
+                "x_intercept"
+              ],
+              "label": "B",
+              "matches": false,
+              "option_id": "option-b"
+            },
+            {
+              "differences": [],
+              "label": "C",
+              "matches": true,
+              "option_id": "option-c"
+            },
+            {
+              "differences": [
+                "x_intercept"
+              ],
+              "label": "D",
+              "matches": false,
+              "option_id": "option-d"
+            }
+          ],
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "math_steps": [
+          {
+            "math_step_sha256": "d2c4a6029c6b7370ffa2bcb135076dfc4a4d376e9adfaf121454c5f0efb1186e",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-function-graph-transform-001-transform"
+          },
+          {
+            "math_step_sha256": "ce490c9671a9c495168f7772864cbc768d853f3f778e2b08fb1daa0e5c4d5e0f",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-function-graph-transform-002-vertex"
+          },
+          {
+            "math_step_sha256": "ef086a1c677359dc55017432e2f8c87d945b949ed8fbd1eff41ad7e92857e92b",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-function-graph-transform-003-options"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "3424daa89e774e71e6fbbeddcfb68c144dcba3d64bebcfbb2e11f31385c2d90c",
+        "verified_route_sha256": "2fbafea6d1e6f49338af290e4ad0f60020f819c92aae2436669bbe06923081bf"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "source_structure": "source_graph"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "题目给出了原图，可以先看自变量怎样变化。",
+                "id": "source_structure",
+                "options": [
+                  {
+                    "label": "已知原图，函数自变量发生变化",
+                    "note": "例如从 $y=f(x)$ 到 $y=f(2-x)$。",
+                    "value": "source_graph"
+                  },
+                  {
+                    "label": "给出绝对值解析式，需要分段画图",
+                    "note": "先判断绝对值里面的正负。",
+                    "value": "formula"
+                  }
+                ],
+                "question": "题目给了什么？",
+                "resolved": "根据原图上的点和方向判断变换。"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "source_graph",
+                "method": "transform"
+              },
+              {
+                "cue": "formula",
+                "method": "piecewise"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "图像变换法",
+                "value": "transform"
+              },
+              {
+                "label": "分段作图法",
+                "value": "piecewise"
+              }
+            ],
+            "method_notes": {},
+            "source_refs": [
+              "/root/goals/0"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-graph",
+            "op": "methods"
+          },
+          "question": "沿着题目线索，选择一种方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "piecewise": {
+              "message": "本题没有给出具体解析式，用原图的点和方向判断变换。",
+              "value": "unfit"
+            },
+            "transform": {
+              "message": "先判断点移到哪里，再判断方向，最后核对原选项。",
+              "value": "fit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "transform",
+              "message": "开始解题",
+              "method": "method-function-graph-transform",
+              "recommendation": "preferred",
+              "route_id": "function-graph-transform",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-001-transform",
+        "ordinal": 1,
+        "math_step_sha256": "d2c4a6029c6b7370ffa2bcb135076dfc4a4d376e9adfaf121454c5f0efb1186e",
+        "status": "interactive",
+        "interaction_id": "db7874c3573bf4276b58a4c6"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-002-vertex",
+        "ordinal": 2,
+        "math_step_sha256": "ce490c9671a9c495168f7772864cbc768d853f3f778e2b08fb1daa0e5c4d5e0f",
+        "status": "interactive",
+        "interaction_id": "2709e3442438479550fd3a5c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "step_id": "39e5646dcb-function-graph-transform-003-options",
+        "ordinal": 3,
+        "math_step_sha256": "ef086a1c677359dc55017432e2f8c87d945b949ed8fbd1eff41ad7e92857e92b",
+        "status": "interactive",
+        "interaction_id": "33e4ef3ef2989659e7fc7e6a"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "b7b1d5022dbbb1e8977014915c5972aeca364b42f0d9f925a57adf721aad585f",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:function-graph-transform:complete",
+        "last_seq": 12
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "function-graph-transform",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-function-graph-transform",
+            "step": "transform",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-graph-coordinate-transform",
+                "used_basis": [
+                  "function-graph-transformations#symmetry",
+                  "function-graph-transformations#translation"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-function-graph-transform",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "db7874c3573bf4276b58a4c6",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "ca4101bc8c1cf90e6bd6101c2f0351f2723c9de4348cf05eac0bdd0b3df6f023",
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "先关于 y 轴对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图上的点",
+                  "math": "(u,v)"
+                },
+                {
+                  "label": "对称后的点",
+                  "math": "(-u,v)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "db7874c3573bf4276b58a4c6#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(-u,v)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(-u,-v)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(u,-v)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先从 $y=f(x)$ 得到 $y=f(-x)$。关于 $y$ 轴对称后，原图上的点 $(u,v)$ 移到哪里？",
+            "show_source_graph": true,
+            "stem_board": {
+              "caption": "先关于 y 轴对称",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图上的点",
+                  "math": "(u,v)"
+                },
+                {
+                  "label": "对称后的点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "先关于 y 轴对称"
+          },
+          {
+            "completion_board": {
+              "caption": "再向右平移 2 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "平移前的点",
+                  "math": "(- u,v)"
+                },
+                {
+                  "label": "平移后的点",
+                  "math": "(2 - u,v)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "db7874c3573bf4276b58a4c6#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(- u - 2,v)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$(- u,v+(2))$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(2 - u,v)$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "从 $y=f(- x)$ 向右平移 $2$ 个单位，得到 $y=f(- x + 2)$。点 $(- u,v)$ 移到哪里？",
+            "show_source_graph": true,
+            "stem_board": {
+              "caption": "再向右平移 2 个单位",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "平移前的点",
+                  "math": "(- u,v)"
+                },
+                {
+                  "label": "平移后的点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "再向右平移 2 个单位"
+          },
+          {
+            "completion_board": {
+              "caption": "总结点的移动与图像方向",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "点的移动与原图方向",
+                  "math": "\\begin{gathered}(u,v)\\longmapsto(2 - u,v)\\\\\\text{原图从左往右上升}\\end{gathered}"
+                },
+                {
+                  "label": "新图的方向",
+                  "math": "\\text{从左往右下降}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "db7874c3573bf4276b58a4c6#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\text{从左往右下降}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\text{从左往右上升}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原图所示部分从左往右上升。在 $y=f(- x + 2)$ 中，$x$ 增大时括号里的数减小，新图对应部分从左往右怎样变化？",
+            "show_source_graph": true,
+            "stem_board": {
+              "caption": "总结点的移动与图像方向",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "点的移动与原图方向",
+                  "math": "\\begin{gathered}(u,v)\\longmapsto(2 - u,v)\\\\\\text{原图从左往右上升}\\end{gathered}"
+                },
+                {
+                  "label": "新图的方向",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "总结点的移动与图像方向"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d2c4a6029c6b7370ffa2bcb135076dfc4a4d376e9adfaf121454c5f0efb1186e",
+            "step_id": "39e5646dcb-function-graph-transform-001-transform"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2709e3442438479550fd3a5c",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "16cb8b8db65df600c343527cb69149d4704b076aa6fdbd3d8ee14aaadec311aa",
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "横轴交点移到哪里",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图的横轴交点",
+                  "math": "(0,0)"
+                },
+                {
+                  "label": "新图的横轴交点",
+                  "math": "(2,0)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "2709e3442438479550fd3a5c#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$(2,0)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(0,2)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$(3,0)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原图与横轴交于 $(0,0)$。$y=f(- x + 2)$ 的对应交点在哪里？",
+            "show_source_graph": true,
+            "stem_board": {
+              "caption": "横轴交点移到哪里",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原图的横轴交点",
+                  "math": "(0,0)"
+                },
+                {
+                  "label": "新图的横轴交点",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "横轴交点移到哪里"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ce490c9671a9c495168f7772864cbc768d853f3f778e2b08fb1daa0e5c4d5e0f",
+            "step_id": "39e5646dcb-function-graph-transform-002-vertex"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "33e4ef3ef2989659e7fc7e6a",
+        "interaction_revision": "39aa333c08486a898b71aa8009bc9743f4cb096714cdd7e1f17396b14c8cce9c",
+        "interaction_sha256": "fb9d8d50fb77195e984ce61482140026e8160f85331a8bb4faed159f1210a4c3",
+        "lesson_version": "98f24186cf45616a8091ff0d3ea504b442baebaac097b666bd0cc1408785f4e0",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "对照原图，选择图像",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "变换后的两个特征",
+                  "math": "\\begin{gathered}y=f(- x + 2)\\\\\\text{横轴交点}\\ (2,0)\\\\\\text{从左往右下降}\\end{gathered}"
+                },
+                {
+                  "label": "原题选择",
+                  "math": "\\text{C}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "option-c"
+              ]
+            },
+            "feedback": {
+              "answer": "两个特征都要符合，不能只看其中一个。"
+            },
+            "figure_choices": [
+              "option-a",
+              "option-b",
+              "option-c",
+              "option-d"
+            ],
+            "id": "33e4ef3ef2989659e7fc7e6a#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "A",
+                  "value": "option-a"
+                },
+                {
+                  "label": "B",
+                  "value": "option-b"
+                },
+                {
+                  "label": "C",
+                  "value": "option-c"
+                },
+                {
+                  "label": "D",
+                  "value": "option-d"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "同时核对横轴交点和从左往右的方向，哪幅图符合？",
+            "show_source_graph": true,
+            "stem_board": {
+              "caption": "对照原图，选择图像",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "变换后的两个特征",
+                  "math": "\\begin{gathered}y=f(- x + 2)\\\\\\text{横轴交点}\\ (2,0)\\\\\\text{从左往右下降}\\end{gathered}"
+                },
+                {
+                  "label": "原题选择",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认选择",
+            "title": "对照原图，选择图像"
+          }
+        ],
+        "route_id": "function-graph-transform",
+        "run_id": "f07b06b63ac340998deb333ef91111c8",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ef086a1c677359dc55017432e2f8c87d945b949ed8fbd1eff41ad7e92857e92b",
+            "step_id": "39e5646dcb-function-graph-transform-003-options"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

@@ -111,14 +111,22 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                    consistency="consistent", original_choice=None, before_commit=None, after_commit=None):
     if verification.get("status") != "verified" or route.get("status") != "verified":
         raise ValueError("handoff.route_not_verified")
+    model = isinstance(answer, dict) and answer.get('kind') == 'find_equation'
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
     evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
     formula = isinstance(answer, dict) and answer.get('kind') == 'find_function_formula'
+    graph = isinstance(answer, dict) and answer.get('kind') in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality')
     candidate_range = (isinstance(answer, dict) and answer.get('kind') == 'find_range'
                        and answer.get('status') == 'insufficient_information'
                        and bool(answer.get('candidates')) and 'formula_result' in (route.get('result') or {}))
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not (comparison or evaluation or formula or candidate_range))
+            or (feasible_set is None and not (model or comparison or evaluation or formula or candidate_range or graph))
+            or (model and (feasible_set is not None or answer.get('status') != 'complete'
+                           or 'model_result' not in (route.get('result') or {})
+                           or route['result'].get('answer') != answer))
+            or (graph and (feasible_set is not None or answer.get('status') != 'complete'
+                           or 'graph_result' not in (route.get('result') or {})
+                           or route['result'].get('answer') != answer))
             or (formula and (feasible_set is not None
                              or answer.get('status') not in ('determined_on_domain', 'insufficient_information')
                              or 'formula_result' not in (route.get('result') or {})))
@@ -136,7 +144,7 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                  or original_choice['correct_labels'] != answer['correct_labels'])):
         raise ValueError('handoff.invalid_original_choice_goal')
     if (original_choice and original_choice.get("matching") == "set_equality"
-            and (answer.get("kind") not in {"derived_answer", "find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
+            and (answer.get("kind") not in {"derived_answer", "find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
                  or answer.get("status") != "set")):
         raise ValueError("handoff.invalid_original_choice_goal")
     choice_fields = {"original_choice": deepcopy(original_choice)} if original_choice is not None else {}

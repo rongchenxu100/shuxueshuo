@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q28a-v2",
+  "title": "直接代入求函数值 · Q28（1）",
+  "page": "/topics/function-concepts/q28a/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRefs": [
+    "/root/children/0/goals/0",
+    "/root/children/0/goals/1"
+  ],
+  "targetTitles": [
+    "求 $f(1)$",
+    "求 $g(1)$"
+  ],
+  "evidence": "site/data/graph-walk/function-concepts-q28a.evidence.json",
+  "statement": "已知 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求 $f(1)$，$g(1)$ 的值。"
+}

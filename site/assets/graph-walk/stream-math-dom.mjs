@@ -162,7 +162,20 @@ export function createDerivationBoard(document, board) {
   return node;
 }
 
-export function routeAnswerSummary(answer = {}) {
+export function routeAnswerSummary(answer = {}, {routeId} = {}) {
+  if (answer.kind === 'find_equation' && answer.status === 'complete') {
+    const p = answer.pricing, rows = answer.pieces;
+    if (!p || !/^[a-z]$/.test(p.quantity || '') || !/^[a-z]$/.test(p.amount || '') ||
+        p.quantity_unit !== '千瓦时' || p.amount_unit !== '元' ||
+        !Array.isArray(rows) || rows.length !== 3 || rows.some(r => !expressionText(r.expression) || !expressionText(r.domain))) return null;
+    return {label: '电费关系式（x 为用电量，单位千瓦时；y 为电费，单位元）：'.replace('x', p.quantity).replace('y', p.amount),
+      formula: `${p.amount}=\\begin{cases}`+rows.map(r => `${expressionText(r.expression)},&${p.quantity}\\in ${expressionText(r.domain)}`).join('\\\\')+'\\end{cases}'};
+  }
+  if (answer.kind === 'find_range' && answer.status === 'set' && answer.quantity) {
+    const q = answer.quantity, value = expressionText(answer.set);
+    return /^[a-z]$/.test(q.symbol || '') && q.unit === '千瓦时' && value
+      ? {label: '用电量（千瓦时）：', formula: `${q.symbol}\\in ${value}`} : null;
+  }
   if (Array.isArray(answer.candidates) && answer.status === 'insufficient_information' &&
       ['find_value', 'find_range'].includes(answer.kind)) {
     return {label: answer.kind === 'find_value' ? '所求函数值不能唯一确定。' : '所求解集不能唯一确定。', formula: ''};
@@ -206,7 +219,10 @@ export function routeAnswerSummary(answer = {}) {
     }
     return answer.status === 'undefined' ? {label: answer.reason === 'quantity_unavailable' ? '所需量不存在，所求式无定义。' : '所求式无定义。', formula: ''} : null;
   }
-  if (answer.kind === 'select_range_domain' && answer.status === 'complete' &&
+  if (['draw_function_graph', 'solve_graph_inequality'].includes(answer.kind) && answer.status === 'complete' && typeof answer.latex === 'string') {
+    return {label: answer.kind === 'draw_function_graph' ? '作图依据：' : '不等式的解集：', formula: answer.latex};
+  }
+  if (['select_range_domain', 'select_function_graph'].includes(answer.kind) && answer.status === 'complete' &&
       Array.isArray(answer.correct_labels) && answer.correct_labels.every(label => typeof label === 'string')) {
     return {label: `原题选项：${answer.correct_labels.join('、') || '无'}`, formula: ''};
   }
@@ -250,9 +266,11 @@ export function routeAnswerSummary(answer = {}) {
       answer.option_verdicts.every(row => ['equal', 'different'].includes(row.verdict))) {
     return {label: '各项比较已完成', formula: ''};
   }
-  if (['find_range', 'find_domain', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range'].includes(answer.kind) && answer.status === 'set') {
+  if (['find_range', 'match_range', 'find_domain', 'match_domain', 'find_abstract_domain', 'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
     const label = ['find_domain', 'find_abstract_domain'].includes(answer.kind) ? '定义域：'
+      : answer.kind === 'find_range' && routeId === 'piecewise-equation' ? '原方程的解集：'
+      : answer.kind === 'find_range' && routeId === 'piecewise-inequality' ? '原不等式的解集：'
       : ['find_abstract_range', 'find_translation_range'].includes(answer.kind) || answer.kind === 'find_range' && typeof answer.object === 'string' && answer.object.trim() ? '值域：' : '参数范围：';
     return formula ? {label, formula} : null;
   }
@@ -444,7 +462,7 @@ export function attachMathQA(card, chunk, options = {}) {
 
 /** Detached route answer; unknown/unavailable answers never claim completion. */
 export function createRouteCompletion(document, payload, options = {}) {
-  const answer = payload.answer || {}, summary = routeAnswerSummary(answer);
+  const answer = payload.answer || {}, summary = routeAnswerSummary(answer, {routeId: payload.route_id});
   const complete = Boolean(summary) && payload.available !== false;
   const node = text(document, 'p', '', 'stage-three-completion');
   node.hidden = !complete;

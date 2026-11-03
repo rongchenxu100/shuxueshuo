@@ -1,0 +1,90 @@
+{
+  "schema_version": "question-figures/v1",
+  "source": {
+    "sha256": "3551b4f4a10c88c5af4f0ad9cfe021864c0c60cafbdebbbb4ecba6f67893ffc1",
+    "width": 1035,
+    "height": 455,
+    "quality": "original"
+  },
+  "figures": [
+    {
+      "id": "original",
+      "role": "source",
+      "scope_ref": "/root",
+      "box": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.43,
+        0.08,
+        0.63,
+        0.43
+      ],
+      "id": "statement-1",
+      "role": "statement",
+      "scope_ref": "/root"
+    },
+    {
+      "option_id": "option-a",
+      "label": "A",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.02,
+        0.53,
+        0.26,
+        0.98
+      ],
+      "id": "choice-1",
+      "role": "option",
+      "scope_ref": "/root"
+    },
+    {
+      "option_id": "option-b",
+      "label": "B",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.27,
+        0.53,
+        0.51,
+        0.98
+      ],
+      "id": "choice-2",
+      "role": "option",
+      "scope_ref": "/root"
+    },
+    {
+      "option_id": "option-c",
+      "label": "C",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.52,
+        0.53,
+        0.76,
+        0.98
+      ],
+      "id": "choice-3",
+      "role": "option",
+      "scope_ref": "/root"
+    },
+    {
+      "option_id": "option-d",
+      "label": "D",
+      "target_ref": "/root/goals/0",
+      "box": [
+        0.77,
+        0.53,
+        1.0,
+        0.98
+      ],
+      "id": "choice-4",
+      "role": "option",
+      "scope_ref": "/root"
+    }
+  ]
+}

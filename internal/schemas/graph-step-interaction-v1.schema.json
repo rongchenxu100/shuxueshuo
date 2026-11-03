@@ -174,7 +174,8 @@
       "properties": {
         "value": {
           "type": "string",
-          "pattern": "^(?:(o|s[0-9]+o)[0-9]+|equal|different)$"
+          "pattern": "^[a-z][a-z0-9-]{0,63}$",
+          "description": "Opaque choice ID; original-picture choices retain the source option_id."
         },
         "label": {
           "$ref": "#/$defs/text"
@@ -619,7 +620,9 @@
             "linear",
             "reciprocal_sum",
             "number_line",
-            "axis_explorer"
+            "axis_explorer",
+            "absolute_affine",
+            "piecewise_curve"
           ]
         },
         "params": {
@@ -677,6 +680,26 @@
             },
             "params": {
               "$ref": "#/$defs/axisExplorerParams"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "absolute_affine"
+            },
+            "params": {
+              "$ref": "#/$defs/absoluteAffineGraphParams"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "piecewise_curve"
+            },
+            "params": {
+              "$ref": "#/$defs/piecewiseCurveParams"
             }
           }
         }
@@ -942,6 +965,9 @@
           "$ref": "#/$defs/text"
         },
         "question": {
+          "$ref": "#/$defs/text"
+        },
+        "source_context": {
           "$ref": "#/$defs/text"
         },
         "submit_label": {
@@ -1733,6 +1759,44 @@
         },
         "answer_completion": {
           "$ref": "#/$defs/formulaAnswerCompletion"
+        },
+        "figure_choices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          }
+        },
+        "guided_plot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "checks",
+            "model_version"
+          ],
+          "properties": {
+            "mode": {
+              "const": "guided"
+            },
+            "checks": {
+              "const": [
+                "pieces",
+                "intervals",
+                "direction",
+                "boundaries"
+              ]
+            },
+            "model_version": {
+              "const": "function-graph-absolute-polynomial/v1"
+            }
+          }
+        },
+        "show_source_graph": {
+          "type": "boolean"
         }
       },
       "allOf": [
@@ -2129,6 +2193,196 @@
             }
           },
           "minItems": 2
+        }
+      }
+    },
+    "absoluteAffineGraphParams": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/functionGraphParams"
+        }
+      ],
+      "unevaluatedProperties": false,
+      "required": [
+        "a",
+        "b",
+        "c",
+        "showBase"
+      ],
+      "properties": {
+        "a": {
+          "type": "number",
+          "not": {
+            "const": 0
+          }
+        },
+        "b": {
+          "type": "number"
+        },
+        "c": {
+          "type": "number"
+        },
+        "showBase": {
+          "type": "boolean"
+        },
+        "reference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "a",
+            "b",
+            "c",
+            "interval",
+            "interval_closed"
+          ],
+          "properties": {
+            "a": {
+              "type": "number",
+              "not": {
+                "const": 0
+              }
+            },
+            "b": {
+              "type": "number"
+            },
+            "c": {
+              "type": "number"
+            },
+            "interval": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "interval_closed": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        }
+      }
+    },
+    "piecewiseCurveParams": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/functionGraphParams"
+        }
+      ],
+      "unevaluatedProperties": false,
+      "required": [
+        "segments"
+      ],
+      "properties": {
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "coefficients",
+              "interval",
+              "interval_closed"
+            ],
+            "properties": {
+              "coefficients": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "interval": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "interval_closed": {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        "reference": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "coefficients",
+              "interval",
+              "interval_closed"
+            ],
+            "properties": {
+              "coefficients": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "interval": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "interval_closed": {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        },
+        "level": {
+          "type": "number"
+        },
+        "highlights": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "$ref": "#/$defs/numberLinePiece"
+          }
+        },
+        "yTicks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/graphTick"
+          }
         }
       }
     }

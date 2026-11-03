@@ -1,17 +1,19 @@
 /* A separate recording channel. Transport, 401/429 and 5xx failures retain operations for retry. */
-export function createRecorder(lesson, onResume, {contentVersion = null, onConfirmed = null} = {}) {
+export function createRecorder(lesson, onResume, {contentVersion = null, practiceVersion = null, onConfirmed = null} = {}) {
   let owner = window.SiteAuth?.user?.id, aid = null, route = null;
   let queue = [], running = null, epoch = 0, failed = false, restoring = false;
   let recovery = null, resume = null, resolving = false;
-  const key = () => `sss-practice:${owner}:${lesson.id}${contentVersion ? ":next" : ""}`;
+  const key = () => `sss-practice:${owner}:${lesson.id}${contentVersion || practiceVersion ? ":next" : ""}`;
   const save = () => {
-    if (owner) try { sessionStorage.setItem(key(), JSON.stringify({aid, route, queue, recovery, resume, contentVersion})); } catch {}
+    if (owner) try { sessionStorage.setItem(key(), JSON.stringify({aid, route, queue, recovery, resume, contentVersion, practiceVersion})); } catch {}
   };
   let saved = null;
   function loadSaved() {
     saved = null;
     try { saved = owner ? JSON.parse(sessionStorage.getItem(key()) || 'null') : null; } catch {}
-    if (saved && saved.contentVersion !== contentVersion && contentVersion) {
+    const compatible = saved && (practiceVersion && saved.practiceVersion
+      ? saved.practiceVersion === practiceVersion : saved.contentVersion === contentVersion);
+    if (saved && !compatible && (contentVersion || practiceVersion)) {
       // Never replay an old page's pending operations using newly published associations.
       saved = null;
     }
@@ -71,6 +73,11 @@ export function createRecorder(lesson, onResume, {contentVersion = null, onConfi
   });
 
   async function api(path, body) {
+    // Bind history restores to this page as well as new starts. The server
+    // validates against frozen attempt data before we replay any old answers.
+    if (body === undefined && practiceVersion && /^\/practice\/[^/]+$/.test(path)) {
+      path += '?practice_version=' + encodeURIComponent(practiceVersion);
+    }
     let response;
     try {
       response = await fetch('/api/learning' + path, {
@@ -112,7 +119,8 @@ export function createRecorder(lesson, onResume, {contentVersion = null, onConfi
             if (!Object.hasOwn(op, 'previous')) { op.previous = aid; save(); }
             const data = await api('/practice', {
               id: op.id, problem_id: lesson.id, route_id: op.route, previous_attempt_id: op.previous,
-              ...(contentVersion ? {content_version: contentVersion} : {}),
+              ...(practiceVersion ? {practice_version: practiceVersion}
+                : contentVersion ? {content_version: contentVersion} : {}),
             });
             if (ticket !== epoch) return;
             if (data.route_id !== op.route) throw Error('返回的练习路线与所选路线不同。');

@@ -44,7 +44,7 @@ class ExtractionArtifactReader(Protocol):
 class MultimodalImageInput:
     image_id: str
     page_id: str
-    role: Literal["primary"]
+    role: Literal["primary", "zoom"]
     artifact: ExtractionArtifactRef
     width: int
     height: int

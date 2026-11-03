@@ -667,7 +667,12 @@ def _advance(state, contracts):
                 "action": deepcopy(action),
                 "call_index": len(trace["calls"]) - 1,
             }
-            child = _frame(action["public_ref"], inputs, seq)
+            child_bindings = dict(inputs)
+            # Teaching provenance follows every nested frame. It is metadata,
+            # not a mathematical input or a copied child display definition.
+            if bindings.get('subproblem_context'):
+                child_bindings['subproblem_context'] = bindings['subproblem_context']
+            child = _frame(action["public_ref"], child_bindings, seq)
             child['fold_display'] = frame.get('fold_display', False) or action.get('presentation') == 'fold'
             child["case_path"] = deepcopy(frame["case_path"])
             child["case_source_refs"] = deepcopy(frame.get("case_source_refs", []))

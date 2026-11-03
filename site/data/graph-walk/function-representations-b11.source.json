@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b11",
+  "title": "分段求值域法 · 例 11",
+  "page": "/topics/function-representations/q11a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "函数 $f(x)=\\begin{cases}x^2-4x+3,&0\\le x\\le3\\\\x+3,&-3\\le x<0\\end{cases}$ 的值域为（ ）。\nA. $[-1,+\\infty)$\nB. $[3,+\\infty)$\nC. $[-1,0]$\nD. $[-1,3]$",
+  "evidence": "site/data/graph-walk/function-representations-b11.evidence.json"
+}

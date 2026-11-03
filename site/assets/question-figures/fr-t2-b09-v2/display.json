@@ -1,0 +1,84 @@
+{
+  "schema_version": "question-figures/v1",
+  "source": {
+    "sha256": "e31585972669bd89920c888e4a3e1c5421da03345dcade3ab5a675b75a377df5",
+    "width": 1086,
+    "height": 381,
+    "quality": "original"
+  },
+  "figures": [
+    {
+      "id": "original",
+      "role": "source",
+      "scope_ref": "/root",
+      "box": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v2/original.png"
+    },
+    {
+      "id": "option-a",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-a",
+      "label": "A",
+      "box": [
+        0.011970534069981584,
+        0.18635170603674542,
+        0.2578268876611418,
+        0.916010498687664
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v2/option-a.png"
+    },
+    {
+      "id": "option-b",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-b",
+      "label": "B",
+      "box": [
+        0.27900552486187846,
+        0.19160104986876642,
+        0.494475138121547,
+        0.9422572178477691
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v2/option-b.png"
+    },
+    {
+      "id": "option-c",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-c",
+      "label": "C",
+      "box": [
+        0.5248618784530387,
+        0.2283464566929134,
+        0.8158379373848987,
+        0.9921259842519685
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v2/option-c.png"
+    },
+    {
+      "id": "option-d",
+      "role": "option",
+      "scope_ref": "/root",
+      "target_ref": "/root/goals/0",
+      "option_id": "option-d",
+      "label": "D",
+      "box": [
+        0.8167587476979742,
+        0.2047244094488189,
+        0.998158379373849,
+        0.979002624671916
+      ],
+      "image_url": "/assets/question-figures/fr-t2-b09-v2/option-d.png"
+    }
+  ],
+  "content_id": "07a2c58a94340df529834731decc2367094b5107c03b41f602044b5c96ab9e36"
+}

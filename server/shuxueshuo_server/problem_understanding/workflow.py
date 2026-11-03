@@ -26,6 +26,14 @@ from .workflow_ledger import Budget, WorkflowStop
 from .workflow_storage import FileWorkflowStorage
 
 
+class RepairResponseError(ValueError):
+    """Reject a contract-specific repair without changing the current candidate."""
+
+    def __init__(self, diagnostics):
+        super().__init__('repair.invalid_response')
+        self.diagnostics = diagnostics
+
+
 def frozen_files():
     """Bind file identities and bytes without binding the checkout location."""
     package = Path(__file__).resolve().parent
@@ -318,9 +326,23 @@ def _run(
                 feedback = [{"code": "response.truncated"}]
                 stage = "repair"
                 continue
-            proposed_parse = parse(response["text"])
+            candidate_text = response["text"]
+            repair_response = getattr(contract, "repair_response", None)
+            if stage == "repair" and repair_response is not None:
+                try:
+                    candidate_text = repair_response(outgoing, candidate_text, current, diagnostics)
+                except RepairResponseError as exc:
+                    event["repair_rejected"] = feedback = exc.diagnostics
+                    if any(d.get("action") == "needs_confirmation" for d in feedback):
+                        diagnostics, status = feedback, "needs_confirmation"
+                        break
+                    continue
+            # Keep the provider's raw reply in the ledger. A contract may expand
+            # a bounded patch; adoption and fresh source review still use the
+            # complete candidate and the existing repair-authority checks.
+            proposed_parse = parse(candidate_text)
             try:
-                proposed = strict_json(response["text"])
+                proposed = strict_json(candidate_text)
             except (ValueError, RecursionError):
                 proposed = None
             if stage == "extract":
@@ -375,6 +397,9 @@ def _run(
                 diagnostic.get("action") == "code_gap" for diagnostic in diagnostics
             ):
                 status = "code_gap"
+                break
+            if any(d.get("action") == "needs_confirmation" for d in diagnostics):
+                status = "needs_confirmation"
                 break
             if diagnostics:
                 stage = "repair"

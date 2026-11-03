@@ -1,0 +1,82 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-modeling",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "build",
+      "calls": [
+        {
+          "id": "model",
+          "capability": "build_piecewise_model",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "model_result": "model_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "tiers",
+          "after": "model",
+          "template": "piecewise_modeling",
+          "bindings": {
+            "description": "$description",
+            "model_result": "$model_result",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "model_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "model_result": "$model_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "piecewise_modeling",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

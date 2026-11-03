@@ -17,6 +17,37 @@ from PIL import Image
 
 @unittest.skipUnless(importlib.util.find_spec("numpy"), "requires the isolated OCR interpreter")
 class OrientationWorkerTests(unittest.TestCase):
+    def test_only_clipped_textbook_headings_get_one_wider_recognition(self):
+        from shuxueshuo_server.search.ocr_worker import observe
+
+        class FixedModel:
+            def __init__(self, result):
+                self.result = result
+
+            def predict(self, *_args, **_kwargs):
+                yield SimpleNamespace(json={"res": self.result})
+
+        class Recognizer:
+            def __init__(self, first):
+                self.first, self.widths = first, []
+
+            def predict(self, crops):
+                for crop in crops:
+                    self.widths.append(crop.shape[1])
+                    text = self.first if len(self.widths) == 1 else "【变式12】"
+                    yield SimpleNamespace(json={"res": {"rec_text": text, "rec_score": .99}})
+
+        for first, expected_calls in [("【变式", 2), ("【解析", 2), ("【变式12】", 1), ("1. 已知", 1), ("1)2", 1)]:
+            with self.subTest(first=first), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "page.png"
+                Image.new("RGB", (300, 100), "white").save(path)
+                models = {"layout": FixedModel({"boxes": []}),
+                          "det": FixedModel({"dt_polys": [[[20, 20], [280, 20], [280, 40], [20, 40]]]}),
+                          "rec": Recognizer(first)}
+                result = observe(models, path, auto_orient=False)
+                self.assertEqual(models["rec"].widths, [60, 160] if expected_calls == 2 else [60])
+                self.assertEqual(result["lines"][0]["head"], "【变式12】" if expected_calls == 2 else first)
+
     def test_server_requires_orientation_while_local_startup_can_fall_back(self):
         from shuxueshuo_server.search.ocr_worker import load_models
 

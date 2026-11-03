@@ -4,11 +4,11 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy import text
 
 from ..product.db import lock, transaction
-from . import associations, drills, practice
+from . import associations, compatibility, drills, practice
 from .api import Auth, User
 
 router = APIRouter(prefix="/api/learning")
@@ -18,6 +18,14 @@ router = APIRouter(prefix="/api/learning")
 def content(auth: Auth):
     with transaction(auth.db) as c:
         return associations.content_metadata(c)
+
+
+@router.get('/content/problems/{problem_id}')
+def problem_content(problem_id: str, auth: Auth):
+    with transaction(auth.db) as c:
+        lock(c, 'learning.publish', shared=True)
+        return compatibility.metadata(compatibility.published(c, problem_id)) | {
+            'content_version': associations.content_metadata(c)['content_version']}
 
 
 class StartDrill(BaseModel):
@@ -89,7 +97,14 @@ class StartPractice(BaseModel):
     problem_id: str = Field(max_length=100)
     route_id: str = Field(max_length=100)
     previous_attempt_id: UUID | None = None
-    content_version: str = Field(min_length=1, max_length=100)
+    content_version: str | None = Field(default=None, min_length=1, max_length=100)
+    practice_version: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
+
+    @model_validator(mode='after')
+    def requires_version(self):
+        if self.practice_version is None and self.content_version is None:
+            raise ValueError('练习需要本题版本。')
+        return self
 
 
 class SubmitPractice(BaseModel):
@@ -109,6 +124,7 @@ def start_practice(body: StartPractice, user: User, auth: Auth):
         body.id,
         body.previous_attempt_id,
         content_version=body.content_version,
+        practice_version=body.practice_version,
     )
 
 
@@ -125,9 +141,12 @@ def displayed(attempt_id: UUID, event_id: UUID, user: User, auth: Auth):
 
 
 @router.get("/practice/{attempt_id}")
-def read_practice(attempt_id: UUID, user: User, auth: Auth):
+def read_practice(attempt_id: UUID, user: User, auth: Auth, practice_version: str | None = None):
     with transaction(auth.db) as c:
+        lock(c, 'learning.publish', shared=True)
         a = practice.owned(c, attempt_id, UUID(user["id"]))
+        if practice_version is not None:
+            compatibility.require_attempt(c, a, practice_version)
         events = []
         for r in c.execute(
             text(

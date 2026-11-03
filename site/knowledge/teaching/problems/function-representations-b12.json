@@ -1,0 +1,340 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b12",
+  "label": "分段建模与反求用量 · 例12（两问）",
+  "path": "/topics/function-representations/q12a/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b12.json",
+  "types": [
+    "type-piecewise-function"
+  ],
+  "statement": "某地居民用电采用阶梯电价：每月不超过180千瓦时的用电，每千瓦时0.6元；超过180千瓦时、但不超过350千瓦时的部分，每千瓦时0.65元；超过350千瓦时的部分，每千瓦时0.9元。设该户居民该月用电量为 $x$ 千瓦时，电费为 $y$ 元。\n\n（1）求 $y$ 关于 $x$ 的函数关系式。\n\n（2）若该户居民该月电费为199元，求该月用电量。",
+  "routes": {
+    "piecewise-modeling": {
+      "label": "第（1）问：建立电费关系式 → 第（2）问：已知电费求用电量",
+      "methods": [
+        "method-piecewise-modeling",
+        "method-piecewise-equation"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "piecewise-function"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 3,
+          "refs": [
+            "method-piecewise-modeling"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#1": {
+          "title": "第一档：全部按第一档单价计费",
+          "position": 4,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#2": {
+          "title": "第2档：先算前面各档的费用",
+          "position": 5,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#3": {
+          "title": "第2档：只给新增用量计费",
+          "position": 6,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#4": {
+          "title": "第2档：把两部分费用相加",
+          "position": 7,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#5": {
+          "title": "第3档：先算前面各档的费用",
+          "position": 8,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#6": {
+          "title": "第3档：只给新增用量计费",
+          "position": 9,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#7": {
+          "title": "第3档：把两部分费用相加",
+          "position": 10,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#8": {
+          "title": "汇总：按用量分段写出电费",
+          "position": 11,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "cebcc1eb0ab37ca75646707f#9": {
+          "title": "核对分界点",
+          "position": 12,
+          "refs": [
+            "method-piecewise-modeling#build",
+            "equality-properties#identity",
+            "piecewise-function#definition"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "第（2）问：已知电费求用电量",
+          "position": 13,
+          "refs": [
+            "piecewise-function"
+          ]
+        },
+        "goal-2-D2": {
+          "title": "确定题型",
+          "position": 14,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "goal-2-D3": {
+          "title": "解题方法",
+          "position": 15,
+          "refs": [
+            "method-piecewise-equation"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#1": {
+          "title": "先看费用关系，再反求用量",
+          "position": 16,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#2": {
+          "title": "第1段：解方程",
+          "position": 17,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#3": {
+          "title": "第1段：检查范围",
+          "position": 18,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#4": {
+          "title": "第2段：解方程",
+          "position": 19,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#5": {
+          "title": "第2段：检查范围",
+          "position": 20,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#6": {
+          "title": "第3段：解方程",
+          "position": 21,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "f62aaac9864bbd0f0451a81b#7": {
+          "title": "第3段：检查范围",
+          "position": 22,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "2694fc293ad7121beb865365#1": {
+          "title": "合并各段保留的解",
+          "position": 23,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "2694fc293ad7121beb865365#2": {
+          "title": "代回计费规则，写出用电量",
+          "position": 24,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "a6e24575d0a93dff504ecd311ff33686ab7e527fbc13222ed0a32486a3cc258b",
+  "practice_version": "47844864f8ffb0ddfee0c5fa4c7928fe98fc852a42397ef5ba942ae99f273c84",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

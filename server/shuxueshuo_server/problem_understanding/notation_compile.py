@@ -537,6 +537,10 @@ class Scope:
             return node(kind, ast[1], hints, body)
         if kind == "call":
             name, args = ast[1], ast[2:]
+            if name == 'piecewise':
+                if len(args) not in (4, 6, 8):
+                    raise NotationError('binding.call_arity', name)
+                return node('call', name, *[bind(p) for p in args])
             if (
                 name == "angle"
                 and len(args) == 1
@@ -699,6 +703,10 @@ def typecheck(ast):
     if kind == "call":
         name = ast[1]
         types = [typecheck(x) for x in ast[2:]]
+        if name == 'piecewise':
+            if len(types) not in (4, 6, 8) or types != ['scalar', 'boolean'] * (len(types) // 2):
+                raise NotationError('type.piecewise_branches')
+            return 'scalar'
         if name in POINT_ARGS:
             if not types or any(t != "point" for t in types):
                 raise NotationError("type.point_arguments", name)
@@ -993,6 +1001,14 @@ class NotationValidator:
         for index, goal in enumerate(source["goals"]):
             try:
                 validate_goal_request(goal)
+                if 'pricing' in goal:
+                    from .notation_piecewise_modeling import compile_pricing
+                    goals.append(compile_pricing(goal, f'{path}.goals[{index}]'))
+                    continue
+                if goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+                    from .notation_function_graph import compile_function_graph
+                    goals.append(compile_function_graph(goal, f'{path}.goals[{index}]'))
+                    continue
                 if goal['kind'] in ('select_range_domain', 'find_extrema_expression'):
                     from .notation_range_tasks import compile_range_task
 
@@ -1012,6 +1028,16 @@ class NotationValidator:
                     from .notation_evaluation import compile_finite_sum
 
                     goals.append(compile_finite_sum(goal, f'{path}.goals[{index}]', env))
+                    continue
+                if goal['kind'] == 'match_range':
+                    function = env.bind(parse(goal['object']))
+                    parameter = env.bind(parse(goal['symbol']))
+                    image = env.bind(parse(goal['range']))
+                    if image[0] == 'tuple':
+                        image = node('interval', False, False, *image[1:])
+                    if typecheck(function) != 'function' or typecheck(parameter) != 'scalar' or typecheck(image) not in ('domain', 'set'):
+                        raise NotationError('type.goal_match_range_fields')
+                    goals.append({'kind': 'match_range', 'target': parameter, 'function': function, 'range': image})
                     continue
                 if goal['kind'] == 'compare_functions':
                     from .notation_function_comparison import compile_comparison

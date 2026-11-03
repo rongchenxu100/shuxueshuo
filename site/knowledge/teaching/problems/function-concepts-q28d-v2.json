@@ -1,0 +1,228 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-q28d-v2",
+  "label": "复合表达式求值 · Q28（4）",
+  "path": "/topics/function-concepts/q28d/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-q28d-v2.json",
+  "types": [
+    "type-function-evaluation"
+  ],
+  "statement": "已知 $f(x)=3x^2-1$，$g(x)=\\frac{1}{x+2}$，求 $f(g(x))$。",
+  "routes": {
+    "function-evaluation": {
+      "label": "代入法",
+      "methods": [
+        "method-function-evaluation"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-evaluation"
+          ]
+        },
+        "c1550a8a6630116fef06d8c3#1": {
+          "title": "确定代入顺序",
+          "position": 4,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "0b7b06d4789623239527042f#1": {
+          "title": "先计算内层 g",
+          "position": 5,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "f869acbef170348c9f2e04f6#1": {
+          "title": "整体代入 f",
+          "position": 6,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "ad6fb3bbd7151d8cbe244c85#1": {
+          "title": "确定定义域",
+          "position": 7,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        },
+        "0ce64f721cc7cf12909790c7#1": {
+          "title": "返回本目标结果",
+          "position": 8,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "rational-expression#cancellation",
+            "skill-equality-transform"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "78fb8dc3dee715163347885e81215fa224fc0077c9622b9a3ea815884145ad14",
+  "practice_version": "4b5c5dcfa1ef64106a33ff7084646d3bc3c60dea7028a90678ac6066a6f75e41",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

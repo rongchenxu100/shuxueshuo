@@ -1,0 +1,31 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-piecewise-function",
+  "admission": "piecewise_routes",
+  "routes": [
+    {
+      "method": "method-piecewise-equation",
+      "route_id": "piecewise-equation",
+      "admission": "piecewise_equation",
+      "label": "分段解方程法"
+    },
+    {
+      "method": "method-piecewise-inequality",
+      "route_id": "piecewise-inequality",
+      "admission": "piecewise_inequality",
+      "label": "分段解不等式法"
+    },
+    {
+      "method": "method-piecewise-range-parameter",
+      "route_id": "piecewise-range-parameter",
+      "admission": "piecewise_range_parameter",
+      "label": "分段值域求参法"
+    },
+    {
+      "method": "method-piecewise-modeling",
+      "route_id": "piecewise-modeling",
+      "admission": "piecewise_modeling",
+      "label": "分段建模法"
+    }
+  ]
+}

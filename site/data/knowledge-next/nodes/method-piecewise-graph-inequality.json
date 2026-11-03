@@ -1,0 +1,44 @@
+{
+  "id": "method-piecewise-graph-inequality",
+  "kind": "method",
+  "label": "分段图像解不等式法",
+  "summary": "用水平线确定交点，在各段范围内解不等式并核对端点。",
+  "source": "函数的表示法 FR-T2 G2",
+  "input": "固定有理系数、至多二次的 |p(x)| 及一个区间。",
+  "output": "经过完整覆盖与逐段恒等核验的图像模型或精确解集。",
+  "conditions": "仅覆盖绝对值诱导的分段；一般分段定义式留给 FR-T3。",
+  "steps": [
+    {
+      "id": "construct",
+      "title": "分段图像解不等式法",
+      "body": [
+        "先确定分段和有效范围，再根据精确表达式作图。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-quadratic-sign"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "核验完整范围与边界",
+      "body": [
+        "逐段恒等成立，各段不重不漏；端点取舍与原不等式一致。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "对照水平线选区间",
+      "prompt": "解 $|x^2-2x-3|\\ge3$。",
+      "solution": [
+        "与 $y=3$ 的交点横坐标为 $1-\\sqrt7,0,2,1+\\sqrt7$。",
+        "解集为 $(-\\infty,1-\\sqrt7]\\cup[0,2]\\cup[1+\\sqrt7,\\infty)$。"
+      ],
+      "source": "函数的表示法 B09-v1（2）"
+    }
+  ],
+  "resources": []
+}

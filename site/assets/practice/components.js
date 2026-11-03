@@ -419,10 +419,88 @@
       <g fill="#526e64" font-family="Georgia,serif" font-size="14">${labels}<text x="334" y="${y - 12}" text-anchor="end" font-style="italic">${escape(variable)}</text></g>
     </svg>`;
   }
+  // G1's two straight branches: exact vertex plus two endpoints, never sampled.
+  function absoluteAffineGraph({a, b, c, showBase, reference, bounds, interval, xTicks, variable, title, description, uid, points}) {
+    const [xmin, xmax, ymin, ymax] = bounds;
+    const x = value => 48 + (value - xmin) / (xmax - xmin) * 270;
+    const y = value => 222 - (value - ymin) / (ymax - ymin) * 174;
+    const f = value => Math.abs(a * value + b) + c;
+    const left = Math.max(xmin, interval[0] ?? xmin), right = Math.min(xmax, interval[1] ?? xmax);
+    const path = (from, to, vertex, fn) => from > to ? '' : [from, ...(vertex > from && vertex < to ? [vertex] : []), to]
+      .map((value, i) => `${i ? 'L' : 'M'}${x(value).toFixed(3)} ${y(fn(value)).toFixed(3)}`).join(' ');
+    const previous = reference || {a: 1, b: 0, c: 0, interval: [null, null], interval_closed: [false, false]};
+    const oldVertex = -previous.b / previous.a, oldY = previous.c;
+    const oldValue = value => Math.abs(previous.a * value + previous.b) + previous.c;
+    const id = escape(uid);
+    return `<svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-description">
+      <title id="${id}-title">${escape(title)}</title><desc id="${id}-description">${escape(description)}</desc>
+      <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath>
+        <marker id="${id}-map-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#456e68"/></marker></defs>
+      <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
+      <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+      <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+      <g clip-path="url(#${id}-clip)">
+        ${showBase ? `<path class="absolute-base" d="${path(Math.max(xmin, previous.interval[0] ?? xmin), Math.min(xmax, previous.interval[1] ?? xmax), oldVertex, oldValue)}" fill="none" stroke="#899e98" stroke-width="2" stroke-dasharray="5 4"/>` : ''}
+        <path class="absolute-affine" d="${path(left, right, -b/a, f)}" fill="none" stroke="#07847d" stroke-width="3"/>
+        ${showBase && (oldVertex !== -b/a || oldY !== c) ? `<path class="absolute-map" d="M${x(oldVertex)} ${y(oldY)}L${x(-b/a)} ${y(c)}" fill="none" stroke="#456e68" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#${id}-map-arrow)"/>` : ''}
+        ${showBase ? previous.interval.map((end, i) => end === null ? '' : `<circle cx="${x(end)}" cy="${y(oldValue(end))}" r="4" fill="${previous.interval_closed[i] ? '#899e98' : '#fff'}" stroke="#899e98" stroke-width="1.5"/>`).join('') : ''}
+        ${points.map(point => `<circle class="graph-point" cx="${x(point.x)}" cy="${y(f(point.x))}" ${pointDot(point)}/>`).join('')}
+      </g>
+      <g fill="#526e64" font-family="Georgia,serif" font-size="14">
+        ${xTicks.map(([value, label]) => `<text x="${x(value)}" y="${y(0)+21}" text-anchor="${value === 0 ? 'end' : 'middle'}" dx="${value === 0 ? -8 : 0}">${escape(label)}</text>`).join('')}
+        ${pointLabels(points, x, value => y(f(value)))}
+        <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
+        <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
+      </g>
+    </svg>`;
+  }
+  function piecewiseCurveGraph({segments, reference = [], highlights = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
+    const [xmin, xmax, ymin, ymax] = bounds, id = escape(uid);
+    const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
+    const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
+    const value = (s, v) => (s.coefficients[0] * v + s.coefficients[1]) * v + s.coefficients[2];
+    // A quadratic Bezier represents a degree <= 2 polynomial exactly. No formula code is evaluated.
+    const path = (s, lo = xmin, hi = xmax) => {
+      const from = Math.max(lo, xmin, s.interval[0] ?? xmin), to = Math.min(hi, xmax, s.interval[1] ?? xmax);
+      if (from >= to) return '';
+      const control = value(s, from) + (2 * s.coefficients[0] * from + s.coefficients[1]) * (to - from) / 2;
+      return `M${x(from)} ${y(value(s, from))}Q${x((from + to) / 2)} ${y(control)} ${x(to)} ${y(value(s, to))}`;
+    };
+    const segmentAt = v => segments.find(s => v >= (s.interval[0] ?? -Infinity) && v <= (s.interval[1] ?? Infinity));
+    const curve = (s, css, stroke, width, extra = '', lo, hi) => `<path class="${css}" d="${path(s, lo, hi)}" fill="none" stroke="${stroke}" stroke-width="${width}" ${extra}/>`;
+    const endpoints = new Map();
+    for (const s of segments) s.interval.forEach((v, i) => {
+      if (v === null) return;
+      const key = `${v}:${value(s, v)}`, old = endpoints.get(key);
+      endpoints.set(key, {x: v, y: value(s, v), closed: Boolean(old?.closed || s.interval_closed[i])});
+    });
+    return `<svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-description">
+      <title id="${id}-title">${escape(title)}</title><desc id="${id}-description">${escape(description)}</desc>
+      <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
+      <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
+      <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+      <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+      <g clip-path="url(#${id}-clip)">
+        ${reference.map(s => curve(s, 'piecewise-reference', '#899e98', 1.8, 'stroke-dasharray="5 4"')).join('')}
+        ${segments.map(s => curve(s, 'piecewise-segment', '#07847d', 2.8)).join('')}
+        ${Number.isFinite(level) ? `<path class="piecewise-level" d="M48 ${y(level)}H318" stroke="#b6782c" stroke-width="1.5" stroke-dasharray="5 4"/>` : ''}
+        ${highlights.map(h => segments.map(s => curve(s, 'piecewise-highlight', '#b65c42', 4.5, '', h.from ?? xmin, h.to ?? xmax)).join('')).join('')}
+        ${[...endpoints.values()].map(p => `<circle class="piecewise-endpoint" cx="${x(p.x)}" cy="${y(p.y)}" r="3.5" fill="${p.closed ? '#07847d' : '#fff'}" stroke="#07847d" stroke-width="1.8"/>`).join('')}
+        ${points.filter(p => segmentAt(p.x)).map(p => `<circle class="graph-point" cx="${x(p.x)}" cy="${y(value(segmentAt(p.x), p.x))}" ${pointDot(p)}/>`).join('')}
+      </g>
+      <g fill="#526e64" font-family="Georgia,serif" font-size="12">
+        ${xTicks.map(([v, label]) => `<text x="${x(v)}" y="${y(0)+19}" text-anchor="middle">${escape(label)}</text>`).join('')}
+        ${yTicks.map(([v, label]) => `<text x="320" y="${y(v)-7}" text-anchor="end">y = ${escape(label)}</text>`).join('')}
+        ${pointLabels(points.filter(p => segmentAt(p.x)), x, v => y(value(segmentAt(v), v)))}
+        <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
+        <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
+      </g>
+    </svg>`;
+  }
   // A server-built picture {kind, params, uid}: the page only picks the component for its kind.
   // axis_explorer returns a draggable explorer (SVG plus slider); the page mounts its dragging.
   const graphKinds = {quadratic: quadraticGraph, reciprocal_sum: reciprocalSumGraph, linear: linearGraph, number_line: numberLine,
-    axis_explorer: spec => axisExplorer(spec)};
+    absolute_affine: absoluteAffineGraph, piecewise_curve: piecewiseCurveGraph, axis_explorer: spec => axisExplorer(spec)};
   // Validate streamed pictures separately from the older authored quadratic API.
   // A rejected picture is optional presentation: callers can keep the original answer labels.
   function validateGraph(spec) {
@@ -453,7 +531,21 @@
       boolean(piece.left_closed) && boolean(piece.right_closed) && (piece.from !== null || !piece.left_closed) &&
       (piece.to !== null || !piece.right_closed));
     if (!ticks(p.xTicks) || !interval(p.interval) || !tuple(p.interval_closed, 2, boolean)) return false;
+    if (spec.kind === 'piecewise_curve') {
+      const segment = v => object(v) && tuple(v.coefficients, 3, Number.isFinite) && interval(v.interval) &&
+        tuple(v.interval_closed, 2, boolean) && !v.interval.some((end, i) => end === null && v.interval_closed[i]);
+      return array(p.segments, segment) && p.segments.length >= 1 && p.segments.length <= 8 &&
+        optional(p, 'reference', v => array(v, segment) && v.length <= 8) && optional(p, 'yTicks', ticks) &&
+        optional(p, 'level', Number.isFinite) && optional(p, 'highlights', v => array(v, h => object(h) &&
+          interval([h.from, h.to]) && boolean(h.left_closed) && boolean(h.right_closed) &&
+          (h.from !== null || !h.left_closed) && (h.to !== null || !h.right_closed)) && v.length <= 12);
+    }
     if (spec.kind === 'linear') return Number.isFinite(p.slope) && Number.isFinite(p.intercept);
+    if (spec.kind === 'absolute_affine') return Number.isFinite(p.a) && p.a !== 0 &&
+      Number.isFinite(p.b) && Number.isFinite(p.c) && boolean(p.showBase) &&
+      optional(p, 'reference', value => object(value) && Number.isFinite(value.a) && value.a !== 0 &&
+        Number.isFinite(value.b) && Number.isFinite(value.c) && interval(value.interval) &&
+        tuple(value.interval_closed, 2, boolean) && !value.interval.some((end, i) => end === null && value.interval_closed[i]));
     if (spec.kind === 'axis_explorer') {
       const axis = p.axis;
       const fields = (value, keys) => object(value) && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));

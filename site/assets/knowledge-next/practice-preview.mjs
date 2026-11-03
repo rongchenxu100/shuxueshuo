@@ -13,13 +13,14 @@ async function read(url) {
   if (!response.ok) throw Error(`加载失败（${response.status}）`);
   return response.json();
 }
-export async function createPreview(lesson, host, {learning = false, useServerProgress = () => learning, onShown = null, getConfirmedChoices = null, getPassedFields = null, expectedContentVersion = null, problem: loaded = null} = {}) {
+export async function createPreview(lesson, host, {learning = false, useServerProgress = () => learning, onShown = null, getConfirmedChoices = null, getPassedFields = null, expectedContentVersion = null, expectedPracticeVersion = null, problem: loaded = null} = {}) {
   const [problem, catalog] = await Promise.all([
     loaded || read(`/knowledge/teaching/problems/${encodeURIComponent(lesson.id)}.json`),
     read('/knowledge/teaching/catalog.json'),
     stylesheet(new URL('./practice-preview.css', import.meta.url).pathname)
   ]);
-  if (expectedContentVersion && problem.content_version !== expectedContentVersion) {
+  if (expectedPracticeVersion ? problem.practice_version !== expectedPracticeVersion
+    : expectedContentVersion && problem.content_version !== expectedContentVersion) {
     throw Object.assign(Error('本题关联版本已变化，请刷新页面后再保存。'), {code: 'content_version_mismatch'});
   }
   const topic = `/knowledge/topics/${problem.topic}/`;

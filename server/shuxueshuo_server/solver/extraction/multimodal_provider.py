@@ -933,10 +933,14 @@ class DeepSeekMultimodalExtractionProvider(_DeepSeekChatProvider):
         def reject(reason):
             raise MultimodalProviderError("extraction.multimodal_image_invalid", reason, result="failed")
 
-        if not request.images or not any(i.role == "primary" for i in request.images):
+        figure_only = (request.contract_version in {"search-figure-extraction/v1", "search-figure-review/v1"}
+                       and request.evidence_pack.selection_id == "figure-crops")
+        if not request.images or (not figure_only and not any(i.role == "primary" for i in request.images)):
             reject("vision requires the complete question image")
         expected = [(i.page_id, i.artifact.sha256) for i in request.evidence_pack.images]
-        actual = [(i.page_id, i.artifact.sha256) for i in request.images if i.role == "primary"]
+        actual = [(i.page_id, i.artifact.sha256) for i in request.images if figure_only or i.role == "primary"]
+        if figure_only and (len(request.images) > 8 or any(i.role != "zoom" for i in request.images)):
+            reject("figure-only input requires at most eight bound crops")
         if actual != expected:
             reject("complete primary images must match evidence hashes and page order")
         if len(request.images) > 600:

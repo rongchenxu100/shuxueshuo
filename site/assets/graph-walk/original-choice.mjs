@@ -1,5 +1,5 @@
 /** Original exam choices are matched by the verified solver, never inferred from prose in the UI. */
-const SET_ANSWER_KINDS = new Set(['find_range', 'find_domain', 'match_domain', 'find_abstract_domain',
+const SET_ANSWER_KINDS = new Set(['find_range', 'find_domain', 'match_domain', 'match_range', 'find_abstract_domain',
   'find_abstract_domain_parameter', 'find_abstract_range', 'find_translation_range']);
 
 function mathValue(value) {

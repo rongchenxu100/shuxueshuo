@@ -1,0 +1,1455 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "workflow.budget_exhausted",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "invalid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "workflow.budget_exhausted"
+  },
+  "diagnostics": [
+    {
+      "stage": "schema",
+      "code": "schema.invalid",
+      "path": "/public_content/figure",
+      "source": null,
+      "message": "represented 需要可核对的受支持图形事实。",
+      "action": "repair"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 3,
+  "content_calls": 3,
+  "review_calls": 0,
+  "network_attempts": 3,
+  "network_reserved": 3,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【变式3】若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            }
+          ],
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": [
+              "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+            ]
+          }
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "represented",
+      "figure_regions": [
+        {
+          "option_id": "option-a",
+          "label": "A",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.04,
+            0.44,
+            0.28,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-b",
+          "label": "B",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.285,
+            0.44,
+            0.5,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-c",
+          "label": "C",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.52,
+            0.44,
+            0.74,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-d",
+          "label": "D",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.755,
+            0.44,
+            0.99,
+            0.95
+          ]
+        }
+      ],
+      "statement_figure_regions": [
+        {
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.38,
+            0.1,
+            0.64,
+            0.37
+          ]
+        }
+      ],
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【变式3】若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            }
+          ],
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": [
+              "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+            ]
+          }
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "represented",
+      "figure_regions": [
+        {
+          "option_id": "option-a",
+          "label": "A",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.04,
+            0.44,
+            0.28,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-b",
+          "label": "B",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.285,
+            0.44,
+            0.5,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-c",
+          "label": "C",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.52,
+            0.44,
+            0.74,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-d",
+          "label": "D",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.755,
+            0.44,
+            0.99,
+            0.95
+          ]
+        }
+      ],
+      "statement_figure_regions": [
+        {
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.38,
+            0.1,
+            0.64,
+            0.37
+          ]
+        }
+      ],
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": false,
+    "reports": {
+      "ir": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "/public_content/figure",
+            "code": "schema.invalid",
+            "message": "represented 需要可核对的受支持图形事实。"
+          }
+        ],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "5a1eb1fdf93eb0f8d2280f2e128c7fed77b9ac1601ebd691e39734f49d7c0b39",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "f(2-x)",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "increasing",
+                  "x_intercept": {
+                    "x": "2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "increasing",
+                  "x_intercept": {
+                    "x": "-2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "decreasing",
+                  "x_intercept": {
+                    "x": "2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "decreasing",
+                  "x_intercept": {
+                    "x": "-2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              }
+            ],
+            "source_graph": {
+              "function": "f",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "0",
+                  "evidence": "origin"
+                }
+              },
+              "uncertainties": [
+                "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+              ]
+            }
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "f(2-x)",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "increasing",
+                  "x_intercept": {
+                    "x": "2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "increasing",
+                  "x_intercept": {
+                    "x": "-2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "decreasing",
+                  "x_intercept": {
+                    "x": "2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "shown_monotone_curve",
+                  "direction": "decreasing",
+                  "x_intercept": {
+                    "x": "-2",
+                    "evidence": "estimated"
+                  }
+                },
+                "uncertainties": []
+              }
+            ],
+            "source_graph": {
+              "function": "f",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "0",
+                  "evidence": "origin"
+                }
+              },
+              "uncertainties": [
+                "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+              ]
+            },
+            "target": [
+              "function_call",
+              [
+                "ref",
+                "r.goals[0]:function:f",
+                "function"
+              ],
+              [
+                "-",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "r.goals[0]:scalar:x",
+                  "scalar"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "fr-t2-b09-v3-photo",
+      "source_sha256": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "schema",
+          "code": "schema.invalid",
+          "path": "/public_content/figure",
+          "source": null,
+          "message": "represented 需要可核对的受支持图形事实。",
+          "action": "repair"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": false,
+        "reports": {
+          "ir": {
+            "ok": false,
+            "issues": [
+              {
+                "path": "/public_content/figure",
+                "code": "schema.invalid",
+                "message": "represented 需要可核对的受支持图形事实。"
+              }
+            ],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "5a1eb1fdf93eb0f8d2280f2e128c7fed77b9ac1601ebd691e39734f49d7c0b39",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": [
+                    "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+                  ]
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": [
+                    "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+                  ]
+                },
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "-",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t2-b09-v3-photo",
+          "source_sha256": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010"
+        }
+      },
+      "revision": "5a1eb1fdf93eb0f8d2280f2e128c7fed77b9ac1601ebd691e39734f49d7c0b39"
+    },
+    {
+      "call": 2,
+      "stage": "repair",
+      "base_revision": "5a1eb1fdf93eb0f8d2280f2e128c7fed77b9ac1601ebd691e39734f49d7c0b39",
+      "diagnostics": [
+        {
+          "stage": "schema",
+          "code": "schema.invalid",
+          "path": "/public_content/figure",
+          "source": null,
+          "message": "represented 需要可核对的受支持图形事实。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "0ac34295ec1a5d89d5497a8b43b272aa2b660163f745c434714781c2f9e750a8",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": []
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "labelled"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": []
+                },
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "-",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t2-b09-v3-photo",
+          "source_sha256": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010"
+        }
+      },
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/options/0/facts/x_intercept/evidence",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/options/1/facts/x_intercept/evidence",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/options/2/facts/x_intercept/evidence",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/options/3/facts/x_intercept/evidence",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/source_graph/uncertainties/0",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        }
+      ]
+    },
+    {
+      "call": 3,
+      "stage": "repair",
+      "base_revision": "5a1eb1fdf93eb0f8d2280f2e128c7fed77b9ac1601ebd691e39734f49d7c0b39",
+      "diagnostics": [
+        {
+          "stage": "schema",
+          "code": "schema.invalid",
+          "path": "/public_content/figure",
+          "source": null,
+          "message": "represented 需要可核对的受支持图形事实。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "450c2fe5b0bf46edf9cc703df87419ce5d707ab6787207185f7fbf9a25d56a6b",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": [
+                    "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+                  ]
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "f(2-x)",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "increasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "shown_monotone_curve",
+                      "direction": "decreasing",
+                      "x_intercept": {
+                        "x": "-2",
+                        "evidence": "estimated"
+                      }
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "source_graph": {
+                  "function": "f",
+                  "facts": {
+                    "shape": "shown_monotone_curve",
+                    "direction": "increasing",
+                    "x_intercept": {
+                      "x": "0",
+                      "evidence": "origin"
+                    }
+                  },
+                  "uncertainties": [
+                    "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+                  ]
+                },
+                "target": [
+                  "function_call",
+                  [
+                    "ref",
+                    "r.goals[0]:function:f",
+                    "function"
+                  ],
+                  [
+                    "-",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r.goals[0]:scalar:x",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "fr-t2-b09-v3-photo",
+          "source_sha256": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010"
+        }
+      },
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/public_content/figure_regions/0",
+          "message": "仅可修改诊断明确授权的公开题目字段，不可顺带改变其他题意。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/public_content/figure_regions/1",
+          "message": "仅可修改诊断明确授权的公开题目字段，不可顺带改变其他题意。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/public_content/figure_regions/2",
+          "message": "仅可修改诊断明确授权的公开题目字段，不可顺带改变其他题意。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/public_content/figure_regions/3",
+          "message": "仅可修改诊断明确授权的公开题目字段，不可顺带改变其他题意。"
+        },
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/public_content/statement_figure_regions/0",
+          "message": "仅可修改诊断明确授权的公开题目字段，不可顺带改变其他题意。"
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { topicPath } from './public-knowledge-teaching.mjs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { branches } from '../../site/assets/knowledge-next/teaching-model.mjs';
+import {pageContract, teachingContract} from '../../site/assets/learning/practice-compatibility.mjs';
 
 export function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
@@ -21,6 +22,12 @@ function stableJson(value) {
   return JSON.stringify(value);
 }
 export const contentDigest = (value) => createHash('sha256').update(stableJson(value)).digest('hex');
+export function practiceCompatibility(problem) {
+  const data = problem.problem_data;
+  return {id: problem.id, page_contract_hash: contentDigest(pageContract(data._graph_walk || data._lesson, data.statement)),
+    practice_version: contentDigest({schema: 'practice-compatibility/v1',
+      teaching: teachingContract(data), associations: problem.association_hash})};
+}
 const read = async (file) => JSON.parse(await fs.readFile(file, 'utf8'));
 
 export async function resourceMetadata(root, resources) {

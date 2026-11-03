@@ -199,7 +199,9 @@ def validate_contract(contract, nodes=None, *, available_methods=None):
         allowed = {c["ref"] for c in node.get("calls", [])}
         rule = nodes.get(node.get("rule"))
         rule_targets = {branch["id"]: branch["target"] for branch in rule["branches"]} if rule else {}
-        allowed.update(rule_targets.values())
+        # A method-local step decision returns to this method's own continuation;
+        # it does not recursively call the complete method again (e.g. FR-T3 J2).
+        allowed.update(target for target in rule_targets.values() if target != method)
         ids, executed_refs = set(), set()
         ordered = actions(step)
         if len({action["order"] for action in ordered}) != len(ordered):
@@ -444,9 +446,27 @@ def revisions():
         "judgments",
         "execution_contracts",
         "method_admission",
+        "quantified_subproblem",
+        "domain_borrow",
+        "presentation_templates",
     ):
         result[name] = hashlib.sha256((folder / f"{name}.py").read_bytes()).hexdigest()
     result["function_evaluation"] = hashlib.sha256((folder.parent / "function_evaluation.py").read_bytes()).hexdigest()
+    result['piecewise_evaluation'] = hashlib.sha256((folder.parent / 'piecewise_evaluation.py').read_bytes()).hexdigest()
+    result['piecewise_range'] = hashlib.sha256((folder.parent / 'piecewise_range.py').read_bytes()).hexdigest()
+    result['piecewise_range_parameter'] = hashlib.sha256((folder.parent / 'piecewise_range_parameter.py').read_bytes()).hexdigest()
+    result['piecewise_range_parameter_presentation'] = hashlib.sha256((folder / 'piecewise_range_parameter_presentation.py').read_bytes()).hexdigest()
+    result['piecewise_range_presentation'] = hashlib.sha256((folder / 'piecewise_range_presentation.py').read_bytes()).hexdigest()
+    result['piecewise_inequality'] = hashlib.sha256((folder.parent / 'piecewise_inequality.py').read_bytes()).hexdigest()
+    result['piecewise_inequality_presentation'] = hashlib.sha256((folder / 'piecewise_inequality_presentation.py').read_bytes()).hexdigest()
+    result['piecewise_equation'] = hashlib.sha256((folder.parent / 'piecewise_equation.py').read_bytes()).hexdigest()
+    result['piecewise_equation_presentation'] = hashlib.sha256((folder / 'piecewise_equation_presentation.py').read_bytes()).hexdigest()
+    for name in ('graph_transform_runtime', 'graph_transform_presentation', 'graph_transform_selection', 'absolute_graph_runtime', 'absolute_graph_presentation', 'quadratic_translation_presentation', 'schematic_transform_presentation'):
+        result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
+    result['quadratic_translation'] = hashlib.sha256((folder.parent / 'quadratic_translation.py').read_bytes()).hexdigest()
+    result['schematic_transform'] = hashlib.sha256((folder.parent / 'schematic_transform.py').read_bytes()).hexdigest()
+    result['absolute_graph'] = hashlib.sha256((folder.parent / 'absolute_graph.py').read_bytes()).hexdigest()
+    result['function_graph'] = hashlib.sha256((folder.parent / 'function_graph.py').read_bytes()).hexdigest()
     result['function_formula'] = hashlib.sha256((folder.parent / 'function_formula.py').read_bytes()).hexdigest()
     result['function_matching'] = hashlib.sha256((folder.parent / 'function_matching.py').read_bytes()).hexdigest()
     result['function_coefficients'] = hashlib.sha256((folder.parent / 'function_coefficients.py').read_bytes()).hexdigest()

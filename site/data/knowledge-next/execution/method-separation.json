@@ -523,6 +523,75 @@
             "equals": "affine_reciprocal"
           },
           "skip_reason": "not_selected",
+          "order": 10
+        },
+        {
+          "id": "reciprocal_quadratic_range",
+          "capability": "quadratic_interval_range",
+          "public_ref": "quadratic-interval-extremum",
+          "inputs": {
+            "expression": "$reciprocal_expression",
+            "variable": "$reciprocal_variable",
+            "domain": "$reciprocal_domain"
+          },
+          "outputs": {
+            "reciprocal_quadratic_range": "range",
+            "reciprocal_quadratic_points": "critical_points",
+            "reciprocal_quadratic_endpoints": "endpoint_values"
+          },
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          },
+          "skip_reason": "not_selected",
+          "order": 9
+        },
+        {
+          "id": "reciprocal_quadratic_restore",
+          "capability": "restore_substitution_range",
+          "public_ref": "method-substitution",
+          "inputs": {
+            "mapping": "$reciprocal_mapping",
+            "range": "$reciprocal_quadratic_range",
+            "critical_points": "$reciprocal_quadratic_points",
+            "endpoint_values": "$reciprocal_quadratic_endpoints",
+            "turning_point": null
+          },
+          "outputs": {
+            "reciprocal_restored_range": "range",
+            "reciprocal_restored_points": "critical_points",
+            "reciprocal_restored_endpoints": "endpoint_values",
+            "reciprocal_restored_turn": "turning_point"
+          },
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          },
+          "skip_reason": "not_selected",
+          "order": 11
+        },
+        {
+          "id": "reciprocal_substitute",
+          "capability": "substitution",
+          "public_ref": "method-substitution",
+          "inputs": {
+            "expression": "$function",
+            "variable": "$x",
+            "domain": "$domain",
+            "new_variable": "$affine_plan.new_variable",
+            "forward": "$affine_plan.forward"
+          },
+          "outputs": {
+            "reciprocal_expression": "expression",
+            "reciprocal_variable": "variable",
+            "reciprocal_domain": "domain",
+            "reciprocal_mapping": "mapping"
+          },
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          },
+          "skip_reason": "not_selected",
           "order": 8
         }
       ],
@@ -561,6 +630,9 @@
             },
             {
               "id": "affine_reciprocal"
+            },
+            {
+              "id": "reciprocal_quadratic"
             }
           ],
           "order": -1,
@@ -951,12 +1023,125 @@
             "ref": "range_choice",
             "equals": "affine_reciprocal"
           }
+        },
+        {
+          "id": "reciprocal_substitution",
+          "after": "reciprocal_substitute",
+          "template": "reciprocal_substitution",
+          "bindings": {
+            "before": [
+              "$function",
+              "$domain"
+            ],
+            "after": [
+              "$reciprocal_expression",
+              "$reciprocal_domain"
+            ],
+            "original_expression": "$function",
+            "original_variable": "$x",
+            "original_domain": "$domain",
+            "new_variable": "$reciprocal_variable",
+            "forward": "$reciprocal_mapping.forward",
+            "inverse": "$reciprocal_mapping.inverse",
+            "expression": "$reciprocal_expression",
+            "domain": "$reciprocal_domain",
+            "function_name": "$function_name"
+          },
+          "depends_on": [
+            "reciprocal_domain",
+            "reciprocal_expression",
+            "reciprocal_mapping",
+            "reciprocal_variable",
+            "domain",
+            "function",
+            "function_name",
+            "x"
+          ],
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          }
+        },
+        {
+          "id": "reciprocal_quadratic_range",
+          "after": "reciprocal_quadratic_range",
+          "template": "substituted_range",
+          "bindings": {
+            "before": [
+              "$reciprocal_expression"
+            ],
+            "after": [
+              "$reciprocal_quadratic_range.set"
+            ],
+            "range": "$reciprocal_quadratic_range",
+            "domain": "$reciprocal_domain",
+            "function": "$reciprocal_expression",
+            "x": "$reciprocal_variable",
+            "function_name": "$function_name",
+            "original_variable": "$x",
+            "original_expression": "$function",
+            "points": "$reciprocal_quadratic_points",
+            "endpoints": "$reciprocal_quadratic_endpoints"
+          },
+          "depends_on": [
+            "function",
+            "function_name",
+            "reciprocal_domain",
+            "reciprocal_expression",
+            "reciprocal_quadratic_endpoints",
+            "reciprocal_quadratic_points",
+            "reciprocal_quadratic_range",
+            "reciprocal_variable",
+            "x"
+          ],
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          }
+        },
+        {
+          "id": "reciprocal_quadratic_restore",
+          "after": "reciprocal_quadratic_restore",
+          "template": "reciprocal_restore",
+          "bindings": {
+            "before": [
+              "$reciprocal_quadratic_range.set"
+            ],
+            "after": [
+              "$reciprocal_restored_range.set"
+            ],
+            "original_variable": "$x",
+            "new_variable": "$reciprocal_variable",
+            "inverse": "$reciprocal_mapping.inverse",
+            "points": "$reciprocal_restored_points",
+            "endpoints": "$reciprocal_restored_endpoints",
+            "turn": "$reciprocal_restored_turn",
+            "range": "$reciprocal_restored_range",
+            "function_name": "$function_name",
+            "original_expression": "$function"
+          },
+          "depends_on": [
+            "function",
+            "function_name",
+            "reciprocal_mapping",
+            "reciprocal_quadratic_range",
+            "reciprocal_restored_endpoints",
+            "reciprocal_restored_points",
+            "reciprocal_restored_range",
+            "reciprocal_restored_turn",
+            "reciprocal_variable",
+            "x"
+          ],
+          "guard": {
+            "ref": "range_choice",
+            "equals": "reciprocal_quadratic"
+          }
         }
       ],
       "merges": [
         {
           "id": "range_result",
-          "order": 9,
+          "order": 12,
           "branches": [
             {
               "guard": {
@@ -1010,6 +1195,15 @@
               },
               "bindings": {
                 "function_range": "$restored_range"
+              }
+            },
+            {
+              "guard": {
+                "ref": "range_choice",
+                "equals": "reciprocal_quadratic"
+              },
+              "bindings": {
+                "function_range": "$reciprocal_restored_range"
               }
             }
           ]

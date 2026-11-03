@@ -190,6 +190,10 @@
     "function_evaluation_input_domain": [
       "function-concept#elements"
     ],
+    "function_evaluation_branch_selection": [
+      "piecewise-function#definition",
+      "piecewise-function#domain-range"
+    ],
     "function_range_domain": [
       "function-concept#elements"
     ],
@@ -299,6 +303,36 @@
       "equality-properties#multiplication"
     ],
     "function_assignment_identity": [
+      "equality-properties#identity"
+    ],
+    "graph_coordinate_transform": [
+      "function-graph-transformations#translation",
+      "function-graph-transformations#symmetry"
+    ],
+    "absolute_sign_split": [
+      "absolute-value-concept#definition"
+    ],
+    "piecewise_branch_intersection_union": [
+      "piecewise-function#equation",
+      "set-intersection-union#intersection",
+      "set-intersection-union#union"
+    ],
+    "piecewise_inequality_intersection_union": [
+      "piecewise-function#inequality",
+      "set-intersection-union#intersection",
+      "set-intersection-union#union"
+    ],
+    "piecewise_range_union": [
+      "piecewise-function#domain-range",
+      "set-intersection-union#union"
+    ],
+    "piecewise_range_parameter": [
+      "piecewise-function#domain-range",
+      "quadratic-function-properties#vertex",
+      "set-intersection-union#union"
+    ],
+    "marginal_tier_sum": [
+      "piecewise-function#definition",
       "equality-properties#identity"
     ]
   }

@@ -25,10 +25,11 @@ class Start(BaseModel):
     lesson_id: str = "basic-inequality-q01"
     practice_attempt_id: UUID | None = None
     content_version: str | None = Field(default=None, min_length=1, max_length=100)
+    practice_version: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
 
     @model_validator(mode='after')
     def bound_practice_requires_version(self):
-        if self.practice_attempt_id is not None and self.content_version is None:
+        if self.practice_attempt_id is not None and self.content_version is None and self.practice_version is None:
             raise ValueError('关联练习时必须提供内容版本。')
         return self
 
@@ -74,6 +75,7 @@ def create_router(tutor=None, budget=None, *, explanation_interpreter=None, enab
                     body.practice_attempt_id,
                     session,
                     body.content_version,
+                    body.practice_version,
                 )
             view = session.view()
             if body.practice_attempt_id:

@@ -12,6 +12,26 @@ from shuxueshuo_server.graph_lesson.stage_three.trajectory import encode_value
 x, a = sp.symbols("x a", real=True)
 
 
+@pytest.mark.parametrize('domain,vertex_visible,closed,marks', [
+    (sp.Interval(-sp.oo, 1), True, [False, True], [{'x': 1.0}]),
+    (sp.Interval.open(0, 1), False, [False, False], [{'x': 0.0, 'open': True}, {'x': 1.0, 'open': True}]),
+    (sp.Interval(1, 2), False, [True, True], [{'x': 1.0}, {'x': 2.0}]),
+])
+def test_interval_quadratic_keeps_branch_domain_and_only_marks_attainable_vertex(domain, vertex_visible, closed, marks):
+    graph = drawing.interval_function_graph(x**2-2, x, domain, title='当前段函数')
+    interaction.graph_contract.validate_graph(graph)
+    assert graph['kind'] == 'quadratic'
+    assert graph['params']['vertex'] == [0, -2]
+    assert graph['params']['showVertex'] is vertex_visible
+    assert graph['params']['interval_closed'] == closed
+    assert graph['params']['points'] == marks
+
+
+def test_interval_quadratic_does_not_invent_an_unknown_parameter_value():
+    with pytest.raises(drawing.GraphUnavailable, match='parameter_not_substituted'):
+        drawing.interval_function_graph(a*x**2-x+2, x, sp.Interval.open(1, sp.oo), title='含参段')
+
+
 @pytest.mark.parametrize(("low", "high", "expected"), [
     (0, 3, 1), (-3, 0, -1), (-1, 0, -sp.Rational(1, 2)),
     (0, sp.Rational(1, 2), sp.Rational(1, 4)),

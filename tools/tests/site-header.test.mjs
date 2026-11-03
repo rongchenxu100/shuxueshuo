@@ -52,7 +52,7 @@ test('pages highlight the expected section', () => {
   assert.equal(current(site('mistake-book/index.html')), null);
   assert.match(site('senior-high/index.html'), /<a href="\/senior-high\/" aria-current="page">解析题库<\/a>/);
   assert.match(site('2/q03/index.html'), /<a href="\/2\/">恒成立问题<\/a><\/li><li><span aria-current="page">Q03<\/span>/);
-  assert.match(site('topics/index.html'), /class="graph-entry" href="\/senior-high\/"/);
+  assert.match(site('topics/index.html'), /class="site-tabs"[^>]*>[\s\S]*?<a href="\/senior-high\/">解析题库<\/a>/);
 });
 
 test('generated knowledge pages use the shared header and section tabs', () => {

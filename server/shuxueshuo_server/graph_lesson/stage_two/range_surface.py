@@ -4,7 +4,7 @@ import re
 
 from ...problem_understanding.notation_parser import NotationError, parse
 from ...problem_understanding.review_contract import pointer
-from .evaluation_surface import _formula_parts
+from .evaluation_surface import _formula_parts, _piecewise_source_matches
 from .surface_math import normalize_surface
 
 
@@ -72,7 +72,8 @@ def range_source_spans(candidate, target_ref, ranges, description, matches):
     if not description.get('relation_input_ast') and (name == 'y' or not any(named.match(body) for _, _, body in formulas)):
         definition_forms.append('y=' + source.split('=', 1)[1])
     located = [(start, end) for start, end, body in formulas
-               if any(matches(body, form) for form in definition_forms)]
+               if any(matches(body, form) or (description.get('piecewise') and
+                      _piecewise_source_matches(body, form, matches)) for form in definition_forms)]
     if not located:
         return None
     definition_span = located[0]

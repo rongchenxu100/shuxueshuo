@@ -2,42 +2,267 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "additionalProperties": false,
-  "required": ["completeness", "privacy", "figure", "scopes"],
+  "required": [
+    "completeness",
+    "privacy",
+    "figure",
+    "scopes"
+  ],
   "properties": {
-    "completeness": {"enum": ["complete", "incomplete", "unknown"], "description": "整道题的共同题干和全部小问是否完整；只截出一道小问不能声明完整。"},
-    "privacy": {"enum": ["separated", "uncertain"], "description": "仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。"},
-    "figure": {"enum": ["not_required", "unrepresented"], "description": "仅无需图形即可完整确定题意时选not_required。需要配图、图形选项或无法确认时选unrepresented，本版不构造图形身份。"},
-    "root_label_role": {"enum": ["source", "content"], "description": "仅在root.label存在时填写。只有原图明确表明该标签仅为来源或试卷题号时可选source；图景、条件或有题意的标签选content。不填时保守按content保留，不能将未分类标签作为来源删除。"},
-    "scopes": {
-      "type": "array", "minItems": 1, "maxItems": 128,
+    "completeness": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "unknown"
+      ],
+      "description": "整道题的共同题干和全部小问是否完整；只截出一道小问不能声明完整。"
+    },
+    "privacy": {
+      "enum": [
+        "separated",
+        "uncertain"
+      ],
+      "description": "仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。"
+    },
+    "figure": {
+      "enum": [
+        "not_required",
+        "unrepresented",
+        "represented"
+      ],
+      "description": "图形题只有受支持的 select_function_graph 事实与全部原选项裁框均经核对，才可选 represented；同题的非图形目标按各自合同校验。其他图形、模糊或缺页仍为 unrepresented。"
+    },
+    "figure_regions": {
+      "type": "array",
+      "maxItems": 32,
+      "description": "represented 时原图每个选项的完整区域，包括坐标轴、标注和字母，不含解析。box 使用同一裁剪框归一化坐标（same-crop-normalized），与 processed/original 像素尺寸无关；依次为左、上、右、下，范围 0 到 1。",
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["scope_ref", "statement", "choices"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "option_id",
+          "label",
+          "target_ref",
+          "box"
+        ],
         "properties": {
-          "scope_ref": {"type": "string", "pattern": "^/root(?:/children/[0-9]+)*$"},
-          "statement": {"type": "string", "maxLength": 32768, "description": "该作用域自身的纯题干和所求，不重复父级题干，不含小问编号和选项；数学公式用$…$，不改写题意、不补默认条件、不夹入个人信息或来源文字。没有自身题干可为空。"},
-          "choices": {
-            "type": "array", "maxItems": 128,
+          "option_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^[A-Z]$"
+          },
+          "target_ref": {
+            "type": "string",
+            "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+          },
+          "box": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
             "items": {
-              "type": "object", "additionalProperties": false,
-              "required": ["target_ref", "status", "selection_mode", "options"],
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "root_label_role": {
+      "enum": [
+        "source",
+        "content"
+      ],
+      "description": "仅在root.label存在时填写。只有原图明确表明该标签仅为来源或试卷题号时可选source；图景、条件或有题意的标签选content。不填时保守按content保留，不能将未分类标签作为来源删除。"
+    },
+    "scopes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope_ref",
+          "statement",
+          "choices"
+        ],
+        "properties": {
+          "scope_ref": {
+            "type": "string",
+            "pattern": "^/root(?:/children/[0-9]+)*$"
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 32768,
+            "description": "该作用域自身的纯题干和所求，不重复父级题干，不含小问编号和选项；数学公式用$…$，不改写题意、不补默认条件、不夹入个人信息或来源文字。没有自身题干可为空。"
+          },
+          "choices": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "target_ref",
+                "status",
+                "selection_mode",
+                "options"
+              ],
               "properties": {
-                "target_ref": {"type": "string", "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"},
-                "status": {"enum": ["none", "complete", "incomplete", "unknown"], "description": "每个目标都必须明确填此字段。只有原图确认没有选项才是none；完整三选题可以是complete；不能把漏掉的全部选项当成none。"},
-                "selection_mode": {"enum": ["none", "single", "multiple", "unspecified"]},
+                "target_ref": {
+                  "type": "string",
+                  "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+                },
+                "status": {
+                  "enum": [
+                    "none",
+                    "complete",
+                    "incomplete",
+                    "unknown"
+                  ],
+                  "description": "每个目标都必须明确填此字段。只有原图确认没有选项才是none；完整三选题可以是complete；不能把漏掉的全部选项当成none。"
+                },
+                "selection_mode": {
+                  "enum": [
+                    "none",
+                    "single",
+                    "multiple",
+                    "unspecified"
+                  ]
+                },
                 "options": {
-                  "type": "array", "maxItems": 32,
+                  "type": "array",
+                  "maxItems": 32,
                   "items": {
-                    "type": "object", "additionalProperties": false,
-                    "required": ["label", "text"],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "label",
+                      "text"
+                    ],
                     "properties": {
-                      "label": {"type": "string", "minLength": 1, "maxLength": 32},
-                      "text": {"type": "string", "minLength": 1, "maxLength": 4096}
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
                     }
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "statement_figure_regions": {
+      "type": "array",
+      "maxItems": 32,
+      "description": "仅给原图的变换选图题，按目标顺序标出题干原图（不是解析图）的完整裁框，含坐标轴和标注。box 使用同一裁剪框归一化坐标（same-crop-normalized），与 processed/original 像素尺寸无关；依次为左、上、右、下，范围 0 到 1。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_ref",
+          "box"
+        ],
+        "properties": {
+          "target_ref": {
+            "type": "string",
+            "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+          },
+          "box": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "figure_detection": {
+      "type": "object",
+      "description": "文字轮的临时配图清单；图形合并成功后移除，以 figure_regions 和 statement_figure_regions 为准。",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "regions"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "none",
+            "present",
+            "uncertain"
+          ]
+        },
+        "regions": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "role",
+              "target_ref",
+              "box"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^figure-[1-9][0-9]*$"
+              },
+              "role": {
+                "enum": [
+                  "statement",
+                  "option",
+                  "workspace"
+                ]
+              },
+              "target_ref": {
+                "type": "string",
+                "pattern": "^/root(?:/children/[0-9]+)*/goals/[0-9]+$"
+              },
+              "option_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,63}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32
+              },
+              "box": {
+                "type": "array",
+                "description": "同一裁剪框归一化坐标（same-crop-normalized），与 processed/original 像素尺寸无关；依次为左、上、右、下，范围 0 到 1。",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "allOf": [{
+              "if": {"properties": {"role": {"const": "option"}}},
+              "then": {"required": ["option_id", "label"]},
+              "else": {"not": {"anyOf": [{"required": ["option_id"]}, {"required": ["label"]}]}}
+            }]
           }
         }
       }

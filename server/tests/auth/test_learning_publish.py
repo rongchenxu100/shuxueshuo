@@ -106,19 +106,19 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 45
-    assert len(authored['practice_routes']) == 56
-    assert len(authored['practice_steps']) == 329
-    assert len(authored['knowledge_nodes']) == 94
+    assert len(authored['practice_problems']) == 101
+    assert len(authored['practice_routes']) == 121
+    assert len(authored['practice_steps']) == 946
+    assert len(authored['knowledge_nodes']) == 127
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
     assert len([q for q in authored['knowledge_drill_items'] if q['node_id'] == 'amgm-formula']) == 1
     assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 9
     domain_ids = {'function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2',
-                  'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'}
+                  'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b-v2'}
     assert {row['problem_id'] for row in authored['practice_topic_problems']
-            if row['topic_id'] == 'function-concepts'} == domain_ids
+            if row['topic_id'] == 'function-concepts'} >= domain_ids
     for problem_id, basis in (
         ('function-concepts-q15', 'square-root-expression#meaning'),
         ('function-concepts-q01', 'integer-power#zero-exponent'),
@@ -131,17 +131,17 @@ def test_shared_export_has_complete_next_content(authored):
         steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
         assert len(steps) == 7
         assert any(basis in step['refs'] for step in steps)
-    for problem_id in ('function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'):
+    for problem_id in ('function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b-v2'):
         problem = next(row for row in authored['practice_problems'] if row['id'] == problem_id)
         contract = problem['problem_data']['_graph_walk']
         assert list(contract['routes']) == ['domain-parameter']
-        expected_steps = {'function-concepts-q12': 15, 'function-concepts-q23b': 13}.get(problem_id, 14)
+        expected_steps = {'function-concepts-q12': 15, 'function-concepts-q23b-v2': 13}.get(problem_id, 14)
         assert len(contract['routes']['domain-parameter']['steps']) == expected_steps - 3
         steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
         assert len(steps) == expected_steps
-        if problem_id in ('function-concepts-q12', 'function-concepts-q23b'):
+        if problem_id in ('function-concepts-q12', 'function-concepts-q23b-v2'):
             assert any('rational-expression#meaning' in step['refs'] for step in steps)
-        borrowed = 'method-separation' if problem_id == 'function-concepts-q23b' else 'method-discriminant'
+        borrowed = 'method-separation' if problem_id == 'function-concepts-q23b-v2' else 'method-discriminant'
         assert any(any(ref == borrowed or ref.startswith(borrowed + '#') for ref in step['refs'])
                    for step in steps)
 

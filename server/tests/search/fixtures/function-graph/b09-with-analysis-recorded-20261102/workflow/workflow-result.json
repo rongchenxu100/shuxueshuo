@@ -1,0 +1,1167 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 4,
+  "content_calls": 2,
+  "review_calls": 2,
+  "network_attempts": 4,
+  "network_reserved": 4,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "【例9】函数 $f(x)=|x-1|+1$ 的部分图象大致是（　　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+    "root": {
+      "label": "例9",
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(x-1)+1",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "represented",
+      "figure_regions": [
+        {
+          "option_id": "option-a",
+          "label": "A",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.065,
+            0.075,
+            0.25,
+            0.45
+          ]
+        },
+        {
+          "option_id": "option-b",
+          "label": "B",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.29,
+            0.075,
+            0.48,
+            0.45
+          ]
+        },
+        {
+          "option_id": "option-c",
+          "label": "C",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.55,
+            0.075,
+            0.73,
+            0.45
+          ]
+        },
+        {
+          "option_id": "option-d",
+          "label": "D",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.755,
+            0.075,
+            0.95,
+            0.45
+          ]
+        }
+      ],
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "函数 $f(x)=|x-1|+1$ 的部分图象大致是（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "candidate": {
+    "original_text": "【例9】函数 $f(x)=|x-1|+1$ 的部分图象大致是（　　）\nA. [图]\nB. [图]\nC. [图]\nD. [图]",
+    "root": {
+      "label": "例9",
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "abs(x-1)+1",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "-1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "two_straight_branches",
+                "vertex": {
+                  "x": "1",
+                  "y": "-1",
+                  "evidence": "labelled"
+                },
+                "left_direction": "decreasing",
+                "right_direction": "increasing"
+              },
+              "uncertainties": []
+            }
+          ]
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "represented",
+      "figure_regions": [
+        {
+          "option_id": "option-a",
+          "label": "A",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.065,
+            0.075,
+            0.25,
+            0.42
+          ]
+        },
+        {
+          "option_id": "option-b",
+          "label": "B",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.29,
+            0.075,
+            0.48,
+            0.42
+          ]
+        },
+        {
+          "option_id": "option-c",
+          "label": "C",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.55,
+            0.075,
+            0.73,
+            0.42
+          ]
+        },
+        {
+          "option_id": "option-d",
+          "label": "D",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.755,
+            0.075,
+            0.95,
+            0.42
+          ]
+        }
+      ],
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "函数 $f(x)=|x-1|+1$ 的部分图象大致是（　　）",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [],
+          "canonical_facts": [],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c",
+    "canonical": {
+      "root": {
+        "facts": [
+          []
+        ],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "abs(x-1)+1",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "1",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "-1",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "-1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              }
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "select_function_graph",
+            "expression": "abs(x-1)+1",
+            "variable": "x",
+            "comparison": "rough_shape",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "option_id": "option-a",
+                "label": "A",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "1",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-b",
+                "label": "B",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "-1",
+                    "y": "1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-c",
+                "label": "C",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "-1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              },
+              {
+                "option_id": "option-d",
+                "label": "D",
+                "facts": {
+                  "shape": "two_straight_branches",
+                  "vertex": {
+                    "x": "1",
+                    "y": "-1",
+                    "evidence": "labelled"
+                  },
+                  "left_direction": "decreasing",
+                  "right_direction": "increasing"
+                },
+                "uncertainties": []
+              }
+            ],
+            "target": [
+              "+",
+              [
+                "call",
+                "abs",
+                [
+                  "-",
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [],
+      "source_locations": {},
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [],
+        "canonical_facts": [],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "b09-with-analysis-live",
+      "source_sha256": "3ea9e0d6792d254402695235b1c056df736df2c5b9f068661c4447d8560d871b"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "ff98797b3cb11f25621a689f417adb3d9cbb558e22e33c9da79f6592b1761a7b",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(x-1)+1",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(x-1)+1",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "target": [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "-",
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "b09-with-analysis-live",
+          "source_sha256": "3ea9e0d6792d254402695235b1c056df736df2c5b9f068661c4447d8560d871b"
+        }
+      },
+      "revision": "ff98797b3cb11f25621a689f417adb3d9cbb558e22e33c9da79f6592b1761a7b"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "ff98797b3cb11f25621a689f417adb3d9cbb558e22e33c9da79f6592b1761a7b",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/figure_regions/0/box",
+          "source": [
+            0.065,
+            0.075,
+            0.25,
+            0.45
+          ],
+          "source_excerpt": "原图顶部四个选项图下方依次有字母A、B、C、D，再往下是“解法1：解析式中有绝对值……”等印刷解析文字。",
+          "message": "当前 A 项裁框为 [0.065,0.075,0.25,0.45]，下边界 0.45 超出选项 A 的图像及字母 A，向下延伸到了解析文字区域；图形区域应只覆盖 A 项的坐标轴、曲线、全部标注和字母 A，不能框入下方解析。",
+          "action": "repair"
+        },
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/figure_regions/1/box",
+          "source": [
+            0.29,
+            0.075,
+            0.48,
+            0.45
+          ],
+          "source_excerpt": "原图选项 B 图及其字母 B 位于解析文字上方，解析从四图下方开始。",
+          "message": "当前 B 项裁框为 [0.29,0.075,0.48,0.45]，下边界 0.45 超出选项 B 的图像及字母 B，包含下方解析文字；应裁到 B 项坐标轴、曲线、标注和字母 B 为止。",
+          "action": "repair"
+        },
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/figure_regions/2/box",
+          "source": [
+            0.55,
+            0.075,
+            0.73,
+            0.45
+          ],
+          "source_excerpt": "原图选项 C 图及其字母 C 位于解析文字上方。",
+          "message": "当前 C 项裁框为 [0.55,0.075,0.73,0.45]，下边界 0.45 超出选项 C 的图像及字母 C，包含了下方解析文字；应只覆盖 C 项坐标轴、曲线、标注和字母 C。",
+          "action": "repair"
+        },
+        {
+          "stage": "review",
+          "code": "wrong_public_content",
+          "path": "/public_content/figure_regions/3/box",
+          "source": [
+            0.755,
+            0.075,
+            0.95,
+            0.45
+          ],
+          "source_excerpt": "原图选项 D 图及其字母 D 位于解析文字上方。",
+          "message": "当前 D 项裁框为 [0.755,0.075,0.95,0.45]，下边界 0.45 超出选项 D 的图像及字母 D，延伸到了下方解析文字；应裁到 D 项坐标轴、曲线、标注和字母 D 为止。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "review": {
+        "revision": "ff98797b3cb11f25621a689f417adb3d9cbb558e22e33c9da79f6592b1761a7b",
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/public_content/figure_regions/0/box",
+            "kind": "wrong_public_content",
+            "source_excerpt": "原图顶部四个选项图下方依次有字母A、B、C、D，再往下是“解法1：解析式中有绝对值……”等印刷解析文字。",
+            "message": "当前 A 项裁框为 [0.065,0.075,0.25,0.45]，下边界 0.45 超出选项 A 的图像及字母 A，向下延伸到了解析文字区域；图形区域应只覆盖 A 项的坐标轴、曲线、全部标注和字母 A，不能框入下方解析。"
+          },
+          {
+            "path": "/public_content/figure_regions/1/box",
+            "kind": "wrong_public_content",
+            "source_excerpt": "原图选项 B 图及其字母 B 位于解析文字上方，解析从四图下方开始。",
+            "message": "当前 B 项裁框为 [0.29,0.075,0.48,0.45]，下边界 0.45 超出选项 B 的图像及字母 B，包含下方解析文字；应裁到 B 项坐标轴、曲线、标注和字母 B 为止。"
+          },
+          {
+            "path": "/public_content/figure_regions/2/box",
+            "kind": "wrong_public_content",
+            "source_excerpt": "原图选项 C 图及其字母 C 位于解析文字上方。",
+            "message": "当前 C 项裁框为 [0.55,0.075,0.73,0.45]，下边界 0.45 超出选项 C 的图像及字母 C，包含了下方解析文字；应只覆盖 C 项坐标轴、曲线、标注和字母 C。"
+          },
+          {
+            "path": "/public_content/figure_regions/3/box",
+            "kind": "wrong_public_content",
+            "source_excerpt": "原图选项 D 图及其字母 D 位于解析文字上方。",
+            "message": "当前 D 项裁框为 [0.755,0.075,0.95,0.45]，下边界 0.45 超出选项 D 的图像及字母 D，延伸到了下方解析文字；应裁到 D 项坐标轴、曲线、标注和字母 D 为止。"
+          }
+        ]
+      }
+    },
+    {
+      "call": 3,
+      "stage": "repair",
+      "base_revision": "ff98797b3cb11f25621a689f417adb3d9cbb558e22e33c9da79f6592b1761a7b",
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [],
+              "canonical_facts": [],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c",
+        "canonical": {
+          "root": {
+            "facts": [
+              []
+            ],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(x-1)+1",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  }
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "select_function_graph",
+                "expression": "abs(x-1)+1",
+                "variable": "x",
+                "comparison": "rough_shape",
+                "selection_mode": "unspecified",
+                "options": [
+                  {
+                    "option_id": "option-a",
+                    "label": "A",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-b",
+                    "label": "B",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-c",
+                    "label": "C",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "-1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  },
+                  {
+                    "option_id": "option-d",
+                    "label": "D",
+                    "facts": {
+                      "shape": "two_straight_branches",
+                      "vertex": {
+                        "x": "1",
+                        "y": "-1",
+                        "evidence": "labelled"
+                      },
+                      "left_direction": "decreasing",
+                      "right_direction": "increasing"
+                    },
+                    "uncertainties": []
+                  }
+                ],
+                "target": [
+                  "+",
+                  [
+                    "call",
+                    "abs",
+                    [
+                      "-",
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [],
+          "source_locations": {},
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [],
+            "canonical_facts": [],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "b09-with-analysis-live",
+          "source_sha256": "3ea9e0d6792d254402695235b1c056df736df2c5b9f068661c4447d8560d871b"
+        }
+      },
+      "revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c"
+    },
+    {
+      "call": 4,
+      "stage": "review",
+      "base_revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "32cc8e9bbb31dda9b44bf08083fc8f248d90a9b95c6bef0406fd7d704c64933c",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

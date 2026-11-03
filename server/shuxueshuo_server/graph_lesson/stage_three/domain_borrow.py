@@ -122,7 +122,7 @@ def compile_borrow_plane(values, interaction_id):
         "x": d3["feedback"]["x"],
         "y": d3["feedback"]["y"],
         "method": d3["feedback"]["method"],
-        "method_choice": f"本题沿定义域求参路线借用{method_label}；其它适用方法不在本路线展开。",
+        "method_choice": f"当前恒成立子问题使用{method_label}；其它适用方法不在本路线展开。",
     }
     part = {
         "id": interaction_id + "#1",

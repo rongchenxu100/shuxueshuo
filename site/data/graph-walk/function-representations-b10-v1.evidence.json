@@ -1,0 +1,1091 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+    "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+    "input_sha256": "dc5bc302eec77a5e87f0da9f84ae93768d8120c94dc681528a327da150199cf2",
+    "checkpoint_sha256": "ee1eda874cd7fdba00230eb547fb681e9170df0eb6fb1c941b4554c53998afac",
+    "result_sha256": "60b46ec3f5c889a4bebdff8e47297d2924599b16b94840d03576f1cdaec4360e",
+    "stage_one_sha256": "501d60f74f9e146ca02aa9c757bc4024bbe6c7e81a1bea745712dbda84ca236d",
+    "stage_two_sha256": "79fee27acc87ac6668379a7929884690616d85702d21e2013b53492ddb6d4982",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "86b10e63677a9f1eb762550370df50c9a2c9e5c63e0cedbfeae340f53d3ba9e0"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-piecewise-function",
+        "supported": [
+          "type-piecewise-function"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 75,
+                  "end": 76,
+                  "text": "$x$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "piecewise-function#equation"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求出满足题中等式的全部 $x$",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "把题中给出的函数值当作自变量，代入求值",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目给出了函数值，要反过来找出所有符合条件的自变量。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "05ce2b6863355777"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目给出了分段函数及其函数值，需要求什么？",
+          "feedback": "题目给出了函数值，要反过来找出所有符合条件的自变量。",
+          "summary": "找出满足题中等式的全部 $x$，每个解都要符合所在段的范围。"
+        },
+        "d2": [
+          {
+            "type_id": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+            ],
+            "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-representations-b10-v1//root/goals/0",
+            "graphVersion": "81d6b8b14a7e27f44028ce919a0e0640034b1ae4fec29192500d3007ebdefbc9",
+            "problem": {
+              "text": "已知函数 $f(x)=\\begin{cases}x^2+1,&x>0\\\\-2x+2,&x\\le0\\end{cases}$，若 $f(x)=5$，则 $x$ 的值为（ ）。\nA. $-\\frac32$\nB. $2$\nC. $-\\frac32,\\ 2$\nD. $-2,\\ -\\frac32$"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目给出了分段函数及其函数值，需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求出满足题中等式的全部 $x$"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "把题中给出的函数值当作自变量，代入求值",
+                      "feedback": "题目给出了函数值，要反过来找出所有符合条件的自变量。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目给出了函数值，要反过来找出所有符合条件的自变量。"
+                },
+                "candidateNodes": [
+                  "piecewise-function",
+                  "type-piecewise-function",
+                  "type-function-evaluation",
+                  "type-piecewise-composition"
+                ],
+                "effects": {
+                  "nodes": [
+                    "piecewise-function"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "找出满足题中等式的全部 $x$，每个解都要符合所在段的范围。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 3 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-piecewise-function",
+                      "label": "分段函数常规问题",
+                      "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-piecewise-function"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-piecewise-function"
+                  ],
+                  "edges": [
+                    "type-piecewise-function|involves|piecewise-function"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  ],
+                  "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "piecewise-function",
+                  "kind": "knowledge",
+                  "label": "分段函数",
+                  "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "已开放单层分段方程与不等式：先确定比较值，再逐段求解、核对本段范围后合并；数值求值复用代入法。值域、参数和阶梯计费按后续批次开放。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-composition",
+                  "kind": "problem_type",
+                  "label": "复合型分段函数问题",
+                  "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-piecewise-equation",
+                  "kind": "method",
+                  "label": "分段解方程法",
+                  "summary": "每段列方程、检查该段范围，再合并保留的解。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "solve",
+                      "title": "逐段列方程并求解",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "filter",
+                      "title": "检查范围并合并",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原条件",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-inequality",
+                  "kind": "method",
+                  "label": "分段解不等式法",
+                  "summary": "先确定比较值，逐段解不等式并与本段范围取交，最后合并。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "level",
+                      "title": "求出比较值",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "roots",
+                      "title": "求各段不等式的零点",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "signs",
+                      "title": "确定每段不等式的解集",
+                      "calls": [
+                        "skill-quadratic-sign"
+                      ]
+                    },
+                    {
+                      "id": "filter",
+                      "title": "检查本段范围并合并",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原条件",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-evaluation|involves|piecewise-function",
+                  "from": "type-function-evaluation",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-composition|involves|piecewise-function",
+                  "from": "type-piecewise-composition",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-equation",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-equation",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-inequality",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|piecewise-function",
+                  "from": "type-piecewise-function",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "piecewise-function"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "646222d9f2ab8400ef1754dbdc40369faf6bcee7ab899ce00ea924b8d17c8abe"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-representations-b10-v1//root/goals/0",
+            "bundleVersion": "646222d9f2ab8400ef1754dbdc40369faf6bcee7ab899ce00ea924b8d17c8abe",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "找出满足题中等式的全部 $x$，每个解都要符合所在段的范围。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-piecewise-function",
+                "reason": "选「分段函数常规问题」：给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+    "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+    "input_sha256": "dc5bc302eec77a5e87f0da9f84ae93768d8120c94dc681528a327da150199cf2",
+    "stream_id": "65928fd5a1c34395b34d8f1967d4639e",
+    "last_seq": 16,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "branches",
+        "explanation": "$$\\begin{gathered}x^{2} + 1=5\\\\x^2=4\\\\x\\in \\left\\{-2, 2\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}-2\\notin\\left(0, \\infty\\right)\\quad\\text{舍去}\\\\2\\in\\left(0, \\infty\\right)\\quad\\text{保留}\\\\\\left\\{-2, 2\\right\\}\\cap \\left(0, \\infty\\right)=\\left\\{2\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}- 2 x + 2=5\\\\- 2 x=3\\\\x=- \\frac{3}{2}\\\\x\\in \\left\\{- \\frac{3}{2}\\right\\}\\end{gathered}$$\n\n$$\\begin{gathered}- \\frac{3}{2}\\in\\left(-\\infty, 0\\right]\\quad\\text{保留}\\\\\\left\\{- \\frac{3}{2}\\right\\}\\cap \\left(-\\infty, 0\\right]=\\left\\{- \\frac{3}{2}\\right\\}\\end{gathered}$$",
+        "highlight": {
+          "caption": "第1段：解方程",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "本段范围与方程",
+              "math": "\\begin{gathered}x>0\\\\x^{2} + 1=5\\end{gathered}"
+            },
+            {
+              "label": "方程的解（下一步检查范围）",
+              "math": "x\\in \\left\\{-2, 2\\right\\}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+        "local_check": "passed",
+        "math_step_sha256": "2d0852057343fb90d0bf4314c64ffffa9c87911c4c1eb58d78d1708bb5df9a18",
+        "method_ref": "method-piecewise-equation#filter",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "0631a50db5697aba8c961ddd88759280b606dc830c0ca7de259d25168f1b28eb",
+        "route_id": "piecewise-equation",
+        "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-equation-001-branches",
+        "target_ref": "/root/goals/0",
+        "title": "逐段解方程并检查范围",
+        "used_basis": [
+          "piecewise-function#equation",
+          "set-intersection-union#intersection",
+          "set-intersection-union#union"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "merge",
+        "explanation": "$$\\left\\{2\\right\\}\\cup\\left\\{- \\frac{3}{2}\\right\\}=\\left\\{- \\frac{3}{2}, 2\\right\\}$$",
+        "highlight": {
+          "caption": "合并各段保留的解",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "每段保留的解",
+              "math": "\\begin{gathered}\\text{第1段}:\\ \\left\\{2\\right\\}\\\\\\text{第2段}:\\ \\left\\{- \\frac{3}{2}\\right\\}\\end{gathered}"
+            },
+            {
+              "label": "原方程的全部解",
+              "math": "x\\in \\left\\{- \\frac{3}{2}, 2\\right\\}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+        "local_check": "passed",
+        "math_step_sha256": "aa16ac2bd24f30d16f40113b4e6645e32fec0163419cd90d8a5f03f6e4422d78",
+        "method_ref": "method-piecewise-equation#filter",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "0631a50db5697aba8c961ddd88759280b606dc830c0ca7de259d25168f1b28eb",
+        "route_id": "piecewise-equation",
+        "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-piecewise-equation-002-merge",
+        "target_ref": "/root/goals/0",
+        "title": "合并各段保留的解",
+        "used_basis": [
+          "piecewise-function#equation",
+          "set-intersection-union#intersection",
+          "set-intersection-union#union"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "{-3/2, 2}",
+            "latex": "\\left\\{- \\frac{3}{2}, 2\\right\\}"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "{-3/2, 2}",
+          "latex": "\\left\\{- \\frac{3}{2}, 2\\right\\}"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "{-3/2, 2}",
+            "latex": "\\left\\{- \\frac{3}{2}, 2\\right\\}"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "{-3/2, 2}",
+          "latex": "\\left\\{- \\frac{3}{2}, 2\\right\\}"
+        },
+        "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+        "math_steps": [
+          {
+            "math_step_sha256": "2d0852057343fb90d0bf4314c64ffffa9c87911c4c1eb58d78d1708bb5df9a18",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-piecewise-equation-001-branches"
+          },
+          {
+            "math_step_sha256": "aa16ac2bd24f30d16f40113b4e6645e32fec0163419cd90d8a5f03f6e4422d78",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-piecewise-equation-002-merge"
+          }
+        ],
+        "original_choice": {
+          "correct_labels": [
+            "C"
+          ],
+          "kind": "multiple_choice",
+          "matching": "set_equality",
+          "options": [
+            {
+              "label": "A",
+              "text": "$-\\frac32$"
+            },
+            {
+              "label": "B",
+              "text": "$2$"
+            },
+            {
+              "label": "C",
+              "text": "$-\\frac32,\\ 2$"
+            },
+            {
+              "label": "D",
+              "text": "$-2,\\ -\\frac32$"
+            }
+          ],
+          "selection_mode": "unspecified",
+          "status": "matched",
+          "target_ref": "/root/goals/0"
+        },
+        "route_id": "piecewise-equation",
+        "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "481a3a7d4b5bb54e91375bc25911c599967620814ea0a2a09d08e24f5d590822",
+        "verified_route_sha256": "a678ae6e30e5b2e81cca95527a2bfddd01739222ff27fe1b3ade6d21b6c15d41"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-piecewise-function",
+            "op": "methods"
+          },
+          "question": "分别用每一段的解析式列方程，求出的解必须符合该段范围，最后把保留的解合起来。",
+          "submit_label": "开始解题",
+          "title": "解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-piecewise-equation",
+              "recommendation": "preferred",
+              "route_id": "piecewise-equation",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-equation",
+        "step_id": "39e5646dcb-piecewise-equation-001-branches",
+        "ordinal": 1,
+        "math_step_sha256": "2d0852057343fb90d0bf4314c64ffffa9c87911c4c1eb58d78d1708bb5df9a18",
+        "status": "interactive",
+        "interaction_id": "4a7f4cc1e35583d25505b284"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-equation",
+        "step_id": "39e5646dcb-piecewise-equation-002-merge",
+        "ordinal": 2,
+        "math_step_sha256": "aa16ac2bd24f30d16f40113b4e6645e32fec0163419cd90d8a5f03f6e4422d78",
+        "status": "interactive",
+        "interaction_id": "e1f2e3b12dafaf7338a781b3"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "0631a50db5697aba8c961ddd88759280b606dc830c0ca7de259d25168f1b28eb",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-equation",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:piecewise-equation:complete",
+        "last_seq": 14
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "piecewise-equation",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-piecewise-equation",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-solve-quadratic",
+                "used_basis": [
+                  "quadratic-equation#roots"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-piecewise-equation",
+            "step": "filter",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "piecewise-function#equation",
+                  "set-intersection-union#intersection",
+                  "set-intersection-union#union"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-piecewise-equation",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "piecewise-function#equation"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "4a7f4cc1e35583d25505b284",
+        "interaction_revision": "17c93481dcac9c90f9603463f7f10f8214e4e561c5b33313e5b66f03d7602d5c",
+        "interaction_sha256": "7928cc408a9d44e272afc1a17184211ae46511d0b5b05c5cba92979394f14c2a",
+        "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "第1段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x>0\\\\x^{2} + 1=5\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": "x\\in \\left\\{-2, 2\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "先求方程的全部实数解，再检查这一段的范围。"
+            },
+            "id": "4a7f4cc1e35583d25505b284#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{-2, 2\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left\\{-2\\right\\}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x>0$ 时，$f(x)=x^{2} + 1$。由 $f(x)=5$ 列出下面的方程，先求出它的全部实数解。",
+            "stem_board": {
+              "caption": "第1段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x>0\\\\x^{2} + 1=5\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第1段：解方程"
+          },
+          {
+            "completion_board": {
+              "caption": "第1段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{-2, 2\\right\\}\\\\x>0\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": "x\\in \\left\\{2\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "只有同时满足方程和本段范围的解才能保留。"
+            },
+            "id": "4a7f4cc1e35583d25505b284#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{-2, 2\\right\\}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{-2\\right\\}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{2\\right\\}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "刚才解的是 $x^{2} + 1=5$，但这一段只适用于 $x>0$。哪些解可以保留？",
+            "stem_board": {
+              "caption": "第1段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{-2, 2\\right\\}\\\\x>0\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第1段：检查范围"
+          },
+          {
+            "completion_board": {
+              "caption": "第2段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x\\le 0\\\\- 2 x + 2=5\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": "x\\in \\left\\{- \\frac{3}{2}\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "先求方程的全部实数解，再检查这一段的范围。"
+            },
+            "id": "4a7f4cc1e35583d25505b284#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{- \\frac{3}{2}\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "当 $x\\le 0$ 时，$f(x)=- 2 x + 2$。由 $f(x)=5$ 列出下面的方程，先求出它的全部实数解。",
+            "stem_board": {
+              "caption": "第2段：解方程",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "本段范围与方程",
+                  "math": "\\begin{gathered}x\\le 0\\\\- 2 x + 2=5\\end{gathered}"
+                },
+                {
+                  "label": "方程的解（下一步检查范围）",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2段：解方程"
+          },
+          {
+            "completion_board": {
+              "caption": "第2段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{- \\frac{3}{2}\\right\\}\\\\x\\le 0\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": "x\\in \\left\\{- \\frac{3}{2}\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "只有同时满足方程和本段范围的解才能保留。"
+            },
+            "id": "4a7f4cc1e35583d25505b284#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{- \\frac{3}{2}\\right\\}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "刚才解的是 $- 2 x + 2=5$，但这一段只适用于 $x\\le 0$。哪些解可以保留？",
+            "stem_board": {
+              "caption": "第2段：检查范围",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "方程的解与本段范围",
+                  "math": "\\begin{gathered}x\\in \\left\\{- \\frac{3}{2}\\right\\}\\\\x\\le 0\\end{gathered}"
+                },
+                {
+                  "label": "本段保留的解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "第2段：检查范围"
+          }
+        ],
+        "route_id": "piecewise-equation",
+        "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "2d0852057343fb90d0bf4314c64ffffa9c87911c4c1eb58d78d1708bb5df9a18",
+            "step_id": "39e5646dcb-piecewise-equation-001-branches"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "e1f2e3b12dafaf7338a781b3",
+        "interaction_revision": "17c93481dcac9c90f9603463f7f10f8214e4e561c5b33313e5b66f03d7602d5c",
+        "interaction_sha256": "298386b5d8cf1fa5b50736f5efa2cc3c5d420e3f3f184093c1f3087aecd88666",
+        "lesson_version": "57b52c10f86a02f99b21c2bbf007a6ff7a2d66f0a8e524ad2f96cc52a037b6c6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合并各段保留的解",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "每段保留的解",
+                  "math": "\\begin{gathered}\\text{第1段}:\\ \\left\\{2\\right\\}\\\\\\text{第2段}:\\ \\left\\{- \\frac{3}{2}\\right\\}\\end{gathered}"
+                },
+                {
+                  "label": "原方程的全部解",
+                  "math": "x\\in \\left\\{- \\frac{3}{2}, 2\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "段内同时满足条件，段间合并全部合法解。"
+            },
+            "id": "e1f2e3b12dafaf7338a781b3#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left\\{- \\frac{3}{2}, 2\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left\\{2\\right\\}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left\\{- \\frac{3}{2}\\right\\}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "满足任意一段的条件即可。把各段保留的解合起来，$x$ 的全部取值是什么？",
+            "stem_board": {
+              "caption": "合并各段保留的解",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "每段保留的解",
+                  "math": "\\begin{gathered}\\text{第1段}:\\ \\left\\{2\\right\\}\\\\\\text{第2段}:\\ \\left\\{- \\frac{3}{2}\\right\\}\\end{gathered}"
+                },
+                {
+                  "label": "原方程的全部解",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认这一步",
+            "title": "合并各段保留的解"
+          }
+        ],
+        "route_id": "piecewise-equation",
+        "run_id": "65928fd5a1c34395b34d8f1967d4639e",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "aa16ac2bd24f30d16f40113b4e6645e32fec0163419cd90d8a5f03f6e4422d78",
+            "step_id": "39e5646dcb-piecewise-equation-002-merge"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

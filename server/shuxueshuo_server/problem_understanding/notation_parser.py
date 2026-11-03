@@ -54,6 +54,7 @@ BUILTINS = {
     "Dom",
     "sqrt",
     "abs",
+    "piecewise",
     "sum",
     "mod",
     "tan",

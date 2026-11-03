@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b09",
+  "title": "图像变换法 · 例 9",
+  "page": "/topics/function-representations/q09a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "函数 $f(x)=|x-1|+1$ 的部分图像大致是（　）。",
+  "evidence": "site/data/graph-walk/function-representations-b09.evidence.json",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "8f72ffefdbc818a4506dd34f7159ee79f99f8d6821cd366a141c8785b0678737",
+      "width": 1065,
+      "height": 308,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/assets/question-figures/fr-t2-b09/original.png"
+      },
+      {
+        "id": "option-a",
+        "role": "option",
+        "scope_ref": "/root",
+        "target_ref": "/root/goals/0",
+        "option_id": "option-a",
+        "label": "A",
+        "box": [
+          0.046948356807511735,
+          0.19480519480519481,
+          0.27230046948356806,
+          0.9902597402597403
+        ],
+        "image_url": "/assets/question-figures/fr-t2-b09/option-a.png"
+      },
+      {
+        "id": "option-b",
+        "role": "option",
+        "scope_ref": "/root",
+        "target_ref": "/root/goals/0",
+        "option_id": "option-b",
+        "label": "B",
+        "box": [
+          0.3164319248826291,
+          0.19480519480519481,
+          0.5286384976525822,
+          0.961038961038961
+        ],
+        "image_url": "/assets/question-figures/fr-t2-b09/option-b.png"
+      },
+      {
+        "id": "option-c",
+        "role": "option",
+        "scope_ref": "/root",
+        "target_ref": "/root/goals/0",
+        "option_id": "option-c",
+        "label": "C",
+        "box": [
+          0.5417840375586854,
+          0.19155844155844157,
+          0.7511737089201878,
+          0.9383116883116883
+        ],
+        "image_url": "/assets/question-figures/fr-t2-b09/option-c.png"
+      },
+      {
+        "id": "option-d",
+        "role": "option",
+        "scope_ref": "/root",
+        "target_ref": "/root/goals/0",
+        "option_id": "option-d",
+        "label": "D",
+        "box": [
+          0.7793427230046949,
+          0.16558441558441558,
+          0.9859154929577465,
+          0.8961038961038961
+        ],
+        "image_url": "/assets/question-figures/fr-t2-b09/option-d.png"
+      }
+    ],
+    "content_id": "eae3f63dc5e28a82b5cd14a28a9a7a29921ad133aa4f7daec948b2214cdc7603"
+  }
+}

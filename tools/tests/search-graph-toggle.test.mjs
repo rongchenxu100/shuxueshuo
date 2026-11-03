@@ -23,7 +23,7 @@ function page({mobile = false, folded = '0'} = {}) {
       removeAttribute: name => attributes.delete(name),
       toggleAttribute(name, enabled) { if (enabled) attributes.set(name, ''); else attributes.delete(name); },
       addEventListener(name, fn) { listeners.set(name, [...listeners.get(name) || [], fn]); },
-      dispatch(name, event = {}) { for (const fn of listeners.get(name) || []) fn(event); },
+      dispatch(name, event = {}) { for (const fn of listeners.get(name) || []) fn({stopPropagation() {}, ...event}); },
       focus() {}, querySelectorAll: () => [],
       before(inserted) { toolbar.splice(toolbar.indexOf(node), 0, inserted); nodes.set(`#${inserted.id}`, inserted); },
     };

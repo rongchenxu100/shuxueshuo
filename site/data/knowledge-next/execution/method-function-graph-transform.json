@@ -1,0 +1,115 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-graph-transform",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "transform",
+      "calls": [
+        {
+          "id": "map",
+          "capability": "transform_function_graph",
+          "public_ref": "skill-graph-coordinate-transform",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "graph_result": "graph_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "transform",
+          "after": "map",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "transform",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        },
+        {
+          "id": "vertex",
+          "after": "map",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "vertex",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        },
+        {
+          "id": "options",
+          "after": "map",
+          "template": "function_graph_derivation",
+          "bindings": {
+            "description": "$description",
+            "graph_result": "$graph_result",
+            "phase": "options",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "graph_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "graph_result": "$graph_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_graph",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

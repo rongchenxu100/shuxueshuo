@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>FR-T2 原题图展示预览 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/question-figures.css?v=20261102-g1-actions">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f7f5; color: #183c35; font: 16px/1.7 system-ui, sans-serif; }
+    main { max-width: 1220px; margin: 28px auto; padding: 0 24px; }
+    h1 { margin: 18px 0 8px; font-size: 24px; }
+    .preview-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); gap: 24px; align-items: start; }
+    .preview-card { background: white; border: 1px solid #c5d9d3; border-radius: 16px; padding: 22px; min-width: 0; }
+    aside { color: #4f6d63; }
+    a { color: #087f79; }
+    @media(max-width:959px) { .preview-layout { grid-template-columns: 1fr; } main { padding: 0 14px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="/topics/function-representations/#group-graph">← 函数的表示法</a>
+    <h1>FR-T2 · 原题图片展示预览</h1>
+    <p>G0 仅展示题目与原选项图，点击图片可放大。</p>
+    <p><a href="/topics/function-representations/q09a/">进入例 9：图像变换与选图练习 →</a></p>
+    <div class="preview-layout">
+      <section class="preview-card" aria-label="B09 原题">
+        <p>已知 f(x) = |x − 1| + 1，选择它的部分图像。</p>
+        <div id="pictures"></div>
+      </section>
+      <aside class="preview-card">
+        <strong>右侧图谱区域</strong>
+        <p>原题与选项放在左侧。窄屏按顺序排列，图片不会被图谱覆盖。</p>
+        <p>此页使用审核过的教材裁片，尚未接入作答。真实拍题的自动分图与 B09 解题流程在 G1 验收。</p>
+      </aside>
+    </div>
+  </main>
+  <script type="module">
+    import {mountQuestionFigures} from '/assets/practice/question-figures.mjs?v=20261102-g0';
+    const response = await fetch('/assets/question-figures/fr-t2-b09/display.json');
+    if (!response.ok) throw new Error('原题图片未找到');
+    const dispose = mountQuestionFigures(document.querySelector('#pictures'), await response.json(), {targetRef: '/root/goals/0'});
+    addEventListener('pagehide', dispose, {once: true});
+  </script>
+</body>
+</html>

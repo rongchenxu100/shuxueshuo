@@ -44,7 +44,6 @@
         "type-function-equality",
         "type-function-evaluation",
         "type-function-range",
-        "type-piecewise-composition",
         "type-piecewise-function"
       ],
       "effects": {
@@ -56,7 +55,7 @@
         "results": [
           "求出所有符合条件的函数解析式"
         ],
-        "log": "图谱查询：从 1 个知识线索反查，找到 8 个相关题型；最高覆盖 1/1。"
+        "log": "图谱查询：根据本题知识线索展示相关题型。"
       }
     },
     {
@@ -978,15 +977,6 @@
         "home": "compulsory-1-ch3"
       },
       {
-        "id": "type-piecewise-composition",
-        "kind": "problem_type",
-        "label": "复合型分段函数问题",
-        "summary": "由两层分段函数的等式或不等式，先求允许的中间值，再逐段反求原输入。",
-        "aliases": [],
-        "status": "planned",
-        "home": "compulsory-1-ch3"
-      },
-      {
         "id": "type-piecewise-function",
         "kind": "problem_type",
         "label": "分段函数常规问题",
@@ -1566,15 +1556,6 @@
         ]
       },
       {
-        "id": "type-piecewise-composition|involves|function-concept",
-        "from": "type-piecewise-composition",
-        "to": "function-concept",
-        "type": "involves",
-        "occurrences": [
-          {}
-        ]
-      },
-      {
         "id": "type-piecewise-function|involves|function-concept",
         "from": "type-piecewise-function",
         "to": "function-concept",
@@ -1615,13 +1596,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"d117a6bdd2a2286e7cc9c353be46558e1d94911c326d7a094923083f5741d255\",\"542a8d4902b45acddc6a6235c4de0d23cb23f0df3c0bf719b2486eb65fdcba2c\",\"52afddc8800a403f9c910471e52f7f1e\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"f9a8a55beb7619ecc13f1838b23ebcb7a6e32fe8a8ed2ceb28b87cf3514c4b20\",\"542a8d4902b45acddc6a6235c4de0d23cb23f0df3c0bf719b2486eb65fdcba2c\",\"52afddc8800a403f9c910471e52f7f1e\",\"/root/goals/0\"]",
   "stream": {
     "run_id": "52afddc8800a403f9c910471e52f7f1e",
     "lesson_version": "542a8d4902b45acddc6a6235c4de0d23cb23f0df3c0bf719b2486eb65fdcba2c",
     "stream_id": "52afddc8800a403f9c910471e52f7f1e",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "d117a6bdd2a2286e7cc9c353be46558e1d94911c326d7a094923083f5741d255",
+    "base_bundle_version": "f9a8a55beb7619ecc13f1838b23ebcb7a6e32fe8a8ed2ceb28b87cf3514c4b20",
     "d3": {
       "expected_answer": {
         "checks": {

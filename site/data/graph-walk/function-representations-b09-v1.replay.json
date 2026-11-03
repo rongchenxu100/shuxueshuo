@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-representations-b09-v1",
+  "bundleVersion": "993d96cd10c0f84d5a569640daeac241984a24309d79fe2faba68f93f707dbf7",
+  "status": "completed",
+  "routes": [
+    "absolute-piecewise-graph"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-graph"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "piecewise"
+        ],
+        "method": "piecewise",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "62da32b51f7589ef5f121a02#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "920cff3b219a459e4ff49607#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "920cff3b219a459e4ff49607#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "920cff3b219a459e4ff49607#3",
+      "answer": "o1"
+    },
+    {
+      "decision": "f3367ced41c7811b52db819c#1",
+      "answer": [
+        "correct",
+        "correct",
+        "correct",
+        "correct"
+      ]
+    },
+    {
+      "decision": "goal-2-D1",
+      "answer": "/root/goals/1:goal:o1"
+    },
+    {
+      "decision": "goal-2-D2",
+      "answer": "type-function-graph"
+    },
+    {
+      "decision": "goal-2-D3",
+      "answer": {
+        "checks": [
+          "inequality"
+        ],
+        "method": "inequality",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "953aee3910c419c3318d027b#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "119608ad845ee97d53cbf749#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "60ae692178e00b0938bedad2#1",
+      "answer": "o1"
+    }
+  ]
+}

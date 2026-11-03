@@ -18,6 +18,8 @@ let lessonRetryPending = false;
 let lessonRetryAccepted = false;
 let progressOwner = null;
 let retakePending = false;
+let questionFigures = null, figureRenderer = null;
+let disposeQuestionFigures = () => {}, disposeFailedFigures = () => {};
 const started = performance.now();
 
 const Q01 = '若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。';
@@ -33,7 +35,7 @@ const Q10_ROOT = {definitions: ['f(x) = x^2-2*a*x+3'], children: [
 
 const FAILS = {
   figure: {
-    icon: '!', title: '缺少配图', text: '把题目和图一起拍进来。', actions: ['retake'],
+    icon: '!', title: '题图或选项不完整', text: '请把完整题干和全部选项拍在同一张图中；跨页题暂不支持合并。', actions: ['retake'],
   },
   unclear: {
     icon: '!', title: '有一处没看清', text: '拍正、避开反光，再拍一次。',
@@ -81,6 +83,57 @@ const partName = label => `第${label.replace(/[（）()]/g, '')}问`;
 
 function setPhotos(src) {
   for (const img of ['#pq-photo', '#pq-thumb-img', '#pq-fail-img', '#pq-viewer-img']) $(img).src = src;
+}
+
+function renderInlineFigures(targetRef = null) {
+  disposeQuestionFigures();
+  disposeQuestionFigures = () => {};
+  const host = $('#pq-figures');
+  host.hidden = true;
+  const options = {searchId, targetRef};
+  const view = figureRenderer.projectFigures(questionFigures, options);
+  // The full crop already has a thumbnail/viewer. Only required diagrams belong in the question body.
+  if (!view.rows.length) return;
+  disposeQuestionFigures = figureRenderer.mountQuestionFigures(host, questionFigures, options);
+  host.hidden = false;
+}
+
+async function showQuestionFigures(status, active) {
+  disposeQuestionFigures(); disposeFailedFigures(); questionFigures = null;
+  disposeQuestionFigures = () => {}; disposeFailedFigures = () => {};
+  $('#pq-figures').hidden = true; $('#pq-fail-figures').hidden = true;
+  $('.pq-fail-photo').hidden = false;
+  // Only old servers lacking both fields use the old image contract.
+  if (!status.figures && !status.figure_error) { setPhotos(`/api/search/problems/${searchId}/image`); return; }
+  for (const img of ['#pq-photo', '#pq-thumb-img', '#pq-fail-img', '#pq-viewer-img']) $(img).removeAttribute('src');
+  try {
+    if (status.figure_error) throw new Error('图片已变更或不可用，请重新打开题目。');
+    figureRenderer ||= await import('/assets/practice/question-figures.mjs?v=20261102-g0');
+    if (!active()) return;
+    const view = figureRenderer.projectFigures(status.figures, {searchId});
+    questionFigures = status.figures;
+    setPhotos(view.source.image_url);
+    renderInlineFigures();
+  } catch (error) {
+    if (!active()) return;
+    $('#pq-figures').textContent = status.figure_error ? '图片已变更或不可用，请重新打开题目。' : '题图暂时无法显示，请重新打开题目。';
+    $('#pq-figures').hidden = false;
+  }
+}
+
+function showFailedFigures() {
+  if (!questionFigures || !figureRenderer) {
+    if (!$('#pq-figures').hidden) {
+      $('#pq-fail-figures').textContent = $('#pq-figures').textContent;
+      $('#pq-fail-figures').hidden = false;
+      $('.pq-fail-photo').hidden = true;
+    }
+    return;
+  }
+  disposeFailedFigures();
+  disposeFailedFigures = figureRenderer.mountQuestionFigures($('#pq-fail-figures'), questionFigures, {searchId});
+  $('#pq-fail-figures').hidden = false;
+  $('.pq-fail-photo').hidden = true;
 }
 
 /* ---------- 题意整理：阶段①的条件与所求 ---------- */
@@ -372,12 +425,15 @@ function tex(expr) {
 const math = expr => `$${escape(tex(expr))}$`;
 const knownLine = expr => (/[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(expr));
 const GOALS = {
+  find_function_formula: g => `${math(`${g.function}(${g.variable})`)} 的解析式${g.requested_domain ? `（所求范围 ${math(g.requested_domain)}）` : ''}`,
   find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_domain: g => `${math(g.target_call)} 的定义域${g.input_domain ? `（题设另限外层自变量范围 ${math(g.input_domain)}）` : ''}`,
   find_abstract_range: g => `${math(g.target_call)} 的值域`,
   find_translation_range: g => `${math(g.function_relation.split('=')[0])} 在 ${math(g.input_domain)} 上的值域`,
   find_abstract_domain_parameter: g => `${math(g.parameter)} 的取值范围`,
-  find_range: g => g.object
+  find_range: g => g.relation
+    ? `满足 ${math(g.expression)} 的 ${math(g.symbol)} 的取值范围`
+    : g.object
     ? `${math(g.object)} 的值域${g.input_domain ? `（题设输入范围 ${math(g.input_domain)}）` : ''}`
     : `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
@@ -397,7 +453,22 @@ const goalLine = goal => (GOALS[goal.kind]?.(goal) ?? escape(goal.expression || 
 function meaningBlocks(scope, title, blocks) {
   const known = [...(scope.definitions || []), ...(scope.facts || [])].map(knownLine);
   const abstractGivens = new Set();
+  const relationGivens = new Set();
   const goals = (scope.goals || []).map(goal => {
+    if (goal.relation && ['find_function_formula', 'find_value', 'find_range'].includes(goal.kind)) {
+      const givens = [];
+      const type = {linear: '一次函数', quadratic: '二次函数'}[goal.function_type];
+      if (type) givens.push(`${math(goal.function)} 是${type}`);
+      if (goal.declared_domain) givens.push(`${math(goal.function)} 的定义域为 ${math(goal.declared_domain)}`);
+      const variables = goal.relation_variables || [goal.variable];
+      const domain = goal.relation_domain ? `对任意 ${math(`${variables.join(',')}∈${goal.relation_domain}`)}，` : '';
+      givens.push(`${domain}${math(goal.relation)}`);
+      givens.push(...(goal.additional_relations || []).map(math));
+      const given = givens.join('；');
+      const prefix = relationGivens.has(given) ? '' : `已知 ${given}；`;
+      relationGivens.add(given);
+      return `${prefix}求 ${goalLine(goal)}`;
+    }
     if (goal.kind === 'find_translation_range') {
       return `已知 ${math(goal.function_relation)}，${math(goal.periodic_function)} 定义在 ${math(goal.periodic_domain)} 上、以 ${math(goal.period)} 为周期；基础区间 ${math(goal.known_domain)} 上的值域为 ${math(goal.known_range)}；求 ${goalLine(goal)}`;
     }
@@ -513,7 +584,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261030-range-selection';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261103-formula-fit';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;
@@ -779,10 +850,57 @@ function loadPracticeStyles() {
   return loaded.then(() => link);
 }
 
+let teachingCheck = null;
+async function ensureCurrentTeaching() {
+  if (!searchId || !lesson.data?.stream) return true;
+  if (teachingCheck) return teachingCheck;
+  const ticket = liveTicket;
+  teachingCheck = (async () => {
+    const active = () => !privateStopped && ticket === liveTicket;
+    const response = await searchFetch(`/api/search/problems/${searchId}/lesson/current`, {method: 'POST'});
+    if (!active()) return false;
+    const current = await response.json();
+    if (!response.ok && !['lesson.running', 'lesson.stale_run', 'lesson.already_current'].includes(current.detail)) throw Error('暂时无法获取最新解题步骤，请稍后重试。');
+    if (!current.updating && response.ok) return true;
+    $('#pq-start').hidden = true;
+    showNote('<p class="gw-ai-status is-thinking" role="status">正在更新解题步骤…</p>');
+    // This upgrades a lesson version, never a live step sequence. The old run
+    // remains readable by ID; the new one reuses saved recognition without LLM.
+    const deadline = Date.now() + 120000;
+    while (active() && Date.now() < deadline) {
+      await wait(800);
+      const status = await searchFetch(`/api/search/problems/${searchId}`, {cache: 'no-store'});
+      if (!active()) return false;
+      if (!status.ok) throw Error('暂时无法获取最新解题步骤，请稍后重试。');
+      const data = await status.json();
+      if (!active()) return false;
+      if (data.user_id !== session.user?.id) return false;
+      if (!data.lesson) throw Error('暂时无法获取解题步骤，请重新打开题目。');
+      if (lessonNeedsPolling(data.lesson)) continue;
+      if (data.lesson.execution_status !== 'completed') throw Error('解题步骤更新未完成，请稍后重试。');
+      lesson.data = data.lesson;
+      return true;
+    }
+    if (active()) throw Error('解题步骤仍在更新，请稍后重新打开题目。');
+    return false;
+  })();
+  try { return await teachingCheck; }
+  finally { teachingCheck = null; }
+}
+
+let enteringWalk = false;
 async function enterWalk(actor) {
   const ticket = liveTicket;
   if (privateStopped) return;
-  if (lesson.opened) return;
+  if (lesson.opened || enteringWalk) return;
+  enteringWalk = true;
+  try {
+    if (!await ensureCurrentTeaching()) return;
+  } catch (error) {
+    if (!privateStopped && ticket === liveTicket) { offerStart(); toast(error.message); }
+    return;
+  } finally { enteringWalk = false; }
+  if (privateStopped || ticket !== liveTicket) return;
   lesson.actor = actor;
   lesson.opened = true;
   // Switch only with styles and engine in hand, so the first walk frame already has its final layout.
@@ -820,6 +938,9 @@ async function openPart(index) {
   renderMeaning();
   markPartTabs();
   const goal = goals()[index];
+  if (questionFigures && figureRenderer) {
+    renderInlineFigures(goal?.target_ref || null);
+  }
   if (!lesson.engine) return;
   if (!goal?.walk) { showNote(noteHtml(goal)); return; }
   delete document.body.dataset.part;
@@ -831,6 +952,7 @@ async function openPart(index) {
   const stream = lesson.data.stream ? {...streamMount.consumer.view(), target_ref: goal.target_ref} : null;
   $('#pq-stream').hidden = true;
   await lesson.engine.mountWalk({bundle: goal.walk.bundle, replay: goal.walk.replay, actor,
+    figureManifest: questionFigures, figureSearchId: searchId,
     revealGraph: true, practicePage: null, stream, onState: view => { if (ticket === partTicket) savePageProgress(view); },
     progressScope: searchId ? progressScope() : null, fetch: searchId ? searchFetch : undefined});
   if (ticket !== partTicket) return;
@@ -990,7 +1112,7 @@ async function runLive() {
   items[0].dataset.state = 'doing';
   let status;
   let misses = 0;
-  let photosLoaded = false;
+  let photosVersion = null;
   for (;;) {
     try {
       const response = await searchFetch(`/api/search/problems/${searchId}`, {cache: 'no-store'});
@@ -1002,7 +1124,12 @@ async function runLive() {
       if (!status.user_id || status.user_id !== session.user?.id) { unavailable('登录状态无法确认，请返回后重新打开。'); return; }
       progressOwner = status.user_id;
       if (['expired', 'disabled', 'unavailable'].includes(status.outcome)) { unavailableStatus(status); return; }
-      if (!photosLoaded) { setPhotos(`/api/search/problems/${searchId}/image`); photosLoaded = true; }
+      const figureVersion = status.figures?.content_id || status.figure_error || 'legacy';
+      if (photosVersion !== figureVersion) {
+        await showQuestionFigures(status, () => ticket === liveTicket && !privateStopped && status.user_id === session.user?.id);
+        if (ticket !== liveTicket || privateStopped) return;
+        photosVersion = figureVersion;
+      }
       liveCrop = status.crop || liveCrop;
       misses = 0;
     } catch (error) {
@@ -1030,9 +1157,16 @@ async function runLive() {
       if (ticket !== liveTicket || privateStopped) return;
     }
     const fail = {...FAILS[status.outcome] || FAILS.error};
+    if (status.error_code === 'identity.unrepresented_figure') Object.assign(fail, {
+      title: '图像题暂未完整识别', text: '题目中的图形还没有核对完成，暂时不能开始解题。', actions: ['other'],
+    });
+    if (['identity.incomplete_choices', 'identity.incomplete_problem'].includes(status.error_code)) Object.assign(fail, {
+      ...FAILS.figure, title: status.error_code === 'identity.incomplete_choices' ? '选项尚未确认完整' : '题目尚未确认完整',
+    });
     const finding = status.outcome === 'unclear' && (status.findings?.find(f => ['unreadable', 'ambiguous'].includes(f.kind)) || status.findings?.[0]);
     fail.quote = finding ? (finding.source_excerpt ? `“${finding.source_excerpt}”：${finding.message}` : finding.message) : null;
     withdraw(fail);
+    showFailedFigures();
     devCheck(status, '#pq-fail');
     return;
   }
@@ -1057,7 +1191,7 @@ function devCheck(status, container) {
   const shownAfter = shown.previewAt ? `${((shown.previewAt - started) / 1000).toFixed(1)} 秒（复核前）` : '复核后才展示';
   const rows = [
     ['阶段① 状态', status.status || '—'],
-    ['图片核对', check ? `${check.verified ? '✓ 一致' : '✗ 不一致'}：裁剪图 ${short(check.question_sha256)} · 送入模型 ${check.sent_image_sha256.map(short).join(', ') || '无'}` : '—'],
+    ['图片核对', check ? `${check.verified ? '✓ 一致' : '✗ 不一致'}：预处理图 ${short(check.question_sha256)}${check.original_sha256 ? ` · 原裁图 ${short(check.original_sha256)}` : ''} · 送入模型 ${check.sent_image_sha256.map(short).join(', ') || '无'}` : '—'],
     ['裁剪', status.crop ? `${status.crop.crop_size.join('×')} px · ${Math.round((status.crop.bytes || 0) / 1024)} KB，框 ${status.crop.box.map(v => v.toFixed(3)).join(', ')}` : '—'],
     ['模型调用', (status.calls || []).map(call => `${call.stage}:${call.status}`).join(' → ') || '—'],
     ['特征', status.features ? `${status.features.length} 项 · ${[...new Set(status.features.map(f => f.feature_id))].join('、')}` : '—'],
@@ -1097,6 +1231,8 @@ function stopPrivateLesson() {
   liveTicket++; lessonPoll++; streamTicket++; partTicket++;
   streamTransport?.stop(); streamMount?.stop();
   lesson.engine?.disposeWalk();
+  disposeQuestionFigures(); disposeFailedFigures(); questionFigures = null;
+  $('#pq-figures').hidden = true; $('#pq-fail-figures').hidden = true;
   lesson.data = null;
   lesson.teaching = null;
   shown.text = null; shown.parts = []; shown.root = null;
@@ -1107,7 +1243,7 @@ function stopPrivateLesson() {
   lessonRetryPending = false;
   lessonRetryAccepted = false;
   progressOwner = null;
-  for (const selector of ['#pq-photo', '#pq-thumb-img', '#pq-fail-img', '#pq-viewer img']) $(selector)?.removeAttribute('src');
+  for (const selector of ['#pq-photo', '#pq-thumb-img', '#pq-fail-img', '#pq-viewer-img']) $(selector)?.removeAttribute('src');
   for (const selector of ['#pq-text', '#pq-meaning-body', '#pq-lesson', '#pq-fail-quote', '#gw-steps', '#pq-stream', '#gw-ready']) $(selector)?.replaceChildren();
   for (const selector of ['#pq-result', '#pq-scan', '#gw-main']) $(selector).hidden = true;
   $('#pq-viewer').close();

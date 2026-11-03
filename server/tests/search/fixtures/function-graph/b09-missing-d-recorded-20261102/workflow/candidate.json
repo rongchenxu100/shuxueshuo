@@ -1,0 +1,101 @@
+{
+  "original_text": "【例9】函数 $f(x)=|x-1|+1$ 的部分图象大致是\nA. [图像]\nB. [图像]\nC. [图像]",
+  "root": {
+    "label": "例9",
+    "goals": [
+      {
+        "kind": "select_function_graph",
+        "expression": "abs(x-1)+1",
+        "variable": "x",
+        "comparison": "rough_shape",
+        "selection_mode": "unspecified",
+        "options": [
+          {
+            "option_id": "option-a",
+            "label": "A",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "1",
+                "y": "1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-b",
+            "label": "B",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "-1",
+                "y": "1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          },
+          {
+            "option_id": "option-c",
+            "label": "C",
+            "facts": {
+              "shape": "two_straight_branches",
+              "vertex": {
+                "x": "0",
+                "y": "-1",
+                "evidence": "labelled"
+              },
+              "left_direction": "decreasing",
+              "right_direction": "increasing"
+            },
+            "uncertainties": []
+          }
+        ]
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "occluded",
+        "text": "题目图片仅显示 A、B、C 三个图像选项，未显示 D 选项，无法确认 D 是否被截断或缺失。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "incomplete",
+    "privacy": "separated",
+    "figure": "unrepresented",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=|x-1|+1$ 的部分图象大致是",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "incomplete",
+            "selection_mode": "unspecified",
+            "options": [
+              {
+                "label": "A",
+                "text": "见原图"
+              },
+              {
+                "label": "B",
+                "text": "见原图"
+              },
+              {
+                "label": "C",
+                "text": "见原图"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

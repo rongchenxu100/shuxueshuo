@@ -44,6 +44,12 @@
       "route_id": "translation-range",
       "admission": "function_range_translation",
       "label": "整段平移求值域法"
+    },
+    {
+      "method": "method-piecewise-range",
+      "route_id": "piecewise-range",
+      "admission": "function_range_piecewise",
+      "label": "分段求值域法"
     }
   ],
   "rule": "rule-function-range-method",

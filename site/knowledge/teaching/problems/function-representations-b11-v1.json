@@ -1,0 +1,331 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b11-v1",
+  "label": "分段值域求参法 · 例 11 变式 1",
+  "path": "/topics/function-representations/q11b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b11-v1.json",
+  "types": [
+    "type-piecewise-function"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}x^2-2,&x\\le1\\\\ax^2-x+2,&x>1\\end{cases}$ 的值域为 $[-2,+\\infty)$，则实数 $a$ 的取值范围是（ ）。\nA. $(-\\infty,\\frac1{16}]$\nB. $(0,\\frac1{16}]$\nC. $[\\frac1{16},+\\infty)$\nD. $[\\frac18,+\\infty)$",
+  "routes": {
+    "piecewise-range-parameter": {
+      "label": "分段值域求参法",
+      "methods": [
+        "method-piecewise-range-parameter"
+      ],
+      "steps": {
+        "D2": {
+          "title": "确定题型",
+          "position": 1,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 2,
+          "refs": [
+            "method-piecewise-range-parameter"
+          ]
+        },
+        "ce6666737c709058758f45ae#1": {
+          "title": "先求不含参数那一段函数的值域",
+          "position": 3,
+          "refs": [
+            "method-piecewise-range-parameter#fixed",
+            "piecewise-function#domain-range",
+            "set-intersection-union#union"
+          ]
+        },
+        "89d124e3ab675a4bbf0da03b#1": {
+          "title": "判断含参数这一段函数需要满足什么条件",
+          "position": 4,
+          "refs": [
+            "method-piecewise-range-parameter#decide"
+          ]
+        },
+        "d4dc307a5244c6a47dad5fab#1": {
+          "title": "把这段函数的值域要求写成不等式",
+          "position": 5,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "9f5f4fa385f06601e44cc560#1": {
+          "title": "判断转化后的问题",
+          "position": 6,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "f31d9ee5505b714dbae20625#1": {
+          "title": "选择恒成立问题的解题方法",
+          "position": 7,
+          "refs": [
+            "method-separation",
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "5fddf625aacece1bfa3d63c8#1": {
+          "title": "移项",
+          "position": 8,
+          "refs": [
+            "method-separation#separate",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ]
+        },
+        "5fddf625aacece1bfa3d63c8#2": {
+          "title": "判断除数符号与不等号方向",
+          "position": 9,
+          "refs": [
+            "method-separation#separate",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ]
+        },
+        "5fddf625aacece1bfa3d63c8#3": {
+          "title": "分离参数",
+          "position": 10,
+          "refs": [
+            "method-separation#separate",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ]
+        },
+        "8c2e0ca5da0001d16ffc1227#1": {
+          "title": "转化为最值条件",
+          "position": 11,
+          "refs": [
+            "method-separation#quantifier",
+            "skill-quantified-range",
+            "function-range-extrema#quantified",
+            "quantifiers#universal"
+          ]
+        },
+        "cda4855db00b5c7b6da89d1e#1": {
+          "title": "换元，并确定新变量的范围",
+          "position": 12,
+          "refs": [
+            "method-separation#range",
+            "method-substitution",
+            "equality-properties#identity",
+            "method-substitution#range"
+          ]
+        },
+        "588cc426c0651695bd0c7826#1": {
+          "title": "求 $h(x)$ 的值域",
+          "position": 13,
+          "refs": [
+            "method-separation#range",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "ee3277231ea46b8b8fd27b72#1": {
+          "title": "把取值点换回原变量",
+          "position": 14,
+          "refs": [
+            "method-separation#range",
+            "method-substitution",
+            "function-range-extrema#attainability",
+            "method-substitution#range"
+          ]
+        },
+        "271e4e55f475a0edc55863d4#1": {
+          "title": "求参数范围",
+          "position": 15,
+          "refs": [
+            "method-separation#restore",
+            "function-range-extrema#quantified",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "quadratic-inequality-solve",
+            "skill-solve-quadratic",
+            "quadratic-equation#roots",
+            "skill-quadratic-sign",
+            "quadratic-inequality#signs"
+          ]
+        },
+        "4a96170326a985877fb036c0#1": {
+          "title": "回到原题，合并两段函数的值域",
+          "position": 16,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "method-separation",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-quantified-range",
+            "function-range-extrema#quantified",
+            "quantifiers#universal",
+            "method-substitution",
+            "equality-properties#identity",
+            "method-substitution#range",
+            "quadratic-interval-extremum",
+            "function-range-extrema#attainability",
+            "quadratic-inequality-solve",
+            "skill-solve-quadratic",
+            "quadratic-equation#roots",
+            "skill-quadratic-sign",
+            "quadratic-inequality#signs"
+          ]
+        },
+        "e76453a507045e0852ed7587#1": {
+          "title": "代回原分段式检查参数范围的端点",
+          "position": 17,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "method-separation",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-quantified-range",
+            "function-range-extrema#quantified",
+            "quantifiers#universal",
+            "method-substitution",
+            "equality-properties#identity",
+            "method-substitution#range",
+            "quadratic-interval-extremum",
+            "function-range-extrema#attainability",
+            "quadratic-inequality-solve",
+            "skill-solve-quadratic",
+            "quadratic-equation#roots",
+            "skill-quadratic-sign",
+            "quadratic-inequality#signs"
+          ]
+        },
+        "[\"original-choice\",\"/root/goals/0\",\"piecewise-range-parameter\",\"03a1d1380884c74defe6639138531f6646588a62b096c1237cdd2acedc1c0204\"]": {
+          "title": "选择原题答案",
+          "position": 18,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "57978824ec06e30dbaa7027855e5c58b2d504772bdfc1615a9c5f736bdd75ce0",
+  "practice_version": "45b4e19385b4966e23c36629fd5a07fbd1f94f764048fdf996ab6778fbc663ae",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

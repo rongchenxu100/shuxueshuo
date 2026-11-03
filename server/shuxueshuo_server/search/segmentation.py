@@ -8,12 +8,14 @@ Rules, in order:
 1. Deskew: estimate the page angle from long lines and rotate everything level.
 2. Question starts: the leftmost piece of a row whose head is a question number
    (``10.``、``11、``、``14．``, or a bare ``15`` followed by text on the same row).
+   Textbook titles (``【例11】``、``【变式1】``) keep their own labels and numbering.
    ``（1）`` sub-questions never start a question; ``三、解答题`` headers end one.
 3. Columns: cluster start x positions; keep only the numbering chain that reads
    1→2→3 in column order (gaps of up to two, restarts after a section header),
    which drops stray handwritten digits.
 4. Regions: a question owns the lines below its start up to the next start or
-   header in its column; the last question in a column stops at a large gap.
+   header or worked-solution heading in its column; the last question in a
+   column stops at a large gap.
    Figures from the layout model join the question they sit under.
 
 Boxes err large: stage one re-reads the crop, so an extra half line from a
@@ -28,10 +30,11 @@ from dataclasses import dataclass, field
 from itertools import pairwise
 from statistics import median
 
+from .segmentation_labels import numbered_stem, solution_heading, textbook_title
 from .segmentation_numbering import gap_number_hint
 
 NUMBER = re.compile(r"^\s*(\d{1,2})\s*([.．、。,，:：)）])?\s*(.?)")
-SECTION = re.compile(r"^\s*[一二三四五六七八九十]{1,3}\s*[、.．]")
+SECTION = re.compile(r"^\s*(?:[一二三四五六七八九十]{1,3}\s*[、.．]|第\s*[一二三四五六七八九十百0-9]+\s*[章节])")
 FORMULA_FOLLOW = re.compile(r"[\dA-Za-z+\-−<>=^/*≤≥≠|()（）{}\[\]]")
 FIGURE_LABELS = {"image", "figure", "chart", "seal"}
 MAX_STEP = 3
@@ -64,6 +67,8 @@ class Start:
     item: Item
     number: int
     column: int = -1
+    kind: str = "number"
+    label: str = ""
 
 
 @dataclass
@@ -97,6 +102,7 @@ def head_candidates(boxes, median_h=None, *, text_regions=()):
     # Only broad text regions can identify a separate sheet/column. Per-line
     # text and formula boxes must not turn continuations into new row heads.
     bodies = [Item(*b) for b in text_regions if b[2] - b[0] >= 4 * mh and b[3] - b[1] >= 3 * mh]
+    paragraphs = [Item(*b) for b in text_regions if b[2] - b[0] >= 8 * mh and b[3] - b[1] >= mh]
 
     def separate_body(item, other):
         for body in bodies:
@@ -109,7 +115,14 @@ def head_candidates(boxes, median_h=None, *, text_regions=()):
                        and abs(item.x1 - body.x1) <= 2 * mh)
             if other.x1 < min(body.x0, item.x0) and (inside or aligned):
                 return True
-        return False
+        # Curved book pages may have only shallow paragraph boxes. Several
+        # independent paragraphs can establish a margin even when a short
+        # title above them is obscured by a fragment of the facing page.
+        anchors = [body for body in paragraphs if abs(item.x0 - body.x0) <= 2 * mh]
+        return (item.x1 - item.x0 >= 4 * mh and len(anchors) >= 3
+                and max(body.y0 for body in anchors) - min(body.y1 for body in anchors) >= 3 * mh
+                and other.x0 < min(body.x0 for body in anchors) - 2 * mh
+                and other.x1 < item.x0 and other.x1 - other.x0 < 4 * mh)
 
     keep = []
     for i, item in enumerate(items):
@@ -189,6 +202,8 @@ def question_number(head, *, has_right_neighbour):
         return None
     if punct in {".", "．"} and follow.isdigit():
         return None  # decimal such as 0.11
+    if punct in {")", "）", ",", "，"} and follow and FORMULA_FOLLOW.match(follow):
+        return None  # A formula fragment such as 1)2 or 1,2 is not a question.
     if punct is None:
         if follow and FORMULA_FOLLOW.match(follow):
             return None  # 2x+1, 4<4a ...
@@ -213,7 +228,8 @@ def _chain(starts, sections):
         for i in range(j):
             a = starts[i]
             step = b.number - a.number
-            ok = 1 <= step <= MAX_STEP or (b.number <= SECTION_RESTART and header_between(a, b))
+            ok = (a.kind != "number" or b.kind != "number" or 1 <= step <= MAX_STEP
+                  or (b.number <= SECTION_RESTART and header_between(a, b)))
             if ok and best[i] + 1 > best[j]:
                 best[j], prev[j] = best[i] + 1, i
     j = max(range(len(starts)), key=lambda k: (best[k], -k))
@@ -259,12 +275,19 @@ def segment(ocr) -> Segmentation:
     tail = 1.5 * mh
 
     leftmost = set(page_head_candidates(raw_lines, ocr.get("layout", []), width, height))
-    candidates, sections = [], []
+    candidates, sections, solutions = [], [], []
     for i, line in enumerate(lines):
         if i not in leftmost:
             continue
         if SECTION.match(line.head):
             sections.append(line)
+            continue
+        if solution_heading(line.head):
+            solutions.append(line)
+            continue
+        title = textbook_title(line.head)
+        if title:
+            candidates.append(Start(line, **title))
             continue
         right = any(other is not line and _rows_overlap(line, other) and 0 <= other.x0 - line.x1 < 2 * mh
                     for other in lines)
@@ -275,7 +298,12 @@ def segment(ocr) -> Segmentation:
     diagnostics = {"angle_degrees": round(math.degrees(math.atan2(-frame.sin, frame.cos)), 2),
                    "median_line_height": round(mh, 1), "candidates": [s.number for s in candidates]}
     if not candidates:
+        if solutions:
+            return Segmentation([], "uncertain", {**diagnostics, "reason": "solution_without_question"})
         return _whole_content(lines, figures, frame, width, height, pad, tail, diagnostics)
+    candidates = [start for start in candidates if not _isolated_number(start, lines, mh)]
+    if not candidates:
+        return Segmentation([], "uncertain", {**diagnostics, "reason": "isolated_number"})
 
     labels, _ = _cluster_columns([s.item.x0 for s in candidates], width)
     for start, label in zip(candidates, labels):
@@ -285,11 +313,16 @@ def segment(ocr) -> Segmentation:
         column_x.setdefault(start.column, []).append(start.item.x0)
     headers = [_Section(s.cy, min(column_x, key=lambda c: abs(min(column_x[c]) - s.x0)), s.y1) for s in sections]
     ordered = sorted(candidates, key=lambda s: (s.column, s.item.cy))
+    # Printed solution steps can themselves be numbered. They are not new
+    # questions; another title, section or anchored question stem ends the block.
+    ordered = [s for s in ordered if s.kind != "number" or not _inside_solution(s, candidates, sections, solutions, mh)]
+    if not ordered:
+        return Segmentation([], "uncertain", {**diagnostics, "reason": "solution_without_question"})
     chain = _chain(ordered, headers)
     diagnostics["chain"] = [s.number for s in chain]
     if not chain:
         return _whole_content(lines, figures, frame, width, height, pad, tail, diagnostics)
-    chain, repaired = _repair_gaps(chain, [lines[i] for i in sorted(leftmost)], mh)
+    chain, repaired = _repair_gaps(chain, [lines[i] for i in sorted(leftmost)], mh, solutions=solutions)
     if repaired:
         diagnostics["repaired"] = repaired
     used = sorted({s.column for s in chain})
@@ -309,18 +342,30 @@ def segment(ocr) -> Segmentation:
         for k, start in enumerate(starts):
             top_line = start.item
             next_stop = next((y for y in stops if y > top_line.cy), None)
+            solution = next(iter(sorted((line for line in solutions
+                                         if line.cy > top_line.cy and abs(line.x0 - top_line.x0) < 3 * mh
+                                         and (next_stop is None or line.cy < next_stop)), key=lambda line: line.cy)), None)
+            if solution:
+                next_stop = solution.cy
             members = [it for it in in_column
                        if it.cy >= top_line.y0 - 0.3 * mh and (next_stop is None or it.cy < next_stop)
+                       and it is not solution and it not in sections
+                       and (it.figure or it.x1 > top_line.x0 - 0.25 * mh)
                        and not (it.figure and it.y0 < top_line.y0 - mh)]
             if next_stop is None:
                 members = _until_gap(members, top_line, 4 * mh)
             members = [it for it in members if it.x1 <= right_limit + mh or it is top_line]
             x0 = min([it.x0 for it in members] + [top_line.x0]) - pad
             # Printed text never sits above its number line; marks there are handwriting.
-            y0 = min([top_line.y0] + [it.y0 for it in members if it.figure]) - pad
+            y0 = min([top_line.y0] + [it.y0 for it in members if it.figure
+                                    or (start.kind != "number" and _rows_overlap(it, top_line))]) - pad
             right = max([it.x1 for it in members] + ([body_right] if body_right < math.inf else []))
             x1 = min(right + tail, right_limit)
             y1 = max(it.y1 for it in members) + pad
+            if solution:
+                # OCR boxes can overlap on a curved page. Keep the actual
+                # last option's bottom, without padding into the solution.
+                y1 = min(y1, max(solution.y0, max(it.y1 for it in members)))
             boxes.append([x0, y0, x1, y1])
             bottoms.append(y1 - pad)
         column_headers = [h for h in headers if h.column == column]
@@ -332,6 +377,8 @@ def segment(ocr) -> Segmentation:
             regions.append({"number": start.number, "column": position,
                             "box": _page_box(frame, tuple(box), width, height),
                             "crop": _page_box(frame, tuple(crop), width, height)})
+            if start.label:
+                regions[-1]["label"] = start.label
     regions.sort(key=lambda r: (r["column"], r["box"][1]))
     for i, region in enumerate(regions):
         region["index"] = i + 1
@@ -339,7 +386,36 @@ def segment(ocr) -> Segmentation:
     return Segmentation(regions, "numbered", diagnostics)
 
 
-def _repair_gaps(chain, row_leaders, mh):
+def _inside_solution(start, starts, sections, solutions, mh):
+    def preceding(line):
+        return line.cy < start.item.cy and abs(line.x0 - start.item.x0) < 3 * mh
+
+    boundary = max((line.cy for line in solutions if preceding(line)), default=-math.inf)
+    reset = max((line.cy for line in sections if preceding(line)), default=-math.inf)
+    title = max((s.item.cy for s in starts if s.kind != "number" and preceding(s.item)), default=-math.inf)
+    # A numbered exercise book can resume with the next ordinary question
+    # after a worked solution. Require a question stem and an earlier anchor;
+    # plain numbered solution steps cannot reset the block themselves.
+    if title <= reset and numbered_stem(start.item.head) and any(
+        s.kind == "number" and preceding(s.item) and s.item.cy < boundary
+        and 1 <= start.number - s.number <= MAX_STEP for s in starts
+    ):
+        return False
+    reset = max(reset, title)
+    return boundary > reset
+
+
+def _isolated_number(start, lines, mh):
+    """A lone short digit fragment needs a same-row question body, not just another digit."""
+    item = start.item
+    if start.kind != "number" or item.x1 - item.x0 >= 4 * mh or re.search(r"[\u3400-\u9fff]", item.head):
+        return False
+    return not any(line is not item and _rows_overlap(item, line)
+                   and 0 <= line.x0 - item.x1 < 3 * mh and line.x1 - line.x0 >= 4 * mh
+                   for line in lines)
+
+
+def _repair_gaps(chain, row_leaders, mh, *, solutions=()):
     """Fill numbering gaps with margin lines whose number OCR misread (circled or ticked digits).
 
     Between consecutive chain members ``a`` and ``b`` of one column with missing
@@ -350,12 +426,15 @@ def _repair_gaps(chain, row_leaders, mh):
     result, repaired = [], []
     for a, b in zip(chain, chain[1:] + [None]):
         result.append(a)
-        if b is None or b.column != a.column or b.number - a.number < 2:
+        if (b is None or b.column != a.column or b.number - a.number < 2
+                or a.kind != "number" or b.kind != "number"):
             continue
         margin = median(s.item.x0 for s in chain if s.column == a.column)
         between = sorted((line for line in row_leaders
                           if id(line) not in used and a.item.cy < line.cy < b.item.cy
                           and abs(line.x0 - margin) < 1.5 * mh and line.h >= 0.6 * mh
+                          and not any(a.item.cy < solution.cy < line.cy and abs(solution.x0 - margin) < 3 * mh
+                                      for solution in solutions)
                           and _repairable_head(line.head)), key=lambda line: line.cy)
         # Isolated numbers, letter-confused digits and damaged source labels
         # are weak hints. Require an unambiguous, complete sequence bounded

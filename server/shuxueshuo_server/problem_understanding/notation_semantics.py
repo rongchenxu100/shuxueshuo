@@ -287,8 +287,15 @@ class Canonical:
             from .notation_compile import typecheck
             from .notation_evaluation import canonical_evaluation, is_evaluation_goal
 
+            if 'pricing' in g:
+                goals.append({k: deepcopy(v) for k, v in g.items() if k != 'target'})
+                continue
             if is_evaluation_goal(g) and 'relation' not in g:
                 goals.append(canonical_evaluation(g, self.aliases))
+                continue
+            if g['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+                # Include the complete source facts and ordered option identities.
+                goals.append({key: deepcopy(value) for key, value in g.items() if key != 'target'})
                 continue
             if g['kind'] in ('select_range_domain', 'find_extrema_expression'):
                 from .notation_range_tasks import canonical_range_task
@@ -329,6 +336,9 @@ class Canonical:
             if g["kind"] == "match_domain":
                 goal["parameter"] = self.tree(g["parameter"])
                 goal["domain"] = self.tree(g["domain"])
+            if g['kind'] == 'match_range':
+                goal['function'] = self.tree(g['function'])
+                goal['range'] = self.tree(g['range'])
             if "in_terms_of" in g:
                 goal["in_terms_of"] = sorted(
                     [self.tree(x) for x in g["in_terms_of"]], key=key

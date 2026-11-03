@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b10",
+  "title": "代入法 · 例 10",
+  "page": "/topics/function-representations/q10a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRef": "/root/goals/0",
+  "statement": "设函数 $f(x)=\\begin{cases}x+1,&x\\le0\\\\x^2-3,&x>0\\end{cases}$，则 $f(f(\\sqrt2))$ 的值为____。",
+  "evidence": "site/data/graph-walk/function-representations-b10.evidence.json"
+}

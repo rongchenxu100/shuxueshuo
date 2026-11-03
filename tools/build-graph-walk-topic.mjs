@@ -2,6 +2,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
 import {repoRoot, loadSources} from './lib/public-knowledge-sources.mjs';
 import {digest} from './lib/public-knowledge-export.mjs';
 import {projectGraphWalkTeaching} from './lib/graph-walk-practice.mjs';
@@ -9,11 +11,24 @@ import {extendStreamBundle, createState, currentDecision, submitAnswer, replaySt
 import {expressionRegionsHTML} from '../site/assets/graph-walk/expression-regions.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../site/assets/graph-walk/domain-visuals.mjs';
 import {replayAnswer} from '../site/assets/graph-walk/walk-replay.mjs';
+import {projectFigures} from '../site/assets/practice/question-figures.mjs';
+import {choiceFigures} from '../site/assets/practice/figure-choices.mjs';
+import {preserveCourseIdentity} from './lib/graph-walk-course-identity.mjs';
 
 const assert = (ok, message) => { if (!ok) throw Error(message); };
 const json = async file => JSON.parse(await fs.readFile(file, 'utf8'));
 const SOURCE = 'site/data/graph-walk/function-concepts-q15.source.json';
 const h = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+
+async function refreshTeaching(root, sources, check) {
+  const authored = [];
+  for (const name of sources) {
+    if ((await json(path.join(root, name))).authoringSource) authored.push(name);
+  }
+  if (!authored.length) return;
+  await promisify(execFile)('uv', ['run', 'python', '-m', 'tools.refresh_graph_walk_courses',
+    ...(check ? ['--check'] : []), ...authored], {cwd: path.join(root, 'server'), maxBuffer: 1024 * 1024});
+}
 
 function compileTarget(source, evidence, graph, nodes, targetRef) {
   assert(source.schemaVersion === 1 && /^[a-z][a-z0-9-]*$/.test(source.problemId), 'Invalid course source');
@@ -26,7 +41,30 @@ function compileTarget(source, evidence, graph, nodes, targetRef) {
   const goal = evidence.lesson?.goals?.find(item => item.target_ref === targetRef);
   assert(goal?.walk?.bundle && evidence.stream, 'Missing real lesson projection or committed stream');
   const base = structuredClone(goal.walk.bundle);
+  // A retired planned type is only a discovery placeholder. Do not resurrect
+  // it from a historical lesson snapshot when rebuilding a current course.
+  // Executed node metadata and the original recorded evidence stay intact.
+  const currentIds = new Set(nodes.map(node => node.id));
+  const retiredTypes = new Set(base.graph.nodes.filter(node => node.kind === 'problem_type'
+    && node.status === 'planned' && !currentIds.has(node.id)).map(node => node.id));
+  if (retiredTypes.size) {
+    base.graph.nodes = base.graph.nodes.filter(node => !retiredTypes.has(node.id));
+    base.graph.edges = base.graph.edges.filter(edge => !retiredTypes.has(edge.from) && !retiredTypes.has(edge.to));
+    for (const lane of base.graph.lanes || []) {
+      if (lane.ids) lane.ids = lane.ids.filter(id => !retiredTypes.has(id));
+    }
+    for (const step of base.intro || []) {
+      if (step.candidateNodes?.some(id => retiredTypes.has(id))) {
+        step.candidateNodes = step.candidateNodes.filter(id => !retiredTypes.has(id));
+        if (step.id === 'D1' && step.effects?.log) step.effects.log = '图谱查询：根据本题知识线索展示相关题型。';
+      }
+    }
+  }
   base.problemId = source.problemId;
+  if (source.figures) {
+    projectFigures(source.figures, {targetRef});
+    base.problem.figures = structuredClone(source.figures);
+  }
   // Independently published questions may omit the source's example/subquestion
   // labels. Keep that authored wording separate from the recorded evidence.
   if (source.statement !== undefined) {
@@ -56,17 +94,20 @@ function compileTarget(source, evidence, graph, nodes, targetRef) {
   // Unexpanded candidates remain selectable as uncovered alternatives in D3,
   // but cannot become published practice routes without verified steps.
   bundle.routes = Object.fromEntries(Object.entries(bundle.routes).filter(([, route]) => route.route_plan === 'planned'));
+  for (const route of Object.values(bundle.routes)) for (const step of route.steps) {
+    if (step.figure_choices) choiceFigures(bundle.problem.figures, step, {targetRef});
+  }
   projectGraphWalkTeaching(bundle, nodes);
   return bundle;
 }
 
 // Compose independently verified goals in order. Their mathematical identities
 // and completion hashes remain attached to their original goal, never rewritten.
-export function compileCourse(source, evidence, graph, nodes) {
+export function compileCourse(source, evidence, graph, nodes, previous = null) {
   const targets = source.targetRefs || [source.targetRef];
   assert(targets.length && new Set(targets).size === targets.length, 'Invalid course targets');
   const parts = targets.map(ref => compileTarget(source, evidence, graph, nodes, ref));
-  const bundle = parts[0];
+  let bundle = parts[0];
   if (source.preferredRoute) {
     for (const part of parts) if (part.routes[source.preferredRoute]) {
       part.routes = Object.fromEntries([source.preferredRoute, ...Object.keys(part.routes).filter(id => id !== source.preferredRoute)]
@@ -139,6 +180,8 @@ export function compileCourse(source, evidence, graph, nodes) {
     bundle.bundleVersion = digest(bundle);
     projectGraphWalkTeaching(bundle, nodes);
   }
+  bundle = preserveCourseIdentity(bundle, previous);
+  projectGraphWalkTeaching(bundle, nodes);
   const routeIds = Object.keys(bundle.routes);
   assert(routeIds.length > 0, 'Static course requires a verified route');
   const actions = [];
@@ -169,17 +212,19 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   const evidence = await json(path.join(root, source.evidence));
   const graph = await json(path.join(root, 'site/knowledge/graph.json'));
   const {nodes} = await loadSources(root);
-  const {bundle, replay} = compileCourse(source, evidence, graph, nodes);
+  const previous = await json(path.join(root, 'site/data/graph-walk', `${source.problemId}.json`))
+    .catch(error => { if (error.code === 'ENOENT') return null; throw error; });
+  const {bundle, replay} = compileCourse(source, evidence, graph, nodes, previous);
   const bundleUrl = `/data/graph-walk/${source.problemId}.json`, replayUrl = `/data/graph-walk/${source.problemId}.replay.json`;
   const config = {problemId: source.problemId, bundleUrl, replayUrl, topicHref: source.topicHref};
   if (source.preview === true) config.preview = true;
   let html = await fs.readFile(path.join(root, 'tools/templates/graph-walk.html'), 'utf8');
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
-    .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261028-choice-hint"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261101-answer"')
+    .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261102-graph-g1-actions"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261102-graph-g1-actions"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261101-coefficients"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261102-piecewise-j1"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)
@@ -194,7 +239,8 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
     [`site${replayUrl}`, JSON.stringify(replay, null, 2) + '\n'], [`site${source.page}index.html`, html]]);
 }
 
-export async function buildCourse({root = repoRoot, check = false, sourcePath = SOURCE} = {}) {
+export async function buildCourse({root = repoRoot, check = false, sourcePath = SOURCE, refresh = true} = {}) {
+  if (refresh) await refreshTeaching(root, [sourcePath], check);
   const outputs = await generateCourse({root, sourcePath});
   let changed = 0;
   for (const [name, body] of outputs) {
@@ -216,8 +262,9 @@ export async function buildCourses({root = repoRoot, check = false} = {}) {
     }
   }
   let changed = 0;
+  await refreshTeaching(root, [...problems].sort().map(id => `site/data/graph-walk/${id}.source.json`), check);
   for (const id of [...problems].sort()) {
-    changed += (await buildCourse({root, check, sourcePath: `site/data/graph-walk/${id}.source.json`})).changed;
+    changed += (await buildCourse({root, check, sourcePath: `site/data/graph-walk/${id}.source.json`, refresh: false})).changed;
   }
   return {changed};
 }

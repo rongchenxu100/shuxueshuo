@@ -19,7 +19,7 @@ from .verification import VerificationGap, _set_mismatch, _supported_set
 
 _SETS = {"real", "empty_set", "interval", "tuple", "set", "set_builder", "∪", "∩"}
 _RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "and", "or"}
-_SET_GOALS = {"find_range", "find_domain", "match_domain", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
+_SET_GOALS = {"find_range", "find_domain", "match_domain", "match_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_translation_range"}
 
 
 def _domain(ast):
@@ -126,6 +126,36 @@ def _match_converted(source, target_ref, answer, feasible):
             **({'matching': 'set_equality', 'selection_mode': mode} if set_result else {})}
 
 
+def _piecewise_option_set(text, parameter):
+    """Bare numbers/list denote input solutions only for an admitted equation.
+
+    Keep existing interval/set/condition notation unchanged. A comma list must
+    consist entirely of constant scalar expressions; tuples are never silently
+    reinterpreted as lists of roots.
+    """
+    expression = option_expression(text, real_parameter=parameter)
+    if expression is not None and parse(expression)[0] in _SETS | _RELATIONS:
+        return _option_set(expression, parameter, 'find_range')
+    wrapped = option_expression('{' + text + '}')
+    if wrapped is None:
+        raise NotationError('choice.unsupported_option')
+    ast = parse(wrapped)
+
+    def constant(node):
+        if node[0] == 'number':
+            return True
+        if node[0] == 'call':
+            return node[1] == 'sqrt' and constant(node[2])
+        return node[0] in {'neg', '+', '-', '*', '/', '^'} and all(constant(child) for child in node[1:])
+
+    if ast[0] != 'set' or not all(constant(child) for child in ast[1:]):
+        raise NotationError('choice.constant_values_required')
+    actual = _option_set(wrapped, parameter, 'find_range')
+    if not isinstance(actual, sp.FiniteSet):
+        raise NotationError('choice.finite_values_required')
+    return actual
+
+
 def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None):
     """Return certified original labels, or an explicit unavailable reason.
 
@@ -201,6 +231,9 @@ def match_original_choice(candidate, target_ref, answer, feasible_set_exact=None
                                   if symbol["ref"] == goal_ast["target"][1])
         option_sets = []
         for option in source["options"]:
+            if context.get('piecewise_equation', {}).get('structure_supported'):
+                option_sets.append(_piecewise_option_set(option['text'], parameter_name))
+                continue
             expression = option_expression(option["text"], real_parameter=parameter_name) if set_goal else option["expression"]
             if not isinstance(expression, str):
                 return {**base, "reason": "choice.unsupported_option"}

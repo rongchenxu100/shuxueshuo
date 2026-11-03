@@ -1,0 +1,943 @@
+{
+  "status": "workflow.budget_exhausted",
+  "source_reviewed": false,
+  "output_contract": "search-problem-extraction/v1",
+  "public_candidate": {
+    "original_text": "【变式3】若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            }
+          ],
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": [
+              "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+            ]
+          }
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "represented",
+      "figure_regions": [
+        {
+          "option_id": "option-a",
+          "label": "A",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.04,
+            0.44,
+            0.28,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-b",
+          "label": "B",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.285,
+            0.44,
+            0.5,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-c",
+          "label": "C",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.52,
+            0.44,
+            0.74,
+            0.95
+          ]
+        },
+        {
+          "option_id": "option-d",
+          "label": "D",
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.755,
+            0.44,
+            0.99,
+            0.95
+          ]
+        }
+      ],
+      "statement_figure_regions": [
+        {
+          "target_ref": "/root/goals/0",
+          "box": [
+            0.38,
+            0.1,
+            0.64,
+            0.37
+          ]
+        }
+      ],
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "complete",
+              "selection_mode": "unspecified",
+              "options": [
+                {
+                  "label": "A",
+                  "text": "见原图"
+                },
+                {
+                  "label": "B",
+                  "text": "见原图"
+                },
+                {
+                  "label": "C",
+                  "text": "见原图"
+                },
+                {
+                  "label": "D",
+                  "text": "见原图"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "candidate": {
+    "original_text": "【变式3】若函数 $y=f(x)$ 的图象如下图所示，则函数 $y=f(2-x)$ 的图象为（　　）",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            }
+          ],
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": [
+              "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+            ]
+          }
+        }
+      ],
+      "uncertainties": []
+    }
+  },
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "select_function_graph"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "source": {
+          "kind": "select_function_graph",
+          "expression": "f(2-x)",
+          "variable": "x",
+          "comparison": "rough_shape",
+          "selection_mode": "unspecified",
+          "options": [
+            {
+              "option_id": "option-a",
+              "label": "A",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-b",
+              "label": "B",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "increasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-c",
+              "label": "C",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            },
+            {
+              "option_id": "option-d",
+              "label": "D",
+              "facts": {
+                "shape": "shown_monotone_curve",
+                "direction": "decreasing",
+                "x_intercept": {
+                  "x": "-2",
+                  "evidence": "estimated"
+                }
+              },
+              "uncertainties": []
+            }
+          ],
+          "source_graph": {
+            "function": "f",
+            "facts": {
+              "shape": "shown_monotone_curve",
+              "direction": "increasing",
+              "x_intercept": {
+                "x": "0",
+                "evidence": "origin"
+              }
+            },
+            "uncertainties": [
+              "题干原图曲线与x轴交点是否恰在原点处受分辨率影响，按过原点记录。"
+            ]
+          }
+        },
+        "target_ref": "/root/goals/0",
+        "source_refs": [
+          "/root/goals/0"
+        ],
+        "extra_source_refs": [],
+        "structure_version": "function-graph-schematic-transform/v1",
+        "structure_supported": false,
+        "reason": "function_graph.unverified_source_graph"
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-graph/v5",
+      "knowledge_refs": [
+        "function-representations#graph",
+        "function-graph-transformations#translation"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v8",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_applicable_to_graph_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.reviewed_options_required"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010",
+  "sent_image_sha256": [
+    "fd9d75ebe65612a12d2f839cfe6c03b5dc3546e1a30244fde338ea64f8916010"
+  ],
+  "elapsed_seconds": 70.713
+}

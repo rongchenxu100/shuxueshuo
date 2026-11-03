@@ -13,6 +13,7 @@ from copy import deepcopy
 import sympy as sp
 
 from ..problem_understanding.notation_parser import NotationError
+from .piecewise_evaluation import branches, is_piecewise, select_branch
 from .stage_one.function_domain import ARGUMENT, MAX_COEFFICIENT_BITS, expression_latex
 
 VERSION = "function-evaluation/v1"
@@ -49,7 +50,7 @@ def _children(ast):
 def _growth(ast):
     """Bound expansion before asking any symbolic library to expand a tree."""
     kind = ast[0]
-    if kind == "number":
+    if kind == "number" or ast[:2] == ['call', 'sqrt']:
         return 0, 0
     if kind in ("bound", "ref"):
         return 1, 0
@@ -83,6 +84,9 @@ def _syntax(ast, *, refs=(), body=False, depth=0, counts=None, calls=0):
     if not isinstance(ast, list) or not ast:
         _fail("invalid_ast")
     kind = ast[0]
+    if ast[:2] == ['call', 'sqrt'] and not body:
+        _radical(ast)
+        return
     if ast == ARGUMENT and body:
         return
     if kind == "number" and len(ast) == 2:
@@ -141,9 +145,26 @@ def _endpoint(ast):
     _fail("invalid_domain_endpoint")
 
 
+def _radical(ast):
+    # Numeric inputs only: retain exact radicals without opening symbolic
+    # radical domains or arbitrary algebraic-number calculations in M9.
+    if len(ast) != 3 or ast[2][:1] != ['number'] or len(ast[2]) != 2:
+        _fail('numeric_radical_required')
+    value = _rational(ast[2][1])
+    if value < 0 or max(abs(value.p), value.q) > 1000000:
+        _fail('radical_budget')
+    return sp.sqrt(value)
+
+
 def _bounded(value, variable, *, numerator_degree=MAX_DEGREE, denominator_degree=MAX_DEGREE):
     if value.has(sp.zoo, sp.nan, sp.oo, -sp.oo):
         _fail("nonfinite_expression")
+    if not value.free_symbols and value.is_Rational is not True:
+        if value.is_real is not True or value.is_algebraic is not True or sp.count_ops(value) > 64:
+            _fail('numeric_algebraic_budget')
+        for coefficient in value.atoms(sp.Rational):
+            _rational(coefficient)
+        return sp.simplify(value)
     num, den = sp.fraction(sp.cancel(value))
     for expr, limit in ((num, numerator_degree), (den, denominator_degree)):
         poly = sp.Poly(expr, variable, domain=sp.QQ)
@@ -197,6 +218,8 @@ def _zeros(value, variable):
     numerator = sp.fraction(sp.cancel(value))[0]
     if numerator == 0:
         return sp.S.Reals
+    if not numerator.free_symbols and numerator.is_zero is False:
+        return sp.S.EmptySet
     poly = sp.Poly(numerator, variable, domain=sp.QQ)
     if poly.degree() > MAX_DEGREE:
         _fail("condition_budget")
@@ -259,21 +282,28 @@ def _prepare(description):
     if not 1 <= len(functions) <= MAX_FUNCTIONS:
         _fail("function_budget")
     found = {}
+    has_piecewise = False
     for function in functions:
         ref = function.get("function_ref")
         if not isinstance(ref, str) or not ref or ref in found or not function.get("source_ref"):
             _fail("function_identity")
-        _syntax(function["expression_ast"], body=True)
-        _growth(function["expression_ast"])
+        body = function['expression_ast']
+        has_piecewise |= is_piecewise(body)
+        bodies = [row['expression_ast'] for row in branches(body)] if is_piecewise(body) else [body]
         _set(function.get("input_domain_ast", ["real"]))
         # Inspect the uncancelled body as well as its simplified result.
         dummy = sp.Symbol("_function_input", real=True)
-        raw = _body_value(function["expression_ast"], dummy, raw=True)
-        numerator, denominator = sp.fraction(sp.together(raw))
-        _bounded(numerator, dummy, numerator_degree=2, denominator_degree=0)
-        _bounded(denominator, dummy, numerator_degree=1, denominator_degree=0)
+        for branch in bodies:
+            _syntax(branch, body=True)
+            _growth(branch)
+            raw = _body_value(branch, dummy, raw=True)
+            numerator, denominator = sp.fraction(sp.together(raw))
+            _bounded(numerator, dummy, numerator_degree=2, denominator_degree=0)
+            _bounded(denominator, dummy, numerator_degree=1, denominator_degree=0)
         found[ref] = function
     outer_ref = description.get("variable_ref", "")
+    if has_piecewise and (outer_ref or description['kind'] != 'find_value'):
+        _fail('piecewise_numeric_goal_required')
     refs = {outer_ref} if outer_ref else set()
     _set(description.get("input_domain_ast", ["real"]))
     targets = [description["expression_ast"]] if description["kind"] != "finite_sum" else []
@@ -308,6 +338,22 @@ def _prepare(description):
         _growth(target)
     def contains_call(ast):
         return ast[0] == "function_call" or any(contains_call(child) for child in _children(ast))
+    if has_piecewise:
+        call = description['expression_ast']
+        if call[0] != 'function_call':
+            _fail('piecewise_direct_call_required')
+        while call[0] == 'function_call':
+            argument = call[2]
+            if contains_call(argument) and argument[0] != 'function_call':
+                _fail('piecewise_direct_call_required')
+            call = argument
+    def radical_count(ast):
+        return int(ast[:2] == ['call', 'sqrt']) + sum(radical_count(child) for child in _children(ast))
+    radicals = sum(radical_count(target) for target in targets)
+    if radicals and (outer_ref or description['kind'] != 'find_value'):
+        _fail('numeric_radical_goal_required')
+    if radicals > 4:
+        _fail('radical_budget')
     if not any(contains_call(target) for target in targets):
         _fail("function_call_required")
     return found
@@ -322,12 +368,44 @@ def structural_inspect(description):
                 "structure_version": VERSION}
 
 
+def _selected_body(function, value, *, input_defined=True):
+    """Return one original branch and its source evidence, never extrapolate."""
+    body = function['expression_ast']
+    if not is_piecewise(body):
+        return body, {}, '', sp.S.Reals
+    rows = branches(body)
+    index = select_branch(rows, value) if input_defined else None
+    row = rows[index] if index is not None else None
+    metadata = {'definition_ast': deepcopy(body), 'branch_index': index,
+                'branch_condition_ast': deepcopy(row['condition_ast']) if row else None}
+    return (row['expression_ast'] if row else ['number', '0'], metadata,
+            f'/branch-{index}' if row else '/no-branch', sp.Union(*(row['domain'] for row in rows)))
+
+
+def _natural_domain(function, functions, variable, *, checking=False):
+    body = function['expression_ast']
+    rows = branches(body) if is_piecewise(body) else [{'expression_ast': body, 'domain': sp.S.Reals}]
+    domain = sp.S.EmptySet
+    for row in rows:
+        if checking:
+            _, natural = _check_source(row['expression_ast'], functions, {}, variable, argument=variable)
+        else:
+            guards = []
+            _walk(row['expression_ast'], functions, {}, variable, guards, [],
+                  path='definition', source_ref=function['source_ref'], argument=variable)
+            natural = _guard_domain(guards, variable)
+        domain |= row['domain'] & natural
+    return domain
+
+
 def _walk(ast, functions, symbols, variable, guards, calls, *, path="target", source_ref="", argument=None, depth=0):
     if ast == ARGUMENT:
         return argument
     kind = ast[0]
     if kind == "number":
         return _rational(ast[1])
+    if ast[:2] == ['call', 'sqrt']:
+        return _radical(ast)
     if kind == "ref":
         return symbols[ast[1]]
     if kind == "function_call":
@@ -337,21 +415,25 @@ def _walk(ast, functions, symbols, variable, guards, calls, *, path="target", so
         value = _walk(ast[2], functions, symbols, variable, guards, calls,
                       path=path + "/input", source_ref=source_ref, depth=depth + 1)
         input_defined = _guard_domain(guards[start:], variable) != sp.S.EmptySet
+        body, branch_info, suffix, branch_domain = _selected_body(function, value, input_defined=input_defined)
         allowed = _set(function.get("input_domain_ast", ["real"]))
         if allowed != sp.S.Reals:
             guards.append({"kind": "membership", "expression": value, "allowed": allowed,
                            "path": path + "/declared-domain", "source_ref": function.get("input_domain_source_ref") or function["source_ref"]})
-        output = _walk(function["expression_ast"], functions, symbols, variable, guards, calls,
-                       path=path + "/body", source_ref=function["source_ref"], argument=value, depth=depth + 1)
+        if branch_info:
+            guards.append({'kind': 'membership', 'expression': value, 'allowed': branch_domain,
+                           'path': path + '/branch-domain', 'source_ref': function['source_ref']})
+        output = _walk(body, functions, symbols, variable, guards, calls,
+                       path=path + "/body" + suffix, source_ref=function["source_ref"], argument=value, depth=depth + 1)
         output = _bounded(output, variable)
         call_domain = _guard_domain(guards[start:], variable)
         defined = call_domain != sp.S.EmptySet
-        substitution = _body_value(function["expression_ast"], value, raw=True)
+        substitution = _body_value(body, value, raw=True)
         calls.append({"call_id": path, "function_ref": ref, "function_name": function.get("function_name") or ref.rsplit(":", 1)[-1],
                       "source_ref": function["source_ref"], "input_ast": deepcopy(ast[2]), "input": value if input_defined else None,
-                      "rule_ast": deepcopy(function["expression_ast"]),
+                      "rule_ast": deepcopy(body), **branch_info,
                       "substitution": substitution if defined else None,
-                      "substitution_latex": _substitution_latex(function["expression_ast"], value) if defined else "",
+                      "substitution_latex": _substitution_latex(body, value) if defined else "",
                       "input_defined": input_defined, "defined": defined,
                       "output": output if defined else None, "domain": call_domain, "depth": depth})
         return output
@@ -367,10 +449,7 @@ def _walk(ast, functions, symbols, variable, guards, calls, *, path="target", so
 def _declared_functions(functions):
     variable = sp.Symbol("_function_input", real=True)
     for function in functions.values():
-        guards = []
-        _walk(function["expression_ast"], functions, {}, variable, guards, [],
-              path="definition", source_ref=function["source_ref"], argument=variable)
-        natural = _guard_domain(guards, variable)
+        natural = _natural_domain(function, functions, variable)
         declared = _set(function.get("input_domain_ast", ["real"]))
         explicit = function.get("explicit_domain") or bool(function.get("input_domain_source_ref")) or declared != sp.S.Reals
         if natural == sp.S.EmptySet or declared == sp.S.EmptySet:
@@ -554,6 +633,8 @@ def _check_source(ast, functions, symbols, variable, *, argument=None, path="tar
         return argument, sp.S.Reals
     if ast[0] == "number":
         return _rational(ast[1]), sp.S.Reals
+    if ast[:2] == ['call', 'sqrt']:
+        return _radical(ast), sp.S.Reals
     if ast[0] == "ref":
         return symbols[ast[1]], sp.S.Reals
     if ast[0] == "function_call":
@@ -562,21 +643,25 @@ def _check_source(ast, functions, symbols, variable, *, argument=None, path="tar
         value, domain = _check_source(ast[2], functions, symbols, variable, path=path + "/input",
                                      source_ref=source_ref, depth=depth + 1, calls=calls, guards=guards)
         input_defined = domain != sp.S.EmptySet
+        body, branch_info, suffix, branch_domain = _selected_body(function, value, input_defined=input_defined)
         declared = _set(function.get("input_domain_ast", ["real"]))
         if guards is not None and declared != sp.S.Reals:
             guards.append({"kind": "membership", "expression": value, "allowed": declared,
                            "path": path + "/declared-domain", "source_ref": function.get("input_domain_source_ref") or function["source_ref"]})
-        output, body_domain = _check_source(function["expression_ast"], functions, symbols, variable, argument=value,
-                                           path=path + "/body", source_ref=function["source_ref"], depth=depth + 1,
+        if branch_info and guards is not None:
+            guards.append({'kind': 'membership', 'expression': value, 'allowed': branch_domain,
+                           'path': path + '/branch-domain', 'source_ref': function['source_ref']})
+        output, body_domain = _check_source(body, functions, symbols, variable, argument=value,
+                                           path=path + "/body" + suffix, source_ref=function["source_ref"], depth=depth + 1,
                                            calls=calls, guards=guards)
-        domain &= body_domain & _preimage(value, declared, variable)
+        domain &= body_domain & _preimage(value, declared, variable) & _preimage(value, branch_domain, variable)
         if calls is not None:
             defined = domain != sp.S.EmptySet
-            substitution = _body_value(function["expression_ast"], value, raw=True)
+            substitution = _body_value(body, value, raw=True)
             calls.append({"call_id": path, "function_ref": ref, "function_name": function.get("function_name") or ref.rsplit(":", 1)[-1],
                           "source_ref": function["source_ref"], "input_ast": deepcopy(ast[2]), "input": value if input_defined else None,
-                          "rule_ast": deepcopy(function["expression_ast"]), "substitution": substitution if defined else None,
-                          "substitution_latex": _substitution_latex(function["expression_ast"], value) if defined else "",
+                          "rule_ast": deepcopy(body), **branch_info, "substitution": substitution if defined else None,
+                          "substitution_latex": _substitution_latex(body, value) if defined else "",
                           "input_defined": input_defined, "defined": defined,
                           "output": output if defined else None, "domain": domain, "depth": depth})
         return output, domain
@@ -644,7 +729,7 @@ def verify(description, result):
         functions = _prepare(description)
         definition_variable = sp.Symbol("_function_input", real=True)
         for function in functions.values():
-            _, natural = _check_source(function["expression_ast"], functions, {}, definition_variable, argument=definition_variable)
+            natural = _natural_domain(function, functions, definition_variable, checking=True)
             declared = _set(function.get("input_domain_ast", ["real"]))
             explicit = function.get("explicit_domain") or function.get("input_domain_source_ref") or declared != sp.S.Reals
             if natural == sp.S.EmptySet or declared == sp.S.EmptySet or (explicit and declared - natural != sp.S.EmptySet):

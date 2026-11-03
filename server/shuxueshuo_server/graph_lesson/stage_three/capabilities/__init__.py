@@ -601,3 +601,101 @@ def _function_assignment_operation(name):
 for _name in ('prepare_function_assignment', 'specialize_function_relation', 'solve_assignment_equations',
               'simplify_assignment_formula', 'verify_assignment_formula'):
     REGISTRY[_name] = _function_assignment_operation(_name)
+
+
+def _transform_function_graph(**inputs):
+    from ..graph_transform_runtime import transform_function_graph
+    return transform_function_graph(**inputs)
+
+
+REGISTRY['transform_function_graph'] = _transform_function_graph
+
+
+def _construct_absolute_graph(**inputs):
+    from ..absolute_graph_runtime import construct
+    return construct(**inputs)
+
+
+def _solve_absolute_graph_inequality(**inputs):
+    from ..absolute_graph_runtime import construct
+    return construct(**inputs, inequality=True)
+
+
+REGISTRY['construct_absolute_graph'] = _construct_absolute_graph
+REGISTRY['solve_absolute_graph_inequality'] = _solve_absolute_graph_inequality
+
+
+def _solve_piecewise_branches(context):
+    from ...piecewise_equation import solve_branches
+    return solve_branches(context)
+
+
+def _filter_piecewise_branches(description, branch_roots):
+    from ...piecewise_equation import filter_branches
+    return filter_branches(description, branch_roots)
+
+
+REGISTRY['solve_piecewise_branches'] = _solve_piecewise_branches
+REGISTRY['filter_piecewise_branches'] = _filter_piecewise_branches
+
+
+def _evaluate_piecewise_level(context):
+    from ...piecewise_inequality import evaluate_level
+    return evaluate_level(context)
+
+
+REGISTRY['evaluate_piecewise_level'] = _evaluate_piecewise_level
+
+
+def _solve_piecewise_inequality_roots(description, level):
+    from ...piecewise_inequality import solve_roots
+    return solve_roots(description, level)
+
+
+REGISTRY['solve_piecewise_inequality_roots'] = _solve_piecewise_inequality_roots
+
+
+def _solve_piecewise_signs(description, level, branch_roots):
+    from ...piecewise_inequality import solve_signs
+    return solve_signs(description, level, branch_roots)
+
+
+REGISTRY['solve_piecewise_signs'] = _solve_piecewise_signs
+
+
+def _filter_piecewise_inequality(description, level, branch_solutions):
+    from ...piecewise_inequality import filter_branches
+    return filter_branches(description, level, branch_solutions)
+
+
+REGISTRY['filter_piecewise_inequality'] = _filter_piecewise_inequality
+
+
+def _piecewise_range_capability(name):
+    def run(**kwargs):
+        from ... import piecewise_range
+        return getattr(piecewise_range, name)(**kwargs)
+    return run
+
+
+for _name in ('prepare_piecewise_range', 'bind_piecewise_range', 'merge_piecewise_range'):
+    REGISTRY[_name] = _piecewise_range_capability(_name)
+
+
+def _piecewise_parameter_capability(name):
+    def call(**kwargs):
+        from ... import piecewise_range_parameter
+        return getattr(piecewise_range_parameter, name)(**kwargs)
+    return call
+
+
+def _build_piecewise_model(context):
+    from ...piecewise_modeling import build
+    return build(context)
+
+
+REGISTRY['build_piecewise_model'] = _build_piecewise_model
+REGISTRY['prepare_piecewise_range_parameter'] = _piecewise_parameter_capability('prepare')
+REGISTRY['solve_piecewise_range_parameter'] = _piecewise_parameter_capability('solve')
+REGISTRY['reduce_piecewise_range_to_universal'] = _piecewise_parameter_capability('reduce_to_universal')
+REGISTRY['accept_piecewise_range_subproblem'] = _piecewise_parameter_capability('accept_subproblem')

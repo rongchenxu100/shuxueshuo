@@ -20,6 +20,9 @@
     },
     {
       "cue": "当前开放固定至多二次多项式及其开平方、比例和平移；根式、绝对值及可逆仿射输入关系可换元为至多二次式；可分离为 A+B/Q(x) 的分式保留原式禁取点后逐段取倒数。全实数域且原分母无实根的二次分式可用方程有实根法；抽象函数在准确域和值域已知、仿射新输入完整覆盖原定义域时，可用换元求值域法传递值域。有限输入逐一代入后收集不同输出；全实数域的周期函数与一次项之和，在已知一个完整周期区间的准确值域、目标域可由该区间的整数平移完整覆盖时，可用整段平移求值域法。"
+    },
+    {
+      "cue": "固定分段多项式分别在本段范围内求值域，再合并输出集合。"
     }
   ],
   "confuse": [
@@ -40,7 +43,8 @@
     "reciprocal-function",
     "quadratic-function-properties",
     "function-range-extrema",
-    "square-root-expression"
+    "square-root-expression",
+    "piecewise-function"
   ],
   "methods": [
     "method-finite-range",
@@ -49,7 +53,8 @@
     "method-substitution-range",
     "method-fraction-split-range",
     "method-equation-real-root-range",
-    "method-translation-range"
+    "method-translation-range",
+    "method-piecewise-range"
   ],
   "rules": [
     "rule-function-range-method"

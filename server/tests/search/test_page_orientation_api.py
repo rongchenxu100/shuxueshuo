@@ -83,15 +83,15 @@ def _capture_stage_one(monkeypatch):
     received = {}
     done = threading.Event()
 
-    def run(png, output, provider, *, problem_id):
-        received.update(png=png, output=output)
+    def run(png, output, provider, *, problem_id, original_png=None, read_graph_details=False):
+        received.update(png=png, original_png=original_png, output=output)
         done.set()
         return {"status": "unreadable"}
 
     monkeypatch.setenv("RUN_LLM_INTEGRATION", "1")
     monkeypatch.setattr(dev_api, "run_question_image", run)
     monkeypatch.setattr("shuxueshuo_server.problem_understanding.batch_smoke.live_provider_factory",
-                        lambda name: lambda: object())
+                        lambda name, **kwargs: lambda: object())
     return received, done
 
 

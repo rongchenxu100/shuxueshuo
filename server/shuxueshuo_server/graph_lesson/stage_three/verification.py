@@ -951,6 +951,15 @@ def _set_mismatch(left, right):
 
 def verify(candidate, target_ref, constraint_context, feasible_set):
     """Prove the entire proposed set by an original-input critical partition."""
+    if 'piecewise_range_parameter' in constraint_context:
+        from ..piecewise_range_parameter import independent_verify
+        return independent_verify(candidate, target_ref, constraint_context, feasible_set)
+    if 'piecewise_inequality' in constraint_context:
+        from ..piecewise_inequality import independent_verify
+        return independent_verify(candidate, target_ref, constraint_context, feasible_set)
+    if 'piecewise_equation' in constraint_context:
+        from ..piecewise_equation import independent_verify
+        return independent_verify(candidate, target_ref, constraint_context, feasible_set)
     if _source(candidate, target_ref).get("kind") == "find_domain":
         from .function_domain import verify_domain
         return verify_domain(candidate, target_ref, constraint_context, feasible_set)
@@ -1085,6 +1094,16 @@ def verify(candidate, target_ref, constraint_context, feasible_set):
 @_sympy_gap_boundary
 def endpoint_check(candidate, target_ref, feasible_set):
     """Independent exact boundary evidence, including excluded candidate ends."""
+    from .context import build_context
+    if _source(candidate, target_ref).get('kind') == 'match_range':
+        from ..piecewise_range_parameter import endpoints
+        return endpoints(candidate, target_ref, feasible_set)
+    if 'piecewise_inequality' in build_context(candidate, target_ref):
+        from ..piecewise_inequality import endpoints
+        return endpoints(candidate, target_ref, feasible_set)
+    if 'piecewise_equation' in build_context(candidate, target_ref):
+        from ..piecewise_equation import endpoints
+        return endpoints(candidate, target_ref, feasible_set)
     if _source(candidate, target_ref).get("kind") == "find_domain":
         from .function_domain import domain_endpoints
         return domain_endpoints(candidate, target_ref, feasible_set)

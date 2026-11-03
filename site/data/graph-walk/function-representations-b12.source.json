@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-representations-b12",
+  "title": "分段建模与反求用量 · 例12",
+  "page": "/topics/function-representations/q12a/",
+  "topicHref": "/topics/function-representations/",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "第（1）问：建立电费关系式",
+    "第（2）问：已知电费求用电量"
+  ],
+  "statement": "某地居民用电采用阶梯电价：每月不超过180千瓦时的用电，每千瓦时0.6元；超过180千瓦时、但不超过350千瓦时的部分，每千瓦时0.65元；超过350千瓦时的部分，每千瓦时0.9元。设该户居民该月用电量为 $x$ 千瓦时，电费为 $y$ 元。\n\n（1）求 $y$ 关于 $x$ 的函数关系式。\n\n（2）若该户居民该月电费为199元，求该月用电量。",
+  "evidence": "site/data/graph-walk/function-representations-b12.evidence.json"
+}

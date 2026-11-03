@@ -149,8 +149,10 @@ async function fromFile(file) {
 function pageResult(result) {
   const seconds = Object.values(result.latency_ms || {}).reduce((a, b) => a + b, 0) / 1000;
   const rect = ([x0, y0, x1, y1]) => ({x: x0, y: y0, w: x1 - x0, h: y1 - y0});
-  const found = result.regions.map(r => ({...rect(r.box), number: r.number, crop: rect(r.crop || r.box)}));
-  const note = `OCR 切题 ${seconds.toFixed(1)} 秒 · ${found.length} 道` + (result.mode === 'whole_content' ? ' · 没找到题号，整块作为一题' : '');
+  const found = result.regions.map(r => ({...rect(r.box), number: r.number, label: r.label, crop: rect(r.crop || r.box)}));
+  const note = result.mode === 'uncertain' || !found.length
+    ? '未能准确定位题目，请框选完整题干和选项；有题目配图时一并框入。'
+    : `OCR 切题 ${seconds.toFixed(1)} 秒 · ${found.length} 道` + (result.mode === 'whole_content' ? ' · 没找到题号，请确认选区只包含一道题' : '');
   return {pageId: result.page_id, url: result.preview_url || result.image_url || `/api/search/pages/${result.page_id}/image`,
     found, note, orientation: result.orientation, offline: false};
 }
@@ -368,12 +370,14 @@ async function rotatePage() {
   return detection;
 }
 
-const label = i => boxes[i].number ?? i + 1;
+const label = i => boxes[i].label || boxes[i].number || i + 1;
+const questionLabel = i => boxes[i].label || `第 ${label(i)} 题`;
+const escapeLabel = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 function renderBoxes() {
   $('#cm-boxes').innerHTML = boxes.map((box, i) =>
-    `<button type="button" class="cm-box" data-box="${i}" aria-label="第 ${label(i)} 题" style="left:${box.x * 100}%;top:${box.y * 100}%;width:${box.w * 100}%;height:${box.h * 100}%;animation-delay:${i * 60}ms"><b>${label(i)}</b></button>`).join('');
-  $('#cm-chips').innerHTML = boxes.map((_, i) => `<button type="button" role="tab" data-box="${i}">${label(i)}</button>`).join('');
+    `<button type="button" class="cm-box" data-box="${i}" aria-label="${escapeLabel(questionLabel(i))}" style="left:${box.x * 100}%;top:${box.y * 100}%;width:${box.w * 100}%;height:${box.h * 100}%;animation-delay:${i * 60}ms"><b>${escapeLabel(label(i))}</b></button>`).join('');
+  $('#cm-chips').innerHTML = boxes.map((_, i) => `<button type="button" role="tab" data-box="${i}">${escapeLabel(label(i))}</button>`).join('');
 }
 
 function cropUrl(rect, max) {
@@ -392,7 +396,7 @@ function select(i, restoring = false) {
   for (const el of $('#cm-chips').children) el.setAttribute('aria-selected', String(Number(el.dataset.box) === i));
   $('#cm-chips').children[i]?.scrollIntoView({block: 'nearest', inline: 'center'});
   $('#cm-chosen-img').src = cropUrl(boxes[i].crop || boxes[i], 900);
-  $('#cm-title').textContent = `第 ${label(i)} 题`;
+  $('#cm-title').textContent = questionLabel(i);
 }
 
 async function go(rect, expectedGeneration = readyGeneration) {

@@ -28,6 +28,7 @@ from shuxueshuo_server.product.admin.cli import instance_lock
 from shuxueshuo_server.product.application import schema_head
 from shuxueshuo_server.product.config import REPO, Settings, write_private
 from shuxueshuo_server.product.db import engine
+from shuxueshuo_server.product.errors import Conflict
 from shuxueshuo_server.search.admission import SearchLimits
 from shuxueshuo_server.search.application import install_search
 from shuxueshuo_server.tutor_demo.api import create_router
@@ -70,6 +71,27 @@ class SiteStaticFiles(StaticFiles):
             raise
         response.headers['Cache-Control'] = 'no-cache'
         return response
+
+
+def check_learning_content(settings):
+    """Report a stale local publication without disabling unrelated photo work.
+
+    Restarting the development server does not publish course updates. The
+    browser checks each exercise separately; unrelated courses remain usable.
+    """
+    from shuxueshuo_server.product.admin.learning import verify_release
+
+    try:
+        verify_release(settings, REPO / "site/knowledge/teaching/version.json")
+    except (Conflict, ValueError, OSError):
+        print(
+            "WARNING: 专题整体发布校验未通过；练习按本题兼容性独立核对，未改动题目仍可保存。"
+            "重启服务不会同步内容。请按 docs/site-login-local-testing.md 的"
+            "“专题内容同步”步骤生成页面、发布目录并执行 verify-release。",
+            flush=True,
+        )
+        return False
+    return True
 
 
 def create_local_app(settings, config):
@@ -118,6 +140,7 @@ def main():
         )
     with instance_lock(settings.root):
         native.start(settings)
+    check_learning_content(settings)
     load_dotenv(REPO / "server/.env")
     # Private per-instance secret survives restarts. Never print it.
     private = settings.root / "config/student-auth.env"

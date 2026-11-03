@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {attachMathQA, createDerivationBoard, createMathCard, setMathCardLayout, createRouteCompletion} from '../../site/assets/graph-walk/stream-math-dom.mjs';
 
 function documentFixture() {
@@ -46,6 +47,34 @@ test('abstract-domain parameter completion identifies the result as a parameter 
   assert.equal(complete, true);
   assert.equal(node.children[0].textContent, '参数范围：');
   assert.equal(find('stage-three-answer', node)[0].textContent, '[-\\frac12,\\frac12]');
+});
+
+for (const name of ['b11-v1', 'b11-v2']) test(`${name}: verified parameter answer remains visible in the completed course`, async () => {
+  const bundle = JSON.parse(await readFile(new URL(`../../site/data/graph-walk/function-representations-${name}.json`, import.meta.url), 'utf8'));
+  const payload = bundle.routes['piecewise-range-parameter'].completion;
+  const {document, find} = documentFixture();
+  const view = createRouteCompletion(document, payload);
+  assert.equal(view.complete, true);
+  assert.equal(view.node.hidden, false);
+  assert.equal(find('stage-three-answer', view.node)[0].textContent, payload.answer.set.latex);
+  assert.ok(view.node.children.some(child => child.textContent === '参数范围：'));
+  if (name === 'b11-v1') assert.equal(find('stage-three-choice-answer', view.node)[0].textContent, '答案：C　');
+  assert.equal(createRouteCompletion(document, {...payload, available: false}).complete, false);
+});
+
+test('piecewise equation completion labels input solutions without changing parameter or range answers', () => {
+  const {document} = documentFixture();
+  const answer = {kind: 'find_range', status: 'set', set: {latex: '\\{-3/2,2\\}'}};
+  for (const [route_id, value, label] of [
+    ['piecewise-equation', answer, '原方程的解集：'],
+    ['piecewise-inequality', answer, '原不等式的解集：'],
+    ['interval', answer, '参数范围：'],
+    ['function-range', {...answer, object: 'f'}, '值域：'],
+  ]) {
+    const {node, complete} = createRouteCompletion(document, {status: 'verified', route_id, answer: value});
+    assert.equal(complete, true);
+    assert.equal(node.children[0].textContent, label);
+  }
 });
 
 test('a deduction keeps its labelled cells while the pending question mark becomes the verified formula', () => {

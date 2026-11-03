@@ -353,7 +353,15 @@
             "abstract_function_domain",
             "function_evaluation",
             "function_range",
-            "function_formula"
+            "function_formula",
+            "function_graph",
+            "piecewise_equation",
+            "piecewise_inequality",
+            "piecewise_range",
+            "piecewise_range_parameter",
+            "piecewise_modeling",
+            "quantified_subproblem",
+            "substitution"
           ]
         },
         "parts": {

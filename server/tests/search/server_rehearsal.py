@@ -110,7 +110,7 @@ def api():
     selection.live_provider_factory = lambda *_args, **_kwargs: forbidden
     multimodal_provider._default_client_factory = forbidden
 
-    def recognize(png, directory, _provider, *, problem_id):
+    def recognize(png, directory, _provider, *, problem_id, original_png=None, read_graph_details=False):
         wait_gate('generation-hold')
         check_model_request()
         candidate = json.loads((FIXTURES / 'candidate.json').read_text())

@@ -1,0 +1,84 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-representations-planning-20261030/source-image-06.png",
+  "source_crop_xyxy": [
+    95,
+    914,
+    1160,
+    1706
+  ],
+  "source_kind": "original_page_rectangular_crop_product_preprocessing",
+  "recorded_date": "2026-11-02",
+  "usage": "development_regression_not_unseen_holdout",
+  "upload_source_sha256": "f7e39a2b2c3a82583a40cf533cc894bee5987a6c5a5086e226092b8cd9529858",
+  "historical_semantic_calls": 4,
+  "historical_network_attempts": 4,
+  "call_stages": [
+    "extract",
+    "review",
+    "repair",
+    "review"
+  ],
+  "notes": "Actual photograph extraction/review/repair as applicable; no gold supplied. No browser-upload or holdout claim. Model text is unchanged.",
+  "sanitization": {
+    "removed": "Provider file/request identifiers and signed URLs only.",
+    "redacted_paths": [
+      "workflow/calls/01-extract/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/01-extract/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/01-extract/response.json/raw_payload/id",
+      "workflow/calls/02-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/02-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/02-review/response.json/raw_payload/id",
+      "workflow/calls/03-repair/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/03-repair/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/03-repair/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/03-repair/response.json/raw_payload/id",
+      "workflow/calls/04-review/response.json/metadata/image_files/0/file_id",
+      "workflow/calls/04-review/response.json/metadata/file_operations/0/file_id",
+      "workflow/calls/04-review/response.json/metadata/provider_attempts/0/raw_payload/id",
+      "workflow/calls/04-review/response.json/raw_payload/id"
+    ]
+  },
+  "original_file_sha256": {
+    "original.png": "f7e39a2b2c3a82583a40cf533cc894bee5987a6c5a5086e226092b8cd9529858",
+    "question.png": "3ea9e0d6792d254402695235b1c056df736df2c5b9f068661c4447d8560d871b",
+    "result.json": "cc5ae378af181e040200225439e2376bf978fdb684f23b610ec80ce7f23c981a",
+    "workflow/ledger.json": "8af0cede94bbbb983d71151ccf3f1a7f1557060763e5b6c40e52c9a54db05a55",
+    "workflow/candidate.json": "24447be631528f45b91371f0df265551ed81d27cd701e53725b6b51d5c620200",
+    "workflow/latest-review.json": "f852c5f752c0d36823a8301636bba06f1951b2f871ee368c127f42e7a05ee2b3",
+    "workflow/workflow-result.json": "5ce7343a121f06d41fa9f50be74effdfdbfc609d93f7b239b233287599858508",
+    "workflow/calls/01-extract/request.json": "3b4f205334004d1ec9027862db7e15bf310bbbf5855aa1bd627b853b508ab0cc",
+    "workflow/calls/01-extract/response.json": "4d8ff7658d38825321aea568b0c63494b6a96e788a5aebbe2aee0cabf035c771",
+    "workflow/calls/02-review/request.json": "61c1a21f746d1e330f11345cabad007f5c0772f19500b47f73fbbe232bd4548e",
+    "workflow/calls/02-review/response.json": "183a285a30eea2ff3fb1ed00da377ae5eb1d4754aeb97fdfa2e0116312b0633a",
+    "workflow/calls/03-repair/request.json": "ee0dcf7b69baafb849ccbfc0a2e92c6b48d72a5fb7da11dde09352c75b9d0d00",
+    "workflow/calls/03-repair/response.json": "f0b146fd24bb3eeca951aeefacaa94ca60b8291710469b4252f67fe5ab7d1cab",
+    "workflow/calls/04-review/request.json": "9555066115147fb37fbdd5c2052fcb8d38617c04c2d2d9d5bb8e7030decc54e3",
+    "workflow/calls/04-review/response.json": "12518f2b954e646655835400e60a53ec4a554cf3de5e1d18af090b47a5e6858a"
+  },
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "8814b148a313cd770c86b17d7393a99fc87d8d1c375545f24dcf7b045b03f938",
+    "workflow/calls/02-review/response.json": "8e117483f0a4a6693a343d14b97a033e4ea6f999713b338f2f5460f467a5f331",
+    "workflow/calls/03-repair/response.json": "952dd3e7cb6b7dca6160f702c7ca27f9ec4410618b1fc8924a9ed6ea1708de50",
+    "workflow/calls/04-review/response.json": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+  },
+  "files": {
+    "original.png": "f7e39a2b2c3a82583a40cf533cc894bee5987a6c5a5086e226092b8cd9529858",
+    "question.png": "3ea9e0d6792d254402695235b1c056df736df2c5b9f068661c4447d8560d871b",
+    "result.json": "bb2c3ae36152d0973c5bbbca09bfabb9745c7ae5cd97c5cff929cdcb81c9b3f9",
+    "workflow/ledger.json": "0508acd1976b961b6b669beb1da34f0c570be8c853131f8bf3e3ccc2e7b2fb1f",
+    "workflow/candidate.json": "7d539c56c2e6f0a63df38929f9ba23d8daea3a8f1e00cdab2b80261bc99b804f",
+    "workflow/latest-review.json": "6f57e082d30a847bed7a1a038e1dc1567fca586e80da5fad08bf8b665fd2f112",
+    "workflow/workflow-result.json": "9d7a51cc170a6bfec02f14518ef16fa29c51c651896f25d63a938b86f3141075",
+    "workflow/calls/01-extract/request.json": "5d63baad63c0d156ce19bbf068e7365b00d921ada1b7909bb1d2c5846626e38b",
+    "workflow/calls/01-extract/response.json": "401a5bc753f5cd9bc2bf48076f3f18ef3f0c509387950143d47057d64a57ad21",
+    "workflow/calls/02-review/request.json": "ce1eeb3a1796726cbadfafc12dde59356a4578c22240066d8ef68ef9204c518c",
+    "workflow/calls/02-review/response.json": "77a70478cf7f3a209c77d9369db853bcb4ee76733b16065dd40ac21f967f959e",
+    "workflow/calls/03-repair/request.json": "b699842a4f397638930b52e79dd519ed60bcbc611550182598c29be3924f79b1",
+    "workflow/calls/03-repair/response.json": "e01f9384ff8d7642f88d0c2512b613ced501e9b4c1d1374433d4d05a260c269f",
+    "workflow/calls/04-review/request.json": "794072747483781f6f821c5c72829c5a3901c586111bbee99df2335d4763e137",
+    "workflow/calls/04-review/response.json": "d5e72e88aadad7a951d7c7f8e9869ea679186c6a08b2441d368755dd619c18a1"
+  }
+}

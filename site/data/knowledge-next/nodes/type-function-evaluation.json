@@ -16,6 +16,9 @@
       "cue": "输入顺序与原有合法范围均参与判断，不能仅凭字母相同就替换对应位置。"
     },
     {
+      "cue": "分段函数求具体数值时，每次按当前输入选段；嵌套调用使用中间值重新选段。"
+    },
+    {
       "cue": "本批执行正向代入、至多两层复合、定值判断及受限有限求和；逆向求输入仍为 planned。"
     }
   ],
@@ -26,7 +29,8 @@
     }
   ],
   "knowledge": [
-    "function-concept"
+    "function-concept",
+    "piecewise-function"
   ],
   "methods": [
     "method-function-evaluation"

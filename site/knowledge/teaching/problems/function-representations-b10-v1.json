@@ -1,0 +1,204 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b10-v1",
+  "label": "分段解方程法 · 例 10 变式 1",
+  "path": "/topics/function-representations/q10b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b10-v1.json",
+  "types": [
+    "type-piecewise-function"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}x^2+1,&x>0\\\\-2x+2,&x\\le0\\end{cases}$，若 $f(x)=5$，则 $x$ 的值为（ ）。\nA. $-\\frac32$\nB. $2$\nC. $-\\frac32,\\ 2$\nD. $-2,\\ -\\frac32$",
+  "routes": {
+    "piecewise-equation": {
+      "label": "分段解方程法",
+      "methods": [
+        "method-piecewise-equation"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "piecewise-function"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 3,
+          "refs": [
+            "method-piecewise-equation"
+          ]
+        },
+        "4a7f4cc1e35583d25505b284#1": {
+          "title": "第1段：解方程",
+          "position": 4,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "4a7f4cc1e35583d25505b284#2": {
+          "title": "第1段：检查范围",
+          "position": 5,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "4a7f4cc1e35583d25505b284#3": {
+          "title": "第2段：解方程",
+          "position": 6,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "4a7f4cc1e35583d25505b284#4": {
+          "title": "第2段：检查范围",
+          "position": 7,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "e1f2e3b12dafaf7338a781b3#1": {
+          "title": "合并各段保留的解",
+          "position": 8,
+          "refs": [
+            "method-piecewise-equation#filter",
+            "piecewise-function#equation",
+            "set-intersection-union#intersection",
+            "set-intersection-union#union"
+          ]
+        },
+        "[\"original-choice\",\"/root/goals/0\",\"piecewise-equation\",\"a678ae6e30e5b2e81cca95527a2bfddd01739222ff27fe1b3ade6d21b6c15d41\"]": {
+          "title": "选择原题答案",
+          "position": 9,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "9b0db0b6912d1079b752bdcc7e30349a654652625b54e380a51d2964a542ed02",
+  "practice_version": "fd2833e990bcfa098f1699d7b736aafc6edb50077fed544ea08dc2fd7077c6bd",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

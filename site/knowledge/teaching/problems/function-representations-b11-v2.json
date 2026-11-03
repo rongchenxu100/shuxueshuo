@@ -1,0 +1,227 @@
+{
+  "topic": "function-representations",
+  "id": "function-representations-b11-v2",
+  "label": "分段值域求参法 · 例 11 变式 2",
+  "path": "/topics/function-representations/q11c/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-representations-b11-v2.json",
+  "types": [
+    "type-piecewise-function"
+  ],
+  "statement": "已知 $a\\in\\mathbb R$，若函数 $f(x)=\\begin{cases}x+1,&x>1\\\\ax^2-2x,&x\\le1\\end{cases}$ 的值域为 $\\mathbb R$，则实数 $a$ 的取值范围是____。",
+  "routes": {
+    "piecewise-range-parameter": {
+      "label": "分段值域求参法",
+      "methods": [
+        "method-piecewise-range-parameter"
+      ],
+      "steps": {
+        "D2": {
+          "title": "确定题型",
+          "position": 1,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 2,
+          "refs": [
+            "method-piecewise-range-parameter"
+          ]
+        },
+        "de7b0198a4f32c48d1218683#1": {
+          "title": "先求不含参数那一段函数的值域",
+          "position": 3,
+          "refs": [
+            "method-piecewise-range-parameter#fixed",
+            "piecewise-function#domain-range",
+            "set-intersection-union#union"
+          ]
+        },
+        "e32c410e2f6dc8bc7e738774#1": {
+          "title": "判断含参数这一段函数需要满足什么条件",
+          "position": 4,
+          "refs": [
+            "method-piecewise-range-parameter#decide"
+          ]
+        },
+        "8a8e9b29435aaf6214d04294#1": {
+          "title": "先检查参数等于零",
+          "position": 5,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "6021904a41a556fa24b97b2a#1": {
+          "title": "判断含参数那一段抛物线的开口方向",
+          "position": 6,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "fc4bc5ef64ef6599f4d37fc7#1": {
+          "title": "检查顶点横坐标是否满足这段函数的条件",
+          "position": 7,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "a6240a18470b6da294bdfce9#1": {
+          "title": "写出含参数那一段函数的值域",
+          "position": 8,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "6db7b17040ecae0ecb387b43#1": {
+          "title": "让两段函数的值域合起来没有遗漏",
+          "position": 9,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "17811199bd335161de8ab72c#1": {
+          "title": "求出参数范围",
+          "position": 10,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        },
+        "3f2b676e11752a9840d02896#1": {
+          "title": "代回原分段式检查参数范围的端点",
+          "position": 11,
+          "refs": [
+            "method-piecewise-range-parameter#solve",
+            "piecewise-function#domain-range",
+            "quadratic-function-properties#vertex",
+            "set-intersection-union#union"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q03/",
+    "/topics/function-concepts/q03r/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q05/",
+    "/topics/function-concepts/q06/",
+    "/topics/function-concepts/q07/",
+    "/topics/function-concepts/q08/",
+    "/topics/function-concepts/q09/",
+    "/topics/function-concepts/q10/",
+    "/topics/function-concepts/q11/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q13/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q16/",
+    "/topics/function-concepts/q17/",
+    "/topics/function-concepts/q18/",
+    "/topics/function-concepts/q19/",
+    "/topics/function-concepts/q20/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/",
+    "/topics/function-concepts/q25/",
+    "/topics/function-concepts/q26/",
+    "/topics/function-concepts/q28a/",
+    "/topics/function-concepts/q28b/",
+    "/topics/function-concepts/q28c/",
+    "/topics/function-concepts/q28d/",
+    "/topics/function-concepts/q29b/",
+    "/topics/function-concepts/variant02/",
+    "/topics/function-representations/q01/",
+    "/topics/function-representations/q02/",
+    "/topics/function-representations/q03/",
+    "/topics/function-representations/q04/",
+    "/topics/function-representations/q04b/",
+    "/topics/function-representations/q05/",
+    "/topics/function-representations/q05b/",
+    "/topics/function-representations/q06/",
+    "/topics/function-representations/q06a/",
+    "/topics/function-representations/q07/",
+    "/topics/function-representations/q07a/",
+    "/topics/function-representations/q09/",
+    "/topics/function-representations/q09a/",
+    "/topics/function-representations/q09b/",
+    "/topics/function-representations/q09c/",
+    "/topics/function-representations/q09d/",
+    "/topics/function-representations/q10/",
+    "/topics/function-representations/q10a/",
+    "/topics/function-representations/q10b/",
+    "/topics/function-representations/q10c/",
+    "/topics/function-representations/q11/",
+    "/topics/function-representations/q11a/",
+    "/topics/function-representations/q11b/",
+    "/topics/function-representations/q11c/",
+    "/topics/function-representations/q12/",
+    "/topics/function-representations/q12a/",
+    "/topics/function-representations/q14/",
+    "/topics/function-representations/variant01/",
+    "/topics/function-representations/variant02/",
+    "/topics/function-representations/variant03/",
+    "/topics/function-representations/variant04/",
+    "/topics/function-representations/variant06/",
+    "/topics/function-representations/variant07/"
+  ],
+  "page_contract_hash": "b2bd5e40f9349715172924072d25d28c219746aedf62e65253ec762cc3c248d3",
+  "practice_version": "1cf268805210b44577155296e80543a580013e81ad0440929cc096efefca216b",
+  "content_version": "186960b7395e184c8343b4595918f1418d47bd00dc35fdc65785a42060ae3d60"
+}

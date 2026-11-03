@@ -15,11 +15,11 @@ const equalityBundle = JSON.parse(fs.readFileSync(new URL('../../site/data/graph
 function viewContext() {
   const nodes = new Map();
   const document = {querySelector(selector) {
-    if (!nodes.has(selector)) nodes.set(selector, {textContent: '', hidden: false});
+    if (!nodes.has(selector)) nodes.set(selector, {textContent: '', hidden: false, remove() { nodes.delete(selector); }});
     return nodes.get(selector);
   }};
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL,
-    location: {origin: 'http://127.0.0.1:8779'}, setTimeout, clearTimeout, structuredClone, buildStreamReplay});
+    location: {origin: 'http://127.0.0.1:8779'}, setTimeout, clearTimeout, structuredClone, buildStreamReplay, currentDecision});
   context.window = context;
   vm.runInContext(components, context);
   vm.runInContext(source.replace(/^import .*;\n/gm, '').split("if (document.readyState === 'loading')")[0], context);
@@ -27,6 +27,17 @@ function viewContext() {
   vm.runInContext('bundle = fixture; state = {run: {id: 1}, events: [], lastFeedback: null};', context);
   return {context, nodes, run: code => vm.runInContext(code, context)};
 }
+
+test('G4 completed movement keeps one given graph and all three mathematical steps', () => {
+  const fixture = JSON.parse(fs.readFileSync(new URL('../../site/data/graph-walk/function-representations-b09-v3.json', import.meta.url), 'utf8'));
+  const route = Object.keys(fixture.routes)[0], parts = fixture.routes[route].steps.slice(0, 3);
+  const {context, run} = viewContext();
+  Object.assign(context, {fixture, route, unit: {records: parts.map(part => ({decision: part.id, answer: replayAnswer(part, route)}))}});
+  run('bundle = fixture; state.run.route = route;');
+  const html = run('groupCompletedHTML(unit, 4)');
+  assert.equal((html.match(/data-source-graph=/g) || []).length, 1);
+  assert.equal((html.match(/data-completion-board=/g) || []).length, 3);
+});
 
 test('comparison original text renders a prompt and separate options without splitting formulas', () => {
   const {context, nodes, run} = viewContext();
@@ -473,6 +484,7 @@ test('the active card carries the immediately previous step: results, else its a
 
 test('the parts of one streamed interaction share a card, a step number and one completed record', () => {
   const {context, run} = viewContext();
+  context.fixture.stream = {target_ref: '/root/goals/0', math_steps: []};
   const part = (index, title, interaction) => ({id: `sep#${index + 1}`, source: 'stream', title, question: `${title}？`, interaction,
     stream_steps: [{step_id: 'divide', math_step_sha256: 'h'}], stream_interaction_id: 'sep', stream_part_index: index,
     stream_part_count: 3, stream_last_part: index === 2, stream_group_title: '分离参数'});
@@ -484,7 +496,7 @@ test('the parts of one streamed interaction share a card, a step number and one 
       {label: '除数 $x$ 的符号', options: [{value: 'positive', label: '恒正'}]},
       {label: '不等号方向', options: [{value: 'keep', label: '保持不变'}]}]}),
     part(2, '分离参数', choice('separated', '$a\\ge -x-\\frac1x$'))]};
-  run(`bundle = fixture; state = {introCompleted: [{decision: 'D1', results: ['读题结论']}],
+  run(`bundle = fixture; state = {bundleVersion: fixture.bundleVersion, introCompleted: [{decision: 'D1', results: ['读题结论']}],
     run: {id: 1, route: 'separation', completed: [{decision: 'rewrite', answer: 'read', results: ['整理结果']}, {decision: 'sep#1', answer: 'right', results: []}]}, events: []};`);
   assert.equal(run('JSON.stringify(stepUnits().units.map(unit => unit.records.length))'), '[1]');
   assert.equal(run('stepUnits().open.records[0].decision'), 'sep#1');

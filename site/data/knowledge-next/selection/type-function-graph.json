@@ -1,0 +1,27 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-graph",
+  "admission": "function_graph",
+  "rule": "rule-function-graph-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-function-graph-transform",
+      "route_id": "function-graph-transform",
+      "admission": "function_graph",
+      "label": "图像变换法"
+    },
+    {
+      "method": "method-absolute-piecewise-graph",
+      "route_id": "absolute-piecewise-graph",
+      "admission": "function_graph",
+      "label": "分段作图法"
+    },
+    {
+      "method": "method-piecewise-graph-inequality",
+      "route_id": "piecewise-graph-inequality",
+      "admission": "function_graph",
+      "label": "分段图像解不等式法"
+    }
+  ]
+}
