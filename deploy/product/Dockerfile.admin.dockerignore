@@ -30,6 +30,8 @@ server/tests/**
 !site/assets/knowledge-next/model.mjs
 !site/assets/knowledge-next/teaching-model.mjs
 !site/assets/knowledge-next/learning-model.mjs
+!site/assets/learning/
+!site/assets/learning/practice-compatibility.mjs
 !site/assets/practice/
 !site/assets/practice/learning-mode.mjs
 !site/assets/

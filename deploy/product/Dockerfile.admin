@@ -7,6 +7,8 @@ COPY server /app/server
 COPY internal/schemas /app/internal/schemas
 COPY tools/export-public-knowledge.mjs /app/tools/export-public-knowledge.mjs
 COPY tools/lib/public-knowledge-sources.mjs tools/lib/public-knowledge-export.mjs tools/lib/public-knowledge-teaching.mjs tools/lib/graph-walk-practice.mjs /app/tools/lib/
+# The exporter derives per-problem versions with the same contract as the browser.
+COPY site/assets/learning/practice-compatibility.mjs /app/site/assets/learning/practice-compatibility.mjs
 # Import structured originals and the page identities checked by the publisher.
 COPY site/data/knowledge-next /app/site/data/knowledge-next
 COPY site/data/graph-walk /app/site/data/graph-walk
