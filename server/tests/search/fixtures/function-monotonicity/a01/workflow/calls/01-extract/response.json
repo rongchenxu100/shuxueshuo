@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"1. 已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"root\":{\"definitions\":[\"f(x)=-x^2+2*abs(x)+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+2*abs(x)+3\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 754,
+      "prompt_tokens": 29117,
+      "total_tokens": 29871,
+      "prompt_cache_hit_tokens": 7168,
+      "prompt_cache_miss_tokens": 21949
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 599,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-89bd8c9d-9380-4723-941d-e72196782455",
+        "sha256": "edb4aa8a74b3204a890a09c5731553947dc69327a4853b6ef6a017dbc7a61238",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6431,
+        "expires_at": 1793846928,
+        "uploaded_at": 1793760528.3669188
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "edb4aa8a74b3204a890a09c5731553947dc69327a4853b6ef6a017dbc7a61238",
+        "api_calls": 1,
+        "file_id": "file-api-89bd8c9d-9380-4723-941d-e72196782455",
+        "expires_at": 1793846928,
+        "elapsed_ms": 573
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 4810,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 754,
+          "prompt_tokens": 29117,
+          "total_tokens": 29871,
+          "completion_tokens_details": {
+            "reasoning_tokens": 540
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 7168
+          },
+          "prompt_cache_hit_tokens": 7168,
+          "prompt_cache_miss_tokens": 21949
+        },
+        "raw_payload": {
+          "id": "6beffa9f-a140-49e3-be59-5596c96ce733",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 754,
+            "prompt_tokens": 29117,
+            "total_tokens": 29871,
+            "completion_tokens_details": {
+              "reasoning_tokens": 540
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 7168
+            },
+            "prompt_cache_hit_tokens": 7168,
+            "prompt_cache_miss_tokens": 21949
+          },
+          "created": 1793760528,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"1. 已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"root\":{\"definitions\":[\"f(x)=-x^2+2*abs(x)+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+2*abs(x)+3\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片内容：1. 已知函数 f(x)= -x^2+2|x|+3，则 f(x)的单调递增区间为____。手写答案 [-∞,-1]和[0,1] 不转录。需要original_text保留题号和题干，填空横线。无图。\n\nRoot: definitions: f(x)=-x^2+2*abs(x)+3. goals: find_monotonic_intervals expression \"f(x)\"? 规则：求具体函数单调区间使用 {\"kind\":\"find_monotonic_intervals\",\"expression\":\"原完整表达式\",\"variable\":\"x\",\"direction\":\"increasing\"}。expression 可以原完整表达式 \"-x^2+2*abs(x)+3\" 或 f(x)？说“原完整表达式”。用 \"-x^2+2*abs(x)+3\"。variable x，direction increasing。也可以 function f？不需要。facts 无。label? 原题有题号1，original_text可保留。public_content statement应去掉题号。root.label? 图片开头“1.”是来源题号，可设label \"1.\"，root_label_role source？但是否明确来源或试卷题号：是题号。不过 root.label可选，若设置需 public_content root_label_role=source。公开题干不含题号。可以省略label避免复杂。original_text 保留“1.”。\n\ncompleteness complete, privacy separated（手写答案不算公开，未转录），figure none/not_required。choices目标 none。\n\nuncertainties: 无。图片手写答案不影响。\n\noriginal_text: \"1. 已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\" 注意LaTeX中|x|可以用，反斜杠不用。无。\n\nroot definitions: [\"f(x)=-x^2+2*abs(x)+3\"]。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+2*abs(x)+3\",\"variable\":\"x\",\"direction\":\"increasing\"}]。\n\npublic_content scopes root statement: \"已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\" choices target_ref \"/root/goals/0\" status none selection none options []. figure_detection status none regions [].\n\n关于“原完整表达式”可用 f(x)？设 expression=\"-x^2+2*abs(x)+3\"。好的。\n\nJSON only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5385
+  },
+  "raw_payload": {
+    "id": "6beffa9f-a140-49e3-be59-5596c96ce733",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"1. 已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"root\":{\"definitions\":[\"f(x)=-x^2+2*abs(x)+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+2*abs(x)+3\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片内容：1. 已知函数 f(x)= -x^2+2|x|+3，则 f(x)的单调递增区间为____。手写答案 [-∞,-1]和[0,1] 不转录。需要original_text保留题号和题干，填空横线。无图。\n\nRoot: definitions: f(x)=-x^2+2*abs(x)+3. goals: find_monotonic_intervals expression \"f(x)\"? 规则：求具体函数单调区间使用 {\"kind\":\"find_monotonic_intervals\",\"expression\":\"原完整表达式\",\"variable\":\"x\",\"direction\":\"increasing\"}。expression 可以原完整表达式 \"-x^2+2*abs(x)+3\" 或 f(x)？说“原完整表达式”。用 \"-x^2+2*abs(x)+3\"。variable x，direction increasing。也可以 function f？不需要。facts 无。label? 原题有题号1，original_text可保留。public_content statement应去掉题号。root.label? 图片开头“1.”是来源题号，可设label \"1.\"，root_label_role source？但是否明确来源或试卷题号：是题号。不过 root.label可选，若设置需 public_content root_label_role=source。公开题干不含题号。可以省略label避免复杂。original_text 保留“1.”。\n\ncompleteness complete, privacy separated（手写答案不算公开，未转录），figure none/not_required。choices目标 none。\n\nuncertainties: 无。图片手写答案不影响。\n\noriginal_text: \"1. 已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\" 注意LaTeX中|x|可以用，反斜杠不用。无。\n\nroot definitions: [\"f(x)=-x^2+2*abs(x)+3\"]。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+2*abs(x)+3\",\"variable\":\"x\",\"direction\":\"increasing\"}]。\n\npublic_content scopes root statement: \"已知函数 $f(x)=-x^2+2|x|+3$，则 $f(x)$ 的单调递增区间为______。\" choices target_ref \"/root/goals/0\" status none selection none options []. figure_detection status none regions [].\n\n关于“原完整表达式”可用 f(x)？设 expression=\"-x^2+2*abs(x)+3\"。好的。\n\nJSON only."
+        }
+      }
+    ],
+    "created": 1793760528,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 754,
+      "prompt_tokens": 29117,
+      "total_tokens": 29871,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 540,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 7168
+      },
+      "prompt_cache_hit_tokens": 7168,
+      "prompt_cache_miss_tokens": 21949
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.387
+}

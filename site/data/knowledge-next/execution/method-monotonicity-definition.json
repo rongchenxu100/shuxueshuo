@@ -1,0 +1,170 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-monotonicity-definition",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "domain",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_monotonicity",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "domain_context": "domain_context",
+            "needs_domain": "needs_domain",
+            "plain_domain": "plain_domain",
+            "domain": "domain",
+            "polynomial": "polynomial",
+            "variable": "variable",
+            "quadratic": "quadratic"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "analyze",
+      "calls": [
+        {
+          "id": "analyze",
+          "capability": "analyze_monotonicity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "domain": "$domain",
+            "method": "definition"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "domain",
+          "after": "analyze",
+          "template": "monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "phase": "domain",
+            "before": [],
+            "after": [],
+            "square": null
+          },
+          "depends_on": [
+            "description",
+            "monotonicity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "submethod",
+          "public_ref": "method-difference-comparison",
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_monotonicity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "answer",
+          "after": "confirm",
+          "template": "monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "phase": "answer",
+            "before": [],
+            "after": [],
+            "square": null
+          },
+          "depends_on": [
+            "description",
+            "monotonicity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "monotonicity_result": "$monotonicity_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_monotonicity",
+        "inputs": {
+          "context": "$context",
+          "method": "definition"
+        }
+      }
+    ]
+  }
+}

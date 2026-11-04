@@ -1,0 +1,830 @@
+{
+  "id": "function-monotonicity",
+  "label": "函数单调性",
+  "groups": [
+    {
+      "id": "judgment",
+      "label": "判断函数的单调性",
+      "type": "type-function-monotonicity",
+      "groupBy": "method",
+      "description": "基本函数 → 根式复合 → 根式倒数 → 绝对值分段。",
+      "problems": [
+        "function-monotonicity-a03-v2",
+        "function-monotonicity-a02-v4",
+        "function-monotonicity-a15-v4",
+        "function-monotonicity-a12-v4",
+        "function-monotonicity-a04-v4",
+        "function-monotonicity-a01-v2"
+      ]
+    },
+    {
+      "id": "extremum",
+      "label": "利用单调性求最值",
+      "type": "type-monotonicity-extremum",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "inequality",
+      "label": "利用单调性解不等式",
+      "type": "type-monotonicity-inequality",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "parameter",
+      "label": "已知函数的单调性求参",
+      "type": "type-monotonicity-parameter",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "abstract-proof",
+      "label": "证明抽象函数的单调性",
+      "type": "type-monotonicity-abstract-proof",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    }
+  ],
+  "problems": {
+    "function-monotonicity-a03-v2": {
+      "label": "限定区间的二次函数 · A03",
+      "path": "/topics/function-monotonicity/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a03-v2.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=-x^2+4x+3$，$x\\in [0,3]$，求函数的单调递增区间。",
+      "routes": {
+        "monotonicity-structure": {
+          "label": "基本函数与复合法",
+          "methods": [
+            "method-monotonicity-structure"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "5be736429f5e10e35ba5e019#1": {
+              "title": "确定讨论范围",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "675653da84ebdefc96057428#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "02a3c8a5eb2167a560dfd957#1": {
+              "title": "二次函数在 $\\left[0, 2\\right]$ 上的增减",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "02a3c8a5eb2167a560dfd957#2": {
+              "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "26ee667abc6e3038d02ee4c7#1": {
+              "title": "写出递增区间",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a02-v4": {
+      "label": "根式复合的增减 · A02",
+      "path": "/topics/function-monotonicity/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a02-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=\\sqrt{-2x^2+x+6}$，求函数的单调递增区间。",
+      "routes": {
+        "monotonicity-structure": {
+          "label": "基本函数与复合法",
+          "methods": [
+            "method-monotonicity-structure"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "2a02e9ff44a2c523e1050a4c#1": {
+              "title": "找到限制位置",
+              "position": 4,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "adde48515103155bb87aa564#1": {
+              "title": "列出条件",
+              "position": 5,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "9dd75bc406494ff56fd2fb8a#1": {
+              "title": "解每个条件",
+              "position": 6,
+              "refs": [
+                "method-domain-intersection#solve",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "quadratic-inequality#signs",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "3747b5c92bde1865c91bf81b#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "5b9264694df0240a742c9779#1": {
+              "title": "二次函数在 $\\left[- \\frac{3}{2}, \\frac{1}{4}\\right]$ 上的增减",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "5b9264694df0240a742c9779#2": {
+              "title": "二次函数在 $\\left[\\frac{1}{4}, 2\\right]$ 上的增减",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "da52415c2f8041ad33a672f4#1": {
+              "title": "开方：$x\\in \\left[- \\frac{3}{2}, \\frac{1}{4}\\right]$",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "da52415c2f8041ad33a672f4#2": {
+              "title": "开方：$x\\in \\left[\\frac{1}{4}, 2\\right]$",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "575b8615504b278382de173c#1": {
+              "title": "写出递增区间",
+              "position": 12,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a15-v4": {
+      "label": "定义域与对称轴 · A15",
+      "path": "/topics/function-monotonicity/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a15-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=\\sqrt{-x^2+4x-3}$，求函数的单调递增区间。",
+      "routes": {
+        "monotonicity-structure": {
+          "label": "基本函数与复合法",
+          "methods": [
+            "method-monotonicity-structure"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "1f966b7c8745cbdb1285414a#1": {
+              "title": "找到限制位置",
+              "position": 4,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "15d3346eedf6a4d9cc09301c#1": {
+              "title": "列出条件",
+              "position": 5,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "a14d08a55d651dd99d2dffcb#1": {
+              "title": "解每个条件",
+              "position": 6,
+              "refs": [
+                "method-domain-intersection#solve",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "quadratic-inequality#signs",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "62d02cf6aaac379a0ecd4e10#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "c7cbc96fede19b951d6d717a#1": {
+              "title": "二次函数在 $\\left[1, 2\\right]$ 上的增减",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "c7cbc96fede19b951d6d717a#2": {
+              "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "640a8fafad1272728fbb7212#1": {
+              "title": "开方：$x\\in \\left[1, 2\\right]$",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "640a8fafad1272728fbb7212#2": {
+              "title": "开方：$x\\in \\left[2, 3\\right]$",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "fb375242f1e206fade6502b5#1": {
+              "title": "写出递增区间",
+              "position": 12,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a12-v4": {
+      "label": "断开定义域的根式 · A12",
+      "path": "/topics/function-monotonicity/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a12-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=\\sqrt{x^2-2x-3}$，求函数的单调递减区间。",
+      "routes": {
+        "monotonicity-structure": {
+          "label": "基本函数与复合法",
+          "methods": [
+            "method-monotonicity-structure"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "a264de23ac5d66b891cc7757#1": {
+              "title": "找到限制位置",
+              "position": 4,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "01d012dbc61ee3f812d7227f#1": {
+              "title": "列出条件",
+              "position": 5,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "square-root-expression#meaning"
+              ]
+            },
+            "0101f7456b3f614ecd272e0f#1": {
+              "title": "解每个条件",
+              "position": 6,
+              "refs": [
+                "method-domain-intersection#solve",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "quadratic-inequality#signs",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "0a50d99ec794f243b12d7810#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "4f310f8df6633256e139c621#1": {
+              "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "4f310f8df6633256e139c621#2": {
+              "title": "二次函数在 $\\left[3, \\infty\\right)$ 上的增减",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "f4f7f5c55234299a1b568da3#1": {
+              "title": "开方：$x\\in \\left(-\\infty, -1\\right]$",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "f4f7f5c55234299a1b568da3#2": {
+              "title": "开方：$x\\in \\left[3, \\infty\\right)$",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "81b17493b7d08a302e39a414#1": {
+              "title": "写出递减区间",
+              "position": 12,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a04-v4": {
+      "label": "根式倒数的方向传递 · A04",
+      "path": "/topics/function-monotonicity/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a04-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=\\frac1{\\sqrt{x^2-5x-6}}$，求函数的单调递增区间。",
+      "routes": {
+        "monotonicity-structure": {
+          "label": "基本函数与复合法",
+          "methods": [
+            "method-monotonicity-structure"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "43c22779ada1fe795e41b5b0#1": {
+              "title": "找到限制位置",
+              "position": 4,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "rational-expression#meaning",
+                "square-root-expression#meaning"
+              ]
+            },
+            "038d7f05b666b4dc4c28f8cc#1": {
+              "title": "列出条件",
+              "position": 5,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "rational-expression#meaning",
+                "square-root-expression#meaning"
+              ]
+            },
+            "b209eafc281dede2600170fc#1": {
+              "title": "解每个条件",
+              "position": 6,
+              "refs": [
+                "method-domain-intersection#solve",
+                "rational-expression#meaning",
+                "square-root-expression#meaning",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "quadratic-inequality#signs",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "0d9ea3c401411b4fc2c2757e#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "87fd527fc2042a039ba7d7a5#1": {
+              "title": "二次函数在 $\\left(-\\infty, -1\\right)$ 上的增减",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "87fd527fc2042a039ba7d7a5#2": {
+              "title": "二次函数在 $\\left(6, \\infty\\right)$ 上的增减",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "b01abaade2ce4f0475d7d828#1": {
+              "title": "开方：$x\\in \\left(-\\infty, -1\\right)$",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "b01abaade2ce4f0475d7d828#2": {
+              "title": "取倒数：$x\\in \\left(-\\infty, -1\\right)$",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "b01abaade2ce4f0475d7d828#3": {
+              "title": "开方：$x\\in \\left(6, \\infty\\right)$",
+              "position": 12,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "b01abaade2ce4f0475d7d828#4": {
+              "title": "取倒数：$x\\in \\left(6, \\infty\\right)$",
+              "position": 13,
+              "refs": [
+                "method-monotonicity-structure#compose",
+                "skill-composite-monotonicity",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "59bb943190e6fe55cd7ab523#1": {
+              "title": "写出递增区间",
+              "position": 14,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a01-v2": {
+      "label": "绝对值分段与跨段检查 · A01",
+      "path": "/topics/function-monotonicity/q01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a01-v2.json",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "statement": "已知函数 $f(x)=-x^2+2|x|+3$，求函数的单调递增区间。",
+      "routes": {
+        "piecewise-monotonicity": {
+          "label": "分段单调性法",
+          "methods": [
+            "method-piecewise-monotonicity"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "a6af69dbcf0c113481dd7373#1": {
+              "title": "确定讨论范围",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "f4b22d9f7f3bfcce8e97e210#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "7682fc9ff8f165295de99b6a#1": {
+              "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "7682fc9ff8f165295de99b6a#2": {
+              "title": "二次函数在 $\\left[-1, 0\\right)$ 上的增减",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "ddf62e718b7af87ccf33499e#1": {
+              "title": "写出递增区间",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "ddf62e718b7af87ccf33499e#2": {
+              "title": "写出递减区间",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "8b6cd2088385067be2ef2663#1": {
+              "title": "确定讨论范围",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "06a8d65aed3a1da96af99fff#1": {
+              "title": "把二次函数配成顶点式",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "fb281be1c368ecb9e09ca2b8#1": {
+              "title": "二次函数在 $\\left[0, 1\\right]$ 上的增减",
+              "position": 12,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "fb281be1c368ecb9e09ca2b8#2": {
+              "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减",
+              "position": 13,
+              "refs": [
+                "method-monotonicity-structure#analyze",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "646cac1c8d010d435d33dad7#1": {
+              "title": "写出递增区间",
+              "position": 14,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "646cac1c8d010d435d33dad7#2": {
+              "title": "写出递减区间",
+              "position": 15,
+              "refs": [
+                "method-monotonicity-structure#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            },
+            "a728a0ce4aa9ec240052e93f#1": {
+              "title": "检查跨段单调性",
+              "position": 16,
+              "refs": [
+                "method-piecewise-monotonicity#join",
+                "skill-piecewise-order-join",
+                "function-monotonicity#interval"
+              ]
+            },
+            "9c1ca38e1d3120175971c432#1": {
+              "title": "写出递增区间",
+              "position": 17,
+              "refs": [
+                "method-piecewise-monotonicity#conclude",
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "path": "/topics/function-monotonicity/",
+  "presentation": "topic-overview"
+}

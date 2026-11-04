@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a15-v3",
+  "title": "定义域与对称轴 · A15",
+  "page": "/topics/function-monotonicity/q15/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\sqrt{-x^2+4x-3}$，求函数的单调递增区间。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a15-v3.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t1-20261104/a15.json"
+}

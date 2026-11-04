@@ -454,15 +454,32 @@
       </g>
     </svg>`;
   }
-  function piecewiseCurveGraph({segments, reference = [], highlights = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
+  function piecewiseCurveGraph({segments, reference = [], highlights = [], interval_marks = [], bounds, interval, xTicks, yTicks = [], level, variable, title, description, uid, points}) {
     const [xmin, xmax, ymin, ymax] = bounds, id = escape(uid);
     const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
     const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
-    const value = (s, v) => (s.coefficients[0] * v + s.coefficients[1]) * v + s.coefficients[2];
+    const value = (s, v) => {
+      const q = (s.coefficients[0] * v + s.coefficients[1]) * v + s.coefficients[2];
+      if (s.transform === 'sqrt') return q >= -1e-12 ? Math.sqrt(Math.max(0, q)) : NaN;
+      if (s.transform === 'reciprocal_sqrt') return q > 0 ? 1 / Math.sqrt(q) : NaN;
+      return q;
+    };
     // A quadratic Bezier represents a degree <= 2 polynomial exactly. No formula code is evaluated.
     const path = (s, lo = xmin, hi = xmax) => {
       const from = Math.max(lo, xmin, s.interval[0] ?? xmin), to = Math.min(hi, xmax, s.interval[1] ?? xmax);
       if (from >= to) return '';
+      if (s.transform && s.transform !== 'identity') {
+        // Sample the declared algebraic transform only inside this component. Gaps and poles break the path.
+        let d = '', connected = false;
+        for (let j = 0; j <= 240; j++) {
+          const v = from + (to - from) * j / 240, f = value(s, v);
+          if (!Number.isFinite(f)) { connected = false; continue; }
+          const py = Math.max(-10000, Math.min(10000, y(f)));
+          d += `${connected ? 'L' : 'M'}${x(v)} ${py}`;
+          connected = true;
+        }
+        return d;
+      }
       const control = value(s, from) + (2 * s.coefficients[0] * from + s.coefficients[1]) * (to - from) / 2;
       return `M${x(from)} ${y(value(s, from))}Q${x((from + to) / 2)} ${y(control)} ${x(to)} ${y(value(s, to))}`;
     };
@@ -470,19 +487,61 @@
     const curve = (s, css, stroke, width, extra = '', lo, hi) => `<path class="${css}" d="${path(s, lo, hi)}" fill="none" stroke="${stroke}" stroke-width="${width}" ${extra}/>`;
     const endpoints = new Map();
     for (const s of segments) s.interval.forEach((v, i) => {
-      if (v === null) return;
+      if (v === null || !Number.isFinite(value(s, v))) return;
       const key = `${v}:${value(s, v)}`, old = endpoints.get(key);
       endpoints.set(key, {x: v, y: value(s, v), closed: Boolean(old?.closed || s.interval_closed[i])});
     });
-    return `<svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-description">
+    const marks = interval_marks.map(mark => ({...mark,
+      left: Math.max(xmin, mark.from ?? xmin), right: Math.min(xmax, mark.to ?? xmax),
+      color: mark.trend === 'pending' ? '#a65d28' : '#087f79',
+      symbol: {pending: '?', increasing: '↑', decreasing: '↓', constant: '―'}[mark.trend]
+    })).filter(mark => mark.left < mark.right);
+    const domainLeft = Math.min(...segments.map(s => s.interval[0] ?? -Infinity));
+    const domainRight = Math.max(...segments.map(s => s.interval[1] ?? Infinity));
+    const dividers = new Map();
+    marks.forEach((mark, index) => [mark.from, mark.to].forEach(v => {
+      // Use actual interior boundaries, not the viewport edges of an unbounded interval.
+      if (Number.isFinite(v) && v > xmin && v < xmax && v > domainLeft && v < domainRight)
+        dividers.set(v, Math.max(dividers.get(v) ?? 0, 247 + index * 27));
+    }));
+    const divider = ([v, rail]) => {
+      const px = x(v), label = `${variable} = ${xTicks.find(([at]) => at === v)?.[1] ?? v}`;
+      // Leave a gap around the axis tick label; continue down to the interval bars.
+      const aboveTick = Math.max(48, Math.min(rail, y(0) + 6));
+      const belowTick = Math.max(48, Math.min(rail, y(0) + 24));
+      return `<g class="piecewise-interval-divider" data-x="${v}" role="group" aria-label="${escape('区间分界 ' + label)}">
+        <path d="M${px} 48V${aboveTick}M${px} ${belowTick}V${rail}" fill="none" stroke="#6c9690" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <text x="${px + 5}" y="41" fill="#526e64" font-family="Georgia,serif" font-size="11">${escape(label)}</text>
+      </g>`;
+    };
+    const annotation = (mark, index) => {
+      const middle = (mark.left + mark.right) / 2, s = segmentAt(middle);
+      const py = s ? y(value(s, middle)) : NaN, rail = 247 + index * 27;
+      const left = x(mark.left), right = x(mark.right), cx = (left + right) / 2;
+      const cy = Math.max(60, Math.min(208, py - 16));
+      const end = (pos, value, closed, side) => value === null || value < xmin || value > xmax
+        ? `<path d="M${pos + side * 5} ${rail - 3}L${pos} ${rail}L${pos + side * 5} ${rail + 3}" fill="none" stroke="${mark.color}" stroke-width="1.5"/>`
+        : `<circle cx="${pos}" cy="${rail}" r="3" fill="${closed ? mark.color : '#fff'}" stroke="${mark.color}" stroke-width="1.5"/>`;
+      return `<g class="piecewise-interval-mark" data-trend="${escape(mark.trend)}" role="group" aria-label="${escape(mark.label + ' ' + mark.symbol)}">
+        ${Number.isFinite(py) ? `<circle cx="${cx}" cy="${cy}" r="11" fill="#fff" stroke="${mark.color}" stroke-width="1.3"/><text class="piecewise-trend" x="${cx}" y="${cy + 5}" text-anchor="middle" fill="${mark.color}" font-size="16" font-weight="600">${mark.symbol}</text>` : ''}
+        <path d="M${left} ${rail}H${right}" stroke="${mark.color}" stroke-width="2"/>
+        ${end(left, mark.from, mark.left_closed, 1)}${end(right, mark.to, mark.right_closed, -1)}
+        <text class="piecewise-interval-label" x="${Math.max(78, Math.min(288, cx))}" y="${rail + 16}" text-anchor="middle" fill="${mark.color}" font-size="12">${escape(mark.label)}</text>
+      </g>`;
+    };
+    const height = marks.length ? 276 + (marks.length - 1) * 27 : 270;
+    return `<svg viewBox="0 0 360 ${height}" role="img" aria-labelledby="${id}-title ${id}-description">
       <title id="${id}-title">${escape(title)}</title><desc id="${id}-description">${escape(description)}</desc>
       <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
       <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
+      ${marks.filter(m => m.trend === 'pending').map(m => `<rect class="piecewise-active-interval" x="${x(m.left)}" y="48" width="${x(m.right)-x(m.left)}" height="174" fill="#f8dfbd" opacity=".55"/>`).join('')}
+      ${[...dividers].map(divider).join('')}
       <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
       <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
       <g clip-path="url(#${id}-clip)">
         ${reference.map(s => curve(s, 'piecewise-reference', '#899e98', 1.8, 'stroke-dasharray="5 4"')).join('')}
         ${segments.map(s => curve(s, 'piecewise-segment', '#07847d', 2.8)).join('')}
+        ${marks.filter(m => m.trend === 'pending').map(m => segments.map(s => curve(s, 'piecewise-active-curve', m.color, 4, '', m.left, m.right)).join('')).join('')}
         ${Number.isFinite(level) ? `<path class="piecewise-level" d="M48 ${y(level)}H318" stroke="#b6782c" stroke-width="1.5" stroke-dasharray="5 4"/>` : ''}
         ${highlights.map(h => segments.map(s => curve(s, 'piecewise-highlight', '#b65c42', 4.5, '', h.from ?? xmin, h.to ?? xmax)).join('')).join('')}
         ${[...endpoints.values()].map(p => `<circle class="piecewise-endpoint" cx="${x(p.x)}" cy="${y(p.y)}" r="3.5" fill="${p.closed ? '#07847d' : '#fff'}" stroke="#07847d" stroke-width="1.8"/>`).join('')}
@@ -492,6 +551,7 @@
         ${xTicks.map(([v, label]) => `<text x="${x(v)}" y="${y(0)+19}" text-anchor="middle">${escape(label)}</text>`).join('')}
         ${yTicks.map(([v, label]) => `<text x="320" y="${y(v)-7}" text-anchor="end">y = ${escape(label)}</text>`).join('')}
         ${pointLabels(points.filter(p => segmentAt(p.x)), x, v => y(value(segmentAt(v), v)))}
+        ${marks.map(annotation).join('')}
         <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
         <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
       </g>
@@ -533,12 +593,17 @@
     if (!ticks(p.xTicks) || !interval(p.interval) || !tuple(p.interval_closed, 2, boolean)) return false;
     if (spec.kind === 'piecewise_curve') {
       const segment = v => object(v) && tuple(v.coefficients, 3, Number.isFinite) && interval(v.interval) &&
-        tuple(v.interval_closed, 2, boolean) && !v.interval.some((end, i) => end === null && v.interval_closed[i]);
+        tuple(v.interval_closed, 2, boolean) && !v.interval.some((end, i) => end === null && v.interval_closed[i]) &&
+        optional(v, 'transform', t => ['identity', 'sqrt', 'reciprocal_sqrt'].includes(t));
       return array(p.segments, segment) && p.segments.length >= 1 && p.segments.length <= 8 &&
         optional(p, 'reference', v => array(v, segment) && v.length <= 8) && optional(p, 'yTicks', ticks) &&
         optional(p, 'level', Number.isFinite) && optional(p, 'highlights', v => array(v, h => object(h) &&
           interval([h.from, h.to]) && boolean(h.left_closed) && boolean(h.right_closed) &&
-          (h.from !== null || !h.left_closed) && (h.to !== null || !h.right_closed)) && v.length <= 12);
+          (h.from !== null || !h.left_closed) && (h.to !== null || !h.right_closed)) && v.length <= 12) &&
+        optional(p, 'interval_marks', v => array(v, m => object(m) && interval([m.from, m.to]) &&
+          boolean(m.left_closed) && boolean(m.right_closed) && string(m.label) && m.label.length > 0 &&
+          (m.from !== null || !m.left_closed) && (m.to !== null || !m.right_closed) &&
+          ['pending', 'increasing', 'decreasing', 'constant'].includes(m.trend)) && v.length <= 12);
     }
     if (spec.kind === 'linear') return Number.isFinite(p.slope) && Number.isFinite(p.intercept);
     if (spec.kind === 'absolute_affine') return Number.isFinite(p.a) && p.a !== 0 &&

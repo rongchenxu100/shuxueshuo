@@ -267,6 +267,21 @@
               "const": "solve_graph_inequality"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_monotonic_intervals",
+                "prove_monotonicity_on_interval"
+              ]
+            }
+          }
         }
       ]
     },
@@ -3066,6 +3081,122 @@
         }
       },
       "additionalProperties": false
+    },
+    "function_monotonicity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "extra_source_refs",
+        "structure_version",
+        "structure_supported",
+        "reason"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "variable",
+            "direction"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_monotonic_intervals",
+                "prove_monotonicity_on_interval"
+              ]
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "variable": {
+              "type": "string",
+              "pattern": "^[a-z]$"
+            },
+            "function": {
+              "type": "string",
+              "pattern": "^[a-z](?:_[0-9]+)?$"
+            },
+            "direction": {
+              "enum": [
+                "increasing",
+                "decreasing",
+                "both"
+              ]
+            },
+            "input_domain": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "domain_role": {
+              "enum": [
+                "declared",
+                "restriction"
+              ]
+            }
+          }
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extra_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "structure_version": {
+          "const": "function-monotonicity/v1"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "given_definitions": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_ref",
+              "expression"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "expression": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "family": {
+          "enum": [
+            "polynomial",
+            "sqrt",
+            "reciprocal_sqrt",
+            "absolute"
+          ]
+        }
+      }
     }
   }
 }

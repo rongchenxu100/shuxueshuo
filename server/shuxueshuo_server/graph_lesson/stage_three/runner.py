@@ -60,6 +60,7 @@ def fingerprint():
         Path(__file__).parent.parent / 'piecewise_modeling.py',
         Path(__file__).parent.parent / 'function_formula.py',
         Path(__file__).parent.parent / 'function_graph.py',
+        Path(__file__).parent.parent / 'function_monotonicity.py',
         Path(__file__).parent.parent / 'absolute_graph.py',
         Path(__file__).parent.parent / 'quadratic_translation.py',
         Path(__file__).parent.parent / 'schematic_transform.py',

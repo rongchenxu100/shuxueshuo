@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1334,
+      "prompt_tokens": 29153,
+      "total_tokens": 30487,
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 481
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 560,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-a79b4d01-7bff-4f6d-9065-8af8d146a5ab",
+        "sha256": "894fddfc5cbcd87dbf62162de091c773b534d0c495738b086b41e98dfc0bc612",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6278,
+        "expires_at": 1793846966,
+        "uploaded_at": 1793760566.5785742
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "894fddfc5cbcd87dbf62162de091c773b534d0c495738b086b41e98dfc0bc612",
+        "api_calls": 1,
+        "file_id": "file-api-a79b4d01-7bff-4f6d-9065-8af8d146a5ab",
+        "expires_at": 1793846966,
+        "elapsed_ms": 165
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9573,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1334,
+          "prompt_tokens": 29153,
+          "total_tokens": 30487,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1143
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 28672
+          },
+          "prompt_cache_hit_tokens": 28672,
+          "prompt_cache_miss_tokens": 481
+        },
+        "raw_payload": {
+          "id": "2034ec4f-3b14-45b4-9331-668f67b9519a",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1334,
+            "prompt_tokens": 29153,
+            "total_tokens": 30487,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1143
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 28672
+            },
+            "prompt_cache_hit_tokens": 28672,
+            "prompt_cache_miss_tokens": 481
+          },
+          "created": 1793760567,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取图片中题目文字。图片显示：12. 函数 f(x)=√(x^2-2x-3) 的单调递减区间是 _______. 手写答案不转录。题目只有一空，没有配图。需要输出 original_text, root, public_content。\n\n需要仔细识别：函数 f(x)=√(x^2-2x-3)，求单调递减区间。图片中“单调递减区间是”被圈，填空横线。手写有 (-∞,-1] 等不应转录。箭头和涂改不算。\n\nroot: definitions [\"f(x)=sqrt(x^2-2*x-3)\"]。goals: find_monotonic_intervals expression \"sqrt(x^2-2*x-3)\" variable \"x\" direction \"decreasing\"。注意表达式原完整表达式。是否有输入范围？题面没有，省略 input_domain。没有其他 conditions。uncertainties 空。\n\noriginal_text 保留：12. 函数 $f(x)=\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______． 需要 LaTeX 用 $...$，反斜杠双写：在 JSON 字符串中 \\sqrt 写成 \\\\sqrt。题干中文。不可辨认？图片清晰。手写答案不转录。题号 12 可以保留在 original_text。public_content 中 statement 应不包含来源题号？公开题干排除题号。statement 只保留该作用域自身题干、条件和所求，不含小问编号；题目没有小问。应该写“函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．” 去掉题号。label root 没有 label（题号不是 label？root.label 不填，因为题号属于来源不是题意标签？schema 说 label 可用于题面分问或图景标签，不必填。不要填 12 以免来源问题。public_content.root_label_role 不需要除非 root.label 存在。privacy separated 因为已分离题号/手写。completeness complete。figure none not_required。scopes: [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]. figure_detection status none regions [].\n\n需要确保 root 使用受控数学字符串，方向 decreasing。FunctionMonotonicityGoal schema 包含 expression, variable, direction; 可选 function? 不需要。kind find_monotonic_intervals. 表达式可以用 sqrt(x^2-2*x-3)。不使用 object。题面求具体函数的单调区间，符合。definitions 中函数定义 \"f(x)=sqrt(x^2-2*x-3)\" 需要符号 x，幂。注意 catalog arithmetic 里乘法显式写 *。2x 写成 2*x。根号 sqrt(x^2-2*x-3)。没有额外定义域。题面没有显式定义域，不填 facts Dom。但自然定义域不是题设。find_monotonic_intervals 可以没有 input_domain/domain_role。是否需要 input_domain？题面没有。好的。\n\nuncertainties 空数组或不填？schema Scope 允许省略 uncertainties。但输出可包含空数组？additionalProperties false, allowed. 不必要，可省略。\n\n需要 JSON only. 注意 original_text JSON 字符串中 $f(x)=\\sqrt{x^2-2x-3}$ 里的反斜杠必须双写。JSON 字符串内不能有单个 \\。写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\"。在 public 同样。根号覆盖 x^2-2x-3 用 \\sqrt{...}。乘积在 original 按原印刷 2x 可以保留，因为 original_text 是原文转录。root 数学表达 explicit *。\n\npublic_content 的 statement 公式用 LaTeX。选项目标引用 /root/goals/0。status none. 每题目标都出现一次。选择模式 none。figure_detection status none.\n\n还要判断图片是否有配图：只是文字，无图。 figure none.\n\n需要不输出额外字段。JSON object with original_text, root, public_content.\n\nroot definitions 用函数定义。goals 数组一个。没有 facts? 可以省略 facts。Scope additionalProperties false, properties label definitions facts goals children uncertainties. All optional. 可以只 definitions goals. 但原始题面没有额外条件。好。\n\nuncertainties 不填。 completeness complete, privacy separated. 题号已从公开 excluding. 手写不计。figure not_required.\n\n关于 original_text 里的填空横线：图片上有一条长横线，可以写“______”。手写答案在横线上和右侧，不转录。题干“的单调递减区间是”后横线。句号。手写右侧的 -b/2a 和 -1 等不转录。\n\npublic_content.statement 去掉题号，保留函数和所求。是否“单调递减区间是 ______．”算完整题干和所求，是。\n\n注意 public_content scopes 的 statement 不能包含“12.”。行。\n\n开始输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9739
+  },
+  "raw_payload": {
+    "id": "2034ec4f-3b14-45b4-9331-668f67b9519a",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取图片中题目文字。图片显示：12. 函数 f(x)=√(x^2-2x-3) 的单调递减区间是 _______. 手写答案不转录。题目只有一空，没有配图。需要输出 original_text, root, public_content。\n\n需要仔细识别：函数 f(x)=√(x^2-2x-3)，求单调递减区间。图片中“单调递减区间是”被圈，填空横线。手写有 (-∞,-1] 等不应转录。箭头和涂改不算。\n\nroot: definitions [\"f(x)=sqrt(x^2-2*x-3)\"]。goals: find_monotonic_intervals expression \"sqrt(x^2-2*x-3)\" variable \"x\" direction \"decreasing\"。注意表达式原完整表达式。是否有输入范围？题面没有，省略 input_domain。没有其他 conditions。uncertainties 空。\n\noriginal_text 保留：12. 函数 $f(x)=\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______． 需要 LaTeX 用 $...$，反斜杠双写：在 JSON 字符串中 \\sqrt 写成 \\\\sqrt。题干中文。不可辨认？图片清晰。手写答案不转录。题号 12 可以保留在 original_text。public_content 中 statement 应不包含来源题号？公开题干排除题号。statement 只保留该作用域自身题干、条件和所求，不含小问编号；题目没有小问。应该写“函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．” 去掉题号。label root 没有 label（题号不是 label？root.label 不填，因为题号属于来源不是题意标签？schema 说 label 可用于题面分问或图景标签，不必填。不要填 12 以免来源问题。public_content.root_label_role 不需要除非 root.label 存在。privacy separated 因为已分离题号/手写。completeness complete。figure none not_required。scopes: [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]. figure_detection status none regions [].\n\n需要确保 root 使用受控数学字符串，方向 decreasing。FunctionMonotonicityGoal schema 包含 expression, variable, direction; 可选 function? 不需要。kind find_monotonic_intervals. 表达式可以用 sqrt(x^2-2*x-3)。不使用 object。题面求具体函数的单调区间，符合。definitions 中函数定义 \"f(x)=sqrt(x^2-2*x-3)\" 需要符号 x，幂。注意 catalog arithmetic 里乘法显式写 *。2x 写成 2*x。根号 sqrt(x^2-2*x-3)。没有额外定义域。题面没有显式定义域，不填 facts Dom。但自然定义域不是题设。find_monotonic_intervals 可以没有 input_domain/domain_role。是否需要 input_domain？题面没有。好的。\n\nuncertainties 空数组或不填？schema Scope 允许省略 uncertainties。但输出可包含空数组？additionalProperties false, allowed. 不必要，可省略。\n\n需要 JSON only. 注意 original_text JSON 字符串中 $f(x)=\\sqrt{x^2-2x-3}$ 里的反斜杠必须双写。JSON 字符串内不能有单个 \\。写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调递减区间是 ______．\"。在 public 同样。根号覆盖 x^2-2x-3 用 \\sqrt{...}。乘积在 original 按原印刷 2x 可以保留，因为 original_text 是原文转录。root 数学表达 explicit *。\n\npublic_content 的 statement 公式用 LaTeX。选项目标引用 /root/goals/0。status none. 每题目标都出现一次。选择模式 none。figure_detection status none.\n\n还要判断图片是否有配图：只是文字，无图。 figure none.\n\n需要不输出额外字段。JSON object with original_text, root, public_content.\n\nroot definitions 用函数定义。goals 数组一个。没有 facts? 可以省略 facts。Scope additionalProperties false, properties label definitions facts goals children uncertainties. All optional. 可以只 definitions goals. 但原始题面没有额外条件。好。\n\nuncertainties 不填。 completeness complete, privacy separated. 题号已从公开 excluding. 手写不计。figure not_required.\n\n关于 original_text 里的填空横线：图片上有一条长横线，可以写“______”。手写答案在横线上和右侧，不转录。题干“的单调递减区间是”后横线。句号。手写右侧的 -b/2a 和 -1 等不转录。\n\npublic_content.statement 去掉题号，保留函数和所求。是否“单调递减区间是 ______．”算完整题干和所求，是。\n\n注意 public_content scopes 的 statement 不能包含“12.”。行。\n\n开始输出。"
+        }
+      }
+    ],
+    "created": 1793760567,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1334,
+      "prompt_tokens": 29153,
+      "total_tokens": 30487,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1143,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 28672
+      },
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 481
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.74
+}

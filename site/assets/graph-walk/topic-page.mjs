@@ -1,4 +1,4 @@
-import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261102-piecewise-j1';
+import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261104-composition-operation';
 import {createRecorder} from '../learning/practice-records.js?v=20261026-domain-powers';
 import {isPreview} from '../practice/learning-mode.mjs';
 import {routeRecordActions} from './practice-route.mjs?v=20261030-range-selection';

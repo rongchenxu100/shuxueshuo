@@ -37,7 +37,8 @@
         "function_formula",
         "function_graph",
         "piecewise_equation",
-        "piecewise_routes"
+        "piecewise_routes",
+        "function_monotonicity"
       ]
     },
     "routes": {
@@ -81,7 +82,8 @@
               "piecewise_inequality",
               "function_range_piecewise",
               "piecewise_range_parameter",
-              "piecewise_modeling"
+              "piecewise_modeling",
+              "function_monotonicity"
             ]
           },
           "label": {
@@ -119,7 +121,8 @@
             "function_range",
             "function_formula",
             "function_graph",
-            "piecewise_equation"
+            "piecewise_equation",
+            "function_monotonicity"
           ]
         }
       }
@@ -149,7 +152,8 @@
             "function_range_routes",
             "function_formula",
             "function_graph",
-            "piecewise_routes"
+            "piecewise_routes",
+            "function_monotonicity"
           ]
         }
       }

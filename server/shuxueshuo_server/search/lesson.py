@@ -142,7 +142,7 @@ def _goal(goal, features, text, candidate=None):
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
     source_goal = known.get("goal", {})
-    if (source_goal.get("kind") in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality', 'find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
+    if (source_goal.get("kind") in ('find_monotonic_intervals', 'prove_monotonicity_on_interval', 'select_function_graph', 'draw_function_graph', 'solve_graph_inequality', 'find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
             or source_goal.get("kind") == "find_range" and "object" in source_goal
             or known.get('piecewise_equation', {}).get('structure_supported')
             or known.get('piecewise_inequality', {}).get('structure_supported')):
@@ -414,6 +414,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _piecewise_inequality_d1_rows(target, fragments, known, text)
     if known.get('piecewise_equation', {}).get('structure_supported'):
         return _piecewise_equation_d1_rows(target, fragments, known, text)
+    if known.get('function_monotonicity', {}).get('structure_supported'):
+        return _monotonicity_d1_rows(target, fragments, known, text)
     if known.get('function_graph', {}).get('structure_supported'):
         return _graph_d1_rows(target, fragments, known, text)
     if known.get('function_formula', {}).get('structure_supported'):
@@ -495,6 +497,26 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _monotonicity_d1_rows(target, fragments, known, text):
+    selected = [row for row in fragments if row['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in selected]
+    goal = known['function_monotonicity']['source']
+    name = {'increasing': '递增区间', 'decreasing': '递减区间', 'both': '单调区间'}[goal['direction']]
+    correct = '求函数的'+name if goal['kind'] == 'find_monotonic_intervals' else '证明给定区间内的单调性'
+    feedback = '题目要求判断增减，不能把已知表达式当成已知单调性。'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-monotonicity#definition'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option('求函数的值域', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, known['function_monotonicity']], sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问需要做什么？',
+            'feedback': feedback, 'summary': correct}
 
 
 def _graph_d1_rows(target, fragments, known, text):

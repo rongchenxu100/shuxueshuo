@@ -111,6 +111,7 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                    consistency="consistent", original_choice=None, before_commit=None, after_commit=None):
     if verification.get("status") != "verified" or route.get("status") != "verified":
         raise ValueError("handoff.route_not_verified")
+    monotonicity = isinstance(answer, dict) and answer.get('kind') in ('find_monotonic_intervals', 'prove_monotonicity_on_interval')
     model = isinstance(answer, dict) and answer.get('kind') == 'find_equation'
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
     evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
@@ -120,7 +121,10 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                        and answer.get('status') == 'insufficient_information'
                        and bool(answer.get('candidates')) and 'formula_result' in (route.get('result') or {}))
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not (model or comparison or evaluation or formula or candidate_range or graph))
+            or (feasible_set is None and not (model or comparison or evaluation or formula or candidate_range or graph or monotonicity))
+            or (monotonicity and (feasible_set is not None or answer.get('status') != 'complete'
+                           or 'monotonicity_result' not in (route.get('result') or {})
+                           or route['result'].get('answer') != answer))
             or (model and (feasible_set is not None or answer.get('status') != 'complete'
                            or 'model_result' not in (route.get('result') or {})
                            or route['result'].get('answer') != answer))

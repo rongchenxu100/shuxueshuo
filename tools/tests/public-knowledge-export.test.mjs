@@ -28,17 +28,17 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 129);
+  assert.equal(data.knowledge_nodes.length, 140);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 101);
-  assert.equal(data.practice_routes.length, 121);
+  assert.equal(data.practice_problems.length, 107);
+  assert.equal(data.practice_routes.length, 127);
   const comparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q20-v2');
   // B–D each merge two scored parts into one displayed card: 15 decisions, 12 cards.
   assert.equal(comparisonSteps.length, 15, '3 intro + 11 scoped mathematical decisions + 1 original exact selection');
   const sharedComparisonSteps = data.practice_steps.filter(row => row.problem_id === 'function-concepts-q19');
   assert.equal(sharedComparisonSteps.length, 15);
-  assert.equal(data.practice_steps.length, 946);
+  assert.equal(data.practice_steps.length, 1021);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -100,7 +100,10 @@ test('chapter 3.1 exposes verified courses with their own sources and implemente
     assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
   }
   const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');
-  assert.equal(types.length, 0);
+  assert.deepEqual(types.map(type => type.id).sort(), [
+    'type-monotonicity-abstract-proof', 'type-monotonicity-extremum',
+    'type-monotonicity-inequality', 'type-monotonicity-parameter',
+  ]);
   for (const id of ['type-function-graph', 'type-piecewise-function']) {
     assert.ok(data.knowledge_nodes.find(node => node.id === id).body.methods.length);
     assert.ok(data.practice_problem_types.some(row => row.node_id === id));
@@ -112,6 +115,22 @@ test('chapter 3.1 exposes verified courses with their own sources and implemente
     assert.deepEqual(type.body.rules, []);
     assert.ok(!data.practice_problem_types.some((row) => row.node_id === type.id));
     assert.ok(!data.knowledge_drill_items.some((row) => row.node_id === type.id));
+  }
+});
+
+test('monotonicity publishes six verified T1 courses while later types remain planned', () => {
+  const topic = data.practice_topics.find(row => row.id === 'function-monotonicity');
+  assert.ok(topic);
+  const ids = ['function-monotonicity-a03-v2', 'function-monotonicity-a02-v4',
+    'function-monotonicity-a15-v4', 'function-monotonicity-a12-v4',
+    'function-monotonicity-a04-v4', 'function-monotonicity-a01-v2'];
+  assert.deepEqual(data.practice_topic_problems.filter(row => row.topic_id === topic.id)
+    .map(row => row.problem_id).sort(), [...ids].sort());
+  for (const id of ids) {
+    const problem = data.practice_problems.find(row => row.id === id);
+    assert.ok(problem?.problem_data._graph_walk);
+    assert.ok(data.practice_problem_types.some(row => row.problem_id === id && row.node_id === 'type-function-monotonicity'));
+    assert.ok(data.practice_steps.some(row => row.problem_id === id));
   }
 });
 

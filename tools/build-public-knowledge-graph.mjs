@@ -12,7 +12,7 @@ import {teachingOutputs} from './lib/public-knowledge-teaching-html.mjs';
 import {exportRows, practiceCompatibility} from './lib/public-knowledge-export.mjs';
 import {redirectPage, legacyNodeOutputs} from './lib/public-knowledge-compat.mjs';
 
-import {repoRoot, loadSources} from './lib/public-knowledge-sources.mjs';
+import {repoRoot, loadSources, publicGraphNodes} from './lib/public-knowledge-sources.mjs';
 export {repoRoot, loadSources};
 
 const decode = text => text.replace(/&(lt|gt|amp|quot|#39);/g,(_s,k)=>({lt:'<',gt:'>',amp:'&',quot:'"','#39':"'"}[k]));
@@ -66,7 +66,7 @@ export async function generate(root = repoRoot) {
   // Pages load scripts and styles straight from site/assets/knowledge-next. Those
   // are served no-cache, so editing a module never rewrites the generated pages.
   const render=makeRenderer(nodes,edges,manifest,city,homes,chapters);
-  const graph={schemaVersion:1,defaultScope:manifest.defaultScope,chapters,collections:city.collections || [],nodes:nodes.map(n=>({id:n.id,kind:n.kind,subtype:n.subtype,label:n.label,summary:n.summary,aliases:n.aliases || [],...(n.status?{status:n.status}:{}),...(homes.has(n.id)?{home:homes.get(n.id)}:{}),...(n.kind==='method'?{steps:n.steps.map(s=>({id:s.id,title:s.title,calls:(s.calls || []).map(c=>c.ref),...(s.rule?{rule:s.rule}:{})}))}:{})})),edges};
+  const graph={schemaVersion:1,defaultScope:manifest.defaultScope,chapters,collections:city.collections || [],nodes:publicGraphNodes(nodes,homes),edges};
   const outputs=new Map([
     ['index.html',render.overview()],['nodes/index.html',render.list()],['3d/index.html',render.tower()],
     ['graph.json',JSON.stringify(graph,null,2)+'\n'],['city.json',JSON.stringify(city,null,2)+'\n'],

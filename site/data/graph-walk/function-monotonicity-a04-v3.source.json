@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a04-v3",
+  "title": "根式倒数的方向传递 · A04",
+  "page": "/topics/function-monotonicity/q04/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\frac1{\\sqrt{x^2-5x-6}}$，求函数的单调递增区间。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a04-v3.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t1-20261104/a04.json"
+}

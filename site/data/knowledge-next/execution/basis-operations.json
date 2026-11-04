@@ -334,6 +334,20 @@
     "marginal_tier_sum": [
       "piecewise-function#definition",
       "equality-properties#identity"
+    ],
+    "monotonicity_domain": [
+      "function-concept#elements"
+    ],
+    "monotonicity_structure": [
+      "quadratic-function-properties#monotonicity",
+      "composite-function-monotonicity#rule"
+    ],
+    "monotonicity_junction": [
+      "function-monotonicity#interval"
+    ],
+    "monotonicity_difference": [
+      "function-monotonicity#definition",
+      "function-monotonicity#difference-quotient"
     ]
   }
 }

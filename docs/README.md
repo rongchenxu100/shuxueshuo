@@ -21,6 +21,7 @@
 
 - [新专题与拍题学能力同步建设：开发流程](topic-and-photo-learning-development-workflow.md)
 - [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)
+- [函数单调性：专题题目、方法与技能建设计划](function-monotonicity-topic-plan.md)
 - [3.1 函数的概念及其表示：知识图谱设计](function-concepts-and-representation-knowledge-graph-discussion.md)
 - [高中数学公共知识图谱设计](public-knowledge-graph-ontology-design.md)
 - [公共知识图谱：维护与发布](public-knowledge-graph-stage4.md)
@@ -40,6 +41,8 @@
 - [T1 第20题：同一函数判定与两层交互验收](function-equality-q20-acceptance.md)
 - [T4 求函数值：题型开发设计](function-evaluation-problem-type-design.md)
 - [T5 求函数的值域：题型开发设计](function-range-problem-type-design.md)
+- [FM-T1 判断函数的单调性：题型开发设计](function-monotonicity-problem-type-design.md)
+- [FM-T1：实现范围、原图与专题验收](function-monotonicity-t1-acceptance.md)
 
 ## 拍题与交互课程
 

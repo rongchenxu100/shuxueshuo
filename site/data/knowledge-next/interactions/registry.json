@@ -1827,6 +1827,11 @@
           }
         }
       ]
+    },
+    "monotonicity_derivation": {
+      "repeat": "always",
+      "compiler": "function_monotonicity",
+      "parts": []
     }
   },
   "overrides": {

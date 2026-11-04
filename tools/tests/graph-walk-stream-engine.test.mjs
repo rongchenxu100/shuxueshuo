@@ -10,6 +10,7 @@ import * as methodCards from '../../site/assets/graph-walk/method-cards.mjs';
 import {mountMethodConnections, connectedMethodAnswer} from '../../site/assets/graph-walk/method-connections.mjs';
 import {formulaAnswerHTML} from '../../site/assets/graph-walk/formula-answer.mjs';
 import {createFormulaFitter, renderFittedFormula} from '../../site/assets/graph-walk/formula-fit.mjs';
+import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -213,7 +214,7 @@ function engine(value = fixture()) {
   const {document, roots} = documentFixture(), storage = new Map();
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL, structuredClone,
     setTimeout, clearTimeout, ...stateAPI, ...mathDOM, ...optionWorkspace, ...methodCards, mountMethodConnections, connectedMethodAnswer, formulaAnswerHTML, buildStreamReplay,
-    createFormulaFitter, renderFittedFormula,
+    createFormulaFitter, renderFittedFormula, domainNumberLineGraph, endpointChecksHTML,
     PracticeMath: {render(node, text) { node.textContent = text; }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, text) => storage.set(key, text)}});
   context.window = context;
@@ -702,6 +703,32 @@ test('a discriminant condition is only an option until confirmed, including retr
   assert.ok(roots.get('#gw-steps').textContent.includes(condition), 'confirmed conclusion remains visible');
   run('state = studentState = undo(bundle,state);');
   checkQuestion();
+});
+
+test('domain method headings show their purpose in active, completed and carried steps', () => {
+  const bundle = read('../../site/data/graph-walk/function-monotonicity-a02-v3.json');
+  const replay = read('../../site/data/graph-walk/function-monotonicity-a02-v3.replay.json');
+  let state = stateAPI.createState(bundle);
+  for (const action of replay.actions.slice(0, bundle.intro.length)) state = stateAPI.submitAnswer(bundle, state, action);
+  const {run, roots} = engine({bundle, state, view: bundle.stream});
+  const original = JSON.stringify(bundle);
+  for (const [index, title] of ['找到限制位置', '列出条件', '解每个条件'].entries()) {
+    run('renderInteraction(currentDecision(bundle,state))');
+    assert.match(roots.get('#gw-active').innerHTML, new RegExp(`判断定义域 · ${title}</h2>`));
+    const action = replay.actions[bundle.intro.length + index];
+    run(`state = studentState = submitAnswer(bundle,state,${JSON.stringify(action)});`);
+    assert.match(run(`completedHTML(state.run.completed.at(-1),4,1,state.run.route)`), new RegExp(`判断定义域 · ${title}</span>`));
+    // The next derivation may suppress its carry; the title itself remains available.
+    if (index < 2) assert.match(run('carryHTML()'), new RegExp(`判断定义域 · ${title}`));
+  }
+  assert.equal(run('stepTitle(currentDecision(bundle,state))'), '把二次函数配成顶点式');
+  assert.equal(JSON.stringify(bundle), original, 'presentation must not change course or grading identities');
+});
+
+test('folded domain work does not rename the next method step', () => {
+  const {run} = engine(fixture({folded: true}));
+  run(`bundle.stream.math_steps[0].method_ref = 'method-domain-intersection#solve';`);
+  assert.equal(run('stepTitle(currentDecision(bundle,state))'), '数学步骤 2');
 });
 
 test('a named lesson step owns the title in both readonly and completed views', () => {

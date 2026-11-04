@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a01-v2",
+  "title": "绝对值分段与跨段检查 · A01",
+  "page": "/topics/function-monotonicity/q01/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=-x^2+2|x|+3$，求函数的单调递增区间。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a01-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t1-20261104/a01.json"
+}

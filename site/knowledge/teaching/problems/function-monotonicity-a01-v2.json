@@ -1,0 +1,169 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a01-v2",
+  "label": "绝对值分段与跨段检查 · A01",
+  "path": "/topics/function-monotonicity/q01/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a01-v2.json",
+  "types": [
+    "type-function-monotonicity"
+  ],
+  "statement": "已知函数 $f(x)=-x^2+2|x|+3$，求函数的单调递增区间。",
+  "routes": {
+    "piecewise-monotonicity": {
+      "label": "分段单调性法",
+      "methods": [
+        "method-piecewise-monotonicity"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "a6af69dbcf0c113481dd7373#1": {
+          "title": "确定讨论范围",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "f4b22d9f7f3bfcce8e97e210#1": {
+          "title": "把二次函数配成顶点式",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "7682fc9ff8f165295de99b6a#1": {
+          "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "7682fc9ff8f165295de99b6a#2": {
+          "title": "二次函数在 $\\left[-1, 0\\right)$ 上的增减",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "ddf62e718b7af87ccf33499e#1": {
+          "title": "写出递增区间",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "ddf62e718b7af87ccf33499e#2": {
+          "title": "写出递减区间",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "8b6cd2088385067be2ef2663#1": {
+          "title": "确定讨论范围",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "06a8d65aed3a1da96af99fff#1": {
+          "title": "把二次函数配成顶点式",
+          "position": 11,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "fb281be1c368ecb9e09ca2b8#1": {
+          "title": "二次函数在 $\\left[0, 1\\right]$ 上的增减",
+          "position": 12,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "fb281be1c368ecb9e09ca2b8#2": {
+          "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减",
+          "position": 13,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "646cac1c8d010d435d33dad7#1": {
+          "title": "写出递增区间",
+          "position": 14,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "646cac1c8d010d435d33dad7#2": {
+          "title": "写出递减区间",
+          "position": 15,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "a728a0ce4aa9ec240052e93f#1": {
+          "title": "检查跨段单调性",
+          "position": 16,
+          "refs": [
+            "method-piecewise-monotonicity#join",
+            "skill-piecewise-order-join",
+            "function-monotonicity#interval"
+          ]
+        },
+        "9c1ca38e1d3120175971c432#1": {
+          "title": "写出递增区间",
+          "position": 17,
+          "refs": [
+            "method-piecewise-monotonicity#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "039cd4d83d1cc02c42038cb8f4bc03c1f63ac5b3d2f5baca48456dd51448b2f9",
+  "practice_version": "32123be73277050808b2af0bce6f8671094df9f76f7f3371648054cf2f0739b3"
+}

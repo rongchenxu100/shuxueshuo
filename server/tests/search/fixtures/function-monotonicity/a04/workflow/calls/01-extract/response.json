@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1051,
+      "prompt_tokens": 29145,
+      "total_tokens": 30196,
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 473
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 579,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-4be077f0-49a2-4d37-83d4-1718510abafa",
+        "sha256": "807dd45a2e7314cb0ca64ef5ef57d4a24e1dfda11f12f2358fc34e461c4d2e74",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6180,
+        "expires_at": 1793846948,
+        "uploaded_at": 1793760548.928266
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "807dd45a2e7314cb0ca64ef5ef57d4a24e1dfda11f12f2358fc34e461c4d2e74",
+        "api_calls": 1,
+        "file_id": "file-api-4be077f0-49a2-4d37-83d4-1718510abafa",
+        "expires_at": 1793846948,
+        "elapsed_ms": 169
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6515,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1051,
+          "prompt_tokens": 29145,
+          "total_tokens": 30196,
+          "completion_tokens_details": {
+            "reasoning_tokens": 846
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 28672
+          },
+          "prompt_cache_hit_tokens": 28672,
+          "prompt_cache_miss_tokens": 473
+        },
+        "raw_payload": {
+          "id": "773cdd2f-8758-488a-92c2-70872a458c79",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1051,
+            "prompt_tokens": 29145,
+            "total_tokens": 30196,
+            "completion_tokens_details": {
+              "reasoning_tokens": 846
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 28672
+            },
+            "prompt_cache_hit_tokens": 28672,
+            "prompt_cache_miss_tokens": 473
+          },
+          "created": 1793760549,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。题干：4. 函数 f(x)=1/√(x^2-5x-6) 的单调递增区间是____。手写答案涂改不转录。需要输出 original_text, root, public_content。目标：求具体函数单调递增区间。使用 find_monotonic_intervals，expression 原完整表达式。函数定义 f(x)=1/sqrt(x^2-5*x-6)。题面没有显式给输入范围/定义域，不自行计算。root definitions 放函数定义；goals 一个 find_monotonic_intervals expression 是 \"1/sqrt(x^2-5*x-6)\" 还是 \"f(x)=...\"? Schema expression 原完整表达式，variable x，direction increasing。可以放 expression \"1/sqrt(x^2-5*x-6)\"。definitions [\"f(x)=1/sqrt(x^2-5*x-6)\"]。事实无。public_content statement 保留题干，不含题号？公开题干按规则排除来源题号。original_text 可保留题号。public_content scopes root statement 应写 \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" 注意公式用 $…$，反斜杠 JSON 转义。choices 每个目标：status none, selection_mode none options []。root_label_role? root.label 是否存在？我们可以不设 root.label，因为题号只是来源题号，不填 label。或者 label 可省略。原图题号是 \"4.\"，root.label 存在时角色 source。但可以不放 label。original_text 保留 \"4. 函数...\"。public_content 不包含。completeness 完整（题目完整，有填空）。privacy 需要判断：原图只有题号和手写涂改，没有姓名等。手写答案不是题目内容。privacy separated？题号是来源可分离，手写答案不是题目内容且不转录。可以 separated。figure none not_required。figure_detection status none regions []。\n\n需要检查图片中题干是否被手写覆盖影响？函数是 1/√(x²-5x-6)，单调递增区间是____。手写涂改看不清不影响题干。不需要 uncertainty。\n\nBut schema: root definitions/facts/goals. Function definition string \"f(x)=1/sqrt(x^2-5*x-6)\"。注意数学表达式 catalog: sqrt(x^2-5*x-6)。方向 increasing。variable x。kind find_monotonic_intervals. 没有 input_domain，因为题面没有显式范围。不要自行算定义域。expression 可以写 \"1/sqrt(x^2-5*x-6)\"，不是 f(x) 重复。或 \"f(x)\"？描述原完整表达式：填 \"1/sqrt(x^2-5*x-6)\"。也可包含分母。不要添加定义域。definitions 重复。OK.\n\nOriginal_text 要转录完整题干，公式用 $...$，保留横线。写：\n\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\"\n注意题干中有一个空格？手写覆盖。横线可能印刷为 \"____\" 或一条线。用 \"____\"。\n\npublic_content.scopes statement 不包含 \"4.\"：\n\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\"\nchoices target_ref \"/root/goals/0\" status none selection_mode none options [].\n\nNo children.\n\nNeed include figure_detection. status none.\n\nEnsure JSON schema no extra fields. root scope can have definitions, goals. No facts. No label. No uncertainties. public_content required completeness privacy figure scopes figure_detection. root_label_role optional omitted.\n\nLet's craft final JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 6685
+  },
+  "raw_payload": {
+    "id": "773cdd2f-8758-488a-92c2-70872a458c79",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。题干：4. 函数 f(x)=1/√(x^2-5x-6) 的单调递增区间是____。手写答案涂改不转录。需要输出 original_text, root, public_content。目标：求具体函数单调递增区间。使用 find_monotonic_intervals，expression 原完整表达式。函数定义 f(x)=1/sqrt(x^2-5*x-6)。题面没有显式给输入范围/定义域，不自行计算。root definitions 放函数定义；goals 一个 find_monotonic_intervals expression 是 \"1/sqrt(x^2-5*x-6)\" 还是 \"f(x)=...\"? Schema expression 原完整表达式，variable x，direction increasing。可以放 expression \"1/sqrt(x^2-5*x-6)\"。definitions [\"f(x)=1/sqrt(x^2-5*x-6)\"]。事实无。public_content statement 保留题干，不含题号？公开题干按规则排除来源题号。original_text 可保留题号。public_content scopes root statement 应写 \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" 注意公式用 $…$，反斜杠 JSON 转义。choices 每个目标：status none, selection_mode none options []。root_label_role? root.label 是否存在？我们可以不设 root.label，因为题号只是来源题号，不填 label。或者 label 可省略。原图题号是 \"4.\"，root.label 存在时角色 source。但可以不放 label。original_text 保留 \"4. 函数...\"。public_content 不包含。completeness 完整（题目完整，有填空）。privacy 需要判断：原图只有题号和手写涂改，没有姓名等。手写答案不是题目内容。privacy separated？题号是来源可分离，手写答案不是题目内容且不转录。可以 separated。figure none not_required。figure_detection status none regions []。\n\n需要检查图片中题干是否被手写覆盖影响？函数是 1/√(x²-5x-6)，单调递增区间是____。手写涂改看不清不影响题干。不需要 uncertainty。\n\nBut schema: root definitions/facts/goals. Function definition string \"f(x)=1/sqrt(x^2-5*x-6)\"。注意数学表达式 catalog: sqrt(x^2-5*x-6)。方向 increasing。variable x。kind find_monotonic_intervals. 没有 input_domain，因为题面没有显式范围。不要自行算定义域。expression 可以写 \"1/sqrt(x^2-5*x-6)\"，不是 f(x) 重复。或 \"f(x)\"？描述原完整表达式：填 \"1/sqrt(x^2-5*x-6)\"。也可包含分母。不要添加定义域。definitions 重复。OK.\n\nOriginal_text 要转录完整题干，公式用 $...$，保留横线。写：\n\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\"\n注意题干中有一个空格？手写覆盖。横线可能印刷为 \"____\" 或一条线。用 \"____\"。\n\npublic_content.scopes statement 不包含 \"4.\"：\n\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\"\nchoices target_ref \"/root/goals/0\" status none selection_mode none options [].\n\nNo children.\n\nNeed include figure_detection. status none.\n\nEnsure JSON schema no extra fields. root scope can have definitions, goals. No facts. No label. No uncertainties. public_content required completeness privacy figure scopes figure_detection. root_label_role optional omitted.\n\nLet's craft final JSON."
+        }
+      }
+    ],
+    "created": 1793760549,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1051,
+      "prompt_tokens": 29145,
+      "total_tokens": 30196,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 846,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 28672
+      },
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 473
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 6.686
+}

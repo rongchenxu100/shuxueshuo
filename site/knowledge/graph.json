@@ -1113,6 +1113,87 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "method-monotonicity-definition",
+      "kind": "method",
+      "label": "定义法",
+      "summary": "用区间内任意两个有序输入的函数值之差证明单调性。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "domain",
+          "title": "确定定义域",
+          "calls": []
+        },
+        {
+          "id": "analyze",
+          "title": "划分并判断单调区间",
+          "calls": []
+        },
+        {
+          "id": "compare",
+          "title": "任取两点作差比较",
+          "calls": [
+            "method-difference-comparison"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "列出完整单调区间",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "回到原目标核验",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-structure",
+      "kind": "method",
+      "label": "基本函数与复合法",
+      "summary": "由基本函数的性质逐层判断复合后的增减方向。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "domain",
+          "title": "确定定义域",
+          "calls": [
+            "method-domain-intersection"
+          ]
+        },
+        {
+          "id": "square",
+          "title": "整理基本函数",
+          "calls": [
+            "method-complete-square"
+          ]
+        },
+        {
+          "id": "analyze",
+          "title": "划分并判断单调区间",
+          "calls": []
+        },
+        {
+          "id": "compose",
+          "title": "逐层判断复合方向",
+          "calls": [
+            "skill-composite-monotonicity"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "列出完整单调区间",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "回到原目标核验",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-parameter-quadratic-cases",
       "kind": "method",
       "label": "含参一元二次不等式分类讨论法",
@@ -1250,6 +1331,51 @@
         {
           "id": "verify",
           "title": "汇总并核对边界",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-piecewise-monotonicity",
+      "kind": "method",
+      "label": "分段单调性法",
+      "summary": "先判断每段，再检查分界点两侧的次序，确定完整单调区间。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "split",
+          "title": "按绝对值符号分段",
+          "calls": [
+            "skill-absolute-sign-split"
+          ]
+        },
+        {
+          "id": "inputs",
+          "title": "绑定各段范围",
+          "calls": []
+        },
+        {
+          "id": "branches",
+          "title": "分别判断段内增减",
+          "calls": [
+            "method-monotonicity-structure"
+          ]
+        },
+        {
+          "id": "join",
+          "title": "检查跨段单调性",
+          "calls": [
+            "skill-piecewise-order-join"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "列出完整单调区间",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "回到原目标核验",
           "calls": []
         }
       ]
@@ -1889,6 +2015,15 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "rule-function-monotonicity-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "单调性题的选法判断",
+      "summary": "依据任务和函数结构选择方法。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-function-range-method",
       "kind": "judgment_rule",
       "subtype": "method_selection",
@@ -2029,6 +2164,13 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "skill-composite-monotonicity",
+      "kind": "skill",
+      "label": "复合函数增减性判断",
+      "summary": "在内层的实际取值范围内，逐层检查保序与反序。",
+      "aliases": []
+    },
+    {
       "id": "skill-equality-transform",
       "kind": "skill",
       "label": "等式变形与推导",
@@ -2073,6 +2215,13 @@
       "summary": "看 y = ax + b 的斜率 a 是正、负还是 0，把区间端点代进去，读出值域和最大、最小值。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "skill-piecewise-order-join",
+      "kind": "skill",
+      "label": "跨段单调性检查",
+      "summary": "判断相邻两段能否组成一个严格单调区间。",
+      "aliases": []
     },
     {
       "id": "skill-polynomial-coefficient-comparison",
@@ -2240,12 +2389,57 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "type-function-monotonicity",
+      "kind": "problem_type",
+      "label": "判断函数的单调性",
+      "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+      "aliases": [],
+      "status": "active",
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "type-function-range",
       "kind": "problem_type",
       "label": "求函数的值域",
       "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
       "aliases": [],
       "status": "active",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-monotonicity-abstract-proof",
+      "kind": "problem_type",
+      "label": "证明抽象函数的单调性",
+      "summary": "证明抽象函数的单调性；后续题型建设。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-monotonicity-extremum",
+      "kind": "problem_type",
+      "label": "利用单调性求最值",
+      "summary": "利用单调性求最值；后续题型建设。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-monotonicity-inequality",
+      "kind": "problem_type",
+      "label": "利用单调性解不等式",
+      "summary": "利用单调性解不等式；后续题型建设。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-monotonicity-parameter",
+      "kind": "problem_type",
+      "label": "已知函数的单调性求参",
+      "summary": "已知函数的单调性求参；后续题型建设。",
+      "aliases": [],
+      "status": "planned",
       "home": "compulsory-1-ch3"
     },
     {
@@ -3433,6 +3627,54 @@
       ]
     },
     {
+      "id": "method-monotonicity-definition|calls|method-difference-comparison",
+      "from": "method-monotonicity-definition",
+      "to": "method-difference-comparison",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "compare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-structure|calls|method-complete-square",
+      "from": "method-monotonicity-structure",
+      "to": "method-complete-square",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "square",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-structure|calls|method-domain-intersection",
+      "from": "method-monotonicity-structure",
+      "to": "method-domain-intersection",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "domain",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-structure|calls|skill-composite-monotonicity",
+      "from": "method-monotonicity-structure",
+      "to": "skill-composite-monotonicity",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "compose",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-parameter-quadratic-cases|calls|quadratic-inequality-solve",
       "from": "method-parameter-quadratic-cases",
       "to": "quadratic-inequality-solve",
@@ -3524,6 +3766,42 @@
       "occurrences": [
         {
           "step": "roots",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-piecewise-monotonicity|calls|method-monotonicity-structure",
+      "from": "method-piecewise-monotonicity",
+      "to": "method-monotonicity-structure",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "branches",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-piecewise-monotonicity|calls|skill-absolute-sign-split",
+      "from": "method-piecewise-monotonicity",
+      "to": "skill-absolute-sign-split",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "split",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-piecewise-monotonicity|calls|skill-piecewise-order-join",
+      "from": "method-piecewise-monotonicity",
+      "to": "skill-piecewise-order-join",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "join",
           "when": ""
         }
       ]
@@ -4326,6 +4604,42 @@
         {
           "branch": "inequality",
           "condition": "已知绝对值函数，要求解与水平线比较的不等式。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-monotonicity-method|selects|method-monotonicity-definition",
+      "from": "rule-function-monotonicity-method",
+      "to": "method-monotonicity-definition",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "definition",
+          "condition": "要求用定义证明，或希望用任意两点作差验证。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-monotonicity-method|selects|method-monotonicity-structure",
+      "from": "rule-function-monotonicity-method",
+      "to": "method-monotonicity-structure",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "structure",
+          "condition": "单个基本函数，或可逐层分析的根式、倒数复合。"
+        }
+      ]
+    },
+    {
+      "id": "rule-function-monotonicity-method|selects|method-piecewise-monotonicity",
+      "from": "rule-function-monotonicity-method",
+      "to": "method-piecewise-monotonicity",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "piecewise",
+          "condition": "含绝对值，需要先分段，再检查连接。"
         }
       ]
     },
@@ -5295,6 +5609,51 @@
       ]
     },
     {
+      "id": "section-3-2|extends|type-function-monotonicity",
+      "from": "section-3-2",
+      "to": "type-function-monotonicity",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|extends|type-monotonicity-abstract-proof",
+      "from": "section-3-2",
+      "to": "type-monotonicity-abstract-proof",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|extends|type-monotonicity-extremum",
+      "from": "section-3-2",
+      "to": "type-monotonicity-extremum",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|extends|type-monotonicity-inequality",
+      "from": "section-3-2",
+      "to": "type-monotonicity-inequality",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|extends|type-monotonicity-parameter",
+      "from": "section-3-2",
+      "to": "type-monotonicity-parameter",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "set-concept|prerequisite|function-concept",
       "from": "set-concept",
       "to": "function-concept",
@@ -5349,6 +5708,20 @@
       "occurrences": [
         {
           "entry": "formula"
+        }
+      ]
+    },
+    {
+      "id": "skill-composite-monotonicity|uses|composite-function-monotonicity",
+      "from": "skill-composite-monotonicity",
+      "to": "composite-function-monotonicity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "range-first"
+        },
+        {
+          "entry": "rule"
         }
       ]
     },
@@ -5494,6 +5867,20 @@
       "occurrences": [
         {
           "entry": "monotonicity"
+        },
+        {
+          "entry": "interval"
+        }
+      ]
+    },
+    {
+      "id": "skill-piecewise-order-join|uses|function-monotonicity",
+      "from": "skill-piecewise-order-join",
+      "to": "function-monotonicity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "definition"
         },
         {
           "entry": "interval"
@@ -6216,6 +6603,87 @@
       ]
     },
     {
+      "id": "type-function-monotonicity|candidate|method-monotonicity-definition",
+      "from": "type-function-monotonicity",
+      "to": "method-monotonicity-definition",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|candidate|method-monotonicity-structure",
+      "from": "type-function-monotonicity",
+      "to": "method-monotonicity-structure",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|candidate|method-piecewise-monotonicity",
+      "from": "type-function-monotonicity",
+      "to": "method-piecewise-monotonicity",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|involves|composite-function-monotonicity",
+      "from": "type-function-monotonicity",
+      "to": "composite-function-monotonicity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|involves|function-monotonicity",
+      "from": "type-function-monotonicity",
+      "to": "function-monotonicity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|involves|function-monotonicity-operations",
+      "from": "type-function-monotonicity",
+      "to": "function-monotonicity-operations",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|involves|interval-notation",
+      "from": "type-function-monotonicity",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|involves|quadratic-function-properties",
+      "from": "type-function-monotonicity",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-monotonicity|method_rule|rule-function-monotonicity-method",
+      "from": "type-function-monotonicity",
+      "to": "rule-function-monotonicity-method",
+      "type": "method_rule",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-function-range|candidate|method-direct-range",
       "from": "type-function-range",
       "to": "method-direct-range",
@@ -6373,6 +6841,42 @@
       "from": "type-function-range",
       "to": "rule-function-range-method",
       "type": "method_rule",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+      "from": "type-monotonicity-abstract-proof",
+      "to": "function-monotonicity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-extremum|involves|function-monotonicity",
+      "from": "type-monotonicity-extremum",
+      "to": "function-monotonicity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-inequality|involves|function-monotonicity",
+      "from": "type-monotonicity-inequality",
+      "to": "function-monotonicity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-parameter|involves|function-monotonicity",
+      "from": "type-monotonicity-parameter",
+      "to": "function-monotonicity",
+      "type": "involves",
       "occurrences": [
         {}
       ]

@@ -1,0 +1,3163 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+    "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+    "input_sha256": "b1dcd1dfd7f5c897933d13b572928d668267fd257afc5f0bedf802c1ebdd974b",
+    "checkpoint_sha256": "53ea4f7d2d1cc8352eb8303e5f46650dbcfb3831f39e0b922b17aeec288244dd",
+    "result_sha256": "79f552ed39c4e048a314b2c3bf4dc310b51dc5844348d23e10e177810ddfa93e",
+    "stage_one_sha256": "cdebe1e18cbc5df74a4cf0216a5ff4f5f8a4eb8461cdbd5935504c8cc7008496",
+    "stage_two_sha256": "e7ec41dcf8d5279898fe0a916cbc1741938181019e7c258d294ad25c98e54758",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "9f812979f26e96cfad43d474ad8539c451a503705ff4ac41c3374de9b93dd4fe",
+    "teaching_revision": "d238950818db432bb7e2ae53ddd34e15b8991ee14ad9b86f5cdf14b9798ef3f8"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-monotonicity",
+        "supported": [
+          "type-function-monotonicity"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 6,
+                  "end": 26,
+                  "text": "$f(x)=\\sqrt{x^2-2x-3}$"
+                },
+                {
+                  "start": 32,
+                  "end": 38,
+                  "text": "单调递减区间"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-monotonicity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求函数的值域",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求函数的递减区间",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "73d0cc12576bf9dd"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要做什么？",
+          "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。",
+          "summary": "求函数的递减区间"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+            ],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-monotonicity-a12-v4//root/goals/0",
+            "graphVersion": "519c2251d3b46b0882c72a70dfef25677169557e26811cec23b368f4a1569ae7",
+            "problem": {
+              "text": "已知函数 $f(x)=\\sqrt{x^2-2x-3}$，求函数的单调递减区间。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要做什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求函数的值域",
+                      "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求函数的递减区间"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求判断增减，不能把已知表达式当成已知单调性。"
+                },
+                "candidateNodes": [
+                  "function-monotonicity",
+                  "type-function-monotonicity",
+                  "type-monotonicity-abstract-proof",
+                  "type-monotonicity-extremum",
+                  "type-monotonicity-inequality",
+                  "type-monotonicity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-monotonicity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求函数的递减区间"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-monotonicity"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-monotonicity"
+                  ],
+                  "edges": [
+                    "type-function-monotonicity|involves|function-monotonicity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断函数的单调性」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-monotonicity",
+                  "kind": "knowledge",
+                  "label": "函数的单调性",
+                  "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof",
+                  "kind": "problem_type",
+                  "label": "证明抽象函数的单调性",
+                  "summary": "证明抽象函数的单调性；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "利用单调性求最值；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用单调性解不等式",
+                  "summary": "利用单调性解不等式；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-parameter",
+                  "kind": "problem_type",
+                  "label": "已知函数的单调性求参",
+                  "summary": "已知函数的单调性求参；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-monotonicity-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "单调性题的选法判断",
+                  "summary": "依据任务和函数结构选择方法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-monotonicity-definition",
+                  "kind": "method",
+                  "label": "定义法",
+                  "summary": "用区间内任意两个有序输入的函数值之差证明单调性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "analyze",
+                      "title": "划分并判断单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "compare",
+                      "title": "任取两点作差比较",
+                      "calls": [
+                        "method-difference-comparison"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-monotonicity-structure",
+                  "kind": "method",
+                  "label": "基本函数与复合法",
+                  "summary": "由基本函数的性质逐层判断复合后的增减方向。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "square",
+                      "title": "整理基本函数",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "analyze",
+                      "title": "划分并判断单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "compose",
+                      "title": "逐层判断复合方向",
+                      "calls": [
+                        "skill-composite-monotonicity"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-monotonicity",
+                  "kind": "method",
+                  "label": "分段单调性法",
+                  "summary": "先判断每段，再检查分界点两侧的次序，确定完整单调区间。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "split",
+                      "title": "按绝对值符号分段",
+                      "calls": [
+                        "skill-absolute-sign-split"
+                      ]
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "绑定各段范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "branches",
+                      "title": "分别判断段内增减",
+                      "calls": [
+                        "method-monotonicity-structure"
+                      ]
+                    },
+                    {
+                      "id": "join",
+                      "title": "检查跨段单调性",
+                      "calls": [
+                        "skill-piecewise-order-join"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-piecewise-monotonicity|calls|method-monotonicity-structure",
+                  "from": "method-piecewise-monotonicity",
+                  "to": "method-monotonicity-structure",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "branches",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-monotonicity-definition",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-monotonicity-definition",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "definition",
+                      "condition": "要求用定义证明，或希望用任意两点作差验证。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-monotonicity-structure",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-monotonicity-structure",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "structure",
+                      "condition": "单个基本函数，或可逐层分析的根式、倒数复合。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-piecewise-monotonicity",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-piecewise-monotonicity",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "piecewise",
+                      "condition": "含绝对值，需要先分段，再检查连接。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-monotonicity-definition",
+                  "from": "type-function-monotonicity",
+                  "to": "method-monotonicity-definition",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-monotonicity-structure",
+                  "from": "type-function-monotonicity",
+                  "to": "method-monotonicity-structure",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-piecewise-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "method-piecewise-monotonicity",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|involves|function-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|method_rule|rule-function-monotonicity-method",
+                  "from": "type-function-monotonicity",
+                  "to": "rule-function-monotonicity-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+                  "from": "type-monotonicity-abstract-proof",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-monotonicity",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|involves|function-monotonicity",
+                  "from": "type-monotonicity-inequality",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|involves|function-monotonicity",
+                  "from": "type-monotonicity-parameter",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-monotonicity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "a929555518433406cde20563f67a2d1592e61027474a4d45f623e910bc5dd5df"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-monotonicity-a12-v4//root/goals/0",
+            "bundleVersion": "a929555518433406cde20563f67a2d1592e61027474a4d45f623e910bc5dd5df",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "求函数的递减区间"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-monotonicity",
+                "reason": "选「判断函数的单调性」：给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+    "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+    "input_sha256": "b1dcd1dfd7f5c897933d13b572928d668267fd257afc5f0bedf802c1ebdd974b",
+    "stream_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+    "last_seq": 35,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_locations",
+        "explanation": "原式为 $\\displaystyle \\sqrt{x^{2}-2\\cdot x-3}$。\n根号要求被开方数有意义，故须检查 $x^{2} - 2 x - 3$。\n正整数次幂本身不增加输入限制，底式中的限制仍须保留。\n以上位置的限制都要保留。",
+        "highlight": {
+          "caption": "找到原式的限制位置",
+          "items": [
+            {
+              "label": "被开方数",
+              "math": "x^{2} - 2 x - 3"
+            }
+          ]
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "1d21e16770661932cc73fc7cfad82dc419ba143c37284d3e3fa7abe3c1f80471",
+        "method_ref": "method-domain-intersection#extract",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-001-domain_locations",
+        "target_ref": "/root/goals/0",
+        "title": "找到原式的限制位置",
+        "used_basis": [
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_conditions",
+        "explanation": "原式为 $\\displaystyle \\sqrt{x^{2}-2\\cdot x-3}$。\n被开方数 $x^{2} - 2 x - 3$ 须非负，即 $x^{2} - 2 x - 3 \\geq 0$。\n以上条件须同时成立。",
+        "highlight": {
+          "caption": "列出有意义的条件",
+          "items": [
+            {
+              "label": "被开方数",
+              "math": "x^{2} - 2 x - 3 \\geq 0"
+            }
+          ]
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "9054d4db71c37b26ae2c17bf25354496f9d56aaf577080a09c7d82db7a20185f",
+        "method_ref": "method-domain-intersection#extract",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-002-domain_conditions",
+        "target_ref": "/root/goals/0",
+        "title": "列出有意义的条件",
+        "used_basis": [
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_solutions",
+        "explanation": "由 $x^{2} - 2 x - 3 \\geq 0$ 得 $\\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)$。",
+        "highlight": {
+          "caption": "解每个条件",
+          "items": [
+            {
+              "label": "解集",
+              "math": "x^{2} - 2 x - 3 \\geq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "561da5061d3f46892c0d86774da9bae5e18cc3823792d1f1f42140afcee5834d",
+        "method_ref": "method-domain-intersection#solve",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/calls/1"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-003-domain_solutions",
+        "target_ref": "/root/goals/0",
+        "title": "解每个条件",
+        "used_basis": [
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "quadratic-inequality#signs",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "square",
+        "explanation": "$$u=x^{2} - 2 x - 3=\\left(x - 1\\right)^{2} - 4$$",
+        "highlight": {
+          "caption": "把二次函数配成顶点式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "待配方的二次式",
+              "math": "u=x^{2} - 2 x - 3"
+            },
+            {
+              "label": "顶点式",
+              "math": "\\left(x - 1\\right)^{2} - 4"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "d85489974d58f1408b5ff18749880a38f017d1a6be9ef075293d72370eefd628",
+        "method_ref": "method-monotonicity-structure#analyze",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/6/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-004-square",
+        "target_ref": "/root/goals/0",
+        "title": "把二次函数配成顶点式",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inner",
+        "explanation": "$$\\begin{gathered}\\begin{gathered}\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left(-\\infty, -1\\right]\\\\\\text{对称轴 }x=1\\end{gathered}\\\\u\\;\\downarrow\\end{gathered}\\\\\\begin{gathered}\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left[3, \\infty\\right)\\\\\\text{对称轴 }x=1\\end{gathered}\\\\u\\;\\uparrow\\end{gathered}\\end{gathered}$$",
+        "highlight": {
+          "caption": "判断二次函数的增减",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "二次函数与区间",
+              "math": "\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left[3, \\infty\\right)\\\\\\text{对称轴 }x=1\\end{gathered}"
+            },
+            {
+              "label": "从左向右",
+              "math": "\\uparrow"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "e1122da8a067bce2c716c51f3bd2baea844057c768c17dabb519c76e19f5a4bb",
+        "method_ref": "method-monotonicity-structure#analyze",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/6/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-005-inner",
+        "target_ref": "/root/goals/0",
+        "title": "判断二次函数的增减",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "composition",
+        "explanation": "$$\\begin{gathered}u=x^{2} - 2 x - 3\\;\\downarrow\\xrightarrow{\\text{开方保序}}v=\\sqrt{u}\\;\\downarrow\\\\u=x^{2} - 2 x - 3\\;\\uparrow\\xrightarrow{\\text{开方保序}}v=\\sqrt{u}\\;\\uparrow\\end{gathered}$$",
+        "highlight": {
+          "caption": "逐层传递增减性",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "这一层的输入",
+              "math": "\\begin{gathered}x\\in \\left[3, \\infty\\right)\\\\u=x^{2} - 2 x - 3\\;\\uparrow\\\\u\\geq0\\end{gathered}"
+            },
+            {
+              "label": "输出函数的增减",
+              "math": "u=x^{2} - 2 x - 3\\;\\uparrow\\xrightarrow{\\text{开方保序}}v=\\sqrt{u}\\;\\uparrow"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "bf47a52ed08c34503241c505f2347ad28530b6c257c2274bcc5be6ef50aa894c",
+        "method_ref": "method-monotonicity-structure#compose",
+        "ordinal": 6,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/7/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-006-composition",
+        "target_ref": "/root/goals/0",
+        "title": "逐层传递增减性",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "answer",
+        "explanation": "$$\\text{递减区间：}\\quad \\downarrow\\;\\left(-\\infty, -1\\right]$$",
+        "highlight": {
+          "caption": "写出递减区间",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数与范围",
+              "math": "\\begin{gathered}f(x)=\\sqrt{x^{2} - 2 x - 3}\\\\x\\in \\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)\\end{gathered}"
+            },
+            {
+              "label": "递减区间",
+              "math": "\\left(-\\infty, -1\\right]"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "local_check": "passed",
+        "math_step_sha256": "168fc128a9fd35025d9d96f3c51d1a63dba4b8ddb30ac764c8dff80d3fcb9f23",
+        "method_ref": "method-monotonicity-structure#conclude",
+        "ordinal": 7,
+        "premise_refs": [],
+        "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "source_refs": [
+          "/steps/8/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-structure-007-answer",
+        "target_ref": "/root/goals/0",
+        "title": "写出递减区间",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "direction": "decreasing",
+          "interval_families": {
+            "decreasing": [
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              }
+            ]
+          },
+          "kind": "find_monotonic_intervals",
+          "latex": "\\downarrow\\;\\left(-\\infty, -1\\right]",
+          "status": "complete"
+        },
+        "available": true,
+        "feasible_set": null,
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "direction": "decreasing",
+          "interval_families": {
+            "decreasing": [
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              }
+            ]
+          },
+          "kind": "find_monotonic_intervals",
+          "latex": "\\downarrow\\;\\left(-\\infty, -1\\right]",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "math_steps": [
+          {
+            "math_step_sha256": "1d21e16770661932cc73fc7cfad82dc419ba143c37284d3e3fa7abe3c1f80471",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-monotonicity-structure-001-domain_locations"
+          },
+          {
+            "math_step_sha256": "9054d4db71c37b26ae2c17bf25354496f9d56aaf577080a09c7d82db7a20185f",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-monotonicity-structure-002-domain_conditions"
+          },
+          {
+            "math_step_sha256": "561da5061d3f46892c0d86774da9bae5e18cc3823792d1f1f42140afcee5834d",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-monotonicity-structure-003-domain_solutions"
+          },
+          {
+            "math_step_sha256": "d85489974d58f1408b5ff18749880a38f017d1a6be9ef075293d72370eefd628",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-monotonicity-structure-004-square"
+          },
+          {
+            "math_step_sha256": "e1122da8a067bce2c716c51f3bd2baea844057c768c17dabb519c76e19f5a4bb",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-monotonicity-structure-005-inner"
+          },
+          {
+            "math_step_sha256": "bf47a52ed08c34503241c505f2347ad28530b6c257c2274bcc5be6ef50aa894c",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-monotonicity-structure-006-composition"
+          },
+          {
+            "math_step_sha256": "168fc128a9fd35025d9d96f3c51d1a63dba4b8ddb30ac764c8dff80d3fcb9f23",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-monotonicity-structure-007-answer"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "e2b7f89d61fc3e0ac752d45c04fc33471fdb67fe56a2f051d5eed7fd731cec1e",
+        "verified_route_sha256": "c29420f0d66c178e6a95e1492fe4f8dc3669b68dde6428cc80dab7bfa96f4026"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "structure": "structure"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "先确定定义域，再选择适用的判断方法。",
+                "id": "structure",
+                "options": [
+                  {
+                    "label": "一次、二次、反比例等常见函数及其复合函数",
+                    "note": "先用已知的增减规律；复合函数逐层判断。例如先看 $u=x^2$，再看 $y=\\sqrt{u}$。",
+                    "value": "structure"
+                  },
+                  {
+                    "label": "含绝对值，需要按符号分段",
+                    "note": "例如 $|x|$：$x<0$ 时写成 $-x$，$x\\geq0$ 时写成 $x$；分别判断，再检查分界处。",
+                    "value": "piecewise"
+                  },
+                  {
+                    "label": "题目要求用定义证明单调性",
+                    "note": "任取 $x_1<x_2$，判断 $f(x_2)-f(x_1)$ 的正负。例如对 $f(x)=2x+1$，差为 $2(x_2-x_1)>0$。",
+                    "value": "definition"
+                  }
+                ],
+                "question": "这道题最直接的结构线索是什么？",
+                "resolved": "基本函数与复合法"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "structure",
+                "method": "structure"
+              },
+              {
+                "cue": "piecewise",
+                "method": "piecewise"
+              },
+              {
+                "cue": "definition",
+                "method": "definition"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "基本函数与复合法",
+                "value": "structure"
+              },
+              {
+                "label": "分段单调性法",
+                "value": "piecewise"
+              },
+              {
+                "label": "定义法",
+                "value": "definition"
+              }
+            ],
+            "method_notes": {
+              "definition": "本题不展开，优先利用函数性质"
+            },
+            "source_refs": [
+              "/root/goals/0"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-function-monotonicity",
+            "op": "methods"
+          },
+          "question": "结合函数结构，选择一种解题方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "definition": {
+              "message": "定义法也能论证，但本题求具体函数的单调区间，利用函数性质更直接。本题不展开定义法，请选择基本函数与复合法。",
+              "value": "fit"
+            },
+            "piecewise": {
+              "message": "需要先按函数结构选择对应的方法。",
+              "value": "unfit"
+            },
+            "structure": {
+              "message": "可沿此方法逐步判断并核对完整区间。",
+              "value": "fit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "structure",
+              "message": "开始解题",
+              "method": "method-monotonicity-structure",
+              "recommendation": "preferred",
+              "route_id": "monotonicity-structure",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-001-domain_locations",
+        "ordinal": 1,
+        "math_step_sha256": "1d21e16770661932cc73fc7cfad82dc419ba143c37284d3e3fa7abe3c1f80471",
+        "status": "interactive",
+        "interaction_id": "fa2098db075f5e5a6d13702c"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-002-domain_conditions",
+        "ordinal": 2,
+        "math_step_sha256": "9054d4db71c37b26ae2c17bf25354496f9d56aaf577080a09c7d82db7a20185f",
+        "status": "interactive",
+        "interaction_id": "7a2b677cd3bce83efa034066"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-003-domain_solutions",
+        "ordinal": 3,
+        "math_step_sha256": "561da5061d3f46892c0d86774da9bae5e18cc3823792d1f1f42140afcee5834d",
+        "status": "interactive",
+        "interaction_id": "aea9aac6a920f6a0a7292005"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-004-square",
+        "ordinal": 4,
+        "math_step_sha256": "d85489974d58f1408b5ff18749880a38f017d1a6be9ef075293d72370eefd628",
+        "status": "interactive",
+        "interaction_id": "1664b9a4f039401d3c69c5bd"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-005-inner",
+        "ordinal": 5,
+        "math_step_sha256": "e1122da8a067bce2c716c51f3bd2baea844057c768c17dabb519c76e19f5a4bb",
+        "status": "interactive",
+        "interaction_id": "680f11157798c45614983bdb"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-006-composition",
+        "ordinal": 6,
+        "math_step_sha256": "bf47a52ed08c34503241c505f2347ad28530b6c257c2274bcc5be6ef50aa894c",
+        "status": "interactive",
+        "interaction_id": "c95e46d72cc3eec570d3a706"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "step_id": "39e5646dcb-monotonicity-structure-007-answer",
+        "ordinal": 7,
+        "math_step_sha256": "168fc128a9fd35025d9d96f3c51d1a63dba4b8ddb30ac764c8dff80d3fcb9f23",
+        "status": "interactive",
+        "interaction_id": "1d1611be90c8b279e45f996b"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "070b3a95f8afd038f359e5f538abd47ebbad1d29d0bd132178cb448cc076a2ce",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:monotonicity-structure:complete",
+        "last_seq": 35
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-structure",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-monotonicity-structure",
+            "step": "domain",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "method-domain-intersection",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-domain-intersection",
+            "step": "extract",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-domain-intersection",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition",
+                  "inequality-properties#multiplication",
+                  "quadratic-inequality#signs",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-domain-intersection",
+            "step": "intersect",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "set-intersection-union#intersection"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 5,
+            "method": "method-domain-intersection",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 6,
+            "method": "method-monotonicity-structure",
+            "step": "square",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "square-nonnegative#nonnegative"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-monotonicity-structure",
+            "step": "analyze",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 8,
+            "method": "method-monotonicity-structure",
+            "step": "compose",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-composite-monotonicity",
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 9,
+            "method": "method-monotonicity-structure",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 10,
+            "method": "method-monotonicity-structure",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "fa2098db075f5e5a6d13702c",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "2d0cc57b223693d5313317cecad6db906a39250f74ed4cd916745265891ddf24",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "expected_answer": {
+              "allowed": [
+                "o1"
+              ],
+              "required": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "请按原式位置及有意义条件检查。"
+            },
+            "id": "fa2098db075f5e5a6d13702c#1",
+            "interaction": {
+              "options": [
+                {
+                  "label": "被开方数：$x^{2} - 2 x - 3$",
+                  "value": "o1"
+                },
+                {
+                  "label": "只需排除函数值为 0 的输入",
+                  "value": "o2"
+                }
+              ],
+              "type": "multi"
+            },
+            "question": "哪些位置需要检查有意义的条件？可多选。",
+            "source_regions": {
+              "bound_symbols": {
+                "function_argument": "x"
+              },
+              "expression": "\\sqrt{x^{2}-2\\cdot x-3}",
+              "expression_ast": [
+                "call",
+                "sqrt",
+                [
+                  "-",
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ],
+              "regions": [
+                {
+                  "ast_path": [
+                    2
+                  ],
+                  "basis_refs": [
+                    "square-root-expression#meaning"
+                  ],
+                  "condition_id": "c1",
+                  "label": "被开方数",
+                  "option_value": "o1",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            },
+            "submit_label": "确认判断",
+            "title": "找到限制位置"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1d21e16770661932cc73fc7cfad82dc419ba143c37284d3e3fa7abe3c1f80471",
+            "step_id": "39e5646dcb-monotonicity-structure-001-domain_locations"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "7a2b677cd3bce83efa034066",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "b84f47559886acb1863f328eff02580faae12430bbb7ef471be9a6001dc5b35c",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1"
+              ]
+            },
+            "feedback": {
+              "terms": "根号允许被开方数为 0。"
+            },
+            "id": "7a2b677cd3bce83efa034066#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "被开方数 $x^{2} - 2 x - 3$",
+                  "options": [
+                    {
+                      "label": "$x^{2} - 2 x - 3 < 0$",
+                      "value": "s1o4"
+                    },
+                    {
+                      "label": "$x^{2} - 2 x - 3 \\neq 0$",
+                      "value": "s1o3"
+                    },
+                    {
+                      "label": "$x^{2} - 2 x - 3 \\geq 0$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "$x^{2} - 2 x - 3 > 0$",
+                      "value": "s1o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "逐条判断",
+              "type": "checklist"
+            },
+            "question": "每一处限制对应什么条件？",
+            "submit_label": "确认判断",
+            "title": "列出条件"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "9054d4db71c37b26ae2c17bf25354496f9d56aaf577080a09c7d82db7a20185f",
+            "step_id": "39e5646dcb-monotonicity-structure-002-domain_conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "aea9aac6a920f6a0a7292005",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "40a45fa167c35747bdc32922ff65397818ec788ae4b9908e58cf3fc09faca622",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "condition_number_lines": [
+              {
+                "ast_path": [
+                  2
+                ],
+                "basis_refs": [
+                  "square-root-expression#meaning"
+                ],
+                "bounds": [
+                  -2.0,
+                  4.0
+                ],
+                "condition_id": "c1",
+                "exact_set": {
+                  "exact": {
+                    "$math": "Union",
+                    "args": [
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          }
+                        ]
+                      },
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "3"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "expression": "Union(Interval(-oo, -1), Interval(3, oo))",
+                  "latex": "\\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(-oo, -1)",
+                      "latex": "\\left(-\\infty, -1\\right]"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": -1.0,
+                    "right_closed": true
+                  },
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "3"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanFalse"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval(3, oo)",
+                      "latex": "\\left[3, \\infty\\right)"
+                    },
+                    "left": 3.0,
+                    "left_closed": true,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "x^{2} - 2 x - 3 \\geq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)",
+                "points": [],
+                "source_ref": "/root/definitions/0",
+                "ticks": [
+                  {
+                    "at": -1.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      "expression": "-1",
+                      "latex": "-1"
+                    },
+                    "label": "-1"
+                  },
+                  {
+                    "at": 3.0,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "3"
+                      },
+                      "expression": "3",
+                      "latex": "3"
+                    },
+                    "label": "3"
+                  }
+                ],
+                "variable": "x"
+              }
+            ],
+            "expected_answer": {
+              "terms": [
+                "s1o1"
+              ]
+            },
+            "feedback": {
+              "terms": "根号允许被开方数为 0。"
+            },
+            "id": "aea9aac6a920f6a0a7292005#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$x^{2} - 2 x - 3 \\geq 0$",
+                  "options": [
+                    {
+                      "label": "$\\left(-1, 3\\right)$",
+                      "value": "s1o4"
+                    },
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "s1o2"
+                    },
+                    {
+                      "label": "$\\emptyset$",
+                      "value": "s1o3"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)$",
+                      "value": "s1o1"
+                    }
+                  ]
+                }
+              ],
+              "title": "逐条判断",
+              "type": "checklist"
+            },
+            "question": "每个条件分别得到什么解集？",
+            "submit_label": "确认判断",
+            "title": "解每个条件"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "561da5061d3f46892c0d86774da9bae5e18cc3823792d1f1f42140afcee5834d",
+            "step_id": "39e5646dcb-monotonicity-structure-003-domain_solutions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1664b9a4f039401d3c69c5bd",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "ba609b5f9ee6e6a5bc71e809c0e97d87f1f86c620ca7fbc0f37c031c76b3acc2",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把二次函数配成顶点式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "待配方的二次式",
+                  "math": "u=x^{2} - 2 x - 3"
+                },
+                {
+                  "label": "顶点式",
+                  "math": "\\left(x - 1\\right)^{2} - 4"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "内层函数 u；曲线的截断不表示定义域有端点。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "1664b9a4f039401d3c69c5bd#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$- \\left(x - 1\\right)^{2} - 4$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$\\left(x - 1\\right)^{2} - 4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(x - 1\\right)^{2} + 4$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left(x + 1\\right)^{2} - 4$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把二次式配成 $a(x-h)^2+k$ 的形式，选择与原式相等的顶点式。",
+            "stem_board": {
+              "caption": "把二次函数配成顶点式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "待配方的二次式",
+                  "math": "u=x^{2} - 2 x - 3"
+                },
+                {
+                  "label": "顶点式",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把二次函数配成顶点式"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "d85489974d58f1408b5ff18749880a38f017d1a6be9ef075293d72370eefd628",
+            "step_id": "39e5646dcb-monotonicity-structure-004-square"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "680f11157798c45614983bdb",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "ac841d13c3e441db4b22a70d6ef11ae72685dd4d037372ba8b4945df33ae9e78",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left(-\\infty, -1\\right]\\\\\\text{对称轴 }x=1\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": "\\downarrow"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "内层函数 u；着色区间是当前小问，问号处待判断。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "pending"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "680f11157798c45614983bdb#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "结合开口方向、对称轴和当前输入区间，判断函数的增减。",
+            "stem_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left(-\\infty, -1\\right]\\\\\\text{对称轴 }x=1\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减"
+          },
+          {
+            "completion_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left[3, \\infty\\right)\\\\\\text{对称轴 }x=1\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": "\\uparrow"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "内层函数 u；图中箭头与区间对应前面已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "decreasing"
+                  },
+                  {
+                    "from": 3.0,
+                    "label": "[3, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "内层函数 u；着色区间是当前小问，问号处待判断。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "decreasing"
+                  },
+                  {
+                    "from": 3.0,
+                    "label": "[3, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "pending"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "680f11157798c45614983bdb#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "结合开口方向、对称轴和当前输入区间，判断函数的增减。",
+            "stem_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}u=\\left(x - 1\\right)^{2} - 4\\\\x\\in \\left[3, \\infty\\right)\\\\\\text{对称轴 }x=1\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "二次函数在 $\\left[3, \\infty\\right)$ 上的增减"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e1122da8a067bce2c716c51f3bd2baea844057c768c17dabb519c76e19f5a4bb",
+            "step_id": "39e5646dcb-monotonicity-structure-005-inner"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "c95e46d72cc3eec570d3a706",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "680645065bf6fc38e41970cad5c8b7fd4ae45c9b4f2e32738c7d8b9c13e948bf",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "逐层传递增减性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一层的输入",
+                  "math": "\\begin{gathered}x\\in \\left(-\\infty, -1\\right]\\\\u=x^{2} - 2 x - 3\\;\\downarrow\\\\u\\geq0\\end{gathered}"
+                },
+                {
+                  "label": "输出函数的增减",
+                  "math": "u=x^{2} - 2 x - 3\\;\\downarrow\\xrightarrow{\\text{开方保序}}v=\\sqrt{u}\\;\\downarrow"
+                }
+              ],
+              "layout": "derivation",
+              "operation": {
+                "label": "开方",
+                "math": "v=\\sqrt{u}"
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "内层函数 u；着色曲线对应当前讨论区间，箭头表示已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "highlights": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "decreasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "c95e46d72cc3eec570d3a706#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在当前合法输入范围内，开方后，输出的增减方向是？",
+            "stem_board": {
+              "caption": "逐层传递增减性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一层的输入",
+                  "math": "\\begin{gathered}x\\in \\left(-\\infty, -1\\right]\\\\u=x^{2} - 2 x - 3\\;\\downarrow\\\\u\\geq0\\end{gathered}"
+                },
+                {
+                  "label": "输出函数的增减",
+                  "math": null
+                }
+              ],
+              "layout": "derivation",
+              "operation": {
+                "label": "开方",
+                "math": "v=\\sqrt{u}"
+              }
+            },
+            "submit_label": "确认判断",
+            "title": "开方：$x\\in \\left(-\\infty, -1\\right]$"
+          },
+          {
+            "completion_board": {
+              "caption": "逐层传递增减性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一层的输入",
+                  "math": "\\begin{gathered}x\\in \\left[3, \\infty\\right)\\\\u=x^{2} - 2 x - 3\\;\\uparrow\\\\u\\geq0\\end{gathered}"
+                },
+                {
+                  "label": "输出函数的增减",
+                  "math": "u=x^{2} - 2 x - 3\\;\\uparrow\\xrightarrow{\\text{开方保序}}v=\\sqrt{u}\\;\\uparrow"
+                }
+              ],
+              "layout": "derivation",
+              "operation": {
+                "label": "开方",
+                "math": "v=\\sqrt{u}"
+              }
+            },
+            "completion_graphs": [
+              {
+                "caption": "内层函数 u；图中箭头与区间对应前面已确认的增减方向。",
+                "kind": "piecewise_curve",
+                "params": {
+                  "bounds": [
+                    -2.0,
+                    4.0,
+                    -1.0,
+                    5.751736111111112
+                  ],
+                  "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                  "interval": [
+                    null,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "interval_marks": [
+                    {
+                      "from": null,
+                      "label": "(-∞, -1]",
+                      "left_closed": false,
+                      "right_closed": true,
+                      "to": -1.0,
+                      "trend": "decreasing"
+                    },
+                    {
+                      "from": 3.0,
+                      "label": "[3, +∞)",
+                      "left_closed": true,
+                      "right_closed": false,
+                      "to": null,
+                      "trend": "increasing"
+                    }
+                  ],
+                  "points": [],
+                  "segments": [
+                    {
+                      "coefficients": [
+                        1.0,
+                        -2.0,
+                        -3.0
+                      ],
+                      "interval": [
+                        null,
+                        -1.0
+                      ],
+                      "interval_closed": [
+                        false,
+                        true
+                      ],
+                      "transform": "identity"
+                    },
+                    {
+                      "coefficients": [
+                        1.0,
+                        -2.0,
+                        -3.0
+                      ],
+                      "interval": [
+                        3.0,
+                        null
+                      ],
+                      "interval_closed": [
+                        true,
+                        false
+                      ],
+                      "transform": "identity"
+                    }
+                  ],
+                  "title": "内层函数 u",
+                  "variable": "x",
+                  "xTicks": [
+                    [
+                      -1.0,
+                      "-1"
+                    ],
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      1.0,
+                      "1"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ]
+                  ]
+                }
+              },
+              {
+                "caption": "原函数 f；图中箭头与区间对应前面已确认的增减方向。",
+                "kind": "piecewise_curve",
+                "params": {
+                  "bounds": [
+                    -2.0,
+                    4.0,
+                    -1.0,
+                    3.179847726588055
+                  ],
+                  "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                  "interval": [
+                    null,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "interval_marks": [
+                    {
+                      "from": null,
+                      "label": "(-∞, -1]",
+                      "left_closed": false,
+                      "right_closed": true,
+                      "to": -1.0,
+                      "trend": "decreasing"
+                    },
+                    {
+                      "from": 3.0,
+                      "label": "[3, +∞)",
+                      "left_closed": true,
+                      "right_closed": false,
+                      "to": null,
+                      "trend": "increasing"
+                    }
+                  ],
+                  "points": [],
+                  "segments": [
+                    {
+                      "coefficients": [
+                        1.0,
+                        -2.0,
+                        -3.0
+                      ],
+                      "interval": [
+                        null,
+                        -1.0
+                      ],
+                      "interval_closed": [
+                        false,
+                        true
+                      ],
+                      "transform": "sqrt"
+                    },
+                    {
+                      "coefficients": [
+                        1.0,
+                        -2.0,
+                        -3.0
+                      ],
+                      "interval": [
+                        3.0,
+                        null
+                      ],
+                      "interval_closed": [
+                        true,
+                        false
+                      ],
+                      "transform": "sqrt"
+                    }
+                  ],
+                  "title": "原函数 f",
+                  "variable": "x",
+                  "xTicks": [
+                    [
+                      -1.0,
+                      "-1"
+                    ],
+                    [
+                      0.0,
+                      "0"
+                    ],
+                    [
+                      1.0,
+                      "1"
+                    ],
+                    [
+                      3.0,
+                      "3"
+                    ]
+                  ]
+                }
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "内层函数 u；着色曲线对应当前讨论区间，箭头表示已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  5.751736111111112
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "highlights": [
+                  {
+                    "from": 3.0,
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": 3.0,
+                    "label": "[3, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "内层函数 u",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "c95e46d72cc3eec570d3a706#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在当前合法输入范围内，开方后，输出的增减方向是？",
+            "stem_board": {
+              "caption": "逐层传递增减性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "这一层的输入",
+                  "math": "\\begin{gathered}x\\in \\left[3, \\infty\\right)\\\\u=x^{2} - 2 x - 3\\;\\uparrow\\\\u\\geq0\\end{gathered}"
+                },
+                {
+                  "label": "输出函数的增减",
+                  "math": null
+                }
+              ],
+              "layout": "derivation",
+              "operation": {
+                "label": "开方",
+                "math": "v=\\sqrt{u}"
+              }
+            },
+            "submit_label": "确认判断",
+            "title": "开方：$x\\in \\left[3, \\infty\\right)$"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "bf47a52ed08c34503241c505f2347ad28530b6c257c2274bcc5be6ef50aa894c",
+            "step_id": "39e5646dcb-monotonicity-structure-006-composition"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1d1611be90c8b279e45f996b",
+        "interaction_revision": "f9630e4464c589d9063e37720bd49216848a46760e7a5031eb4cd92fb07781ea",
+        "interaction_sha256": "64bfe0d22b4c21f10b051d5732c69c5a44ad2a44914e063f299c9449f8130757",
+        "lesson_version": "578395891c53a583d95169ae144346c311a7f794f9b04e221bc6cdd77671af9c",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "写出递减区间",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与范围",
+                  "math": "\\begin{gathered}f(x)=\\sqrt{x^{2} - 2 x - 3}\\\\x\\in \\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "递减区间",
+                  "math": "\\left(-\\infty, -1\\right]"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "原函数 f；着色曲线对应当前讨论区间，箭头表示已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  3.179847726588055
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "highlights": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "decreasing"
+                  },
+                  {
+                    "from": 3.0,
+                    "label": "[3, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "sqrt"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "sqrt"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "原函数 f；图中箭头与区间对应前面已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  4.0,
+                  -1.0,
+                  3.179847726588055
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, -1]",
+                    "left_closed": false,
+                    "right_closed": true,
+                    "to": -1.0,
+                    "trend": "decreasing"
+                  },
+                  {
+                    "from": 3.0,
+                    "label": "[3, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      null,
+                      -1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      true
+                    ],
+                    "transform": "sqrt"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      -2.0,
+                      -3.0
+                    ],
+                    "interval": [
+                      3.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "sqrt"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ],
+                  [
+                    3.0,
+                    "3"
+                  ]
+                ]
+              }
+            },
+            "id": "1d1611be90c8b279e45f996b#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\left(-\\infty, -1\\right]$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\text{无}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$\\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left[3, \\infty\\right)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "分别列出各个区间；不能把不相连的区间写成一个单调区间。",
+            "stem_board": {
+              "caption": "写出递减区间",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与范围",
+                  "math": "\\begin{gathered}f(x)=\\sqrt{x^{2} - 2 x - 3}\\\\x\\in \\left(-\\infty, -1\\right] \\cup \\left[3, \\infty\\right)\\end{gathered}"
+                },
+                {
+                  "label": "递减区间",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出递减区间"
+          }
+        ],
+        "route_id": "monotonicity-structure",
+        "run_id": "89d7e4cfb5214edf85d3d7b7a9e0d5b9",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "168fc128a9fd35025d9d96f3c51d1a63dba4b8ddb30ac764c8dff80d3fcb9f23",
+            "step_id": "39e5646dcb-monotonicity-structure-007-answer"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

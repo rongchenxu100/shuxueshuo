@@ -72,3 +72,8 @@ compare_functions 的 select_relation 按题面分别取 equal（选相同）或
 - 题给周期函数 g 与目标函数 f(x)=a*x+g(x)，且给出 f 在一个基础区间上的完整值域、要求另一区间上的值域时，使用 `find_translation_range`。`function_relation` 原样记录题给关系；`periodic_function` 只填周期函数名称，`period` 填题给周期，`periodic_domain` 填该周期函数的原定义域；`known_domain` 与 `known_range` 分别填基础输入区间及其题给完整值域；`input_domain` 填所求值域的输入区间。不要再把这些相同条件重复放入 definitions/facts。
 - 不得把 g 的周期写给 f，也不得把基础区间写成 f 的完整定义域。不得推导或写入 f 的平移关系、整数位移范围或最终值域；这些由程序验证。各集合保留原来的开闭端点，不能将残缺区间补成整周期。
 - 此类题未给 g 的解析式是题目本身的正常设定，不因此报图像模糊或缺条件。提取保留原题，复核按同一字段归属核查；手写答案不能成为 known_range 或最终答案。
+
+
+### 具体函数单调性（FM-T1，提取、复核、修复共用）
+求具体函数的单调递增／递减区间使用 `{"kind":"find_monotonic_intervals","expression":"原完整表达式","variable":"x","direction":"increasing 或 decreasing 或 both"}`；两类都要求或统问单调性时用 both。证明给定区间上的增减性使用 prove_monotonicity_on_interval，direction 取 increasing 或 decreasing，并保留 input_domain。原题指定的输入范围写 input_domain；明确声明完整定义域时另写 domain_role=declared，普通“在某区间内讨论”用 restriction。不自行计算自然定义域、不先配方、不去掉绝对值、不添加单调性事实或答案。f(x)=P 的源式可直接保存在目标 expression，不能因为重复转录而添加新的数学条件；原图已有的其他条件仍保留。y=表达式允许内部命名 f，但 original_text 保留原图 y。根式 sqrt(Q)、根式倒数 1/sqrt(Q)、P+c*abs(r*x+s) 保留原始结构与作用域。区间只是原题限制，不能把手写区间答案填入 input_domain。
+已知单调性求参数、利用单调性解函数不等式、抽象函数关系证明，不改写为具体函数求单调区间；保留真实目标及条件，即使当前能力不支持。不能为适配题型改变方向、丢弃参数或补造函数解析式。

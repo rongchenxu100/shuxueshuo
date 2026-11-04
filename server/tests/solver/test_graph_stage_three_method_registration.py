@@ -180,7 +180,18 @@ def test_current_milestone_adds_function_methods_without_changing_earlier_sets()
     base = {"method-discriminant", "method-separation"}
     interval = base | {"method-interval-extremum"}
     all_methods = interval | {"method-variable-swap"}
-    function_methods = {"method-domain-intersection", "method-domain-parameter", "method-function-equality"}
+    function_methods = {
+        'method-domain-intersection', 'method-domain-parameter', 'method-function-equality',
+        'method-input-domain-correspondence', 'method-function-evaluation',
+        'method-function-assignment', 'method-function-coefficients', 'method-function-equation-system',
+        'method-function-matching', 'method-function-substitution', 'method-direct-range',
+        'method-equation-real-root-range', 'method-finite-range', 'method-fraction-split-range',
+        'method-quadratic-interval-range', 'method-substitution-range', 'method-translation-range',
+        'method-absolute-piecewise-graph', 'method-function-graph-transform',
+        'method-piecewise-equation', 'method-piecewise-graph-inequality', 'method-piecewise-inequality',
+        'method-piecewise-modeling', 'method-piecewise-range', 'method-piecewise-range-parameter',
+        'method-monotonicity-definition', 'method-monotonicity-structure', 'method-piecewise-monotonicity',
+    }
     assert execution_contracts.default_milestone() == "6"
     assert execution_contracts.milestones() == ("1a", "1b-1", "1b", "2", "3", "4", "5", "6")
     expected = {"1a": set(), "1b-1": {"method-discriminant"}, "1b": base, "2": base,

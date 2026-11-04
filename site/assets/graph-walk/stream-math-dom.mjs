@@ -149,11 +149,20 @@ export function createDerivationBoard(document, board) {
   }
   const row = document.createElement('div');
   row.className = 'gw-derivation-row';
+  if (board.operation) node.dataset.layout = 'function-composition';
   board.items.forEach((item, index) => {
     if (index) {
       const arrow = text(document, 'span', board.connector, 'gw-derivation-arrow');
       arrow.setAttribute('aria-hidden', 'true');
-      row.append(arrow);
+      if (board.operation) {
+        const operation = document.createElement('div');
+        operation.className = 'gw-derivation-operation';
+        const label = text(document, 'div', board.operation.label, 'gw-derivation-label');
+        const formula = text(document, 'div', board.operation.math, 'gw-derivation-formula');
+        formula.dataset.mathFormula = 'true';
+        operation.append(label, formula, arrow);
+        row.append(operation);
+      } else row.append(arrow);
     }
     row.append(derivationCell(document, item, index ? 'result' : 'given'));
   });

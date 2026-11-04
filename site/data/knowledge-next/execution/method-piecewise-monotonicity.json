@@ -1,0 +1,196 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-piecewise-monotonicity",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "split",
+      "calls": [
+        {
+          "id": "split",
+          "capability": "split_monotonicity",
+          "public_ref": "skill-absolute-sign-split",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "branch_cases": "branch_cases"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "inputs",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "cases": {
+        "source": "branch_cases",
+        "binding": "branch_case",
+        "through": "branches",
+        "collect": "branch_results",
+        "outputs": {
+          "model": "$child_result"
+        },
+        "entry": {
+          "id": "inputs",
+          "calls": [
+            {
+              "id": "bind",
+              "capability": "bind_monotonicity",
+              "public_ref": null,
+              "inputs": {
+                "branch_case": "$branch_case"
+              },
+              "outputs": {
+                "child_context": "child_context"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": []
+        }
+      }
+    },
+    {
+      "id": "branches",
+      "calls": [
+        {
+          "id": "child",
+          "capability": "submethod",
+          "public_ref": "method-monotonicity-structure",
+          "inputs": {
+            "context": "$child_context"
+          },
+          "outputs": {
+            "child_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "join",
+      "calls": [
+        {
+          "id": "join",
+          "capability": "join_monotonicity",
+          "public_ref": "skill-piecewise-order-join",
+          "inputs": {
+            "context": "$context",
+            "branch_results": "$branch_results"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "join",
+          "after": "join",
+          "template": "monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "phase": "join",
+            "before": [],
+            "after": [],
+            "square": null
+          },
+          "depends_on": [
+            "description",
+            "monotonicity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_monotonicity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "answer",
+          "after": "confirm",
+          "template": "monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "phase": "answer",
+            "before": [],
+            "after": [],
+            "square": null
+          },
+          "depends_on": [
+            "description",
+            "monotonicity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "monotonicity_result": "$monotonicity_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_monotonicity",
+        "inputs": {
+          "context": "$context",
+          "method": "piecewise"
+        }
+      }
+    ]
+  }
+}

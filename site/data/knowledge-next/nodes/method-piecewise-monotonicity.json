@@ -1,0 +1,85 @@
+{
+  "id": "method-piecewise-monotonicity",
+  "kind": "method",
+  "label": "分段单调性法",
+  "summary": "先判断每段，再检查分界点两侧的次序，确定完整单调区间。",
+  "source": "函数单调性 FM-T1",
+  "input": "原函数、目标方向及题给输入范围。",
+  "output": "分别列出的单调区间及逐段严格次序依据。",
+  "conditions": "当前支持固定有理系数的二次以下多项式、二次根式、根式倒数，以及一个一次式绝对值的分段；定义法先支持多项式。",
+  "steps": [
+    {
+      "id": "split",
+      "title": "按绝对值符号分段",
+      "body": [
+        "找出一次式零点，根据正负去掉绝对值，保留每段输入范围。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-absolute-sign-split"
+        }
+      ]
+    },
+    {
+      "id": "inputs",
+      "title": "绑定各段范围",
+      "body": [
+        "每个子问题同时带入本段表达式和本段区间。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "branches",
+      "title": "分别判断段内增减",
+      "body": [
+        "调用基本函数与复合法，得到每段的完整单调区间。"
+      ],
+      "calls": [
+        {
+          "ref": "method-monotonicity-structure"
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "title": "检查跨段单调性",
+      "body": [
+        "只有方向一致、没有定义域缺口且分界点的函数值次序相容，才允许合并。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-piecewise-order-join"
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "title": "列出完整单调区间",
+      "body": [
+        "分别写出各区间，保留可以取到的端点；不把区间族当作一个并集区间。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "verify",
+      "title": "回到原目标核验",
+      "body": [
+        "核验原式、定义域、完整覆盖和严格次序。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "绝对值两侧分段",
+      "prompt": "求 $f(x)=-x^2+2|x|+3$ 的递增区间。",
+      "solution": [
+        "$x<0$ 时 $f(x)=-x^2-2x+3$，对称轴 $x=-1$。",
+        "$x\\ge0$ 时 $f(x)=-x^2+2x+3$，对称轴 $x=1$。",
+        "递增区间分别为 $(-\\infty,-1]$ 和 $[0,1]$；两段不能合成一个递增区间。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ],
+  "resources": []
+}

@@ -1,0 +1,40 @@
+{
+  "original_text": "15. 函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____。",
+  "root": {
+    "definitions": [
+      "f(x)=sqrt(-x^2+4*x-3)"
+    ],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "sqrt(-x^2+4*x-3)",
+        "variable": "x",
+        "direction": "increasing"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

@@ -699,3 +699,17 @@ REGISTRY['prepare_piecewise_range_parameter'] = _piecewise_parameter_capability(
 REGISTRY['solve_piecewise_range_parameter'] = _piecewise_parameter_capability('solve')
 REGISTRY['reduce_piecewise_range_to_universal'] = _piecewise_parameter_capability('reduce_to_universal')
 REGISTRY['accept_piecewise_range_subproblem'] = _piecewise_parameter_capability('accept_subproblem')
+
+
+def _monotonicity_capability(name):
+    def call(**inputs):
+        from .. import monotonicity_runtime
+        return getattr(monotonicity_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'prepare_monotonicity_difference': 'prepare_difference', 'factor_monotonicity_difference': 'factor_difference',
+                         'prepare_monotonicity': 'prepare', 'analyze_monotonicity': 'analyze',
+                         'split_monotonicity': 'split', 'bind_monotonicity': 'bind',
+                         'confirm_monotonicity': 'confirm', 'transfer_monotonicity': 'transfer', 'join_monotonicity': 'join', 'prove_monotonicity_difference': 'difference_proof'}.items():
+    REGISTRY[_name] = _monotonicity_capability(_function)

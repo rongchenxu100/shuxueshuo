@@ -1,0 +1,20 @@
+{
+  "id": "type-monotonicity-extremum",
+  "kind": "problem_type",
+  "label": "利用单调性求最值",
+  "status": "planned",
+  "summary": "利用单调性求最值；后续题型建设。",
+  "source": "函数单调性专题计划",
+  "features": [
+    {
+      "cue": "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+    }
+  ],
+  "confuse": [],
+  "knowledge": [
+    "function-monotonicity"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

@@ -3032,6 +3032,36 @@
           }
         ]
       }
+    },
+    "monotonicity_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "monotonicity_result",
+        "phase",
+        "before",
+        "after",
+        "square"
+      ],
+      "prepare": "monotonicity_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
     }
   },
   "boundary_steps": {
@@ -3063,7 +3093,10 @@
     "method-piecewise-inequality": "verify",
     "method-piecewise-range": "verify",
     "method-piecewise-range-parameter": "verify",
-    "method-piecewise-modeling": "verify"
+    "method-piecewise-modeling": "verify",
+    "method-monotonicity-structure": "verify",
+    "method-monotonicity-definition": "verify",
+    "method-piecewise-monotonicity": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

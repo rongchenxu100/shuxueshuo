@@ -1,0 +1,20 @@
+{
+  "id": "type-monotonicity-parameter",
+  "kind": "problem_type",
+  "label": "已知函数的单调性求参",
+  "status": "planned",
+  "summary": "已知函数的单调性求参；后续题型建设。",
+  "source": "函数单调性专题计划",
+  "features": [
+    {
+      "cue": "原目标是使函数在指定区间内增减的参数范围。"
+    }
+  ],
+  "confuse": [],
+  "knowledge": [
+    "function-monotonicity"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

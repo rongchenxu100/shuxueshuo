@@ -1,0 +1,20 @@
+{
+  "id": "type-monotonicity-abstract-proof",
+  "kind": "problem_type",
+  "label": "证明抽象函数的单调性",
+  "status": "planned",
+  "summary": "证明抽象函数的单调性；后续题型建设。",
+  "source": "函数单调性专题计划",
+  "features": [
+    {
+      "cue": "由函数关系与符号条件证明任意两点的函数值次序。"
+    }
+  ],
+  "confuse": [],
+  "knowledge": [
+    "function-monotonicity"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

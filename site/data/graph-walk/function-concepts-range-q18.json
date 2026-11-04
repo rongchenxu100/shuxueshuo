@@ -968,7 +968,7 @@
         "id": "function-range-extrema",
         "kind": "knowledge",
         "label": "函数的值域与最值",
-        "summary": "值域是所有实际函数值的集合；最大值、最小值必须属于这个集合。",
+        "summary": "最大值、最小值既要约束所有函数值，也要能被实际取到；用图像和单调区间定位取值点。",
         "aliases": [],
         "home": "compulsory-1-ch3"
       },
@@ -983,6 +983,15 @@
       }
     ],
     "edges": [
+      {
+        "id": "function-concept|prerequisite|function-range-extrema",
+        "from": "function-concept",
+        "to": "function-range-extrema",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
       {
         "id": "method-fraction-split-range|calls|method-quadratic-interval-range",
         "from": "method-fraction-split-range",

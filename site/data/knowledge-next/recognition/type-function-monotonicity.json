@@ -1,0 +1,52 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-monotonicity",
+  "branches": [
+    {
+      "branch_id": "find_monotonic_intervals",
+      "checks": [
+        {
+          "id": "goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_monotonic_intervals",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-source",
+          "feature_id": "function_monotonicity",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    },
+    {
+      "branch_id": "prove_monotonicity_on_interval",
+      "checks": [
+        {
+          "id": "goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "prove_monotonicity_on_interval",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "supported-source",
+          "feature_id": "function_monotonicity",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

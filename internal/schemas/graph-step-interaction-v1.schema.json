@@ -1172,6 +1172,9 @@
                 },
                 "comparison_sides": {
                   "$ref": "#/$defs/condition_groups"
+                },
+                "operation": {
+                  "$ref": "#/$defs/derivation_operation"
                 }
               },
               "allOf": [
@@ -1205,6 +1208,30 @@
                       {
                         "required": [
                           "comparison_sides",
+                          "interval_explorer"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "comparison_sides"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "pairing_diagram"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
                           "interval_explorer"
                         ]
                       }
@@ -1714,6 +1741,9 @@
                 },
                 "comparison_sides": {
                   "$ref": "#/$defs/condition_groups"
+                },
+                "operation": {
+                  "$ref": "#/$defs/derivation_operation"
                 }
               },
               "allOf": [
@@ -1747,6 +1777,30 @@
                       {
                         "required": [
                           "comparison_sides",
+                          "interval_explorer"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "condition_groups"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "comparison_sides"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
+                          "pairing_diagram"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "operation",
                           "interval_explorer"
                         ]
                       }
@@ -2321,6 +2375,13 @@
                 },
                 "minItems": 2,
                 "maxItems": 2
+              },
+              "transform": {
+                "enum": [
+                  "identity",
+                  "sqrt",
+                  "reciprocal_sqrt"
+                ]
               }
             }
           }
@@ -2364,6 +2425,13 @@
                 },
                 "minItems": 2,
                 "maxItems": 2
+              },
+              "transform": {
+                "enum": [
+                  "identity",
+                  "sqrt",
+                  "reciprocal_sqrt"
+                ]
               }
             }
           }
@@ -2383,6 +2451,70 @@
           "items": {
             "$ref": "#/$defs/graphTick"
           }
+        },
+        "interval_marks": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "left_closed",
+              "right_closed",
+              "label",
+              "trend"
+            ],
+            "properties": {
+              "from": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "to": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "left_closed": {
+                "type": "boolean"
+              },
+              "right_closed": {
+                "type": "boolean"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "trend": {
+                "enum": [
+                  "pending",
+                  "increasing",
+                  "decreasing",
+                  "constant"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "derivation_operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "math"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "math": {
+          "$ref": "#/$defs/text"
         }
       }
     }

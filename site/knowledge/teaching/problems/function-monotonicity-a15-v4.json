@@ -1,0 +1,129 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a15-v4",
+  "label": "定义域与对称轴 · A15",
+  "path": "/topics/function-monotonicity/q15/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a15-v4.json",
+  "types": [
+    "type-function-monotonicity"
+  ],
+  "statement": "已知函数 $f(x)=\\sqrt{-x^2+4x-3}$，求函数的单调递增区间。",
+  "routes": {
+    "monotonicity-structure": {
+      "label": "基本函数与复合法",
+      "methods": [
+        "method-monotonicity-structure"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "1f966b7c8745cbdb1285414a#1": {
+          "title": "找到限制位置",
+          "position": 4,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "square-root-expression#meaning"
+          ]
+        },
+        "15d3346eedf6a4d9cc09301c#1": {
+          "title": "列出条件",
+          "position": 5,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "square-root-expression#meaning"
+          ]
+        },
+        "a14d08a55d651dd99d2dffcb#1": {
+          "title": "解每个条件",
+          "position": 6,
+          "refs": [
+            "method-domain-intersection#solve",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "quadratic-inequality#signs",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "62d02cf6aaac379a0ecd4e10#1": {
+          "title": "把二次函数配成顶点式",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "c7cbc96fede19b951d6d717a#1": {
+          "title": "二次函数在 $\\left[1, 2\\right]$ 上的增减",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "c7cbc96fede19b951d6d717a#2": {
+          "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "640a8fafad1272728fbb7212#1": {
+          "title": "开方：$x\\in \\left[1, 2\\right]$",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "640a8fafad1272728fbb7212#2": {
+          "title": "开方：$x\\in \\left[2, 3\\right]$",
+          "position": 11,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "fb375242f1e206fade6502b5#1": {
+          "title": "写出递增区间",
+          "position": 12,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "e4882853004d6d8c1f0037eee67a5f9ec4b9e7886f2286664de4f1b6286e1a56",
+  "practice_version": "c0893c2954adeea7d13f11709f93e0a8d9dfb672af97d3942cfebc8ba85f8dc9"
+}

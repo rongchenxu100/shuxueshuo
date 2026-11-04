@@ -1005,6 +1005,10 @@ class NotationValidator:
                     from .notation_piecewise_modeling import compile_pricing
                     goals.append(compile_pricing(goal, f'{path}.goals[{index}]'))
                     continue
+                if goal['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
+                    from .notation_function_graph import compile_function_graph
+                    goals.append(compile_function_graph(goal, f'{path}.goals[{index}]'))
+                    continue
                 if goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
                     from .notation_function_graph import compile_function_graph
                     goals.append(compile_function_graph(goal, f'{path}.goals[{index}]'))

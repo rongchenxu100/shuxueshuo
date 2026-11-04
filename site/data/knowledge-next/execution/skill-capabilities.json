@@ -11,7 +11,8 @@
       "normalize_parameter_conditions",
       "solve_abstract_function_domain",
       "solve_abstract_domain_parameter",
-      "return_fraction_range"
+      "return_fraction_range",
+      "prove_monotonicity_difference"
     ],
     "skill-equality-transform": [
       "separation_division",
@@ -126,7 +127,23 @@
       "transform_function_graph"
     ],
     "skill-absolute-sign-split": [
-      "construct_absolute_graph"
+      "construct_absolute_graph",
+      "split_monotonicity"
+    ],
+    "skill-composite-monotonicity": [
+      "transfer_monotonicity"
+    ],
+    "skill-piecewise-order-join": [
+      "join_monotonicity"
+    ],
+    "skill-factor": [
+      "factor_monotonicity_difference"
+    ],
+    "method-monotonicity-structure": [
+      "submethod"
+    ],
+    "method-difference-comparison": [
+      "submethod"
     ]
   },
   "internal": {
@@ -280,6 +297,25 @@
     ],
     "accept_piecewise_range_subproblem": [
       "method-piecewise-range-parameter#solve"
+    ],
+    "prepare_monotonicity": [
+      "method-monotonicity-structure#domain",
+      "method-monotonicity-definition#domain"
+    ],
+    "analyze_monotonicity": [
+      "method-monotonicity-structure#analyze",
+      "method-monotonicity-definition#analyze"
+    ],
+    "bind_monotonicity": [
+      "method-piecewise-monotonicity#inputs"
+    ],
+    "confirm_monotonicity": [
+      "method-monotonicity-structure#conclude",
+      "method-monotonicity-definition#conclude",
+      "method-piecewise-monotonicity#conclude"
+    ],
+    "prepare_monotonicity_difference": [
+      "method-difference-comparison#difference"
     ]
   }
 }

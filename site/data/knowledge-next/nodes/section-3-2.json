@@ -32,6 +32,26 @@
     {
       "ref": "quadratic-function-properties",
       "relation": "extends"
+    },
+    {
+      "ref": "type-function-monotonicity",
+      "relation": "extends"
+    },
+    {
+      "ref": "type-monotonicity-extremum",
+      "relation": "extends"
+    },
+    {
+      "ref": "type-monotonicity-inequality",
+      "relation": "extends"
+    },
+    {
+      "ref": "type-monotonicity-parameter",
+      "relation": "extends"
+    },
+    {
+      "ref": "type-monotonicity-abstract-proof",
+      "relation": "extends"
     }
   ]
 }

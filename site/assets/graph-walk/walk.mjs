@@ -1,11 +1,11 @@
-import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261102-piecewise-j1';
-import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261102-piecewise-j1';
+import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261104-monotonicity-intervals';
+import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261104-monotonicity-intervals';
 import {formulaAnswerHTML} from './formula-answer.mjs?v=20261101-fraction';
 import {createFormulaFitter, renderFittedFormula} from './formula-fit.mjs?v=20261103';
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261101-coefficients';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261102-piecewise-p2b';
-import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
+import {createMathCard, createDerivationBoard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261104-composition-operation';
+import {expressionRegionsHTML} from './expression-regions.mjs?v=20261104-domain-display';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
 import {buildStreamReplay} from './walk-replay.mjs?v=20261101-coefficients';
 import {optionProgress, hasOptionWorkspaces} from './option-workspace.mjs?v=20261027-function-equality';
@@ -464,12 +464,21 @@ function completedHTML(record, number, runId, route) {
   const results = decision.source !== 'stream' && !decision.display && !decision.completion_board ? (record.results || []).map(resultText).filter(Boolean).map(text => `<p class="gw-result" data-math-text>${escapeHTML(text)}</p>`).join('') : '';
   const figure = completionFiguresHTML(decision, `${uid}-done`, record.answer);
   const context = decision.source_context ? `<p class="gw-result" data-math-text>${escapeHTML(decision.source_context)}</p>` : '';
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${context}${figure}${body}${results}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(decision))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${context}${figure}${body}${results}</div></details>`;
 }
 
 /* The parts of one streamed interaction are one step: they share a card and a step number,
    and the card guides through them in order. State still records each part as its own decision. */
 const groupOf = decision => decision?.source === 'stream' && decision.stream_part_count > 1 ? decision.stream_interaction_id : null;
+
+function stepTitle(decision) {
+  const title = (groupOf(decision) ? decision.stream_group_title : '') || decision.title || decision.question || '当前判断';
+  const cards = bundle.stream && decision.source === 'stream' ? ownMathSteps(decision) : [];
+  // Show the purpose of the reused domain method, including its smaller actions.
+  // Use verified method references rather than matching a question's wording.
+  return cards.length && cards.every(card => card.method_ref?.split('#')[0] === 'method-domain-intersection')
+    ? `判断定义域 · ${title}` : title;
+}
 
 function stepUnits() {
   const route = state.run?.route, units = [];
@@ -521,7 +530,7 @@ function groupCompletedHTML(unit, number) {
     const explanation = completedFeedbackHTML(decision);
     return explanation ? `<div class="gw-part-row"><p class="gw-part-label" data-math-text>${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
   }).join('');
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(last.stream_group_title || last.title)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figures}${decisions.map(completionBoardHTML).join('')}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(last))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figures}${decisions.map(completionBoardHTML).join('')}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
 }
 
 /* Within the card: every part as a numbered stop, the answered ones folded into rows above the current one. */
@@ -680,7 +689,7 @@ function carryHTML() {
   const lines = results.length ? results : [carrySummary(decision, record.answer)].filter(Boolean);
   if (!lines.length) return '';
   const number = (state.introCompleted?.length || 0) + units.length;
-  return `<div class="gw-carry"><p class="gw-carry-label" data-math-text>接第 ${number} 步 · ${escapeHTML(decision.stream_group_title || decision.title || '')}</p>${lines.map(text => `<p data-math-text>${escapeHTML(text)}</p>`).join('')}</div>`;
+  return `<div class="gw-carry"><p class="gw-carry-label" data-math-text>接第 ${number} 步 · ${escapeHTML(stepTitle(decision))}</p>${lines.map(text => `<p data-math-text>${escapeHTML(text)}</p>`).join('')}</div>`;
 }
 
 function carrySummary(decision, answer) {
@@ -700,7 +709,7 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const disabled = actor === 'replay';
   const {units, open} = stepUnits(), grouped = Boolean(groupOf(decision));
   const number = (state.introCompleted?.length || 0) + units.length + 1;
-  const title = grouped ? decision.stream_group_title || decision.title : decision.title || '当前判断';
+  const title = stepTitle(decision);
   const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
   const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
@@ -1660,7 +1669,7 @@ function mountCompletedMath() {
   for (const host of $('#gw-steps').querySelectorAll('[data-stream-completed]')) {
     const decision = decisionById(host.dataset.streamCompleted, state.run.route);
     if (!decision?.stream_last_part) continue;
-    const parentTitle = groupOf(decision) ? decision.stream_group_title || decision.title : decision.title || decision.question;
+    const parentTitle = stepTitle(decision);
     const pictured = groupOf(decision) ? groupParts(decision) : [decision];
     const expectedGraphs = pictured.reduce((count, part) => count + Number(Boolean(part.completion_graph)) +
       (Array.isArray(part.completion_graphs) ? part.completion_graphs.length : 0), 0);

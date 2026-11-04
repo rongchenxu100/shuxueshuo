@@ -1,0 +1,36 @@
+{
+  "id": "skill-composite-monotonicity",
+  "kind": "skill",
+  "label": "复合函数增减性判断",
+  "summary": "在内层的实际取值范围内，逐层检查保序与反序。",
+  "source": "函数单调性 FM-T1",
+  "input": "各段或各层的方向、定义域、值域及端点信息。",
+  "output": "有前提依据的增减方向或合并判断。",
+  "conditions": "严格单调与常值分别处理；任何符号与范围条件都不能省略。",
+  "basis": [
+    "composite-function-monotonicity#range-first",
+    "composite-function-monotonicity#rule"
+  ],
+  "operations": [
+    {
+      "id": "check",
+      "title": "复合函数增减性判断",
+      "body": [
+        "先求内层允许的输出范围。",
+        "外层在该范围递增则保持方向，递减则反转方向；跨断点必须另分段。",
+        "开方在非负数上保序，正数取倒数反序。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "开方后取倒数",
+      "prompt": "$u=x^2-5x-6$ 在 $(-\\infty,-1)$ 上正且递减，$\\frac{1}{\\sqrt{u}}$ 怎样变化？",
+      "solution": [
+        "$u>0$，开方保持次序：$\\sqrt u$ 递减且为正。",
+        "正数取倒数反序，因此 $\\frac{1}{\\sqrt{u}}$ 递增。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ]
+}

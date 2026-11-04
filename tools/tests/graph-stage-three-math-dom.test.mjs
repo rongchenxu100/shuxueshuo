@@ -106,6 +106,29 @@ test('a deduction keeps its labelled cells while the pending question mark becom
   assert.equal(completed.heading.hidden, false, 'standalone cards retain their own title');
 });
 
+test('composition boards keep the operation visible while only the output direction is unanswered', () => {
+  const {document, find} = documentFixture();
+  for (const operation of [{label: '开方', math: 'v=\\sqrt{u}'}, {label: '取倒数', math: 'f(x)=\\frac1v'}]) {
+    const board = {layout: 'derivation', caption: '逐层传递增减性', connector: '⇒', operation,
+      items: [{label: '这一层的输入', math: 'u\\ge0'}, {label: '输出函数的增减', math: null}]};
+    const pending = createDerivationBoard(document, board);
+    assert.equal(pending.dataset.layout, 'function-composition');
+    const middle = find('gw-derivation-operation', pending)[0];
+    assert.equal(find('gw-derivation-label', middle)[0].textContent, operation.label);
+    assert.equal(find('gw-derivation-formula', middle)[0].textContent, operation.math);
+    assert.equal(find('gw-derivation-formula', middle)[0].dataset.mathFormula, 'true');
+    assert.equal(find('gw-derivation-unknown', pending).length, 1);
+    const complete = createDerivationBoard(document, {...board, items: [board.items[0], {...board.items[1], math: '\\uparrow'}]});
+    assert.equal(find('gw-derivation-unknown', complete).length, 0);
+    assert.equal(find('gw-derivation-operation', complete)[0].children[1].textContent, operation.math);
+  }
+  const unsafe = '<img src=x onerror=alert(1)>';
+  const board = createDerivationBoard(document, {caption: '复合', connector: '⇒', operation: {label: unsafe, math: unsafe},
+    items: [{label: '输入', math: 'u'}, {label: '输出', math: null}]});
+  const middle = find('gw-derivation-operation', board)[0];
+  assert.ok(middle.children.slice(0, 2).every(node => node.textContent === unsafe && !node.children.length));
+});
+
 test('deduction labels, notes, captions and formulas are inserted as text, never source HTML', () => {
   const {document, find} = documentFixture();
   const untrusted = '<img src=x onerror=alert(1)>', formula = '\\text{<svg/onload=alert(1)>}';

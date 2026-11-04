@@ -1,0 +1,47 @@
+{
+  "source": "User attachments, 2026-11-04, Asia/Shanghai",
+  "purpose": "函数单调性：专题题源与方法技能设计",
+  "status": "planning_sources_not_extraction_gold",
+  "processing": "Original bytes copied without rotation, cropping, or annotation changes. Printed questions and handwritten answers are distinguished in the plan.",
+  "plan": "../../../../docs/function-monotonicity-topic-plan.md",
+  "source_question_count": 34,
+  "source_target_count": 35,
+  "images": [
+    {
+      "image_number": 1,
+      "file": "source-image-01.jpg",
+      "original_filename": "单调性 1.jpg",
+      "sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+      "bytes": 174900,
+      "source_question_numbers": "1–9",
+      "planning_ids": "FM-A01–FM-A09"
+    },
+    {
+      "image_number": 2,
+      "file": "source-image-02.jpg",
+      "original_filename": "单调性 2.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "bytes": 173769,
+      "source_question_numbers": "10–18",
+      "planning_ids": "FM-A10–FM-A18"
+    },
+    {
+      "image_number": 3,
+      "file": "source-image-03.jpg",
+      "original_filename": "单调性 3.jpg",
+      "sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad",
+      "bytes": 179050,
+      "source_question_numbers": "1–8",
+      "planning_ids": "FM-B01–FM-B08"
+    },
+    {
+      "image_number": 4,
+      "file": "source-image-04.jpg",
+      "original_filename": "单调性 4.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "bytes": 179674,
+      "source_question_numbers": "9–16",
+      "planning_ids": "FM-B09–FM-B16"
+    }
+  ]
+}

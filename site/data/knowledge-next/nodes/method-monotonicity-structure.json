@@ -1,0 +1,85 @@
+{
+  "id": "method-monotonicity-structure",
+  "kind": "method",
+  "label": "基本函数与复合法",
+  "summary": "由基本函数的性质逐层判断复合后的增减方向。",
+  "source": "函数单调性 FM-T1",
+  "input": "原函数、目标方向及题给输入范围。",
+  "output": "分别列出的单调区间及逐段严格次序依据。",
+  "conditions": "当前支持固定有理系数的二次以下多项式、二次根式、根式倒数，以及一个一次式绝对值的分段；定义法先支持多项式。",
+  "steps": [
+    {
+      "id": "domain",
+      "title": "确定定义域",
+      "body": [
+        "先检查根号与分母条件，再与题给限制取交。"
+      ],
+      "calls": [
+        {
+          "ref": "method-domain-intersection"
+        }
+      ]
+    },
+    {
+      "id": "square",
+      "title": "整理基本函数",
+      "body": [
+        "二次式复用配方技能，确定开口与对称轴。"
+      ],
+      "calls": [
+        {
+          "ref": "method-complete-square"
+        }
+      ]
+    },
+    {
+      "id": "analyze",
+      "title": "划分并判断单调区间",
+      "body": [
+        "按对称轴与合法输入区间分段；常值段不记为严格递增或递减。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "compose",
+      "title": "逐层判断复合方向",
+      "body": [
+        "先检查外层所需的取值范围，再按每一层的保序或反序传递方向。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-composite-monotonicity"
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "title": "列出完整单调区间",
+      "body": [
+        "分别写出各区间，保留可以取到的端点；不把区间族当作一个并集区间。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "verify",
+      "title": "回到原目标核验",
+      "body": [
+        "核验原式、定义域、完整覆盖和严格次序。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "开方保持次序",
+      "prompt": "求 $f(x)=\\sqrt{-2x^2+x+6}$ 的递增区间。",
+      "solution": [
+        "由 $-2x^2+x+6\\ge0$ 得定义域 $[-\\frac32,2]$。",
+        "内层开口向下，对称轴为 $x=\\frac14$；在 $[-\\frac32,\\frac14]$ 上递增。",
+        "开方在非负数上保序，原函数在同一区间递增。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ],
+  "resources": []
+}

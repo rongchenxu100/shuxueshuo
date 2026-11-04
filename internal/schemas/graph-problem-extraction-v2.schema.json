@@ -508,6 +508,9 @@
               },
               {
                 "$ref": "#/$defs/FindPricingInputGoal"
+              },
+              {
+                "$ref": "#/$defs/FunctionMonotonicityGoal"
               }
             ]
           },
@@ -2198,6 +2201,55 @@
         "bill": {
           "type": "string",
           "pattern": "^\\d{1,6}(\\.\\d{1,4})?$"
+        }
+      }
+    },
+    "FunctionMonotonicityGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expression",
+        "variable",
+        "direction"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "find_monotonic_intervals",
+            "prove_monotonicity_on_interval"
+          ]
+        },
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "variable": {
+          "type": "string",
+          "pattern": "^[a-z]$"
+        },
+        "function": {
+          "type": "string",
+          "pattern": "^[a-z](?:_[0-9]+)?$"
+        },
+        "direction": {
+          "enum": [
+            "increasing",
+            "decreasing",
+            "both"
+          ]
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "domain_role": {
+          "enum": [
+            "declared",
+            "restriction"
+          ]
         }
       }
     }

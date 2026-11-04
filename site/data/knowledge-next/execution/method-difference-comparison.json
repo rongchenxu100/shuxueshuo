@@ -1,0 +1,143 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-difference-comparison",
+  "inputs": {
+    "description": {
+      "role": "source_description"
+    },
+    "monotonicity_result": {
+      "role": "strict_order_certificate"
+    }
+  },
+  "steps": [
+    {
+      "id": "difference",
+      "calls": [
+        {
+          "id": "difference",
+          "capability": "prepare_monotonicity_difference",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result"
+          },
+          "outputs": {
+            "difference": "difference",
+            "variable": "variable",
+            "use_square": "use_square"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "simplify",
+      "calls": [
+        {
+          "id": "simplify",
+          "capability": "simplify_expression",
+          "public_ref": "skill-simplify",
+          "inputs": {
+            "expression": "$difference"
+          },
+          "outputs": {
+            "simplified": "expression"
+          },
+          "order": 0
+        },
+        {
+          "id": "factor",
+          "capability": "factor_monotonicity_difference",
+          "public_ref": "skill-factor",
+          "inputs": {
+            "expression": "$simplified"
+          },
+          "outputs": {
+            "factored": "expression"
+          },
+          "order": 1
+        },
+        {
+          "id": "square",
+          "capability": "complete_square",
+          "public_ref": "method-complete-square",
+          "inputs": {
+            "expression": "$simplified",
+            "variable": "$variable"
+          },
+          "outputs": {
+            "square": "square"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "use_square",
+            "equals": true
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "sign",
+      "calls": [
+        {
+          "id": "sign",
+          "capability": "prove_monotonicity_difference",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "difference": "$factored"
+          },
+          "outputs": {
+            "monotonicity_result": "monotonicity_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "difference",
+          "after": "sign",
+          "template": "monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "monotonicity_result": "$monotonicity_result",
+            "phase": "difference",
+            "before": [],
+            "after": [],
+            "square": null
+          },
+          "depends_on": [
+            "description",
+            "monotonicity_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "monotonicity_result": "$monotonicity_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  }
+}

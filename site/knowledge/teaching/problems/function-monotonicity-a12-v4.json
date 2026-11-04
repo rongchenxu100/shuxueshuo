@@ -1,0 +1,129 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a12-v4",
+  "label": "断开定义域的根式 · A12",
+  "path": "/topics/function-monotonicity/q12/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a12-v4.json",
+  "types": [
+    "type-function-monotonicity"
+  ],
+  "statement": "已知函数 $f(x)=\\sqrt{x^2-2x-3}$，求函数的单调递减区间。",
+  "routes": {
+    "monotonicity-structure": {
+      "label": "基本函数与复合法",
+      "methods": [
+        "method-monotonicity-structure"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "a264de23ac5d66b891cc7757#1": {
+          "title": "找到限制位置",
+          "position": 4,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "square-root-expression#meaning"
+          ]
+        },
+        "01d012dbc61ee3f812d7227f#1": {
+          "title": "列出条件",
+          "position": 5,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "square-root-expression#meaning"
+          ]
+        },
+        "0101f7456b3f614ecd272e0f#1": {
+          "title": "解每个条件",
+          "position": 6,
+          "refs": [
+            "method-domain-intersection#solve",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "quadratic-inequality#signs",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "0a50d99ec794f243b12d7810#1": {
+          "title": "把二次函数配成顶点式",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "4f310f8df6633256e139c621#1": {
+          "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "4f310f8df6633256e139c621#2": {
+          "title": "二次函数在 $\\left[3, \\infty\\right)$ 上的增减",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "f4f7f5c55234299a1b568da3#1": {
+          "title": "开方：$x\\in \\left(-\\infty, -1\\right]$",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "f4f7f5c55234299a1b568da3#2": {
+          "title": "开方：$x\\in \\left[3, \\infty\\right)$",
+          "position": 11,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "81b17493b7d08a302e39a414#1": {
+          "title": "写出递减区间",
+          "position": 12,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "7d6da6fd48bd22504a960b343b5d97847f56df365284f12fa38579901dccfc2c",
+  "practice_version": "a5c2fddab606b21f03213365aba82afaea7a679815d8a8723b6db2ecf2ab2e6c"
+}

@@ -236,6 +236,30 @@
       "path": "/topics/function-concepts/q18/",
       "topic": "function-concepts"
     },
+    "function-monotonicity-a03-v2": {
+      "path": "/topics/function-monotonicity/q03/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a02-v4": {
+      "path": "/topics/function-monotonicity/q02/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a15-v4": {
+      "path": "/topics/function-monotonicity/q15/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a12-v4": {
+      "path": "/topics/function-monotonicity/q12/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a04-v4": {
+      "path": "/topics/function-monotonicity/q04/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a01-v2": {
+      "path": "/topics/function-monotonicity/q01/",
+      "topic": "function-monotonicity"
+    },
     "function-representations-b10-v1": {
       "path": "/topics/function-representations/q10b/",
       "topic": "function-representations"

@@ -1,0 +1,27 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-monotonicity",
+  "admission": "function_monotonicity",
+  "rule": "rule-function-monotonicity-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-monotonicity-definition",
+      "route_id": "monotonicity-definition",
+      "admission": "function_monotonicity",
+      "label": "定义法"
+    },
+    {
+      "method": "method-monotonicity-structure",
+      "route_id": "monotonicity-structure",
+      "admission": "function_monotonicity",
+      "label": "基本函数与复合法"
+    },
+    {
+      "method": "method-piecewise-monotonicity",
+      "route_id": "piecewise-monotonicity",
+      "admission": "function_monotonicity",
+      "label": "分段单调性法"
+    }
+  ]
+}

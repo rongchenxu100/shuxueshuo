@@ -1409,7 +1409,7 @@
         "id": "function-monotonicity",
         "kind": "knowledge",
         "label": "函数的单调性",
-        "summary": "在指定区间上用自变量与函数值的次序描述增减，必须同时说明适用区间。",
+        "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
         "aliases": [],
         "home": "compulsory-1-ch3"
       },
@@ -1417,7 +1417,7 @@
         "id": "function-range-extrema",
         "kind": "knowledge",
         "label": "函数的值域与最值",
-        "summary": "值域是所有实际函数值的集合；最大值、最小值必须属于这个集合。",
+        "summary": "最大值、最小值既要约束所有函数值，也要能被实际取到；用图像和单调区间定位取值点。",
         "aliases": [],
         "home": "compulsory-1-ch3"
       },
@@ -1431,6 +1431,24 @@
       }
     ],
     "edges": [
+      {
+        "id": "function-concept|prerequisite|function-monotonicity",
+        "from": "function-concept",
+        "to": "function-monotonicity",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "function-concept|prerequisite|function-range-extrema",
+        "from": "function-concept",
+        "to": "function-range-extrema",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
       {
         "id": "method-fraction-split-range|calls|method-fraction-split",
         "from": "method-fraction-split-range",

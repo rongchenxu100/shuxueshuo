@@ -67,7 +67,7 @@ def validate_graph(graph):
         if graph['kind'] == 'piecewise_curve':
             for segment in [*params['segments'], *params.get('reference', [])]:
                 _interval(segment['interval'], segment['interval_closed'])
-            for piece in params.get('highlights', []):
+            for piece in [*params.get('highlights', []), *params.get('interval_marks', [])]:
                 _interval([piece['from'], piece['to']], [piece['left_closed'], piece['right_closed']])
         if graph['kind'] == 'absolute_affine' and 'reference' in params:
             reference = params['reference']

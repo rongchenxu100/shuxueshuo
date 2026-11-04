@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1441,
+      "prompt_tokens": 29121,
+      "total_tokens": 30562,
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 449
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 575,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-313152c5-0177-4e50-84a1-24c55a969cfd",
+        "sha256": "293d5a3a607593e5c2a3bc121fee843c1f9ddebcde05fec5a2b78ebafc883f57",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 5398,
+        "expires_at": 1793846972,
+        "uploaded_at": 1793760572.134
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "293d5a3a607593e5c2a3bc121fee843c1f9ddebcde05fec5a2b78ebafc883f57",
+        "api_calls": 1,
+        "file_id": "file-api-313152c5-0177-4e50-84a1-24c55a969cfd",
+        "expires_at": 1793846972,
+        "elapsed_ms": 300
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9132,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1441,
+          "prompt_tokens": 29121,
+          "total_tokens": 30562,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1241
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 28672
+          },
+          "prompt_cache_hit_tokens": 28672,
+          "prompt_cache_miss_tokens": 449
+        },
+        "raw_payload": {
+          "id": "ab847460-b7d5-4a1a-8894-54427732ccd5",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1441,
+            "prompt_tokens": 29121,
+            "total_tokens": 30562,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1241
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 28672
+            },
+            "prompt_cache_hit_tokens": 28672,
+            "prompt_cache_miss_tokens": 449
+          },
+          "created": 1793760572,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要只输出 JSON，符合 schema。需要提取题目。图片显示：15. 函数 \\(f(x)=\\sqrt{-x^2+4x-3}\\) 的单调增区间为____。手写答案 [1,2] 不转录。需要 root 包含 definition f(x)=sqrt(-x^2+4*x-3)，目标 find_monotonic_intervals expression f(x) 或原完整表达式？规则：具体函数单调性使用 {\"kind\":\"find_monotonic_intervals\",\"expression\":\"原完整表达式\",\"variable\":\"x\",\"direction\":\"increasing\"}. expression 原完整表达式可以写 sqrt(-x^2+4*x-3) 还是 f(x)? 字段有 function 可选。题目要求函数 f(x) 的单调增区间，目标 direction increasing。definitions 中 f(x)=sqrt(-x^2+4*x-3)。目标 expression 可以 \"f(x)\"？规则说 f(x)=P 的源式可直接保存在目标 expression，不能因为重复转录添加新条件。可以使用 expression \"f(x)\" 或 \"sqrt(-x^2+4*x-3)\"。最好 expression 原完整表达式 sqrt(-x^2+4*x-3)，variable x。没有 input_domain。原题是具体函数单调区间。无选项。public_content scopes root statement：$f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____（可能不包含题号）。completeness complete，privacy separated? 图片包含来源题号 15，公开题干需排除题号。手写答案排除。可选 root label? 题目中的 15. 是来源题号，可以 root.label=\"15.\"，root_label_role=\"source\"？ Schema 可选，但 public_content root_label_role 仅在 root.label 存在时。是否应保留 label？可以 label 题号 \"15.\"，role source，public statement 不含。original_text 可以保留 \"15.\"。但 root.label 可能不是 15？是题号。可以包含。是否必要？不必须。如果不设 label，public root_label_role 可省略。original_text 保留 15.。public statement 只保留题目正文。completeness complete，figure none。uncertainties []。注意 original_text 公式 LaTeX 中根号覆盖：$f(x)=\\sqrt{-x^2+4x-3}$。题面 \"的单调增区间为 [无法辨认]\"? 手写答案是 [1,2] 但填空横线印刷。原文可能 \"____\" 或空白。original_text 应保留填空处照印刷原样横线。图片中似乎有手写 [1,2] 覆盖，不是印刷？填空处可能横线被手写覆盖。规则：填空处照印刷原样写横线。original_text 中写 \"____\"。不写手写 [1,2]。因此 original_text \"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\" 注意 JSON 反斜杠双写。root definitions 受控数学字符串：f(x)=sqrt(-x^2+4*x-3)。表达式中的 \"-x^2+4*x-3\" 使用乘法显式，4x 写 4*x。根号 sqrt(-x^2+4*x-3) 注意负号：sqrt(-x^2+4*x-3) 可能解析为 (-x^2) 否？目录允许 sqrt(表达式)。可以写 sqrt(-x^2+4*x-3)。这是清楚的。目标 expression 可以用 \"sqrt(-x^2+4*x-3)\" 或 \"f(x)\"。find_monotonic_intervals 有 function 可选。若 expression 为 f(x)，definitions 有 f。稳妥：expression \"sqrt(-x^2+4*x-3)\"，variable \"x\", direction \"increasing\"。这直接是原完整表达式。不要 input_domain。public choices target status none selection_mode none options []。root goals 一个。public scopes /root statement \"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\" 无需小问。figure_detection status none regions []。注意 public_content 中 choices options item schema 需要 label/text objects。无选项空数组。\n\n需要考虑 root 中的 facts? 不需要。definitions 放 f。goals expression 使用原式。是否 root.label 设置？我们可以省略 label。public root_label_role 不填。original_text 保留题号。公开statement排除题号。可以。无配图。\n\nJSON 转义：original_text 中的 \\sqrt 需要 \\\\sqrt 在 JSON。最终输出 JSON 对象。确保没有额外字段。public_content 必须包含 required: completeness, privacy, figure, scopes, figure_detection. root_label_role 可选不填。scopes item required scope_ref, statement, choices. choices item required target_ref,status,selection_mode,options. target_ref \"/root/goals/0\". options [].\n\ncheck root Scope additionalProperties false，允许多字段 label/definitions/facts/goals/children/uncertainties。我们使用 definitions, goals, uncertainties? uncertainties 可省略，但我们可以 []。不要用 label。root required? Scope 没有 required 列表，可能可以。提供 definitions/goals/uncertainties。原始文本 full.\n\n公式中的原图：f(x)=√(-x²+4x-3)。目标 expression 用 sqrt(-x^2+4*x-3)。方向 increasing。单调增区间（递增）→ increasing。\n\n是否题面是\"单调增区间\"而非\"单调递增区间\"，direction 用 increasing 对应。可以。\n\n输出 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9436
+  },
+  "raw_payload": {
+    "id": "ab847460-b7d5-4a1a-8894-54427732ccd5",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要只输出 JSON，符合 schema。需要提取题目。图片显示：15. 函数 \\(f(x)=\\sqrt{-x^2+4x-3}\\) 的单调增区间为____。手写答案 [1,2] 不转录。需要 root 包含 definition f(x)=sqrt(-x^2+4*x-3)，目标 find_monotonic_intervals expression f(x) 或原完整表达式？规则：具体函数单调性使用 {\"kind\":\"find_monotonic_intervals\",\"expression\":\"原完整表达式\",\"variable\":\"x\",\"direction\":\"increasing\"}. expression 原完整表达式可以写 sqrt(-x^2+4*x-3) 还是 f(x)? 字段有 function 可选。题目要求函数 f(x) 的单调增区间，目标 direction increasing。definitions 中 f(x)=sqrt(-x^2+4*x-3)。目标 expression 可以 \"f(x)\"？规则说 f(x)=P 的源式可直接保存在目标 expression，不能因为重复转录添加新条件。可以使用 expression \"f(x)\" 或 \"sqrt(-x^2+4*x-3)\"。最好 expression 原完整表达式 sqrt(-x^2+4*x-3)，variable x。没有 input_domain。原题是具体函数单调区间。无选项。public_content scopes root statement：$f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____（可能不包含题号）。completeness complete，privacy separated? 图片包含来源题号 15，公开题干需排除题号。手写答案排除。可选 root label? 题目中的 15. 是来源题号，可以 root.label=\"15.\"，root_label_role=\"source\"？ Schema 可选，但 public_content root_label_role 仅在 root.label 存在时。是否应保留 label？可以 label 题号 \"15.\"，role source，public statement 不含。original_text 可以保留 \"15.\"。但 root.label 可能不是 15？是题号。可以包含。是否必要？不必须。如果不设 label，public root_label_role 可省略。original_text 保留 15.。public statement 只保留题目正文。completeness complete，figure none。uncertainties []。注意 original_text 公式 LaTeX 中根号覆盖：$f(x)=\\sqrt{-x^2+4x-3}$。题面 \"的单调增区间为 [无法辨认]\"? 手写答案是 [1,2] 但填空横线印刷。原文可能 \"____\" 或空白。original_text 应保留填空处照印刷原样横线。图片中似乎有手写 [1,2] 覆盖，不是印刷？填空处可能横线被手写覆盖。规则：填空处照印刷原样写横线。original_text 中写 \"____\"。不写手写 [1,2]。因此 original_text \"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\" 注意 JSON 反斜杠双写。root definitions 受控数学字符串：f(x)=sqrt(-x^2+4*x-3)。表达式中的 \"-x^2+4*x-3\" 使用乘法显式，4x 写 4*x。根号 sqrt(-x^2+4*x-3) 注意负号：sqrt(-x^2+4*x-3) 可能解析为 (-x^2) 否？目录允许 sqrt(表达式)。可以写 sqrt(-x^2+4*x-3)。这是清楚的。目标 expression 可以用 \"sqrt(-x^2+4*x-3)\" 或 \"f(x)\"。find_monotonic_intervals 有 function 可选。若 expression 为 f(x)，definitions 有 f。稳妥：expression \"sqrt(-x^2+4*x-3)\"，variable \"x\", direction \"increasing\"。这直接是原完整表达式。不要 input_domain。public choices target status none selection_mode none options []。root goals 一个。public scopes /root statement \"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为____。\" 无需小问。figure_detection status none regions []。注意 public_content 中 choices options item schema 需要 label/text objects。无选项空数组。\n\n需要考虑 root 中的 facts? 不需要。definitions 放 f。goals expression 使用原式。是否 root.label 设置？我们可以省略 label。public root_label_role 不填。original_text 保留题号。公开statement排除题号。可以。无配图。\n\nJSON 转义：original_text 中的 \\sqrt 需要 \\\\sqrt 在 JSON。最终输出 JSON 对象。确保没有额外字段。public_content 必须包含 required: completeness, privacy, figure, scopes, figure_detection. root_label_role 可选不填。scopes item required scope_ref, statement, choices. choices item required target_ref,status,selection_mode,options. target_ref \"/root/goals/0\". options [].\n\ncheck root Scope additionalProperties false，允许多字段 label/definitions/facts/goals/children/uncertainties。我们使用 definitions, goals, uncertainties? uncertainties 可省略，但我们可以 []。不要用 label。root required? Scope 没有 required 列表，可能可以。提供 definitions/goals/uncertainties。原始文本 full.\n\n公式中的原图：f(x)=√(-x²+4x-3)。目标 expression 用 sqrt(-x^2+4*x-3)。方向 increasing。单调增区间（递增）→ increasing。\n\n是否题面是\"单调增区间\"而非\"单调递增区间\"，direction 用 increasing 对应。可以。\n\n输出 JSON。"
+        }
+      }
+    ],
+    "created": 1793760572,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1441,
+      "prompt_tokens": 29121,
+      "total_tokens": 30562,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1241,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 28672
+      },
+      "prompt_cache_hit_tokens": 28672,
+      "prompt_cache_miss_tokens": 449
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.436
+}

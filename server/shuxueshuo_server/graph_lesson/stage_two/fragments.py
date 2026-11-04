@@ -592,6 +592,19 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('function_monotonicity', {}).get('structure_supported'):
+        from .monotonicity_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['function_monotonicity'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.monotonicity_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'function_monotonicity'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-monotonicity#definition']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('function_graph', {}).get('structure_supported'):
         from .graph_surface import graph_source_spans
         spans = graph_source_spans(candidate, target_ref, ranges, values['function_graph'], _abstract_formula_matches)

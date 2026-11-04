@@ -190,11 +190,17 @@ def _function_matching(context):
     return admitted(context)
 
 
+def _function_monotonicity(context, method=None):
+    from .monotonicity_runtime import admitted
+    return admitted(context, method)
+
+
 CHECKS = {
     'piecewise_modeling': _piecewise_modeling_admitted,
     'piecewise_range_parameter': _piecewise_range_parameter_admitted,
     'piecewise_inequality': _piecewise_inequality_admitted,
     'piecewise_equation': _piecewise_equation_admitted,
+    'function_monotonicity': _function_monotonicity,
     'function_graph': _function_graph_admitted,
     'absolute_graph': lambda context: context.get('goal', {}).get('kind') == 'draw_function_graph' and _function_graph_admitted(context),
     'absolute_graph_inequality': lambda context: context.get('goal', {}).get('kind') == 'solve_graph_inequality' and _function_graph_admitted(context),

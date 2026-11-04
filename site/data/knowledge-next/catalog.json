@@ -3,15 +3,15 @@
   "title": "高中数学公共知识图谱",
   "defaultScope": "section-2-1",
   "expectedCounts": {
-    "textbook": 1,
-    "chapter": 3,
-    "section": 9,
+    "method": 42,
     "knowledge": 29,
-    "skill": 24,
-    "method": 39,
-    "problem_type": 17,
-    "judgment_rule": 6,
-    "collection": 1
+    "problem_type": 22,
+    "judgment_rule": 7,
+    "section": 9,
+    "skill": 26,
+    "textbook": 1,
+    "collection": 1,
+    "chapter": 3
   },
   "resources": {
     "amgm-semicircle": {

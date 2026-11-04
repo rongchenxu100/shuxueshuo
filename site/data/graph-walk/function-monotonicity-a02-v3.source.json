@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a02-v3",
+  "title": "根式复合的增减 · A02",
+  "page": "/topics/function-monotonicity/q02/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\sqrt{-2x^2+x+6}$，求函数的单调递增区间。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a02-v3.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t1-20261104/a02.json"
+}

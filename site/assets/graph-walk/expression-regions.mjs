@@ -1,6 +1,24 @@
 // Presentation only: positions are produced by S3, never rediscovered from math text.
 const escape = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
 const key = value => JSON.stringify(value);
+const negative = node => node?.[0] === 'neg' || node?.[0] === 'number' && String(node[1]).startsWith('-');
+const precedence = node => negative(node) ? 30 : ({'+': 10, '-': 10, '*': 20, '^': 40}[node?.[0]] || 50);
+const startsWithMinus = node => node?.[0] === '*' ? startsWithMinus(node[1]) : negative(node);
+
+function needsParentheses(node, parent, position) {
+  // Fractions, radicals and superscripts already delimit their contents.
+  if (parent === '/' || parent === 'call' || parent === '^' && position === 2) return false;
+  if (parent === '^') return precedence(node) <= 40 || node?.[0] === '/';
+  if (precedence(node) < precedence([parent])) return true;
+  if (parent === '-' && position === 2 && precedence(node) === 10) return true;
+  return (parent === 'neg' || position === 2) && startsWithMinus(node);
+}
+
+const coefficientProduct = (left, right) => {
+  const coefficient = left?.[0] === 'number' || left?.[0] === 'neg' && left[1]?.[0] === 'number';
+  const base = right?.[0] === '^' ? right[1] : right;
+  return coefficient && ['bound', 'name', 'symbol'].includes(base?.[0]);
+};
 
 export function expressionRegionsHTML(source, selected = []) {
   if (!source) return '';
@@ -20,7 +38,11 @@ export function expressionRegionsHTML(source, selected = []) {
   }
   const render = (node, at = [], depth = 0) => {
     if (!Array.isArray(node) || depth > 40) throw Error('expression_regions.invalid_ast');
-    const child = index => render(node[index], [...at, index], depth + 1), type = node[0];
+    const type = node[0];
+    const child = index => {
+      const html = render(node[index], [...at, index], depth + 1);
+      return needsParentheses(node[index], type, index) ? `(${html})` : html;
+    };
     let html;
     if (type === 'bound') {
       const symbol = source.bound_symbols?.[node[1]];
@@ -30,12 +52,14 @@ export function expressionRegionsHTML(source, selected = []) {
     else if (['number', 'name', 'symbol'].includes(type)) html = `<span class="gw-expr-token">${escape(node[1])}</span>`;
     else if (type === '/') html = `<span class="gw-expr-fraction"><span>${child(1)}</span><span>${child(2)}</span></span>`;
     else if (type === 'call' && node[1] === 'sqrt') html = `<span class="gw-expr-root"><span aria-hidden="true">√</span><span>${child(2)}</span></span>`;
-    else if (['+', '-', '*'].includes(type)) html = `<span class="gw-expr-binary">${at.length ? '(' : ''}${child(1)}<span>${type === '*' ? '·' : type === '-' ? '−' : '+'}</span>${child(2)}${at.length ? ')' : ''}</span>`;
-    else if (type === 'neg') html = `<span>−${child(1)}</span>`;
-    else if (type === '^') {
-      const group = ['neg', '^', '/'].includes(node[1]?.[0]) || node[1]?.[0] === 'number' && String(node[1][1]).startsWith('-');
-      html = `<span>${group ? '(' : ''}${child(1)}${group ? ')' : ''}<sup>${child(2)}</sup></span>`;
+    else if (['+', '-', '*'].includes(type)) {
+      const implicit = type === '*' && coefficientProduct(node[1], node[2]);
+      const operator = type === '*' ? '·' : type === '-' ? '−' : '+';
+      html = implicit ? `<span>${child(1)}${child(2)}</span>`
+        : `<span class="gw-expr-binary">${child(1)}<span>${operator}</span>${child(2)}</span>`;
     }
+    else if (type === 'neg') html = `<span>−${child(1)}</span>`;
+    else if (type === '^') html = `<span>${child(1)}<sup>${child(2)}</sup></span>`;
     else throw Error('expression_regions.unsupported_ast');
     const related = regions.get(key(at)) || [];
     const active = related.filter(region => selected.includes(region.option_value || region.condition_id));

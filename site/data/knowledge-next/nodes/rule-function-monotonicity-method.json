@@ -1,0 +1,42 @@
+{
+  "id": "rule-function-monotonicity-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "单调性题的选法判断",
+  "summary": "依据任务和函数结构选择方法。",
+  "source": "函数单调性 FM-T1",
+  "input": "求区间还是证明；基本式、复合式或绝对值分段。",
+  "output": "适用方法与推荐路线。",
+  "conditions": "适用但尚未展开的方法不记作错误。",
+  "branches": [
+    {
+      "id": "definition",
+      "title": "定义法",
+      "condition": "要求用定义证明，或希望用任意两点作差验证。",
+      "target": "method-monotonicity-definition"
+    },
+    {
+      "id": "structure",
+      "title": "基本函数与复合法",
+      "condition": "单个基本函数，或可逐层分析的根式、倒数复合。",
+      "target": "method-monotonicity-structure"
+    },
+    {
+      "id": "piecewise",
+      "title": "分段单调性法",
+      "condition": "含绝对值，需要先分段，再检查连接。",
+      "target": "method-piecewise-monotonicity"
+    }
+  ],
+  "examples": [
+    {
+      "title": "根据原式选法",
+      "prompt": "怎样判断 $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$ 的单调性？",
+      "solution": [
+        "可先确定定义域，再依次判断二次式、开方和倒数的方向，推荐基本函数与复合法。",
+        "定义法也适用，但本轮根式的定义证明路线尚未展开。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ]
+}

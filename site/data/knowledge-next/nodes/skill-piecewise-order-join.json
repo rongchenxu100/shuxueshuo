@@ -1,0 +1,37 @@
+{
+  "id": "skill-piecewise-order-join",
+  "kind": "skill",
+  "label": "跨段单调性检查",
+  "summary": "判断相邻两段能否组成一个严格单调区间。",
+  "source": "函数单调性 FM-T1",
+  "input": "各段或各层的方向、定义域、值域及端点信息。",
+  "output": "有前提依据的增减方向或合并判断。",
+  "conditions": "严格单调与常值分别处理；任何符号与范围条件都不能省略。",
+  "basis": [
+    "function-monotonicity#definition",
+    "function-monotonicity#interval"
+  ],
+  "operations": [
+    {
+      "id": "check",
+      "title": "跨段单调性检查",
+      "body": [
+        "两侧段内必须同向；还要检查任取跨段两点的次序。",
+        "定义域有缺口时不能合成一个区间。",
+        "连续衔接的同向严格单调段可合并；方向不同或跳跃次序不相容时保留各段。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "同向且连续的两段",
+      "prompt": "$f(x)=2x+|x|$ 能否在整个实数集上递增？",
+      "solution": [
+        "$x<0$ 时 $f(x)=x$，$x\\ge0$ 时 $f(x)=3x$，段内都严格递增。",
+        "分界点 $f(0)=0$；任意 $x_1<0\\le x_2$ 有 $f(x_1)<0\\le f(x_2)$。",
+        "故两段可以合并，函数在整个实数集上严格递增。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ]
+}

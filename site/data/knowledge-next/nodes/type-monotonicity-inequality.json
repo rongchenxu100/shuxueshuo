@@ -1,0 +1,20 @@
+{
+  "id": "type-monotonicity-inequality",
+  "kind": "problem_type",
+  "label": "利用单调性解不等式",
+  "status": "planned",
+  "summary": "利用单调性解不等式；后续题型建设。",
+  "source": "函数单调性专题计划",
+  "features": [
+    {
+      "cue": "已知单调性，比较同一函数的两个输入所对应的函数值。"
+    }
+  ],
+  "confuse": [],
+  "knowledge": [
+    "function-monotonicity"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

@@ -361,7 +361,8 @@
             "piecewise_range_parameter",
             "piecewise_modeling",
             "quantified_subproblem",
-            "substitution"
+            "substitution",
+            "function_monotonicity"
           ]
         },
         "parts": {

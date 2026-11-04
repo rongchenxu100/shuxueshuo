@@ -281,6 +281,25 @@
               "$ref": "#/$defs/goalAnswer"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "monotonicity_result",
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "monotonicity_result": {
+              "type": "object"
+            }
+          }
         }
       ]
     },
@@ -1482,6 +1501,58 @@
                   },
                   "domain": {
                     "$ref": "#/$defs/mathValue"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "direction",
+            "latex",
+            "interval_families"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_monotonic_intervals",
+                "prove_monotonicity_on_interval"
+              ]
+            },
+            "status": {
+              "const": "complete"
+            },
+            "direction": {
+              "enum": [
+                "increasing",
+                "decreasing",
+                "both"
+              ]
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
+            },
+            "interval_families": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "increasing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "decreasing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
                   }
                 }
               }

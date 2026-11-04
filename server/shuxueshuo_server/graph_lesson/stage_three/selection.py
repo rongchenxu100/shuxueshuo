@@ -118,7 +118,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('function_domain', 'function_domain_routes', 'function_equality',
+        if admission not in ('function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
                              'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from ..piecewise_equation import admitted as admitted_piecewise
@@ -139,6 +139,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         from .method_admission import _abstract_function_domain as admitted_abstract
         from .system_runtime import admitted as admitted_system
         context = build_context(candidate, target_ref)
+        if admission == 'function_monotonicity':
+            from .monotonicity_runtime import select
+            return select(context, contract, primary)
         if admission == 'function_graph':
             from .graph_transform_selection import select_graph
             return select_graph(context, contract, primary)

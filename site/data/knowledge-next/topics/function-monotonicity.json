@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "function-monotonicity",
+  "label": "函数单调性",
+  "path": "/topics/function-monotonicity/",
+  "presentation": "topic-overview",
+  "introduction": "从基本函数和复合函数判断增减，再学习分段连接、最值、不等式和参数问题。",
+  "chapter": {
+    "book": "人教 A 版 · 必修第一册",
+    "number": "第三章",
+    "label": "函数的概念与性质",
+    "section": "3.2.1",
+    "ref": "section-3-2"
+  },
+  "knowledge": [
+    "function-monotonicity",
+    "function-monotonicity-operations",
+    "composite-function-monotonicity",
+    "function-range-extrema",
+    "quadratic-function-properties",
+    "square-root-expression",
+    "rational-expression",
+    "absolute-value-concept",
+    "interval-notation"
+  ],
+  "knowledgeGroups": [
+    {
+      "id": "monotonicity",
+      "label": "定义、运算与复合",
+      "description": "先确定讨论区间，区分严格单调与常值，再检查每一层运算的适用条件。",
+      "refs": [
+        "function-monotonicity",
+        "function-monotonicity-operations",
+        "composite-function-monotonicity",
+        "function-range-extrema"
+      ]
+    },
+    {
+      "id": "foundations",
+      "label": "基本函数与合法范围",
+      "description": "根号内非负，分母不为零；单调区间分别列出，不能跨过定义域缺口。",
+      "refs": [
+        "quadratic-function-properties",
+        "square-root-expression",
+        "rational-expression",
+        "absolute-value-concept",
+        "interval-notation"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "judgment",
+      "label": "判断函数的单调性",
+      "type": "type-function-monotonicity",
+      "groupBy": "method",
+      "description": "基本函数 → 根式复合 → 根式倒数 → 绝对值分段。",
+      "problems": [
+        "function-monotonicity-a03-v2",
+        "function-monotonicity-a02-v4",
+        "function-monotonicity-a15-v4",
+        "function-monotonicity-a12-v4",
+        "function-monotonicity-a04-v4",
+        "function-monotonicity-a01-v2"
+      ]
+    },
+    {
+      "id": "extremum",
+      "label": "利用单调性求最值",
+      "type": "type-monotonicity-extremum",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "inequality",
+      "label": "利用单调性解不等式",
+      "type": "type-monotonicity-inequality",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "parameter",
+      "label": "已知函数的单调性求参",
+      "type": "type-monotonicity-parameter",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    },
+    {
+      "id": "abstract-proof",
+      "label": "证明抽象函数的单调性",
+      "type": "type-monotonicity-abstract-proof",
+      "groupBy": "method",
+      "description": "后续建设。",
+      "problems": []
+    }
+  ],
+  "problems": {
+    "function-monotonicity-a03-v2": {
+      "label": "限定区间的二次函数 · A03",
+      "path": "/topics/function-monotonicity/q03/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a03-v2.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    },
+    "function-monotonicity-a02-v4": {
+      "label": "根式复合的增减 · A02",
+      "path": "/topics/function-monotonicity/q02/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a02-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    },
+    "function-monotonicity-a15-v4": {
+      "label": "定义域与对称轴 · A15",
+      "path": "/topics/function-monotonicity/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a15-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    },
+    "function-monotonicity-a12-v4": {
+      "label": "断开定义域的根式 · A12",
+      "path": "/topics/function-monotonicity/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a12-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    },
+    "function-monotonicity-a04-v4": {
+      "label": "根式倒数的方向传递 · A04",
+      "path": "/topics/function-monotonicity/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a04-v4.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    },
+    "function-monotonicity-a01-v2": {
+      "label": "绝对值分段与跨段检查 · A01",
+      "path": "/topics/function-monotonicity/q01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a01-v2.json",
+      "types": [
+        "type-function-monotonicity"
+      ]
+    }
+  }
+}

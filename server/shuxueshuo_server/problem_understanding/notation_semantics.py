@@ -293,7 +293,7 @@ class Canonical:
             if is_evaluation_goal(g) and 'relation' not in g:
                 goals.append(canonical_evaluation(g, self.aliases))
                 continue
-            if g['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
+            if g['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval', 'select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
                 # Include the complete source facts and ordered option identities.
                 goals.append({key: deepcopy(value) for key, value in g.items() if key != 'target'})
                 continue

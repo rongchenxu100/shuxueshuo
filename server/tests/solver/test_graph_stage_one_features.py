@@ -19,9 +19,11 @@ from shuxueshuo_server.problem_understanding.notation_semantics import (
 
 FIXTURES = Path(__file__).parent / "fixtures/graph-guided-stage-one/quadratic-always"
 REPO = Path(__file__).resolve().parents[3]
-FUNCTION_GOAL_FEATURES = {'function_domain', 'function_comparison', 'abstract_function_domain',
+FUNCTION_GOAL_FEATURES = {'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain',
                           'function_evaluation', 'function_range', 'abstract_function_range',
-                          'translation_range', 'function_formula'}
+                          'translation_range', 'function_formula', 'function_graph',
+                          'piecewise_modeling', 'piecewise_range_parameter',
+                          'piecewise_equation', 'piecewise_inequality'}
 
 
 def goal_features(candidate):

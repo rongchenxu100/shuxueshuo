@@ -143,6 +143,9 @@ def build_context(candidate, target_ref):
         context['piecewise_inequality'] = inspect_piecewise_inequality(candidate, target_ref)
     elif piecewise_equation_relevant(goal_ast, [{'value': e['ast']} for e in entries]):
         context['piecewise_equation'] = inspect_piecewise_equation(candidate, target_ref)
+    elif goal['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
+        from ..function_monotonicity import describe
+        context['monotonicity_goal'] = describe(goal, target_ref, entries)
     elif goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
         from ..function_graph import describe_scoped
         context['graph_goal'] = describe_scoped(goal, target_ref, entries)

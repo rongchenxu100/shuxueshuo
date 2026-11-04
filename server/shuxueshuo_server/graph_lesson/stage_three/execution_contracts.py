@@ -466,6 +466,9 @@ def revisions():
     result['quadratic_translation'] = hashlib.sha256((folder.parent / 'quadratic_translation.py').read_bytes()).hexdigest()
     result['schematic_transform'] = hashlib.sha256((folder.parent / 'schematic_transform.py').read_bytes()).hexdigest()
     result['absolute_graph'] = hashlib.sha256((folder.parent / 'absolute_graph.py').read_bytes()).hexdigest()
+    result['function_monotonicity'] = hashlib.sha256((folder.parent / 'function_monotonicity.py').read_bytes()).hexdigest()
+    for name in ('monotonicity_runtime', 'monotonicity_presentation'):
+        result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
     result['function_graph'] = hashlib.sha256((folder.parent / 'function_graph.py').read_bytes()).hexdigest()
     result['function_formula'] = hashlib.sha256((folder.parent / 'function_formula.py').read_bytes()).hexdigest()
     result['function_matching'] = hashlib.sha256((folder.parent / 'function_matching.py').read_bytes()).hexdigest()

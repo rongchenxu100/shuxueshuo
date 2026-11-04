@@ -19,7 +19,8 @@ export function methodConnectionsHTML(decision, answer, interactive) {
       <div class="gw-method-choices">${methods.map(method => {
         const picked = method.value === answer.method, tag = interactive ? 'button' : 'div';
         const note = component.method_notes?.[method.value];
-        return `<${tag} class="gw-method-node${picked ? ' is-selected' : ''}" data-method-node="${h(method.value)}"${interactive ? ` type="button" data-card-method="${h(method.value)}" aria-pressed="${picked}"` : ''}><strong>${h(method.label)}</strong>${note ? `<span class="gw-method-note" data-math-text>${h(note)}</span>` : ''}${picked ? `<span class="gw-method-picked-state">${interactive ? '已选择' : '✓ 本题选择'}</span>` : ''}</${tag}>`;
+        const unavailable = !method.route && decision.verdicts?.[method.value]?.value === 'fit';
+        return `<${tag} class="gw-method-node${picked ? ' is-selected' : ''}" data-method-node="${h(method.value)}"${interactive ? ` type="button" data-card-method="${h(method.value)}" aria-pressed="${picked}"${unavailable ? ' disabled aria-disabled="true"' : ''}` : ''}><strong>${h(method.label)}</strong>${note ? `<span class="gw-method-note" data-math-text>${h(note)}</span>` : ''}${picked ? `<span class="gw-method-picked-state">${interactive ? '已选择' : '✓ 本题选择'}</span>` : ''}</${tag}>`;
       }).join('')}</div>
     </div>`;
   }).join('');

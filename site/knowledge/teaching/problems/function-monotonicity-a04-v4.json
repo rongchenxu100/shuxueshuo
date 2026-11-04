@@ -1,0 +1,153 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a04-v4",
+  "label": "根式倒数的方向传递 · A04",
+  "path": "/topics/function-monotonicity/q04/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a04-v4.json",
+  "types": [
+    "type-function-monotonicity"
+  ],
+  "statement": "已知函数 $f(x)=\\frac1{\\sqrt{x^2-5x-6}}$，求函数的单调递增区间。",
+  "routes": {
+    "monotonicity-structure": {
+      "label": "基本函数与复合法",
+      "methods": [
+        "method-monotonicity-structure"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "43c22779ada1fe795e41b5b0#1": {
+          "title": "找到限制位置",
+          "position": 4,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "square-root-expression#meaning"
+          ]
+        },
+        "038d7f05b666b4dc4c28f8cc#1": {
+          "title": "列出条件",
+          "position": 5,
+          "refs": [
+            "method-domain-intersection#extract",
+            "skill-expression-defined",
+            "rational-expression#meaning",
+            "square-root-expression#meaning"
+          ]
+        },
+        "b209eafc281dede2600170fc#1": {
+          "title": "解每个条件",
+          "position": 6,
+          "refs": [
+            "method-domain-intersection#solve",
+            "rational-expression#meaning",
+            "square-root-expression#meaning",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "quadratic-inequality#signs",
+            "set-intersection-union#intersection"
+          ]
+        },
+        "0d9ea3c401411b4fc2c2757e#1": {
+          "title": "把二次函数配成顶点式",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "87fd527fc2042a039ba7d7a5#1": {
+          "title": "二次函数在 $\\left(-\\infty, -1\\right)$ 上的增减",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "87fd527fc2042a039ba7d7a5#2": {
+          "title": "二次函数在 $\\left(6, \\infty\\right)$ 上的增减",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "b01abaade2ce4f0475d7d828#1": {
+          "title": "开方：$x\\in \\left(-\\infty, -1\\right)$",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "b01abaade2ce4f0475d7d828#2": {
+          "title": "取倒数：$x\\in \\left(-\\infty, -1\\right)$",
+          "position": 11,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "b01abaade2ce4f0475d7d828#3": {
+          "title": "开方：$x\\in \\left(6, \\infty\\right)$",
+          "position": 12,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "b01abaade2ce4f0475d7d828#4": {
+          "title": "取倒数：$x\\in \\left(6, \\infty\\right)$",
+          "position": 13,
+          "refs": [
+            "method-monotonicity-structure#compose",
+            "skill-composite-monotonicity",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "59bb943190e6fe55cd7ab523#1": {
+          "title": "写出递增区间",
+          "position": 14,
+          "refs": [
+            "method-monotonicity-structure#conclude",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "b55958d01ba3a9b70cc491fcbef6f2a6e850c146c5f5af664cd17d670e41ace5",
+  "practice_version": "c3fdbcf42489f0901386af051b61da71ba5bcfdbdb89e2f1d9793f1b2f64450d"
+}

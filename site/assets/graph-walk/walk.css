@@ -128,8 +128,13 @@
 .gw-derivation-note { color: #7a8e85; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
 .gw-derivation-arrow { justify-self: center; align-self: center; color: #3c8b79; font-size: 25px; font-weight: 400; text-align: center; transform: rotate(90deg); line-height: 1; }
 .gw-derivation-unknown { display: grid; place-items: center; align-self: center; width: 44px; height: 44px; border-radius: 50%; background: #eaf4ef; color: #789d90; font-size: 27px; font-weight: 400; line-height: 1; }
+.gw-derivation-operation { display: flex; flex-direction: column; align-items: center; align-self: center; gap: 6px; min-width: 0; padding: 10px 4px; text-align: center; }
+.gw-derivation-operation > .gw-derivation-label { color: #164e42; font-weight: 600; }
+/* Fit against the operation column, not the formula's own shrinking width. */
+.gw-derivation-operation > .gw-derivation-formula { align-self: stretch; font-size: 17px; }
 @container domain-derivation (min-width: 720px) {
   .gw-derivation-row { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 8px; }
+  .gw-derivation-board[data-layout="function-composition"] .gw-derivation-row { grid-template-columns: minmax(0, 1fr) minmax(100px, 150px) minmax(0, 1fr); }
   .gw-derivation-cell { padding: 19px 12px; }
   .gw-derivation-arrow { transform: none; }
 }
@@ -805,6 +810,7 @@
 .gw-method-cue > span { font-size: .85rem; line-height: 1.5; color: #69817b; }
 .gw-method-choices { display: grid; gap: .55rem; min-width: 0; }
 button.gw-method-node { width: 100%; cursor: pointer; }
+button.gw-method-node:disabled { cursor: not-allowed; background: #f5f7f6; border-style: dashed; color: #5d726b; opacity: 1; }
 .gw-method-node.is-selected, .gw-method-cue.is-selected { border-color: #008078; background: #ecf7f4; box-shadow: inset 0 0 0 1px #008078; }
 .gw-method-node:focus-visible { outline: 3px solid #61bbb2; outline-offset: 3px; }
 .gw-method-picked-state { font-size: .78rem; color: #00756c; }

@@ -4,7 +4,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {repoRoot, loadSources} from './lib/public-knowledge-sources.mjs';
+import {repoRoot, loadSources, publicGraphNodes} from './lib/public-knowledge-sources.mjs';
+import {validateGraph} from '../site/assets/knowledge-next/model.mjs';
 import {digest} from './lib/public-knowledge-export.mjs';
 import {projectGraphWalkTeaching} from './lib/graph-walk-practice.mjs';
 import {extendStreamBundle, createState, currentDecision, submitAnswer, replayState} from '../site/assets/graph-walk/walk-state.mjs';
@@ -211,7 +212,13 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   assert(typeof source.evidence === 'string' && source.evidence.startsWith('site/data/graph-walk/') && !source.evidence.includes('..'), 'Invalid evidence path');
   const evidence = await json(path.join(root, source.evidence));
   const graph = await json(path.join(root, 'site/knowledge/graph.json'));
-  const {nodes} = await loadSources(root);
+  const {nodes, manifest} = await loadSources(root);
+  // Courses are needed by the teaching-index build. Bootstrap new nodes from
+  // validated sources while retaining published metadata for existing courses.
+  const publishedIds = new Set(graph.nodes.map(node => node.id));
+  graph.nodes.push(...publicGraphNodes(nodes.filter(node => !publishedIds.has(node.id))));
+  graph.edges.push(...validateGraph(nodes, manifest).filter(edge =>
+    !publishedIds.has(edge.from) || !publishedIds.has(edge.to)));
   const previous = await json(path.join(root, 'site/data/graph-walk', `${source.problemId}.json`))
     .catch(error => { if (error.code === 'ENOENT') return null; throw error; });
   const {bundle, replay} = compileCourse(source, evidence, graph, nodes, previous);
@@ -221,10 +228,10 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   let html = await fs.readFile(path.join(root, 'tools/templates/graph-walk.html'), 'utf8');
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
     .replace('/assets/practice/practice.css"', '/assets/practice/practice.css?v=20261028-choice-hint"')
-    .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261102-graph-g1-actions"')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261102-graph-g1-actions"')
+    .replace('/assets/practice/components.js"', '/assets/practice/components.js?v=20261104-interval-dividers"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261104-operation-layout"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261102-piecewise-j1"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261104-composition-operation"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)

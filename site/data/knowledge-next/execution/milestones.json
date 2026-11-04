@@ -59,7 +59,10 @@
       "method-piecewise-inequality",
       "method-piecewise-range",
       "method-piecewise-range-parameter",
-      "method-piecewise-modeling"
+      "method-piecewise-modeling",
+      "method-monotonicity-definition",
+      "method-monotonicity-structure",
+      "method-piecewise-monotonicity"
     ]
   }
 }

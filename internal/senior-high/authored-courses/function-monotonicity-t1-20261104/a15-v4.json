@@ -1,0 +1,30 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a15-v4",
+  "reviewer": "Codex：逐题对照用户原图的印刷题干；忽略手写答案，独立计算并核验。此为人工核对转录，不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "第2张图，印刷第15题；规划编号 FM-A15"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\sqrt{-x^2+4x-3}$，求函数的单调递增区间。",
+    "root": {
+      "goals": [
+        {
+          "kind": "find_monotonic_intervals",
+          "expression": "sqrt(-x^2+4*x-3)",
+          "variable": "x",
+          "direction": "increasing"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "direction": "increasing",
+    "latex": "[1,2]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

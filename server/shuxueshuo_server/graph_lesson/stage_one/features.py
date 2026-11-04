@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('function_monotonicity', ('goal',), 'function_monotonicity',
+                ('function-monotonicity#definition',), '判断原函数的严格单调区间',
+                version='function-monotonicity/v1', supported_structures=('bounded_quadratic_root_absolute',),
+                computation_boundary='original expression, direction, declared domain and structure only'),
     FeatureSpec('piecewise_modeling', ('goal',), 'piecewise_modeling',
                 ('piecewise-function#definition',), '根据超出部分的单价累计各档费用',
                 version='piecewise-modeling/v1', supported_structures=('marginal_electricity_pricing',),
@@ -538,6 +542,18 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_piecewise_equation'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
+            from ..function_monotonicity import describe
+            original = {key: value for key, value in goal.items() if key != 'target'}
+            sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))}
+                       for row in records]
+            description = describe(original, target_ref, sources)
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('function_monotonicity', description, source_refs=[*description['source_refs'], *description['extra_source_refs']])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_monotonicity_goal'}, source_refs=[target_ref])
             continue
         if goal['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):
             from ..function_graph import describe_scoped

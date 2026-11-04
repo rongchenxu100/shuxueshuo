@@ -537,7 +537,9 @@
                             "select_function_graph",
                             "draw_function_graph",
                             "solve_graph_inequality",
-                            "find_equation"
+                            "find_equation",
+                            "find_monotonic_intervals",
+                            "prove_monotonicity_on_interval"
                           ]
                         }
                       }
@@ -2476,6 +2478,58 @@
                   },
                   "domain": {
                     "$ref": "#/$defs/mathValue"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "direction",
+            "latex",
+            "interval_families"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_monotonic_intervals",
+                "prove_monotonicity_on_interval"
+              ]
+            },
+            "status": {
+              "const": "complete"
+            },
+            "direction": {
+              "enum": [
+                "increasing",
+                "decreasing",
+                "both"
+              ]
+            },
+            "latex": {
+              "type": "string",
+              "minLength": 1
+            },
+            "interval_families": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "increasing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "decreasing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
                   }
                 }
               }

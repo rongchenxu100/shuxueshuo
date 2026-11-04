@@ -1,0 +1,47 @@
+{
+  "id": "type-function-monotonicity",
+  "kind": "problem_type",
+  "label": "判断函数的单调性",
+  "status": "active",
+  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+  "source": "函数单调性 FM-T1",
+  "choice_hint": "原目标是判断增减或求完整单调区间",
+  "features": [
+    {
+      "cue": "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+    }
+  ],
+  "confuse": [
+    {
+      "text": "已知单调性求参数，目标是参数范围，不是求单调区间。",
+      "ref": "type-monotonicity-parameter"
+    }
+  ],
+  "knowledge": [
+    "function-monotonicity",
+    "function-monotonicity-operations",
+    "composite-function-monotonicity",
+    "quadratic-function-properties",
+    "interval-notation"
+  ],
+  "methods": [
+    "method-monotonicity-definition",
+    "method-monotonicity-structure",
+    "method-piecewise-monotonicity"
+  ],
+  "rules": [
+    "rule-function-monotonicity-method"
+  ],
+  "examples": [
+    {
+      "title": "开方保持次序",
+      "prompt": "求 $f(x)=\\sqrt{-2x^2+x+6}$ 的递增区间。",
+      "solution": [
+        "由 $-2x^2+x+6\\ge0$ 得定义域 $[-\\frac32,2]$。",
+        "内层开口向下，对称轴为 $x=\\frac14$；在 $[-\\frac32,\\frac14]$ 上递增。",
+        "开方在非负数上保序，原函数在同一区间递增。"
+      ],
+      "source": "函数单调性 FM-T1"
+    }
+  ]
+}
