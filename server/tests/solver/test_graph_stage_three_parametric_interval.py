@@ -389,11 +389,12 @@ def test_merge_rejects_missing_provenance_and_invalid_partitions(mutation):
         merge_interval_cases(cases, records)
 
 
-def test_single_uncased_endpoint_route_can_merge_without_a_case_path():
+@pytest.mark.parametrize('path', [[], ['parent']])
+def test_single_uncased_endpoint_route_can_merge_without_a_case_path(path):
     cases = [{"id": "uncased", "kind": "nondegenerate", "mode": "endpoint",
               "domain": sp.S.Reals, "condition": sp.true}]
     records = [{"case_id": "uncased", "condition": sp.true, "domain": sp.S.Reals,
-                "case_path": [], "source_refs": ["/steps/1/calls/0"],
+                "case_path": path, "source_refs": ["/steps/1/calls/0"],
                 "outputs": {"solution": sp.Interval.open(-sp.oo, -5)}}]
     assert merge_interval_cases(cases, records)["outputs"]["solution"] == sp.Interval.open(-sp.oo, -5)
 

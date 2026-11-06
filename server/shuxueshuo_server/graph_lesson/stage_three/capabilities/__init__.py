@@ -701,6 +701,24 @@ REGISTRY['reduce_piecewise_range_to_universal'] = _piecewise_parameter_capabilit
 REGISTRY['accept_piecewise_range_subproblem'] = _piecewise_parameter_capability('accept_subproblem')
 
 
+def _extremum_capability(name):
+    def call(**inputs):
+        from .. import extremum_runtime
+        return getattr(extremum_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'analyze_extremum': 'analyze', 'confirm_extremum': 'confirm', 'prepare_extremum_children': 'prepare_children',
+                         'bind_extremum_child': 'bind_child', 'confirm_extremum_children': 'confirm_children',
+                         'prepare_extremum_parameter_children': 'prepare_parameter_children',
+                         'bind_extremum_parameter_child': 'bind_parameter_child',
+                         'extremum_reciprocal_piece': 'reciprocal_parameter_piece',
+                         'verify_extremum_independent_piece': 'independent_parameter_piece',
+                         'check_extremum_ranges': 'check_ranges',
+                         'accept_extremum_parameter_children': 'accept_parameter_children'}.items():
+    REGISTRY[_name] = _extremum_capability(_function)
+
+
 def _monotonicity_capability(name):
     def call(**inputs):
         from .. import monotonicity_runtime

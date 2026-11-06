@@ -38,7 +38,8 @@
         "function_graph",
         "piecewise_equation",
         "piecewise_routes",
-        "function_monotonicity"
+        "function_monotonicity",
+        "function_extremum"
       ]
     },
     "routes": {
@@ -83,7 +84,8 @@
               "function_range_piecewise",
               "piecewise_range_parameter",
               "piecewise_modeling",
-              "function_monotonicity"
+              "function_monotonicity",
+              "function_extremum"
             ]
           },
           "label": {
@@ -122,7 +124,8 @@
             "function_formula",
             "function_graph",
             "piecewise_equation",
-            "function_monotonicity"
+            "function_monotonicity",
+            "function_extremum"
           ]
         }
       }
@@ -153,7 +156,8 @@
             "function_formula",
             "function_graph",
             "piecewise_routes",
-            "function_monotonicity"
+            "function_monotonicity",
+            "function_extremum"
           ]
         }
       }

@@ -1,0 +1,42 @@
+{
+  "original_text": "0.已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是____。",
+  "root": {
+    "definitions": [
+      "f(x)=-1/x+x",
+      "g(x)=x^2-4*x-3"
+    ],
+    "facts": [
+      "∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

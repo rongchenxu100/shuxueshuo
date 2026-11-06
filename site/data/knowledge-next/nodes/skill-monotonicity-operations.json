@@ -1,0 +1,39 @@
+{
+  "id": "skill-monotonicity-operations",
+  "kind": "skill",
+  "label": "运算增减性判断",
+  "summary": "同一区间内判断和、差、常数倍、平移与倒数的方向。",
+  "source": "函数单调性 FM-T1",
+  "input": "各项在同一区间内的方向、符号与运算。",
+  "output": "有前提的增减方向、常值，或当前依据不能判断。",
+  "conditions": "倒数必须在同一非零符号侧；一般乘积与商不由两个箭头直接决定。",
+  "basis": [
+    "function-monotonicity-operations#shift-scale",
+    "function-monotonicity-operations#reciprocal",
+    "function-monotonicity-operations#sum-difference"
+  ],
+  "operations": [
+    {
+      "id": "check",
+      "title": "先查前提再传递方向",
+      "body": [
+        "加常数保序；乘正数保序，乘负数反序，乘零为常值。",
+        "同一非零符号侧取倒数反序。",
+        "同增的和增，同减的和减；差先取反再合并。",
+        "方向相反且缺少比较依据时返回不能判断，不认定函数不单调。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "单调函数的最大值",
+      "prompt": "求 $f(x)=\\frac{2x+1}{x+3}$ 在 $[-2,2]$ 上的最大值。",
+      "solution": [
+        "分离为 $2-\\frac5{x+3}$；分母在本区间为正。",
+        "取倒数反序，乘负数再反序，加常数保序，所以原函数递增。",
+        "右端点可以取到，$f(2)=1$。"
+      ],
+      "source": "函数单调性 FM-T2"
+    }
+  ]
+}

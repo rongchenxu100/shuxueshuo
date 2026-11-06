@@ -112,7 +112,9 @@ function pairingDiagram(document, diagram) {
 export function createDerivationBoard(document, board) {
   const node = document.createElement('section');
   node.className = 'gw-derivation-board';
-  node.dataset.state = board.items[1].math === null ? 'pending' : 'complete';
+  // Inform-only boards may have a single given cell (no result / no「?」blank).
+  const pending = board.items.length > 1 && board.items[1].math === null;
+  node.dataset.state = pending ? 'pending' : 'complete';
   node.setAttribute('aria-label', board.caption);
   const caption = text(document, 'div', board.caption, 'gw-derivation-caption');
   caption.dataset.mathText = 'true';

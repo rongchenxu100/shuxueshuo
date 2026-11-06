@@ -674,7 +674,9 @@ def _advance(state, contracts):
                 child_bindings['subproblem_context'] = bindings['subproblem_context']
             child = _frame(action["public_ref"], child_bindings, seq)
             child['fold_display'] = frame.get('fold_display', False) or action.get('presentation') == 'fold'
-            child["case_path"] = deepcopy(frame["case_path"])
+            # Inherit the host case spine so repeat_context can tell piece-1
+            # from piece-2. Fold still only applies when host_method == own method.
+            child["case_path"] = deepcopy(frame.get("case_path") or [])
             child["case_source_refs"] = deepcopy(frame.get("case_source_refs", []))
             if frame.get('option_context'):
                 child['option_context'] = deepcopy(frame['option_context'])

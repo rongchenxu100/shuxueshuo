@@ -300,6 +300,25 @@
               "type": "object"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "extremum_result",
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "extremum_result": {
+              "type": "object"
+            }
+          }
         }
       ]
     },

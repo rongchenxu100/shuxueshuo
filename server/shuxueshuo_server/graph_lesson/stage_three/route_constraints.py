@@ -278,6 +278,14 @@ def apply_visible_constraints(constraint_context, feasible_set):
     if 'range_goal' in constraint_context:
         from .function_range import process_context
         return process_context(constraint_context, feasible_set)
+    if 'extremum_goal' in constraint_context:
+        # Specified / direct extremum facts are not a single quantifier. Nested
+        # interval／separation cards still need a readable ambient restriction
+        # for distractor witnesses; with no extra parameter facts this is ℝ.
+        return feasible_set, [{
+            "source_ref": constraint_context.get("target_ref"),
+            "status": "extremum_identity",
+        }]
     algebra = _RouteArithmetic(constraint_context)
     atoms = _context_atoms(constraint_context)
     quantified = [ast for _, ast in atoms if ast[0] == "quantifier"]

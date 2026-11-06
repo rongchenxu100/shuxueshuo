@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a16-v2",
+  "title": "分式函数的最大值 · A16",
+  "page": "/topics/function-monotonicity/q16/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\frac{2x+1}{x+3}$，$x\\in[-2,2]$，求最大值。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a16-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t2-20261104/a16.json"
+}

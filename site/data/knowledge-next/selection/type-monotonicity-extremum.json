@@ -1,0 +1,27 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-monotonicity-extremum",
+  "admission": "function_extremum",
+  "rule": "rule-monotonicity-extremum-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-monotonicity-extremum",
+      "route_id": "monotonicity-extremum",
+      "admission": "function_extremum",
+      "label": "单调性求最值法"
+    },
+    {
+      "method": "method-quantified-range-comparison",
+      "route_id": "quantified-range-comparison",
+      "admission": "function_extremum",
+      "label": "量词比较求参法"
+    },
+    {
+      "method": "method-extremum-condition-parameter",
+      "route_id": "extremum-condition-parameter",
+      "admission": "function_extremum",
+      "label": "指定最值求参法"
+    }
+  ]
+}

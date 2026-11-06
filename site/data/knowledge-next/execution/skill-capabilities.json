@@ -53,7 +53,8 @@
       "solve_piecewise_inequality_roots"
     ],
     "skill-quantified-range": [
-      "select_quantifier_policy"
+      "select_quantifier_policy",
+      "confirm_extremum"
     ],
     "method-complete-square": [
       "complete_square",
@@ -73,7 +74,8 @@
     ],
     "skill-reciprocal-range": [
       "reciprocal_range",
-      "solve_fraction_intermediate"
+      "solve_fraction_intermediate",
+      "extremum_reciprocal_piece"
     ],
     "method-elimination": [
       "elimination",
@@ -143,6 +145,12 @@
       "submethod"
     ],
     "method-difference-comparison": [
+      "submethod"
+    ],
+    "skill-monotonicity-operations": [
+      "confirm_extremum_children"
+    ],
+    "method-interval-extremum": [
       "submethod"
     ]
   },
@@ -316,6 +324,39 @@
     ],
     "prepare_monotonicity_difference": [
       "method-difference-comparison#difference"
+    ],
+    "analyze_extremum": [
+      "method-monotonicity-extremum#prepare",
+      "method-quantified-range-comparison#prepare",
+      "method-extremum-condition-parameter#prepare"
+    ],
+    "prepare_extremum_children": [
+      "method-monotonicity-extremum#prepare"
+    ],
+    "bind_extremum_child": [
+      "method-monotonicity-extremum#inputs"
+    ],
+    "confirm_extremum": [
+      "method-monotonicity-extremum#conclude",
+      "method-quantified-range-comparison#ranges",
+      "method-quantified-range-comparison#conclude",
+      "method-extremum-condition-parameter#ranges",
+      "method-extremum-condition-parameter#conclude"
+    ],
+    "prepare_extremum_parameter_children": [
+      "method-extremum-condition-parameter#prepare"
+    ],
+    "bind_extremum_parameter_child": [
+      "method-extremum-condition-parameter#piece-inputs"
+    ],
+    "verify_extremum_independent_piece": [
+      "method-extremum-condition-parameter#borrowed"
+    ],
+    "accept_extremum_parameter_children": [
+      "method-extremum-condition-parameter#ranges"
+    ],
+    "check_extremum_ranges": [
+      "method-quantified-range-comparison#ranges"
     ]
   }
 }

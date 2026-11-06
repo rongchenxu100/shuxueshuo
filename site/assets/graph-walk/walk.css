@@ -109,6 +109,40 @@
   scrollbar-width: thin; scrollbar-color: #c5d8d0 transparent; -webkit-overflow-scrolling: touch;
 }
 .stage-three-highlight .function-conversion .math .katex { max-width: 100%; }
+/* Inform / lines boards in the active step: compact stack, no stray katex scrollbars. */
+.gw-question-board {
+  padding: 16px 18px;
+  margin: 12px 0 8px;
+}
+.gw-question-board .board-caption {
+  margin: 0 0 8px;
+  color: #7a8e85;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: .06em;
+  text-align: center;
+}
+.gw-question-board .formula.case-lines {
+  gap: 6px;
+  font-size: 18px;
+  line-height: 1.55;
+  white-space: normal;
+}
+.gw-question-board .case-line {
+  margin: 0;
+  max-width: 100%;
+  justify-content: center;
+  overflow: visible;
+}
+.gw-question-board .case-line .katex,
+.gw-question-board .case-line .katex-display {
+  max-width: 100%;
+  margin: 0;
+  overflow: visible;
+}
+.gw-question-board .case-line .katex-display > .katex {
+  white-space: normal;
+}
 /* A deduction retains its layout when the unknown becomes a verified result. */
 .gw-derivation-board { container: domain-derivation / inline-size; margin: 18px 0; min-width: 0; }
 .gw-derivation-caption { margin: 0 0 10px; color: #7a8e85; font-size: 11px; font-weight: 550; letter-spacing: .08em; }
@@ -800,33 +834,130 @@
 .gw-method-picker > button > .gw-method-availability.is-blocked { color: #697773; }
 .gw-method-picked { font-weight: 650; color: #006e65; }
 
-/* The same preconnected map remains visible while choosing and after completion. */
-.gw-method-connections { display: grid; gap: .8rem; }
-.gw-method-map-head, .gw-method-map-row { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: 56px; }
-.gw-method-map-head { color: #58726d; font-size: .95rem; font-weight: 600; }
-.gw-method-map-row { position: relative; align-items: center; }
-.gw-method-cue, .gw-method-node { position: relative; z-index: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: .3rem; min-height: 64px; padding: .85rem 1rem; border: 1px solid #ccdeda; border-radius: 12px; background: #fff; color: #203e39; text-align: left; font: inherit; }
-.gw-method-cue strong, .gw-method-node strong { font-size: .98rem; font-weight: 600; }
-.gw-method-cue > span { font-size: .85rem; line-height: 1.5; color: #69817b; }
+/* Pairing cards: clue → method in one unit (not a two-column table). */
+.gw-method-connections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+.gw-method-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem 1.05rem 1.05rem;
+  border: 1px solid #c9ded9;
+  border-radius: 18px;
+  background: #fff;
+  color: #203e39;
+  text-align: left;
+  font: inherit;
+  box-shadow: 0 1px 0 rgba(25, 62, 56, .04);
+}
+button.gw-method-pair { width: 100%; cursor: pointer; }
+button.gw-method-pair:disabled {
+  cursor: not-allowed;
+  background: #f5f7f6;
+  border-style: dashed;
+  color: #5d726b;
+  opacity: 1;
+}
+.gw-method-pair.is-selected,
+button.gw-method-pair[aria-pressed="true"] {
+  border-color: #008078;
+  background: #f3faf7;
+  box-shadow: inset 0 0 0 1px #008078;
+}
+.gw-method-pair:focus-visible { outline: 3px solid #61bbb2; outline-offset: 3px; }
+.gw-method-cue,
+.gw-method-node {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  color: inherit;
+}
+.gw-method-cue strong {
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.gw-method-cue > span {
+  font-size: .86rem;
+  line-height: 1.55;
+  color: #69817b;
+}
+.gw-method-pair-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: .75rem 0 .7rem;
+  color: #7f9a94;
+}
+.gw-method-pair-arrow > span {
+  width: 1px;
+  height: 18px;
+  background: currentColor;
+  position: relative;
+}
+.gw-method-pair-arrow > span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateX(-50%) rotate(45deg);
+}
+.gw-method-pair.is-selected .gw-method-pair-arrow,
+button.gw-method-pair[aria-pressed="true"] .gw-method-pair-arrow { color: #008078; }
+.gw-method-node {
+  padding-top: .75rem;
+  border-top: 1px solid #dce8e4;
+}
+.gw-method-node strong {
+  font-size: .98rem;
+  font-weight: 650;
+  color: #0f6f66;
+}
 .gw-method-choices { display: grid; gap: .55rem; min-width: 0; }
-button.gw-method-node { width: 100%; cursor: pointer; }
-button.gw-method-node:disabled { cursor: not-allowed; background: #f5f7f6; border-style: dashed; color: #5d726b; opacity: 1; }
-.gw-method-node.is-selected, .gw-method-cue.is-selected { border-color: #008078; background: #ecf7f4; box-shadow: inset 0 0 0 1px #008078; }
+button.gw-method-node {
+  width: 100%;
+  cursor: pointer;
+  padding: .7rem .8rem;
+  border: 1px solid #ccdeda;
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+  font: inherit;
+}
+button.gw-method-node:disabled {
+  cursor: not-allowed;
+  background: #f5f7f6;
+  border-style: dashed;
+  color: #5d726b;
+  opacity: 1;
+}
+.gw-method-node.is-selected {
+  border-color: #008078;
+  background: #ecf7f4;
+  box-shadow: inset 0 0 0 1px #008078;
+}
 .gw-method-node:focus-visible { outline: 3px solid #61bbb2; outline-offset: 3px; }
 .gw-method-picked-state { font-size: .78rem; color: #00756c; }
 .gw-method-note { font-size: .78rem; color: #69817b; }
-.gw-method-link-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-.gw-method-link-lines[hidden] { display: none; }
-.gw-method-link-lines path { fill: none; stroke: #91aba5; stroke-width: 1.8; }
-.gw-method-link-lines .is-selected path { stroke: #008078; stroke-width: 3; }
 .gw-method-map-explanation { margin-top: 1rem; padding: .8rem 1rem; border-left: 3px solid #79b7aa; background: #edf7f3; }
 .gw-method-map-explanation p { margin: 0; }
 .gw-method-map-explanation .gw-method-also { margin-top: .6rem; font-size: .9em; color: #5c7771; }
 @media (max-width: 480px) {
-  .gw-method-map-head, .gw-method-map-row { column-gap: 30px; }
-  .gw-method-cue, .gw-method-node { padding: .65rem; min-height: 58px; }
-  .gw-method-cue strong, .gw-method-node strong { font-size: .88rem; }
-  .gw-method-cue > span { font-size: .78rem; }
+  .gw-method-connections { grid-template-columns: 1fr; gap: .85rem; }
+  .gw-method-pair { padding: .9rem; border-radius: 16px; }
+  .gw-method-cue strong { font-size: .95rem; }
+  .gw-method-cue > span { font-size: .8rem; }
 }
 .gw-formula-given{padding:14px 18px;background:#f3f7f6;border-radius:12px;color:#496864}
 .gw-formula-given>span{font-size:.85rem}.gw-formula-given p{margin:6px 0 0;display:flex;flex-wrap:wrap;gap:6px 20px}

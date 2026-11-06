@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-b14-v2",
+  "bundleVersion": "[\"stream\",\"6489d6bf5d4bf78e933dd795d1292332592804e81efc34cb819fefd45faf3afa\",\"665a0a70d3882d1259f5b8e43c27240995f84d2f2cbdff0049d79a780aea719c\",\"506c4e9ed0dd45a0b14a39213fa1f780\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "extremum-condition-parameter"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o1"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-extremum"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "specified"
+        ],
+        "method": "specified",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "24f4e61703c7a9e708d09d04#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "24f4e61703c7a9e708d09d04#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "2ef02a96948d41fb4579bba1#1",
+      "answer": "universal"
+    },
+    {
+      "decision": "4fe826e643dd67365eb31b37#1",
+      "answer": [
+        "interval",
+        "free",
+        "interval"
+      ]
+    },
+    {
+      "decision": "9ea84fe47eadbe75b8ae3229#1",
+      "answer": "o3"
+    },
+    {
+      "decision": "b67b4dce39a4be9f6f6895dc#1",
+      "answer": "o2"
+    },
+    {
+      "decision": "b67b4dce39a4be9f6f6895dc#2",
+      "answer": [
+        "s1o2",
+        "s2o1"
+      ]
+    },
+    {
+      "decision": "7a06bf45e10ced4caefcf962#1",
+      "answer": "o2"
+    },
+    {
+      "decision": "b8ee59bb0cd878377469686b#1",
+      "answer": "o2"
+    },
+    {
+      "decision": "f0664b9aac493e3e53a67ac3#1",
+      "answer": "o2"
+    },
+    {
+      "decision": "ea7650fd97cad3ea9f58642e#1",
+      "answer": "o2"
+    },
+    {
+      "decision": "3d367f6e38e800bafc541053#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "3bfa514293b2eb4aa0da87a2#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "b073d6630c43467952a7dee2#1",
+      "answer": "o1"
+    }
+  ]
+}

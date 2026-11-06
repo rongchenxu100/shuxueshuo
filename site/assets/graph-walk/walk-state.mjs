@@ -617,18 +617,42 @@ function streamDecisions(cards, states, chunks, enabled, final) {
     } else if (chunk.status === 'readonly') {
       push(members.map(member => read(member, chunk.interaction_id)));
     } else if (chunk.status === 'interactive') {
-      push(chunk.parts.map((part, index) => ({...copy(part), source: 'stream',
-        ...(part.option_context || card.option_context ? {option_context: copy(part.option_context || card.option_context)} : {}),
-        stream_steps: copy(chunk.steps), stream_last_part: index === chunk.parts.length - 1,
-        stream_interaction_id: chunk.interaction_id, stream_part_index: index, stream_part_count: chunk.parts.length,
-        stream_group_title: members.map(member => member.title).join(' · '),
-        effects: {nodes: [...(part.effects?.nodes || [])], edges: [...(part.effects?.edges || [])], calls: [],
-          results: index === chunk.parts.length - 1 ? carried(members.at(-1)) : [],
-          log: part.effects?.log || `完成判断：${part.title || card.title}`}})));
+      // card_group splits one compiled interaction into multiple student-facing cards
+      // (e.g. nonempty / reduce / f-max / g-max), each with its own 小问 list.
+      const fallbackTitle = members.map(member => member.title).join(' · ');
+      const groups = [];
+      for (const part of chunk.parts) {
+        const key = part.card_group || '_default';
+        const title = part.card_group_title || fallbackTitle;
+        const last = groups.at(-1);
+        if (last && last.key === key) last.parts.push(part);
+        else groups.push({key, title, parts: [part]});
+      }
+      for (const group of groups) {
+        // Keep the bare interaction id when parts are ungrouped, so older courses
+        // without card_group stay bit-identical; only split ids get a ::suffix.
+        const groupId = group.key === '_default'
+          ? chunk.interaction_id : `${chunk.interaction_id}::${group.key}`;
+        push(group.parts.map((part, index) => {
+          const {card_group: _cg, card_group_title: _cgt, ...body} = part;
+          return {...copy(body), source: 'stream',
+            ...(part.option_context || card.option_context ? {option_context: copy(part.option_context || card.option_context)} : {}),
+            stream_steps: copy(chunk.steps), stream_last_part: index === group.parts.length - 1,
+            stream_interaction_id: groupId,
+            ...(group.key !== '_default' ? {stream_card_group: group.key} : {}),
+            stream_part_index: index, stream_part_count: group.parts.length,
+            stream_group_title: group.title,
+            effects: {nodes: [...(part.effects?.nodes || [])], edges: [...(part.effects?.edges || [])], calls: [],
+              results: index === group.parts.length - 1 ? carried(members.at(-1)) : [],
+              log: part.effects?.log || `完成判断：${part.title || card.title}`}};
+        }));
+      }
     } else throw new Error('stream.invalid_interaction');
   }
   // The current stream tail can still gain a follower. Publishing a temporary read would change its decision later.
   if (final && !stopped) result.push(...held.map(ref => read(byId.get(ref.step_id), ref.interaction_id)));
+  // Adjacent same-title cards may be grouped by the renderer. Published decisions
+  // and their evidence boundaries must stay unchanged when another chunk arrives.
   if (result.some(item => typeof item.id !== 'string' || !item.id) || new Set(result.map(item => item.id)).size !== result.length) {
     throw new Error('stream.invalid_decision');
   }

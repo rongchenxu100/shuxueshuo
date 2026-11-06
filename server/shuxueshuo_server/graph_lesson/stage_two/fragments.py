@@ -97,25 +97,37 @@ def _domain_formula_body_matches(body, expected):
         # TeX a\frac{b}{c} and a*b/c differ only in product grouping.
         # Keep every divisor as an intact expression: never cancel factors
         # or turn a/(b/c) into a*c/b (which would lose the c != 0 condition).
-        if tree[0] in ("*", "/"):
+        if tree[0] in ("*", "/", "neg"):
             numerators, divisors = [], []
+            negative = False
 
             def collect(item):
+                nonlocal negative
                 if item[0] == "*":
                     collect(item[1])
                     collect(item[2])
                 elif item[0] == "/":
                     collect(item[1])
                     divisors.append(original_structure(item[2]))
+                elif item[0] == "neg":
+                    negative = not negative
+                    collect(item[1])
+                elif item == ['number', '1']:
+                    pass
                 else:
                     numerators.append(original_structure(item))
 
             collect(tree)
-            return ["original_product", numerators, divisors]
+            value = (["original_product", numerators, divisors] if divisors or len(numerators) > 1
+                     else numerators[0] if numerators else ['number', '1'])
+            return ['negative', value] if negative else value
         return [original_structure(item) if isinstance(item, list) else item for item in tree]
 
     try:
         normalized, _ = read()
+        # A TeX fraction can be juxtaposed with a following factor, e.g.
+        # -\frac{1}{2}x. The parser requires an explicit product after ')'.
+        normalized = re.sub(r'\)(?=[A-Za-z0-9(])', ')*', normalized)
         return original_structure(parse(normalized)) == original_structure(parse(expected))
     except (NotationError, ValueError, RecursionError):
         return False
@@ -589,6 +601,19 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_equation'])
             fragments[-1]['source_refs'] = refs
             fragments[-1]['knowledge_refs'] = ['piecewise-function#equation']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('function_extremum', {}).get('structure_supported'):
+        from .extremum_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['function_extremum'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{'code': 'd1.extremum_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'function_extremum'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-range-extrema#extrema']
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}

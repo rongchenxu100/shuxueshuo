@@ -1,0 +1,81 @@
+{
+  "id": "method-monotonicity-extremum",
+  "kind": "method",
+  "label": "单调性求最值法",
+  "summary": "根据同一区间的增减确定位置，检查取得性，再回代原式。",
+  "source": "函数单调性 FM-T2",
+  "input": "原函数、准确输入范围与原目标。",
+  "output": "所求最大值或最小值及取等位置；若不存在，区分未取得的有限界与无界。",
+  "conditions": "固定系数的一次或二次式、可分离的线性分式，以及仿射根式与二次式的和。所有运算须在同一有效区间上满足方向与符号条件。",
+  "steps": [
+    {
+      "id": "prepare",
+      "title": "确定原目标和条件",
+      "body": [
+        "根据同一区间的增减确定位置，检查取得性，再回代原式。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "inputs",
+      "title": "绑定各项的共同范围",
+      "body": [
+        "绑定各项的共同范围。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "children",
+      "title": "判断各项的单调性",
+      "body": [
+        "判断各项的单调性。"
+      ],
+      "calls": [
+        {
+          "ref": "method-monotonicity-structure"
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "title": "判断运算后的方向",
+      "body": [
+        "判断运算后的方向。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-monotonicity-operations"
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "title": "回到原目标收束",
+      "body": [
+        "回到原目标收束。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "verify",
+      "title": "独立核验原题",
+      "body": [
+        "独立核验原题。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "单调函数的最大值",
+      "prompt": "求 $f(x)=\\frac{2x+1}{x+3}$ 在 $[-2,2]$ 上的最大值。",
+      "solution": [
+        "分离为 $2-\\frac5{x+3}$；分母在本区间为正。",
+        "取倒数反序，乘负数再反序，加常数保序，所以原函数递增。",
+        "右端点可以取到，$f(2)=1$。"
+      ],
+      "source": "函数单调性 FM-T2"
+    }
+  ],
+  "resources": []
+}

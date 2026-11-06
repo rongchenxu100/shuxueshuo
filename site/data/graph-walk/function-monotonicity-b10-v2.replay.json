@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-b10-v2",
+  "bundleVersion": "[\"stream\",\"ff6abaeb42fb6d970bb885818cd0487eee9afaca514cba06aba74ca35a1356e6\",\"3dc1e4124f3648cac89b7e321f8c850436a10bec8a1bbc98d1e53f75280d1ce9\",\"c3ce65139e914918bf7da01572e6bfa0\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "quantified-range-comparison"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-extremum"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "quantified"
+        ],
+        "method": "quantified",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#3",
+      "answer": "o1"
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#4",
+      "answer": "o1"
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#5",
+      "answer": "o1"
+    },
+    {
+      "decision": "284f182db4e0605ce2945c89#6",
+      "answer": "o1"
+    },
+    {
+      "decision": "ea61e938929b79b6aed59171#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "ea61e938929b79b6aed59171#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "db8abeaf73d8213e56aa8303#1",
+      "answer": "o1"
+    }
+  ]
+}

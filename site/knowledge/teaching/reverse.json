@@ -2762,6 +2762,216 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#6",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#7",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#8",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#9",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#6",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "7a06bf45e10ced4caefcf962#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "f0664b9aac493e3e53a67ac3#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11",
       "route": "piecewise-range",
@@ -3229,6 +3439,237 @@
       "problem": "function-concepts-range-q18",
       "route": "translation-range",
       "step": "9e0e62290f842437ad0f5b6b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "31fe2c4f48400325e5d41a2a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "476932af4040ad5a206103b7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "1e05017790caea6ccbc886a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "6b61ca2fd3da2c98f3adbc7a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "a6435ec3c173f84564854519#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "db8abeaf73d8213e56aa8303#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "0f0aa1649656816468940d24#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "eb2d35abbefc6fb832d725bd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "55fdd90bb0ecda14a991ee16#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4f2a641f9852783dbd5c623d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "117e462aeca56236581d9448#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2ef02a96948d41fb4579bba1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4fe826e643dd67365eb31b37#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b073d6630c43467952a7dee2#1",
       "conditions": {}
     },
     {
@@ -3963,6 +4404,69 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b8ee59bb0cd878377469686b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "ea7650fd97cad3ea9f58642e#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -4389,6 +4893,48 @@
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
       "step": "b209eafc281dede2600170fc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
       "conditions": {}
     },
     {
@@ -8190,6 +8736,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -10670,6 +11230,55 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -12528,6 +13137,27 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "97b57257494aa90e84559af2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "1647315312f8a7d628c3f976#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9ea84fe47eadbe75b8ae3229#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -14282,6 +14912,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-w10",
       "route": "function-coefficients",
@@ -14772,6 +15416,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "eb2d35abbefc6fb832d725bd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4f2a641f9852783dbd5c623d#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -14874,6 +15532,41 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "dd183f8eb1ef852b74a8eb5e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "78422bec774a80d7f26118fe#2",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -14932,6 +15625,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "97b57257494aa90e84559af2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "1647315312f8a7d628c3f976#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -14952,6 +15659,118 @@
       "problem": "function-concepts-q23b-v2",
       "route": "domain-parameter",
       "step": "377fdebbb738c2e4f9d402cf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "97b57257494aa90e84559af2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "1647315312f8a7d628c3f976#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9ea84fe47eadbe75b8ae3229#1",
       "conditions": {}
     },
     {
@@ -15076,6 +15895,55 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "97b57257494aa90e84559af2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "1647315312f8a7d628c3f976#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9ea84fe47eadbe75b8ae3229#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b8ee59bb0cd878377469686b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "ea7650fd97cad3ea9f58642e#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -15190,6 +16058,27 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "7a2f947cfeb9bf1cf41f8d06#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#2",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b11-v1",
       "route": "piecewise-range-parameter",
@@ -15217,6 +16106,20 @@
       "problem": "function-concepts-q23b-v2",
       "route": "domain-parameter",
       "step": "fae5abd2ae7e34ef4aeb306f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
       "conditions": {}
     },
     {
@@ -15303,6 +16206,20 @@
       "problem": "function-concepts-range-q06",
       "route": "equation-real-root-range",
       "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
       "conditions": {}
     },
     {
@@ -15445,6 +16362,20 @@
       "problem": "function-concepts-range-q06",
       "route": "equation-real-root-range",
       "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
       "conditions": {}
     },
     {
@@ -15615,6 +16546,20 @@
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
       "step": "b209eafc281dede2600170fc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "d3cd84dcdc1615bb8b611d49#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "a2ff0eb69ac23200f0bca843#1",
       "conditions": {}
     },
     {
@@ -18926,6 +19871,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#2",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q04",
       "route": "extremum",
@@ -18960,6 +19919,62 @@
       "problem": "function-concepts-range-q06",
       "route": "fraction-split-range",
       "step": "8d9b06396894414e82368127#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#6",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9284ef87e98a167483a2907d#2",
       "conditions": {}
     },
     {
@@ -20074,6 +21089,1174 @@
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
       "step": "9c1ca38e1d3120175971c432#1",
+      "conditions": {}
+    }
+  ],
+  "type-monotonicity-extremum": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2"
+    }
+  ],
+  "function-range-extrema": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-extremum#prepare": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "31fe2c4f48400325e5d41a2a#1",
+      "conditions": {}
+    }
+  ],
+  "function-range-extrema#extrema": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "31fe2c4f48400325e5d41a2a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "476932af4040ad5a206103b7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "1e05017790caea6ccbc886a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "6b61ca2fd3da2c98f3adbc7a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "a6435ec3c173f84564854519#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "db8abeaf73d8213e56aa8303#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "0f0aa1649656816468940d24#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "eb2d35abbefc6fb832d725bd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "55fdd90bb0ecda14a991ee16#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4f2a641f9852783dbd5c623d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "117e462aeca56236581d9448#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2ef02a96948d41fb4579bba1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4fe826e643dd67365eb31b37#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b073d6630c43467952a7dee2#1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-extremum#operations": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "9a20bcc1562966aa69251de5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#3",
+      "conditions": {}
+    }
+  ],
+  "skill-monotonicity-operations": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "9a20bcc1562966aa69251de5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#3",
+      "conditions": {}
+    }
+  ],
+  "function-monotonicity-operations#reciprocal": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "9a20bcc1562966aa69251de5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#3",
+      "conditions": {}
+    }
+  ],
+  "function-monotonicity-operations#sum-difference": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "9a20bcc1562966aa69251de5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "a43dea55f22d1e05c4807eec#3",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-extremum#conclude": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a16-v2",
+      "route": "monotonicity-extremum",
+      "step": "2a7922e511c938536707879f#2",
+      "conditions": {}
+    }
+  ],
+  "method-quantified-range-comparison#ranges": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "8a35db11a3830c03b672bed5#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "bf70d0efc0ab743db430fd91#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#6",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#7",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#8",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "8c1d20bc26bc469daa1a7bbf#9",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "284f182db4e0605ce2945c89#6",
+      "conditions": {}
+    }
+  ],
+  "method-quantified-range-comparison#conditions": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "e0c573177373663674bc3b53#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "b4f2a1a9c4ac9b2eb2610368#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "b14c4b5debeca01eb8f4649f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "5605d222a4209f0ea13b8a14#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "ea61e938929b79b6aed59171#2",
+      "conditions": {}
+    }
+  ],
+  "method-quantified-range-comparison#conclude": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a07-v2",
+      "route": "quantified-range-comparison",
+      "step": "476932af4040ad5a206103b7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "1e05017790caea6ccbc886a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b16-v2",
+      "route": "quantified-range-comparison",
+      "step": "6b61ca2fd3da2c98f3adbc7a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b11-v2",
+      "route": "quantified-range-comparison",
+      "step": "a6435ec3c173f84564854519#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b10-v2",
+      "route": "quantified-range-comparison",
+      "step": "db8abeaf73d8213e56aa8303#1",
+      "conditions": {}
+    }
+  ],
+  "function-monotonicity#common-functions": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-a18-v2",
+      "route": "quantified-range-comparison",
+      "step": "48a889f500e0e3380bade8b8#5",
+      "conditions": {}
+    }
+  ],
+  "method-extremum-condition-parameter#prepare": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2d954501a07430ce2b69fd82#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "24f4e61703c7a9e708d09d04#2",
+      "conditions": {}
+    }
+  ],
+  "method-extremum-condition-parameter#piece-inputs": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "0f0aa1649656816468940d24#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "eb2d35abbefc6fb832d725bd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "55fdd90bb0ecda14a991ee16#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4f2a641f9852783dbd5c623d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "2ef02a96948d41fb4579bba1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4fe826e643dd67365eb31b37#1",
+      "conditions": {}
+    }
+  ],
+  "skill-linear-range": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "7a2f947cfeb9bf1cf41f8d06#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "3bfa514293b2eb4aa0da87a2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11",
+      "route": "piecewise-range",
+      "step": "6b92e2c0dee1a9ce95a3c249#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11",
+      "route": "piecewise-range",
+      "step": "f9a8142cd3ecbadf602cabae#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q08",
+      "route": "variable",
+      "step": "v_extremum",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q09",
+      "route": "variable",
+      "step": "v_extremum",
+      "conditions": {}
+    }
+  ],
+  "linear-interval-extremum#interval": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "7a2f947cfeb9bf1cf41f8d06#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "3bfa514293b2eb4aa0da87a2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q08",
+      "route": "variable",
+      "step": "v_extremum",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q09",
+      "route": "variable",
+      "step": "v_extremum",
+      "conditions": {}
+    }
+  ],
+  "method-extremum-condition-parameter#conclude": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b08-v2",
+      "route": "extremum-condition-parameter",
+      "step": "117e462aeca56236581d9448#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b073d6630c43467952a7dee2#1",
+      "conditions": {}
+    }
+  ],
+  "method-interval-extremum": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "4fe826e643dd67365eb31b37#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "interval",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "interval",
+      "step": "i_basis",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "interval",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "interval",
+      "step": "i_basis",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "interval",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "interval",
+      "step": "i_basis",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "interval",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "interval",
+      "step": "i_basis",
+      "conditions": {}
+    }
+  ],
+  "method-interval-extremum#quantifier": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "9ea84fe47eadbe75b8ae3229#1",
+      "conditions": {}
+    }
+  ],
+  "method-interval-extremum#select": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b67b4dce39a4be9f6f6895dc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b67b4dce39a4be9f6f6895dc#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "7a06bf45e10ced4caefcf962#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "f0664b9aac493e3e53a67ac3#1",
+      "conditions": {}
+    }
+  ],
+  "method-interval-extremum#conditions": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "b8ee59bb0cd878377469686b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "ea7650fd97cad3ea9f58642e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "3d367f6e38e800bafc541053#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "interval",
+      "step": "i_range",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "interval",
+      "step": "i_range",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "interval",
+      "step": "i_range",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "interval",
+      "step": "i_range",
+      "conditions": {}
+    }
+  ],
+  "method-interval-extremum#verify": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "3d367f6e38e800bafc541053#1",
+      "conditions": {}
+    }
+  ],
+  "method-extremum-condition-parameter#borrowed": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b14-v2",
+      "route": "extremum-condition-parameter",
+      "step": "3bfa514293b2eb4aa0da87a2#1",
       "conditions": {}
     }
   ],
@@ -24149,36 +26332,6 @@
       "conditions": {}
     }
   ],
-  "skill-linear-range": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11",
-      "route": "piecewise-range",
-      "step": "6b92e2c0dee1a9ce95a3c249#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11",
-      "route": "piecewise-range",
-      "step": "f9a8142cd3ecbadf602cabae#1",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q08",
-      "route": "variable",
-      "step": "v_extremum",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q09",
-      "route": "variable",
-      "step": "v_extremum",
-      "conditions": {}
-    }
-  ],
   "method-piecewise-range#merge": [
     {
       "topic": "function-representations",
@@ -24457,90 +26610,6 @@
       "conditions": {}
     }
   ],
-  "method-interval-extremum": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "interval",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "interval",
-      "step": "i_basis",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "interval",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "interval",
-      "step": "i_basis",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "interval",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "interval",
-      "step": "i_basis",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "interval",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "interval",
-      "step": "i_basis",
-      "conditions": {}
-    }
-  ],
-  "method-interval-extremum#conditions": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "interval",
-      "step": "i_range",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "interval",
-      "step": "i_range",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "interval",
-      "step": "i_range",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "interval",
-      "step": "i_range",
-      "conditions": {}
-    }
-  ],
   "skill-linear-range#constant": [
     {
       "topic": "quadratic-always",
@@ -24589,22 +26658,6 @@
       "problem": "quadratic-always-q09",
       "route": "variable",
       "step": "v_rewrite",
-      "conditions": {}
-    }
-  ],
-  "linear-interval-extremum#interval": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q08",
-      "route": "variable",
-      "step": "v_extremum",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q09",
-      "route": "variable",
-      "step": "v_extremum",
       "conditions": {}
     }
   ]

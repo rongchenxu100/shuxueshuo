@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"root\":{\"label\":\"11.\",\"definitions\":[\"f(x)=x^2-2*x\",\"g(x)=a*x-1\"],\"facts\":[\"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1730,
+      "prompt_tokens": 29634,
+      "total_tokens": 31364,
+      "prompt_cache_hit_tokens": 29184,
+      "prompt_cache_miss_tokens": 450
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 737,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-6616de54-400b-47f6-90d1-102c506d9c4c",
+        "sha256": "31e1e95660496b586bc623c21aa57e3a0b9f360767d14d6288a3c5220ef186f2",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 15238,
+        "expires_at": 1793883072,
+        "uploaded_at": 1793796672.324815
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "31e1e95660496b586bc623c21aa57e3a0b9f360767d14d6288a3c5220ef186f2",
+        "api_calls": 1,
+        "file_id": "file-api-6616de54-400b-47f6-90d1-102c506d9c4c",
+        "expires_at": 1793883072,
+        "elapsed_ms": 248
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 10013,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1730,
+          "prompt_tokens": 29634,
+          "total_tokens": 31364,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1414
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29184
+          },
+          "prompt_cache_hit_tokens": 29184,
+          "prompt_cache_miss_tokens": 450
+        },
+        "raw_payload": {
+          "id": "da9d41c6-2b9a-4aae-bf1b-66d8793c7997",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1730,
+            "prompt_tokens": 29634,
+            "total_tokens": 31364,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1414
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29184
+            },
+            "prompt_cache_hit_tokens": 29184,
+            "prompt_cache_miss_tokens": 450
+          },
+          "created": 1793796672,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"root\":{\"label\":\"11.\",\"definitions\":[\"f(x)=x^2-2*x\",\"g(x)=a*x-1\"],\"facts\":[\"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片中提取题意。图片包含一道题：11.函数 f(x)=x^2-2x, g(x)=ax-1，若 ∀x1∈[-1,2]，∃x2∈[-1,2]，使得 f(x1)=g(x2)，则 a 的取值范围是____。手写答案 [2,+∞) 等不算题设。需要输出original_text, root, public_content。注意不要手写答案。根节点条件和小问无。需分析题意：给定 f(x)=x^2-2x, g(x)=a*x-1，条件：∀x1∈[-1,2], ∃x2∈[-1,2], 使得 f(x1)=g(x2)，求 a 的取值范围。目标 find_range symbol=a。需要把定义放definitions，facts 放量词条件。要准确转录。原题有“11.”来源题号。original_text可以保留。public_content statement去掉题号，保留题目正文。没有选项，所以choices status none。\n\n需要构建受控数学字符串。definitions: f(x)=x^2-2*x, g(x)=a*x-1。facts: ∀x1∈[-1,2]: ∃x2∈[-1,2]: f(x1)=g(x2)。注意变量是 x_1, x_2? 受控字符串变量可以有下标？目录中没有明确下标，但常见可以 x_1。需要保留题面 x₁, x₂。可以用 x_1, x_2。目标 {\"kind\":\"find_range\",\"symbol\":\"a\"}。还需要考虑“使得”关系。root没有children。public_content scopes一个 /root statement放题面。figure_detection none。completeness complete; privacy separated (没有个人信息，手写答案不算题但公开字段排除手写答案; statement只保留印刷题干)。 root label? 原题有“11.”，可以作为label? 题号是来源题号。root.label可写\"11.\"? 但是public root_label_role=source。可选。需要谨慎：root.label存在时用root_label_role。可以设置label \"11.\"，角色source，公开时去掉。不过original_text保留11.。public_content scopes的statement不包含题号。这样合规。\n\n需要检查手写内容：图片顶部有 -7≤g(x2)≤a-4a-3? 看不清，不是题设。下方有 \"0≤f(x1)≤3\" 和 \"a-1≤g(x2)≤2a-1\" 等手写。不是题设不转录。公开题面注意不夹手写。\n\noriginal_text: \"11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\forall x_1\\in[-1,2]$，$\\exists x_2\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\" 注意原图有逗号等。填空横线保留。图片最后 \"是 [2,+∞)\" 手写覆盖? 不转录手写答案。填空处原印刷可能是“____”。用横线即可。不要写 [无法辨认]。\n\npublic_content.statement: \"函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\forall x_1\\in[-1,2]$，$\\exists x_2\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\" 不含题号。\n\nroot.facts 使用 Unicode 数学? \"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"。 maybe 使用 x₁? 目录 examples 用 x_1。数学字符串中可以用 x_1。定义 f(x)=x^2-2*x, g(x)=a*x-1。注意函数定义g含参数a，没问题。\n\nGoals 只有一个 find_range symbol a。没有 input_domain。\n\nuncertainties? 图片手写答案干扰但题干清晰，没有。可能原题中的“a x - 1”是 ax-1。清晰。没有配图。figure none。public_content.figure not_required。\n\n需要确保schema字段。public_content scopes item: scope_ref \"/root\", statement, choices array [{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]. completeness \"complete\"; privacy \"separated\"; figure \"not_required\"; root_label_role \"source\"; figure_detection {\"status\":\"none\",\"regions\":[]}。\n\nroot: definitions [\"f(x)=x^2-2*x\", \"g(x)=a*x-1\"]; facts [\"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"]; goals [{\"kind\":\"find_range\",\"symbol\":\"a\"}]; label \"11.\"; maybe children absent或省略。uncertainties省略。JSON can omit label? 如果设置 label 需要 role. 可以。original_text 里保留题号，public statement去掉。\n\n注意：题面含“∀x1∈[-1,2]，∃x2∈[-1,2]”，量词顺序：对于任意 x1 存在 x2。facts 用 ∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)。受控数学表达式中变量下标可接受。但math_expression_catalog没有下标，但一般可以用 x_1。使用Unicode x₁? 目录没有禁止。使用 x_1 更标准。注意JSON字符串反斜杠无需。公式中可能有 \\in? root不用$和反斜杠，使用Unicode ∈。 good.\n\n原题“函数f(x) = x² - 2x, g(x) = ax - 1”可以用 x^2。定义中 a是参数。目标求a范围。 root facts 是条件，不是将 f 和 g 代入。合适。\n\n是否需要把“使得”写入 facts？直接 f(x_1)=g(x_2) 在存在量词下。可以。\n\n需要 output only JSON object. 确保合法转义。字符串中有双引号? 无。中文标点。original_text 公式用 $...$。不要用 \\( \\)。 JSON 字符串里数学 $ 无妨。需要不要输出额外。 Let's craft.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 10265
+  },
+  "raw_payload": {
+    "id": "da9d41c6-2b9a-4aae-bf1b-66d8793c7997",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"root\":{\"label\":\"11.\",\"definitions\":[\"f(x)=x^2-2*x\",\"g(x)=a*x-1\"],\"facts\":[\"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\\\forall x_1\\\\in[-1,2]$，$\\\\exists x_2\\\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片中提取题意。图片包含一道题：11.函数 f(x)=x^2-2x, g(x)=ax-1，若 ∀x1∈[-1,2]，∃x2∈[-1,2]，使得 f(x1)=g(x2)，则 a 的取值范围是____。手写答案 [2,+∞) 等不算题设。需要输出original_text, root, public_content。注意不要手写答案。根节点条件和小问无。需分析题意：给定 f(x)=x^2-2x, g(x)=a*x-1，条件：∀x1∈[-1,2], ∃x2∈[-1,2], 使得 f(x1)=g(x2)，求 a 的取值范围。目标 find_range symbol=a。需要把定义放definitions，facts 放量词条件。要准确转录。原题有“11.”来源题号。original_text可以保留。public_content statement去掉题号，保留题目正文。没有选项，所以choices status none。\n\n需要构建受控数学字符串。definitions: f(x)=x^2-2*x, g(x)=a*x-1。facts: ∀x1∈[-1,2]: ∃x2∈[-1,2]: f(x1)=g(x2)。注意变量是 x_1, x_2? 受控字符串变量可以有下标？目录中没有明确下标，但常见可以 x_1。需要保留题面 x₁, x₂。可以用 x_1, x_2。目标 {\"kind\":\"find_range\",\"symbol\":\"a\"}。还需要考虑“使得”关系。root没有children。public_content scopes一个 /root statement放题面。figure_detection none。completeness complete; privacy separated (没有个人信息，手写答案不算题但公开字段排除手写答案; statement只保留印刷题干)。 root label? 原题有“11.”，可以作为label? 题号是来源题号。root.label可写\"11.\"? 但是public root_label_role=source。可选。需要谨慎：root.label存在时用root_label_role。可以设置label \"11.\"，角色source，公开时去掉。不过original_text保留11.。public_content scopes的statement不包含题号。这样合规。\n\n需要检查手写内容：图片顶部有 -7≤g(x2)≤a-4a-3? 看不清，不是题设。下方有 \"0≤f(x1)≤3\" 和 \"a-1≤g(x2)≤2a-1\" 等手写。不是题设不转录。公开题面注意不夹手写。\n\noriginal_text: \"11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\forall x_1\\in[-1,2]$，$\\exists x_2\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\" 注意原图有逗号等。填空横线保留。图片最后 \"是 [2,+∞)\" 手写覆盖? 不转录手写答案。填空处原印刷可能是“____”。用横线即可。不要写 [无法辨认]。\n\npublic_content.statement: \"函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\forall x_1\\in[-1,2]$，$\\exists x_2\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是______。\" 不含题号。\n\nroot.facts 使用 Unicode 数学? \"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"。 maybe 使用 x₁? 目录 examples 用 x_1。数学字符串中可以用 x_1。定义 f(x)=x^2-2*x, g(x)=a*x-1。注意函数定义g含参数a，没问题。\n\nGoals 只有一个 find_range symbol a。没有 input_domain。\n\nuncertainties? 图片手写答案干扰但题干清晰，没有。可能原题中的“a x - 1”是 ax-1。清晰。没有配图。figure none。public_content.figure not_required。\n\n需要确保schema字段。public_content scopes item: scope_ref \"/root\", statement, choices array [{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]. completeness \"complete\"; privacy \"separated\"; figure \"not_required\"; root_label_role \"source\"; figure_detection {\"status\":\"none\",\"regions\":[]}。\n\nroot: definitions [\"f(x)=x^2-2*x\", \"g(x)=a*x-1\"]; facts [\"∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)\"]; goals [{\"kind\":\"find_range\",\"symbol\":\"a\"}]; label \"11.\"; maybe children absent或省略。uncertainties省略。JSON can omit label? 如果设置 label 需要 role. 可以。original_text 里保留题号，public statement去掉。\n\n注意：题面含“∀x1∈[-1,2]，∃x2∈[-1,2]”，量词顺序：对于任意 x1 存在 x2。facts 用 ∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)。受控数学表达式中变量下标可接受。但math_expression_catalog没有下标，但一般可以用 x_1。使用Unicode x₁? 目录没有禁止。使用 x_1 更标准。注意JSON字符串反斜杠无需。公式中可能有 \\in? root不用$和反斜杠，使用Unicode ∈。 good.\n\n原题“函数f(x) = x² - 2x, g(x) = ax - 1”可以用 x^2。定义中 a是参数。目标求a范围。 root facts 是条件，不是将 f 和 g 代入。合适。\n\n是否需要把“使得”写入 facts？直接 f(x_1)=g(x_2) 在存在量词下。可以。\n\n需要 output only JSON object. 确保合法转义。字符串中有双引号? 无。中文标点。original_text 公式用 $...$。不要用 \\( \\)。 JSON 字符串里数学 $ 无妨。需要不要输出额外。 Let's craft."
+        }
+      }
+    ],
+    "created": 1793796672,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1730,
+      "prompt_tokens": 29634,
+      "total_tokens": 31364,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1414,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29184
+      },
+      "prompt_cache_hit_tokens": 29184,
+      "prompt_cache_miss_tokens": 450
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 10.267
+}

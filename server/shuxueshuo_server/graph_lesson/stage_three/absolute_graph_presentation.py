@@ -27,9 +27,15 @@ def ends(region):
 
 
 def segment(expr, domain, variable):
+    """Polynomial piece; degree ≤ 3 (quadratic pad to 3 coeffs, cubic uses 4)."""
     poly = sp.Poly(expr, variable)
+    deg = poly.degree()
+    if deg > 3:
+        raise ValueError('segment_degree')
+    # SymPy assigns degree -oo to the zero polynomial; it still draws as y = 0.
+    top = 3 if deg == 3 else 2
     interval, closed = ends(domain)
-    return {'coefficients': [float(poly.nth(i)) for i in (2, 1, 0)],
+    return {'coefficients': [float(poly.nth(i)) for i in range(top, -1, -1)],
             'interval': interval, 'interval_closed': closed}
 
 

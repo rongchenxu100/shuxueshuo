@@ -1832,6 +1832,16 @@
       "repeat": "always",
       "compiler": "function_monotonicity",
       "parts": []
+    },
+    "extremum_derivation": {
+      "repeat": "always",
+      "compiler": "function_extremum",
+      "parts": []
+    },
+    "extremum_piece_derivation": {
+      "repeat": "always",
+      "compiler": "function_extremum",
+      "parts": []
     }
   },
   "overrides": {

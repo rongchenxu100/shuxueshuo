@@ -339,7 +339,9 @@ def merge_interval_cases(cases, results):
         path = record.get("case_path")
         valid_path = (isinstance(path, list) and
                       ((path and path[-1] == case["id"]) or
-                       (not path and len(cases) == 1 and exact_set_equal(case["domain"], sp.S.Reals))))
+                       # The driver omits an unconditional single case from
+                       # the path, including when its method has a parent case.
+                       (len(cases) == 1 and exact_set_equal(case["domain"], sp.S.Reals))))
         if (record["condition"] != case["condition"] or
                 not exact_set_equal(record["domain"], case["domain"]) or
                 not valid_path or not record.get("source_refs")):

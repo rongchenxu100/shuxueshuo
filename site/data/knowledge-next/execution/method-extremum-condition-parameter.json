@@ -1,0 +1,524 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-extremum-condition-parameter",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "analyze",
+          "capability": "analyze_extremum",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "extremum_result": "extremum_result"
+          },
+          "order": 0
+        },
+        {
+          "id": "pieces",
+          "capability": "prepare_extremum_parameter_children",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "extremum_result": "$extremum_result"
+          },
+          "outputs": {
+            "piece_cases": "piece_cases"
+          },
+          "order": 1
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "prepare",
+          "after": "analyze",
+          "template": "extremum_derivation",
+          "bindings": {
+            "description": "$description",
+            "extremum_result": "$extremum_result",
+            "phase": "prepare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "extremum_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "piece-inputs",
+      "calls": [],
+      "judgments": [],
+      "display_units": [],
+      "cases": {
+        "source": "piece_cases",
+        "binding": "piece_case",
+        "through": "borrowed",
+        "collect": "piece_results",
+        "outputs": {
+          "solution": "$piece_solution"
+        },
+        "entry": {
+          "id": "piece-inputs",
+          "calls": [
+            {
+              "id": "bind",
+              "capability": "bind_extremum_parameter_child",
+              "public_ref": null,
+              "inputs": {
+                "branch_case": "$piece_case",
+                "extremum_result": "$extremum_result"
+              },
+              "outputs": {
+                "piece_expression": "piece_expression",
+                "piece_variable": "piece_variable",
+                "piece_domain": "piece_domain",
+                "piece_kind": "piece_kind",
+                "interval_function": "interval_function",
+                "interval_operator": "interval_operator",
+                "parameter": "parameter",
+                "zero": "zero",
+                "goal": "goal",
+                "relation": "relation",
+                "expression": "expression",
+                "strict": "strict",
+                "quantifier": "quantifier",
+                "constraint_context": "constraint_context",
+                "relation_kind": "relation_kind",
+                "function_name": "function_name",
+                "x": "x",
+                "domain": "domain",
+                "universal_statement": "universal_statement",
+                "borrowed_method": "borrowed_method",
+                "subproblem_context": "subproblem_context"
+              },
+              "order": 0
+            }
+          ],
+          "judgments": [],
+          "display_units": [
+            {
+              "id": "subproblem_recognize_separable",
+              "after": "bind",
+              "template": "quantified_subproblem",
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "separable"
+              },
+              "bindings": {
+                "universal_statement": "$universal_statement",
+                "x": "$x",
+                "parameter": "$parameter",
+                "domain": "$domain",
+                "borrowed_method": "$borrowed_method",
+                "subproblem_context": "$subproblem_context",
+                "before": [],
+                "after": [
+                  "$universal_statement"
+                ],
+                "phase": "recognize",
+                "host_route": "extremum-condition-parameter"
+              },
+              "depends_on": [
+                "borrowed_method",
+                "domain",
+                "parameter",
+                "subproblem_context",
+                "universal_statement",
+                "x"
+              ]
+            },
+            {
+              "id": "subproblem_recognize_polynomial",
+              "after": "bind",
+              "template": "quantified_subproblem",
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "polynomial"
+              },
+              "bindings": {
+                "universal_statement": "$universal_statement",
+                "x": "$x",
+                "parameter": "$parameter",
+                "domain": "$domain",
+                "borrowed_method": "$borrowed_method",
+                "subproblem_context": "$subproblem_context",
+                "before": [],
+                "after": [
+                  "$universal_statement"
+                ],
+                "phase": "recognize",
+                "host_route": "extremum-condition-parameter"
+              },
+              "depends_on": [
+                "borrowed_method",
+                "domain",
+                "parameter",
+                "subproblem_context",
+                "universal_statement",
+                "x"
+              ]
+            },
+            {
+              "id": "subproblem_select_separable",
+              "after": "bind",
+              "template": "quantified_subproblem",
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "separable"
+              },
+              "bindings": {
+                "universal_statement": "$universal_statement",
+                "x": "$x",
+                "parameter": "$parameter",
+                "domain": "$domain",
+                "borrowed_method": "$borrowed_method",
+                "subproblem_context": "$subproblem_context",
+                "before": [],
+                "after": [
+                  "$universal_statement"
+                ],
+                "phase": "select",
+                "host_route": "extremum-condition-parameter"
+              },
+              "depends_on": [
+                "borrowed_method",
+                "domain",
+                "parameter",
+                "subproblem_context",
+                "universal_statement",
+                "x"
+              ]
+            },
+            {
+              "id": "subproblem_select_polynomial",
+              "after": "bind",
+              "template": "quantified_subproblem",
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "polynomial"
+              },
+              "bindings": {
+                "universal_statement": "$universal_statement",
+                "x": "$x",
+                "parameter": "$parameter",
+                "domain": "$domain",
+                "borrowed_method": "$borrowed_method",
+                "subproblem_context": "$subproblem_context",
+                "before": [],
+                "after": [
+                  "$universal_statement"
+                ],
+                "phase": "select",
+                "host_route": "extremum-condition-parameter"
+              },
+              "depends_on": [
+                "borrowed_method",
+                "domain",
+                "parameter",
+                "subproblem_context",
+                "universal_statement",
+                "x"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "borrowed",
+      "calls": [
+        {
+          "id": "interval",
+          "capability": "submethod",
+          "public_ref": "method-interval-extremum",
+          "inputs": {
+            "interval_function": "$interval_function",
+            "interval_operator": "$interval_operator",
+            "x": "$piece_variable",
+            "parameter": "$parameter",
+            "domain": "$piece_domain",
+            "quantifier": "∀",
+            "zero": "$zero",
+            "constraint_context": {},
+            "goal": "$goal",
+            "function_name": "h"
+          },
+          "outputs": {
+            "polynomial_solution": "candidate_set"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "piece_kind",
+            "equals": "polynomial"
+          },
+          "presentation": "expanded"
+        },
+        {
+          "id": "reciprocal",
+          "capability": "submethod",
+          "public_ref": "method-separation",
+          "inputs": {
+            "relation": "$relation",
+            "expression": "$expression",
+            "x": "$piece_variable",
+            "parameter": "$parameter",
+            "domain": "$piece_domain",
+            "quantifier": "$quantifier",
+            "strict": "$strict",
+            "goal": "$goal",
+            "constraint_context": "$constraint_context",
+            "relation_kind": "$relation_kind",
+            "function_name": "$function_name"
+          },
+          "outputs": {
+            "reciprocal_solution": "candidate_set"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "piece_kind",
+            "equals": "separable"
+          },
+          "presentation": "expanded"
+        },
+        {
+          "id": "independent",
+          "capability": "verify_extremum_independent_piece",
+          "public_ref": null,
+          "inputs": {
+            "relation": "$relation",
+            "variable": "$piece_variable",
+            "domain": "$piece_domain",
+            "parameter": "$parameter"
+          },
+          "outputs": {
+            "independent_solution": "piece_solution",
+            "independent_holds": "independent_holds",
+            "independent_expression": "independent_expression",
+            "independent_bound": "independent_bound",
+            "independent_operator": "independent_operator",
+            "independent_range": "independent_range",
+            "independent_slope": "independent_slope",
+            "independent_bound_key": "independent_bound_key"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "piece_kind",
+            "equals": "independent"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "independent_conclude",
+          "after": "independent",
+          "template": "extremum_piece_derivation",
+          "guard": {
+            "ref": "piece_kind",
+            "equals": "independent"
+          },
+          "bindings": {
+            "description": "$description",
+            "extremum_result": "$extremum_result",
+            "phase": "independent",
+            "piece_expression": "$piece_expression",
+            "piece_variable": "$piece_variable",
+            "piece_domain": "$piece_domain",
+            "piece_kind": "$piece_kind",
+            "relation": "$relation",
+            "independent_holds": "$independent_holds",
+            "independent_expression": "$independent_expression",
+            "independent_bound": "$independent_bound",
+            "independent_operator": "$independent_operator",
+            "independent_range": "$independent_range",
+            "independent_slope": "$independent_slope",
+            "independent_bound_key": "$independent_bound_key",
+            "parameter": "$parameter",
+            "before": ["$relation"],
+            "after": ["$independent_solution"]
+          },
+          "depends_on": [
+            "description",
+            "extremum_result",
+            "piece_expression",
+            "piece_variable",
+            "piece_domain",
+            "piece_kind",
+            "relation",
+            "independent_holds",
+            "independent_expression",
+            "independent_bound",
+            "independent_operator",
+            "independent_range",
+            "independent_slope",
+            "independent_bound_key",
+            "parameter",
+            "independent_solution"
+          ]
+        }
+      ],
+      "merges": [
+        {
+          "id": "piece_result",
+          "order": 3,
+          "branches": [
+            {
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "polynomial"
+              },
+              "bindings": {
+                "piece_solution": "$polynomial_solution"
+              }
+            },
+            {
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "separable"
+              },
+              "bindings": {
+                "piece_solution": "$reciprocal_solution"
+              }
+            },
+            {
+              "guard": {
+                "ref": "piece_kind",
+                "equals": "independent"
+              },
+              "bindings": {
+                "piece_solution": "$independent_solution"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ranges",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "accept_extremum_parameter_children",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "extremum_result": "$extremum_result",
+            "piece_results": "$piece_results"
+          },
+          "outputs": {
+            "extremum_result": "extremum_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "conditions",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_extremum",
+          "public_ref": "skill-quantified-range",
+          "inputs": {
+            "description": "$description",
+            "extremum_result": "$extremum_result"
+          },
+          "outputs": {
+            "extremum_result": "extremum_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_extremum",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "extremum_result": "$extremum_result"
+          },
+          "outputs": {
+            "extremum_result": "extremum_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "conclude",
+          "after": "confirm",
+          "template": "extremum_derivation",
+          "bindings": {
+            "description": "$description",
+            "extremum_result": "$extremum_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "extremum_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "extremum_result": "$extremum_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_extremum",
+        "inputs": {
+          "context": "$context",
+          "task": "specified"
+        }
+      }
+    ]
+  }
+}

@@ -165,7 +165,9 @@ test('A2 fractional substitution preserves its excluded point in grading, previe
   katex.renderToString(view.formula, {throwOnError: true});
   assert.equal(nativePracticeContract(bundle).routes['function-substitution'].steps.length, 4);
   const d3 = bundle.intro.find(row => row.id === 'D3');
-  assert.equal((methodCardsHTML(d3, methodAnswer(d3, 'substitution'), false).match(/data-method-edge=/g) || []).length, 5);
+  const map = methodCardsHTML(d3, methodAnswer(d3, 'substitution'), false);
+  assert.match(map, /gw-method-pair-arrow/);
+  assert.equal((map.match(/data-method-map-row/g) || []).length, 4);
 });
 
 for (const [id, expression] of [['b05', 't**2 - 1'], ['w02', 't**2 + 6'], ['w09', 't**2 - 8*t + 12']]) {
@@ -202,29 +204,21 @@ for (const [id, expression] of [['b05', 't**2 - 1'], ['w02', 't**2 + 6'], ['w09'
     katex.renderToString(step.answer_completion.formula, {throwOnError: true});
     const d3 = bundle.intro.find(row => row.id === 'D3');
     const map = methodCardsHTML(d3, methodAnswer(d3, 'substitution'), false);
-    assert.equal((map.match(/data-method-edge=/g) || []).length, 5);
+    assert.equal((map.match(/gw-method-pair/g) || []).length >= 1, true);
+    assert.equal((map.match(/data-card-method=/g) || []).length, 0);
+    assert.match(map, /gw-method-pair-arrow/);
     assert.match(map, /已知复合函数的解析式/);
     assert.match(map, /本题选择/);
     assert.equal(nativePracticeContract(bundle).routes['function-substitution'].steps.length, 4);
   });
 }
 
-test('connection drawing preserves the nested radical SVG in a clue', () => {
-  const attrs = {}, paths = {};
-  const edge = {dataset: {methodEdge: 'substitution'}, querySelector: name => ({setAttribute: (_, value) => { paths[name] = value; }})};
-  const diagram = {setAttribute: (key, value) => { attrs[key] = value; }, removeAttribute: key => { delete attrs[key]; }, querySelectorAll: () => [edge]};
-  const radical = {setAttribute: () => assert.fail('a diagram must never rewrite the formula SVG')};
-  const cue = {getBoundingClientRect: () => ({right: 100, top: 0, height: 60})};
-  const method = {dataset: {methodNode: 'substitution'}, getBoundingClientRect: () => ({left: 150, top: 0, height: 60})};
-  const row = {getBoundingClientRect: () => ({left: 0, top: 0, width: 250, height: 60}),
-    querySelector: selector => selector === '.gw-method-link-lines' ? diagram : selector === 'svg' ? radical : cue,
-    querySelectorAll: () => [method]};
-  const dispose = mountMethodConnections({querySelectorAll: () => [{querySelectorAll: () => [row]}]});
-  assert.equal(attrs.viewBox, '0 0 250 60');
-  assert.match(paths['.gw-method-link-path'], /^M101,30 C/);
+test('pairing cards do not require SVG edge geometry', () => {
+  const dispose = mountMethodConnections({querySelectorAll: () => [{
+    querySelectorAll: () => [{querySelector: () => null}],
+  }]});
   dispose();
 });
-
 test('A0 preview retains unknown-function source and one implemented method in its own topic', async () => {
   assert.equal(source.preview, true);
   assert.equal(source.topicHref, '/topics/function-representations/');
@@ -261,10 +255,12 @@ test('formula selection connects a source cue to a method without leaking or inv
   assert.equal(d3.interaction.methods.length, 5);
   assert.equal(d3.interaction.methods.filter(method => method.route).length, 1);
   const initial = methodCardsHTML(d3, null);
-  assert.match(initial, /题目线索/);
+  assert.match(initial, /选法配对卡/);
   assert.match(initial, /已知复合函数的解析式/);
   assert.match(initial, /data-method-cue="composite_input"/);
-  assert.equal((initial.match(/data-method-edge=/g) || []).length, 5, 'all five connections exist before selecting');
+  assert.equal((initial.match(/data-method-map-row/g) || []).length, 4, 'each authored cue becomes one pairing card');
+  assert.match(initial, /gw-method-pair-arrow/);
+  assert.equal((initial.match(/data-card-method=/g) || []).length, 5, 'all five methods remain selectable');
   assert.equal((initial.match(/<button/g) || []).length, 5, 'only the methods are selectable');
   assert.doesNotMatch(initial, /aria-pressed="true"|暂未开放|本题可用|本题推荐|先令/);
   const good = methodAnswer(d3, 'substitution');
@@ -286,7 +282,7 @@ test('formula selection connects a source cue to a method without leaking or inv
   const completed = methodCardsHTML(d3, good, false);
   assert.match(completed, /配凑法也适用/);
   assert.match(completed, /先令/);
-  assert.equal((completed.match(/data-method-edge=/g) || []).length, 5, 'completion preserves the full map');
+  assert.equal((completed.match(/data-method-map-row/g) || []).length, 4, 'completion preserves the full pairing map');
   assert.match(completed, /✓ 本题选择/);
   assert.doesNotMatch(completed, /<button/);
   let state = createState(bundle);

@@ -66,6 +66,7 @@ def frozen_files():
         package / "graph_lesson/function_formula.py",
         package / "graph_lesson/function_graph.py",
         package / "graph_lesson/function_monotonicity.py",
+        package / "graph_lesson/extremum_math.py",
         package / "graph_lesson/absolute_graph.py",
         package / "graph_lesson/quadratic_translation.py",
         package / "graph_lesson/schematic_transform.py",

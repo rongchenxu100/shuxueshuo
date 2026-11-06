@@ -62,7 +62,10 @@
       "method-piecewise-modeling",
       "method-monotonicity-definition",
       "method-monotonicity-structure",
-      "method-piecewise-monotonicity"
+      "method-piecewise-monotonicity",
+      "method-monotonicity-extremum",
+      "method-quantified-range-comparison",
+      "method-extremum-condition-parameter"
     ]
   }
 }

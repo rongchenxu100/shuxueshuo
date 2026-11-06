@@ -33,6 +33,47 @@ def _quantified_fact(values):
     return f"∀{variable}∈{domain_text}:{body}", str(parameter)
 
 
+def _cleared_plane_statement(values):
+    """Clear a constant-sign denominator so rule-quadratic-method can place the cell.
+
+    Reciprocal residuals like $(x^2+ax+1)/x\\ge a^2$ on $(0,\\infty)$ do not get a
+    plane until rewritten as a polynomial inequality; display still uses the original.
+    """
+    from .capabilities import CapabilityGap
+    from .capabilities import relation as make_relation
+    from .capabilities.separation import _divisor_sign
+
+    relation, variable, domain = values["universal_statement"], values["x"], values["domain"]
+    # lhs ? rhs  ⇔  (lhs-rhs) ? 0; clear a constant-sign denominator of the residual.
+    residual = sp.together(relation.lhs - relation.rhs)
+    keep = relation.rel_op
+    numerator, denominator = sp.fraction(sp.together(residual))
+    if denominator == 1 or not denominator.has(variable):
+        return None
+    try:
+        sign = _divisor_sign(denominator, variable, domain)
+    except CapabilityGap:
+        return None
+    if sign == "negative":
+        keep = {">=": "<=", ">": "<", "<=": ">=", "<": ">"}[keep]
+    return make_relation(numerator, keep, 0)
+
+
+def _evaluate_borrow(values):
+    fact, symbol = _quantified_fact(values)
+    candidate = {
+        "original_text": fact,
+        "root": {"facts": [fact], "goals": [{"kind": "find_range", "symbol": symbol}]},
+    }
+    features = extract_features(candidate)
+    if not features.get("ok"):
+        return None
+    result = evaluate_goal(candidate, TARGET, features["features"], PRIMARY)
+    if result.get("d3") is None or result.get("d4") is None:
+        return None
+    return result
+
+
 def select_borrowed_method(values):
     """Run the graph selection rule on the reduced universal subproblem."""
     borrowed = values.get("borrowed_method")
@@ -41,16 +82,12 @@ def select_borrowed_method(values):
         raise ValueError("domain.parameter_borrow_method_required")
     if not isinstance(host_route, str) or not host_route:
         raise ValueError("domain.parameter_borrow_host_route_required")
-    fact, symbol = _quantified_fact(values)
-    candidate = {
-        "original_text": fact,
-        "root": {"facts": [fact], "goals": [{"kind": "find_range", "symbol": symbol}]},
-    }
-    features = extract_features(candidate)
-    if not features.get("ok"):
-        raise ValueError("domain.parameter_borrow_features_failed")
-    result = evaluate_goal(candidate, TARGET, features["features"], PRIMARY)
-    if result.get("d3") is None or result.get("d4") is None:
+    result = _evaluate_borrow(values)
+    if result is None:
+        cleared = _cleared_plane_statement(values)
+        if cleared is not None:
+            result = _evaluate_borrow({**values, "universal_statement": cleared})
+    if result is None:
         raise ValueError("domain.parameter_borrow_selection_unavailable")
     branch = next(
         (row for row in result["selection"]["branches"] if row["target"] == borrowed),
@@ -66,7 +103,11 @@ def _degenerate_separation(values, interaction_id):
     relation, variable, parameter = values["universal_statement"], values["x"], values["parameter"]
     if values.get("borrowed_method") != "method-separation":
         return None
-    polynomial = sp.Poly(relation.lhs - relation.rhs, variable)
+    try:
+        polynomial = sp.Poly(relation.lhs - relation.rhs, variable)
+    except (sp.PolynomialError, sp.SympifyError):
+        # Reciprocal / non-polynomial residuals still use the selection plane.
+        return None
     if polynomial.degree() > 1:
         return None
     separated = capabilities.inspect_separation(relation, parameter, variable, values["domain"])

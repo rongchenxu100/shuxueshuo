@@ -146,8 +146,24 @@ def test_question_changes_leave_solver_result_unchanged(answer_request, expected
     c = converted_candidate(answer_request)
     c['root']['definitions'] = ['f(x)=x^2-2*x+2']
     c['root']['goals'][0]['input_domain'] = '[0,3]'
-    state, answer, result = solve(c, M3)
-    assert result == sp.Interval(1, 5)
+    if answer_request['kind'] == 'extremum':
+        # Supported direct extrema now use T2; the public answer must still
+        # agree with converting the full image through the shared contract.
+        from shuxueshuo_server.graph_lesson.stage_three import driver, extremum_runtime
+        from shuxueshuo_server.graph_lesson.stage_three.context import build_context
+        from tests.solver.test_graph_stage_three_methods import finish
+        context = build_context(c, TARGET)
+        state = finish(driver.create_state(features=extract_features(c)['features'], context=context,
+                       method='method-monotonicity-extremum', route_id='extremum', branch='direct',
+                       target_ref=TARGET, run_id='conversion', lesson_version='v1'))
+        assert state['status'] == 'method_complete', state['diagnostics']
+        state['extremum_result_exact'] = state['result']['extremum_result']
+        assert extremum_runtime.verify_frozen(c, TARGET, context, state['extremum_result_exact'])['status'] == 'verified'
+        answer = extremum_runtime.finish(state, context, [])['answer']
+        assert answer == finalize_goal(c['root']['goals'][0], sp.Interval(1, 5))
+    else:
+        state, answer, result = solve(c, M3)
+        assert result == sp.Interval(1, 5)
     actual = answer['value'] if answer['status'] == 'boolean' else decode_value(answer.get('value', answer.get('set'))['exact'])
     assert actual == expected
     chunks, pending = compile_route(state['interaction_seeds'], load_registry())

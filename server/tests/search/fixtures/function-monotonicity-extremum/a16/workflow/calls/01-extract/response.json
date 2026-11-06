@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"16. 函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"root\":{\"definitions\":[\"f(x)=(2*x+1)/(x+3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[-2,2]\",\"answer_request\":{\"kind\":\"extremum\",\"quantity\":\"maximum\"}}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 941,
+      "prompt_tokens": 29635,
+      "total_tokens": 30576,
+      "prompt_cache_hit_tokens": 7424,
+      "prompt_cache_miss_tokens": 22211
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 614,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-995328f6-a8af-4cb5-9c9c-8c615983ae18",
+        "sha256": "6edb6f60c3e812bdfe4900987c38e72afdb4730c1a51473db9727163f0ef25a4",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 5963,
+        "expires_at": 1793882250,
+        "uploaded_at": 1793795850.373479
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "6edb6f60c3e812bdfe4900987c38e72afdb4730c1a51473db9727163f0ef25a4",
+        "api_calls": 1,
+        "file_id": "file-api-995328f6-a8af-4cb5-9c9c-8c615983ae18",
+        "expires_at": 1793882250,
+        "elapsed_ms": 434
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6371,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 941,
+          "prompt_tokens": 29635,
+          "total_tokens": 30576,
+          "completion_tokens_details": {
+            "reasoning_tokens": 727
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 7424
+          },
+          "prompt_cache_hit_tokens": 7424,
+          "prompt_cache_miss_tokens": 22211
+        },
+        "raw_payload": {
+          "id": "187bd7b9-6012-4ac8-9669-b6c3fa743566",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 941,
+            "prompt_tokens": 29635,
+            "total_tokens": 30576,
+            "completion_tokens_details": {
+              "reasoning_tokens": 727
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 7424
+            },
+            "prompt_cache_hit_tokens": 7424,
+            "prompt_cache_miss_tokens": 22211
+          },
+          "created": 1793795850,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"16. 函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"root\":{\"definitions\":[\"f(x)=(2*x+1)/(x+3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[-2,2]\",\"answer_request\":{\"kind\":\"extremum\",\"quantity\":\"maximum\"}}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意。题目：16. 函数 f(x)= (2x+1)/(x+3) 在区间[-2,2]的最大值是____.\n\n需要输出 original_text 保留题号等。root 定义 f(x)=(2*x+1)/(x+3)，目标求最大值。根据规则直接求具体函数最大值，目标用 find_range object f answer_request extremum maximum，input_domain [-2,2]。public_content 对应，scope statement 不包含小问编号和来源题号？公开题干排除题号。题号 16 是来源题号，root_label 可能不需要。没有 label 字段。public_content statement: \"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____。\" 但 choices 无选项，status none。\n\n需要 figure_detection none，无配图。original_text 用完整，包括 16. 和填空。公式用 $...$。分母 x+3。最大值。根中 facts 无？定义放 definitions。目标 answer_request kind extremum quantity maximum, object f, input_domain [-2,2]。注意 schema find_range 支持 answer_request 和 input_domain 同时，object 必须。good.\n\noriginal_text：`16. 函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．` 需要 JSON 反斜杠双写。中文量词。转录手写答案“1”不抄。填空处横线保留。图片中有手写 1 在上方，不转录。\n\nroot definitions: [\"f(x)=(2*x+1)/(x+3)\"] facts: [] goals: [{\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[-2,2]\",\"answer_request\":{\"kind\":\"extremum\",\"quantity\":\"maximum\"}}]. uncertainties []? 没有。\n\npublic_content scopes [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]. completeness complete, privacy separated? 没有个人信息。source题号已排除。figure not_required. figure_detection status none regions []. root_label_role? root 没有 label，可省略。不过 original_text 有 16. 但 root.label 不设置。public_content privacy separated 可以。figure_detection none.\n\n需要确保 JSON 转义。输出 JSON only.\n\n注意 target 的 answer_request 与 input_domain 同时，schema find_range allOf if input_domain requires object, ok. answer_request requires object. 对具体函数最大值，正常。\n\noriginal_text 里 `\\frac` 在 JSON 要写成 `\\\\frac`。中文横线。最大值是空格横线。采用 `____`。可以。\n\nroot definitions 不用 $。`f(x)=(2*x+1)/(x+3)`。facts 空数组必须吗? Scope properties definitions/facts/goals optional but include. children optional omit. uncertainties maybe [] optional, but schema required? root Scope doesn't require; but we can include.\n\npublic_content required figure_detection. All good.\n\nNeed only JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 6807
+  },
+  "raw_payload": {
+    "id": "187bd7b9-6012-4ac8-9669-b6c3fa743566",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"16. 函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"root\":{\"definitions\":[\"f(x)=(2*x+1)/(x+3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[-2,2]\",\"answer_request\":{\"kind\":\"extremum\",\"quantity\":\"maximum\"}}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意。题目：16. 函数 f(x)= (2x+1)/(x+3) 在区间[-2,2]的最大值是____.\n\n需要输出 original_text 保留题号等。root 定义 f(x)=(2*x+1)/(x+3)，目标求最大值。根据规则直接求具体函数最大值，目标用 find_range object f answer_request extremum maximum，input_domain [-2,2]。public_content 对应，scope statement 不包含小问编号和来源题号？公开题干排除题号。题号 16 是来源题号，root_label 可能不需要。没有 label 字段。public_content statement: \"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____。\" 但 choices 无选项，status none。\n\n需要 figure_detection none，无配图。original_text 用完整，包括 16. 和填空。公式用 $...$。分母 x+3。最大值。根中 facts 无？定义放 definitions。目标 answer_request kind extremum quantity maximum, object f, input_domain [-2,2]。注意 schema find_range 支持 answer_request 和 input_domain 同时，object 必须。good.\n\noriginal_text：`16. 函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．` 需要 JSON 反斜杠双写。中文量词。转录手写答案“1”不抄。填空处横线保留。图片中有手写 1 在上方，不转录。\n\nroot definitions: [\"f(x)=(2*x+1)/(x+3)\"] facts: [] goals: [{\"kind\":\"find_range\",\"object\":\"f\",\"input_domain\":\"[-2,2]\",\"answer_request\":{\"kind\":\"extremum\",\"quantity\":\"maximum\"}}]. uncertainties []? 没有。\n\npublic_content scopes [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是____．\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]. completeness complete, privacy separated? 没有个人信息。source题号已排除。figure not_required. figure_detection status none regions []. root_label_role? root 没有 label，可省略。不过 original_text 有 16. 但 root.label 不设置。public_content privacy separated 可以。figure_detection none.\n\n需要确保 JSON 转义。输出 JSON only.\n\n注意 target 的 answer_request 与 input_domain 同时，schema find_range allOf if input_domain requires object, ok. answer_request requires object. 对具体函数最大值，正常。\n\noriginal_text 里 `\\frac` 在 JSON 要写成 `\\\\frac`。中文横线。最大值是空格横线。采用 `____`。可以。\n\nroot definitions 不用 $。`f(x)=(2*x+1)/(x+3)`。facts 空数组必须吗? Scope properties definitions/facts/goals optional but include. children optional omit. uncertainties maybe [] optional, but schema required? root Scope doesn't require; but we can include.\n\npublic_content required figure_detection. All good.\n\nNeed only JSON."
+        }
+      }
+    ],
+    "created": 1793795850,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 941,
+      "prompt_tokens": 29635,
+      "total_tokens": 30576,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 727,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 7424
+      },
+      "prompt_cache_hit_tokens": 7424,
+      "prompt_cache_miss_tokens": 22211
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 6.809
+}

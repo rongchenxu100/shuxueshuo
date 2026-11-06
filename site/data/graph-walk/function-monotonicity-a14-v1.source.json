@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a14-v1",
+  "title": "根式与二次式之和的最小值 · A14",
+  "page": "/lab/graph-walk/function-monotonicity-a14-v1/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\sqrt{1-2x}+2x^2-5x+5$，求最小值。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a14-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t2-20261104/a14.json",
+  "preview": true
+}

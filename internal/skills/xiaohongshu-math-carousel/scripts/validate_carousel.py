@@ -108,9 +108,9 @@ def main() -> int:
             errors.append(f"source/slide-manifest.json: {exc}")
             manifest = None
         if manifest is not None:
-            valid_post_types = {"知识点型", "解题方法型", "题型型"}
+            valid_post_types = {"知识点型", "解题方法型", "题型型", "专题门厅型"}
             if manifest.get("postType") not in valid_post_types:
-                errors.append("source/slide-manifest.json: postType must be 知识点型、解题方法型 or 题型型")
+                errors.append("source/slide-manifest.json: postType must be 知识点型、解题方法型、题型型 or 专题门厅型")
             slides = manifest.get("slides")
             if not isinstance(slides, list) or len(slides) != args.count:
                 errors.append(f"source/slide-manifest.json: expected {args.count} slide entries")

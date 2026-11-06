@@ -1,0 +1,41 @@
+{
+  "original_text": "14. 设函数 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为____。",
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)"
+    ],
+    "facts": [
+      "max_{x}(f(x)) = f(1)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设函数 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

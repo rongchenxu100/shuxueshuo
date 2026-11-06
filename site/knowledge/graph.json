@@ -751,6 +751,55 @@
       ]
     },
     {
+      "id": "method-extremum-condition-parameter",
+      "kind": "method",
+      "label": "指定最值求参法",
+      "summary": "求指定点的实际值，再检查全域界，合并每段的参数要求。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "确定原目标和条件",
+          "calls": []
+        },
+        {
+          "id": "piece-inputs",
+          "title": "按原分段绑定子问题",
+          "calls": []
+        },
+        {
+          "id": "borrowed",
+          "title": "分别解决恒成立子问题",
+          "calls": [
+            "method-interval-extremum",
+            "method-separation"
+          ]
+        },
+        {
+          "id": "ranges",
+          "title": "核对各段的分类与取得性",
+          "calls": []
+        },
+        {
+          "id": "conditions",
+          "title": "收回各段参数条件",
+          "calls": [
+            "skill-quantified-range"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "回到原目标收束",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "独立核验原题",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-finite-range",
       "kind": "method",
       "label": "枚举法",
@@ -1144,6 +1193,49 @@
         {
           "id": "verify",
           "title": "回到原目标核验",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-extremum",
+      "kind": "method",
+      "label": "单调性求最值法",
+      "summary": "根据同一区间的增减确定位置，检查取得性，再回代原式。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "确定原目标和条件",
+          "calls": []
+        },
+        {
+          "id": "inputs",
+          "title": "绑定各项的共同范围",
+          "calls": []
+        },
+        {
+          "id": "children",
+          "title": "判断各项的单调性",
+          "calls": [
+            "method-monotonicity-structure"
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "判断运算后的方向",
+          "calls": [
+            "skill-monotonicity-operations"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "回到原目标收束",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "独立核验原题",
           "calls": []
         }
       ]
@@ -1546,6 +1638,42 @@
         {
           "id": "verify",
           "title": "核验完整值域",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-quantified-range-comparison",
+      "kind": "method",
+      "label": "量词比较求参法",
+      "summary": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "分清量词角色",
+          "calls": []
+        },
+        {
+          "id": "ranges",
+          "title": "求需要的像集或最值",
+          "calls": []
+        },
+        {
+          "id": "conditions",
+          "title": "按量词转换参数条件",
+          "calls": [
+            "skill-quantified-range"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "合并各分类的参数",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "回验原量词",
           "calls": []
         }
       ]
@@ -2042,6 +2170,15 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "rule-monotonicity-extremum-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "最值题的选法判断",
+      "summary": "按直接最值、量词比较与指定最值条件选择路线。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-piecewise-range-parameter",
       "kind": "judgment_rule",
       "subtype": "step_selection",
@@ -2215,6 +2352,13 @@
       "summary": "看 y = ax + b 的斜率 a 是正、负还是 0，把区间端点代进去，读出值域和最大、最小值。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "skill-monotonicity-operations",
+      "kind": "skill",
+      "label": "运算增减性判断",
+      "summary": "同一区间内判断和、差、常数倍、平移与倒数的方向。",
+      "aliases": []
     },
     {
       "id": "skill-piecewise-order-join",
@@ -2419,9 +2563,9 @@
       "id": "type-monotonicity-extremum",
       "kind": "problem_type",
       "label": "利用单调性求最值",
-      "summary": "利用单调性求最值；后续题型建设。",
+      "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -3145,6 +3289,42 @@
       ]
     },
     {
+      "id": "method-extremum-condition-parameter|calls|method-interval-extremum",
+      "from": "method-extremum-condition-parameter",
+      "to": "method-interval-extremum",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "borrowed",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-extremum-condition-parameter|calls|method-separation",
+      "from": "method-extremum-condition-parameter",
+      "to": "method-separation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "borrowed",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-extremum-condition-parameter|calls|skill-quantified-range",
+      "from": "method-extremum-condition-parameter",
+      "to": "skill-quantified-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "conditions",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-finite-range|calls|method-function-evaluation",
       "from": "method-finite-range",
       "to": "method-function-evaluation",
@@ -3639,6 +3819,30 @@
       ]
     },
     {
+      "id": "method-monotonicity-extremum|calls|method-monotonicity-structure",
+      "from": "method-monotonicity-extremum",
+      "to": "method-monotonicity-structure",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "children",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-extremum|calls|skill-monotonicity-operations",
+      "from": "method-monotonicity-extremum",
+      "to": "skill-monotonicity-operations",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "operations",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-monotonicity-structure|calls|method-complete-square",
       "from": "method-monotonicity-structure",
       "to": "method-complete-square",
@@ -3933,6 +4137,18 @@
       "occurrences": [
         {
           "step": "range",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-quantified-range-comparison|calls|skill-quantified-range",
+      "from": "method-quantified-range-comparison",
+      "to": "skill-quantified-range",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "conditions",
           "when": ""
         }
       ]
@@ -4700,6 +4916,42 @@
         {
           "branch": "reciprocal",
           "condition": "式子是 $x+\\frac{k}{x}$ 的样子且 $k>0$；$x$ 不能取 $0$，区间同时含正数和负数时，要拆成正、负两段分别求。"
+        }
+      ]
+    },
+    {
+      "id": "rule-monotonicity-extremum-method|selects|method-extremum-condition-parameter",
+      "from": "rule-monotonicity-extremum-method",
+      "to": "method-extremum-condition-parameter",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "specified",
+          "condition": "求指定点的实际值，再检查全域界，合并每段的参数要求。"
+        }
+      ]
+    },
+    {
+      "id": "rule-monotonicity-extremum-method|selects|method-monotonicity-extremum",
+      "from": "rule-monotonicity-extremum-method",
+      "to": "method-monotonicity-extremum",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "direct",
+          "condition": "根据同一区间的增减确定位置，检查取得性，再回代原式。"
+        }
+      ]
+    },
+    {
+      "id": "rule-monotonicity-extremum-method|selects|method-quantified-range-comparison",
+      "from": "rule-monotonicity-extremum-method",
+      "to": "method-quantified-range-comparison",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "quantified",
+          "condition": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。"
         }
       ]
     },
@@ -5874,6 +6126,23 @@
       ]
     },
     {
+      "id": "skill-monotonicity-operations|uses|function-monotonicity-operations",
+      "from": "skill-monotonicity-operations",
+      "to": "function-monotonicity-operations",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "shift-scale"
+        },
+        {
+          "entry": "reciprocal"
+        },
+        {
+          "entry": "sum-difference"
+        }
+      ]
+    },
+    {
       "id": "skill-piecewise-order-join|uses|function-monotonicity",
       "from": "skill-piecewise-order-join",
       "to": "function-monotonicity",
@@ -6855,10 +7124,55 @@
       ]
     },
     {
+      "id": "type-monotonicity-extremum|candidate|method-extremum-condition-parameter",
+      "from": "type-monotonicity-extremum",
+      "to": "method-extremum-condition-parameter",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-extremum|candidate|method-monotonicity-extremum",
+      "from": "type-monotonicity-extremum",
+      "to": "method-monotonicity-extremum",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-extremum|candidate|method-quantified-range-comparison",
+      "from": "type-monotonicity-extremum",
+      "to": "method-quantified-range-comparison",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-monotonicity-extremum|involves|function-monotonicity",
       "from": "type-monotonicity-extremum",
       "to": "function-monotonicity",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-extremum|involves|function-range-extrema",
+      "from": "type-monotonicity-extremum",
+      "to": "function-range-extrema",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-extremum|method_rule|rule-monotonicity-extremum-method",
+      "from": "type-monotonicity-extremum",
+      "to": "rule-monotonicity-extremum-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a18-v2",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "FM-A18，图 2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)=\\begin{cases}-x^3+2,&x<0\\\\-x+3,&x\\ge0\\end{cases}$，$g(x)=kx+5-2k$，$k>0$。若 $\\forall x1\\in[-1,1]:\\exists x2\\in[-1,1]:f(x1)\\le g(x2)$，求实数 $k$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^3+2,x<0,-x+3,x>=0)",
+        "g(x)=k*x+5-2*k"
+      ],
+      "facts": [
+        "k>0",
+        "∀x1∈[-1,1]:∃x2∈[-1,1]:f(x1)<=g(x2)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "k"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(0,2]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -414,6 +414,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _piecewise_inequality_d1_rows(target, fragments, known, text)
     if known.get('piecewise_equation', {}).get('structure_supported'):
         return _piecewise_equation_d1_rows(target, fragments, known, text)
+    if known.get('function_extremum', {}).get('structure_supported'):
+        return _extremum_d1_rows(target, fragments, known, text)
     if known.get('function_monotonicity', {}).get('structure_supported'):
         return _monotonicity_d1_rows(target, fragments, known, text)
     if known.get('function_graph', {}).get('structure_supported'):
@@ -497,6 +499,45 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _extremum_d1_rows(target, fragments, known, text):
+    """T2 审题：先分清直接求最值／量词比较求参／指定最值求参，再进入题型。"""
+    selected = [row for row in fragments if row['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    desc = known['function_extremum']
+    task = desc['task']
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in selected]
+    if task == 'direct':
+        quantity = '最大值' if desc.get('quantity') == 'maximum' else '最小值'
+        correct = f'求函数在给定区间上的{quantity}'
+        wrong = '求函数的单调区间'
+        feedback = f'题目要的是{quantity}，不是完整的增减区间。'
+        question = '这一问需要做什么？'
+    elif task == 'quantified':
+        parameter = desc.get('parameter') or 'a'
+        correct = f'比较两边取值，求参数 ${parameter}$ 的取值范围'
+        wrong = '只求出某一边的最值就结束'
+        feedback = f'最值／值域是手段；原题还要求出 ${parameter}$ 的范围。'
+        question = '这一问最终要求什么？'
+    elif task == 'specified':
+        parameter = desc.get('parameter') or 'a'
+        correct = f'在指定点已是最值的条件下，求参数 ${parameter}$ 的取值范围'
+        wrong = '只算出指定点的函数值就结束'
+        feedback = f'指定点的函数值是转化条件；还要求出 ${parameter}$ 的范围。'
+        question = '这一问最终要求什么？'
+    else:
+        return {'rows': [], 'summary': ''}
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in selected],
+           'knowledge_refs': ['function-range-extrema#extrema'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option(wrong, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True,
+                                         ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': question,
+            'feedback': feedback, 'summary': correct}
 
 
 def _monotonicity_d1_rows(target, fragments, known, text):

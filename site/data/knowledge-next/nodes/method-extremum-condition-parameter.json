@@ -1,0 +1,92 @@
+{
+  "id": "method-extremum-condition-parameter",
+  "kind": "method",
+  "label": "指定最值求参法",
+  "summary": "求指定点的实际值，再检查全域界，合并每段的参数要求。",
+  "source": "函数单调性 FM-T2",
+  "input": "原函数、指定输入 c，以及 f(c) 为最大值或最小值的条件。",
+  "output": "所有合法输入都满足指定界时的完整参数集合；不额外要求最值点唯一。",
+  "conditions": "指定点必须在原定义域内，并按真正包含它的分支求值。每一段均须满足全域界，开端点只提供逼近的界。",
+  "steps": [
+    {
+      "id": "prepare",
+      "title": "确定原目标和条件",
+      "body": [
+        "求指定点的实际值，再检查全域界，合并每段的参数要求。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "piece-inputs",
+      "title": "按原分段绑定子问题",
+      "body": [
+        "每段都必须满足同一个指定界。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "borrowed",
+      "title": "分别解决恒成立子问题",
+      "body": [
+        "二次式借用区间最值法（light／expanded）；对勾式借用分离参数法（对勾 g + 参数二次 h，light／expanded）。父侧不再重复各段求参卡。"
+      ],
+      "calls": [
+        {
+          "ref": "method-interval-extremum"
+        },
+        {
+          "ref": "method-separation"
+        }
+      ]
+    },
+    {
+      "id": "ranges",
+      "title": "核对各段的分类与取得性",
+      "body": [
+        "区分顶点在段内、段外；开端点的界取不到，也要用于全域不等式。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "conditions",
+      "title": "收回各段参数条件",
+      "body": [
+        "各段 light 子方法已求出参数集合；本步只核对收回，不另出求参卡。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-quantified-range"
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "title": "回到原目标收束",
+      "body": [
+        "同一段内参数分类取并集，各段条件必须同时成立，最后取交集。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "verify",
+      "title": "独立核验原题",
+      "body": [
+        "独立核验原题。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "指定最小值不要求唯一取得",
+      "prompt": "$f(x)=\\begin{cases}(x-a)^2,&x\\le0\\\\x+\\frac1x+a,&x>0\\end{cases}$ 的最小值为 $f(0)$，求 $a$。",
+      "solution": [
+        "$f(0)=a^2$。左段若 $a<0$，合法顶点会取到更小的 $0$；所以要求 $a\\ge0$。",
+        "右段在 $x=1$ 取得最小值 $a+2$，要求 $a+2\\ge a^2$，得到 $-1\\le a\\le2$。",
+        "两段同时满足，取交集为 $[0,2]$。当 $a=2$，$x=0,1$ 同时取得最小值，仍符合题意。"
+      ],
+      "source": "函数单调性 FM-T2"
+    }
+  ],
+  "resources": []
+}

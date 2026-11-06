@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a18-v2",
+  "title": "分段函数的量词比较 · A18",
+  "page": "/topics/function-monotonicity/q18/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $f(x)=\\begin{cases}-x^3+2,&x<0\\\\-x+3,&x\\ge0\\end{cases}$，$g(x)=kx+5-2k$，$k>0$。若 $\\forall x1\\in[-1,1]:\\exists x2\\in[-1,1]:f(x1)\\le g(x2)$，求实数 $k$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a18-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t2-20261104/a18.json"
+}

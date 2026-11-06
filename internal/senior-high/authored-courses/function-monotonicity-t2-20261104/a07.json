@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a07-v2",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+      "location": "FM-A07，图 1"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $g(x)=ax+1$，$a>0$，$f(x)=x^2+2x$。若 $\\forall x1\\in[-1,1]:\\exists x0\\in[-2,1]:g(x1)=f(x0)$，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=x^2+2*x",
+        "g(x)=a*x+1"
+      ],
+      "facts": [
+        "a>0",
+        "∀x1∈[-1,1]:∃x0∈[-2,1]:g(x1)=f(x0)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(0,2]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

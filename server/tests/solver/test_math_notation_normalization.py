@@ -32,6 +32,20 @@ def equivalent(left, right):
     assert (left, right) == original
 
 
+def test_nested_quantifiers_preserve_declared_scalar_set_and_distinct_inputs():
+    value = candidate(['∀x_1∈A:∃x_2∈A:x_2>x_1'], definitions=['A={t∈ℝ | 1≤t≤3}'])
+    report = NotationValidator().validate(value)
+    assert report.ok, report.issues
+    assert report.normalized['root']['facts'] == value['root']['facts']
+    reversed_roles = deepcopy(value)
+    reversed_roles['root']['facts'] = ['∀x_2∈A:∃x_1∈A:x_2>x_1']
+    assert not compare(value, reversed_roles)['ok']
+    undeclared = candidate(value['root']['facts'])
+    assert not NotationValidator().validate(undeclared).ok
+    scalar_domain = candidate(['∀x∈a:x>0'], definitions=['a∈ℝ'])
+    assert not NotationValidator().validate(scalar_domain).ok
+
+
 @pytest.mark.parametrize(
     "point,symbol,offset,reverse",
     product(("P", "T"), ("v", "y_M"), (1, 3), (False, True)),

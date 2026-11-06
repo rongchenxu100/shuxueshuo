@@ -459,17 +459,27 @@
     const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
     const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
     const value = (s, v) => {
-      const q = (s.coefficients[0] * v + s.coefficients[1]) * v + s.coefficients[2];
+      // Horner: length 3 = quadratic (or padded linear); length 4 = cubic.
+      let q = s.coefficients[0];
+      for (let i = 1; i < s.coefficients.length; i++) q = q * v + s.coefficients[i];
       if (s.transform === 'sqrt') return q >= -1e-12 ? Math.sqrt(Math.max(0, q)) : NaN;
       if (s.transform === 'reciprocal_sqrt') return q > 0 ? 1 / Math.sqrt(q) : NaN;
+      if (s.transform === 'rational') {
+        const denominator = s.denominator[0] * v + s.denominator[1];
+        return Math.abs(denominator) > 1e-12 ? q / denominator : NaN;
+      }
+      if (s.transform === 'root_sum') {
+        const radicand = s.radicand[0] * v + s.radicand[1];
+        return radicand >= -1e-12 ? q + s.root_scale * Math.sqrt(Math.max(0, radicand)) : NaN;
+      }
       return q;
     };
-    // A quadratic Bezier represents a degree <= 2 polynomial exactly. No formula code is evaluated.
+    // Degree ≤ 2 uses an exact quadratic Bezier; cubics / transforms are sampled.
     const path = (s, lo = xmin, hi = xmax) => {
       const from = Math.max(lo, xmin, s.interval[0] ?? xmin), to = Math.min(hi, xmax, s.interval[1] ?? xmax);
       if (from >= to) return '';
-      if (s.transform && s.transform !== 'identity') {
-        // Sample the declared algebraic transform only inside this component. Gaps and poles break the path.
+      if ((s.transform && s.transform !== 'identity') || s.coefficients.length > 3) {
+        // Sample the declared algebraic transform / cubic only inside this component.
         let d = '', connected = false;
         for (let j = 0; j <= 240; j++) {
           const v = from + (to - from) * j / 240, f = value(s, v);
@@ -592,9 +602,24 @@
       (piece.to !== null || !piece.right_closed));
     if (!ticks(p.xTicks) || !interval(p.interval) || !tuple(p.interval_closed, 2, boolean)) return false;
     if (spec.kind === 'piecewise_curve') {
-      const segment = v => object(v) && tuple(v.coefficients, 3, Number.isFinite) && interval(v.interval) &&
+      const rationalDomain = v => {
+        if (!tuple(v.denominator, 2, Number.isFinite) || v.denominator[0] === 0) return false;
+        const pole = -v.denominator[1] / v.denominator[0];
+        const [low, high] = [v.interval[0] ?? -Infinity, v.interval[1] ?? Infinity];
+        return !(low < pole && pole < high) && !(pole === low && v.interval_closed[0]) && !(pole === high && v.interval_closed[1]);
+      };
+      const rootDomain = v => {
+        if (!tuple(v.radicand, 2, Number.isFinite) || !Number.isFinite(v.root_scale)) return false;
+        const [a,b] = v.radicand;
+        const edge = a > 0 ? v.interval[0] : v.interval[1];
+        return a === 0 ? b >= 0 : edge !== null && a * edge + b >= -1e-12;
+      };
+      const coeffs = c => Array.isArray(c) && (c.length === 3 || c.length === 4) && c.every(Number.isFinite);
+      const segment = v => object(v) && coeffs(v.coefficients) && interval(v.interval) &&
         tuple(v.interval_closed, 2, boolean) && !v.interval.some((end, i) => end === null && v.interval_closed[i]) &&
-        optional(v, 'transform', t => ['identity', 'sqrt', 'reciprocal_sqrt'].includes(t));
+        optional(v, 'transform', t => ['identity', 'sqrt', 'reciprocal_sqrt', 'rational', 'root_sum'].includes(t)) &&
+        (v.transform !== 'rational' || rationalDomain(v)) &&
+        (v.transform !== 'root_sum' || rootDomain(v));
       return array(p.segments, segment) && p.segments.length >= 1 && p.segments.length <= 8 &&
         optional(p, 'reference', v => array(v, segment) && v.length <= 8) && optional(p, 'yTicks', ticks) &&
         optional(p, 'level', Number.isFinite) && optional(p, 'highlights', v => array(v, h => object(h) &&

@@ -1,0 +1,36 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a16-v2",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "FM-A16，图 2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\frac{2x+1}{x+3}$，$x\\in[-2,2]$，求最大值。",
+    "root": {
+      "definitions": [
+        "f(x)=(2*x+1)/(x+3)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "object": "f",
+          "input_domain": "[-2,2]",
+          "answer_request": {
+            "kind": "extremum",
+            "quantity": "maximum"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "1"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

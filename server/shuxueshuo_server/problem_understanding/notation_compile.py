@@ -521,7 +521,8 @@ class Scope:
             domain = bind(domain)
             if domain[0] == "tuple":
                 domain = node("interval", False, False, *domain[1:])
-            if domain[0] not in ("real", "interval"):
+            named_scalar_set = domain[0] == "ref" and domain[2] in ("set", "domain")
+            if domain[0] not in ("real", "interval") and not named_scalar_set:
                 raise NotationError("binding.quantifier_domain")
             variable = f"quantified_{len(bound)}"
             return node(
@@ -667,11 +668,11 @@ def typecheck(ast):
             raise NotationError("type.function_argument")
         return "scalar"
     if kind == "quantifier":
-        if typecheck(ast[3]) != "domain" or typecheck(ast[4]) != "boolean":
+        if typecheck(ast[3]) not in ("domain", "set") or typecheck(ast[4]) != "boolean":
             raise NotationError("type.quantifier")
         return "boolean"
     if kind == "set_builder":
-        if typecheck(ast[2]) != "domain" or typecheck(ast[3]) != "boolean":
+        if typecheck(ast[2]) not in ("domain", "set") or typecheck(ast[3]) != "boolean":
             raise NotationError("type.set_builder")
         return "set"
     if kind == "extremum":

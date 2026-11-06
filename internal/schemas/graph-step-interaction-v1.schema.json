@@ -989,6 +989,14 @@
         "completion_group": {
           "$ref": "#/$defs/text"
         },
+        "card_group": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Packs consecutive parts into one student-facing card; walk splits on this key."
+        },
+        "card_group_title": {
+          "$ref": "#/$defs/text"
+        },
         "condition_number_lines": {
           "type": "array",
           "items": {
@@ -2352,7 +2360,7 @@
               "coefficients": {
                 "type": "array",
                 "minItems": 3,
-                "maxItems": 3,
+                "maxItems": 4,
                 "items": {
                   "type": "number"
                 }
@@ -2380,10 +2388,68 @@
                 "enum": [
                   "identity",
                   "sqrt",
-                  "reciprocal_sqrt"
+                  "reciprocal_sqrt",
+                  "rational",
+                  "root_sum"
                 ]
+              },
+              "denominator": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "radicand": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "root_scale": {
+                "type": "number"
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "transform"
+                  ],
+                  "properties": {
+                    "transform": {
+                      "const": "rational"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "denominator"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "required": [
+                    "transform"
+                  ],
+                  "properties": {
+                    "transform": {
+                      "const": "root_sum"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "radicand",
+                    "root_scale"
+                  ]
+                }
+              }
+            ]
           }
         },
         "reference": {
@@ -2402,7 +2468,7 @@
               "coefficients": {
                 "type": "array",
                 "minItems": 3,
-                "maxItems": 3,
+                "maxItems": 4,
                 "items": {
                   "type": "number"
                 }
@@ -2430,10 +2496,68 @@
                 "enum": [
                   "identity",
                   "sqrt",
-                  "reciprocal_sqrt"
+                  "reciprocal_sqrt",
+                  "rational",
+                  "root_sum"
                 ]
+              },
+              "denominator": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "radicand": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "root_scale": {
+                "type": "number"
               }
-            }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "transform"
+                  ],
+                  "properties": {
+                    "transform": {
+                      "const": "rational"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "denominator"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "required": [
+                    "transform"
+                  ],
+                  "properties": {
+                    "transform": {
+                      "const": "root_sum"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "radicand",
+                    "root_scale"
+                  ]
+                }
+              }
+            ]
           }
         },
         "level": {

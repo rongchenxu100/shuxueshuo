@@ -131,7 +131,11 @@ def build_context(candidate, target_ref):
     from ..piecewise_equation import relevant as piecewise_equation_relevant
     from ..piecewise_inequality import inspect_target as inspect_piecewise_inequality
     from ..piecewise_inequality import relevant as piecewise_inequality_relevant
-    if 'pricing' in goal_ast:
+    from ..extremum_math import routed_description as extremum_description
+    source_entries = [{k: r[k] for k in ('source_ref', 'expression')} for r in entries]
+    if desc := extremum_description(goal, target_ref, source_entries):
+        context['extremum_goal'] = desc
+    elif 'pricing' in goal_ast:
         from ..piecewise_modeling import admitted, equation_description, inspect_target
         context['piecewise_modeling'] = inspect_target(candidate, target_ref)
         if goal_ast['kind'] == 'find_range' and admitted(context):

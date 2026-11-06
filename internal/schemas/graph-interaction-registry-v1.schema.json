@@ -362,7 +362,8 @@
             "piecewise_modeling",
             "quantified_subproblem",
             "substitution",
-            "function_monotonicity"
+            "function_monotonicity",
+            "function_extremum"
           ]
         },
         "parts": {

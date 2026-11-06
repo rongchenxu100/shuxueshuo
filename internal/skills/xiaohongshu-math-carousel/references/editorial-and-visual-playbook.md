@@ -88,6 +88,23 @@ Use when several questions share an invariant structure even though their surfac
 6. Variation: change one condition and show what remains invariant or what changes.
 7. Parallel problem: withhold the answer and hand off to the interactive page.
 
+### 专题门厅型（打法 1）
+
+Use for a teaching-topic entry that pairs with method deep-dives. Destination is the topic page (`/topics/<id>/`), not a single worked interactive stem.
+
+Typical 8–10 slide arc:
+
+1. Cover: `<专题>，典型题型有哪些？` + teal button `收藏这一篇就够了` + one feature line per type (**exact topic-page names**).
+2. Typical stems: one mini example per type (do not repeat the cover feature list as a signal table).
+3. Type pages: one cognitive job each—entry judgment, half-page tip, or bridge concept. Skip full algorithms already covered elsewhere.
+4. Optional mix-signals slide when two types are easy to confuse.
+5. Self-test: classify a stem; withhold the answer.
+6. CTA: topic practice + `shuxueshuo.com` + brand line; phone shows the matching topic page edge-to-edge.
+
+Half-page typical judgment: one key ask + one mini contrast or checklist. Do not expand into a method guide. Point readers to the existing method carousel when needed.
+
+Paired publishing: ship the concepts (or representations) gateway first; follow with the sibling topic gateway or method posts on later days.
+
 ### Shared cover and handoff rules
 
 Use one bold contrast and one reusable diagram on the cover. A strong cover can be understood without reading the body copy. On the final slide use a fresh question, not a generic website window. Example:
@@ -142,16 +159,23 @@ Use a previous approved cover as the style reference for all later ImageGen call
 
 ## 6. Reference implementation
 
-The completed common-logical-language carousel is the current repository reference:
+Visual language and condition diagrams:
 
 ```text
 site/assets/xiaohongshu/common-logical-language-carousel/
 ```
 
-In particular:
-
 - `01-cover.png` defines the visual language.
 - `03-four-cases.png` demonstrates four complete repeated components.
-- `07-interactive-cta.png` demonstrates a concrete unanswered website handoff.
+
+Topic gateway (打法 1) and CTA phone composite:
+
+```text
+site/assets/xiaohongshu/function-concepts-topic-guide-v1/
+```
+
+- Cover features + `收藏这一篇就够了`; slide 02 typical stems; self-test then CTA.
+- `source/composite-cta.cjs` + mobile topic screenshot for edge-to-edge phone fill.
+- Method deep-dives: `function-formula-method-guide-v1`, `function-range-method-guide-v1`.
 
 Treat these as examples, not immutable templates. Change the teaching mechanism when another topic needs a number line, geometry diagram, graph, or table.

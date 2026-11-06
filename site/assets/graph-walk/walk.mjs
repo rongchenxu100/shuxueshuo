@@ -1,5 +1,5 @@
-import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261104-monotonicity-intervals';
-import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261104-monotonicity-intervals';
+import {emptyMethodAnswer, projectMethodAnswer, methodCardsHTML, checkMethodAnswers, selectedMethod} from './method-cards.mjs?v=20261106-method-pairs';
+import {mountMethodConnections, connectedMethodAnswer} from './method-connections.mjs?v=20261106-method-pairs';
 import {formulaAnswerHTML} from './formula-answer.mjs?v=20261101-fraction';
 import {createFormulaFitter, renderFittedFormula} from './formula-fit.mjs?v=20261103';
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261101-coefficients';
@@ -251,7 +251,7 @@ function domainEndpointCardHTML(checks) {
 }
 
 function domainPremisesHTML(decision, uid) {
-  if (!decision.completion_number_line || !decision.condition_number_lines) return '';
+  if (!decision.condition_number_lines?.length) return '';
   return `<div class="gw-condition-lines"><p>已求出的范围</p>${conditionLinesHTML(decision, uid)}</div>`;
 }
 
@@ -467,12 +467,36 @@ function completedHTML(record, number, runId, route) {
   return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(decision))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${context}${figure}${body}${results}</div></details>`;
 }
 
-/* The parts of one streamed interaction are one step: they share a card and a step number,
-   and the card guides through them in order. State still records each part as its own decision. */
-const groupOf = decision => decision?.source === 'stream' && decision.stream_part_count > 1 ? decision.stream_interaction_id : null;
+/* Group only for display: later chunks may extend a card without changing published
+   decisions, answers, or the math evidence belonging to each interaction. */
+function groupParts(decision) {
+  if (decision?.source !== 'stream') return [];
+  const steps = bundle.routes[state.run?.route]?.steps || [];
+  const index = steps.findIndex(item => item.id === decision.id);
+  if (index < 0) return [];
+  const caseScope = item => JSON.stringify([...new Set(ownMathSteps(item).map(card =>
+    JSON.stringify([card.case_path || [], card.branch_id || ''])))].sort());
+  const matches = item => item.source === 'stream'
+    && ['target_ref', 'scope', 'route_id'].every(key => item[key] === decision[key])
+    && ['option_id', 'target_ref', 'left_ref', 'right_ref', 'phase'].every(key => item.option_context?.[key] === decision.option_context?.[key])
+    && (decision.stream_part_count > 1 && item.stream_interaction_id === decision.stream_interaction_id
+      || decision.stream_card_group && item.stream_card_group === decision.stream_card_group
+        && decision.stream_group_title && item.stream_group_title === decision.stream_group_title
+        && caseScope(item) === caseScope(decision));
+  let start = index, end = index + 1;
+  while (start > 0 && matches(steps[start - 1])) start--;
+  while (end < steps.length && matches(steps[end])) end++;
+  return steps.slice(start, end);
+}
+
+const groupOf = decision => {
+  const parts = groupParts(decision);
+  return parts.length > 1 ? parts[0].stream_interaction_id : null;
+};
 
 function stepTitle(decision) {
-  const title = (groupOf(decision) ? decision.stream_group_title : '') || decision.title || decision.question || '当前判断';
+  // Prefer the student-facing card title (card_group_title) when the stream set one.
+  const title = decision.stream_group_title || decision.title || decision.question || '当前判断';
   const cards = bundle.stream && decision.source === 'stream' ? ownMathSteps(decision) : [];
   // Show the purpose of the reused domain method, including its smaller actions.
   // Use verified method references rather than matching a question's wording.
@@ -488,11 +512,10 @@ function stepUnits() {
     else units.push({group, records: [record]});
   }
   const last = units.at(-1);
-  const open = last?.group && !decisionById(last.records.at(-1).decision, route).stream_last_part ? units.pop() : null;
+  const lastDecision = last && decisionById(last.records.at(-1).decision, route);
+  const open = last?.group && groupParts(lastDecision).at(-1)?.id !== lastDecision.id ? units.pop() : null;
   return {units, open};
 }
-
-const groupParts = decision => bundle.routes[state.run.route].steps.filter(item => item.stream_interaction_id === decision.stream_interaction_id);
 
 function completionBoardHTML(decision) {
   return decision.completion_board ? `<div data-completion-board="${escapeHTML(decision.id)}"></div>` : '';
@@ -500,9 +523,11 @@ function completionBoardHTML(decision) {
 
 function partAnswerHTML(decision, answer) {
   if (decision.answer_completion) return formulaAnswerHTML(decision, answer, false);
-  if (decision.completion_board) return completionBoardHTML(decision);
-  return decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, answer)
-    : `<p class="gw-answer" data-math-text>${escapeHTML(answerSummary(decision, answer))}</p>`;
+  const figure = decision.source === 'stream' && decision.completion_graph
+    ? figureHTML(decision.completion_graph, `gw-${activeRunId()}-${decision.id}-part`, 'completion') : '';
+  if (decision.completion_board) return figure + completionBoardHTML(decision);
+  return figure + (decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, answer)
+    : `<p class="gw-answer" data-math-text>${escapeHTML(answerSummary(decision, answer))}</p>`);
 }
 
 function partRowsHTML(records) {
@@ -515,29 +540,32 @@ function partRowsHTML(records) {
 function groupCompletedHTML(unit, number) {
   const decisions = unit.records.map(record => decisionById(record.decision, state.run.route)), last = decisions.at(-1);
   const sourceTargets = new Set();
-  const figures = decisions.map((item, index) => {
+  // Keep each part's figure with that part's board, not stacked above every sub-question.
+  const body = decisions.map((item, index) => {
     const target = item.target_ref || bundle.stream?.target_ref || '';
     const repeatedSource = item.show_source_graph && sourceTargets.has(target);
     if (item.show_source_graph) sourceTargets.add(target);
-    return completionFiguresHTML(repeatedSource ? {...item, show_source_graph: false} : item,
+    const figure = completionFiguresHTML(repeatedSource ? {...item, show_source_graph: false} : item,
       `gw-${activeRunId()}-${item.id}-done`, unit.records[index].answer);
+    const evidence = item.stream_last_part && item.id !== last.id
+      ? `<div data-stream-completed="${escapeHTML(item.id)}"></div>` : '';
+    return `<div class="gw-part-row">${figure}${completionBoardHTML(item)}${evidence}</div>`;
   }).join('');
   // A merged card may keep its proof in each part's feedback rather than its
   // conclusion-only math boards. Preserve that explanation after all parts pass.
-  const hasDerivation = decisionMathSteps(last).some(step =>
-    !step.highlight?.conclusion_only && step.explanation?.trim());
-  const feedback = hasDerivation ? '' : decisions.map(decision => {
+  const feedback = decisions.map(decision => {
+    if (decisionMathSteps(decision).some(step => !step.highlight?.conclusion_only && step.explanation?.trim())) return '';
     const explanation = completedFeedbackHTML(decision);
     return explanation ? `<div class="gw-part-row"><p class="gw-part-label" data-math-text>${escapeHTML(decision.title || '')}</p>${explanation}</div>` : '';
   }).join('');
-  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(last))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figures}${decisions.map(completionBoardHTML).join('')}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
+  return `<details class="gw-completed" data-completed-decision="${escapeHTML(last.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title" data-math-text>${escapeHTML(stepTitle(last))}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${body}<div data-stream-completed="${escapeHTML(last.id)}"></div>${feedback}</div></details>`;
 }
 
 /* Within the card: every part as a numbered stop, the answered ones folded into rows above the current one. */
 function partStepperHTML(decision) {
-  const parts = groupParts(decision);
+  const parts = groupParts(decision), currentIndex = parts.findIndex(part => part.id === decision.id);
   return `<ol class="gw-part-stepper" aria-label="这一步的小问">${parts.map((part, index) => {
-    const status = index < decision.stream_part_index ? 'done' : index === decision.stream_part_index ? 'current' : 'todo';
+    const status = index < currentIndex ? 'done' : index === currentIndex ? 'current' : 'todo';
     return `<li data-state="${status}"${status === 'current' ? ' aria-current="step"' : ''}><span aria-hidden="true">${status === 'done' ? '✓' : index + 1}</span><span data-math-text>${escapeHTML(part.title || '')}</span></li>`;
   }).join('')}</ol>`;
 }
@@ -712,7 +740,7 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const title = stepTitle(decision);
   const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1" data-math-text>${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
-  const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
+  const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1" data-math-text>第 ${groupParts(decision).findIndex(part => part.id === decision.id) + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
   host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.show_source_graph ? `<div data-source-graph="${escapeHTML(decision.id)}"></div>` : ''}${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.stem_board && !decision.answer_completion ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
   // Frozen before formulas are derivation inputs, not necessarily givens: they can be
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
@@ -736,7 +764,7 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   }
   // The final choice may use already solved condition sets. Its own intersection
   // and endpoint checks only appear in completedHTML after an accepted answer.
-  if (pending == null && decision.completion_number_line && decision.condition_number_lines) {
+  if (pending == null && decision.condition_number_lines?.length) {
     host.querySelector('.question')?.insertAdjacentHTML('afterend', domainPremisesHTML(decision, `gw-${activeRunId()}-${decision.id}-premise`));
   }
   if (context) {
@@ -1037,7 +1065,14 @@ function renderGraph() {
   const name = id => graphView.nodes.find(node => node.id === id)?.label || id;
   $('#gw-calls').innerHTML = view.calls?.length ? view.calls.map(call => `<li><span>${escapeHTML(name(call.method))} · ${escapeHTML(callStepTitle(call))}</span><strong>调用 ${escapeHTML(name(call.ref))}</strong></li>`).join('') : '<li>尚未发生方法或技能调用。</li>';
   const current = currentDecision(bundle, state);
-  $('#gw-path').textContent = [state.run?.route ? bundle.routes[state.run.route]?.label || '正在恢复解题路线' : '从读题开始', current?.title || (state.done ? '完成本路线' : '')].filter(Boolean).join(' › ');
+  const pathEl = $('#gw-path');
+  const pathText = [state.run?.route ? bundle.routes[state.run.route]?.label || '正在恢复解题路线' : '从读题开始', current?.title || (state.done ? '完成本路线' : '')].filter(Boolean).join(' › ');
+  // Titles may carry $…$; path chrome must render them (textContent alone shows raw TeX).
+  pathEl.removeAttribute('data-math-rendered');
+  pathEl.setAttribute('data-math-text', '');
+  pathEl.textContent = pathText;
+  PracticeMath.render(pathEl, pathText);
+  pathEl.dataset.mathRendered = 'true';
   hydrate($('#gw-graph-panel'));
   return view;
 }
@@ -1056,9 +1091,28 @@ function optionHeadingHTML(progress) {
   return `<section class="gw-option-heading" data-option-workspace="${escapeHTML(row.option_id)}"><h2>选项 ${escapeHTML(row.label)}${reviewOption ? ' · 只读回看' : ''}</h2>${row.text ? `<p data-math-text>${escapeHTML(row.text)}</p>` : ''}${reviewOption ? '<button type="button" data-option-resume>回到当前进度</button>' : ''}</section>`;
 }
 
+function scrollRoot() {
+  // Phone AI player scrolls the bottom sheet; otherwise the page scrolls.
+  return isPlayer() ? $('.gw-lesson') : (document.scrollingElement || document.documentElement);
+}
+
+function readScrollTop() {
+  const root = scrollRoot();
+  return root === document.scrollingElement || root === document.documentElement ? window.scrollY : root.scrollTop;
+}
+
+function writeScrollTop(top) {
+  const root = scrollRoot();
+  if (root === document.scrollingElement || root === document.documentElement) window.scrollTo(0, top);
+  else root.scrollTop = top;
+}
+
 function render({focus = false, scroll = focus} = {}) {
   if (disposed) return;
   stopPreview(); preview = null;
+  // Replacing #gw-steps often resets the scroll container to the top; keep the
+  // viewport first, then ease to the new part / step so the page does not jump.
+  const keepY = scroll ? readScrollTop() : null;
   renderProblemContext();
   const open = new Set([...$('#gw-steps').querySelectorAll('details[open]')].map(item => item.dataset.completedDecision));
   const current = currentDecision(bundle, state);
@@ -1111,14 +1165,20 @@ function render({focus = false, scroll = focus} = {}) {
   renderGraph();
   const target = (openPart && $('#gw-part-title')) || $('#gw-current-title') || $('#gw-completion h2');
   if (target && focus) { target.tabIndex = -1; target.focus({preventScroll: true}); }
-  if (scroll) revealStep();
+  if (scroll) {
+    if (keepY != null) writeScrollTop(keepY);
+    // Wait a frame so layout after innerHTML + images/math settles, then ease to the anchor.
+    requestAnimationFrame(() => {
+      if (!disposed) revealStep();
+    });
+  }
   if (options.stream || options.progressScope) park();
   options.onState?.(walkView());
 }
 
 function revealStep(behavior = reduced.matches ? 'auto' : 'smooth') {
-  // Partway through a card, start from its part stepper so the answered parts stay above the next one.
-  const anchor = ($('#gw-active .gw-part-done') && $('#gw-active .gw-part-stepper')) || $('#gw-active') || $('#gw-completion .gw-completion') || [...$('#gw-steps').querySelectorAll('details[data-completed-decision]')].at(-1);
+  // Prefer the current sub-question after a part confirms; do not jump back to the whole step heading.
+  const anchor = $('#gw-part-title') || $('#gw-active') || $('#gw-completion .gw-completion') || [...$('#gw-steps').querySelectorAll('details[data-completed-decision]')].at(-1);
   if (!anchor) return;
   // A column that just narrowed rewraps the bar before its ResizeObserver reports; scroll with the new height.
   measureProblemBar();
@@ -1601,7 +1661,13 @@ function mountCompletionBoards(root) {
     const id = host.dataset.completionBoard;
     const decision = decisionById(id, state.run?.route);
     if (!completed.has(id) || !decision?.completion_board) continue;
-    host.replaceChildren(createDerivationBoard(document, decision.completion_board));
+    const board = decision.completion_board;
+    // Derivation boards need the DOM builder; lines / inform boards are plain HTML.
+    if (board.layout === 'derivation' || Array.isArray(board.items)) {
+      host.replaceChildren(createDerivationBoard(document, board));
+    } else {
+      host.innerHTML = boardHTML(board);
+    }
     renderStreamMath(host);
   }
   mountChoicePictures(root);

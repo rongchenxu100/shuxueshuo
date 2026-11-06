@@ -254,8 +254,15 @@ def plan_groups(seeds, registry, *, final):
 
 def repeat_context(seeds, start):
     template = seeds[start]["template"]
+    method = seeds[start].get("method_ref", "").split("#", 1)[0]
+    case_path = tuple(seeds[start].get("case_path") or ())
+    # Count repeats within the same method and case spine so nested light
+    # cards (and multi-case interval branches) each get a first showing.
     return {"template": template,
-            "previous": sum(1 for seed in seeds[:start] if seed["template"] == template)}
+            "previous": sum(1 for seed in seeds[:start]
+                            if seed["template"] == template
+                            and seed.get("method_ref", "").split("#", 1)[0] == method
+                            and tuple(seed.get("case_path") or ()) == case_path)}
 
 
 def _repeat_allows(rule, values, context):
@@ -1687,6 +1694,9 @@ def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'piecewise_equation':
         from .piecewise_equation_presentation import compile_piecewise
         return compile_piecewise(seeds, interaction_id)
+    if rule.get('compiler') == 'function_extremum':
+        from .extremum_presentation import compile_extremum
+        return compile_extremum(seeds, interaction_id)
     if rule.get('compiler') == 'function_monotonicity':
         from .monotonicity_presentation import compile_monotonicity
         return compile_monotonicity(seeds, interaction_id)
@@ -1804,8 +1814,12 @@ def build_chunk(seeds, registry, context, *, revision=None):
         rule = select_rule(registry, seeds)
         if rule is None:
             raise NotInteractive("no_rule")
-        # A folded case card is read inside the next step, which asks for all cases at once.
-        if rule.get("fold") and seeds[0]["case_path"]:
+        # A folded case card is read inside the next step, which asks for all
+        # cases at once — but only on its own method route. Nested under a host
+        # (M8 light／expanded), keep case cards interactive for the student.
+        host = seeds[0].get("host_method") or seeds[0].get("method_ref", "").split("#", 1)[0]
+        own = seeds[0].get("method_ref", "").split("#", 1)[0]
+        if rule.get("fold") and seeds[0]["case_path"] and host == own:
             raise NotInteractive("folded")
         compiled = compile_interaction(seeds, rule, context, interaction_id=interaction_id)
         if seeds[0].get('option_context'):

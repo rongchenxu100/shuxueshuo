@@ -162,7 +162,8 @@ function documentFixture() {
     replaceChildren(...nodes) { for (const child of this.children) child.parentNode = null; this.children = []; this.append(...nodes); }
     remove() { if (this.parentNode) this.parentNode.children.splice(this.parentNode.children.indexOf(this), 1); this.parentNode = null; }
     closest(selector) { return selector.startsWith('.') && this.className?.split(/\s+/).includes(selector.slice(1)) ? this : this.parentNode?.closest(selector) || null; }
-    setAttribute(name, value) { this[name] = value; }
+    setAttribute(name, value) { this[name] = value; if (name.startsWith('data-')) this.dataset[dataKey(name.slice(5))] = String(value); }
+    removeAttribute(name) { delete this[name]; if (name.startsWith('data-')) delete this.dataset[dataKey(name.slice(5))]; }
     set innerHTML(value) {
       this._html = value; this.replaceChildren();
       if (/^\s*<svg\b/.test(value)) this.append(new Element('svg'));
@@ -712,7 +713,7 @@ test('domain method headings show their purpose in active, completed and carried
   for (const action of replay.actions.slice(0, bundle.intro.length)) state = stateAPI.submitAnswer(bundle, state, action);
   const {run, roots} = engine({bundle, state, view: bundle.stream});
   const original = JSON.stringify(bundle);
-  for (const [index, title] of ['找到限制位置', '列出条件', '解每个条件'].entries()) {
+  for (const [index, title] of ['找到原式的限制位置', '列出有意义的条件', '解每个条件'].entries()) {
     run('renderInteraction(currentDecision(bundle,state))');
     assert.match(roots.get('#gw-active').innerHTML, new RegExp(`判断定义域 · ${title}</h2>`));
     const action = replay.actions[bundle.intro.length + index];

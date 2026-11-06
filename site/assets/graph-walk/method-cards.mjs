@@ -1,4 +1,4 @@
-import {methodConnectionsHTML} from './method-connections.mjs?v=20261104-monotonicity-intervals';
+import {methodConnectionsHTML} from './method-connections.mjs?v=20261106-method-pairs';
 // Conditions and method choice share one scoped answer; grading never trusts UI confirmation flags.
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

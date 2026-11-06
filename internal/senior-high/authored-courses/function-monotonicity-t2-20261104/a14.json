@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a14-v1",
+  "reviewer": "Codex：依据用户原图与修订的 T2 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "FM-A14，图 2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\sqrt{1-2x}+2x^2-5x+5$，求最小值。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(1-2*x)+2*x^2-5*x+5"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "object": "f",
+          "answer_request": {
+            "kind": "extremum",
+            "quantity": "minimum"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "3"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

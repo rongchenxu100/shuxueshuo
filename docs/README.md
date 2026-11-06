@@ -43,6 +43,10 @@
 - [T5 求函数的值域：题型开发设计](function-range-problem-type-design.md)
 - [FM-T1 判断函数的单调性：题型开发设计](function-monotonicity-problem-type-design.md)
 - [FM-T1：实现范围、原图与专题验收](function-monotonicity-t1-acceptance.md)
+- [FM-T2 利用单调性求最值：题型开发设计](function-monotonicity-extremum-problem-type-design.md)
+- [FM-T2：实现范围、拍题与专题验收](function-monotonicity-t2-acceptance.md)
+- [FM-T3 利用单调性解不等式：题型开发设计](function-monotonicity-inequality-problem-type-design.md)
+- [FM-T4 已知函数的单调性求参：题型开发设计](function-monotonicity-parameter-problem-type-design.md)
 
 ## 拍题与交互课程
 

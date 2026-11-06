@@ -62,7 +62,11 @@ class Inputs:
 
 def _relation(source):
     value = source.math.value("relation")
-    return capabilities.relation(parse_expression(value["lhs"]), value["operator"], parse_expression(value["rhs"]))
+    return capabilities.relation(
+        source.math._parse(value["lhs"], feature_id="relation"),
+        value["operator"],
+        source.math._parse(value["rhs"], feature_id="relation"),
+    )
 
 
 def _interval_function(source):
@@ -96,6 +100,24 @@ def _quantifier(quantifier):
 
 def _polynomial_degree(expression, variable, degree):
     return capabilities.polynomial(expression, variable).degree() == degree
+
+
+def _quadratic_or_separable_reciprocal(expression, relation, parameter, variable, domain, degree=2):
+    """Admission OR: residual is degree-d in x, or separates to a reciprocal g(x)."""
+    try:
+        if capabilities.polynomial(expression, variable).degree() == degree:
+            return True
+    except CapabilityGap:
+        pass
+    try:
+        separated = capabilities.inspect_separation(
+            relation, parameter, variable, domain)["outputs"]
+        capabilities.polynomial(separated["parameter_expression"], parameter)
+        skill = judgments.range_skill(
+            separated["function"], variable, domain, reserved_symbols=(parameter,))
+        return skill.get("choice") == "reciprocal"
+    except (CapabilityGap, UnknownPremise, TypeError, ValueError):
+        return False
 
 
 def _quantified_reals(quantifier, domain):
@@ -190,6 +212,11 @@ def _function_matching(context):
     return admitted(context)
 
 
+def _function_extremum(context, task=None):
+    from .extremum_runtime import admitted
+    return admitted(context, task)
+
+
 def _function_monotonicity(context, method=None):
     from .monotonicity_runtime import admitted
     return admitted(context, method)
@@ -200,6 +227,7 @@ CHECKS = {
     'piecewise_range_parameter': _piecewise_range_parameter_admitted,
     'piecewise_inequality': _piecewise_inequality_admitted,
     'piecewise_equation': _piecewise_equation_admitted,
+    'function_extremum': _function_extremum,
     'function_monotonicity': _function_monotonicity,
     'function_graph': _function_graph_admitted,
     'absolute_graph': lambda context: context.get('goal', {}).get('kind') == 'draw_function_graph' and _function_graph_admitted(context),
@@ -217,6 +245,7 @@ CHECKS = {
     "function_domain_parameter": _function_domain_parameter,
     "quantifier": _quantifier,
     "polynomial_degree": _polynomial_degree,
+    "quadratic_or_separable_reciprocal": _quadratic_or_separable_reciprocal,
     "quantified_reals": _quantified_reals,
     "rational_parameter_coefficients": _rational_parameter_coefficients,
     "separable_range": _separable_range,

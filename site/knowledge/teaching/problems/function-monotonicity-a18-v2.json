@@ -1,0 +1,117 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a18-v2",
+  "label": "分段函数的量词比较 · A18",
+  "path": "/topics/function-monotonicity/q18/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a18-v2.json",
+  "types": [
+    "type-monotonicity-extremum"
+  ],
+  "statement": "已知 $f(x)=\\begin{cases}-x^3+2,&x<0\\\\-x+3,&x\\ge0\\end{cases}$，$g(x)=kx+5-2k$，$k>0$。若 $\\forall x1\\in[-1,1]:\\exists x2\\in[-1,1]:f(x1)\\le g(x2)$，求实数 $k$ 的取值范围。",
+  "routes": {
+    "quantified-range-comparison": {
+      "label": "量词比较求参法",
+      "methods": [
+        "method-quantified-range-comparison"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-range-extrema"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "48a889f500e0e3380bade8b8#1": {
+          "title": "先把量词关系化成最值比较",
+          "position": 4,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "function-monotonicity#common-functions",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "48a889f500e0e3380bade8b8#2": {
+          "title": "由图像读出 f 的最大值：第 1 段",
+          "position": 5,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "function-monotonicity#common-functions",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "48a889f500e0e3380bade8b8#3": {
+          "title": "由图像读出 f 的最大值：第 2 段",
+          "position": 6,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "function-monotonicity#common-functions",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "48a889f500e0e3380bade8b8#4": {
+          "title": "汇总 f 的最大值",
+          "position": 7,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "function-monotonicity#common-functions",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "48a889f500e0e3380bade8b8#5": {
+          "title": "由图像读出 g 的最大值",
+          "position": 8,
+          "refs": [
+            "method-quantified-range-comparison#ranges",
+            "function-monotonicity#common-functions",
+            "quadratic-interval-extremum"
+          ]
+        },
+        "b4f2a1a9c4ac9b2eb2610368#1": {
+          "title": "代入最值，写出参数条件",
+          "position": 9,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "b4f2a1a9c4ac9b2eb2610368#2": {
+          "title": "解参数条件",
+          "position": 10,
+          "refs": [
+            "method-quantified-range-comparison#conditions",
+            "skill-quantified-range",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        },
+        "1e05017790caea6ccbc886a0#1": {
+          "title": "回到原题，汇总参数范围",
+          "position": 11,
+          "refs": [
+            "method-quantified-range-comparison#conclude",
+            "function-range-extrema#attainability",
+            "function-range-extrema#extrema"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "3ff495ffc92c67e1e907730fce7e7cd8562ae8f8882c2b9d86a0ee4ee1b5ea28",
+  "practice_version": "48cc68d78072f754be34524a2aeb2ebaed6b6c1b33ab545cd83193dc3e98a31c"
+}

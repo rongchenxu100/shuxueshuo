@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b16-v2",
+  "title": "严格比较与最值见证 · B16",
+  "page": "/topics/function-monotonicity/q16b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $A=\\{x\\mid 1\\le x\\le3\\}$，对任意 $x_1\\in A$，都存在 $x_2\\in A$，使 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，求实数 $m$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b16-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t2-20261104/b16.json"
+}

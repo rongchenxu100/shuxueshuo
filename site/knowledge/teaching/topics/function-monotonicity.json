@@ -22,8 +22,17 @@
       "label": "利用单调性求最值",
       "type": "type-monotonicity-extremum",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "从分式函数的最值，到量词比较求参、指定点最值条件求参。",
+      "problems": [
+        "function-monotonicity-a16-v2",
+        "function-monotonicity-a07-v2",
+        "function-monotonicity-a18-v2",
+        "function-monotonicity-b16-v2",
+        "function-monotonicity-b11-v2",
+        "function-monotonicity-b10-v2",
+        "function-monotonicity-b08-v2",
+        "function-monotonicity-b14-v2"
+      ]
     },
     {
       "id": "inequality",
@@ -818,6 +827,1109 @@
                 "method-piecewise-monotonicity#conclude",
                 "composite-function-monotonicity#rule",
                 "quadratic-function-properties#monotonicity"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a16-v2": {
+      "label": "分式函数的最大值 · A16",
+      "path": "/topics/function-monotonicity/q16/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a16-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知函数 $f(x)=\\frac{2x+1}{x+3}$，$x\\in[-2,2]$，求最大值。",
+      "routes": {
+        "monotonicity-extremum": {
+          "label": "单调性求最值法",
+          "methods": [
+            "method-monotonicity-extremum"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "31fe2c4f48400325e5d41a2a#1": {
+              "title": "分离分式",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-extremum#prepare",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "9a20bcc1562966aa69251de5#1": {
+              "title": "一次函数在 $\\left[-2, 2\\right]$ 上的增减",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-extremum#operations",
+                "skill-monotonicity-operations",
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ]
+            },
+            "a43dea55f22d1e05c4807eec#1": {
+              "title": "取倒数后的增减",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-extremum#operations",
+                "skill-monotonicity-operations",
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ]
+            },
+            "a43dea55f22d1e05c4807eec#2": {
+              "title": "乘常数后的增减",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-extremum#operations",
+                "skill-monotonicity-operations",
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ]
+            },
+            "a43dea55f22d1e05c4807eec#3": {
+              "title": "加常数后的增减",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-extremum#operations",
+                "skill-monotonicity-operations",
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ]
+            },
+            "2a7922e511c938536707879f#1": {
+              "title": "选择最大值的位置",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-extremum#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "2a7922e511c938536707879f#2": {
+              "title": "求出最大值",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-extremum#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a07-v2": {
+      "label": "用值域包含求参数 · A07",
+      "path": "/topics/function-monotonicity/q07/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a07-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $g(x)=ax+1$，$a>0$，$f(x)=x^2+2x$。若 $\\forall x1\\in[-1,1]:\\exists x0\\in[-2,1]:g(x1)=f(x0)$，求实数 $a$ 的取值范围。",
+      "routes": {
+        "quantified-range-comparison": {
+          "label": "量词比较求参法",
+          "methods": [
+            "method-quantified-range-comparison"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "8a35db11a3830c03b672bed5#1": {
+              "title": "由图像读出 g 的值域",
+              "position": 4,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8a35db11a3830c03b672bed5#2": {
+              "title": "求 f 的值域：配成顶点式",
+              "position": 5,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8a35db11a3830c03b672bed5#3": {
+              "title": "由图像读出 f 的值域",
+              "position": 6,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "e0c573177373663674bc3b53#1": {
+              "title": "讨论 g 与 f 的取值关系",
+              "position": 7,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "e0c573177373663674bc3b53#2": {
+              "title": "建立参数条件",
+              "position": 8,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "e0c573177373663674bc3b53#3": {
+              "title": "解参数条件",
+              "position": 9,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "476932af4040ad5a206103b7#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 10,
+              "refs": [
+                "method-quantified-range-comparison#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a18-v2": {
+      "label": "分段函数的量词比较 · A18",
+      "path": "/topics/function-monotonicity/q18/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a18-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $f(x)=\\begin{cases}-x^3+2,&x<0\\\\-x+3,&x\\ge0\\end{cases}$，$g(x)=kx+5-2k$，$k>0$。若 $\\forall x1\\in[-1,1]:\\exists x2\\in[-1,1]:f(x1)\\le g(x2)$，求实数 $k$ 的取值范围。",
+      "routes": {
+        "quantified-range-comparison": {
+          "label": "量词比较求参法",
+          "methods": [
+            "method-quantified-range-comparison"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "48a889f500e0e3380bade8b8#1": {
+              "title": "先把量词关系化成最值比较",
+              "position": 4,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "function-monotonicity#common-functions",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "48a889f500e0e3380bade8b8#2": {
+              "title": "由图像读出 f 的最大值：第 1 段",
+              "position": 5,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "function-monotonicity#common-functions",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "48a889f500e0e3380bade8b8#3": {
+              "title": "由图像读出 f 的最大值：第 2 段",
+              "position": 6,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "function-monotonicity#common-functions",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "48a889f500e0e3380bade8b8#4": {
+              "title": "汇总 f 的最大值",
+              "position": 7,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "function-monotonicity#common-functions",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "48a889f500e0e3380bade8b8#5": {
+              "title": "由图像读出 g 的最大值",
+              "position": 8,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "function-monotonicity#common-functions",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "b4f2a1a9c4ac9b2eb2610368#1": {
+              "title": "代入最值，写出参数条件",
+              "position": 9,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "b4f2a1a9c4ac9b2eb2610368#2": {
+              "title": "解参数条件",
+              "position": 10,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "1e05017790caea6ccbc886a0#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 11,
+              "refs": [
+                "method-quantified-range-comparison#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-b16-v2": {
+      "label": "严格比较与最值见证 · B16",
+      "path": "/topics/function-monotonicity/q16b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b16-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $A=\\{x\\mid 1\\le x\\le3\\}$，对任意 $x_1\\in A$，都存在 $x_2\\in A$，使 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，求实数 $m$ 的取值范围。",
+      "routes": {
+        "quantified-range-comparison": {
+          "label": "量词比较求参法",
+          "methods": [
+            "method-quantified-range-comparison"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "bf70d0efc0ab743db430fd91#1": {
+              "title": "先给两边的式子取名",
+              "position": 4,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "bf70d0efc0ab743db430fd91#2": {
+              "title": "先把量词关系化成最值比较",
+              "position": 5,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "bf70d0efc0ab743db430fd91#3": {
+              "title": "由图像读出 g 的最大值",
+              "position": 6,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "bf70d0efc0ab743db430fd91#4": {
+              "title": "求 f 的最大值：配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "bf70d0efc0ab743db430fd91#5": {
+              "title": "由图像读出 f 的最大值",
+              "position": 8,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "b14c4b5debeca01eb8f4649f#1": {
+              "title": "代入最值，写出参数条件",
+              "position": 9,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "b14c4b5debeca01eb8f4649f#2": {
+              "title": "解参数条件",
+              "position": 10,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "6b61ca2fd3da2c98f3adbc7a#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 11,
+              "refs": [
+                "method-quantified-range-comparison#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-b11-v2": {
+      "label": "按斜率分类求值域 · B11",
+      "path": "/topics/function-monotonicity/q11b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b11-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。",
+      "routes": {
+        "quantified-range-comparison": {
+          "label": "量词比较求参法",
+          "methods": [
+            "method-quantified-range-comparison"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "8c1d20bc26bc469daa1a7bbf#1": {
+              "title": "求 f 的值域：配成顶点式",
+              "position": 4,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#2": {
+              "title": "由图像读出 f 的值域",
+              "position": 5,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#3": {
+              "title": "求 g 的值域：按斜率分类（↑）",
+              "position": 6,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#4": {
+              "title": "由图像读出 g 的值域（$a > 0$）",
+              "position": 7,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#5": {
+              "title": "求 g 的值域：按斜率分类（常值）",
+              "position": 8,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#6": {
+              "title": "由图像读出 g 的值域（$a=0$）",
+              "position": 9,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#7": {
+              "title": "求 g 的值域：按斜率分类（↓）",
+              "position": 10,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#8": {
+              "title": "由图像读出 g 的值域（$a < 0$）",
+              "position": 11,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "8c1d20bc26bc469daa1a7bbf#9": {
+              "title": "汇总 g 在各斜率下的值域",
+              "position": 12,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "5605d222a4209f0ea13b8a14#1": {
+              "title": "讨论 f 与 g 的取值关系",
+              "position": 13,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "5605d222a4209f0ea13b8a14#2": {
+              "title": "求参数（$a=0$）",
+              "position": 14,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "5605d222a4209f0ea13b8a14#3": {
+              "title": "求参数（$a > 0$）",
+              "position": 15,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "5605d222a4209f0ea13b8a14#4": {
+              "title": "求参数（$a < 0$）",
+              "position": 16,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "a6435ec3c173f84564854519#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 17,
+              "refs": [
+                "method-quantified-range-comparison#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-b10-v2": {
+      "label": "动区间的最大值 · B10",
+      "path": "/topics/function-monotonicity/q10b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b10-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $f(x)=x-\\frac{1}{x}$，$g(x)=x^2-4x-3$。若 $\\forall x1\\in[-2,-1]:\\exists x2\\in[1,a]:f(x1)<g(x2)$，求实数 $a$ 的取值范围。",
+      "routes": {
+        "quantified-range-comparison": {
+          "label": "量词比较求参法",
+          "methods": [
+            "method-quantified-range-comparison"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "284f182db4e0605ce2945c89#1": {
+              "title": "先保证 g 有输入",
+              "position": 4,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "284f182db4e0605ce2945c89#2": {
+              "title": "先把量词关系化成最值比较",
+              "position": 5,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "284f182db4e0605ce2945c89#3": {
+              "title": "由图像读出 f 的最大值",
+              "position": 6,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "284f182db4e0605ce2945c89#4": {
+              "title": "求 g 的最大值：配成顶点式",
+              "position": 7,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "284f182db4e0605ce2945c89#5": {
+              "title": "求 g 的最大值：比较二次函数两端",
+              "position": 8,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "284f182db4e0605ce2945c89#6": {
+              "title": "求 g 的最大值：按端点高低分成两类",
+              "position": 9,
+              "refs": [
+                "method-quantified-range-comparison#ranges",
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ]
+            },
+            "ea61e938929b79b6aed59171#1": {
+              "title": "求参数（$1 \\leq a \\leq 3$）",
+              "position": 10,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "ea61e938929b79b6aed59171#2": {
+              "title": "求参数（$a > 3$）",
+              "position": 11,
+              "refs": [
+                "method-quantified-range-comparison#conditions",
+                "skill-quantified-range",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "db8abeaf73d8213e56aa8303#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 12,
+              "refs": [
+                "method-quantified-range-comparison#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-b08-v2": {
+      "label": "指定分界点为最小值点 · B08",
+      "path": "/topics/function-monotonicity/q08b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b08-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $f(x)=\\begin{cases}(x-a)^2,&x\\le0\\\\x+\\frac{1}{x}+a,&x>0\\end{cases}$，最小值为 $f(0)$，求实数 $a$ 的取值范围。",
+      "routes": {
+        "extremum-condition-parameter": {
+          "label": "指定最值求参法",
+          "methods": [
+            "method-extremum-condition-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "2d954501a07430ce2b69fd82#1": {
+              "title": "求指定点的函数值",
+              "position": 4,
+              "refs": [
+                "method-extremum-condition-parameter#prepare",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "2d954501a07430ce2b69fd82#2": {
+              "title": "把指定最值写成全域条件",
+              "position": 5,
+              "refs": [
+                "method-extremum-condition-parameter#prepare",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "0f0aa1649656816468940d24#1": {
+              "title": "判断转化后的问题",
+              "position": 6,
+              "refs": [
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "eb2d35abbefc6fb832d725bd#1": {
+              "title": "选择恒成立问题的解题方法",
+              "position": 7,
+              "refs": [
+                "method-separation",
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "dd183f8eb1ef852b74a8eb5e#1": {
+              "title": "移项",
+              "position": 8,
+              "refs": [
+                "method-separation#separate",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication"
+              ]
+            },
+            "dd183f8eb1ef852b74a8eb5e#2": {
+              "title": "判断除数符号与不等号方向",
+              "position": 9,
+              "refs": [
+                "method-separation#separate",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication"
+              ]
+            },
+            "dd183f8eb1ef852b74a8eb5e#3": {
+              "title": "分离参数",
+              "position": 10,
+              "refs": [
+                "method-separation#separate",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication"
+              ]
+            },
+            "97b57257494aa90e84559af2#1": {
+              "title": "转化为最值条件",
+              "position": 11,
+              "refs": [
+                "method-separation#quantifier",
+                "skill-quantified-range",
+                "function-range-extrema#quantified",
+                "quantifiers#universal"
+              ]
+            },
+            "7a2f947cfeb9bf1cf41f8d06#1": {
+              "title": "确定函数值的范围",
+              "position": 12,
+              "refs": [
+                "method-separation#range",
+                "skill-linear-range",
+                "linear-interval-extremum#interval"
+              ]
+            },
+            "d3cd84dcdc1615bb8b611d49#1": {
+              "title": "求参数范围",
+              "position": 13,
+              "refs": [
+                "method-separation#restore",
+                "function-range-extrema#quantified",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "quadratic-inequality-solve",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs"
+              ]
+            },
+            "55fdd90bb0ecda14a991ee16#1": {
+              "title": "判断转化后的问题",
+              "position": 14,
+              "refs": [
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "4f2a641f9852783dbd5c623d#1": {
+              "title": "选择恒成立问题的解题方法",
+              "position": 15,
+              "refs": [
+                "method-separation",
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "78422bec774a80d7f26118fe#1": {
+              "title": "移项",
+              "position": 16,
+              "refs": [
+                "method-separation#separate",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication"
+              ]
+            },
+            "78422bec774a80d7f26118fe#2": {
+              "title": "分离参数",
+              "position": 17,
+              "refs": [
+                "method-separation#separate",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication"
+              ]
+            },
+            "1647315312f8a7d628c3f976#1": {
+              "title": "转化为最值条件",
+              "position": 18,
+              "refs": [
+                "method-separation#quantifier",
+                "skill-quantified-range",
+                "function-range-extrema#quantified",
+                "quantifiers#universal"
+              ]
+            },
+            "9284ef87e98a167483a2907d#1": {
+              "title": "认出对勾函数的拐点",
+              "position": 19,
+              "refs": [
+                "method-separation#range",
+                "skill-reciprocal-range",
+                "reciprocal-sum-function"
+              ]
+            },
+            "9284ef87e98a167483a2907d#2": {
+              "title": "看区间落在拐点哪一侧",
+              "position": 20,
+              "refs": [
+                "method-separation#range",
+                "skill-reciprocal-range",
+                "reciprocal-sum-function"
+              ]
+            },
+            "a2ff0eb69ac23200f0bca843#1": {
+              "title": "求参数范围",
+              "position": 21,
+              "refs": [
+                "method-separation#restore",
+                "function-range-extrema#quantified",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "quadratic-inequality-solve",
+                "skill-solve-quadratic",
+                "quadratic-equation#roots",
+                "skill-quadratic-sign",
+                "quadratic-inequality#signs"
+              ]
+            },
+            "117e462aeca56236581d9448#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 22,
+              "refs": [
+                "method-extremum-condition-parameter#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-b14-v2": {
+      "label": "指定分界点为最大值点 · B14",
+      "path": "/topics/function-monotonicity/q14b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b14-v2.json",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "statement": "已知 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge1\\end{cases}$，$f(1)$ 是函数 $f(x)$ 的最大值，求实数 $a$ 的取值范围。",
+      "routes": {
+        "extremum-condition-parameter": {
+          "label": "指定最值求参法",
+          "methods": [
+            "method-extremum-condition-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-range-extrema"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "24f4e61703c7a9e708d09d04#1": {
+              "title": "求指定点的函数值",
+              "position": 4,
+              "refs": [
+                "method-extremum-condition-parameter#prepare",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "24f4e61703c7a9e708d09d04#2": {
+              "title": "把指定最值写成全域条件",
+              "position": 5,
+              "refs": [
+                "method-extremum-condition-parameter#prepare",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "2ef02a96948d41fb4579bba1#1": {
+              "title": "判断转化后的问题",
+              "position": 6,
+              "refs": [
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "4fe826e643dd67365eb31b37#1": {
+              "title": "选择恒成立问题的解题方法",
+              "position": 7,
+              "refs": [
+                "method-interval-extremum",
+                "method-extremum-condition-parameter#piece-inputs",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ]
+            },
+            "9ea84fe47eadbe75b8ae3229#1": {
+              "title": "转化为最值条件",
+              "position": 8,
+              "refs": [
+                "method-interval-extremum#quantifier",
+                "skill-quantified-range",
+                "function-range-extrema#quantified",
+                "quantifiers#universal"
+              ]
+            },
+            "b67b4dce39a4be9f6f6895dc#1": {
+              "title": "选择分类依据",
+              "position": 9,
+              "refs": [
+                "method-interval-extremum#select"
+              ]
+            },
+            "b67b4dce39a4be9f6f6895dc#2": {
+              "title": "判断各情况的最值位置",
+              "position": 10,
+              "refs": [
+                "method-interval-extremum#select"
+              ]
+            },
+            "7a06bf45e10ced4caefcf962#1": {
+              "title": "判断最值的位置",
+              "position": 11,
+              "refs": [
+                "method-interval-extremum#select",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "b8ee59bb0cd878377469686b#1": {
+              "title": "求本情况的参数范围",
+              "position": 12,
+              "refs": [
+                "method-interval-extremum#conditions",
+                "function-range-extrema#quantified",
+                "skill-inequality-transform"
+              ]
+            },
+            "f0664b9aac493e3e53a67ac3#1": {
+              "title": "判断最值的位置",
+              "position": 13,
+              "refs": [
+                "method-interval-extremum#select",
+                "quadratic-interval-extremum"
+              ]
+            },
+            "ea7650fd97cad3ea9f58642e#1": {
+              "title": "求本情况的参数范围",
+              "position": 14,
+              "refs": [
+                "method-interval-extremum#conditions",
+                "function-range-extrema#quantified",
+                "skill-inequality-transform"
+              ]
+            },
+            "3d367f6e38e800bafc541053#1": {
+              "title": "求参数范围",
+              "position": 15,
+              "refs": [
+                "method-interval-extremum#verify",
+                "method-interval-extremum#conditions"
+              ]
+            },
+            "3bfa514293b2eb4aa0da87a2#1": {
+              "title": "快速验证本段",
+              "position": 16,
+              "refs": [
+                "method-extremum-condition-parameter#borrowed",
+                "linear-interval-extremum#interval",
+                "skill-linear-range"
+              ]
+            },
+            "b073d6630c43467952a7dee2#1": {
+              "title": "回到原题，汇总参数范围",
+              "position": 17,
+              "refs": [
+                "method-extremum-condition-parameter#conclude",
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
               ]
             }
           }

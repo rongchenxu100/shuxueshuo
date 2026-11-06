@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-monotonicity-extremum",
+  "branches": [
+    {
+      "branch_id": "extremum",
+      "checks": [
+        {
+          "id": "source",
+          "feature_id": "function_extremum",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

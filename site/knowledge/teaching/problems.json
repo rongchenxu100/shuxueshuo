@@ -260,6 +260,38 @@
       "path": "/topics/function-monotonicity/q01/",
       "topic": "function-monotonicity"
     },
+    "function-monotonicity-a16-v2": {
+      "path": "/topics/function-monotonicity/q16/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a07-v2": {
+      "path": "/topics/function-monotonicity/q07/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-a18-v2": {
+      "path": "/topics/function-monotonicity/q18/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b16-v2": {
+      "path": "/topics/function-monotonicity/q16b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b11-v2": {
+      "path": "/topics/function-monotonicity/q11b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b10-v2": {
+      "path": "/topics/function-monotonicity/q10b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b08-v2": {
+      "path": "/topics/function-monotonicity/q08b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b14-v2": {
+      "path": "/topics/function-monotonicity/q14b/",
+      "topic": "function-monotonicity"
+    },
     "function-representations-b10-v1": {
       "path": "/topics/function-representations/q10b/",
       "topic": "function-representations"

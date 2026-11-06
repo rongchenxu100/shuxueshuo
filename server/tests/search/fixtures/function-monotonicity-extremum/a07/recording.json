@@ -1,0 +1,25 @@
+{
+  "usage": "development_source_photo_recording_not_unseen_holdout",
+  "pipeline": "text-first",
+  "recorded_at": "2026-11-04",
+  "status": "reviewed_candidate",
+  "elapsed_seconds": 25.753,
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "historical_semantic_calls": 2,
+  "files": {
+    "question.png": "e0d2a784c0ceaece4724c98f1835af67935bd57473cd6aa7f3194485e29a21bc",
+    "original.png": "939bbbc265056a3fb141a3766ce3cd45e57ecad935b575e62308aa2e4be613cb",
+    "result.json": "452e3cb15599fac5815d059f8110864e8bae4a5d638a9bfbc0481484720f0d55",
+    "source.json": "2e528c48ef9468a18545b1e721b0a18702d8ab3e6ff42a1e8c4202a2da3d2f08",
+    "workflow/ledger.json": "c38c9811231e2fce1681eff66299b0ff76602462311b32176db389af7b06ad33",
+    "workflow/candidate.json": "f8c1537cfb51dfbc0bd29f2480943ae5b340a92ca06cdd83ca9da37511eb59a2",
+    "workflow/latest-review.json": "155d28a4cd336be278d707140d4ac046e81cddd9c48612180566dd169566239d",
+    "workflow/calls/01-extract/request.json": "af7ce3b25b6fe4e146b1f0fb1b93c8eef039438ec8bf462467854225784619c0",
+    "workflow/calls/01-extract/response.json": "5895ffaf7a64f95610929930af3ee95ddb06e14400213cb16b1a4066e04b1a0b",
+    "workflow/calls/02-review/request.json": "c3923352b9812e008d4676626f13631f618d8707a36a6032e245b2de3f25cd06",
+    "workflow/calls/02-review/response.json": "a9b86f83c2f0ea5ec5a331bcaa2e5d8f4450b2f446d1de5bd175521a14a6a065"
+  }
+}

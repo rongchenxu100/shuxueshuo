@@ -1,0 +1,12 @@
+{
+  "revision": "f6797cfa84d5a19b2ac9c574ff1e5cf09370d7886da1293e8fb1b8a69e281884",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/facts/1",
+      "kind": "wrong_expression",
+      "source_excerpt": "对于任意的 $x_1\\in A$，都存在 $x_2\\in A$",
+      "message": "候选把量词中的命名集合 $A$ 展开成了 $[1,3]$，写成 $\\forall x_1\\in[1,3]$、$\\exists x_2\\in[1,3]$，丢失了原题对已定义集合 $A$ 的引用。应保留为 $\\forall x_1\\in A: \\exists x_2\\in A: x_2^2-3*x_2>m*x_1+1$。"
+    }
+  ]
+}

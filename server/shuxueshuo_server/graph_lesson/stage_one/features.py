@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('function_extremum', ('goal',), 'function_extremum',
+                ('function-range-extrema#extrema',), '利用增减与取得性求最值或参数',
+                version='function-extremum/v1', supported_structures=('bounded_extrema',),
+                computation_boundary='original function, ordered quantifiers, extrema condition and source domains'),
     FeatureSpec('function_monotonicity', ('goal',), 'function_monotonicity',
                 ('function-monotonicity#definition',), '判断原函数的严格单调区间',
                 version='function-monotonicity/v1', supported_structures=('bounded_quadratic_root_absolute',),
@@ -522,6 +526,16 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_range_parameter'}, source_refs=[target_ref])
+            continue
+        from ..extremum_math import routed_description as extremum_description
+        original = pointer(candidate, target_ref)
+        sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
+        if desc := extremum_description(original, target_ref, sources):
+            add('goal', {'kind': goal['kind'], **({'symbol': original['symbol']} if 'symbol' in original else {'object': original['object']})}, source_refs=[target_ref])
+            add('function_extremum', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_extremum_goal'}, source_refs=[target_ref])
             continue
         from ..piecewise_inequality import describe as describe_piecewise_inequality
         from ..piecewise_inequality import relevant as piecewise_inequality_relevant

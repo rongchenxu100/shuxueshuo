@@ -348,6 +348,17 @@
     "monotonicity_difference": [
       "function-monotonicity#definition",
       "function-monotonicity#difference-quotient"
+    ],
+    "extremum_bounds": [
+      "function-range-extrema#extrema",
+      "function-range-extrema#attainability"
+    ],
+    "extremum_operations": [
+      "function-monotonicity-operations#sum-difference",
+      "function-monotonicity-operations#reciprocal"
+    ],
+    "extremum_cubic_order": [
+      "function-monotonicity#common-functions"
     ]
   }
 }

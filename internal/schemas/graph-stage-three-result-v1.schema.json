@@ -524,27 +524,56 @@
             "allOf": [
               {
                 "if": {
-                  "properties": {
-                    "answer": {
+                  "anyOf": [
+                    {
                       "properties": {
-                        "kind": {
-                          "enum": [
-                            "compare_functions",
-                            "find_value",
-                            "check_constant",
-                            "finite_sum",
-                            "find_function_formula",
-                            "select_function_graph",
-                            "draw_function_graph",
-                            "solve_graph_inequality",
-                            "find_equation",
-                            "find_monotonic_intervals",
-                            "prove_monotonicity_on_interval"
-                          ]
+                        "answer": {
+                          "properties": {
+                            "kind": {
+                              "enum": [
+                                "compare_functions",
+                                "find_value",
+                                "check_constant",
+                                "finite_sum",
+                                "find_function_formula",
+                                "select_function_graph",
+                                "draw_function_graph",
+                                "solve_graph_inequality",
+                                "find_equation",
+                                "find_monotonic_intervals",
+                                "prove_monotonicity_on_interval"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "required": [
+                        "primary",
+                        "answer"
+                      ],
+                      "properties": {
+                        "primary": {
+                          "const": "type-monotonicity-extremum"
+                        },
+                        "answer": {
+                          "required": [
+                            "kind",
+                            "request_kind"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "derived_answer"
+                            },
+                            "request_kind": {
+                              "const": "extremum"
+                            }
+                          }
                         }
                       }
                     }
-                  }
+                  ]
                 },
                 "then": {
                   "properties": {

@@ -1338,10 +1338,13 @@
         }
       },
       {
-        "function": "polynomial_degree",
+        "function": "quadratic_or_separable_reciprocal",
         "inputs": {
           "expression": "$expression",
+          "relation": "$relation",
+          "parameter": "$parameter",
           "variable": "$x",
+          "domain": "$domain",
           "degree": 2
         }
       },

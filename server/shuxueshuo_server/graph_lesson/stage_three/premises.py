@@ -29,14 +29,14 @@ class UnknownPremise(ValueError):
 
 
 @lru_cache(maxsize=256)
-def parse_expression(text):
+def parse_expression(text, allow_conditions=False):
     """Compile a scalar through the stage-one binding and arithmetic pipeline."""
     report = NotationValidator().validate_root({"facts": [f"({text})=0"]})
     if not report.ok:
         raise UnknownPremise("invalid_expression")
     algebra = _Algebra(report.objects, {})
     value = algebra.expr(report.semantic["facts"][0][1])
-    if algebra.conditions:
+    if algebra.conditions and not allow_conditions:
         raise UnknownPremise("conditional_expression")
     return bounded_expand(value)
 
@@ -49,9 +49,15 @@ class FeatureMath:
         if key not in _REGISTERED_FEATURES:
             raise KeyError(f"selection.unregistered_feature:{key}")
         row = self.features.get(key, {})
-        if row.get("status") != "known":
+        # Conditional rows still carry a usable mathematical value; well-
+        # definedness provisos stay on the feature for later discharge.
+        if row.get("status") not in ("known", "conditional"):
             raise UnknownPremise(f"unknown_feature:{key}")
         return row["value"]
+
+    def _parse(self, text, *, feature_id):
+        row = self.features.get(feature_id, {})
+        return parse_expression(text, allow_conditions=row.get("status") == "conditional")
 
     @property
     def x(self):
@@ -72,7 +78,7 @@ class FeatureMath:
         value = self.value("normal_form")
         if value["operator"] not in (">", ">=") or value["rhs"] != "0":
             raise UnknownPremise("unsupported_normal_form")
-        result = parse_expression(value["expression"])
+        result = self._parse(value["expression"], feature_id="normal_form")
         if result.free_symbols - {self.x, self.parameter}:
             raise UnknownPremise("additional_free_variables")
         return result

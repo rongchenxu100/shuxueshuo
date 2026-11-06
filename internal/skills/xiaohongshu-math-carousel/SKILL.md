@@ -22,9 +22,10 @@ When generating or editing raster slides, also use the `imagegen` skill. Inspect
    - `知识点型`: explain what a concept is, why it is true, its conditions, representations, and one transfer question.
    - `解题方法型`: teach when to use a method, its decision signals, procedure, verification, common errors, and one transfer question.
    - `题型型`: expose a problem family's invariant structure, key transformation, worked application, variation, and one parallel problem.
+   - `专题门厅型`: paired topic gateway for a teaching topic page (打法 1). Map the topic's problem types; do **not** expand every method. Prefer this when the destination is `site/topics/<id>/` with multiple groups, and deep method carousels already exist or will follow.
 
 4. Choose one acquisition promise. Prefer a specific student pain point and observable payoff over a generic course label. Draft three titles, then choose the one that can be understood at a glance.
-5. Plan a five-to-seven-slide swipe narrative using the matching content-type pattern in the playbook. Give every slide one cognitive job. Do not force a proof into a self-test/reveal sequence or force every topic into seven slides.
+5. Plan the swipe narrative using the matching content-type pattern in the playbook. Topic gateways are usually 8–10 slides; method/problem-type stories stay near 5–7. Give every slide one cognitive job. Do not force a proof into a self-test/reveal sequence.
 6. Route each slide to exactly one rendering mode and record it in `source/slide-manifest.json`; start from `assets/slide-manifest-template.json` and resize its slide list to the actual carousel:
 
    - `svg`: use for precise mathematics and formula-heavy teaching layouts.
@@ -33,7 +34,7 @@ When generating or editing raster slides, also use the `imagegen` skill. Inspect
 
    Any graph, geometric construction, number line, interval, table, logical arrow, intersection, shaded solution set, or mathematical label requires `svg` or `hybrid`. SVG geometry must be derived from mathematical parameters, not eyeballed coordinates.
 7. Write the publication copy using `assets/post-copy-template.md`. Lead with the student problem, not a product announcement. Keep the explanation useful on its own, but reserve the worked interactive judgment for the website. Use a small, relevant tag set; omit internal-production tags such as `#codex` unless the post is explicitly about tooling.
-8. Build SVG or hybrid slides first, validate their mathematical invariants, then rasterize them with `scripts/render_svg_slides.cjs`. Generate raster-only layers one image per ImageGen call and save prompt summaries in `generation-prompts.md` when substantial. Never ask ImageGen to typeset final formulas or place exact graph points.
+8. Build SVG or hybrid slides first, validate their mathematical invariants, then rasterize them with `scripts/render_svg_slides.cjs` (set `NODE_PATH` to the workspace `node_modules` that provides `sharp`). For topic-gateway CTA phones, capture the real topic page at mobile viewport `390×844`, crop to `390×589`, and **composite after SVG render** (`source/composite-cta.cjs`) so the screenshot fills the screen; do not rely on SVG-embedded `<image>` alone. Generate raster-only layers one image per ImageGen call and save prompt summaries in `generation-prompts.md` when substantial. Never ask ImageGen to typeset final formulas or place exact graph points.
 9. Store the deliverables under:
 
    ```text
@@ -61,18 +62,31 @@ When generating or editing raster slides, also use the `imagegen` skill. Inspect
 
 11. Report the post type, rendering mode of every slide, saved title/copy path, SVG source paths, PNG paths, dimensions, and which exercise slides intentionally withhold the answer.
 
+## Topic Gateway Rules（专题门厅 / 打法 1）
+
+Use when shipping a topic entry post that pairs with a later or existing method deep-dive.
+
+- **Title shape:** `高一<专题名>｜典型题型有哪些？` (or equivalent student-facing question). Cover headline can be `<专题名>，典型题型有哪些？`.
+- **Exact type names:** Copy labels from the topic page / `teaching/topics/<id>.json` groups verbatim (e.g. `求函数的定义域`, not `求定义域`). CTA and self-test options use the same strings.
+- **Cover:** one teal full-width button `收藏这一篇就够了` (or the agreed CTA line) + one concise feature line per type. Features only; no worked solutions.
+- **Slide 02:** if the cover already lists features, do **not** repeat a signal→type map. Deepen with one typical stem per type (“各长什么样”).
+- **Middle slides:** one type per slide, or a half-page typical judgment when the type needs a decision tip without a full method walkthrough. Point to existing method carousels instead of re-teaching them.
+- **Self-test then CTA:** withhold the answer on the classification/self-test slide; put `shuxueshuo.com` + brand line on the following CTA. CTA phone shows the **matching topic page**, edge-to-edge.
+- **Brand:** practical teaching first; `美好皆配得，科学练习就能学好数学。` only on CTA footer and/or post-copy close. Content slides keep `先判断题型与方法，再动手做题`.
+- **Reference:** `site/assets/xiaohongshu/function-concepts-topic-guide-v1/` (concepts gateway); pair with method posts such as `function-formula-method-guide-v1` / `function-range-method-guide-v1`.
+
 ## Image Rules
 
 - Produce portrait `1080×1440` PNG images unless the user specifies another ratio.
 - Keep the cover's background, palette, typography hierarchy, borders, node shapes, and diagram language consistent across the set.
-- Give each slide one cognitive job. Avoid page screenshots, dense paragraphs, tiny formulas, and generic browser mockups as primary content.
+- Give each slide one cognitive job. Avoid dense paragraphs, tiny formulas, and generic browser mockups as primary teaching content. Topic CTA may use a real mobile topic-page screenshot inside the phone frame.
 - Render stable Unicode mathematics or clean typeset notation. Never expose raw TeX such as `\\Rightarrow`, `\\frac`, `\\mathbb`, or delimiter backslashes.
 - Treat the SVG as the source of truth for every precise diagram. Preserve the SVG alongside the exported PNG. Derive function intersections, roots, geometric centers, lengths, endpoint states, and shaded regions from the same underlying parameters.
 - Keep instructional text and mathematical labels as deterministic SVG text or paths even in hybrid mode. ImageGen may supply atmosphere or illustration, never the mathematical layer.
 - For the logic double-arrow component, use exactly one `p` node and one `q` node per component. Use `p→q` for “充分” and `q→p` for “必要”. Put `✓` or `✕` directly on its arrow line.
 - When comparing four condition relations, repeat the complete component in all four cells rather than showing one component plus a detached legend.
-- On the final slide, use a real stem and real choices. Do not reveal the answer, highlight a choice, or replace the question with an abstract “continue learning” panel.
-- Put `访问 shuxueshuo.com` in the final image. Do not write “从主页入口进入”.
+- On the self-test / transfer slide, use a real stem and real choices. Do not reveal the answer, highlight a choice, or replace the question with an abstract “continue learning” panel.
+- Put `访问 shuxueshuo.com` in the CTA image. Do not write “从主页入口进入”.
 
 ## Brand Line
 
@@ -105,6 +119,6 @@ Canonical product line for every Xiaohongshu carousel and video in this skill:
 - Number-line endpoints, excluded points, rays, and shading agree with strictness and domain restrictions.
 - Labels do not collide with lines, roots, fraction bars, radicals, points, or one another at phone size.
 - Set names and number-line labels come from the actual problem; mappings to `p` and `q` are introduced once without repeated prefixes.
-- The last slide contains a concrete unanswered question, readable choices, `shuxueshuo.com`, a precise reason to visit, and the brand line `美好皆配得，科学练习就能学好数学。`
+- Method/problem-type posts: the last slide contains a concrete unanswered question, readable choices, `shuxueshuo.com`, a precise reason to visit, and the brand line. Topic gateways may split self-test (no answer) and CTA (`shuxueshuo.com` + brand line + topic phone).
 - All Chinese characters, mathematical symbols, answer choices, and page numbers render correctly at phone size.
 - All files are `1080×1440`, sequentially named, and present in the repository; every `svg` or `hybrid` slide has a matching source entry in the manifest.

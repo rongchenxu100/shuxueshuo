@@ -66,11 +66,23 @@ def _call_equation(call):
             f'{call.get("substitution_latex", latex(call["substitution"]))}={latex(call["output"])}')
 
 
+def _choice_key(value):
+    """Normalize choice labels so equivalent TeX (e.g. \\mathbb{R} vs \\mathbb R) collapses."""
+    text = value[1:-1] if isinstance(value, str) and value.startswith('$') and value.endswith('$') else str(value)
+    return (text.replace(r'\mathbb{R}', r'\mathbb R')
+                .replace(r'\varnothing', r'\emptyset')
+                .replace(' ', ''))
+
+
 def _choice(answer, alternatives=()):
     answers = [answer]
+    seen = {_choice_key(answer)}
     for value in alternatives:
-        if value != answer and value not in answers:
-            answers.append(value)
+        key = _choice_key(value)
+        if key in seen:
+            continue
+        answers.append(value)
+        seen.add(key)
     return {'type': 'choice', 'field': 'answer', 'options': [
         {'value': f'o{index}', 'label': value} for index, value in enumerate(answers, 1)]}, {'one_of': ['o1']}
 

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a07-v2",
+  "title": "用值域包含求参数 · A07",
+  "page": "/topics/function-monotonicity/q07/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知 $g(x)=ax+1$，$a>0$，$f(x)=x^2+2x$。若 $\\forall x1\\in[-1,1]:\\exists x0\\in[-2,1]:g(x1)=f(x0)$，求实数 $a$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a07-v2.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t2-20261104/a07.json"
+}

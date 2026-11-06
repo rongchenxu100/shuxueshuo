@@ -167,6 +167,32 @@ test('a merged multi-part group expands both cards only on its final part', () =
   assert.ok(!streamGraphState(bundle, undone).usedBasis.includes('inequality-properties#addition'));
 });
 
+test('later same-title chunks preserve published decisions, saved answers and both evidence boundaries', () => {
+  const cards = [card(1), card(2)].map((item, index) => ({...item,
+    highlight: {caption: '结论', items: [{label: '结果', math: 'a'}], result: `条件 ${index + 1}`}}));
+  const groups = cards.map((item, index) => chunk([item], [{...part(`solve-${index}`),
+    card_group: 'solve', card_group_title: '求参数'}]));
+  let bundle = bundleFor(cards.slice(0, 1), groups.slice(0, 1));
+  let state = answer(bundle, selected(bundle));
+  const published = structuredClone(bundle.routes.discriminant.steps);
+  const saved = JSON.parse(JSON.stringify(state));
+  const complete = view(cards, groups, finished('discriminant'));
+  bundle = extendStreamBundle(bundle, complete, target, graph);
+  assert.deepEqual(bundle.routes.discriminant.steps.slice(0, 1), published);
+  assert.deepEqual(bundle.routes.discriminant.steps, bundleFor(cards, groups, finished('discriminant')).routes.discriminant.steps);
+  state = refreshStreamState(bundle, saved);
+  assert.deepEqual(state.run.completed, saved.run.completed);
+  assert.equal(currentDecision(bundle, state).id, 'solve-1');
+  state = answer(bundle, state);
+  assert.equal(state.done, true);
+  assert.deepEqual(state.run.completed.map(row => row.stream_last_part), [true, true]);
+  assert.deepEqual(state.run.completed.map(row => row.stream_steps), groups.map(group => group.steps));
+  assert.deepEqual(state.run.completed.map(row => row.results), [['条件 1'], ['条件 2']]);
+  const restored = refreshStreamState(bundle, JSON.parse(JSON.stringify(state)));
+  assert.equal(restored.done, true);
+  assert.deepEqual(streamGraphState(bundle, restored), streamGraphState(bundle, state));
+});
+
 test('a card result is carried by its last part and by a read card', () => {
   const highlight = result => ({caption: '结论', items: [{label: '结果', math: 'a'}], result});
   const cards = [{...card(1), highlight: highlight('$a \\geq h(x)$')}, {...card(2), highlight: highlight('$a \\geq \\sup h(x)$')}];

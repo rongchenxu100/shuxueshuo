@@ -127,6 +127,16 @@ class Canonical:
             body = self.functions[key(target)]
             argument = ast[2]
 
+            if body[:2] == ["call", "piecewise"]:
+                # A call is not permission to evaluate every conditional branch.
+                # In particular f(0) can be valid while an inactive branch has 1/x.
+                # The definition remains in the canonical facts; keep this call
+                # bound to that definition until the evaluator selects its branch.
+                atom = ["piecewise_application", target, self.math(argument)]
+                code = sha256(key(atom).encode()).hexdigest()
+                self.atoms[code] = atom
+                return sp.Symbol("n_" + code, real=True)
+
             def substitute(x):
                 if x == ["bound", "function_argument"]:
                     return argument

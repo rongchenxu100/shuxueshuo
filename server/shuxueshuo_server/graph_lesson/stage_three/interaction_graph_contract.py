@@ -67,6 +67,20 @@ def validate_graph(graph):
         if graph['kind'] == 'piecewise_curve':
             for segment in [*params['segments'], *params.get('reference', [])]:
                 _interval(segment['interval'], segment['interval_closed'])
+                low = segment['interval'][0] if segment['interval'][0] is not None else -math.inf
+                high = segment['interval'][1] if segment['interval'][1] is not None else math.inf
+                if segment.get('transform') == 'rational':
+                    a, b = segment['denominator']
+                    if not a:
+                        raise ValueError('interaction.graph_linear_denominator_required')
+                    pole = -b/a
+                    if low < pole < high or pole == low and segment['interval_closed'][0] or pole == high and segment['interval_closed'][1]:
+                        raise ValueError('interaction.graph_reciprocal_pole')
+                if segment.get('transform') == 'root_sum':
+                    a, b = segment['radicand']
+                    edge = low if a > 0 else high
+                    if a == 0 and b < 0 or a != 0 and (not math.isfinite(edge) or a*edge+b < -1e-12):
+                        raise ValueError('interaction.graph_root_domain')
             for piece in [*params.get('highlights', []), *params.get('interval_marks', [])]:
                 _interval([piece['from'], piece['to']], [piece['left_closed'], piece['right_closed']])
         if graph['kind'] == 'absolute_affine' and 'reference' in params:

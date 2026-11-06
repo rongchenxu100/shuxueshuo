@@ -68,6 +68,8 @@ def record_seed(state, fragment, *, template, values, frame_bindings=None):
         **{key: deepcopy(fragment[key]) for key in (
             "step_id", "math_step_sha256", "ordinal", "display_unit", "method_ref", "case_path")},
         "template": template,
+        # Host method of the route (may differ from method_ref under submethod).
+        "host_method": state.get("method"),
     }
     for key in ("branch_id", "branch_condition", 'option_context'):
         if key in fragment:

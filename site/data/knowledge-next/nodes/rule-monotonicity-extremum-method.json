@@ -1,0 +1,43 @@
+{
+  "id": "rule-monotonicity-extremum-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "最值题的选法判断",
+  "summary": "按直接最值、量词比较与指定最值条件选择路线。",
+  "source": "函数单调性 FM-T1",
+  "input": "原题所求目标及已知最值条件。",
+  "output": "原目标对应的适用方法。",
+  "conditions": "适用但尚未展开的方法不记作错误。",
+  "branches": [
+    {
+      "id": "direct",
+      "title": "单调性求最值法",
+      "condition": "根据同一区间的增减确定位置，检查取得性，再回代原式。",
+      "target": "method-monotonicity-extremum"
+    },
+    {
+      "id": "quantified",
+      "title": "量词比较求参法",
+      "condition": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。",
+      "target": "method-quantified-range-comparison"
+    },
+    {
+      "id": "specified",
+      "title": "指定最值求参法",
+      "condition": "求指定点的实际值，再检查全域界，合并每段的参数要求。",
+      "target": "method-extremum-condition-parameter"
+    }
+  ],
+  "examples": [
+    {
+      "title": "单调函数的最大值",
+      "prompt": "求 $f(x)=\\frac{2x+1}{x+3}$ 在 $[-2,2]$ 上的最大值。",
+      "solution": [
+        "分离为 $2-\\frac5{x+3}$；分母在本区间为正。",
+        "取倒数反序，乘负数再反序，加常数保序，所以原函数递增。",
+        "右端点可以取到，$f(2)=1$。"
+      ],
+      "source": "函数单调性 FM-T2"
+    }
+  ]
+}

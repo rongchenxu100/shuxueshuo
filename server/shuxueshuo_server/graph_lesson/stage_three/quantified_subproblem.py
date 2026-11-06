@@ -17,9 +17,39 @@ def presentation(values):
             'subproblem_caption': '转化后的不等式'}
 
 
+def _independent_select(values, interaction_id):
+    """Param-free piece: no separation / interval-extremum plane; verify the inequality."""
+    x, p = latex(values['x']), latex(values['parameter'])
+    domain, relation = latex(values['domain']), latex(values['universal_statement'])
+    question = (
+        rf'当前子问题为 $\forall {x}\in {domain},\ {relation}$。'
+        f'式子中不含参数 ${p}$，应怎样处理这一段？'
+    )
+    options = [
+        {'value': 'verify',
+         'label': rf'本段不含 ${p}$，直接验证不等式是否在定义域上恒成立；成立则对 ${p}$ 无额外限制'},
+        {'value': 'separate', 'label': '仍按分离参数求参'},
+        {'value': 'interval', 'label': '仍按区间最值求参'},
+        {'value': 'skip', 'label': '本段可以跳过，不必检查'},
+    ]
+    return {'parts': [{
+        'id': interaction_id + '#1', 'title': '选择恒成立问题的解题方法',
+        'question': question, 'submit_label': '确认处理方式',
+        'interaction': {'type': 'choice', 'field': 'answer', 'options': options},
+        'expected_answer': {'one_of': ['verify']},
+        'feedback': {
+            'answer': rf'不含 ${p}$ 时不能再分离或求参；验证恒成立后，该段贡献 $\mathbb{{R}}$ 或空集。',
+        },
+        'effects': {'log': '本段不含参数，改为直接验证恒成立。'},
+    }], 'diagnostics': [{'kind': 'checked_independent_piece_select', 'passed': True}]}
+
+
 def compile_step(seeds, interaction_id):
     values = decode_value(seeds[0]['values'])
     if values['phase'] == 'select':
+        # Param-free pieces cannot place separation / interval-extremum for a.
+        if values['parameter'] not in values['universal_statement'].free_symbols:
+            return _independent_select(values, interaction_id)
         result = compile_borrow_plane(values, interaction_id)
         result['parts'][0]['title'] = '选择恒成立问题的解题方法'
         return result

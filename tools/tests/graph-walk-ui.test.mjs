@@ -247,7 +247,8 @@ test('domain self-mode only shows solved conditions before the final answer is a
   const before = run(`domainPremisesHTML(testDecision, 'test')`);
   assert.match(before, /CONDITION/);
   assert.doesNotMatch(before, /FINAL_RESULT|ENDPOINT_REASON/);
-  assert.doesNotMatch(run(`domainPremisesHTML({condition_number_lines: [line]}, 'solve')`), /CONDITION/);
+  assert.match(run(`domainPremisesHTML({condition_number_lines: [line]}, 'solve')`), /CONDITION/);
+  assert.equal(run(`domainPremisesHTML({condition_number_lines: []}, 'solve')`), '');
   const after = run(`completionFiguresHTML(testDecision, 'test', 'accepted')`);
   assert.match(after, /FINAL_RESULT/);
   assert.match(after, /ENDPOINT_REASON/);
@@ -513,8 +514,42 @@ test('the parts of one streamed interaction share a card, a step number and one 
   assert.equal((done.match(/class="gw-completed"/g) || []).length, 1);
   assert.match(done, /data-completed-decision="sep#3"[\s\S]*aria-label="第 3 步"[\s\S]*分离参数<\/span>/);
   assert.match(done, /data-stream-completed="sep#3"><\/div><\/div><\/details>$/);
-  assert.doesNotMatch(done, /gw-part-row|查看各小问作答/);
+  assert.equal((done.match(/class="gw-part-row"/g) || []).length, 3);
+  assert.doesNotMatch(done, /查看各小问作答/);
   assert.match(run('carryHTML()'), /接第 3 步 · 分离参数/);
+});
+
+test('adjacent same-title chunks share only the display card, retaining both proofs and scope boundaries', () => {
+  const {context, run} = viewContext();
+  const part = (id, step) => ({id, source: 'stream', title: step, stream_group_title: '求参数', stream_card_group: 'solve',
+    stream_interaction_id: id, stream_part_index: 0, stream_part_count: 1, stream_last_part: true,
+    stream_steps: [{step_id: step, math_step_sha256: step}], interaction: {type: 'read'}});
+  context.fixture.stream = {target_ref: '/root/goals/0', math_steps: []};
+  const first = part('conditions', '条件'), last = part('conclude', '结论');
+  context.fixture.routes.test = {steps: [first]};
+  context.fixture.stream.math_steps = [
+    {step_id: '条件', math_step_sha256: '条件', target_ref: '/root/goals/0', route_id: 'test', explanation: '已有条件推导'},
+    {step_id: '结论', math_step_sha256: '结论', target_ref: '/root/goals/0', route_id: 'test', highlight: {conclusion_only: true}},
+  ];
+  last.feedback = {answer: '补充结论说明'};
+  context.next = last;
+  run(`bundle = fixture; state = {run: {id: 1, route: 'test', completed: [{decision: 'conditions', answer: 'read'}]}, events: []};`);
+  assert.equal(run('stepUnits().units.length'), 1);
+  run('bundle.routes.test.steps.push(next);');
+  assert.equal(run('stepUnits().units.length'), 0);
+  assert.equal(run('stepUnits().open.records[0].decision'), 'conditions');
+  assert.match(run('partStepperHTML(next)'), /data-state="current" aria-current="step"><span aria-hidden="true">2/);
+  run(`state.run.completed.push({decision: 'conclude', answer: 'read'});`);
+  const done = run('groupCompletedHTML(stepUnits().units[0], 1)');
+  assert.equal((done.match(/class="gw-completed"/g) || []).length, 1);
+  assert.match(done, /data-stream-completed="conditions"/);
+  assert.match(done, /data-stream-completed="conclude"/);
+  assert.match(done, /补充结论说明/);
+  assert.equal(run('bundle.routes.test.steps[0].stream_last_part'), true);
+  assert.equal(run('bundle.routes.test.steps[1].stream_part_index'), 0);
+  run(`bundle.routes.test.steps[0].option_context = {option_id: 'A'};
+    bundle.routes.test.steps[1].option_context = {option_id: 'B'};`);
+  assert.equal(run('stepUnits().units.length'), 2, 'different original options must keep separate cards');
 });
 
 test('call records use the authored method step title', () => {
