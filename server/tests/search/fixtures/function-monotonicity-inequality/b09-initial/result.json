@@ -1,0 +1,1895 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "reviewed_candidate",
+  "source_reviewed": true,
+  "public_candidate": {
+    "original_text": "9.已知函数 $f(x)=\\begin{cases}3x,\\ x\\ge 3\\\\ -x^2+6x,\\ x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+      ],
+      "facts": [
+        "f(x^2-2*x) < f(3*x-4)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(f(1))"
+        },
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\begin{cases}3x,\\ x\\ge 3\\\\ -x^2+6x,\\ x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            },
+            {
+              "target_ref": "/root/goals/1",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "9.已知函数 $f(x)=\\begin{cases}3x,\\ x\\ge 3\\\\ -x^2+6x,\\ x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+      ],
+      "facts": [
+        "f(x^2-2*x) < f(3*x-4)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(f(1))"
+        },
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": "03a67db51022fbf15f2df4704f646758222a6cf9b7d8190e859422d5a7c486e5",
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_value"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "known",
+      "value": {
+        "kind": "find_value",
+        "target_ref": "/root/goals/0",
+        "source_ref": "/root/goals/0",
+        "expression_ast": [
+          "function_call",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          [
+            "function_call",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ]
+        ],
+        "functions": [
+          {
+            "function_ref": "r:function:f",
+            "function_name": "f",
+            "variable": "x",
+            "source_ref": "/root/definitions/0",
+            "expression_ast": [
+              "call",
+              "piecewise",
+              [
+                "*",
+                [
+                  "number",
+                  "3"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ],
+              [
+                ">=",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "6"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "<",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ],
+            "input_domain_ast": [
+              "real"
+            ],
+            "explicit_domain": false
+          }
+        ],
+        "terms": [],
+        "variable_ref": "",
+        "variable": "",
+        "input_domain_ast": [
+          "real"
+        ],
+        "structure_supported": true,
+        "reason": "",
+        "structure_version": "function-evaluation/v1"
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/definitions/0",
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "monotonicity-inequality/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-extremum/v1",
+      "knowledge_refs": [
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-monotonicity/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-modeling/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-range-parameter/v1",
+      "knowledge_refs": [
+        "piecewise-function#domain-range"
+      ]
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-inequality/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#inequality"
+      ]
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "piecewise-equation/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#equation"
+      ]
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-graph/v5",
+      "knowledge_refs": [
+        "function-representations#graph",
+        "function-graph-transformations#translation"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v9",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/0",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/0"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_evaluation_goal"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "known",
+      "value": {
+        "kind": "find_range",
+        "symbol": "x"
+      },
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "known",
+      "value": {
+        "structure_version": "piecewise-inequality/v1",
+        "structure_supported": true,
+        "reason": "",
+        "target_ref": "/root/goals/1",
+        "goal_ast": {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:scalar:x",
+            "scalar"
+          ]
+        },
+        "variable_ast": [
+          "ref",
+          "r:scalar:x",
+          "scalar"
+        ],
+        "variable": "x",
+        "sources": [
+          {
+            "source_ref": "/root/definitions/0",
+            "expression": "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)",
+            "ast": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "piecewise",
+                [
+                  "*",
+                  [
+                    "number",
+                    "3"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "6"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "source_ref": "/root/facts/0",
+            "expression": "f(x^2-2*x) < f(3*x-4)",
+            "ast": [
+              "<",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:x",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:x",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "3"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:x",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "4"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "source_refs": [
+          "/root/goals/1",
+          "/root/definitions/0",
+          "/root/facts/0"
+        ]
+      },
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/definitions/0",
+        "/root/facts/0",
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [],
+      "extractor_version": "piecewise-inequality/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#inequality"
+      ]
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "monotonicity-inequality/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-extremum/v1",
+      "knowledge_refs": [
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-monotonicity/v1",
+      "knowledge_refs": [
+        "function-monotonicity#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "piecewise-modeling/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition"
+      ]
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "piecewise-range-parameter/v1",
+      "knowledge_refs": [
+        "piecewise-function#domain-range"
+      ]
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "piecewise-equation/v1",
+      "knowledge_refs": [
+        "piecewise-function#definition",
+        "piecewise-function#equation"
+      ]
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-graph/v5",
+      "knowledge_refs": [
+        "function-representations#graph",
+        "function-graph-transformations#translation"
+      ]
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-formula-root/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-representations#analytic"
+      ]
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "translation-range/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "abstract-function-range-coverage/v1",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-range-answer-request/v9",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-range-extrema#attainability"
+      ]
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-evaluation-structural/v1",
+      "knowledge_refs": [
+        "function-concept#definition",
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "function-comparison-domain-first/v2",
+      "knowledge_refs": [
+        "function-concept#identity"
+      ]
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "abstract-function-domain-mixed-and-parameter/v4",
+      "knowledge_refs": [
+        "function-concept#elements",
+        "function-concept#composite-domain"
+      ]
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "fixed-rational-polynomial-function-domain/v6",
+      "knowledge_refs": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#universal",
+        "quantifiers#existential"
+      ]
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "domain"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#domain"
+      ]
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "quantifier"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "relation"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-inequality#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "bound_vars"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "normal_form",
+        "goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quadratic-function-properties#definition"
+      ]
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "target_ref": "/root/goals/1",
+      "status": "unknown",
+      "value": null,
+      "conditions": [],
+      "dependencies": [
+        "degree_in_bound",
+        "degree_in_goal"
+      ],
+      "source_refs": [
+        "/root/goals/1"
+      ],
+      "calculation": {
+        "operation": "read_bound_ast"
+      },
+      "diagnostics": [
+        {
+          "code": "feature.not_piecewise_inequality"
+        }
+      ],
+      "extractor_version": "structural-polynomial/v1",
+      "knowledge_refs": [
+        "quantifiers#roles"
+      ]
+    }
+  ],
+  "features_ok": true,
+  "feature_diagnostics": [],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "99a66d6bc4ae88c8b2529aa46b9e4e182c2eb6aa6239a4f5ebe960cc2b8db1e7",
+  "sent_image_sha256": [
+    "99a66d6bc4ae88c8b2529aa46b9e4e182c2eb6aa6239a4f5ebe960cc2b8db1e7"
+  ],
+  "elapsed_seconds": 39.033,
+  "figure_attempts": [],
+  "stored_original_sha256": "69501a4090ff9d553329de5cdd20673250ab4d207f1b083640ec2fb31ff870c3"
+}

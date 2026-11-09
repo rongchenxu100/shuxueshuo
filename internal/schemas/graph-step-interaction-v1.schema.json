@@ -206,6 +206,8 @@
         },
         "place": {
           "enum": [
+            "above",
+            "below",
             "above-right",
             "above-left",
             "below-right",

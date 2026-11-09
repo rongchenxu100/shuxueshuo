@@ -132,8 +132,11 @@ def build_context(candidate, target_ref):
     from ..piecewise_inequality import inspect_target as inspect_piecewise_inequality
     from ..piecewise_inequality import relevant as piecewise_inequality_relevant
     from ..extremum_math import routed_description as extremum_description
+    from ..monotonicity_inequality_math import routed_description as mono_inequality_description
     source_entries = [{k: r[k] for k in ('source_ref', 'expression')} for r in entries]
-    if desc := extremum_description(goal, target_ref, source_entries):
+    if desc := mono_inequality_description(goal, target_ref, source_entries):
+        context['mono_inequality_goal'] = desc
+    elif desc := extremum_description(goal, target_ref, source_entries):
         context['extremum_goal'] = desc
     elif 'pricing' in goal_ast:
         from ..piecewise_modeling import admitted, equation_description, inspect_target

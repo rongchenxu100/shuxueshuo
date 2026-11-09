@@ -1,0 +1,38 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b13-v1",
+  "reviewer": "Codex：依据用户原图与 T3 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B13，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 的定义域为 $[0,+\\infty)$，且 $f(x)$ 是增函数。若 $f(2x-1)<f(\\frac{1}{3})$，则 $x$ 的取值范围是______。",
+    "root": {
+      "definitions": [],
+      "facts": [
+        "f(2*x-1)<f(1/3)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "[0,+∞)",
+            "direction": "increasing",
+            "strict": true,
+            "function_domain": "[0,+∞)"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "[1/2,2/3)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

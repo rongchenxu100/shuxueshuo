@@ -136,7 +136,11 @@
       "transfer_monotonicity"
     ],
     "skill-piecewise-order-join": [
-      "join_monotonicity"
+      "join_monotonicity",
+      "confirm_monotonicity_inequality_basis"
+    ],
+    "method-piecewise-monotonicity": [
+      "submethod"
     ],
     "skill-factor": [
       "factor_monotonicity_difference"
@@ -149,6 +153,9 @@
     ],
     "skill-monotonicity-operations": [
       "confirm_extremum_children"
+    ],
+    "skill-monotonicity-order": [
+      "confirm_monotonicity_order"
     ],
     "method-interval-extremum": [
       "submethod"
@@ -279,8 +286,14 @@
     "filter_piecewise_branches": [
       "method-piecewise-equation#filter"
     ],
+    "analyze_piecewise_inequality_route": [
+      "method-piecewise-inequality#route"
+    ],
     "filter_piecewise_inequality": [
       "method-piecewise-inequality#filter"
+    ],
+    "solve_piecewise_two_input_cases": [
+      "method-piecewise-inequality#two-inputs"
     ],
     "prepare_piecewise_range": [
       "method-piecewise-range#prepare"
@@ -329,6 +342,22 @@
       "method-monotonicity-extremum#prepare",
       "method-quantified-range-comparison#prepare",
       "method-extremum-condition-parameter#prepare"
+    ],
+    "analyze_monotonicity_inequality": [
+      "method-monotonicity-inequality#prepare"
+    ],
+    "prepare_monotonicity_inequality_basis": [
+      "method-monotonicity-inequality#prepare"
+    ],
+    "confirm_monotonicity_inequality_basis": [
+      "method-monotonicity-inequality#basis-confirm"
+    ],
+    "confirm_monotonicity_order": [
+      "method-monotonicity-inequality#order"
+    ],
+    "confirm_monotonicity_inequality": [
+      "method-monotonicity-inequality#inputs",
+      "method-monotonicity-inequality#conclude"
     ],
     "prepare_extremum_children": [
       "method-monotonicity-extremum#prepare"

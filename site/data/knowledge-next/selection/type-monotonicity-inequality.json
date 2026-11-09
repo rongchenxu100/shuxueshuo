@@ -1,0 +1,15 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-monotonicity-inequality",
+  "admission": "monotonicity_inequality",
+  "rule": "rule-monotonicity-inequality-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-monotonicity-inequality",
+      "route_id": "monotonicity-inequality",
+      "admission": "monotonicity_inequality",
+      "label": "单调性解不等式法"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3581,
+      "prompt_tokens": 30009,
+      "total_tokens": 33590,
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 441
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 580,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-4e0fbc74-6ebe-4ce4-810f-13c43967afa7",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 9943,
+        "expires_at": 1794293172,
+        "uploaded_at": 1794206772.1126888
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "api_calls": 1,
+        "file_id": "file-api-4e0fbc74-6ebe-4ce4-810f-13c43967afa7",
+        "expires_at": 1794293172,
+        "elapsed_ms": 344
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 26870,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3581,
+          "prompt_tokens": 30009,
+          "total_tokens": 33590,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3343
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29568
+          },
+          "prompt_cache_hit_tokens": 29568,
+          "prompt_cache_miss_tokens": 441
+        },
+        "raw_payload": {
+          "id": "afacba19-247c-4341-a4a0-98c2b697debf",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3581,
+            "prompt_tokens": 30009,
+            "total_tokens": 33590,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3343
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29568
+            },
+            "prompt_cache_hit_tokens": 29568,
+            "prompt_cache_miss_tokens": 441
+          },
+          "created": 1794206772,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意。图片显示题目：12. 若函数 f(x)= { x^2+1, x≥0 ; 1, x<0 }，则不等式 f(1-x^2)>f(2x) 的解集合是____。手写答案 [0,+∞) 不算题设。需要输出 original_text, root, public_content。无小问。题目是求不等式解集，属于对未知数 x 的 find_range，该不等式作为条件。函数定义分段。目标 {\"kind\":\"find_range\",\"symbol\":\"x\"}，facts 写不等式 f(1-x^2)>f(2x)？根据规则“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。root 里 definitions 放函数分段定义 f(x)=piecewise(x^2+1,x≥0,1,x<0)；facts 放 f(1-x^2)>f(2*x)？注意受控字符串中幂用 ^，乘法 *。目标 symbol x，不能加 object。原题手写答案不转录。original_text 保留题号12可。public_content 中 statement 排除题号和手写答案，保留题目。completeness complete，privacy separated? 题号、手写答案不在公开字段；但 original_text 含题号可以；公开字段排除。手写答案不是题目内容。privacy separated 是可以的，因为没有个人信息。figure none。root facts 中不等式表达式使用 f(1-x^2)>f(2*x)，注意函数调用。definitions 分段定义字符串：f(x)=piecewise(x^2+1,x>=0,1,x<0)。题面用 ≥ 控制字符。目录里 piecewise 条件比较。确保受控数学式。符号 x。public_content scopes 对应 root，scope_ref /root。statement 写“若函数 $f(x)=\\begin{cases}...\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是____。” 但不能用 \\begin? 可以公式用 $...$，需要写分段。public_content 公式可以用 LaTeX 或 Unicode，不化简。原题中的函数：f(x)= { x²+1, x≥0; 1, x<0 }。statement 应完整。choices 每个目标无选项：target_ref /root/goals/0, status none, selection_mode none, options []。root.uncertainties 可省略或空数组？Schema 可省略。label 可选。不要多字段。figure_detection status none, regions []。\n\n需要检查是否应该使用 find_range 的 symbol，而不是 object。原题是解不等式 f(1-x^2)>f(2x)，求 x 解集。所以 target {\"kind\":\"find_range\",\"symbol\":\"x\"}，facts 保留不等式。定义 f 分段。注意 root.definitions 仅函数定义。原始题干中分段函数。表达式 f(1-x^2) 和 f(2x) 中 2x 应写 2*x，1-x^2 写 1-x^2。facts 写 \"f(1-x^2) > f(2*x)\"。是。\n\n需要 original_text 包括手写答案吗？指示：学生手写的答案、涂改和批注不是题目内容：不转录，看不清也不报告。填空处照印刷原样写横线。所以 original_text 中解集合是____ 不写 [0,+∞)。图片里横线后手写答案。写成“解集合是____”。保留题号12. 可以。\n\npublic_content statement 不要小问编号和题号。题号“12.”是来源，公开排除。公式用 $…$。需要包括函数分段和不等式及填空。可以写成：“若函数 $f(x)=\\begin{cases}x^2+1,&x\\ge 0\\\\1,&x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是____。” 但系统说公式用 $…$ 包围，不禁止 LaTeX。public_content 中的 text 同样。不过 original_text 中也可以用 LaTeX 或 Unicode。我们使用 Unicode 分段表示可能更清晰。original_text 可以保留题面变量、符号、量词措辞。用 LaTeX 写分段，需要注意 JSON 字符串反斜杠必须双写。例如 \"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,&x\\\\ge 0\\\\\\\\1,&x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 但“解集合”原图是“解集合是”还是“解集是”？图片显示“的解集合是”？看文字：“则不等式f(1-x^2)>f(2x)的解集合是 [0,+∞)” 看起来“解集合是”三个字。原图可能“解集是”？ 让我们仔细看： “的解集合是” 似乎有“合”字？截图文字显示“解集合是”在横线前： \"的解集合是_______\" 我们看图像：在 “则不等式 f(1-x^2)>f(2x) 的解集合是 [0,+∞)” 是的，有“解集合是”可能是“解集是”吗？图片中“解”后似乎是“集合是”？ 扩大看字形： \"的解集合是\" 中间有“合”字。就照读“解集合是”。不过常见表述“解集是”。用户 OCR 描述中：“则不等式f(1-x^2)>f(2x)的解集合是 [0,+∞)” 这是给的图像，文本中有“解集合是”可能性。原图：在“解”后面两个字形状是“集合”。使用“解集合是”忠实。手写答案不转录。横线原样写“____”。\n\nroot definitions 分段函数： \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" 控制目录允许 piecewise, conditions using >=。不要用 \\ge。facts: \"f(1-x^2) > f(2*x)\"。目标 symbol x。是否需要在 facts 中写定义域？函数定义已经分段覆盖实数，不需要。\n\npublic_content privacy：没有姓名等，题号已排除，可以 separated。completeness complete。figure not_required。root_label_role 不需要因为没有 root.label。public_content.figure_detection none。\n\n需要注意 public_content.scopes 中 statement 是否包含“解集合是____”填空。是的。\n\n目标无选项，status none。target_ref /root/goals/0。\n\nJSON 严格。没有多余字段。original_text 中公式可以用 Unicode 避免反斜杠转义复杂。比如 \"12. 若函数 $f(x)=\\\\{x^2+1,x\\\\ge 0; 1,x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 但用 $ ... $ 内集合花括号写成 \\{ \\}，因为规则 original_text 的 $…$ 内集合花括号写成 \\{ \\}。分段函数用花括号，需要写 \\{。但分段结构使用 cases 可以避免集合花括号歧义？ 可以写 $f(x)=\\begin{cases}x^2+1,&x\\ge 0\\\\1,&x<0\\end{cases}$，其中 cases 环境没有裸花括号？ 有反斜杠。JSON 双写。也可以用分段文字：“f(x)= {x^2+1, x≥0; 1, x<0}” 但要满足原图。original_text 公式可以用 LaTeX。因为规则要求 $…$ 内集合花括号写成 \\{ \\}（如 $\\{a\\} \\subseteq M$），裸花括号只是分组、显示时会消失。如果写 \\begin{cases}...\\end{cases} 中花括号是 LaTeX 命令参数，反斜杠 cases 后有花括号，需不需要转义？它说集合花括号写成 \\{ \\}，不是所有 LaTeX 花括号。为安全，在 original_text 中使用 \\left\\{ \\begin{array}{ll} ... \\end{array} \\right. 需要反斜杠。这麻烦。可以用 Unicode 分段表示：$f(x)=\\{x^2+1,x\\ge0;\\;1,x<0\\}$，这里集合花括号写成 \\{ \\}，符合。这样显示会是一行，但可以。public_content 同样用此公式。或者使用 cases 环境，它不是集合花括号，是排版命令。但规则可能检查裸花括号。最好避免 cases 环境，用 \\{ ... \\} 写成分段函数文本。公式：$f(x)=\\{x^2+1,\\ x\\ge0;\\ 1,\\ x<0\\}$。这可以清晰表示分段。在 original_text 中花括号已转义。public_content 中也一样。注意 public_content 公式中花括号也需不需要转义？规则只针对 original_text；public_content 公式用 $…$，没有特别说花括号转义，但为了 JSON 和显示，用 \\{ \\} 也可以。没关系。\n\noriginal_text 中“若函数$f(x)=\\{x^2+1,\\ x\\ge 0;\\ 1,\\ x<0\\}$” 反斜杠需双写为 \"\\\\{\", \"\\\\ge\"？JSON 字符串中反斜杠必须转义。所以实际字符串在 JSON 源中是 \"\\\\{\" -> 显示 \\{。同样 \"\\\\ge\" -> \\ge。需要保证输出 JSON 中反斜杠双写。public_content 同样。\n\n如果使用 Unicode ≥ 而不是 LaTeX \\ge，就减少转义。但集合花括号仍需 \\{。可以写成 $f(x)=\\{x^2+1, x \\ge 0; 1, x < 0\\}$ 含 \\ge 需要双写。可以使用 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$ 避免 \\ge 转义。这样花括号写成 \\{ \\} 只有两个反斜杠。JSON 源中 \"\\\\{\"。这最简单。original_text 公式：$f(x)=\\{x^2+1, x≥0; 1, x<0\\}$。显示正常。这使用 Unicode ≥。规则允许等义 Unicode。好。\n\nfacts 中函数定义使用控制字符串：f(x)=piecewise(x^2+1,x>=0,1,x<0)。这里 >= 是目录允许条件。不要使用 Unicode，因为受控字符串。好的。\n\n有没有其他条件如定义域？分段定义覆盖实数，无需 Dom(f)=ℝ? 题面并未明确写 Dom，但分段已覆盖，不必须添加。不要补充额外事实。\n\n目标符号 x，但求解不等式，目标 symbol x，不加 fact 的量词。facts 只放 f(1-x^2) > f(2*x)。记住 root 条件自动对目标可见。\n\npublic_content root statement：不需要题号。完整陈述。使用公式。由于这是只有一个作用域，scopes[0].statement 可以是\"若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" JSON 中需要写 \"\\\\{\"。要小心字符串转义：在最终 JSON 中，为了让内容包含反斜杠+花括号，必须写成 \"\\\\{\"。我会。但 plan 输出中直接写 JSON object。\n\nuncertainties 无。root 可省略 uncertainties，但为了明确可空数组？Schema 允许。输出时包含 definitions, facts, goals 即可。是否需要 label? 不要。\n\nfigure_detection 无图，status none，regions[]。public_content.figure not_required。\n\n注意 public_content.scopes statement 小问无编号；root 没有 label。fine。\n\nOriginal_text 含题号12可以，但不要手写。填空处照印刷原样写横线。图片中横线在“解集合是”后，手写答案覆盖。写\"____\"。不要写 [0,+∞)。好。\n\n检查 root.facts 中表达式的乘法：f(1-x^2)>f(2*x)。 1-x^2 是 1 减 x 平方，正确。f(2*x) 正确。如果原题写 2x，不写成 2x 在受控表达式，使用 2*x。好的。\n\n目标是否应该用 find_range, symbol x。函数定义和不等式是条件。解答集合是 x 范围。没有其他目标。是的。\n\npublic_content choices target_ref \"/root/goals/0\" status none etc. 需要 selection_mode \"none\", options []。不要 status complete，没有选项。题目是填空，无选项。所以 none。\n\ncompleteness complete：题干完整，填空未填。没有小问。好。\n\nprivacy：手写答案属于作答，公开字段没有。题号排除。根部 original_text 含题号，但 privacy 涵盖 root 内容？ public_content privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。可是 root 的 definitions/facts/goals 没有个人信息和题号。original_text 不在 privacy 检查？ privacy 描述“也涵盖 root 的所有内容”。root 没有题目来源。所以 separated。手写答案未进入 root。题号未进入 root label。公开 statement 没有题号。可以。\n\n不过“只有全部适合公开才可声明 separated”。手写答案不录。安全。\n\nfigure_detection target_ref? status none，regions []。无。\n\n需要确保没有回答答案。public_content statement 不含手写答案。嗯。\n\n有一个问题：original_text 中“解集合是____”这个填空横线是否原图印刷？图片显示横线是在手写 [0,+∞) 下方？原题有横线，但手写答案覆盖。我们照印刷原样写横线。可以。\n\n原文题号：图片可见“12.”，在左侧。写 \"12. \"。如果 privacy 考虑题号是来源，public_content 排除。original_text 可保留来源题号。规则说 original_text 可以保留来源题号。好。\n\nroot 的 definitions 中 f(x)=piecewise(...)。是否分段函数的第一段条件 x≥0 与第二 x<0，正确。函数在 x=0 第一段。原题是 x≥0。好。\n\n不要输出 answer_request。普通解不等式 find_range 不需要。\n\n现在生成 JSON。注意 JSON 中的字符串要正确转义反斜杠。我会输出最终 JSON。使用中文全角。公式中的反斜杠双写。例如 original_text: \"12. 若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 在 JSON 解析后，字符串包含 \\{。符合要求。public_content statement 同样。\n\n不过 $…$ 内的集合花括号写成 \\{ \\}；我用了 \"\\\\{\" 和 \"\\\\}\"。显示为 \\{ 和 \\}。好。\n\npublic_content statement 中的分号表示分段。可以。\n\nJSON 中中文引号无需转义。好。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 27235
+  },
+  "raw_payload": {
+    "id": "afacba19-247c-4341-a4a0-98c2b697debf",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意。图片显示题目：12. 若函数 f(x)= { x^2+1, x≥0 ; 1, x<0 }，则不等式 f(1-x^2)>f(2x) 的解集合是____。手写答案 [0,+∞) 不算题设。需要输出 original_text, root, public_content。无小问。题目是求不等式解集，属于对未知数 x 的 find_range，该不等式作为条件。函数定义分段。目标 {\"kind\":\"find_range\",\"symbol\":\"x\"}，facts 写不等式 f(1-x^2)>f(2x)？根据规则“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。root 里 definitions 放函数分段定义 f(x)=piecewise(x^2+1,x≥0,1,x<0)；facts 放 f(1-x^2)>f(2*x)？注意受控字符串中幂用 ^，乘法 *。目标 symbol x，不能加 object。原题手写答案不转录。original_text 保留题号12可。public_content 中 statement 排除题号和手写答案，保留题目。completeness complete，privacy separated? 题号、手写答案不在公开字段；但 original_text 含题号可以；公开字段排除。手写答案不是题目内容。privacy separated 是可以的，因为没有个人信息。figure none。root facts 中不等式表达式使用 f(1-x^2)>f(2*x)，注意函数调用。definitions 分段定义字符串：f(x)=piecewise(x^2+1,x>=0,1,x<0)。题面用 ≥ 控制字符。目录里 piecewise 条件比较。确保受控数学式。符号 x。public_content scopes 对应 root，scope_ref /root。statement 写“若函数 $f(x)=\\begin{cases}...\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是____。” 但不能用 \\begin? 可以公式用 $...$，需要写分段。public_content 公式可以用 LaTeX 或 Unicode，不化简。原题中的函数：f(x)= { x²+1, x≥0; 1, x<0 }。statement 应完整。choices 每个目标无选项：target_ref /root/goals/0, status none, selection_mode none, options []。root.uncertainties 可省略或空数组？Schema 可省略。label 可选。不要多字段。figure_detection status none, regions []。\n\n需要检查是否应该使用 find_range 的 symbol，而不是 object。原题是解不等式 f(1-x^2)>f(2x)，求 x 解集。所以 target {\"kind\":\"find_range\",\"symbol\":\"x\"}，facts 保留不等式。定义 f 分段。注意 root.definitions 仅函数定义。原始题干中分段函数。表达式 f(1-x^2) 和 f(2x) 中 2x 应写 2*x，1-x^2 写 1-x^2。facts 写 \"f(1-x^2) > f(2*x)\"。是。\n\n需要 original_text 包括手写答案吗？指示：学生手写的答案、涂改和批注不是题目内容：不转录，看不清也不报告。填空处照印刷原样写横线。所以 original_text 中解集合是____ 不写 [0,+∞)。图片里横线后手写答案。写成“解集合是____”。保留题号12. 可以。\n\npublic_content statement 不要小问编号和题号。题号“12.”是来源，公开排除。公式用 $…$。需要包括函数分段和不等式及填空。可以写成：“若函数 $f(x)=\\begin{cases}x^2+1,&x\\ge 0\\\\1,&x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是____。” 但系统说公式用 $…$ 包围，不禁止 LaTeX。public_content 中的 text 同样。不过 original_text 中也可以用 LaTeX 或 Unicode。我们使用 Unicode 分段表示可能更清晰。original_text 可以保留题面变量、符号、量词措辞。用 LaTeX 写分段，需要注意 JSON 字符串反斜杠必须双写。例如 \"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,&x\\\\ge 0\\\\\\\\1,&x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 但“解集合”原图是“解集合是”还是“解集是”？图片显示“的解集合是”？看文字：“则不等式f(1-x^2)>f(2x)的解集合是 [0,+∞)” 看起来“解集合是”三个字。原图可能“解集是”？ 让我们仔细看： “的解集合是” 似乎有“合”字？截图文字显示“解集合是”在横线前： \"的解集合是_______\" 我们看图像：在 “则不等式 f(1-x^2)>f(2x) 的解集合是 [0,+∞)” 是的，有“解集合是”可能是“解集是”吗？图片中“解”后似乎是“集合是”？ 扩大看字形： \"的解集合是\" 中间有“合”字。就照读“解集合是”。不过常见表述“解集是”。用户 OCR 描述中：“则不等式f(1-x^2)>f(2x)的解集合是 [0,+∞)” 这是给的图像，文本中有“解集合是”可能性。原图：在“解”后面两个字形状是“集合”。使用“解集合是”忠实。手写答案不转录。横线原样写“____”。\n\nroot definitions 分段函数： \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" 控制目录允许 piecewise, conditions using >=。不要用 \\ge。facts: \"f(1-x^2) > f(2*x)\"。目标 symbol x。是否需要在 facts 中写定义域？函数定义已经分段覆盖实数，不需要。\n\npublic_content privacy：没有姓名等，题号已排除，可以 separated。completeness complete。figure not_required。root_label_role 不需要因为没有 root.label。public_content.figure_detection none。\n\n需要注意 public_content.scopes 中 statement 是否包含“解集合是____”填空。是的。\n\n目标无选项，status none。target_ref /root/goals/0。\n\nJSON 严格。没有多余字段。original_text 中公式可以用 Unicode 避免反斜杠转义复杂。比如 \"12. 若函数 $f(x)=\\\\{x^2+1,x\\\\ge 0; 1,x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 但用 $ ... $ 内集合花括号写成 \\{ \\}，因为规则 original_text 的 $…$ 内集合花括号写成 \\{ \\}。分段函数用花括号，需要写 \\{。但分段结构使用 cases 可以避免集合花括号歧义？ 可以写 $f(x)=\\begin{cases}x^2+1,&x\\ge 0\\\\1,&x<0\\end{cases}$，其中 cases 环境没有裸花括号？ 有反斜杠。JSON 双写。也可以用分段文字：“f(x)= {x^2+1, x≥0; 1, x<0}” 但要满足原图。original_text 公式可以用 LaTeX。因为规则要求 $…$ 内集合花括号写成 \\{ \\}（如 $\\{a\\} \\subseteq M$），裸花括号只是分组、显示时会消失。如果写 \\begin{cases}...\\end{cases} 中花括号是 LaTeX 命令参数，反斜杠 cases 后有花括号，需不需要转义？它说集合花括号写成 \\{ \\}，不是所有 LaTeX 花括号。为安全，在 original_text 中使用 \\left\\{ \\begin{array}{ll} ... \\end{array} \\right. 需要反斜杠。这麻烦。可以用 Unicode 分段表示：$f(x)=\\{x^2+1,x\\ge0;\\;1,x<0\\}$，这里集合花括号写成 \\{ \\}，符合。这样显示会是一行，但可以。public_content 同样用此公式。或者使用 cases 环境，它不是集合花括号，是排版命令。但规则可能检查裸花括号。最好避免 cases 环境，用 \\{ ... \\} 写成分段函数文本。公式：$f(x)=\\{x^2+1,\\ x\\ge0;\\ 1,\\ x<0\\}$。这可以清晰表示分段。在 original_text 中花括号已转义。public_content 中也一样。注意 public_content 公式中花括号也需不需要转义？规则只针对 original_text；public_content 公式用 $…$，没有特别说花括号转义，但为了 JSON 和显示，用 \\{ \\} 也可以。没关系。\n\noriginal_text 中“若函数$f(x)=\\{x^2+1,\\ x\\ge 0;\\ 1,\\ x<0\\}$” 反斜杠需双写为 \"\\\\{\", \"\\\\ge\"？JSON 字符串中反斜杠必须转义。所以实际字符串在 JSON 源中是 \"\\\\{\" -> 显示 \\{。同样 \"\\\\ge\" -> \\ge。需要保证输出 JSON 中反斜杠双写。public_content 同样。\n\n如果使用 Unicode ≥ 而不是 LaTeX \\ge，就减少转义。但集合花括号仍需 \\{。可以写成 $f(x)=\\{x^2+1, x \\ge 0; 1, x < 0\\}$ 含 \\ge 需要双写。可以使用 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$ 避免 \\ge 转义。这样花括号写成 \\{ \\} 只有两个反斜杠。JSON 源中 \"\\\\{\"。这最简单。original_text 公式：$f(x)=\\{x^2+1, x≥0; 1, x<0\\}$。显示正常。这使用 Unicode ≥。规则允许等义 Unicode。好。\n\nfacts 中函数定义使用控制字符串：f(x)=piecewise(x^2+1,x>=0,1,x<0)。这里 >= 是目录允许条件。不要使用 Unicode，因为受控字符串。好的。\n\n有没有其他条件如定义域？分段定义覆盖实数，无需 Dom(f)=ℝ? 题面并未明确写 Dom，但分段已覆盖，不必须添加。不要补充额外事实。\n\n目标符号 x，但求解不等式，目标 symbol x，不加 fact 的量词。facts 只放 f(1-x^2) > f(2*x)。记住 root 条件自动对目标可见。\n\npublic_content root statement：不需要题号。完整陈述。使用公式。由于这是只有一个作用域，scopes[0].statement 可以是\"若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" JSON 中需要写 \"\\\\{\"。要小心字符串转义：在最终 JSON 中，为了让内容包含反斜杠+花括号，必须写成 \"\\\\{\"。我会。但 plan 输出中直接写 JSON object。\n\nuncertainties 无。root 可省略 uncertainties，但为了明确可空数组？Schema 允许。输出时包含 definitions, facts, goals 即可。是否需要 label? 不要。\n\nfigure_detection 无图，status none，regions[]。public_content.figure not_required。\n\n注意 public_content.scopes statement 小问无编号；root 没有 label。fine。\n\nOriginal_text 含题号12可以，但不要手写。填空处照印刷原样写横线。图片中横线在“解集合是”后，手写答案覆盖。写\"____\"。不要写 [0,+∞)。好。\n\n检查 root.facts 中表达式的乘法：f(1-x^2)>f(2*x)。 1-x^2 是 1 减 x 平方，正确。f(2*x) 正确。如果原题写 2x，不写成 2x 在受控表达式，使用 2*x。好的。\n\n目标是否应该用 find_range, symbol x。函数定义和不等式是条件。解答集合是 x 范围。没有其他目标。是的。\n\npublic_content choices target_ref \"/root/goals/0\" status none etc. 需要 selection_mode \"none\", options []。不要 status complete，没有选项。题目是填空，无选项。所以 none。\n\ncompleteness complete：题干完整，填空未填。没有小问。好。\n\nprivacy：手写答案属于作答，公开字段没有。题号排除。根部 original_text 含题号，但 privacy 涵盖 root 内容？ public_content privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。可是 root 的 definitions/facts/goals 没有个人信息和题号。original_text 不在 privacy 检查？ privacy 描述“也涵盖 root 的所有内容”。root 没有题目来源。所以 separated。手写答案未进入 root。题号未进入 root label。公开 statement 没有题号。可以。\n\n不过“只有全部适合公开才可声明 separated”。手写答案不录。安全。\n\nfigure_detection target_ref? status none，regions []。无。\n\n需要确保没有回答答案。public_content statement 不含手写答案。嗯。\n\n有一个问题：original_text 中“解集合是____”这个填空横线是否原图印刷？图片显示横线是在手写 [0,+∞) 下方？原题有横线，但手写答案覆盖。我们照印刷原样写横线。可以。\n\n原文题号：图片可见“12.”，在左侧。写 \"12. \"。如果 privacy 考虑题号是来源，public_content 排除。original_text 可保留来源题号。规则说 original_text 可以保留来源题号。好。\n\nroot 的 definitions 中 f(x)=piecewise(...)。是否分段函数的第一段条件 x≥0 与第二 x<0，正确。函数在 x=0 第一段。原题是 x≥0。好。\n\n不要输出 answer_request。普通解不等式 find_range 不需要。\n\n现在生成 JSON。注意 JSON 中的字符串要正确转义反斜杠。我会输出最终 JSON。使用中文全角。公式中的反斜杠双写。例如 original_text: \"12. 若函数 $f(x)=\\\\{x^2+1, x≥0; 1, x<0\\\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。\" 在 JSON 解析后，字符串包含 \\{。符合要求。public_content statement 同样。\n\n不过 $…$ 内的集合花括号写成 \\{ \\}；我用了 \"\\\\{\" 和 \"\\\\}\"。显示为 \\{ 和 \\}。好。\n\npublic_content statement 中的分号表示分段。可以。\n\nJSON 中中文引号无需转义。好。"
+        }
+      }
+    ],
+    "created": 1794206772,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3581,
+      "prompt_tokens": 30009,
+      "total_tokens": 33590,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3343,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29568
+      },
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 441
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 27.237
+}

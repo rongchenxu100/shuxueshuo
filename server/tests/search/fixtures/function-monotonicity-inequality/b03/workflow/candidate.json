@@ -1,0 +1,40 @@
+{
+  "original_text": "3. 已知函数 $f(x)=\\begin{cases}2x-1,x<1\\\\x^2,x\\ge 1\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______。",
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(2*x-1,x<1,x^2,x>=1)"
+    ],
+    "facts": [
+      "f(x^2+x+3) > f(3*x^2-3)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=\\begin{cases}2x-1,x<1\\\\x^2,x\\ge 1\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

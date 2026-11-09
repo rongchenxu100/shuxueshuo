@@ -1,0 +1,78 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b01-v1",
+  "label": "已知递增解不等式 · B01",
+  "path": "/topics/function-monotonicity/q05/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b01-v1.json",
+  "types": [
+    "type-monotonicity-inequality"
+  ],
+  "statement": "已知函数 $f$ 的定义域为 $(0,+\\infty)$，且 $f(x)$ 是增函数。若 $f(2x)<f(x+1)$，则 $x$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-inequality": {
+      "label": "单调性解不等式法",
+      "methods": [
+        "method-monotonicity-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "36840d5bad653aec3e19e71e#1": {
+          "title": "核对比较对象与单调性",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-inequality#prepare",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "bf4efddd9c60d1ee624b46ce#1": {
+          "title": "两个输入的合法条件",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-inequality#inputs",
+            "function-monotonicity#interval"
+          ]
+        },
+        "6bb022fd0fe1208cd8ed0475#1": {
+          "title": "利用单调性转化比较",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-inequality#order",
+            "skill-monotonicity-order",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "08f7915bcb7ac8463d0f04c5#1": {
+          "title": "回到原目标",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-inequality#conclude",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "302c64017b6d3d2e2f279d20681edf486a19cb603635b015b7ca768f1f1fde5a",
+  "practice_version": "b0087fafc394ea78440148f50e3e69a71722221a691015c7604022c41d7748dc"
+}

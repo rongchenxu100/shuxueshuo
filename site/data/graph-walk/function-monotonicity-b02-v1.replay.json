@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-b02-v1",
+  "bundleVersion": "[\"stream\",\"2f35385d723959780cb0c2f70965d04d981e8a8e320276d8049b46779270857a\",\"5fa79d4453604491f8132313d7ca7087bc48016567ce5acab346e68eaf4b3dd8\",\"8dd238fd2c664162ae5ead9f4a26bf1f\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "monotonicity-inequality"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-inequality"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "order"
+        ],
+        "method": "order",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "da4a41b690a04d28dd208190#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "f8ccb4d46d1e9d14632b1353#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "cbe17054bf430f1872648488#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "b72734e1bd5ad02a0a2a1c79#1",
+      "answer": "o1"
+    }
+  ]
+}

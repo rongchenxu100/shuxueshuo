@@ -1,0 +1,48 @@
+{
+  "recorded_at": "2026-11-09",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "reviewed_candidate",
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "historical_semantic_calls": 2,
+  "api_acceptance": {
+    "case": "b03",
+    "search_id": "16b5bb1470bc",
+    "recognition_status": "reviewed",
+    "lesson_status": "unsupported",
+    "elapsed_seconds": 26.366,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      },
+      {
+        "stage": "review",
+        "status": "completed"
+      }
+    ],
+    "status": "reviewed_candidate",
+    "recognition_seconds": 20.468
+  },
+  "files": {
+    "api-final.json": "47a0765a85b5a84bb9ba3a40de5e4ece627b15f0a260bb7d15373a3146480729",
+    "original.png": "6cb4b90468652031176ddc194710aadcd3fbcae57dd283fdfa43956c3f2b96e3",
+    "question.png": "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332",
+    "result.json": "acbee4dd057a9b2567edbc2683b9102ed1005d838b9f57f76fd287cf3e291bfc",
+    "source.json": "0a83d80218122ace3bb48a92892477c6426f75ea28f0556b853651e79675d5ff",
+    "workflow/calls/01-extract/file-operations.json": "83e98deeeecfddaa1b086464f8020106a73714e975f408f38eada7f357f8dbb6",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "c2a9e284d0ab48e6aca898943ffa7e107e357c4bcc7dd77067f31e10ddd95851",
+    "workflow/calls/01-extract/request.json": "a3bed99cf8e275accf4279af3785f33a93caef50671f9122d243739c261106ef",
+    "workflow/calls/01-extract/response.json": "4417e2ac54282f085abd23b8d78167a7e19677e984aec96c221abc0cbc48065c",
+    "workflow/calls/02-review/file-operations.json": "550e2bc1457953322e0328292d7157d630fcb9163ecf05929f95bbce41a9699e",
+    "workflow/calls/02-review/provider-attempts/01-request.json": "67c80ffb6641409ecc871b678fd884a923638f8871f308adc06e57847a80fdf3",
+    "workflow/calls/02-review/request.json": "931aa9fd82c71acb8f78fcd54074adf288a2ddfdb84ddce1cce3fd811db37573",
+    "workflow/calls/02-review/response.json": "090d427644be3baf217a44de2b889eb9133eb836911ba1b740afb662039c668a",
+    "workflow/candidate.json": "f68c0e05d433f5ae6725860d160026b404051b4e0a272ec4ff0b557469f83647",
+    "workflow/latest-review.json": "224da0157358f8cf88c3a64a8c40073b50b901b811fde43a875df60e93015d13",
+    "workflow/ledger.json": "7e92c0047ff571d477f5f1964ba186f3af4df17b6a4db63d02c5cf2522e0603e"
+  }
+}

@@ -1241,6 +1241,56 @@
       ]
     },
     {
+      "id": "method-monotonicity-inequality",
+      "kind": "method",
+      "label": "单调性解不等式法",
+      "summary": "检查两个输入落在同一严格单调区间，再按增减性把函数值比较转为输入比较，最后与合法域求交。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "核对比较对象与单调性",
+          "calls": []
+        },
+        {
+          "id": "basis-prove",
+          "title": "证明分段整体严格单调",
+          "calls": [
+            "method-piecewise-monotonicity"
+          ]
+        },
+        {
+          "id": "basis-confirm",
+          "title": "带回整体严格单调结论",
+          "calls": [
+            "skill-piecewise-order-join"
+          ]
+        },
+        {
+          "id": "inputs",
+          "title": "写出两个输入的合法条件",
+          "calls": []
+        },
+        {
+          "id": "order",
+          "title": "利用单调性转化比较",
+          "calls": [
+            "skill-monotonicity-order"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "解代数不等式并回到原目标",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "独立核验",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-monotonicity-structure",
       "kind": "method",
       "label": "基本函数与复合法",
@@ -1372,9 +1422,14 @@
       "id": "method-piecewise-inequality",
       "kind": "method",
       "label": "分段解不等式法",
-      "summary": "先确定比较值，逐段解不等式并与本段范围取交，最后合并。",
+      "summary": "先判断比较形态：常数阈值则求值后逐段求解；两个复合输入则按左右分支分类求解，最后合并。",
       "aliases": [],
       "steps": [
+        {
+          "id": "route",
+          "title": "判断比较形态",
+          "calls": []
+        },
         {
           "id": "level",
           "title": "求出比较值",
@@ -1399,6 +1454,16 @@
         {
           "id": "filter",
           "title": "检查本段范围并合并",
+          "calls": []
+        },
+        {
+          "id": "two-inputs",
+          "title": "按左右输入分支分类求解",
+          "calls": []
+        },
+        {
+          "id": "finalize",
+          "title": "汇总解集",
           "calls": []
         },
         {
@@ -2179,6 +2244,15 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "rule-monotonicity-inequality-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "单调性不等式的选法判断",
+      "summary": "同一函数的两个函数值比较时，优先用单调性解不等式；常值段或非严格时改走分段求解。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-piecewise-range-parameter",
       "kind": "judgment_rule",
       "subtype": "step_selection",
@@ -2358,6 +2432,13 @@
       "kind": "skill",
       "label": "运算增减性判断",
       "summary": "同一区间内判断和、差、常数倍、平移与倒数的方向。",
+      "aliases": []
+    },
+    {
+      "id": "skill-monotonicity-order",
+      "kind": "skill",
+      "label": "利用单调性转化不等式",
+      "summary": "在同一严格单调区间内，把函数值比较等价转为输入比较。",
       "aliases": []
     },
     {
@@ -2572,9 +2653,9 @@
       "id": "type-monotonicity-inequality",
       "kind": "problem_type",
       "label": "利用单调性解不等式",
-      "summary": "利用单调性解不等式；后续题型建设。",
+      "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -3843,6 +3924,42 @@
       ]
     },
     {
+      "id": "method-monotonicity-inequality|calls|method-piecewise-monotonicity",
+      "from": "method-monotonicity-inequality",
+      "to": "method-piecewise-monotonicity",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "basis-prove",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-inequality|calls|skill-monotonicity-order",
+      "from": "method-monotonicity-inequality",
+      "to": "skill-monotonicity-order",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "order",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-monotonicity-inequality|calls|skill-piecewise-order-join",
+      "from": "method-monotonicity-inequality",
+      "to": "skill-piecewise-order-join",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "basis-confirm",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-monotonicity-structure|calls|method-complete-square",
       "from": "method-monotonicity-structure",
       "to": "method-complete-square",
@@ -4952,6 +5069,18 @@
         {
           "branch": "quantified",
           "condition": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。"
+        }
+      ]
+    },
+    {
+      "id": "rule-monotonicity-inequality-method|selects|method-monotonicity-inequality",
+      "from": "rule-monotonicity-inequality-method",
+      "to": "method-monotonicity-inequality",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "order",
+          "condition": "同一函数的两个函数值比大小，且已有严格单调依据。"
         }
       ]
     },
@@ -6143,6 +6272,20 @@
       ]
     },
     {
+      "id": "skill-monotonicity-order|uses|function-monotonicity",
+      "from": "skill-monotonicity-order",
+      "to": "function-monotonicity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "definition"
+        },
+        {
+          "entry": "interval"
+        }
+      ]
+    },
+    {
       "id": "skill-piecewise-order-join|uses|function-monotonicity",
       "from": "skill-piecewise-order-join",
       "to": "function-monotonicity",
@@ -7178,10 +7321,28 @@
       ]
     },
     {
+      "id": "type-monotonicity-inequality|candidate|method-monotonicity-inequality",
+      "from": "type-monotonicity-inequality",
+      "to": "method-monotonicity-inequality",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-monotonicity-inequality|involves|function-monotonicity",
       "from": "type-monotonicity-inequality",
       "to": "function-monotonicity",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-inequality|method_rule|rule-monotonicity-inequality-method",
+      "from": "type-monotonicity-inequality",
+      "to": "rule-monotonicity-inequality-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

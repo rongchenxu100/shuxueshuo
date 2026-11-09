@@ -71,6 +71,38 @@ def test_verifier_rechecks_original_source_and_maximal_strict_intervals(monkeypa
     assert not verify(d, bad)
 
 
+@pytest.mark.parametrize('expr,inc,dec', [
+    ('piecewise(-x,x<0,x,x>=0)', [sp.Interval(0, sp.oo)], [sp.Interval(-sp.oo, 0)]),
+    ('piecewise(x,x<0,-x,x>=0)', [sp.Interval(-sp.oo, 0)], [sp.Interval(0, sp.oo)]),
+    ('piecewise(x,x<0,-x-1,x>=0)', [sp.Interval.open(-sp.oo, 0)], [sp.Interval(0, sp.oo)]),
+    ('piecewise(x,x<0,-x+1,x>=0)', [sp.Interval(-sp.oo, 0)], [sp.Interval(0, sp.oo)]),
+    ('piecewise(-x,x<=0,x,x>0)', [sp.Interval(0, sp.oo)], [sp.Interval(-sp.oo, 0)]),
+    ('piecewise(-x,x<0,x,x>0)', [sp.Interval.open(0, sp.oo)], [sp.Interval.open(-sp.oo, 0)]),
+])
+def test_explicit_piecewise_maximal_intervals_check_the_actual_junction_value(expr, inc, dec):
+    d = describe(goal(expr), TARGET)
+    m = solve(d, 'piecewise')
+    assert m['increasing_intervals'] == inc
+    assert m['decreasing_intervals'] == dec
+    assert verify(d, m)
+    for key in ('increasing_intervals', 'decreasing_intervals'):
+        region = m[key][0]
+        altered = deepcopy(m)
+        altered[key] = [sp.Interval(region.inf, region.sup,
+                                   left_open=not region.left_open if region.inf.is_finite else True,
+                                   right_open=not region.right_open if region.sup.is_finite else True)]
+        assert not verify(d, altered)
+
+
+def test_equal_constant_pieces_merge_but_distinct_constants_do_not():
+    for expr, expected in [('piecewise(1,x<0,1,x>=0)', [sp.Interval(-sp.oo, sp.oo)]),
+                           ('piecewise(1,x<0,2,x>=0)', [sp.Interval.open(-sp.oo, 0), sp.Interval(0, sp.oo)])]:
+        d = describe(goal(expr), TARGET)
+        m = solve(d, 'piecewise')
+        assert m['constant_intervals'] == expected
+        assert verify(d, m)
+
+
 def test_composite_proof_requires_the_outer_domain_and_every_direction():
     d = describe(goal('1/sqrt(x^2-5*x-6)'), TARGET); m = solve(d)
     assert [r['direction'] for r in m['partition']] == [1, -1]
@@ -336,6 +368,35 @@ def test_child_bindings_are_real_subproblems_and_cannot_be_replaced():
         join(context, results)
 
 
+@pytest.mark.parametrize('expr,domain,inc,dec,merge', [
+    ('piecewise(2*x-1,x<1,x^2,x>=1)', 'ℝ', [sp.Interval(-sp.oo, sp.oo)], [], [True]),
+    ('piecewise(-x^2+6*x,x<3,3*x,x>=3)', 'ℝ', [sp.Interval(-sp.oo, sp.oo)], [], [True]),
+    ('piecewise(x,x<0,x-2,x>=0)', 'ℝ', [sp.Interval.open(-sp.oo, 0), sp.Interval(0, sp.oo)], [], [False]),
+    ('piecewise(1,x<0,x^2+1,x>=0)', 'ℝ', [sp.Interval(0, sp.oo)], [], [False]),
+])
+def test_explicit_piecewise_image_order_controls_join(expr, domain, inc, dec, merge):
+    d = describe(goal(expr, input_domain=domain), TARGET)
+    assert d['family'] == 'explicit_piecewise'
+    m = solve(d, 'piecewise')
+    assert m['increasing_intervals'] == inc
+    assert m['decreasing_intervals'] == dec
+    assert [row['merge'] for row in m['junctions']] == merge
+    assert verify(d, m)
+
+
+def test_explicit_piecewise_prove_requires_cross_piece_order():
+    g = goal('piecewise(2*x-1,x<1,x^2,x>=1)', input_domain='ℝ', direction='increasing',
+             kind='prove_monotonicity_on_interval')
+    d = describe(g, TARGET)
+    m = solve(d, 'piecewise')
+    assert m['increasing_intervals'] == [sp.Interval(-sp.oo, sp.oo)]
+    assert verify(d, m)
+    bad = goal('piecewise(x,x<0,x-2,x>=0)', input_domain='ℝ', direction='increasing',
+               kind='prove_monotonicity_on_interval')
+    with pytest.raises(ValueError, match='requested_direction_false'):
+        solve(describe(bad, TARGET), 'piecewise')
+
+
 @pytest.mark.parametrize('expr,domain,method,inc,dec', [
     ('3*x^2-12*x+7', '[-1,5)', 'structure', [sp.Interval.Ropen(2, 5)], [sp.Interval(-1, 2)]),
     ('-2*x+5', '(-3,4]', 'definition', [], [sp.Interval.Lopen(-3, 4)]),
@@ -345,6 +406,7 @@ def test_child_bindings_are_real_subproblems_and_cannot_be_replaced():
     ('3*x+abs(2*x-2)', 'ℝ', 'piecewise', [sp.Interval(-sp.oo, sp.oo)], []),
     ('abs(x-2)', '[3,6]', 'piecewise', [sp.Interval(3, 6)], []),
     ('abs(x-2)', '[0,2]', 'piecewise', [], [sp.Interval(0, 2)]),
+    ('piecewise(2*x-1,x<1,x^2,x>=1)', 'ℝ', 'piecewise', [sp.Interval(-sp.oo, sp.oo)], []),
 ])
 def test_new_structural_variants_execute_real_children_and_compile_every_step(expr, domain, method, inc, dec):
     from shuxueshuo_server.graph_lesson.stage_one.features import extract_features

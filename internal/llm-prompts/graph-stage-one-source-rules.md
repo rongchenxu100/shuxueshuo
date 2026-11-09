@@ -87,4 +87,9 @@ compare_functions 的 select_relation 按题面分别取 equal（选相同）或
 
 已知“某点的函数值是最大／最小值”、求参数时，函数原定义与每段开闭条件保留，事实记 max_{x}(f(x))=f(c) 或 min_{x}(f(x))=f(c)，目标仍为 {"kind":"find_range","symbol":"原参数"}。这是已知最值条件，不是求 f(c)，也不是求单调区间；没有“唯一”不能自行添加唯一取等要求。指定点必须按原分段条件归属，提取阶段不代入计算、不将开端点补成闭端点。original_text 和公开题面保留“f(c) 为最大值”等原文，不改成内部的 max_{x} 记法。
 
+### 利用单调性解不等式（FM-T3，提取、复核、修复共用）
+“解不等式”“求解集”与“求未知数的取值范围”统一用 `{"kind":"find_range","symbol":"原未知数"}`，完整原不等式保存在同一作用域的 facts。这已经完整表示所求，复核不得仅因目标没有 expression 而报 wrong_goal；不要追加 relation/function/variable 等解析式求值用的字段。原题给出具体分段函数时，保留 definitions 中的原分支和每段开闭条件，不先证明单调性或填写证明结论；转录分段公式用标准 `\begin{cases}...\end{cases}`。
+
+原题明确给定抽象函数在区间上的严格递增／递减时，在该 find_range 目标的 function_monotonicity 中记录 function、domain、direction（increasing/decreasing）、strict=true、basis=given。这是原题条件的表示，不要再展开成含任意两点和蕴含符号的量词事实。domain 只表示题给单调区间；只有原题明确说明完整定义域时才填 function_domain，或保留同一事实 Dom(f)=原域。仅说“在某区间上单调”不等于定义域就是该区间；不能擅自补全，也不能为了得到全解补入两个复合输入均在该区间的条件。若题给具体函数而没有声明单调性，省略 function_monotonicity，不让模型计算或声称 proved_monotonicity。上述限制适用于提取、复核与修复。
+
 递推 f(x+h)=r*f(x) 与基准区间、全称前缀区间必须分别保留；乘数不等于周期，不能在提取阶段推导其他区间或省去负向延拓。尚未开放的递推前缀求最值仍照实提取、标明能力缺口，不假装为普通具体函数的区间最值。

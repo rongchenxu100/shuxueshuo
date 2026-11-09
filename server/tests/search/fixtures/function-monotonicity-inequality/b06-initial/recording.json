@@ -1,0 +1,38 @@
+{
+  "recorded_at": "2026-11-09",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "code_gap",
+  "call_stages": [
+    "extract"
+  ],
+  "historical_semantic_calls": 1,
+  "api_acceptance": {
+    "case": "b06",
+    "search_id": "a12eda16cc66",
+    "recognition_status": "failed",
+    "lesson_status": "not_started",
+    "elapsed_seconds": 17.127,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      }
+    ],
+    "status": "code_gap",
+    "recognition_seconds": 16.811
+  },
+  "files": {
+    "api-final.json": "37695df0a93066a919392544bb215862b76c19418cd4b2ca58860c5b23f99d1d",
+    "original.png": "0929e40f0b1bceb77abb336647e4e6951327ff36d8295e640711d57f9230c12e",
+    "question.png": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+    "result.json": "116b3dd28790d380b071a2cf0a2a9ffd89c799b6cd76341158c52dbe8b7b8369",
+    "source.json": "bb74118a17cf25c59b246a1dbfc9dea1d3477c025d5bdcb38d021235840b98b0",
+    "workflow/calls/01-extract/file-operations.json": "28f902edde7d144d48d56935ebf0baf44fe128f34be6ac60b026073a8d4f041f",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "378ab02b8f49f6763bb7cb01b1b8dc9e8d4554b819e60b42199d581ec042979e",
+    "workflow/calls/01-extract/request.json": "d3740ecc8d6bfc36b9252acfa180d543209e445e627b6a33e43ecf31487b3d2e",
+    "workflow/calls/01-extract/response.json": "d6cc3b669e5566ccc0017bff056ca862d9e87994fd4143ce3ab47f747bd23cac",
+    "workflow/candidate.json": "2b97fa1cd1053d8a5cffef7702d7817d881caecfd171620b872d17a0d5873db9",
+    "workflow/ledger.json": "e39e30568b75d051491b4f361f9d76e4606840d9e614e9753dd7fb6605fd61ae"
+  }
+}

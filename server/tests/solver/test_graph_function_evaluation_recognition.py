@@ -9,9 +9,14 @@ import pytest
 from shuxueshuo_server.graph_lesson.stage_one import contracts
 from shuxueshuo_server.graph_lesson.stage_one.extraction import frozen_files
 from shuxueshuo_server.graph_lesson.stage_one.features import extract_features
-from shuxueshuo_server.graph_lesson.stage_one.function_evaluation import inspect_evaluation_target
+from shuxueshuo_server.graph_lesson.stage_one.function_evaluation import (
+    inspect_evaluation_target,
+)
 from shuxueshuo_server.graph_lesson.stage_two.contracts import validate_input
-from shuxueshuo_server.graph_lesson.stage_two.evaluation_surface import evaluation_source_spans, sum_source_matches
+from shuxueshuo_server.graph_lesson.stage_two.evaluation_surface import (
+    evaluation_source_spans,
+    sum_source_matches,
+)
 from shuxueshuo_server.graph_lesson.stage_two.fragments import _abstract_formula_matches
 from shuxueshuo_server.graph_lesson.stage_two.recognition import evaluate_types
 from shuxueshuo_server.graph_lesson.stage_two.runner import run_result
@@ -29,6 +34,45 @@ def candidate(name='q28a'):
 
 def compile_root(value):
     return NotationValidator().validate_root(value['root'], contracts.schema()['$defs'])
+
+
+@pytest.mark.parametrize('kind', ['find_value', 'check_constant'])
+@pytest.mark.parametrize('sibling', [False, True])
+def test_current_evaluation_constraints_cannot_be_discarded(kind, sibling):
+    goals = [{'kind': kind, 'expression': 'f(x)'}]
+    if sibling:
+        goals.append({'kind': 'find_range', 'symbol': 'x'})
+    c = {'original_text': '已知 f(t)=t 且 f(x)≤f(0)、f(x)≥f(0)，求 f(x)。',
+         'root': {'definitions': ['f(t)=t'], 'facts': ['f(x)<=f(0)', 'f(x)>=f(0)'],
+                  'goals': goals}}
+    desc = inspect_evaluation_target(c, '/root/goals/0')
+    assert not desc['structure_supported']
+    assert desc['reason'] == 'evaluation.additional_conditions_unsupported'
+
+
+def test_only_an_independent_sibling_range_goal_can_own_order_facts():
+    c = {'original_text': '求 f(1) 和 f(x)>f(0) 的解集。',
+         'root': {'definitions': ['f(t)=t'], 'facts': ['f(x)>f(0)'],
+                  'goals': [{'kind': 'find_value', 'expression': 'f(1)'},
+                            {'kind': 'find_range', 'symbol': 'x'}]}}
+    assert inspect_evaluation_target(c, '/root/goals/0')['structure_supported']
+    c['root']['goals'].pop()
+    assert not inspect_evaluation_target(c, '/root/goals/0')['structure_supported']
+
+
+@pytest.mark.parametrize('tail,valid', [(r'=\underline{\quad}$', True), ('=____$', True),
+                                       ('=$ ____', True), ('=$ 3', False),
+                                       ('=3$', False), (r'=\underline{3}$', False)])
+def test_printed_answer_blank_is_a_goal_not_a_supplied_equality(tail, valid):
+    c = {'original_text': '已知 $f(t)=t+1$，则 $f(2)' + tail + '。',
+         'root': {'definitions': ['f(t)=t+1'], 'goals': [{'kind': 'find_value', 'expression': 'f(2)'}]}}
+    desc = inspect_evaluation_target(c, '/root/goals/0')
+    spans = evaluation_source_spans(c, '/root/goals/0', [(0, len(c['original_text']))],
+                                    desc, _abstract_formula_matches)
+    assert bool(spans) is valid
+    if valid:
+        a, b, *_ = spans[-1]
+        assert c['original_text'][a:b] == 'f(2)'
 
 
 @pytest.mark.parametrize('name,count', [('q28a', 2), ('q28b', 2), ('q28c', 2), ('q28d', 1), ('q29b', 2)])

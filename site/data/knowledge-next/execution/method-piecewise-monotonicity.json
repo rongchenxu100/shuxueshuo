@@ -92,7 +92,8 @@
             "branch_results": "$branch_results"
           },
           "outputs": {
-            "monotonicity_result": "monotonicity_result"
+            "monotonicity_result": "monotonicity_result",
+            "show_piecewise_answer": "show_piecewise_answer"
           },
           "order": 0
         }
@@ -152,7 +153,11 @@
           "depends_on": [
             "description",
             "monotonicity_result"
-          ]
+          ],
+          "guard": {
+            "ref": "show_piecewise_answer",
+            "equals": true
+          }
         }
       ]
     },

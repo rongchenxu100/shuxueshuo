@@ -103,19 +103,49 @@ def layer_rule(operation):
     return '开方保序' if operation == 'sqrt' else '正数取倒数反序'
 
 
-def phase_views(values):
+def _nested_under_inequality(seed_or_values):
+    """True when this monotonicity card is nested under M5 (B03／B09 path)."""
+    if isinstance(seed_or_values, dict) and 'host_method' in seed_or_values:
+        host = seed_or_values.get('host_method') or ''
+        own = (seed_or_values.get('method_ref') or '').split('#', 1)[0]
+        return host == 'method-monotonicity-inequality' and own in (
+            'method-monotonicity-structure', 'method-piecewise-monotonicity')
+    return bool(seed_or_values.get('nested_under_inequality'))
+
+
+def _simple_square_skip(model):
+    """Skip completing-the-square when the piece is already an obvious parabola side."""
+    if model.get('family') != 'polynomial' or len(model.get('branches') or []) != 1:
+        return False
+    branch = model['branches'][0]
+    axis, domain = branch.get('axis'), model['effective_domain']
+    expr = sp.expand(branch['expression'])
+    if expr == model['variable']**2:
+        return True
+    if axis is None or not isinstance(domain, sp.Interval):
+        return False
+    # Vertex not inside the open piece: direction follows opening alone.
+    return axis not in sp.Interval.open(domain.start, domain.end)
+
+
+def phase_views(values, *, nested_under_inequality=False):
     m, phase = values['monotonicity_result'], values['phase']
+    nested = nested_under_inequality or values.get('nested_under_inequality')
     x, p, domain = m['variable'], m['expression'], m['effective_domain']
     variable, function = latex(x), m['function']
     u, v = _layer_names(m)
     formula = rf'{m["function"]}({latex(x)})={latex(p)}'
     views = []
     if phase == 'domain':
+        if nested:
+            return []
         view = choice_card('确定讨论范围', '这道题允许在哪些输入上讨论单调性？', '原函数', formula,
                            '有效定义域', latex(domain), [r'\varnothing', r'\{0\}'],
                            rf'D={latex(domain)}')
         views.append(view)
     elif phase == 'square':
+        if nested and _simple_square_skip(m):
+            return []
         b = m['branches'][0]
         q, a, axis = b['expression'], b['coefficients'][0], b['axis']
         square = values['square']
@@ -204,23 +234,42 @@ def phase_views(values):
     elif phase == 'join':
         boundaries = {t for branch in m['branches'] for t in (branch['domain'].inf, branch['domain'].sup) if t.is_finite}
         junctions = [j for j in m['junctions'] if j['point'] in boundaries]
+        directions = [(row['interval'], row['direction']) for row in m['partition']]
         if not junctions:
             view = choice_card('检查跨段单调性', '当前讨论范围是否跨过绝对值的分界点？', '有效范围', latex(domain),
                                '连接判断', r'\text{不跨分界点，无需合并}', [r'\text{需要跨段合并}'],
                                r'\text{当前范围只落在一侧，保留该侧已求出的单调区间。}')
-            view['graph'] = graph_for(m)
-            view['completion_graph'] = graph_for(m)
+            view['graph'] = graph_for(m, directions=directions)
+            view['completion_graph'] = graph_for(m, directions=directions)
             views.append(view)
         for junction in junctions:
             t = junction['point']
             yes = junction['merge']
-            view = choice_card('检查跨段单调性', '核对分界点两侧的增减方向、函数值和端点归属，能合成一个严格单调区间吗？',
-                               '分界点', rf'{variable}={latex(t)},\quad {function}({latex(t)})={latex(junction["value"])}',
-                               '连接判断', r'\text{可以合并}' if yes else r'\text{不能合并}',
-                               [r'\text{不能合并}' if yes else r'\text{可以合并}'],
-                               r'\text{两侧同向且在分界点衔接，可合并。}' if yes else r'\text{两侧方向不同，保留各自的单调区间。}')
-            view['graph'] = graph_for(m)
-            view['completion_graph'] = graph_for(m)
+            if nested and yes:
+                label = '递增' if m['requested_direction'] == 'increasing' else (
+                    '递减' if m['requested_direction'] == 'decreasing' else '同向')
+                mark = arrow(1 if m['requested_direction'] != 'decreasing' else -1)
+                right = rf'\text{{可合并为 }}{function}\ {mark}\text{{ 于 }}{latex(domain)}'
+                wrong = [r'\text{不能合并}', r'\text{仅分段同向}']
+                proof = _lines([
+                    rf'\text{{两侧同向且在分界点衔接}}',
+                    rf'{function}\text{{ 在 }}{latex(domain)}\text{{ 上严格{label} }}',
+                ])
+            else:
+                right = r'\text{可以合并}' if yes else r'\text{不能合并}'
+                wrong = [r'\text{不能合并}' if yes else r'\text{可以合并}']
+                proof = (r'\text{两侧同向且在分界点衔接，可合并。}' if yes else
+                         r'\text{两侧方向不同，保留各自的单调区间。}')
+            view = choice_card(
+                '检查跨段单调性',
+                '核对分界点两侧的增减方向、函数值和端点归属，能合成一个严格单调区间吗？',
+                '分界点', rf'{variable}={latex(t)},\quad {function}({latex(t)})={latex(junction["value"])}',
+                '连接判断', right, wrong, proof)
+            view['graph'] = graph_for(m, directions=directions)
+            highlight = m.get('increasing_intervals') if m['requested_direction'] == 'increasing' else (
+                m.get('decreasing_intervals') if m['requested_direction'] == 'decreasing' else None)
+            view['completion_graph'] = graph_for(
+                m, highlight=highlight if yes else None, directions=directions)
             views.append(view)
     elif phase == 'difference':
         a, b, _ = m['branches'][0]['coefficients']
@@ -242,6 +291,9 @@ def phase_views(values):
             view['completion_graph'] = graph_for(m, highlight=[r], directions=[(r, direction)])
             views.append(view)
     elif phase == 'answer':
+        # Under M5: 段内增减 already judged; cross-piece join carries the overall conclusion.
+        if nested:
+            return []
         directions = ('increasing', 'decreasing') if m['requested_direction'] == 'both' else (m['requested_direction'],)
         for direction in directions:
             target = m[direction+'_intervals']
@@ -264,7 +316,13 @@ def phase_views(values):
 
 
 def presentation(values):
-    views = phase_views(values)
+    views = phase_views(values, nested_under_inequality=values.get('nested_under_inequality', False))
+    if not views:
+        phase = values.get('phase', 'answer')
+        return {'formula_title': phase, 'formula_explanation': r'\text{（本步折叠）}',
+                'derivation_caption': phase, 'derivation_left_label': '—',
+                'derivation_left_math': r'\text{（折叠）}', 'derivation_left_note': '',
+                'derivation_right_label': '—', 'derivation_right_math': r'\text{（折叠）}'}
     view = views[-1]
     left, right = view['derivation']['items']
     return {'formula_title': view['title'], 'formula_explanation': '$$'+_lines([v['proof'] for v in views])+'$$',
@@ -273,10 +331,15 @@ def presentation(values):
 
 
 def compile_monotonicity(seeds, interaction_id):
+    from .interaction import NotInteractive
+
     (seed,) = seeds
     parts = []
     values = decode_value(seed['values'])
-    views = phase_views(values)
+    nested = _nested_under_inequality(seed)
+    views = phase_views(values, nested_under_inequality=nested)
+    if not views:
+        raise NotInteractive('folded')
     shared_graphs = any(view.get('completion_graphs') for view in views)
     for index, view in enumerate(views, 1):
         board = deepcopy(view['derivation'])

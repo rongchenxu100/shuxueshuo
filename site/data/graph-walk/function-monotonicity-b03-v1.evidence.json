@@ -1,0 +1,2331 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+    "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+    "input_sha256": "eefa46110169231855eeba5fd02c38f84b87af6ddecfba61be6d764f9e3040c7",
+    "checkpoint_sha256": "18b3bdea8301c56c905ea7dd6032c9a9b206d5a72b1759fad332b5e4ca3fa03d",
+    "result_sha256": "668951bf8cb56deabc9f150229d0cf686104447d69d65e6e09b197b9e3a41e85",
+    "stage_one_sha256": "99bc9aeaef422c9ed234cfbe153cecca51720c1885f57546e65a0b2ced300ce7",
+    "stage_two_sha256": "f0c03d606d3557fa27eb50aab8ee7426493ca00eddf8327c51a9b7cec9edeb10",
+    "source_admission": "authored_topic",
+    "authoring_record_sha256": "90ac5ee08f42e72c186e2d625bead77698d5f4d6579c4d09cb0b9ee1286160af",
+    "teaching_revision": "498303fc5caaccd48b2b16e9fc5adce0aac844096725c169deaf940acdd4f5dd"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-inequality",
+        "supported": [
+          "type-monotonicity-inequality"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 93,
+                  "end": 94,
+                  "text": "$x$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-monotonicity#inequality"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只比较两个函数值大小，不求自变量范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "2c0d4a0288e9dad2"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问比较了同一个函数的两个函数值，需要求什么？",
+          "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。",
+          "summary": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-inequality",
+            "label": "利用单调性解不等式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知单调性，比较同一函数的两个输入所对应的函数值。"
+            ],
+            "choice_hint": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是解函数值不等式。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-monotonicity-b03-v1//root/goals/0",
+            "graphVersion": "33c4fb13ac434724279261d05b05e136dcbd69b2cf8f14913909b369bf278e06",
+            "problem": {
+              "text": "已知函数 $f(x)=\\begin{cases}2x-1,&x<1,\\\\x^{2},&x\\ge1\\end{cases}$。若 $f(x^{2}+x+3)>f(3x^{2}-3)$，则 $x$ 的取值范围是______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问比较了同一个函数的两个函数值，需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只比较两个函数值大小，不求自变量范围",
+                      "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。"
+                },
+                "candidateNodes": [
+                  "function-monotonicity",
+                  "type-monotonicity-inequality",
+                  "type-function-monotonicity",
+                  "type-monotonicity-abstract-proof",
+                  "type-monotonicity-extremum",
+                  "type-monotonicity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-monotonicity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-monotonicity-inequality",
+                      "label": "利用单调性解不等式",
+                      "note": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化"
+                    },
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间",
+                      "feedback": "原目标是求完整单调区间或证明增减，不是解函数值不等式。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-monotonicity-inequality"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-monotonicity-inequality",
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-monotonicity-inequality"
+                  ],
+                  "edges": [
+                    "type-monotonicity-inequality|involves|function-monotonicity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知单调性，比较同一函数的两个输入所对应的函数值。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用单调性解不等式」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-monotonicity",
+                  "kind": "knowledge",
+                  "label": "函数的单调性",
+                  "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用单调性解不等式",
+                  "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof",
+                  "kind": "problem_type",
+                  "label": "证明抽象函数的单调性",
+                  "summary": "证明抽象函数的单调性；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-parameter",
+                  "kind": "problem_type",
+                  "label": "已知函数的单调性求参",
+                  "summary": "已知函数的单调性求参；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-monotonicity-inequality-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "单调性不等式的选法判断",
+                  "summary": "同一函数的两个函数值比较时，优先用单调性解不等式；常值段或非严格时改走分段求解。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-monotonicity-inequality",
+                  "kind": "method",
+                  "label": "单调性解不等式法",
+                  "summary": "检查两个输入落在同一严格单调区间，再按增减性把函数值比较转为输入比较，最后与合法域求交。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "核对比较对象与单调性",
+                      "calls": []
+                    },
+                    {
+                      "id": "basis-prove",
+                      "title": "证明分段整体严格单调",
+                      "calls": [
+                        "method-piecewise-monotonicity"
+                      ]
+                    },
+                    {
+                      "id": "basis-confirm",
+                      "title": "带回整体严格单调结论",
+                      "calls": [
+                        "skill-piecewise-order-join"
+                      ]
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "写出两个输入的合法条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "order",
+                      "title": "利用单调性转化比较",
+                      "calls": [
+                        "skill-monotonicity-order"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "解代数不等式并回到原目标",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-monotonicity-inequality-method|selects|method-monotonicity-inequality",
+                  "from": "rule-monotonicity-inequality-method",
+                  "to": "method-monotonicity-inequality",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "order",
+                      "condition": "同一函数的两个函数值比大小，且已有严格单调依据。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|involves|function-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+                  "from": "type-monotonicity-abstract-proof",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-monotonicity",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|candidate|method-monotonicity-inequality",
+                  "from": "type-monotonicity-inequality",
+                  "to": "method-monotonicity-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|involves|function-monotonicity",
+                  "from": "type-monotonicity-inequality",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|method_rule|rule-monotonicity-inequality-method",
+                  "from": "type-monotonicity-inequality",
+                  "to": "rule-monotonicity-inequality-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|involves|function-monotonicity",
+                  "from": "type-monotonicity-parameter",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-monotonicity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "ec8098a6ebcbb79c2376403734031bb0d69eda4fc54a228cbc1e7d27d470f3a2"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-monotonicity-b03-v1//root/goals/0",
+            "bundleVersion": "ec8098a6ebcbb79c2376403734031bb0d69eda4fc54a228cbc1e7d27d470f3a2",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-monotonicity-inequality",
+                "reason": "选「利用单调性解不等式」：已知单调性，比较同一函数的两个输入所对应的函数值。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+    "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+    "input_sha256": "eefa46110169231855eeba5fd02c38f84b87af6ddecfba61be6d764f9e3040c7",
+    "stream_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+    "last_seq": 48,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-1"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inner",
+        "explanation": "$$\\begin{gathered}\\begin{gathered}f_1(x)=2 x - 1\\\\x\\in \\left(-\\infty, 1\\right)\\end{gathered}\\\\f_1(x)\\;\\uparrow\\end{gathered}$$",
+        "highlight": {
+          "caption": "判断一次函数的增减",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "一次函数与区间",
+              "math": "\\begin{gathered}f_1(x)=2 x - 1\\\\x\\in \\left(-\\infty, 1\\right)\\end{gathered}"
+            },
+            {
+              "label": "从左向右",
+              "math": "\\uparrow"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "local_check": "passed",
+        "math_step_sha256": "13045223105ee48a9c278508936248de4e65bba0cff29e5babec4f81451d625b",
+        "method_ref": "method-monotonicity-structure#analyze",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "source_refs": [
+          "/steps/8/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-inequality-001-inner",
+        "target_ref": "/root/goals/0",
+        "title": "判断一次函数的增减",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [
+          "piece-2"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "inner",
+        "explanation": "$$\\begin{gathered}\\begin{gathered}f_2(x)=x^{2}\\\\x\\in \\left[1, \\infty\\right)\\\\\\text{对称轴 }x=0\\end{gathered}\\\\f_2(x)\\;\\uparrow\\end{gathered}$$",
+        "highlight": {
+          "caption": "判断二次函数的增减",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "二次函数与区间",
+              "math": "\\begin{gathered}f_2(x)=x^{2}\\\\x\\in \\left[1, \\infty\\right)\\\\\\text{对称轴 }x=0\\end{gathered}"
+            },
+            {
+              "label": "从左向右",
+              "math": "\\uparrow"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "local_check": "passed",
+        "math_step_sha256": "b3430694638a41c483d49abafc9b1eb3b885651c10f0eab3da67ea52f9aeb048",
+        "method_ref": "method-monotonicity-structure#analyze",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "source_refs": [
+          "/steps/16/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-inequality-002-inner",
+        "target_ref": "/root/goals/0",
+        "title": "判断二次函数的增减",
+        "used_basis": [
+          "composite-function-monotonicity#rule",
+          "quadratic-function-properties#monotonicity"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "join",
+        "explanation": "$$\\text{两侧同向且在分界点衔接，可合并。}$$",
+        "highlight": {
+          "caption": "检查跨段单调性",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "分界点",
+              "math": "x=1,\\quad f(1)=1"
+            },
+            {
+              "label": "连接判断",
+              "math": "\\text{可以合并}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "local_check": "passed",
+        "math_step_sha256": "4156d3bda8af33fec0bc4c954f9a447936bca6dd1f14c16620b0843f432b8957",
+        "method_ref": "method-piecewise-monotonicity#join",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "source_refs": [
+          "/steps/20/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-inequality-003-join",
+        "target_ref": "/root/goals/0",
+        "title": "检查跨段单调性",
+        "used_basis": [
+          "function-monotonicity#interval"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "order",
+        "explanation": "在同一严格递增区间上，原函数值比较等价于怎样的输入比较？",
+        "highlight": {
+          "caption": "利用单调性转化比较",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已确认的条件",
+              "math": "\\begin{gathered}f\\!\\left(x^{2} + x + 3\\right)\\,>\\,f\\!\\left(3 x^{2} - 3\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\x^{2} + x + 3,3 x^{2} - 3\\in \\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "输入比较",
+              "math": "x^{2} + x + 3\\,>\\,3 x^{2} - 3"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "local_check": "passed",
+        "math_step_sha256": "8ec9bf334e18f28d8b3c17ae08f643defc475d802ce867c05bdd4978c42fe97a",
+        "method_ref": "method-monotonicity-inequality#order",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "source_refs": [
+          "/steps/25/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-inequality-004-order",
+        "target_ref": "/root/goals/0",
+        "title": "利用单调性转化比较",
+        "used_basis": [
+          "function-monotonicity#definition",
+          "function-monotonicity#interval"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "conclude",
+        "explanation": "把转化后的不等式与合法域求交，$x$ 的取值范围是？",
+        "highlight": {
+          "caption": "回到原目标",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "转化后 ∩ 合法域",
+              "math": "\\begin{gathered}x^{2} + x + 3\\,>\\,3 x^{2} - 3\\\\x\\in \\mathbb{R}\\end{gathered}"
+            },
+            {
+              "label": "解集",
+              "math": "x\\in \\left(- \\frac{3}{2}, 2\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "local_check": "passed",
+        "math_step_sha256": "4b338de63bc6606c78c144695fa8f803c90e3d6a3494ea8d6f744e06bdb6e855",
+        "method_ref": "method-monotonicity-inequality#conclude",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "source_refs": [
+          "/steps/26/calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-inequality-005-conclude",
+        "target_ref": "/root/goals/0",
+        "title": "回到原目标",
+        "used_basis": [
+          "function-monotonicity#interval"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "Interval.open(-3/2, 2)",
+            "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Rational",
+                "p": "-3",
+                "q": "2"
+              },
+              {
+                "$math": "Integer",
+                "value": "2"
+              },
+              {
+                "$math": "BooleanTrue"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval.open(-3/2, 2)",
+          "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "find_range",
+          "set": {
+            "expression": "Interval.open(-3/2, 2)",
+            "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Rational",
+                "p": "-3",
+                "q": "2"
+              },
+              {
+                "$math": "Integer",
+                "value": "2"
+              },
+              {
+                "$math": "BooleanTrue"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval.open(-3/2, 2)",
+          "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+        },
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "math_steps": [
+          {
+            "math_step_sha256": "13045223105ee48a9c278508936248de4e65bba0cff29e5babec4f81451d625b",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-monotonicity-inequality-001-inner"
+          },
+          {
+            "math_step_sha256": "b3430694638a41c483d49abafc9b1eb3b885651c10f0eab3da67ea52f9aeb048",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-monotonicity-inequality-002-inner"
+          },
+          {
+            "math_step_sha256": "4156d3bda8af33fec0bc4c954f9a447936bca6dd1f14c16620b0843f432b8957",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-monotonicity-inequality-003-join"
+          },
+          {
+            "math_step_sha256": "8ec9bf334e18f28d8b3c17ae08f643defc475d802ce867c05bdd4978c42fe97a",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-monotonicity-inequality-004-order"
+          },
+          {
+            "math_step_sha256": "4b338de63bc6606c78c144695fa8f803c90e3d6a3494ea8d6f744e06bdb6e855",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-monotonicity-inequality-005-conclude"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "8c75283cb092c08b3cf4bb83519226e94a5a16a2473938eb8ffb799559d23920",
+        "verified_route_sha256": "f594f90eafa3414a1c4898e2bf5211e01c3ff46da6e442fb5882d998852cdd61"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {
+            "checks": {
+              "goal": "order"
+            }
+          },
+          "id": "D3",
+          "interaction": {
+            "checks": [
+              {
+                "feedback": "先证明分段函数在比较区间上整体严格单调，再检查两个输入并转化比较。",
+                "id": "goal",
+                "options": [
+                  {
+                    "label": "同一个函数的两个函数值比大小",
+                    "note": "如分段给出的 $f$，先证整体严格递增，再比较 $f(u)$ 与 $f(v)$。",
+                    "value": "order"
+                  },
+                  {
+                    "label": "函数分段给出，需要分别代入比较",
+                    "note": "先看两个输入各落在哪一段，再代入对应式子；有常值段时，不能直接去掉 $f$。",
+                    "value": "piecewise"
+                  }
+                ],
+                "question": "这道题需要完成什么？",
+                "resolved": "单调性解不等式法"
+              }
+            ],
+            "connections": [
+              {
+                "cue": "order",
+                "method": "order"
+              },
+              {
+                "cue": "piecewise",
+                "method": "piecewise"
+              }
+            ],
+            "facts": [],
+            "layout": "connections",
+            "method_choices": [
+              {
+                "label": "单调性解不等式法",
+                "value": "order"
+              },
+              {
+                "label": "分段解不等式法",
+                "value": "piecewise"
+              }
+            ],
+            "method_notes": {
+              "piecewise": "本题可先证明整体严格单调，再转化比较；不必一开始就按分支分别代入。"
+            },
+            "source_refs": [
+              "/root/goals/0",
+              "/root/definitions/0",
+              "/root/facts/0"
+            ],
+            "type": "method_cards"
+          },
+          "query": {
+            "from": "type-monotonicity-inequality",
+            "op": "methods"
+          },
+          "question": "结合本题的目标，选择解题方法。",
+          "submit_label": "确认选法",
+          "title": "选择解题方法",
+          "verdicts": {
+            "order": {
+              "message": "先证明分段函数在比较区间上整体严格单调，再检查两个输入并转化比较。",
+              "value": "fit"
+            },
+            "piecewise": {
+              "message": "本题虽有分段定义，但整体严格单调成立时应先转化比较，而不是直接分支代入。",
+              "value": "unfit"
+            }
+          }
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "order",
+              "message": "开始解题",
+              "method": "method-monotonicity-inequality",
+              "recommendation": "preferred",
+              "route_id": "monotonicity-inequality",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "按所选方法解题"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "step_id": "39e5646dcb-monotonicity-inequality-001-inner",
+        "ordinal": 1,
+        "math_step_sha256": "13045223105ee48a9c278508936248de4e65bba0cff29e5babec4f81451d625b",
+        "status": "interactive",
+        "interaction_id": "2179d4cfe5c8fa18dc09da40"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "step_id": "39e5646dcb-monotonicity-inequality-002-inner",
+        "ordinal": 2,
+        "math_step_sha256": "b3430694638a41c483d49abafc9b1eb3b885651c10f0eab3da67ea52f9aeb048",
+        "status": "interactive",
+        "interaction_id": "95d323125d7117b11493afee"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "step_id": "39e5646dcb-monotonicity-inequality-003-join",
+        "ordinal": 3,
+        "math_step_sha256": "4156d3bda8af33fec0bc4c954f9a447936bca6dd1f14c16620b0843f432b8957",
+        "status": "interactive",
+        "interaction_id": "3e5b65b03b4fc365e6047603"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "step_id": "39e5646dcb-monotonicity-inequality-004-order",
+        "ordinal": 4,
+        "math_step_sha256": "8ec9bf334e18f28d8b3c17ae08f643defc475d802ce867c05bdd4978c42fe97a",
+        "status": "interactive",
+        "interaction_id": "2104c076d81d52d68bf1ecc5"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "step_id": "39e5646dcb-monotonicity-inequality-005-conclude",
+        "ordinal": 5,
+        "math_step_sha256": "4b338de63bc6606c78c144695fa8f803c90e3d6a3494ea8d6f744e06bdb6e855",
+        "status": "interactive",
+        "interaction_id": "dd3a2b689382ec95847f169f"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:monotonicity-inequality:complete",
+        "last_seq": 48
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-inequality",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-monotonicity-inequality",
+            "step": "prepare",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-monotonicity#definition",
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-monotonicity-inequality",
+            "step": "basis-prove",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-piecewise-monotonicity",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-piecewise-monotonicity",
+            "step": "split",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-absolute-sign-split",
+                "used_basis": [
+                  "absolute-value-concept#definition"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-piecewise-monotonicity",
+            "step": "inputs",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 5,
+            "method": "method-piecewise-monotonicity",
+            "step": "inputs",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "absolute-value-concept#definition"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-piecewise-monotonicity",
+            "step": "branches",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": "method-monotonicity-structure",
+                "used_basis": [],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 7,
+            "method": "method-monotonicity-structure",
+            "step": "domain",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 8,
+            "method": "method-monotonicity-structure",
+            "step": "square",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 9,
+            "method": "method-monotonicity-structure",
+            "step": "analyze",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 10,
+            "method": "method-monotonicity-structure",
+            "step": "compose",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 11,
+            "method": "method-monotonicity-structure",
+            "step": "conclude",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [
+                  "piece-1"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 12,
+            "method": "method-monotonicity-structure",
+            "step": "verify",
+            "case_path": [
+              "piece-1"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 13,
+            "method": "method-piecewise-monotonicity",
+            "step": "inputs",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "absolute-value-concept#definition"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 14,
+            "method": "method-piecewise-monotonicity",
+            "step": "branches",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": "method-monotonicity-structure",
+                "used_basis": [],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 15,
+            "method": "method-monotonicity-structure",
+            "step": "domain",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 16,
+            "method": "method-monotonicity-structure",
+            "step": "square",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": "method-complete-square",
+                "used_basis": [
+                  "equality-properties#identity",
+                  "square-nonnegative#nonnegative"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 17,
+            "method": "method-monotonicity-structure",
+            "step": "analyze",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 18,
+            "method": "method-monotonicity-structure",
+            "step": "compose",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 19,
+            "method": "method-monotonicity-structure",
+            "step": "conclude",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [
+                  "piece-2"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 20,
+            "method": "method-monotonicity-structure",
+            "step": "verify",
+            "case_path": [
+              "piece-2"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 21,
+            "method": "method-piecewise-monotonicity",
+            "step": "join",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-piecewise-order-join",
+                "used_basis": [
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 22,
+            "method": "method-piecewise-monotonicity",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "composite-function-monotonicity#rule",
+                  "quadratic-function-properties#monotonicity"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 23,
+            "method": "method-piecewise-monotonicity",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 24,
+            "method": "method-monotonicity-inequality",
+            "step": "basis-confirm",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-piecewise-order-join",
+                "used_basis": [
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 25,
+            "method": "method-monotonicity-inequality",
+            "step": "inputs",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 26,
+            "method": "method-monotonicity-inequality",
+            "step": "order",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-monotonicity-order",
+                "used_basis": [
+                  "function-monotonicity#definition",
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 27,
+            "method": "method-monotonicity-inequality",
+            "step": "conclude",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-monotonicity#interval"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 28,
+            "method": "method-monotonicity-inequality",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": []
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2179d4cfe5c8fa18dc09da40",
+        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+        "interaction_sha256": "aa422446464c91f098e7c72f88020aa5798b4708c217393e186f3dd3c6b745d4",
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断一次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "一次函数与区间",
+                  "math": "\\begin{gathered}f_1(x)=2 x - 1\\\\x\\in \\left(-\\infty, 1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": "\\uparrow"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "原函数 f_1；图中箭头与区间对应前面已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -4.791666666666666,
+                  1.791666666666667
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  1.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, 1)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 1.0,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      2.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      null,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f_1",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "原函数 f_1；着色区间是当前小问，问号处待判断。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -4.791666666666666,
+                  1.791666666666667
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  1.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, 1)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 1.0,
+                    "trend": "pending"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      2.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      null,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f_1",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "2179d4cfe5c8fa18dc09da40#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "根据一次项系数判断；系数为零时是常值。",
+            "stem_board": {
+              "caption": "判断一次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "一次函数与区间",
+                  "math": "\\begin{gathered}f_1(x)=2 x - 1\\\\x\\in \\left(-\\infty, 1\\right)\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "一次函数在 $\\left(-\\infty, 1\\right)$ 上的增减"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "13045223105ee48a9c278508936248de4e65bba0cff29e5babec4f81451d625b",
+            "step_id": "39e5646dcb-monotonicity-inequality-001-inner"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "95d323125d7117b11493afee",
+        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+        "interaction_sha256": "dd62a814002a3a5ff85a705e33564a40da6c5959a59253529db65a479bf1426e",
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}f_2(x)=x^{2}\\\\x\\in \\left[1, \\infty\\right)\\\\\\text{对称轴 }x=0\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": "\\uparrow"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "原函数 f_2；图中箭头与区间对应前面已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -1.0,
+                  6.94140625
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  1.0,
+                  null
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": 1.0,
+                    "label": "[1, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      0.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f_2",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "原函数 f_2；着色区间是当前小问，问号处待判断。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -1.0,
+                  6.94140625
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  1.0,
+                  null
+                ],
+                "interval_closed": [
+                  true,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": 1.0,
+                    "label": "[1, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "pending"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      0.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f_2",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "95d323125d7117b11493afee#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\text{常值}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\uparrow$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\downarrow$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "结合开口方向、对称轴和当前输入区间，判断函数的增减。",
+            "stem_board": {
+              "caption": "判断二次函数的增减",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "二次函数与区间",
+                  "math": "\\begin{gathered}f_2(x)=x^{2}\\\\x\\in \\left[1, \\infty\\right)\\\\\\text{对称轴 }x=0\\end{gathered}"
+                },
+                {
+                  "label": "从左向右",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b3430694638a41c483d49abafc9b1eb3b885651c10f0eab3da67ea52f9aeb048",
+            "step_id": "39e5646dcb-monotonicity-inequality-002-inner"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "3e5b65b03b4fc365e6047603",
+        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+        "interaction_sha256": "e66d7baf7e40dbe3730987a9da4a8ad2cb1853ab4c58e8776570ad278a6b0918",
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查跨段单调性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分界点",
+                  "math": "x=1,\\quad f(1)=1"
+                },
+                {
+                  "label": "连接判断",
+                  "math": "\\text{可合并为 }f\\ \\uparrow\\text{ 于 }\\mathbb{R}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "completion_graph": {
+              "caption": "原函数 f；着色曲线对应当前讨论区间，箭头表示已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -4.959635416666666,
+                  7.109375
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "highlights": [
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, 1)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 1.0,
+                    "trend": "increasing"
+                  },
+                  {
+                    "from": 1.0,
+                    "label": "[1, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      2.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      null,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      0.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "graph": {
+              "caption": "原函数 f；图中箭头与区间对应前面已确认的增减方向。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -1.5,
+                  2.5,
+                  -4.959635416666666,
+                  7.109375
+                ],
+                "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [
+                  {
+                    "from": null,
+                    "label": "(-∞, 1)",
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 1.0,
+                    "trend": "increasing"
+                  },
+                  {
+                    "from": 1.0,
+                    "label": "[1, +∞)",
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null,
+                    "trend": "increasing"
+                  }
+                ],
+                "points": [],
+                "segments": [
+                  {
+                    "coefficients": [
+                      0.0,
+                      2.0,
+                      -1.0
+                    ],
+                    "interval": [
+                      null,
+                      1.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      0.0
+                    ],
+                    "interval": [
+                      1.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            "id": "3e5b65b03b4fc365e6047603#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\text{不能合并}$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\text{仅分段同向}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\text{可合并为 }f\\ \\uparrow\\text{ 于 }\\mathbb{R}$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "核对分界点两侧的增减方向、函数值和端点归属，能合成一个严格单调区间吗？",
+            "stem_board": {
+              "caption": "检查跨段单调性",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "分界点",
+                  "math": "x=1,\\quad f(1)=1"
+                },
+                {
+                  "label": "连接判断",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查跨段单调性"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "4156d3bda8af33fec0bc4c954f9a447936bca6dd1f14c16620b0843f432b8957",
+            "step_id": "39e5646dcb-monotonicity-inequality-003-join"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "2104c076d81d52d68bf1ecc5",
+        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+        "interaction_sha256": "2251a1bb9415bb76e4153712fbea12c60cf77c5a3e7aae944b7701443260971a",
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "利用单调性转化比较",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已确认的条件",
+                  "math": "\\begin{gathered}f\\!\\left(x^{2} + x + 3\\right)\\,>\\,f\\!\\left(3 x^{2} - 3\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\x^{2} + x + 3,3 x^{2} - 3\\in \\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "输入比较",
+                  "math": "x^{2} + x + 3\\,>\\,3 x^{2} - 3"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "2104c076d81d52d68bf1ecc5#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x^{2} + x + 3\\,\\le\\,3 x^{2} - 3$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$x^{2} + x + 3\\,\\ge\\,3 x^{2} - 3$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$x^{2} + x + 3\\,<\\,3 x^{2} - 3$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$x^{2} + x + 3\\,>\\,3 x^{2} - 3$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "在同一严格递增区间上，原函数值比较等价于怎样的输入比较？",
+            "stem_board": {
+              "caption": "利用单调性转化比较",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已确认的条件",
+                  "math": "\\begin{gathered}f\\!\\left(x^{2} + x + 3\\right)\\,>\\,f\\!\\left(3 x^{2} - 3\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\x^{2} + x + 3,3 x^{2} - 3\\in \\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "输入比较",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用单调性转化比较"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8ec9bf334e18f28d8b3c17ae08f643defc475d802ce867c05bdd4978c42fe97a",
+            "step_id": "39e5646dcb-monotonicity-inequality-004-order"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "dd3a2b689382ec95847f169f",
+        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+        "interaction_sha256": "7c4be245548d41d9ef1dc4b0ec548ba3cf6845b674e6ad58ac65dc0ef32eb3dd",
+        "lesson_version": "ad38eb4441a80474258ec35dc908ac5737c0b914a201674ce8d494a73f567800",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "回到原目标",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "转化后 ∩ 合法域",
+                  "math": "\\begin{gathered}x^{2} + x + 3\\,>\\,3 x^{2} - 3\\\\x\\in \\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "解集",
+                  "math": "x\\in \\left(- \\frac{3}{2}, 2\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "dd3a2b689382ec95847f169f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x\\in \\varnothing$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$x\\in \\left[- \\frac{3}{2}, 2\\right)$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$x\\in \\left(- \\frac{3}{2}, 2\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$x\\in \\mathbb{R}$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把转化后的不等式与合法域求交，$x$ 的取值范围是？",
+            "stem_board": {
+              "caption": "回到原目标",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "转化后 ∩ 合法域",
+                  "math": "\\begin{gathered}x^{2} + x + 3\\,>\\,3 x^{2} - 3\\\\x\\in \\mathbb{R}\\end{gathered}"
+                },
+                {
+                  "label": "解集",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "回到原目标"
+          }
+        ],
+        "route_id": "monotonicity-inequality",
+        "run_id": "902d9c9080ff46e3a6c5a50d83cd483c",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "4b338de63bc6606c78c144695fa8f803c90e3d6a3494ea8d6f744e06bdb6e855",
+            "step_id": "39e5646dcb-monotonicity-inequality-005-conclude"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

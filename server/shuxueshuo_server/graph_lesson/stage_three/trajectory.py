@@ -24,8 +24,10 @@ _CONSTRUCTORS = {
         "And",
         "Or",
         "Complement",
+        "Piecewise",
     )
 }
+_CONSTRUCTORS["ExprCondPair"] = sp.functions.elementary.piecewise.ExprCondPair
 _CONSTANTS = {
     "Reals": sp.S.Reals,
     "EmptySet": sp.S.EmptySet,

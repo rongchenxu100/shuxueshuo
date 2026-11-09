@@ -86,8 +86,18 @@
       "label": "利用单调性解不等式",
       "type": "type-monotonicity-inequality",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "已知严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
+      "problems": [
+        "function-monotonicity-b01-v1",
+        "function-monotonicity-b02-v1",
+        "function-monotonicity-b03-v1",
+        "function-monotonicity-b04-v1",
+        "function-monotonicity-b05-v1",
+        "function-monotonicity-b06-v1",
+        "function-monotonicity-b09-v1",
+        "function-monotonicity-b12-v1",
+        "function-monotonicity-b13-v1"
+      ]
     },
     {
       "id": "parameter",
@@ -231,6 +241,89 @@
       "bundle": "/data/graph-walk/function-monotonicity-b14-v2.json",
       "types": [
         "type-monotonicity-extremum"
+      ]
+    },
+    "function-monotonicity-b01-v1": {
+      "label": "已知递增解不等式 · B01",
+      "path": "/topics/function-monotonicity/q05/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b01-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b02-v1": {
+      "label": "有限定义域上的递增比较 · B02",
+      "path": "/topics/function-monotonicity/q02b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b02-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b03-v1": {
+      "label": "先证分段递增再比较 · B03",
+      "path": "/topics/function-monotonicity/q03b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b03-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b09-v1": {
+      "label": "分段求值与单调性不等式 · B09",
+      "path": "/topics/function-monotonicity/q09b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b09-v1.json",
+      "types": [
+        "type-monotonicity-inequality",
+        "type-function-evaluation"
+      ]
+    },
+    "function-monotonicity-b12-v1": {
+      "label": "常值段不能直接去 f · B12",
+      "path": "/topics/function-monotonicity/q12b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b12-v1.json",
+      "types": [
+        "type-piecewise-function",
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b04-v1": {
+      "label": "已知递减求参数 · B04",
+      "path": "/topics/function-monotonicity/q06/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b04-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b05-v1": {
+      "label": "常量输入与递减 · B05",
+      "path": "/topics/function-monotonicity/q09/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b05-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b06-v1": {
+      "label": "显式定义域上的递增比较 · B06",
+      "path": "/topics/function-monotonicity/q06b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b06-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-b13-v1": {
+      "label": "常量输入与递增 · B13",
+      "path": "/topics/function-monotonicity/q13/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-b13-v1.json",
+      "types": [
+        "type-monotonicity-inequality"
       ]
     }
   }

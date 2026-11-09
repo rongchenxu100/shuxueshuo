@@ -22,6 +22,8 @@
             "domain_context": "domain_context",
             "needs_domain": "needs_domain",
             "plain_domain": "plain_domain",
+            "show_square": "show_square",
+            "show_answer": "show_answer",
             "domain": "domain",
             "polynomial": "polynomial",
             "variable": "variable",
@@ -157,8 +159,16 @@
             "square"
           ],
           "guard": {
-            "ref": "quadratic",
-            "equals": true
+            "all": [
+              {
+                "ref": "show_square",
+                "equals": true
+              },
+              {
+                "ref": "quadratic",
+                "equals": true
+              }
+            ]
           }
         },
         {
@@ -286,7 +296,11 @@
           "depends_on": [
             "description",
             "monotonicity_result"
-          ]
+          ],
+          "guard": {
+            "ref": "show_answer",
+            "equals": true
+          }
         }
       ]
     },

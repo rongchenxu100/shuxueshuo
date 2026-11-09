@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"3. 已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"root\":{\"definitions\":[\"f(x)=piecewise(2*x-1,x<1,x^2,x>=1)\"],\"facts\":[\"f(x^2+x+3)>f(3*x^2-3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 969,
+      "prompt_tokens": 30004,
+      "total_tokens": 30973,
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 436
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 682,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-38332b8f-4f85-4e2c-972b-5de90afc9a77",
+        "sha256": "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 13360,
+        "expires_at": 1794293168,
+        "uploaded_at": 1794206768.204111
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332",
+        "api_calls": 1,
+        "file_id": "file-api-38332b8f-4f85-4e2c-972b-5de90afc9a77",
+        "expires_at": 1794293168,
+        "elapsed_ms": 322
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6928,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 969,
+          "prompt_tokens": 30004,
+          "total_tokens": 30973,
+          "completion_tokens_details": {
+            "reasoning_tokens": 691
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29568
+          },
+          "prompt_cache_hit_tokens": 29568,
+          "prompt_cache_miss_tokens": 436
+        },
+        "raw_payload": {
+          "id": "752dbfe2-28ba-4e7e-adb2-5c1595900253",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 969,
+            "prompt_tokens": 30004,
+            "total_tokens": 30973,
+            "completion_tokens_details": {
+              "reasoning_tokens": 691
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29568
+            },
+            "prompt_cache_hit_tokens": 29568,
+            "prompt_cache_miss_tokens": 436
+          },
+          "created": 1794206768,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"3. 已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"root\":{\"definitions\":[\"f(x)=piecewise(2*x-1,x<1,x^2,x>=1)\"],\"facts\":[\"f(x^2+x+3)>f(3*x^2-3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目文字。图像显示：\n\n\"3. 已知函数 f(x)= {2x-1, x<1; x^2, x≥1}，则不等式 f(x^2+x+3)>f(3x^2-3) 的 x 的解集是 [手写答案] 单调函数\"\n\n手写答案不转录。题目要求解不等式。需要输出 original_text 完整题面。注意分段函数定义。题面没有小问。root定义 f 分段。目标 find_range symbol=x，条件不等式。需要把不等式作为该目标条件？根据规则“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 root.definitions 放 f(x)=piecewise(2*x-1,x<1,x^2,x>=1)。root.facts 放 f(x^2+x+3)>f(3*x^2-3)。goals [{\"kind\":\"find_range\",\"symbol\":\"x\"}]。public_content scopes root statement 保留题面，不含手写答案。无选项。completeness complete。privacy separated? 图像有手写答案和批注，但公开字段未包含，可以 separated? 需要排除手写答案、题号来源。original_text 保留题号3? 原题有“3.”，original_text可以保留来源题号。public_content statement 排除题号。privacy=separated 如果手写答案分离。题目正文完整可读。无图。figure_detection none。需要 uncertainties? 手写答案不报告。无。\n\noriginal_text 中公式用 $…$，分段函数 LaTeX。需要 JSON 转义反斜杠。original_text 可以：“3. 已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______” 填空处？原题末尾是“是 [手写答案]” 实际印刷可能有横线？图像显示“是 {x| -3/2<x<2 }”手写。填空处照印刷原样写横线。原题末“解集是____”可能有填空线但图像手写覆盖。我们写“是______”。不要包含手写“单调函数”。\n\npublic_content statement 同样去掉题号：“已知函数 $f(x)=\\\\begin{cases}...\\\\end{cases}$，则不等式 ... 的 $x$ 的解集是______”。是否包含“单调函数”不是题目，不包含。\n\nroot.label? 可以不放 label? 题号“3.”是来源题号，可以不作为 label。root.definitions 定义。分段函数表示 piecewise(2*x-1,x<1,x^2,x>=1)。facts 不等式。goals find_range symbol x。注意 root.facts 中 f(x^2+x+3)>f(3*x^2-3)。定义 f 分段。 Good.\n\npublic_content choices 每个目标 status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\nuncertainties 空。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7270
+  },
+  "raw_payload": {
+    "id": "752dbfe2-28ba-4e7e-adb2-5c1595900253",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"3. 已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"root\":{\"definitions\":[\"f(x)=piecewise(2*x-1,x<1,x^2,x>=1)\"],\"facts\":[\"f(x^2+x+3)>f(3*x^2-3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目文字。图像显示：\n\n\"3. 已知函数 f(x)= {2x-1, x<1; x^2, x≥1}，则不等式 f(x^2+x+3)>f(3x^2-3) 的 x 的解集是 [手写答案] 单调函数\"\n\n手写答案不转录。题目要求解不等式。需要输出 original_text 完整题面。注意分段函数定义。题面没有小问。root定义 f 分段。目标 find_range symbol=x，条件不等式。需要把不等式作为该目标条件？根据规则“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 root.definitions 放 f(x)=piecewise(2*x-1,x<1,x^2,x>=1)。root.facts 放 f(x^2+x+3)>f(3*x^2-3)。goals [{\"kind\":\"find_range\",\"symbol\":\"x\"}]。public_content scopes root statement 保留题面，不含手写答案。无选项。completeness complete。privacy separated? 图像有手写答案和批注，但公开字段未包含，可以 separated? 需要排除手写答案、题号来源。original_text 保留题号3? 原题有“3.”，original_text可以保留来源题号。public_content statement 排除题号。privacy=separated 如果手写答案分离。题目正文完整可读。无图。figure_detection none。需要 uncertainties? 手写答案不报告。无。\n\noriginal_text 中公式用 $…$，分段函数 LaTeX。需要 JSON 转义反斜杠。original_text 可以：“3. 已知函数 $f(x)=\\\\begin{cases}2x-1,&x<1\\\\\\\\x^2,&x\\\\ge1\\\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______” 填空处？原题末尾是“是 [手写答案]” 实际印刷可能有横线？图像显示“是 {x| -3/2<x<2 }”手写。填空处照印刷原样写横线。原题末“解集是____”可能有填空线但图像手写覆盖。我们写“是______”。不要包含手写“单调函数”。\n\npublic_content statement 同样去掉题号：“已知函数 $f(x)=\\\\begin{cases}...\\\\end{cases}$，则不等式 ... 的 $x$ 的解集是______”。是否包含“单调函数”不是题目，不包含。\n\nroot.label? 可以不放 label? 题号“3.”是来源题号，可以不作为 label。root.definitions 定义。分段函数表示 piecewise(2*x-1,x<1,x^2,x>=1)。facts 不等式。goals find_range symbol x。注意 root.facts 中 f(x^2+x+3)>f(3*x^2-3)。定义 f 分段。 Good.\n\npublic_content choices 每个目标 status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\nuncertainties 空。"
+        }
+      }
+    ],
+    "created": 1794206768,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 969,
+      "prompt_tokens": 30004,
+      "total_tokens": 30973,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 691,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29568
+      },
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 436
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.272
+}

@@ -8,6 +8,49 @@
   },
   "steps": [
     {
+      "id": "route",
+      "calls": [
+        {
+          "id": "route",
+          "capability": "analyze_piecewise_inequality_route",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "mode": "mode",
+            "needs_threshold": "needs_threshold",
+            "needs_two_inputs": "needs_two_inputs"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "applicability",
+          "after": "route",
+          "template": "piecewise_inequality_applicability",
+          "guard": {
+            "ref": "needs_two_inputs",
+            "equals": true
+          },
+          "bindings": {
+            "description": "$description",
+            "mode": "$mode",
+            "phase": "applicability",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mode"
+          ]
+        }
+      ]
+    },
+    {
       "id": "level",
       "calls": [
         {
@@ -18,10 +61,14 @@
             "context": "$context"
           },
           "outputs": {
-            "description": "description",
             "level": "level"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
+          "skip_reason": "two-input-mode"
         }
       ],
       "judgments": [],
@@ -30,6 +77,10 @@
           "id": "level",
           "after": "level",
           "template": "piecewise_inequality_level",
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
           "bindings": {
             "description": "$description",
             "level": "$level",
@@ -58,7 +109,12 @@
           "outputs": {
             "branch_roots": "branch_roots"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
+          "skip_reason": "two-input-mode"
         }
       ],
       "judgments": [],
@@ -79,7 +135,12 @@
           "outputs": {
             "branch_solutions": "branch_solutions"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
+          "skip_reason": "two-input-mode"
         }
       ],
       "judgments": [],
@@ -99,9 +160,14 @@
           },
           "outputs": {
             "branch_results": "branch_results",
-            "feasible_set": "feasible_set"
+            "threshold_feasible": "feasible_set"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
+          "skip_reason": "two-input-mode"
         }
       ],
       "judgments": [],
@@ -110,11 +176,15 @@
           "id": "branches",
           "after": "filter",
           "template": "piecewise_inequality_derivation",
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
           "bindings": {
             "description": "$description",
             "level": "$level",
             "branch_results": "$branch_results",
-            "feasible_set": "$feasible_set",
+            "feasible_set": "$threshold_feasible",
             "phase": "branches",
             "before": [],
             "after": []
@@ -123,18 +193,22 @@
             "description",
             "level",
             "branch_results",
-            "feasible_set"
+            "threshold_feasible"
           ]
         },
         {
           "id": "merge",
           "after": "filter",
           "template": "piecewise_inequality_derivation",
+          "guard": {
+            "ref": "needs_threshold",
+            "equals": true
+          },
           "bindings": {
             "description": "$description",
             "level": "$level",
             "branch_results": "$branch_results",
-            "feasible_set": "$feasible_set",
+            "feasible_set": "$threshold_feasible",
             "phase": "merge",
             "before": [],
             "after": []
@@ -143,10 +217,112 @@
             "description",
             "level",
             "branch_results",
-            "feasible_set"
+            "threshold_feasible"
           ]
         }
       ]
+    },
+    {
+      "id": "two-inputs",
+      "calls": [
+        {
+          "id": "cases",
+          "capability": "solve_piecewise_two_input_cases",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "case_results": "case_results",
+            "two_input_feasible": "feasible_set"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "needs_two_inputs",
+            "equals": true
+          },
+          "skip_reason": "threshold-mode"
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "cases",
+          "after": "cases",
+          "template": "piecewise_inequality_cases",
+          "guard": {
+            "ref": "needs_two_inputs",
+            "equals": true
+          },
+          "bindings": {
+            "description": "$description",
+            "case_results": "$case_results",
+            "feasible_set": "$two_input_feasible",
+            "phase": "cases",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "case_results",
+            "two_input_feasible"
+          ]
+        },
+        {
+          "id": "merge-two",
+          "after": "cases",
+          "template": "piecewise_inequality_cases",
+          "guard": {
+            "ref": "needs_two_inputs",
+            "equals": true
+          },
+          "bindings": {
+            "description": "$description",
+            "case_results": "$case_results",
+            "feasible_set": "$two_input_feasible",
+            "phase": "merge",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "case_results",
+            "two_input_feasible"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "finalize",
+      "calls": [],
+      "judgments": [],
+      "merges": [
+        {
+          "id": "select_feasible",
+          "order": 0,
+          "branches": [
+            {
+              "guard": {
+                "ref": "needs_threshold",
+                "equals": true
+              },
+              "bindings": {
+                "feasible_set": "$threshold_feasible"
+              }
+            },
+            {
+              "guard": {
+                "ref": "needs_two_inputs",
+                "equals": true
+              },
+              "bindings": {
+                "feasible_set": "$two_input_feasible"
+              }
+            }
+          ]
+        }
+      ],
+      "display_units": []
     },
     {
       "id": "verify",

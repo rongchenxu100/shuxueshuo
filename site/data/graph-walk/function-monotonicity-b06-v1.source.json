@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b06-v1",
+  "title": "显式定义域上的递增比较 · B06",
+  "page": "/topics/function-monotonicity/q06b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 的定义域为 $(-1,1)$，且 $f(x)$ 是增函数。若 $f(2a-1)<f(3a-1)$，则 $a$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b06-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b06.json"
+}

@@ -1,0 +1,44 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b09-v1",
+  "reviewer": "Codex：依据用户原图与 T3 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B09，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\begin{cases}3x,&x\\ge3,\\\\-x^{2}+6x,&x<3\\end{cases}$。（1）求 $f(f(1))$ 的值；（2）若 $f(x^{2}-2x)<f(3x-4)$，求 $x$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+      ],
+      "facts": [
+        "f(x^2-2*x)<f(3*x-4)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(f(1))"
+        },
+        {
+          "kind": "find_range",
+          "symbol": "x",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "ℝ",
+            "direction": "increasing",
+            "strict": true,
+            "basis": "proved_monotonicity"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "15;(1,4)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

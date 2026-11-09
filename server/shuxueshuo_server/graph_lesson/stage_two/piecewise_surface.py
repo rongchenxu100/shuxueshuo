@@ -2,7 +2,12 @@
 
 import re
 
-from .evaluation_surface import _formula_parts, _piecewise_source_matches, pointer
+from .evaluation_surface import (
+    _formula_parts,
+    _piecewise_source_matches,
+    pointer,
+    range_goal_span,
+)
 
 
 def source_spans(candidate, target_ref, ranges, description, matches):
@@ -26,6 +31,13 @@ def source_spans(candidate, target_ref, ranges, description, matches):
         spans.append((*located[0], 'expression', [target_ref+'/range']))
     goals = [(a, b) for a, b, body in formulas if matches(body, description['variable'])
              and re.search(r'的(?:值|取值|范围)|满足', text[b+1:b+16])]
+    if not goals:
+        relations = [row['expression'] for row in description['sources']
+                     if row['ast'][0] in ('<', '<=', '>', '>=')]
+        goal = range_goal_span(text, formulas, description['variable'],
+                               relations[0] if len(relations) == 1 else None, matches)
+        if goal is not None:
+            goals.append(goal)
     if not goals:
         return None
     spans.append((*goals[0], 'goal', [target_ref]))

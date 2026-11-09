@@ -1,0 +1,486 @@
+{
+  "search_id": "2354fcf7f5ce",
+  "user_id": "21cd74ed-4f1c-4a6c-b0fa-aa3bd9b7aca5",
+  "problem_id": "137e5b17-3153-4a47-9bd9-32f6a3e8785a",
+  "statement": "已知函数 $f(x)=\\begin{cases}3x,\\ x\\ge 3\\\\ -x^2+6x,\\ x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+  "recognition_status": "reviewed",
+  "lesson_status": "failed",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "69501a4090ff9d553329de5cdd20673250ab4d207f1b083640ec2fb31ff870c3",
+      "width": 1165,
+      "height": 153,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/2354fcf7f5ce/figures/original?version=82c8daf69d1bf862fe3c63e46fb0a9705503d139a07160ec0ddbb07108efa20c"
+      }
+    ],
+    "content_id": "82c8daf69d1bf862fe3c63e46fb0a9705503d139a07160ec0ddbb07108efa20c"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "b50db945504f",
+    "box": [
+      0.04691164972634871,
+      0.05216881594372802,
+      0.9577795152462861,
+      0.141852286049238
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1165,
+      153
+    ],
+    "bytes": 15233
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "9.已知函数 $f(x)=\\begin{cases}3x,\\ x\\ge 3\\\\ -x^2+6x,\\ x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+    ],
+    "facts": [
+      "f(x^2-2*x) < f(3*x-4)"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(f(1))"
+      },
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "99a66d6bc4ae88c8b2529aa46b9e4e182c2eb6aa6239a4f5ebe960cc2b8db1e7",
+    "sent_image_sha256": [
+      "99a66d6bc4ae88c8b2529aa46b9e4e182c2eb6aa6239a4f5ebe960cc2b8db1e7"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 39.033,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-evaluation",
+        "supported": [
+          "type-function-evaluation"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.function_evaluation_source_not_located",
+              "target_ref": "/root/goals/0"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-function-evaluation",
+            "label": "求函数值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。"
+            ],
+            "choice_hint": "根据函数关系，求给定输入或组合的输出"
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#definition",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "定义与记号"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-function-evaluation",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#definition"
+            ]
+          }
+        ],
+        "walk": null
+      },
+      {
+        "target_ref": "/root/goals/1",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-piecewise-function",
+        "supported": [
+          "type-piecewise-function"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.piecewise_inequality_source_not_located",
+              "target_ref": "/root/goals/1"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+            ],
+            "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "86bb2aee1cdc460585a68f1cd3b0faa9",
+      "lesson_version": "710dbd7bd69dc62192825b4234c0e925d2bf7d515e8aae77f3c9344d2f17dfd8",
+      "stream_id": "86bb2aee1cdc460585a68f1cd3b0faa9",
+      "snapshot_url": "/api/search/problems/2354fcf7f5ce/lesson/86bb2aee1cdc460585a68f1cd3b0faa9/snapshot",
+      "events_url": "/api/search/problems/2354fcf7f5ce/lesson/86bb2aee1cdc460585a68f1cd3b0faa9/events",
+      "websocket_url": "/api/search/problems/2354fcf7f5ce/lesson/86bb2aee1cdc460585a68f1cd3b0faa9/ws"
+    }
+  }
+}

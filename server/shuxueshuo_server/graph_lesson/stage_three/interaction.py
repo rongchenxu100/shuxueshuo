@@ -1700,6 +1700,9 @@ def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'function_monotonicity':
         from .monotonicity_presentation import compile_monotonicity
         return compile_monotonicity(seeds, interaction_id)
+    if rule.get('compiler') == 'monotonicity_inequality':
+        from .monotonicity_inequality_presentation import compile_mono_inequality
+        return compile_mono_inequality(seeds, interaction_id)
     if rule.get('compiler') == 'function_graph':
         from .graph_transform_presentation import compile_graph
         return compile_graph(seeds, interaction_id)

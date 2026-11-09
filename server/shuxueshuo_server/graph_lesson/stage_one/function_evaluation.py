@@ -19,6 +19,30 @@ def _scalar_refs(ast):
     return set().union(*(_scalar_refs(child) for child in ast[1:]))
 
 
+def _sibling_order_inequality(ast, scope, goal_index):
+    """Skip only an independent scalar comparison owned by a sibling range ask."""
+    if not (isinstance(ast, list) and len(ast) == 3 and ast[0] in ('<', '<=', '>', '>=')):
+        return False
+    left, right = ast[1], ast[2]
+    if not (isinstance(left, list) and isinstance(right, list) and len(left) >= 2 and len(right) >= 2):
+        return False
+    same_function = (left[0] == right[0] == 'function_call' and left[1] == right[1])
+    if not same_function:
+        return False
+    refs = _scalar_refs(ast)
+    goal = scope['goals'][goal_index]
+    goal_refs = _scalar_refs(goal['target']) | _scalar_refs(goal.get('input_domain', []))
+    for term in goal.get('terms', []):
+        for value in term.values():
+            goal_refs |= _scalar_refs(value)
+    if len(refs) != 1 or refs & goal_refs:
+        return False
+    return any(index != goal_index and sibling['kind'] == 'find_range'
+               and sibling['target'][:1] == ['ref']
+               and _scalar_refs(sibling['target']) == refs
+               for index, sibling in enumerate(scope['goals']))
+
+
 def describe_evaluation_goal(report, scope, ancestors, goal_index):
     goal = scope['goals'][goal_index]
     if goal['kind'] not in KINDS:
@@ -52,6 +76,8 @@ def describe_evaluation_goal(report, scope, ancestors, goal_index):
                     if ref in domains and domains[ref][0] != domain:
                         raise NotationError('evaluation.conflicting_function_domain')
                     domains[ref] = (deepcopy(domain), source)
+                elif item is scope and _sibling_order_inequality(ast, scope, goal_index):
+                    continue
                 else:
                     raise NotationError('evaluation.additional_conditions_unsupported')
         for ref, (domain, source) in domains.items():

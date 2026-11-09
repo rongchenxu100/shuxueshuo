@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-monotonicity-inequality",
+  "branches": [
+    {
+      "branch_id": "known_order",
+      "checks": [
+        {
+          "id": "source",
+          "feature_id": "monotonicity_inequality",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

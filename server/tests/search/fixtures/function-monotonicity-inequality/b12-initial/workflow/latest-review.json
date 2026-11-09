@@ -1,0 +1,12 @@
+{
+  "revision": "d6c336ca8a955349cf36ed10f00606f30cff29d037995bc9bfa79ca1edcd4383",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/goals/0",
+      "kind": "wrong_goal",
+      "source_excerpt": "则不等式 f(1-x^2)>f(2x) 的解集合是____。",
+      "message": "目标 /root/goals/0 当前只有 kind=find_range 和 symbol=x，未在目标中保留原题的不等式表达式。原题要求求 f(1-x^2)>f(2x) 的解集，应把完整不等式作为该目标的 expression 保留，而不是仅把不等式放在 facts 中。"
+    }
+  ]
+}

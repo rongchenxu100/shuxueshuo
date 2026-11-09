@@ -5,6 +5,7 @@ import sympy as sp
 
 from ..function_monotonicity import (
     KINDS,
+    PIECEWISE_FAMILIES,
     components,
     describe,
     effective_domain,
@@ -27,9 +28,9 @@ def admitted(context, method=None):
     if method == 'definition':
         return desc.get('family') == 'polynomial'
     if method == 'piecewise':
-        return desc.get('family') == 'absolute'
+        return desc.get('family') in PIECEWISE_FAMILIES
     if method == 'structure':
-        return desc.get('family') != 'absolute'
+        return desc.get('family') not in PIECEWISE_FAMILIES
     return True
 
 
@@ -44,6 +45,7 @@ def prepare(context):
     except ValueError as exc:
         raise CapabilityGap(str(exc)) from exc
     borrow = spec['family'] in ('sqrt', 'reciprocal_sqrt')
+    nested = context.get('teaching_density') == 'nested_inequality'
     domain_context = None
     if borrow:
         name, variable = desc['source'].get('function', 'f'), desc['source']['variable']
@@ -54,9 +56,25 @@ def prepare(context):
             'definitions': [f'{name}({variable})={desc["source"]["expression"]}'], 'goals': [goal]}}
         domain_context = build_context(candidate, '/root/goals/0')
     p = spec['polynomial']
-    return result({'description': desc, 'domain_context': domain_context, 'needs_domain': borrow, 'plain_domain': not borrow,
-                   'polynomial': p, 'variable': spec['variable'], 'quadratic': p is not None and sp.Poly(p, spec['variable']).degree() == 2,
-                   'domain': domain, 'natural_domain': natural}, ['monotonicity_domain'],
+    quadratic = p is not None and sp.Poly(p, spec['variable']).degree() == 2
+    show_square = quadratic
+    if nested and quadratic:
+        # Skip completing-the-square when the piece direction is already obvious.
+        if sp.expand(p) == spec['variable']**2:
+            show_square = False
+        else:
+            coeffs = sp.Poly(p, spec['variable']).all_coeffs()
+            axis = -coeffs[1] / (2 * coeffs[0])
+            if isinstance(domain, sp.Interval) and axis not in sp.Interval.open(domain.start, domain.end):
+                show_square = False
+    return result({
+        'description': desc, 'domain_context': domain_context, 'needs_domain': borrow,
+        'plain_domain': (not borrow) and not nested,
+        'show_square': show_square,
+        'show_answer': not nested,
+        'polynomial': p, 'variable': spec['variable'], 'quadratic': quadratic,
+        'domain': domain, 'natural_domain': natural,
+    }, ['monotonicity_domain'],
                   [{'kind': 'original_domain_constraints', 'passed': True}])
 
 
@@ -86,7 +104,7 @@ def confirm(description, monotonicity_result):
 
 def split(context):
     if not admitted(context, 'piecewise'):
-        raise CapabilityGap('monotonicity.absolute_required')
+        raise CapabilityGap('monotonicity.piecewise_required')
     desc = context['monotonicity_goal']
     spec = source(desc['source'])
     _, domain = effective_domain(spec, desc['source'])
@@ -100,11 +118,17 @@ def split(context):
                     'input_domain': domain_text, 'domain_role': 'restriction',
                     'function': f'f_{i+1}'}
             child = describe(goal, desc['target_ref'])
-            child_context = {'goal': goal, 'target_ref': desc['target_ref'], 'entries': [], 'monotonicity_goal': child}
+            child_context = {
+                'goal': goal, 'target_ref': desc['target_ref'], 'entries': [],
+                'monotonicity_goal': child,
+            }
+            if context.get('teaching_density'):
+                child_context['teaching_density'] = context['teaching_density']
             cases.append({'id': f'piece-{i+1}', 'condition': interval.as_relational(spec['variable']),
                           'domain': interval, 'context': child_context})
+    evidence = 'equivalent_absolute_branches' if spec['family'] == 'absolute' else 'equivalent_explicit_branches'
     return result({'description': deepcopy(desc), 'branch_cases': cases}, ['absolute_sign_split'],
-                  [{'kind': 'equivalent_absolute_branches', 'passed': True}])
+                  [{'kind': evidence, 'passed': True}])
 
 
 def bind(branch_case):
@@ -122,6 +146,7 @@ def join(context, branch_results):
             raise LocalCheckFailed('monotonicity.child_proof_invalid')
     answer = analyze(context['monotonicity_goal'], 'piecewise')
     answer['operations'] = ['monotonicity_junction']
+    answer['outputs']['show_piecewise_answer'] = context.get('teaching_density') != 'nested_inequality'
     return answer
 
 
@@ -195,19 +220,23 @@ def select(context, contract, primary):
                 'recommendation_rule': None, 'recommendation_checks': []}, 'd3': None, 'd4': None,
                 'diagnostics': [{'code': context.get('monotonicity_goal', {}).get('reason', 'monotonicity.unsupported')}]}
     family = context['monotonicity_goal']['family']
-    preferred = 'piecewise' if family == 'absolute' else 'structure'
-    if context['goal']['kind'] == 'prove_monotonicity_on_interval':
+    preferred = 'piecewise' if family in PIECEWISE_FAMILIES else 'structure'
+    if context['goal']['kind'] == 'prove_monotonicity_on_interval' and family == 'polynomial':
         preferred = 'definition'
     labels = {'structure': '基本函数与复合法', 'piecewise': '分段单调性法', 'definition': '定义法'}
     # Keep the general method map, but only open routes suited to this task.
     # Recognizable concrete interval questions do not need a second definition proof.
     eligible = {name for name in labels if admitted(context, name)
                 and (name != 'definition' or context['goal']['kind'] == 'prove_monotonicity_on_interval')}
+    piecewise_note = (
+        '例如 $|x|$：$x<0$ 时写成 $-x$，$x\\geq0$ 时写成 $x$；分别判断，再检查分界处。'
+        if family == 'absolute' else
+        '按原定义的各段分别判断增减，再检查跨段像的次序；同向箭头不能直接拼成整体结论。')
     cues = [
         {'value': 'structure', 'label': '一次、二次、反比例等常见函数及其复合函数',
          'note': '先用已知的增减规律；复合函数逐层判断。例如先看 $u=x^2$，再看 $y=\\sqrt{u}$。'},
-        {'value': 'piecewise', 'label': '含绝对值，需要按符号分段',
-         'note': '例如 $|x|$：$x<0$ 时写成 $-x$，$x\\geq0$ 时写成 $x$；分别判断，再检查分界处。'},
+        {'value': 'piecewise', 'label': '分段给出或含绝对值，需要分段判断',
+         'note': piecewise_note},
         {'value': 'definition', 'label': '题目要求用定义证明单调性',
          'note': '任取 $x_1<x_2$，判断 $f(x_2)-f(x_1)$ 的正负。例如对 $f(x)=2x+1$，差为 $2(x_2-x_1)>0$。'},
     ]

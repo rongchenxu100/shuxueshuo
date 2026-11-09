@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b12-v1",
+  "title": "常值段不能直接去 f · B12",
+  "page": "/topics/function-monotonicity/q12b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\begin{cases}x^{2}+1,&x\\ge0,\\\\1,&x<0\\end{cases}$。若 $f(1-x^{2})>f(2x)$，则 $x$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b12-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b12.json"
+}

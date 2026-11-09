@@ -116,10 +116,22 @@
     const ends = interval.map((value, i) => ({value, closed: closed[i]})).filter(end => Number.isFinite(end.value));
     return guide(ends.filter(end => end.closed).map(end => end.value), false) + guide(ends.filter(end => !end.closed).map(end => end.value), true);
   };
-  // place: "above-right" (default), "above-left", "below-right" or "below-left" of the point.
-  const pointLabels = (points, x, y) => points.filter(point => point.label != null).map(point => {
-    const [vertical, side] = (point.place || 'above-right').split('-');
-    return `<text x="${x(point.x) + (side === 'left' ? -8 : 8)}" y="${y(point.x) + (vertical === 'below' ? 22 : -10)}" text-anchor="${side === 'left' ? 'end' : 'start'}" fill="#a04c36">${escape(point.label)}</text>`;
+  // place: "above"/"below" (centered), or above/below-left/right of the point.
+  // Optional leader: vertical callouts stay clear of the stroke; angled ones keep a longer offset.
+  const pointLabels = (points, x, y, {leaders = false, marker = '', lift = 1} = {}) => points.filter(point => point.label != null).map(point => {
+    const place = point.place || 'above-right';
+    const px = x(point.x), py = y(point.x);
+    const centered = place === 'above' || place === 'below';
+    const vertical = centered ? place : place.split('-')[0];
+    const side = centered ? 'center' : place.split('-')[1];
+    const dx = side === 'left' ? -22 * lift : side === 'right' ? 22 * lift : 0;
+    const dy = (vertical === 'below' ? 34 : -30) * lift;
+    const tx = px + dx, ty = py + dy;
+    const text = `<text x="${tx}" y="${ty + (vertical === 'below' ? 4 : 0)}" text-anchor="${side === 'left' ? 'end' : side === 'right' ? 'start' : 'middle'}" fill="#a04c36">${escape(point.label)}</text>`;
+    if (!leaders) return text;
+    const tipX = px + (side === 'left' ? -7 : side === 'right' ? 7 : 0);
+    const tipY = py + (vertical === 'below' ? 8 : -8);
+    return `<g class="graph-point-callout">${text}<path d="M${tx} ${ty}L${tipX} ${tipY}" fill="none" stroke="#a04c36" stroke-width="1.3"${marker ? ` marker-end="url(#${marker})"` : ''}/></g>`;
   }).join('');
   // An open point is not attained (an excluded endpoint of an open interval): drawn hollow.
   const pointDot = point => point.open ? 'r="5" fill="#fff" stroke="#b65c42" stroke-width="2.4"' : 'r="5" fill="#b65c42"';
@@ -540,9 +552,15 @@
       </g>`;
     };
     const height = marks.length ? 276 + (marks.length - 1) * 27 : 270;
+    const arrowId = `${id}-point-arrow`;
     return `<svg viewBox="0 0 360 ${height}" role="img" aria-labelledby="${id}-title ${id}-description">
       <title id="${id}-title">${escape(title)}</title><desc id="${id}-description">${escape(description)}</desc>
-      <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
+      <defs>
+        <clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath>
+        <marker id="${arrowId}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0L8 4L0 8Z" fill="#a04c36"/>
+        </marker>
+      </defs>
       <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
       ${marks.filter(m => m.trend === 'pending').map(m => `<rect class="piecewise-active-interval" x="${x(m.left)}" y="48" width="${x(m.right)-x(m.left)}" height="174" fill="#f8dfbd" opacity=".55"/>`).join('')}
       ${[...dividers].map(divider).join('')}
@@ -560,7 +578,7 @@
       <g fill="#526e64" font-family="Georgia,serif" font-size="12">
         ${xTicks.map(([v, label]) => `<text x="${x(v)}" y="${y(0)+19}" text-anchor="middle">${escape(label)}</text>`).join('')}
         ${yTicks.map(([v, label]) => `<text x="320" y="${y(v)-7}" text-anchor="end">y = ${escape(label)}</text>`).join('')}
-        ${pointLabels(points.filter(p => segmentAt(p.x)), x, v => y(value(segmentAt(v), v)))}
+        ${pointLabels(points.filter(p => segmentAt(p.x)), x, v => y(value(segmentAt(v), v)), {leaders: true, marker: arrowId, lift: 1.35})}
         ${marks.map(annotation).join('')}
         <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
         <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
@@ -583,7 +601,7 @@
       (value[0] === null || value[1] === null || value[0] < value[1]);
     const ticks = value => array(value, tick => Array.isArray(tick) && tick.length === 2 && Number.isFinite(tick[0]) && string(tick[1]));
     const point = value => object(value) && Number.isFinite(value.x) && optional(value, 'open', boolean) &&
-      optional(value, 'label', string) && optional(value, 'place', place => ['above-right', 'above-left', 'below-right', 'below-left'].includes(place));
+      optional(value, 'label', string) && optional(value, 'place', place => ['above', 'below', 'above-right', 'above-left', 'below-right', 'below-left'].includes(place));
     if (!object(spec) || !string(spec.kind) || !Object.hasOwn(graphKinds, spec.kind) || !object(spec.params) || !optional(spec, 'caption', string)) return false;
     const p = spec.params, dimensions = spec.kind === 'number_line' ? 2 : 4;
     const span = (low, high) => low < high && Number.isFinite(high - low);

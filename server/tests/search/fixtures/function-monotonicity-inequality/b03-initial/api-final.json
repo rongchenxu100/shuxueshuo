@@ -1,0 +1,287 @@
+{
+  "search_id": "16b5bb1470bc",
+  "user_id": "21cd74ed-4f1c-4a6c-b0fa-aa3bd9b7aca5",
+  "problem_id": "ca58b513-f76c-45c7-a727-6246f1b7e84f",
+  "statement": "已知函数 $f(x)=\\begin{cases}2x-1,&x<1\\\\x^2,&x\\ge1\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "6cb4b90468652031176ddc194710aadcd3fbcae57dd283fdfa43956c3f2b96e3",
+      "width": 1145,
+      "height": 154,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/16b5bb1470bc/figures/original?version=22d0fe7ade60429b4a5c8076ccfb75329c6ed869acd1f7caad9fd75b387f1ed9"
+      }
+    ],
+    "content_id": "22d0fe7ade60429b4a5c8076ccfb75329c6ed869acd1f7caad9fd75b387f1ed9"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "747da5e06bfd",
+    "box": [
+      0.0508209538702111,
+      0.2637749120750293,
+      0.946051602814699,
+      0.3540445486518171
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1145,
+      154
+    ],
+    "bytes": 13360
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "3. 已知函数 $f(x)=\\begin{cases}2x-1,&x<1\\\\x^2,&x\\ge1\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(2*x-1,x<1,x^2,x>=1)"
+    ],
+    "facts": [
+      "f(x^2+x+3)>f(3*x^2-3)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ],
+    "uncertainties": []
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332",
+    "sent_image_sha256": [
+      "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 20.468,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-piecewise-function",
+        "supported": [
+          "type-piecewise-function"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.piecewise_inequality_source_not_located",
+              "target_ref": "/root/goals/0"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+            ],
+            "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "26bb45f80fa84a29a7c880609a836fcd",
+      "lesson_version": "67cce7de5889cca1f00e5ef18bc25785b64fc04e0844cd1d197c8f7180f9c4ad",
+      "stream_id": "26bb45f80fa84a29a7c880609a836fcd",
+      "snapshot_url": "/api/search/problems/16b5bb1470bc/lesson/26bb45f80fa84a29a7c880609a836fcd/snapshot",
+      "events_url": "/api/search/problems/16b5bb1470bc/lesson/26bb45f80fa84a29a7c880609a836fcd/events",
+      "websocket_url": "/api/search/problems/16b5bb1470bc/lesson/26bb45f80fa84a29a7c880609a836fcd/ws"
+    }
+  }
+}

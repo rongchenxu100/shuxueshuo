@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('monotonicity_inequality', ('goal',), 'monotonicity_inequality',
+                ('function-monotonicity#definition',), '利用严格单调性把函数值比较转为输入比较',
+                version='monotonicity-inequality/v1', supported_structures=('known_strict_order',),
+                computation_boundary='known monotonicity fact, same-function calls and polynomial inputs'),
     FeatureSpec('function_extremum', ('goal',), 'function_extremum',
                 ('function-range-extrema#extrema',), '利用增减与取得性求最值或参数',
                 version='function-extremum/v1', supported_structures=('bounded_extrema',),
@@ -527,9 +531,17 @@ def _scope_features(report, candidate, scope, ancestors, features):
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_range_parameter'}, source_refs=[target_ref])
             continue
+        from ..monotonicity_inequality_math import routed_description as mono_inequality_description
         from ..extremum_math import routed_description as extremum_description
         original = pointer(candidate, target_ref)
         sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
+        if desc := mono_inequality_description(original, target_ref, sources):
+            add('goal', {'kind': goal['kind'], 'symbol': original['symbol']}, source_refs=[target_ref])
+            add('monotonicity_inequality', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_mono_inequality_goal'}, source_refs=[target_ref])
+            continue
         if desc := extremum_description(original, target_ref, sources):
             add('goal', {'kind': goal['kind'], **({'symbol': original['symbol']} if 'symbol' in original else {'object': original['object']})}, source_refs=[target_ref])
             add('function_extremum', desc, source_refs=desc['source_refs'])

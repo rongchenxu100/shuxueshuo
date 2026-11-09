@@ -287,6 +287,55 @@
                   "answer_request": {
                     "$ref": "#/$defs/AnswerRequest",
                     "description": "原题对值域集合的提问方式，仅记录目标，不写答案。"
+                  },
+                  "function_monotonicity": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "function",
+                      "domain",
+                      "direction",
+                      "strict"
+                    ],
+                    "properties": {
+                      "function": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "题给抽象函数名，如 f；不写解析式。"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "已知严格单调性成立的区间，如 (0,+∞)；不是所求答案。"
+                      },
+                      "function_domain": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "仅当原题明确给出函数 f 的完整定义域时转录；与单调性成立的 domain 区分，不能从局部单调区间推断或补写。"
+                      },
+                      "direction": {
+                        "enum": [
+                          "increasing",
+                          "decreasing"
+                        ],
+                        "description": "题给严格递增或严格递减。"
+                      },
+                      "strict": {
+                        "const": true,
+                        "description": "本批仅接受严格单调；非严格不得写成 true。"
+                      },
+                      "basis": {
+                        "enum": [
+                          "given",
+                          "proved_monotonicity"
+                        ],
+                        "description": "单调性依据：题给已知，或先由分段单调性等方法证明后再应用。"
+                      }
+                    },
+                    "description": "题给同一函数的严格单调性事实；仅用于函数值比较转输入比较，不写答案。"
                   }
                 },
                 "additionalProperties": false,

@@ -1,0 +1,755 @@
+{
+  "run_id": "c928b8eba8644bec9707761a79b0bcca",
+  "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+  "input_sha256": "9c750adef4cd7862258023b6adc4002c1caaebc48e8022f9fae886e2a79b175f",
+  "stream_id": "c928b8eba8644bec9707761a79b0bcca",
+  "last_seq": 19,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\mathbb{R}$ 上怎样变化？",
+      "highlight": {
+        "caption": "核对比较对象与单调性",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "原比较",
+            "math": "f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)"
+          },
+          {
+            "label": "题给单调性",
+            "math": "f\\text{ 在 }\\mathbb{R}\\text{ 上 }\\downarrow"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "local_check": "passed",
+      "math_step_sha256": "5176f5f2223b04aad593a4c70aadb97acf56de3b39dbf28d03c87557d7b816fa",
+      "method_ref": "method-monotonicity-inequality#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "6aac734b17f126bb5c5691477e62800e0bc4509dc2c10476a8d424f8f9691393",
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "source_refs": [
+        "/steps/0/calls/0",
+        "/steps/0/calls/1"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "核对比较对象与单调性",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "order",
+      "explanation": "在同一严格递减区间上，原函数值比较等价于怎样的输入比较？",
+      "highlight": {
+        "caption": "利用单调性转化比较",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已确认的条件",
+            "math": "\\begin{gathered}f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\m^{2} + 2,2 m + 5\\in \\mathbb{R}\\end{gathered}"
+          },
+          {
+            "label": "输入比较",
+            "math": "m^{2} + 2\\,<\\,2 m + 5"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "local_check": "passed",
+      "math_step_sha256": "301530f39d866090cd5f9d28d5d37a743599705ce6a8f6d574b8b39b340d6a3f",
+      "method_ref": "method-monotonicity-inequality#order",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "6aac734b17f126bb5c5691477e62800e0bc4509dc2c10476a8d424f8f9691393",
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "source_refs": [
+        "/steps/4/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-002-order",
+      "target_ref": "/root/goals/0",
+      "title": "利用单调性转化比较",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "把转化后的不等式与合法域求交，$m$ 的取值范围是？",
+      "highlight": {
+        "caption": "回到原目标",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "转化后 ∩ 合法域",
+            "math": "\\begin{gathered}m^{2} + 2\\,<\\,2 m + 5\\\\m\\in \\mathbb{R}\\end{gathered}"
+          },
+          {
+            "label": "解集",
+            "math": "m\\in \\left(-1, 3\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "local_check": "passed",
+      "math_step_sha256": "4c70091236c77f120ec1a1ffadd3a9f78672a9c5692fbfb99b3265857f460da1",
+      "method_ref": "method-monotonicity-inequality#conclude",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "6aac734b17f126bb5c5691477e62800e0bc4509dc2c10476a8d424f8f9691393",
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "source_refs": [
+        "/steps/5/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-003-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "回到原目标",
+      "used_basis": [
+        "function-monotonicity#interval"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(-1, 3)",
+          "latex": "\\left(-1, 3\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Integer",
+              "value": "-1"
+            },
+            {
+              "$math": "Integer",
+              "value": "3"
+            },
+            {
+              "$math": "BooleanTrue"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.open(-1, 3)",
+        "latex": "\\left(-1, 3\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(-1, 3)",
+          "latex": "\\left(-1, 3\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Integer",
+              "value": "-1"
+            },
+            {
+              "$math": "Integer",
+              "value": "3"
+            },
+            {
+              "$math": "BooleanTrue"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.open(-1, 3)",
+        "latex": "\\left(-1, 3\\right)"
+      },
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "math_steps": [
+        {
+          "math_step_sha256": "5176f5f2223b04aad593a4c70aadb97acf56de3b39dbf28d03c87557d7b816fa",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
+        },
+        {
+          "math_step_sha256": "301530f39d866090cd5f9d28d5d37a743599705ce6a8f6d574b8b39b340d6a3f",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-monotonicity-inequality-002-order"
+        },
+        {
+          "math_step_sha256": "4c70091236c77f120ec1a1ffadd3a9f78672a9c5692fbfb99b3265857f460da1",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-monotonicity-inequality-003-conclude"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "00fd593739a993bbb07ad5b96d37f1a0fe90da25a73b9518f66958099c3a73b9",
+      "verified_route_sha256": "974dcf47b135fa09c5eaadbf161e300b6d0be799f829abee04a7308fca859962"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "order"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "先检查两个输入，再利用递增或递减比较它们的大小。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "同一个函数的两个函数值比大小",
+                  "note": "如 $f(2x)<f(x+1)$。先检查两个输入，再利用递增或递减比较它们的大小。",
+                  "value": "order"
+                },
+                {
+                  "label": "函数分段给出，需要分别代入比较",
+                  "note": "先看两个输入各落在哪一段，再代入对应式子；有常值段时，不能直接去掉 $f$。",
+                  "value": "piecewise"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "单调性解不等式法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "order",
+              "method": "order"
+            },
+            {
+              "cue": "piecewise",
+              "method": "piecewise"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性解不等式法",
+              "value": "order"
+            },
+            {
+              "label": "分段解不等式法",
+              "value": "piecewise"
+            }
+          ],
+          "method_notes": {
+            "piecewise": "本题未给出分段定义，优先利用已知单调性。"
+          },
+          "source_refs": [
+            "/root/goals/0",
+            "/root/facts/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-inequality",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "order": {
+            "message": "先检查两个输入，再利用递增或递减比较它们的大小。",
+            "value": "fit"
+          },
+          "piecewise": {
+            "message": "本题没有分段表达式，不能按分支分别代入。",
+            "value": "unfit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "order",
+            "message": "开始解题",
+            "method": "method-monotonicity-inequality",
+            "recommendation": "preferred",
+            "route_id": "monotonicity-inequality",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "5176f5f2223b04aad593a4c70aadb97acf56de3b39dbf28d03c87557d7b816fa",
+      "status": "interactive",
+      "interaction_id": "8e449a2c971d5b8385ba09b2"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-002-order",
+      "ordinal": 2,
+      "math_step_sha256": "301530f39d866090cd5f9d28d5d37a743599705ce6a8f6d574b8b39b340d6a3f",
+      "status": "interactive",
+      "interaction_id": "cbb4bfdf207a8da4c1f99ba7"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-003-conclude",
+      "ordinal": 3,
+      "math_step_sha256": "4c70091236c77f120ec1a1ffadd3a9f78672a9c5692fbfb99b3265857f460da1",
+      "status": "interactive",
+      "interaction_id": "b5a97565842aa89d9ff6a29a"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "6aac734b17f126bb5c5691477e62800e0bc4509dc2c10476a8d424f8f9691393",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:monotonicity-inequality:complete",
+      "last_seq": 16
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-monotonicity-inequality",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-monotonicity-inequality",
+          "step": "basis-prove",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-monotonicity-inequality",
+          "step": "basis-confirm",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-monotonicity-inequality",
+          "step": "inputs",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-monotonicity-inequality",
+          "step": "order",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-order",
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-monotonicity-inequality",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 7,
+          "method": "method-monotonicity-inequality",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "8e449a2c971d5b8385ba09b2",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "3d9681af1f406246fd5f548e9d4f9e16ffbf50f224465c55c961028e00ba0cb8",
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "核对比较对象与单调性",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原比较",
+                "math": "f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)"
+              },
+              {
+                "label": "题给单调性",
+                "math": "f\\text{ 在 }\\mathbb{R}\\text{ 上 }\\downarrow"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "8e449a2c971d5b8385ba09b2#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f\\text{ 在 }\\mathbb{R}\\text{ 上 }\\downarrow$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\uparrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\text{非严格}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\mathbb{R}$ 上怎样变化？",
+          "stem_board": {
+            "caption": "核对比较对象与单调性",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原比较",
+                "math": "f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)"
+              },
+              {
+                "label": "题给单调性",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "核对比较对象与单调性"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "5176f5f2223b04aad593a4c70aadb97acf56de3b39dbf28d03c87557d7b816fa",
+          "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "cbb4bfdf207a8da4c1f99ba7",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "0be88fc7d43b3a23601ba7b0e55972fbe4a7da02886eb961ff5db014d43a1643",
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "利用单调性转化比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认的条件",
+                "math": "\\begin{gathered}f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\m^{2} + 2,2 m + 5\\in \\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "输入比较",
+                "math": "m^{2} + 2\\,<\\,2 m + 5"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "cbb4bfdf207a8da4c1f99ba7#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$m^{2} + 2\\,\\ge\\,2 m + 5$",
+                "value": "o4"
+              },
+              {
+                "label": "$m^{2} + 2\\,\\le\\,2 m + 5$",
+                "value": "o2"
+              },
+              {
+                "label": "$m^{2} + 2\\,<\\,2 m + 5$",
+                "value": "o1"
+              },
+              {
+                "label": "$m^{2} + 2\\,>\\,2 m + 5$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在同一严格递减区间上，原函数值比较等价于怎样的输入比较？",
+          "stem_board": {
+            "caption": "利用单调性转化比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认的条件",
+                "math": "\\begin{gathered}f\\!\\left(m^{2} + 2\\right)\\,>\\,f\\!\\left(2 m + 5\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\m^{2} + 2,2 m + 5\\in \\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "输入比较",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "利用单调性转化比较"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "301530f39d866090cd5f9d28d5d37a743599705ce6a8f6d574b8b39b340d6a3f",
+          "step_id": "39e5646dcb-monotonicity-inequality-002-order"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "b5a97565842aa89d9ff6a29a",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "cf894cbacdb11aefb2972fc2f125e8e5e8753cadf721f9922b56fee3ce84768a",
+      "lesson_version": "26d19342c410689d99af7270ebe47e5770de15c9f5d32e0f3cdee38bb0601fa5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "回到原目标",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "转化后 ∩ 合法域",
+                "math": "\\begin{gathered}m^{2} + 2\\,<\\,2 m + 5\\\\m\\in \\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": "m\\in \\left(-1, 3\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "b5a97565842aa89d9ff6a29a#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$m\\in \\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$m\\in \\left[-1, 3\\right)$",
+                "value": "o4"
+              },
+              {
+                "label": "$m\\in \\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$m\\in \\left(-1, 3\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把转化后的不等式与合法域求交，$m$ 的取值范围是？",
+          "stem_board": {
+            "caption": "回到原目标",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "转化后 ∩ 合法域",
+                "math": "\\begin{gathered}m^{2} + 2\\,<\\,2 m + 5\\\\m\\in \\mathbb{R}\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到原目标"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "c928b8eba8644bec9707761a79b0bcca",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "4c70091236c77f120ec1a1ffadd3a9f78672a9c5692fbfb99b3265857f460da1",
+          "step_id": "39e5646dcb-monotonicity-inequality-003-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b04-v1",
+  "label": "已知递减求参数 · B04",
+  "path": "/topics/function-monotonicity/q06/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b04-v1.json",
+  "types": [
+    "type-monotonicity-inequality"
+  ],
+  "statement": "已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-inequality": {
+      "label": "单调性解不等式法",
+      "methods": [
+        "method-monotonicity-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "ec8d889f404d0f14ec0bdaf9#1": {
+          "title": "核对比较对象与单调性",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-inequality#prepare",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "92dffb222a88edb8eaf4f3be#1": {
+          "title": "利用单调性转化比较",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-inequality#order",
+            "skill-monotonicity-order",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "caca4d461d801f7a764b7cf9#1": {
+          "title": "回到原目标",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-inequality#conclude",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "6c17ebf782a69182f2a6f5b22fc1b200a097a5217fe98508fa39f2b1eb4d1e87",
+  "practice_version": "764534a3e16dabba31cf928729d0f9bdfffd7f4507313ed4cde776069d0eaf7c"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b02-v1",
+  "title": "有限定义域上的递增比较 · B02",
+  "page": "/topics/function-monotonicity/q02b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 的定义域为 $[-1,1]$，且 $f(x)$ 是增函数。若 $f(x-1)>f(1-3x)$，则 $x$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b02-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b02.json"
+}

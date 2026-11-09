@@ -1,0 +1,38 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b06-v1",
+  "reviewer": "Codex：原图 B06 只写在 (-1,1) 上递增、未写完整定义域。本条为教学变式，显式补写定义域为 (-1,1)，并注明补充条件；不是 OCR 静默改写原印刷题。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-03.jpg",
+      "sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad",
+      "location": "FM-B06，图 3；教学变式补写定义域"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 的定义域为 $(-1,1)$，且 $f(x)$ 是增函数。若 $f(2a-1)<f(3a-1)$，则 $a$ 的取值范围是______。",
+    "root": {
+      "definitions": [],
+      "facts": [
+        "f(2*a-1)<f(3*a-1)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "(-1,1)",
+            "direction": "increasing",
+            "strict": true,
+            "function_domain": "(-1,1)"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(0,2/3)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

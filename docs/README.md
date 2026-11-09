@@ -2,7 +2,7 @@
 
 文档维护当前架构、操作规则、能力边界与仍有效的扩展设计。实际接口以代码、Schema 和测试为准；本地实现、真实模型验收与生产发布分别表述。
 
-函数专题当前收录七题，T1/T2 受限开放，T3/T4/T5 保留开发设计。学生拍题的图谱执行链与内部 FunctionalPlan 链分别维护。
+函数专题当前收录七题，T1/T2 与 FM-T3 R0 受限开放，T4/T5 及 T3 后续批次保留开发设计。学生拍题的图谱执行链与内部 FunctionalPlan 链分别维护。
 
 ## 系统与日常运行
 
@@ -46,6 +46,7 @@
 - [FM-T2 利用单调性求最值：题型开发设计](function-monotonicity-extremum-problem-type-design.md)
 - [FM-T2：实现范围、拍题与专题验收](function-monotonicity-t2-acceptance.md)
 - [FM-T3 利用单调性解不等式：题型开发设计](function-monotonicity-inequality-problem-type-design.md)
+- [FM-T3：R0 实现范围与专题验收](function-monotonicity-t3-acceptance.md)
 - [FM-T4 已知函数的单调性求参：题型开发设计](function-monotonicity-parameter-problem-type-design.md)
 
 ## 拍题与交互课程

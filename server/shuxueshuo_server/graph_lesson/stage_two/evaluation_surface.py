@@ -163,6 +163,19 @@ def _piecewise_source_matches(body, source, matches):
         return False
 
 
+def range_goal_span(text, formulas, variable, relation, matches):
+    """Bind a variable range ask, or 'this inequality's solution set'."""
+    for a, b, body in formulas:
+        if matches(body, variable) and re.match(
+                r'\s*(?:值?的(?:取值(?:范围|集合)|范围|解集(?:合)?)|取值(?:范围|集合)是)', text[b+1:]):
+            return a, b
+        if relation and matches(body, relation):
+            ask = re.match(r'\s*的解集(?:合)?', text[b+1:])
+            if ask:
+                return b+1, b+1+ask.end()
+    return None
+
+
 def evaluation_source_spans(candidate, target_ref, ranges, description, matches):
     text, goal = candidate['original_text'], pointer(candidate, target_ref)
     formulas = [part for begin, end in ranges
@@ -206,6 +219,13 @@ def evaluation_source_spans(candidate, target_ref, ranges, description, matches)
         spans.append((*domain_spans[0], 'expression', [f'{target_ref}/input_domain']))
     located = []
     for start, end, body in formulas:
+        # A printed answer blank is a request, not a supplied equality/value.
+        blank = re.fullmatch(r'(.*?)=\s*(?:_{2,}|\\underline\{(?:\s|\\quad|\\qquad)+\})\s*', body)
+        if not blank and re.match(r'\s*_{2,}', text[end+1:]):
+            blank = re.fullmatch(r'(.*?)=\s*', body)
+        if blank:
+            body = blank[1].rstrip()
+            end = start + len(body)
         if goal['kind'] == 'finite_sum':
             equal = sum_source_matches(body, goal['terms'], matches)
         else:

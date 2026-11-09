@@ -217,6 +217,11 @@ def _function_extremum(context, task=None):
     return admitted(context, task)
 
 
+def _monotonicity_inequality(context):
+    from .monotonicity_inequality_runtime import admitted
+    return admitted(context)
+
+
 def _function_monotonicity(context, method=None):
     from .monotonicity_runtime import admitted
     return admitted(context, method)
@@ -227,6 +232,7 @@ CHECKS = {
     'piecewise_range_parameter': _piecewise_range_parameter_admitted,
     'piecewise_inequality': _piecewise_inequality_admitted,
     'piecewise_equation': _piecewise_equation_admitted,
+    'monotonicity_inequality': _monotonicity_inequality,
     'function_extremum': _function_extremum,
     'function_monotonicity': _function_monotonicity,
     'function_graph': _function_graph_admitted,

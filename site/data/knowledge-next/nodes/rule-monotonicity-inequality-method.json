@@ -1,0 +1,31 @@
+{
+  "id": "rule-monotonicity-inequality-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "单调性不等式的选法判断",
+  "summary": "同一函数的两个函数值比较时，优先用单调性解不等式；常值段或非严格时改走分段求解。",
+  "source": "函数单调性 FM-T3",
+  "input": "原比较关系、单调性依据与函数结构。",
+  "output": "适用的解题方法。",
+  "conditions": "未知函数且未给分段定义时，不开放分段路线。",
+  "branches": [
+    {
+      "id": "order",
+      "title": "单调性解不等式法",
+      "condition": "同一函数的两个函数值比大小，且已有严格单调依据。",
+      "target": "method-monotonicity-inequality"
+    }
+  ],
+  "examples": [
+    {
+      "title": "已知递增解不等式",
+      "prompt": "函数 $f$ 的定义域为 $(0,+\\infty)$ 且递增，解 $f(2x)<f(x+1)$。",
+      "solution": [
+        "两个输入都要大于 $0$，得 $x>0$。",
+        "递增保序，得 $2x<x+1$，即 $x<1$。",
+        "求交得 $x\\in(0,1)$。"
+      ],
+      "source": "函数单调性 FM-T3"
+    }
+  ]
+}

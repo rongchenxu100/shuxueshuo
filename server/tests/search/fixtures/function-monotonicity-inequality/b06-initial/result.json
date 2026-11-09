@@ -1,0 +1,94 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "code_gap",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "6. 若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。",
+    "root": {
+      "facts": [
+        "∀x1∈(-1,1): ∀x2∈(-1,1): x1 < x2 ⇒ f(x1) < f(x2)",
+        "f(2*a-1) < f(3*a-1)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "6. 若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。",
+    "root": {
+      "facts": [
+        "∀x1∈(-1,1): ∀x2∈(-1,1): x1 < x2 ⇒ f(x1) < f(x2)",
+        "f(2*a-1) < f(3*a-1)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [
+    {
+      "stage": "compile",
+      "code": "notation.unrecognized_token",
+      "path": "/root/facts/0",
+      "source": "∀x1∈(-1,1): ∀x2∈(-1,1): x1 < x2 ⇒ f(x1) < f(x2)",
+      "message": "notation.unrecognized_token: at 31:  ⇒ f(x1) < f",
+      "action": "code_gap"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/1",
+      "source": "f(2*a-1) < f(3*a-1)",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    }
+  ],
+  "question_sha256": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+  "sent_image_sha256": [
+    "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071"
+  ],
+  "elapsed_seconds": 16.811,
+  "figure_attempts": [],
+  "stored_original_sha256": "0929e40f0b1bceb77abb336647e4e6951327ff36d8295e640711d57f9230c12e"
+}

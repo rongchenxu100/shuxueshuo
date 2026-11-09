@@ -122,10 +122,15 @@ class Canonical:
             return sp.sqrt(value)
         if kind == "function_call":
             target = self.tree(ast[1])
-            if key(target) not in self.functions:
-                raise NotationError("semantic.unresolved_function")
-            body = self.functions[key(target)]
             argument = ast[2]
+            if key(target) not in self.functions:
+                # Declared abstract functions have no body; keep the call opaque.
+                # Undeclared names never reach here: bind already rejected them.
+                atom = ["abstract_application", target, self.math(argument)]
+                code = sha256(key(atom).encode()).hexdigest()
+                self.atoms[code] = atom
+                return sp.Symbol("n_" + code, real=True)
+            body = self.functions[key(target)]
 
             if body[:2] == ["call", "piecewise"]:
                 # A call is not permission to evaluate every conditional branch.
@@ -338,6 +343,9 @@ class Canonical:
                 else self.tree(g["target"])
             )
             goal = {"kind": g["kind"], "target": target}
+            if 'function_monotonicity' in g:
+                goal['function_monotonicity'] = deepcopy(g['function_monotonicity'])
+                goal['input_domain'] = self.tree(g.get('input_domain', ['real']))
             if 'answer_request' in g:
                 goal['answer_request'] = deepcopy(g['answer_request'])
                 goal['input_domain'] = self.tree(g.get('input_domain', ['real']))

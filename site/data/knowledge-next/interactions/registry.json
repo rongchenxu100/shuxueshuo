@@ -1771,6 +1771,16 @@
       "compiler": "piecewise_inequality",
       "parts": []
     },
+    "piecewise_inequality_applicability": {
+      "repeat": "always",
+      "compiler": "piecewise_inequality",
+      "parts": []
+    },
+    "piecewise_inequality_cases": {
+      "repeat": "always",
+      "compiler": "piecewise_inequality",
+      "parts": []
+    },
     "piecewise_range_union": {
       "repeat": "always",
       "compiler": "piecewise_range",
@@ -1841,6 +1851,11 @@
     "extremum_piece_derivation": {
       "repeat": "always",
       "compiler": "function_extremum",
+      "parts": []
+    },
+    "mono_inequality_derivation": {
+      "repeat": "always",
+      "compiler": "monotonicity_inequality",
       "parts": []
     }
   },

@@ -1,0 +1,96 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "workflow.oscillation",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "12. 若函数 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+      ],
+      "facts": [
+        "f(1-x^2) > f(2*x)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=piecewise(x^2+1,x>=0,1,x<0)",
+          "expression": "f(1-x^2)>f(2*x)",
+          "symbol": "x"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "12. 若函数 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+      ],
+      "facts": [
+        "f(1-x^2) > f(2*x)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=piecewise(x^2+1,x>=0,1,x<0)",
+          "expression": "f(1-x^2)>f(2*x)",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [
+    {
+      "path": "/root/goals/0",
+      "kind": "wrong_goal",
+      "source_excerpt": "则不等式 f(1-x^2)>f(2x) 的解集合是____。",
+      "message": "目标 /root/goals/0 当前只有 kind=find_range 和 symbol=x，未在目标中保留原题的不等式表达式。原题要求求 f(1-x^2)>f(2x) 的解集，应把完整不等式作为该目标的 expression 保留，而不是仅把不等式放在 facts 中。"
+    }
+  ],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+  "sent_image_sha256": [
+    "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2"
+  ],
+  "elapsed_seconds": 121.091,
+  "figure_attempts": [],
+  "stored_original_sha256": "f68ada881508e6d567548bf93ca63284917af18c44bada64f0880ed572a2ca12"
+}

@@ -1,0 +1,40 @@
+{
+  "original_text": "12. 若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。",
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(x^2+1,x≥0,1,x<0)"
+    ],
+    "facts": [
+      "f(1-x^2) > f(2*x)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "recorded_at": "2026-11-09",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "reviewed_candidate",
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "historical_semantic_calls": 2,
+  "api_acceptance": {
+    "case": "b03",
+    "search_id": "17f3c45ed175",
+    "recognition_status": "reviewed",
+    "lesson_status": "ready",
+    "elapsed_seconds": 31.649,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      },
+      {
+        "stage": "review",
+        "status": "completed"
+      }
+    ],
+    "status": "reviewed_candidate",
+    "recognition_seconds": 20.488,
+    "execution_status": "completed",
+    "types": [
+      "type-monotonicity-inequality"
+    ],
+    "interaction_count": 5,
+    "same_stream_on_reopen": true,
+    "same_snapshot_on_reopen": true
+  },
+  "files": {
+    "api-completed.json": "db3099006169aeda1a5aed7d052f44b435bcd4d119c59f38b52484bb853721c4",
+    "api-final.json": "db3099006169aeda1a5aed7d052f44b435bcd4d119c59f38b52484bb853721c4",
+    "original.png": "6cb4b90468652031176ddc194710aadcd3fbcae57dd283fdfa43956c3f2b96e3",
+    "question.png": "516f218828b252addd377d20176ea519ce5ca4545a855b7ae9050b6a14a8a332",
+    "result.json": "a065f0838b5632d76929351126f76cb5b47c7024dd75aaf0c2d5537c7b57fc8c",
+    "snapshot.json": "39dcc8f87493e52e32bf3283ac9b5b61dddcb9b281993f194075608de412899b",
+    "source.json": "0a83d80218122ace3bb48a92892477c6426f75ea28f0556b853651e79675d5ff",
+    "start.json": "816ef058954d8e5a22d29ae93cc31cfead85340fc5cfe2ed93f4b8b2c87b2f06",
+    "workflow/calls/01-extract/file-operations.json": "74dbddc157d1e9f21ce9c55551fe455a24abecf277cb0b4630d603838d12ec39",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "a82a36fef52e2c5b25db982769d52ed4695be5bb65bbff07601d03d703660f04",
+    "workflow/calls/01-extract/request.json": "c49276d50faf1c2afa681ce0abb673510b4f3cae7361bf687ee5fc10d371fcec",
+    "workflow/calls/01-extract/response.json": "fa8d3f4c090583f355f69bffc4ec4fe466bdfa4dafe491736b4c009773982c71",
+    "workflow/calls/02-review/file-operations.json": "0dcb468ca97862127336db78410ce44ec420860f3a0810e4185f205eca70476b",
+    "workflow/calls/02-review/provider-attempts/01-request.json": "bda93cfb830d2fabc2394df037755313a2812e19b0a2188a6315f05b14ae9006",
+    "workflow/calls/02-review/request.json": "8428d65c8c4ae8e579ddcef4b8d73118f275ef566608c211905ee4ef84f872d2",
+    "workflow/calls/02-review/response.json": "4cf1487ec852cd5cae1357616f3187a3462d1513cab7cae86745cb1a353c0bb1",
+    "workflow/candidate.json": "52d9ab614603224147dec3e94cd5d415698155c16ac8ba2bbfdd2bc6a0a553f6",
+    "workflow/latest-review.json": "cd7b1ecdb2f9276195bc8c91c39744353af4b415c8e509e0a3d3a54dc8ffd7e5",
+    "workflow/ledger.json": "34ca1dcd9691fc3ea60e02a0a31718251d7fb79b16ada9d0041a7d03cde48784"
+  }
+}

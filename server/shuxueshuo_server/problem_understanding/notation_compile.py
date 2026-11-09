@@ -930,6 +930,18 @@ class NotationValidator:
                     pass
             if len(report.objects) == known:
                 break
+        # Known-monotonicity inequalities introduce an abstract function before
+        # facts bind f(u)□f(v); the body is never a concrete definition.
+        for goal in source.get("goals", []):
+            mono = goal.get("function_monotonicity")
+            if not isinstance(mono, dict):
+                continue
+            name = mono.get("function")
+            if not isinstance(name, str) or parse(name) != ["name", name]:
+                raise NotationError("mono_ineq.function_name_required",
+                                    path=f"{path}.goals")
+            env.declare(name, "function")
+            env.abstract_functions.add(name)
         expressions = []
         from .notation_abstract_domain import target_naming_aliases
 
@@ -1095,6 +1107,8 @@ class NotationValidator:
                 result = {"kind": goal["kind"], "target": value}
                 if 'answer_request' in goal:
                     result['answer_request'] = deepcopy(goal['answer_request'])
+                if 'function_monotonicity' in goal:
+                    result['function_monotonicity'] = deepcopy(goal['function_monotonicity'])
                 if "input_domain" in goal:
                     domain = env.bind(parse(goal["input_domain"]))
                     if domain[0] == "tuple":

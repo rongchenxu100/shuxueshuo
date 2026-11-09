@@ -1,0 +1,109 @@
+{
+  "search_id": "c9826b2d3988",
+  "user_id": "6d5049c0-0e93-4cf1-a5f5-dc21b63f4ad4",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "f68ada881508e6d567548bf93ca63284917af18c44bada64f0880ed572a2ca12",
+      "width": 1165,
+      "height": 144,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/c9826b2d3988/figures/original?version=7b9557d7bff0b49befa55a5ba39c6f3200c020290970374eaaf0daa83fca04b5"
+      }
+    ],
+    "content_id": "7b9557d7bff0b49befa55a5ba39c6f3200c020290970374eaaf0daa83fca04b5"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "97142510a5fe",
+    "box": [
+      0.0508209538702111,
+      0.35756154747948415,
+      0.9616888193901486,
+      0.44196951934349354
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1165,
+      144
+    ],
+    "bytes": 9943
+  },
+  "state": "done",
+  "status": "workflow.oscillation",
+  "outcome": "error",
+  "original_text": "12. 若函数 $f(x)=\\{x^2+1, x≥0; 1, x<0\\}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是____。",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+    ],
+    "facts": [
+      "f(1-x^2) > f(2*x)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x)=piecewise(x^2+1,x>=0,1,x<0)",
+        "expression": "f(1-x^2)>f(2*x)",
+        "symbol": "x"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "wrong_goal",
+      "source_excerpt": "则不等式 f(1-x^2)>f(2x) 的解集合是____。",
+      "message": "目标 /root/goals/0 当前只有 kind=find_range 和 symbol=x，未在目标中保留原题的不等式表达式。原题要求求 f(1-x^2)>f(2x) 的解集，应把完整不等式作为该目标的 expression 保留，而不是仅把不等式放在 facts 中。"
+    }
+  ],
+  "features": [],
+  "image_check": {
+    "question_sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+    "sent_image_sha256": [
+      "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 121.091
+}

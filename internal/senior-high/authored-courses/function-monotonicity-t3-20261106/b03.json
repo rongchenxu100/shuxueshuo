@@ -1,0 +1,40 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b03-v1",
+  "reviewer": "Codex：依据用户原图与 T3 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-03.jpg",
+      "sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad",
+      "location": "FM-B03，图 3"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\begin{cases}2x-1,&x<1,\\\\x^{2},&x\\ge1\\end{cases}$。若 $f(x^{2}+x+3)>f(3x^{2}-3)$，则 $x$ 的取值范围是______。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(2*x-1,x<1,x^2,x>=1)"
+      ],
+      "facts": [
+        "f(x^2+x+3)>f(3*x^2-3)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "ℝ",
+            "direction": "increasing",
+            "strict": true,
+            "basis": "proved_monotonicity"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-3/2,2)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

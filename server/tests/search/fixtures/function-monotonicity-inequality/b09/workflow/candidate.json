@@ -1,0 +1,52 @@
+{
+  "original_text": "9.已知函数 $f(x)=\\begin{cases}3x, & x\\ge 3\\\\ -x^2+6x, & x<3\\end{cases}$，则 $f(f(1))=$ ______；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 ______。",
+  "root": {
+    "label": "9",
+    "definitions": [
+      "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+    ],
+    "facts": [
+      "f(x^2-2*x)<f(3*x-4)"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(f(1))"
+      },
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=\\begin{cases}3x, & x\\ge 3\\\\ -x^2+6x, & x<3\\end{cases}$，则 $f(f(1))=$ ______；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

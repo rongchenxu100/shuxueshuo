@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1337,
+      "prompt_tokens": 30004,
+      "total_tokens": 31341,
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 436
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 648,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-8d64a1c0-309c-4c99-ba93-8a451c7999a9",
+        "sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 13562,
+        "expires_at": 1794293194,
+        "uploaded_at": 1794206794.430314
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925",
+        "api_calls": 1,
+        "file_id": "file-api-8d64a1c0-309c-4c99-ba93-8a451c7999a9",
+        "expires_at": 1794293194,
+        "elapsed_ms": 161
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9705,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1337,
+          "prompt_tokens": 30004,
+          "total_tokens": 31341,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1098
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29568
+          },
+          "prompt_cache_hit_tokens": 29568,
+          "prompt_cache_miss_tokens": 436
+        },
+        "raw_payload": {
+          "id": "e74a9271-cab5-42d7-9c9e-a509db9eb7ac",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1337,
+            "prompt_tokens": 30004,
+            "total_tokens": 31341,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1098
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29568
+            },
+            "prompt_cache_hit_tokens": 29568,
+            "prompt_cache_miss_tokens": 436
+          },
+          "created": 1794206794,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题目：设函数 f(x) 是 R 上的减函数，若 f(m^2+2) > f(2m+5)，则实数 m 的取值范围是____。\n\n学生手写答案和批注不转录。\n\n目标是求 m 的范围。已知 f 是 R 上的减函数，所以 f(a)>f(b) ⇒ a<b。题面条件 f(m^2+2)>f(2m+5) 以及 f 是减函数。\n\n用受控字符串表示：definitions: f 是减函数？可以放 facts: f 在 ℝ 上严格递减。但 catalog 中没有直接\"严格递减\"的 facts 记法？Facts 可以用自然语言吗？facts 要求受控数学字符串。不过题面条件“设函数f(x)是R上的减函数”是函数的性质。可以放 definitions 吗？或者 facts 写 \"f 是 ℝ 上的减函数\"？受控目录里没有单调的字符串记法，但有 FunctionMonotonicityGoal 中的 function_monotonicity 字段仅在 find_range 里。这里没有 find_range 的 function_monotonicity 可选字段？有。可以在 find_range 目标中使用 function_monotonicity 字段：{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}。\n\n但 f 是一个抽象函数没有解析式。find_range symbol m，且 function_monotonicity 需要 object 吗？schema 的 find_range 中 allOf: 若 input_domain 则 object；若 answer_request 则 object。function_monotonicity 无特指，但有 object/symbol 互斥。function_monotonicity 字段可能需要配合 object？schema 里 function_monotonicity 没有条件，但注释说用于函数值比较转输入比较。目标为 find_range symbol=m，object 不填。\n\nfacts 里可以写条件吗？也许可以写 \"f 在 ℝ 上严格递减\" 但不太受控。或许使用 find_range 的 function_monotonicity 就够了。条件 f(m^2+2)>f(2m+5) 也作为 facts 或表达式。\n\n目标的 expression 不适用于 find_range by symbol? find_range by symbol 只有 symbol、可选 in_terms_of、object/input_domain/answer_request/function_monotonicity。不能放不等式。所以把条件放 facts: \"f(m^2+2) > f(2m+5)\"，以及减函数性质可以用 function_monotonicity 表示。facts 里另一个 \"f 是 ℝ 上的严格减函数\" 可能可以，目录没有，但 facts 接受受控字符串，可以写中文受控短声明？为了稳妥，在 facts 里写 \"f 在 ℝ 上严格递减\" 可能不合受控。我认为可以把单调性通过目标 function_monotonicity 记录，facts 只放不等式。\n\nroot facts: [\"f(m^2+2) > f(2m+5)\"]。goal: {\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。但是否 function_monotonicity 需要 object? 不应强求。\n\n也许也可以直接把两个条件都放 facts： \"f(m^2+2) > f(2m+5)\"，\"f 是 ℝ 上的减函数\"。由于函数定义没有具体解析式，definitions 无法写函数定义。但事实“f 是 R 上的减函数”是题设。我可以放 facts: \"f 是 ℝ 上的减函数\"。虽然不在目录，但作为短声明可以。还是遵循 function_monotonicity 字段，放该目标。\n\noriginal_text: \"设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\"\n\npublic_content scopes: /root statement同样。choices none。\n\n不要包含手写答案。\n\n配图无 none。\n\nuncertainties 无。\n\ncomplete, privacy separated.\n\nroot.label 无。\n\n注意 original_text 题头“4.”是来源题号，可以保留在 original_text 但公开题干去掉。\n\nroot facts 也许包含 \"f 是 ℝ 上的减函数\" 和不等式，免得单调性丢失。或者使用 function_monotonicity。为了完整，facts 放不等式，目标 function_monotonicity。但 root facts 可能也需要减函数，否则目标字段能承载。\n\nSchema 中 find_range 的 function_monotonicity basis \"given\" 表示题给已知，正是。好。\n\n目标：{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。\n\n但 find_range 作为参数范围，symbol m，符合。\n\npublic_content 每个 goal 必须有 choices 项，target_ref /root/goals/0，status none，selection_mode none，options []。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9891
+  },
+  "raw_payload": {
+    "id": "e74a9271-cab5-42d7-9c9e-a509db9eb7ac",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题目：设函数 f(x) 是 R 上的减函数，若 f(m^2+2) > f(2m+5)，则实数 m 的取值范围是____。\n\n学生手写答案和批注不转录。\n\n目标是求 m 的范围。已知 f 是 R 上的减函数，所以 f(a)>f(b) ⇒ a<b。题面条件 f(m^2+2)>f(2m+5) 以及 f 是减函数。\n\n用受控字符串表示：definitions: f 是减函数？可以放 facts: f 在 ℝ 上严格递减。但 catalog 中没有直接\"严格递减\"的 facts 记法？Facts 可以用自然语言吗？facts 要求受控数学字符串。不过题面条件“设函数f(x)是R上的减函数”是函数的性质。可以放 definitions 吗？或者 facts 写 \"f 是 ℝ 上的减函数\"？受控目录里没有单调的字符串记法，但有 FunctionMonotonicityGoal 中的 function_monotonicity 字段仅在 find_range 里。这里没有 find_range 的 function_monotonicity 可选字段？有。可以在 find_range 目标中使用 function_monotonicity 字段：{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}。\n\n但 f 是一个抽象函数没有解析式。find_range symbol m，且 function_monotonicity 需要 object 吗？schema 的 find_range 中 allOf: 若 input_domain 则 object；若 answer_request 则 object。function_monotonicity 无特指，但有 object/symbol 互斥。function_monotonicity 字段可能需要配合 object？schema 里 function_monotonicity 没有条件，但注释说用于函数值比较转输入比较。目标为 find_range symbol=m，object 不填。\n\nfacts 里可以写条件吗？也许可以写 \"f 在 ℝ 上严格递减\" 但不太受控。或许使用 find_range 的 function_monotonicity 就够了。条件 f(m^2+2)>f(2m+5) 也作为 facts 或表达式。\n\n目标的 expression 不适用于 find_range by symbol? find_range by symbol 只有 symbol、可选 in_terms_of、object/input_domain/answer_request/function_monotonicity。不能放不等式。所以把条件放 facts: \"f(m^2+2) > f(2m+5)\"，以及减函数性质可以用 function_monotonicity 表示。facts 里另一个 \"f 是 ℝ 上的严格减函数\" 可能可以，目录没有，但 facts 接受受控字符串，可以写中文受控短声明？为了稳妥，在 facts 里写 \"f 在 ℝ 上严格递减\" 可能不合受控。我认为可以把单调性通过目标 function_monotonicity 记录，facts 只放不等式。\n\nroot facts: [\"f(m^2+2) > f(2m+5)\"]。goal: {\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。但是否 function_monotonicity 需要 object? 不应强求。\n\n也许也可以直接把两个条件都放 facts： \"f(m^2+2) > f(2m+5)\"，\"f 是 ℝ 上的减函数\"。由于函数定义没有具体解析式，definitions 无法写函数定义。但事实“f 是 R 上的减函数”是题设。我可以放 facts: \"f 是 ℝ 上的减函数\"。虽然不在目录，但作为短声明可以。还是遵循 function_monotonicity 字段，放该目标。\n\noriginal_text: \"设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。\"\n\npublic_content scopes: /root statement同样。choices none。\n\n不要包含手写答案。\n\n配图无 none。\n\nuncertainties 无。\n\ncomplete, privacy separated.\n\nroot.label 无。\n\n注意 original_text 题头“4.”是来源题号，可以保留在 original_text 但公开题干去掉。\n\nroot facts 也许包含 \"f 是 ℝ 上的减函数\" 和不等式，免得单调性丢失。或者使用 function_monotonicity。为了完整，facts 放不等式，目标 function_monotonicity。但 root facts 可能也需要减函数，否则目标字段能承载。\n\nSchema 中 find_range 的 function_monotonicity basis \"given\" 表示题给已知，正是。好。\n\n目标：{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。\n\n但 find_range 作为参数范围，symbol m，符合。\n\npublic_content 每个 goal 必须有 choices 项，target_ref /root/goals/0，status none，selection_mode none，options []。"
+        }
+      }
+    ],
+    "created": 1794206794,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1337,
+      "prompt_tokens": 30004,
+      "total_tokens": 31341,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1098,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29568
+      },
+      "prompt_cache_hit_tokens": 29568,
+      "prompt_cache_miss_tokens": 436
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.893
+}

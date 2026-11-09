@@ -292,6 +292,42 @@
       "path": "/topics/function-monotonicity/q14b/",
       "topic": "function-monotonicity"
     },
+    "function-monotonicity-b01-v1": {
+      "path": "/topics/function-monotonicity/q05/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b02-v1": {
+      "path": "/topics/function-monotonicity/q02b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b03-v1": {
+      "path": "/topics/function-monotonicity/q03b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b09-v1": {
+      "path": "/topics/function-monotonicity/q09b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b12-v1": {
+      "path": "/topics/function-monotonicity/q12b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b04-v1": {
+      "path": "/topics/function-monotonicity/q06/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b05-v1": {
+      "path": "/topics/function-monotonicity/q09/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b06-v1": {
+      "path": "/topics/function-monotonicity/q06b/",
+      "topic": "function-monotonicity"
+    },
+    "function-monotonicity-b13-v1": {
+      "path": "/topics/function-monotonicity/q13/",
+      "topic": "function-monotonicity"
+    },
     "function-representations-b10-v1": {
       "path": "/topics/function-representations/q10b/",
       "topic": "function-representations"

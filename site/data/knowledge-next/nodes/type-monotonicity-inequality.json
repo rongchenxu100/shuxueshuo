@@ -2,19 +2,44 @@
   "id": "type-monotonicity-inequality",
   "kind": "problem_type",
   "label": "利用单调性解不等式",
-  "status": "planned",
-  "summary": "利用单调性解不等式；后续题型建设。",
+  "status": "active",
+  "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
   "source": "函数单调性专题计划",
+  "choice_hint": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化",
   "features": [
     {
       "cue": "已知单调性，比较同一函数的两个输入所对应的函数值。"
     }
   ],
-  "confuse": [],
+  "confuse": [
+    {
+      "text": "原目标是求完整单调区间或证明增减，不是解函数值不等式。",
+      "ref": "type-function-monotonicity"
+    },
+    {
+      "text": "原目标是借助单调性求最值或转化最值条件求参，不是解函数值不等式。",
+      "ref": "type-monotonicity-extremum"
+    }
+  ],
   "knowledge": [
     "function-monotonicity"
   ],
-  "methods": [],
-  "rules": [],
-  "examples": []
+  "methods": [
+    "method-monotonicity-inequality"
+  ],
+  "rules": [
+    "rule-monotonicity-inequality-method"
+  ],
+  "examples": [
+    {
+      "title": "已知递增解不等式",
+      "prompt": "函数 $f$ 的定义域为 $(0,+\\infty)$ 且递增，解 $f(2x)<f(x+1)$。",
+      "solution": [
+        "两个输入都要大于 $0$，得 $x>0$。",
+        "递增保序，得 $2x<x+1$，即 $x<1$。",
+        "求交得 $x\\in(0,1)$。"
+      ],
+      "source": "函数单调性 FM-T3"
+    }
+  ]
 }

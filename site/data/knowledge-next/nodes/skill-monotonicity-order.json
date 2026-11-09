@@ -1,0 +1,36 @@
+{
+  "id": "skill-monotonicity-order",
+  "kind": "skill",
+  "label": "利用单调性转化不等式",
+  "summary": "在同一严格单调区间内，把函数值比较等价转为输入比较。",
+  "source": "函数单调性 FM-T3",
+  "input": "同一函数的严格单调证据、两个输入都在该区间的证据，以及原函数值比较。",
+  "output": "适用范围内的等价输入比较；不负责解出变量范围，也不负责证明单调性。",
+  "conditions": "必须严格单调；非减或非增不能输出等价表。",
+  "basis": [
+    "function-monotonicity#definition",
+    "function-monotonicity#interval"
+  ],
+  "operations": [
+    {
+      "id": "convert",
+      "title": "按增减性改写比较",
+      "body": [
+        "严格递增时，函数值比较与输入比较同向。",
+        "严格递减时，函数值比较与输入比较反向。",
+        "严格号与非严格号保持原有严格程度；两个输入都必须在同一区间。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "递减反序",
+      "prompt": "$f$ 在 $\\mathbb R$ 上递减，$f(m^2+2)>f(2m+5)$ 怎样转化？",
+      "solution": [
+        "递减反序，原式等价于 $m^2+2<2m+5$。",
+        "整理得 $(m-3)(m+1)<0$。"
+      ],
+      "source": "函数单调性 FM-T3"
+    }
+  ]
+}

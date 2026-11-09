@@ -1,0 +1,1772 @@
+{
+  "run_id": "5990d72857d04a05a62900d936cc8b75",
+  "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+  "input_sha256": "4704760ee98971ada8a6b29ae01a8de4c9a9ee6d23527f1b25ae8abb1d810e66",
+  "stream_id": "5990d72857d04a05a62900d936cc8b75",
+  "last_seq": 19,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "applicability",
+      "explanation": "$$\\begin{gathered}f\\text{ 含常值段}\\\\f\\text{ 整体不严格单调}\\end{gathered}$$",
+      "highlight": {
+        "caption": "先看整体图像：是否严格单调",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "观察整体图像",
+            "math": "t\\in \\left(-\\infty, 0\\right):\\quad f(t)=1"
+          },
+          {
+            "label": "下一步",
+            "math": "按两个输入各自所在分支分类比较"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "local_check": "passed",
+      "math_step_sha256": "f509b82859f2f3c9360f35c91c8339dfa92fd92637e7e58526b874886b0d41c6",
+      "method_ref": "method-piecewise-inequality#route",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "7b38f0b3676edba5edb15d0deac26e1d64f9e1bc9c57f816e27cad8971373299",
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-piecewise-inequality-001-applicability",
+      "target_ref": "/root/goals/0",
+      "title": "先看整体图像判断是否严格单调",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "cases",
+      "explanation": "$$\\begin{gathered}f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\\\\\Leftrightarrow 1 - x^{2}\\,>\\,2 x\\\\x\\in \\left[0, -1 + \\sqrt{2}\\right)\\end{gathered}$$\n\n$$\\begin{gathered}f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\\\\\left(1 - x^{2}\\right)^{2} + 1\\,>\\,1\\\\x\\in \\left(-1, 0\\right)\\end{gathered}$$\n\n$$x\\in \\left(1, \\infty\\right)\\Rightarrow\\varnothing$$\n\n$$x\\in \\left(-\\infty, -1\\right)\\Rightarrow\\varnothing$$",
+      "highlight": {
+        "caption": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "本情况条件",
+            "math": "\\begin{gathered}1 - x^{2}\\ge0\\\\2 x\\ge0\\\\\\Rightarrow x\\in \\left[0, 1\\right]\\\\1 - x^{2}\\,>\\,2 x\\end{gathered}"
+          },
+          {
+            "label": "本情况解集",
+            "math": "x\\in \\left[0, -1 + \\sqrt{2}\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "local_check": "passed",
+      "math_step_sha256": "f44a37a4adcaf69742755b75458ea411d15071f0678bf232ced33a8707ce922c",
+      "method_ref": "method-piecewise-inequality#two-inputs",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "7b38f0b3676edba5edb15d0deac26e1d64f9e1bc9c57f816e27cad8971373299",
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "source_refs": [
+        "/steps/5/calls/0"
+      ],
+      "step_id": "39e5646dcb-piecewise-inequality-002-cases",
+      "target_ref": "/root/goals/0",
+      "title": "按两个输入各自所在分支分类比较",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "merge-two",
+      "explanation": "$$\\left[0, -1 + \\sqrt{2}\\right)\\cup\\left(-1, 0\\right)=\\left(-1, -1 + \\sqrt{2}\\right)$$",
+      "highlight": {
+        "caption": "合并各情况的解集",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "各情况保留的解集",
+            "math": "\\begin{gathered}\\text{情况1}:\\quad \\left[0, -1 + \\sqrt{2}\\right)\\\\\\text{情况2}:\\quad \\left(-1, 0\\right)\\end{gathered}"
+          },
+          {
+            "label": "原不等式的解集",
+            "math": "x\\in \\left(-1, -1 + \\sqrt{2}\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "local_check": "passed",
+      "math_step_sha256": "177d89a2767fc48f587a093ce952c25f5df9540f721056d1b370d2eb915b6133",
+      "method_ref": "method-piecewise-inequality#two-inputs",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "7b38f0b3676edba5edb15d0deac26e1d64f9e1bc9c57f816e27cad8971373299",
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "source_refs": [
+        "/steps/5/calls/0"
+      ],
+      "step_id": "39e5646dcb-piecewise-inequality-003-merge-two",
+      "target_ref": "/root/goals/0",
+      "title": "合并各情况的解集",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(-1, -1 + sqrt(2))",
+          "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "expression": "Interval.open(-1, -1 + sqrt(2))",
+        "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(-1, -1 + sqrt(2))",
+          "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "expression": "Interval.open(-1, -1 + sqrt(2))",
+        "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+      },
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "math_steps": [
+        {
+          "math_step_sha256": "f509b82859f2f3c9360f35c91c8339dfa92fd92637e7e58526b874886b0d41c6",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-piecewise-inequality-001-applicability"
+        },
+        {
+          "math_step_sha256": "f44a37a4adcaf69742755b75458ea411d15071f0678bf232ced33a8707ce922c",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-piecewise-inequality-002-cases"
+        },
+        {
+          "math_step_sha256": "177d89a2767fc48f587a093ce952c25f5df9540f721056d1b370d2eb915b6133",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-piecewise-inequality-003-merge-two"
+        }
+      ],
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "92ec9905a5926109f1eaa64ec819bb0337ab527ced329403e7a7a9685e2f2187",
+      "verified_route_sha256": "9478e16cccd4a2aa2815a891ab5cd21c454d9f29013a38d078f7289ba6995a92"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-piecewise-function",
+          "op": "methods"
+        },
+        "question": "先算出比较值，再逐段解不等式；各段结果与本段范围取交，最后合并。",
+        "submit_label": "开始解题",
+        "title": "解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-piecewise-inequality",
+            "recommendation": "preferred",
+            "route_id": "piecewise-inequality",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "piecewise-inequality",
+      "step_id": "39e5646dcb-piecewise-inequality-001-applicability",
+      "ordinal": 1,
+      "math_step_sha256": "f509b82859f2f3c9360f35c91c8339dfa92fd92637e7e58526b874886b0d41c6",
+      "status": "interactive",
+      "interaction_id": "b88ebf93708e955573561728"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "piecewise-inequality",
+      "step_id": "39e5646dcb-piecewise-inequality-002-cases",
+      "ordinal": 2,
+      "math_step_sha256": "f44a37a4adcaf69742755b75458ea411d15071f0678bf232ced33a8707ce922c",
+      "status": "interactive",
+      "interaction_id": "0c8fe929f993b17df966becc"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "piecewise-inequality",
+      "step_id": "39e5646dcb-piecewise-inequality-003-merge-two",
+      "ordinal": 3,
+      "math_step_sha256": "177d89a2767fc48f587a093ce952c25f5df9540f721056d1b370d2eb915b6133",
+      "status": "interactive",
+      "interaction_id": "b9f8ab02d2bdc00144f5758e"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "7b38f0b3676edba5edb15d0deac26e1d64f9e1bc9c57f816e27cad8971373299",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "piecewise-inequality",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:piecewise-inequality:complete",
+      "last_seq": 19
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "piecewise-inequality",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-piecewise-inequality",
+          "step": "route",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-piecewise-inequality",
+          "step": "level",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-piecewise-inequality",
+          "step": "roots",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-piecewise-inequality",
+          "step": "signs",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 5,
+          "method": "method-piecewise-inequality",
+          "step": "filter",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 6,
+          "method": "method-piecewise-inequality",
+          "step": "two-inputs",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 7,
+          "method": "method-piecewise-inequality",
+          "step": "finalize",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 8,
+          "method": "method-piecewise-inequality",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": [
+        {
+          "index": 0,
+          "record": {}
+        },
+        {
+          "index": 1,
+          "record": {}
+        },
+        {
+          "index": 2,
+          "record": {
+            "public_ref": null,
+            "used_basis": [
+              "piecewise-function#inequality"
+            ],
+            "postconditions": [
+              {
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "index": 3,
+          "record": {}
+        }
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "b88ebf93708e955573561728",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "2723cbecf101c9838d2bd5ba86a322fad685536021acb31a46c4c4029531a51c",
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "先看整体图像：是否严格单调",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "观察整体图像",
+                "math": "t\\in \\left(-\\infty, 0\\right):\\quad f(t)=1"
+              },
+              {
+                "label": "下一步",
+                "math": "按两个输入各自所在分支分类比较"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "原函数 $f$：按图中各段范围，分别确定两个输入应代入的表达式。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2.0,
+                2.0,
+                -1.0,
+                5.673611111111112
+              ],
+              "description": "箭头标出已确认的段内方向；水平段上不同输入可以对应同一个函数值。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [
+                {
+                  "from": 0.0,
+                  "label": "[0, +∞)",
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null,
+                  "trend": "increasing"
+                },
+                {
+                  "from": null,
+                  "label": "(-∞, 0)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0,
+                  "trend": "constant"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "有常值平台时，不同输入可以有相同函数值，不能用严格单调性做等价转化。"
+          },
+          "graph": {
+            "caption": "原函数 $f$ 的分段图像：观察各段的范围、增减和分界点。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2.0,
+                2.0,
+                -1.0,
+                5.673611111111112
+              ],
+              "description": "水平段表示常值；若整条曲线上有平台，就不是严格单调。",
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [
+                {
+                  "from": null,
+                  "label": "(-∞, +∞)",
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": null,
+                  "trend": "pending"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "b88ebf93708e955573561728#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "把常值段也当成严格递增",
+                "value": "o3"
+              },
+              {
+                "label": "不严格单调，改为按两个输入各自所在分支分类比较",
+                "value": "o1"
+              },
+              {
+                "label": "整体严格递增，可直接把函数值比较改成输入比较",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "观察 $f$ 的整体图像。它在整个定义域上是否严格单调？",
+          "stem_board": {
+            "caption": "先看整体图像：是否严格单调",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "观察整体图像",
+                "math": "t\\in \\left(-\\infty, 0\\right):\\quad f(t)=1"
+              },
+              {
+                "label": "下一步",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "先看整体图像：是否严格单调"
+        }
+      ],
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "f509b82859f2f3c9360f35c91c8339dfa92fd92637e7e58526b874886b0d41c6",
+          "step_id": "39e5646dcb-piecewise-inequality-001-applicability"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "0c8fe929f993b17df966becc",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "15e72a07431e46a5ccea919b586c368a8586eabe9ed77acb2de70ec5b040326b",
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}\\ge0\\\\2 x\\ge0\\\\\\Rightarrow x\\in \\left[0, 1\\right]\\\\1 - x^{2}\\,>\\,2 x\\end{gathered}"
+              },
+              {
+                "label": "本情况解集",
+                "math": "x\\in \\left[0, -1 + \\sqrt{2}\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graphs": [
+            {
+              "caption": "原函数 $f$：本情况要求 $1 - x^{2}\\ge0$，且 $2 x\\ge0$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  2.0,
+                  -2.0,
+                  6.673611111111112
+                ],
+                "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+                "highlights": [
+                  {
+                    "from": 0.0,
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [],
+                "points": [
+                  {
+                    "label": "1 - x²",
+                    "place": "above",
+                    "x": 0.9571067811865476
+                  },
+                  {
+                    "label": "2x",
+                    "place": "below",
+                    "x": 0.41421356237309503
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      0.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      0.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "t",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -0.75,
+                  1.164213562373095
+                ],
+                "description": "x 的取值集合：[0, -1 + √(2))",
+                "pieces": [
+                  {
+                    "from": 0.0,
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": 0.41421356237309503
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    0.0,
+                    "0"
+                  ],
+                  [
+                    0.41421356237309503,
+                    "-1 + √(2)"
+                  ]
+                ],
+                "title": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$",
+                "variable": "x"
+              }
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "同段严格单调时优先用单调性转化，再与条件范围取交。"
+          },
+          "graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}\\ge0$，且 $2 x\\ge0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2.0,
+                2.0,
+                -2.0,
+                6.673611111111112
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": 0.0,
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": 0.9571067811865476
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": 0.41421356237309503
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "0c8fe929f993b17df966becc#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left[0, 1\\right]$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left[0, -1 + \\sqrt{2}\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left[-1 + \\sqrt{2}, 1\\right]$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "结合图像：当 $x\\ge0$ 时，$f$ 严格递增，故 $f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\Leftrightarrow 1 - x^{2}\\,>\\,2 x$。再与本情况范围取交，求 $x$。",
+          "stem_board": {
+            "caption": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}\\ge0\\\\2 x\\ge0\\\\\\Rightarrow x\\in \\left[0, 1\\right]\\\\1 - x^{2}\\,>\\,2 x\\end{gathered}"
+              },
+              {
+                "label": "本情况解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$"
+        },
+        {
+          "completion_board": {
+            "caption": "情况2：当 $1 - x^{2}\\ge0$ 且 $2 x<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}\\ge0\\\\2 x<0\\\\\\Rightarrow x\\in \\left[-1, 0\\right)\\\\\\left(1 - x^{2}\\right)^{2} + 1\\,>\\,1\\end{gathered}"
+              },
+              {
+                "label": "本情况解集",
+                "math": "x\\in \\left(-1, 0\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graphs": [
+            {
+              "caption": "原函数 $f$：本情况要求 $1 - x^{2}\\ge0$，且 $2 x<0$。",
+              "kind": "piecewise_curve",
+              "params": {
+                "bounds": [
+                  -2.0,
+                  2.0,
+                  -2.0,
+                  6.673611111111112
+                ],
+                "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+                "highlights": [
+                  {
+                    "from": 0.0,
+                    "left_closed": true,
+                    "right_closed": false,
+                    "to": null
+                  },
+                  {
+                    "from": null,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0.0
+                  }
+                ],
+                "interval": [
+                  null,
+                  null
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "interval_marks": [],
+                "points": [
+                  {
+                    "label": "1 - x²",
+                    "place": "above",
+                    "x": 0.75
+                  },
+                  {
+                    "label": "2x",
+                    "place": "below",
+                    "x": -1.0
+                  }
+                ],
+                "segments": [
+                  {
+                    "coefficients": [
+                      1.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      0.0,
+                      null
+                    ],
+                    "interval_closed": [
+                      true,
+                      false
+                    ],
+                    "transform": "identity"
+                  },
+                  {
+                    "coefficients": [
+                      0.0,
+                      0.0,
+                      1.0
+                    ],
+                    "interval": [
+                      null,
+                      0.0
+                    ],
+                    "interval_closed": [
+                      false,
+                      false
+                    ],
+                    "transform": "identity"
+                  }
+                ],
+                "title": "原函数 f",
+                "variable": "t",
+                "xTicks": [
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ]
+              }
+            },
+            {
+              "kind": "number_line",
+              "params": {
+                "bounds": [
+                  -1.75,
+                  0.75
+                ],
+                "description": "x 的取值集合：(-1, 0)",
+                "pieces": [
+                  {
+                    "from": -1.0,
+                    "left_closed": false,
+                    "right_closed": false,
+                    "to": 0.0
+                  }
+                ],
+                "points": [],
+                "ticks": [
+                  [
+                    -1.0,
+                    "-1"
+                  ],
+                  [
+                    0.0,
+                    "0"
+                  ]
+                ],
+                "title": "情况2：当 $1 - x^{2}\\ge0$ 且 $2 x<0$",
+                "variable": "x"
+              }
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "只在当前输入分支组合内求解，再与该情况的输入范围取交。"
+          },
+          "graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}\\ge0$，且 $2 x<0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -2.0,
+                2.0,
+                -2.0,
+                6.673611111111112
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": 0.0,
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null
+                },
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": 0.75
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": -1.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "0c8fe929f993b17df966becc#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(-1, 0\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left\\{-1\\right\\}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left[-1, 0\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "结合图像：$2 x$ 落在常值段，将 $1 - x^{2}$ 代入对应段表达式，得 $\\left(1 - x^{2}\\right)^{2} + 1\\,>\\,1$。求使它成立的 $x$。",
+          "stem_board": {
+            "caption": "情况2：当 $1 - x^{2}\\ge0$ 且 $2 x<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}\\ge0\\\\2 x<0\\\\\\Rightarrow x\\in \\left[-1, 0\\right)\\\\\\left(1 - x^{2}\\right)^{2} + 1\\,>\\,1\\end{gathered}"
+              },
+              {
+                "label": "本情况解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "情况2：当 $1 - x^{2}\\ge0$ 且 $2 x<0$"
+        },
+        {
+          "completion_board": {
+            "caption": "情况3：当 $1 - x^{2}<0$ 且 $2 x\\ge0$（无解）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}<0\\\\2 x\\ge0\\\\\\Rightarrow x\\in \\left(1, \\infty\\right)\\\\f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\end{gathered}"
+              },
+              {
+                "label": "本情况的解",
+                "math": "\\varnothing"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}<0$，且 $2 x\\ge0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -4.75,
+                5.75,
+                -5.0,
+                21.0
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0
+                },
+                {
+                  "from": 0.0,
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": -3.0
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "常值段或交叉组合可能使不等式恒不成立。"
+          },
+          "graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}<0$，且 $2 x\\ge0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -4.75,
+                5.75,
+                -5.0,
+                21.0
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0
+                },
+                {
+                  "from": 0.0,
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": -3.0
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "0c8fe929f993b17df966becc#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(1, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "结合图像：当 $1 - x^{2}<0$、$2 x\\ge0$ 时，原不等式能否成立？",
+          "stem_board": {
+            "caption": "情况3：当 $1 - x^{2}<0$ 且 $2 x\\ge0$（无解）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}<0\\\\2 x\\ge0\\\\\\Rightarrow x\\in \\left(1, \\infty\\right)\\\\f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\end{gathered}"
+              },
+              {
+                "label": "本情况的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "情况3：当 $1 - x^{2}<0$ 且 $2 x\\ge0$（无解）"
+        },
+        {
+          "completion_board": {
+            "caption": "情况4：当 $1 - x^{2}<0$ 且 $2 x<0$（无解）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}<0\\\\2 x<0\\\\\\Rightarrow x\\in \\left(-\\infty, -1\\right)\\\\f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\end{gathered}"
+              },
+              {
+                "label": "本情况的解",
+                "math": "\\varnothing"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}<0$，且 $2 x<0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -5.0,
+                2.0,
+                -2.0,
+                6.673611111111112
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": -3.0
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": -4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "常值段或交叉组合可能使不等式恒不成立。"
+          },
+          "graph": {
+            "caption": "原函数 $f$：本情况要求 $1 - x^{2}<0$，且 $2 x<0$。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -5.0,
+                2.0,
+                -2.0,
+                6.673611111111112
+              ],
+              "description": "上方／下方标注分别对应两个输入在曲线上的示意位置。",
+              "highlights": [
+                {
+                  "from": null,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.0
+                }
+              ],
+              "interval": [
+                null,
+                null
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "interval_marks": [],
+              "points": [
+                {
+                  "label": "1 - x²",
+                  "place": "above",
+                  "x": -3.0
+                },
+                {
+                  "label": "2x",
+                  "place": "below",
+                  "x": -4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    0.0,
+                    null
+                  ],
+                  "interval_closed": [
+                    true,
+                    false
+                  ],
+                  "transform": "identity"
+                },
+                {
+                  "coefficients": [
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "interval": [
+                    null,
+                    0.0
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "原函数 f",
+              "variable": "t",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ]
+              ]
+            }
+          },
+          "id": "0c8fe929f993b17df966becc#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\emptyset$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\mathbb{R}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(-\\infty, -1\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "结合图像：当 $1 - x^{2}<0$、$2 x<0$ 时，原不等式能否成立？",
+          "stem_board": {
+            "caption": "情况4：当 $1 - x^{2}<0$ 且 $2 x<0$（无解）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本情况条件",
+                "math": "\\begin{gathered}1 - x^{2}<0\\\\2 x<0\\\\\\Rightarrow x\\in \\left(-\\infty, -1\\right)\\\\f\\!\\left(1 - x^{2}\\right)\\,>\\,f\\!\\left(2 x\\right)\\end{gathered}"
+              },
+              {
+                "label": "本情况的解",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "情况4：当 $1 - x^{2}<0$ 且 $2 x<0$（无解）"
+        }
+      ],
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "f44a37a4adcaf69742755b75458ea411d15071f0678bf232ced33a8707ce922c",
+          "step_id": "39e5646dcb-piecewise-inequality-002-cases"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "b9f8ab02d2bdc00144f5758e",
+      "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
+      "interaction_sha256": "860d2a506c82b4fe9c4b24747802597fc4a3ddf42a3beabb7c93ac210d7b7b3e",
+      "lesson_version": "283f401708deb776940439c52a15a93e8dc5afd16de35e77b4b88a06bb2931a9",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "合并各情况的解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各情况保留的解集",
+                "math": "\\begin{gathered}\\text{情况1}:\\quad \\left[0, -1 + \\sqrt{2}\\right)\\\\\\text{情况2}:\\quad \\left(-1, 0\\right)\\end{gathered}"
+              },
+              {
+                "label": "原不等式的解集",
+                "math": "x\\in \\left(-1, -1 + \\sqrt{2}\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "kind": "number_line",
+            "params": {
+              "bounds": [
+                -1.75,
+                1.164213562373095
+              ],
+              "description": "x 的取值集合：(-1, -1 + √(2))",
+              "pieces": [
+                {
+                  "from": -1.0,
+                  "left_closed": false,
+                  "right_closed": false,
+                  "to": 0.41421356237309503
+                }
+              ],
+              "points": [],
+              "ticks": [
+                [
+                  -1.0,
+                  "-1"
+                ],
+                [
+                  0.41421356237309503,
+                  "-1 + √(2)"
+                ]
+              ],
+              "title": "原不等式的解集",
+              "variable": "x"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "各情况结果取并集；空情况不必再占篇幅。"
+          },
+          "id": "b9f8ab02d2bdc00144f5758e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left(-1, 0\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left(-1, -1 + \\sqrt{2}\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left[0, -1 + \\sqrt{2}\\right)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把所有左右分支组合下保留的范围合起来。",
+          "stem_board": {
+            "caption": "合并各情况的解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "各情况保留的解集",
+                "math": "\\begin{gathered}\\text{情况1}:\\quad \\left[0, -1 + \\sqrt{2}\\right)\\\\\\text{情况2}:\\quad \\left(-1, 0\\right)\\end{gathered}"
+              },
+              {
+                "label": "原不等式的解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认这一步",
+          "title": "合并各情况的解集"
+        }
+      ],
+      "route_id": "piecewise-inequality",
+      "run_id": "5990d72857d04a05a62900d936cc8b75",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "177d89a2767fc48f587a093ce952c25f5df9540f721056d1b370d2eb915b6133",
+          "step_id": "39e5646dcb-piecewise-inequality-003-merge-two"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

@@ -639,6 +639,14 @@ REGISTRY['solve_piecewise_branches'] = _solve_piecewise_branches
 REGISTRY['filter_piecewise_branches'] = _filter_piecewise_branches
 
 
+def _analyze_piecewise_inequality_route(context):
+    from ...piecewise_inequality import analyze_route
+    return analyze_route(context)
+
+
+REGISTRY['analyze_piecewise_inequality_route'] = _analyze_piecewise_inequality_route
+
+
 def _evaluate_piecewise_level(context):
     from ...piecewise_inequality import evaluate_level
     return evaluate_level(context)
@@ -669,6 +677,14 @@ def _filter_piecewise_inequality(description, level, branch_solutions):
 
 
 REGISTRY['filter_piecewise_inequality'] = _filter_piecewise_inequality
+
+
+def _solve_piecewise_two_input_cases(description):
+    from ...piecewise_inequality import solve_two_input_cases
+    return solve_two_input_cases(description)
+
+
+REGISTRY['solve_piecewise_two_input_cases'] = _solve_piecewise_two_input_cases
 
 
 def _piecewise_range_capability(name):
@@ -717,6 +733,21 @@ for _name, _function in {'analyze_extremum': 'analyze', 'confirm_extremum': 'con
                          'check_extremum_ranges': 'check_ranges',
                          'accept_extremum_parameter_children': 'accept_parameter_children'}.items():
     REGISTRY[_name] = _extremum_capability(_function)
+
+
+def _mono_inequality_capability(name):
+    def call(**inputs):
+        from .. import monotonicity_inequality_runtime
+        return getattr(monotonicity_inequality_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'analyze_monotonicity_inequality': 'analyze',
+                         'prepare_monotonicity_inequality_basis': 'prepare_basis',
+                         'confirm_monotonicity_inequality_basis': 'confirm_basis',
+                         'confirm_monotonicity_order': 'confirm_order',
+                         'confirm_monotonicity_inequality': 'confirm'}.items():
+    REGISTRY[_name] = _mono_inequality_capability(_function)
 
 
 def _monotonicity_capability(name):

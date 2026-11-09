@@ -1,0 +1,88 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b03-v1",
+  "label": "先证分段递增再比较 · B03",
+  "path": "/topics/function-monotonicity/q03b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b03-v1.json",
+  "types": [
+    "type-monotonicity-inequality"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}2x-1,&x<1,\\\\x^{2},&x\\ge1\\end{cases}$。若 $f(x^{2}+x+3)>f(3x^{2}-3)$，则 $x$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-inequality": {
+      "label": "单调性解不等式法",
+      "methods": [
+        "method-monotonicity-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "af4fe1c622b5052fe99510ae#1": {
+          "title": "一次函数在 $\\left(-\\infty, 1\\right)$ 上的增减",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "4f8f02f42b54312b227ba128#1": {
+          "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "e8ae2274b7d656a617b666ab#1": {
+          "title": "检查跨段单调性",
+          "position": 6,
+          "refs": [
+            "method-piecewise-monotonicity#join",
+            "skill-piecewise-order-join",
+            "function-monotonicity#interval"
+          ]
+        },
+        "19baa72a699984a557a9b0c4#1": {
+          "title": "利用单调性转化比较",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-inequality#order",
+            "skill-monotonicity-order",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "192ed73026e67934807b85d4#1": {
+          "title": "回到原目标",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-inequality#conclude",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "228f6e0f681e2e2a71e178dbfb9caaf67be51521024b87d64ead18157cc8de47",
+  "practice_version": "782c11aa58ab0a04d685890c4403702f5c780a04dcbdff151b97f3c5e60bb90e"
+}

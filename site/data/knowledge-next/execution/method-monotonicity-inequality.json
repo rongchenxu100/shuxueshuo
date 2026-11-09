@@ -1,0 +1,268 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-monotonicity-inequality",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "analyze",
+          "capability": "analyze_monotonicity_inequality",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "mono_inequality_result": "mono_inequality_result",
+            "inputs_interactive": "inputs_interactive"
+          },
+          "order": 0
+        },
+        {
+          "id": "basis-plan",
+          "capability": "prepare_monotonicity_inequality_basis",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context",
+            "description": "$description"
+          },
+          "outputs": {
+            "needs_mono_proof": "needs_mono_proof",
+            "child_context": "child_context"
+          },
+          "order": 1
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "prepare",
+          "after": "basis-plan",
+          "template": "mono_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result",
+            "phase": "prepare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_inequality_result"
+          ],
+          "guard": {
+            "ref": "needs_mono_proof",
+            "equals": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "basis-prove",
+      "calls": [
+        {
+          "id": "child",
+          "capability": "submethod",
+          "public_ref": "method-piecewise-monotonicity",
+          "inputs": {
+            "context": "$child_context"
+          },
+          "outputs": {
+            "monotonicity_proof": "monotonicity_result"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "needs_mono_proof",
+            "equals": true
+          },
+          "skip_reason": "basis-given"
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "basis-confirm",
+      "calls": [
+        {
+          "id": "confirm_basis",
+          "capability": "confirm_monotonicity_inequality_basis",
+          "public_ref": "skill-piecewise-order-join",
+          "inputs": {
+            "context": "$context",
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result",
+            "monotonicity_proof": "$monotonicity_proof"
+          },
+          "outputs": {
+            "monotonicity_basis": "monotonicity_basis"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "needs_mono_proof",
+            "equals": true
+          },
+          "skip_reason": "basis-given"
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "inputs",
+      "calls": [
+        {
+          "id": "confirm_inputs",
+          "capability": "confirm_monotonicity_inequality",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result"
+          },
+          "outputs": {
+            "mono_inequality_result": "mono_inequality_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "inputs",
+          "after": "confirm_inputs",
+          "template": "mono_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result",
+            "phase": "inputs",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_inequality_result"
+          ],
+          "guard": {
+            "ref": "inputs_interactive",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "order",
+      "calls": [
+        {
+          "id": "convert",
+          "capability": "confirm_monotonicity_order",
+          "public_ref": "skill-monotonicity-order",
+          "inputs": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result"
+          },
+          "outputs": {
+            "mono_inequality_result": "mono_inequality_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "order",
+          "after": "convert",
+          "template": "mono_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result",
+            "phase": "order",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_inequality_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_monotonicity_inequality",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result"
+          },
+          "outputs": {
+            "mono_inequality_result": "mono_inequality_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "conclude",
+          "after": "confirm",
+          "template": "mono_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_inequality_result": "$mono_inequality_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_inequality_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "mono_inequality_result": "$mono_inequality_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "monotonicity_inequality",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x≥0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1421,
+      "prompt_tokens": 30321,
+      "total_tokens": 31742,
+      "prompt_cache_hit_tokens": 29952,
+      "prompt_cache_miss_tokens": 369
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 629,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-be021486-9e6b-4558-9f2d-0799d7bae842",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 9943,
+        "expires_at": 1794293820,
+        "uploaded_at": 1794207420.6070669
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "api_calls": 1,
+        "file_id": "file-api-be021486-9e6b-4558-9f2d-0799d7bae842",
+        "expires_at": 1794293820,
+        "elapsed_ms": 188
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 12914,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1421,
+          "prompt_tokens": 30321,
+          "total_tokens": 31742,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1177
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29952
+          },
+          "prompt_cache_hit_tokens": 29952,
+          "prompt_cache_miss_tokens": 369
+        },
+        "raw_payload": {
+          "id": "87cfbcf0-15e1-4988-8b62-eda0b7b83418",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1421,
+            "prompt_tokens": 30321,
+            "total_tokens": 31742,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1177
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29952
+            },
+            "prompt_cache_hit_tokens": 29952,
+            "prompt_cache_miss_tokens": 369
+          },
+          "created": 1794207420,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x≥0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意，不求解。图片是第12题，分段函数 f(x) = { x^2+1, x≥0 ; 1, x<0 }，则不等式 f(1-x^2) > f(2x) 的解集是 ____。手写答案 [0,+∞) 不能转录。需要输出 original_text 包含题干完整，保留题号？original_text可以保留题号12. 公开内容排除来源题号。没有小问。目标：解不等式，未知数 x 的解集/范围，用 find_range symbol x。facts 包含 f 的分段定义，以及不等式 f(1-x^2)>f(2x)。注意函数定义放 definitions，分段函数定义原式。也可以将不等式作为目标条件还是 facts？规则：“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 facts 放 f 定义（definitions）和不等式条件。目标 {\"kind\":\"find_range\",\"symbol\":\"x\"}。不要函数对象。\n\n需要原式转录，题干变量。分段函数 latex。original_text 用 $...$，保留不等号严格性。手写不转录。\n\npublic_content：completeness complete（只有一题完整，虽填空，但完整题干和所求）。privacy separated? 图片有学生手写答案，公开时排除。题号是来源可以排除。无姓名等。可以 separated。figure none/not_required.\n\nroot.label? 题号12不是必须作为label？ root.label 可省略。若设置 label \"12.\" 需要 root_label_role source，公开排除。但为简洁不设置。original_text 保留“12.”。public_content statement 不保留题号，不含答案横线？填空处照印刷原样写横线是 original_text 要求；公开 statement 可保留“是______。” 公式。需 public_content.scopes 对应 /root。statement 写“若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。” 这里分段函数latex需转义反斜杠在JSON里。original_text 中公式可以用 LaTeX，反斜杠必须转义成 \\\\。\n\nroot definitions: [\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"] 受控。facts: [\"f(1-x^2) > f(2*x)\"]? 按math_expression_catalog，乘法显式写*，变量 x^2 是幂，可以写 1-x^2。表达式 f(1-x^2) > f(2*x)。注意题面是2x，提取成 2*x。definitions 分段写 piecewise 表达式。\n\ngoal: {\"kind\":\"find_range\",\"symbol\":\"x\"}。无选项 choices 每个目标 status none, selection_mode none, options [].\n\nfigure_detection status none, regions [].\n\nuncertainties 空。注意手写答案不报告。public_content.figure not_required.\n\n需要确保 original_text 包含完整题干，公式用 $…$，保留题面 “解集合是____”。手写答案不转录。可以使用 “12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。” 题面 x≥0 印刷；第二行 1,x<0。注意原图函数是 f(x)= {x^2+1,x≥0; 1,x<0}。原题括号大括号。公式内集合花括号规则不涉及。反斜杠需要双写：JSON中 \"\\\\begin\" 等。分段环境中的换行 \\\\\\\\ 代表两个反斜杠？JSON字符串写 \"\\\\\\\\\" 表示实际两个反斜杠。我们要实际LaTeX换行是 \\\\，JSON转义为 \"\\\\\\\\\". Here in final response JSON.\n\npublic_content statement 用 $...$。需保持不补充解释。公开题干可以省略题号。填空线用______。根据“填空处照印刷原样写横线”针对 original_text，公开也保留横线。原图手写填 [0,+∞) 覆盖，印刷横线可见。\n\nroot.definitions 用 piecewise。其实 math catalog 支持 piecewise(表达式1,条件1,表达式2,条件2)。写 \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" 但条件 x>=0 以 >= 形式，而目录比较用 ≥? 可以用 ≥ Unicode 吗？受控字符串 catalog 中比较符号是 ≤ ≥，应该可用。使用 \"f(x)=piecewise(x^2+1,x≥0,1,x<0)\"。这里 x≥0 表示条件。 okay.\n\nfacts \"f(1-x^2) > f(2*x)\"。是否需完整不等式作为目标条件，是的。\n\n不要添加解答或手写答案。\n\ncompleteness complete 因为完整一道题，填空一个目标。即使有手写答案覆盖？题干完整，横线可见。complete。\n\nprivacy separated？图片含有手写答案和可能上方被截断的笔迹，但公开可以剔除手写答案。题干本身无个人。题号可以排除。 separated 合理。\n\nfigure none.\n\nNeed output only JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13128
+  },
+  "raw_payload": {
+    "id": "87cfbcf0-15e1-4988-8b62-eda0b7b83418",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2+1,x≥0,1,x<0)\"],\"facts\":[\"f(1-x^2) > f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意，不求解。图片是第12题，分段函数 f(x) = { x^2+1, x≥0 ; 1, x<0 }，则不等式 f(1-x^2) > f(2x) 的解集是 ____。手写答案 [0,+∞) 不能转录。需要输出 original_text 包含题干完整，保留题号？original_text可以保留题号12. 公开内容排除来源题号。没有小问。目标：解不等式，未知数 x 的解集/范围，用 find_range symbol x。facts 包含 f 的分段定义，以及不等式 f(1-x^2)>f(2x)。注意函数定义放 definitions，分段函数定义原式。也可以将不等式作为目标条件还是 facts？规则：“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 facts 放 f 定义（definitions）和不等式条件。目标 {\"kind\":\"find_range\",\"symbol\":\"x\"}。不要函数对象。\n\n需要原式转录，题干变量。分段函数 latex。original_text 用 $...$，保留不等号严格性。手写不转录。\n\npublic_content：completeness complete（只有一题完整，虽填空，但完整题干和所求）。privacy separated? 图片有学生手写答案，公开时排除。题号是来源可以排除。无姓名等。可以 separated。figure none/not_required.\n\nroot.label? 题号12不是必须作为label？ root.label 可省略。若设置 label \"12.\" 需要 root_label_role source，公开排除。但为简洁不设置。original_text 保留“12.”。public_content statement 不保留题号，不含答案横线？填空处照印刷原样写横线是 original_text 要求；公开 statement 可保留“是______。” 公式。需 public_content.scopes 对应 /root。statement 写“若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。” 这里分段函数latex需转义反斜杠在JSON里。original_text 中公式可以用 LaTeX，反斜杠必须转义成 \\\\。\n\nroot definitions: [\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"] 受控。facts: [\"f(1-x^2) > f(2*x)\"]? 按math_expression_catalog，乘法显式写*，变量 x^2 是幂，可以写 1-x^2。表达式 f(1-x^2) > f(2*x)。注意题面是2x，提取成 2*x。definitions 分段写 piecewise 表达式。\n\ngoal: {\"kind\":\"find_range\",\"symbol\":\"x\"}。无选项 choices 每个目标 status none, selection_mode none, options [].\n\nfigure_detection status none, regions [].\n\nuncertainties 空。注意手写答案不报告。public_content.figure not_required.\n\n需要确保 original_text 包含完整题干，公式用 $…$，保留题面 “解集合是____”。手写答案不转录。可以使用 “12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集是______。” 题面 x≥0 印刷；第二行 1,x<0。注意原图函数是 f(x)= {x^2+1,x≥0; 1,x<0}。原题括号大括号。公式内集合花括号规则不涉及。反斜杠需要双写：JSON中 \"\\\\begin\" 等。分段环境中的换行 \\\\\\\\ 代表两个反斜杠？JSON字符串写 \"\\\\\\\\\" 表示实际两个反斜杠。我们要实际LaTeX换行是 \\\\，JSON转义为 \"\\\\\\\\\". Here in final response JSON.\n\npublic_content statement 用 $...$。需保持不补充解释。公开题干可以省略题号。填空线用______。根据“填空处照印刷原样写横线”针对 original_text，公开也保留横线。原图手写填 [0,+∞) 覆盖，印刷横线可见。\n\nroot.definitions 用 piecewise。其实 math catalog 支持 piecewise(表达式1,条件1,表达式2,条件2)。写 \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" 但条件 x>=0 以 >= 形式，而目录比较用 ≥? 可以用 ≥ Unicode 吗？受控字符串 catalog 中比较符号是 ≤ ≥，应该可用。使用 \"f(x)=piecewise(x^2+1,x≥0,1,x<0)\"。这里 x≥0 表示条件。 okay.\n\nfacts \"f(1-x^2) > f(2*x)\"。是否需完整不等式作为目标条件，是的。\n\n不要添加解答或手写答案。\n\ncompleteness complete 因为完整一道题，填空一个目标。即使有手写答案覆盖？题干完整，横线可见。complete。\n\nprivacy separated？图片含有手写答案和可能上方被截断的笔迹，但公开可以剔除手写答案。题干本身无个人。题号可以排除。 separated 合理。\n\nfigure none.\n\nNeed output only JSON."
+        }
+      }
+    ],
+    "created": 1794207420,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1421,
+      "prompt_tokens": 30321,
+      "total_tokens": 31742,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1177,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29952
+      },
+      "prompt_cache_hit_tokens": 29952,
+      "prompt_cache_miss_tokens": 369
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.13
+}

@@ -1,0 +1,85 @@
+{
+  "search_id": "a12eda16cc66",
+  "user_id": "21cd74ed-4f1c-4a6c-b0fa-aa3bd9b7aca5",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "0929e40f0b1bceb77abb336647e4e6951327ff36d8295e640711d57f9230c12e",
+      "width": 1155,
+      "height": 130,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/a12eda16cc66/figures/original?version=efc560f267a62d8058c3075a48ce3b44a8cde44fdd781963fa34a1945b5162a4"
+      }
+    ],
+    "content_id": "efc560f267a62d8058c3075a48ce3b44a8cde44fdd781963fa34a1945b5162a4"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "747da5e06bfd",
+    "box": [
+      0.0508209538702111,
+      0.6037514654161782,
+      0.9538702111024238,
+      0.6799531066822978
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1155,
+      130
+    ],
+    "bytes": 12437
+  },
+  "state": "done",
+  "status": "code_gap",
+  "outcome": "unsupported",
+  "original_text": "6. 若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。",
+  "parts": [],
+  "root": {
+    "facts": [
+      "∀x1∈(-1,1): ∀x2∈(-1,1): x1 < x2 ⇒ f(x1) < f(x2)",
+      "f(2*a-1) < f(3*a-1)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [],
+  "image_check": {
+    "question_sha256": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+    "sent_image_sha256": [
+      "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 16.811
+}

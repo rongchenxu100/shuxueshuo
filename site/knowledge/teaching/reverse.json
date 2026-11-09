@@ -5483,6 +5483,48 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10",
       "route": "function-evaluation",
@@ -6938,6 +6980,48 @@
       "problem": "function-concepts-q29b-v2",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -9112,6 +9196,13 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10",
       "route": "function-evaluation",
@@ -9868,6 +9959,48 @@
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
       "step": "038d7f05b666b4dc4c28f8cc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -11694,6 +11827,48 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10-v1",
       "route": "piecewise-equation",
@@ -12493,6 +12668,48 @@
       "problem": "function-concepts-range-q18",
       "route": "translation-range",
       "step": "9e0e62290f842437ad0f5b6b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -14151,6 +14368,48 @@
       "problem": "function-concepts-range-q06",
       "route": "equation-real-root-range",
       "step": "2520f28ed47070d5ff4e9e0a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -17490,6 +17749,10 @@
       "problem": "function-concepts-q29b-v2"
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1"
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10"
     },
@@ -17530,6 +17793,13 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q29b-v2",
+      "route": "function-evaluation",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
       "route": "function-evaluation",
       "step": "D3",
       "conditions": {}
@@ -17793,6 +18063,48 @@
       "problem": "function-concepts-q29b-v2",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -18096,6 +18408,48 @@
       "problem": "function-concepts-q29b-v2",
       "route": "function-evaluation",
       "step": "c4142de870d75d8eaef9c458#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
       "conditions": {}
     },
     {
@@ -19327,6 +19681,62 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "goal-2-D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q07",
       "route": "extremum",
@@ -20225,6 +20635,34 @@
       "route": "piecewise-monotonicity",
       "step": "fb281be1c368ecb9e09ca2b8#2",
       "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "af4fe1c622b5052fe99510ae#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "4f8f02f42b54312b227ba128#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "52c29c1477a0a2f828f70ce8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "7ef0e15792e93ae3689a17a5#1",
+      "conditions": {}
     }
   ],
   "composite-function-monotonicity#rule": [
@@ -20534,6 +20972,34 @@
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
       "step": "9c1ca38e1d3120175971c432#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "af4fe1c622b5052fe99510ae#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "4f8f02f42b54312b227ba128#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "52c29c1477a0a2f828f70ce8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "7ef0e15792e93ae3689a17a5#1",
       "conditions": {}
     }
   ],
@@ -20845,6 +21311,34 @@
       "route": "piecewise-monotonicity",
       "step": "9c1ca38e1d3120175971c432#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "af4fe1c622b5052fe99510ae#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "4f8f02f42b54312b227ba128#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "52c29c1477a0a2f828f70ce8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "7ef0e15792e93ae3689a17a5#1",
+      "conditions": {}
     }
   ],
   "method-monotonicity-structure#conclude": [
@@ -21063,6 +21557,20 @@
       "route": "piecewise-monotonicity",
       "step": "a728a0ce4aa9ec240052e93f#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "e8ae2274b7d656a617b666ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "fd9b3525dfb50d956c2ad933#1",
+      "conditions": {}
     }
   ],
   "skill-piecewise-order-join": [
@@ -21072,6 +21580,20 @@
       "route": "piecewise-monotonicity",
       "step": "a728a0ce4aa9ec240052e93f#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "e8ae2274b7d656a617b666ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "fd9b3525dfb50d956c2ad933#1",
+      "conditions": {}
     }
   ],
   "function-monotonicity#interval": [
@@ -21080,6 +21602,209 @@
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
       "step": "a728a0ce4aa9ec240052e93f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "36840d5bad653aec3e19e71e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "bf4efddd9c60d1ee624b46ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "6bb022fd0fe1208cd8ed0475#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "08f7915bcb7ac8463d0f04c5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "da4a41b690a04d28dd208190#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "f8ccb4d46d1e9d14632b1353#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "cbe17054bf430f1872648488#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "b72734e1bd5ad02a0a2a1c79#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "e8ae2274b7d656a617b666ab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "19baa72a699984a557a9b0c4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "192ed73026e67934807b85d4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "fd9b3525dfb50d956c2ad933#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "d7fedda57268986961d9f09f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9cda4026149b8c911912d2ad#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "ec8d889f404d0f14ec0bdaf9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "92dffb222a88edb8eaf4f3be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "caca4d461d801f7a764b7cf9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "c3b1a7cbaa10d9342578998f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "2dcaae56bcb07ca75cfe7ca7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "f909139bf324235b07249055#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "eec10cc178820954ce74f0f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "eebdbb8eeb201c20f69dc705#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "a8efbd66ce74a638944e9f58#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "b5d2756adca612d714d172f0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "6b6d4b5b2e4750447eed9b3f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "a02ba77a623d87475f8acfb3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "90dcc3a5d521b7e45a250962#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "c42053dd6500d69651e9c28d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "2e01a5bd84ba15f6b97160da#1",
       "conditions": {}
     }
   ],
@@ -22260,7 +22985,744 @@
       "conditions": {}
     }
   ],
+  "type-monotonicity-inequality": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1"
+    }
+  ],
+  "method-monotonicity-inequality#prepare": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "36840d5bad653aec3e19e71e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "da4a41b690a04d28dd208190#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "ec8d889f404d0f14ec0bdaf9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "c3b1a7cbaa10d9342578998f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "eebdbb8eeb201c20f69dc705#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "a02ba77a623d87475f8acfb3#1",
+      "conditions": {}
+    }
+  ],
+  "function-monotonicity#definition": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "36840d5bad653aec3e19e71e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "6bb022fd0fe1208cd8ed0475#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "da4a41b690a04d28dd208190#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "cbe17054bf430f1872648488#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "19baa72a699984a557a9b0c4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "d7fedda57268986961d9f09f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "ec8d889f404d0f14ec0bdaf9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "92dffb222a88edb8eaf4f3be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "c3b1a7cbaa10d9342578998f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "f909139bf324235b07249055#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "eebdbb8eeb201c20f69dc705#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "b5d2756adca612d714d172f0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "a02ba77a623d87475f8acfb3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "c42053dd6500d69651e9c28d#1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-inequality#inputs": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "bf4efddd9c60d1ee624b46ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "f8ccb4d46d1e9d14632b1353#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "2dcaae56bcb07ca75cfe7ca7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "a8efbd66ce74a638944e9f58#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "90dcc3a5d521b7e45a250962#1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-inequality#order": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "6bb022fd0fe1208cd8ed0475#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "cbe17054bf430f1872648488#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "19baa72a699984a557a9b0c4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "d7fedda57268986961d9f09f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "92dffb222a88edb8eaf4f3be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "f909139bf324235b07249055#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "b5d2756adca612d714d172f0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "c42053dd6500d69651e9c28d#1",
+      "conditions": {}
+    }
+  ],
+  "skill-monotonicity-order": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "6bb022fd0fe1208cd8ed0475#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "cbe17054bf430f1872648488#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "19baa72a699984a557a9b0c4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "d7fedda57268986961d9f09f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "92dffb222a88edb8eaf4f3be#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "f909139bf324235b07249055#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "b5d2756adca612d714d172f0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "c42053dd6500d69651e9c28d#1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-inequality#conclude": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b01-v1",
+      "route": "monotonicity-inequality",
+      "step": "08f7915bcb7ac8463d0f04c5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b02-v1",
+      "route": "monotonicity-inequality",
+      "step": "b72734e1bd5ad02a0a2a1c79#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b03-v1",
+      "route": "monotonicity-inequality",
+      "step": "192ed73026e67934807b85d4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9cda4026149b8c911912d2ad#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b04-v1",
+      "route": "monotonicity-inequality",
+      "step": "caca4d461d801f7a764b7cf9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b05-v1",
+      "route": "monotonicity-inequality",
+      "step": "eec10cc178820954ce74f0f6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b06-v1",
+      "route": "monotonicity-inequality",
+      "step": "6b6d4b5b2e4750447eed9b3f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b13-v1",
+      "route": "monotonicity-inequality",
+      "step": "2e01a5bd84ba15f6b97160da#1",
+      "conditions": {}
+    }
+  ],
+  "piecewise-function#definition": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "c32938251ee3a0bd0bbac98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "53df6957910ff6394cbc8d11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "53df6957910ff6394cbc8d11#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a4d61fd97586d3bbb556faea#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a4d61fd97586d3bbb556faea#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a1c458c48c2555519e4bbfb6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#5",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#6",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#7",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#8",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b12",
+      "route": "piecewise-modeling",
+      "step": "cebcc1eb0ab37ca75646707f#9",
+      "conditions": {}
+    }
+  ],
+  "piecewise-function#domain-range": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "9a15b5711e1186ea1707c870#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "1cc8a5f42cdfeb36ee3892d6#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "493177ed25bf63b84637c67b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b09-v1",
+      "route": "function-evaluation",
+      "step": "771fdb8fe3c3142ce7d2e972#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "c32938251ee3a0bd0bbac98e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "53df6957910ff6394cbc8d11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "53df6957910ff6394cbc8d11#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a4d61fd97586d3bbb556faea#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a4d61fd97586d3bbb556faea#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10",
+      "route": "function-evaluation",
+      "step": "a1c458c48c2555519e4bbfb6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11",
+      "route": "piecewise-range",
+      "step": "e52e95da47485a9435ae75f7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "ce6666737c709058758f45ae#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "d4dc307a5244c6a47dad5fab#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "9f5f4fa385f06601e44cc560#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "f31d9ee5505b714dbae20625#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "4a96170326a985877fb036c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v1",
+      "route": "piecewise-range-parameter",
+      "step": "e76453a507045e0852ed7587#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "de7b0198a4f32c48d1218683#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "8a8e9b29435aaf6214d04294#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "6021904a41a556fa24b97b2a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "fc4bc5ef64ef6599f4d37fc7#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "a6240a18470b6da294bdfce9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "6db7b17040ecae0ecb387b43#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "17811199bd335161de8ab72c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b11-v2",
+      "route": "piecewise-range-parameter",
+      "step": "3f2b676e11752a9840d02896#1",
+      "conditions": {}
+    }
+  ],
   "type-piecewise-function": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1"
+    },
     {
       "topic": "function-representations",
       "problem": "function-representations-b10-v1"
@@ -22283,6 +23745,13 @@
     }
   ],
   "piecewise-function": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "D1",
+      "conditions": {}
+    },
     {
       "topic": "function-representations",
       "problem": "function-representations-b10-v1",
@@ -22309,6 +23778,68 @@
       "problem": "function-representations-b12",
       "route": "piecewise-modeling",
       "step": "goal-2-D1",
+      "conditions": {}
+    }
+  ],
+  "method-piecewise-inequality": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b10-v2",
+      "route": "piecewise-inequality",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-piecewise-inequality#route": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "8ccc748689a16e0e6e464979#1",
+      "conditions": {}
+    }
+  ],
+  "method-piecewise-inequality#two-inputs": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "e2108d42424edca0a0ed033c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "e2108d42424edca0a0ed033c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "e2108d42424edca0a0ed033c#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "e2108d42424edca0a0ed033c#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-b12-v1",
+      "route": "piecewise-inequality",
+      "step": "6923015c68df5885650a0bf9#1",
       "conditions": {}
     }
   ],
@@ -22525,262 +24056,6 @@
       "problem": "function-representations-b12",
       "route": "piecewise-modeling",
       "step": "2694fc293ad7121beb865365#2",
-      "conditions": {}
-    }
-  ],
-  "piecewise-function#definition": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "c32938251ee3a0bd0bbac98e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "53df6957910ff6394cbc8d11#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "53df6957910ff6394cbc8d11#2",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a4d61fd97586d3bbb556faea#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a4d61fd97586d3bbb556faea#2",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a1c458c48c2555519e4bbfb6#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#2",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#3",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#4",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#5",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#6",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#7",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#8",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b12",
-      "route": "piecewise-modeling",
-      "step": "cebcc1eb0ab37ca75646707f#9",
-      "conditions": {}
-    }
-  ],
-  "piecewise-function#domain-range": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "c32938251ee3a0bd0bbac98e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "53df6957910ff6394cbc8d11#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "53df6957910ff6394cbc8d11#2",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a4d61fd97586d3bbb556faea#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a4d61fd97586d3bbb556faea#2",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10",
-      "route": "function-evaluation",
-      "step": "a1c458c48c2555519e4bbfb6#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11",
-      "route": "piecewise-range",
-      "step": "e52e95da47485a9435ae75f7#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "ce6666737c709058758f45ae#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "d4dc307a5244c6a47dad5fab#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "9f5f4fa385f06601e44cc560#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "f31d9ee5505b714dbae20625#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "4a96170326a985877fb036c0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v1",
-      "route": "piecewise-range-parameter",
-      "step": "e76453a507045e0852ed7587#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "de7b0198a4f32c48d1218683#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "8a8e9b29435aaf6214d04294#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "6021904a41a556fa24b97b2a#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "fc4bc5ef64ef6599f4d37fc7#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "a6240a18470b6da294bdfce9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "6db7b17040ecae0ecb387b43#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "17811199bd335161de8ab72c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b11-v2",
-      "route": "piecewise-range-parameter",
-      "step": "3f2b676e11752a9840d02896#1",
       "conditions": {}
     }
   ],
@@ -26175,15 +27450,6 @@
       "problem": "function-representations-b09-v1",
       "route": "absolute-piecewise-graph",
       "step": "60ae692178e00b0938bedad2#1",
-      "conditions": {}
-    }
-  ],
-  "method-piecewise-inequality": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b10-v2",
-      "route": "piecewise-inequality",
-      "step": "D3",
       "conditions": {}
     }
   ],

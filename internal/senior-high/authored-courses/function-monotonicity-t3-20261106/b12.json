@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-b12-v1",
+  "reviewer": "Codex：依据用户原图与 T3 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+      "sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+      "location": "FM-B12，图 4"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\begin{cases}x^{2}+1,&x\\ge0,\\\\1,&x<0\\end{cases}$。若 $f(1-x^{2})>f(2x)$，则 $x$ 的取值范围是______。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+      ],
+      "facts": [
+        "f(1-x^2)>f(2*x)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-1,-1+sqrt(2))"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

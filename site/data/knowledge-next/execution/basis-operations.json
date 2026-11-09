@@ -359,6 +359,13 @@
     ],
     "extremum_cubic_order": [
       "function-monotonicity#common-functions"
+    ],
+    "mono_inequality_inputs": [
+      "function-monotonicity#interval"
+    ],
+    "mono_inequality_order": [
+      "function-monotonicity#definition",
+      "function-monotonicity#interval"
     ]
   }
 }

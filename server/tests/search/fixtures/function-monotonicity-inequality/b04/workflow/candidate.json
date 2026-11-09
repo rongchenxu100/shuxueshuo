@@ -1,0 +1,44 @@
+{
+  "original_text": "4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。",
+  "root": {
+    "facts": [
+      "f(m^2+2) > f(2m+5)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "m",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "ℝ",
+          "direction": "decreasing",
+          "strict": true,
+          "basis": "given"
+        }
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

@@ -363,7 +363,8 @@
             "quantified_subproblem",
             "substitution",
             "function_monotonicity",
-            "function_extremum"
+            "function_extremum",
+            "monotonicity_inequality"
           ]
         },
         "parts": {

@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-11-09",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "reviewed_candidate",
+  "call_stages": [
+    "extract",
+    "review"
+  ],
+  "historical_semantic_calls": 2,
+  "api_acceptance": {
+    "case": "b09",
+    "search_id": "32d3a3610737",
+    "recognition_status": "reviewed",
+    "lesson_status": "ready",
+    "elapsed_seconds": 50.275,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      },
+      {
+        "stage": "review",
+        "status": "completed"
+      }
+    ],
+    "status": "reviewed_candidate",
+    "recognition_seconds": 34.747,
+    "execution_status": "completed",
+    "types": [
+      "type-function-evaluation",
+      "type-monotonicity-inequality"
+    ],
+    "interaction_count": 9,
+    "same_stream_on_reopen": true,
+    "same_snapshot_on_reopen": true
+  },
+  "files": {
+    "api-completed.json": "6844264edeb1b784f659aad500b7913ef152e2e7ac632edd5c44e6ceecc318b0",
+    "api-final.json": "6844264edeb1b784f659aad500b7913ef152e2e7ac632edd5c44e6ceecc318b0",
+    "original.png": "ab1ac03ad7192bd3ad9137be99eada051995c05e191b1cf0df6ba66d0b4ef231",
+    "question.png": "d89d05ab00888110dff803e994784eae31bfde8d996d48699897a704de4410bf",
+    "result.json": "2bb2e621cc4be4693946d8b7e8298931a570a16c03b6326fd4963e8fbca170eb",
+    "snapshot.json": "dda8aa5aacf07a1d362899bf4be15ea39bd4c9c393ce8527783d4fa2eb2bfef8",
+    "source.json": "258154f1c85665d57288da496c53ab4fa29d71648c90c8ecb3f46264d964a79b",
+    "start.json": "f29346019d61892d44291f88174598018844a42707ab41230100fc75f7f8ce74",
+    "workflow/calls/01-extract/file-operations.json": "c7135dedb4fe2cde8f90b0682f9f2ab4b8fa9744a6baffc05bce4b4ad147f623",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "7e98295c1ea3cb685979952412701323bc4e498165452860da6d6433a0612974",
+    "workflow/calls/01-extract/request.json": "ec8d56893b5034195cb249a4bd7fc1dff276cace9a0918a2b62cded03122cb52",
+    "workflow/calls/01-extract/response.json": "25f5a4db62f7ca88ecf4bff8d8d6c46a7a01fcf12679e763be262312b290e1ef",
+    "workflow/calls/02-review/file-operations.json": "901f30628abc4115284c7041a20bd6ce386ed19b24e4c8a1d4326a7506a236b8",
+    "workflow/calls/02-review/provider-attempts/01-request.json": "89f612bc69a3d0b00501c8ab9d7fbcacc5a61b0cdf32ae5792414785d053b410",
+    "workflow/calls/02-review/request.json": "2e291b1ac2f9e979e6b1d37d4ee49e56834dc321aca27d0cfc92ac59a5ed2265",
+    "workflow/calls/02-review/response.json": "b0e10e294b75fdab3a95685cf5c071e1723b109d7978d0ae3f9689814f326cf0",
+    "workflow/candidate.json": "60c7fc602a080b433ce8347c0f25f6a6f47f261335d375d06f7a1fec947bec63",
+    "workflow/latest-review.json": "5ee35b60fbae0603a0735b4b2ccd4eeace78701bb950c9d18154187931004ab0",
+    "workflow/ledger.json": "9bcfaa5e769bed5e1b47c741737ac68b7b3372f37d47becc4976dc06553af388"
+  }
+}

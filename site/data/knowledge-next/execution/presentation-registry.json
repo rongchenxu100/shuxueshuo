@@ -2759,6 +2759,65 @@
         "connector": "⇒"
       }
     },
+    "piecewise_inequality_applicability": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "mode",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_inequality_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
+    "piecewise_inequality_cases": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "case_results",
+        "feasible_set",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "piecewise_inequality_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
     "piecewise_range_union": {
       "title": "{formula_title}",
       "explanation": "由本步已知条件推出本步结论。",
@@ -3092,6 +3151,35 @@
         "connector": "⇒"
       }
     },
+    "mono_inequality_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "mono_inequality_result",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "mono_inequality_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
+    },
     "extremum_piece_derivation": {
       "title": "{formula_title}",
       "explanation": "由本步已知条件推出本步结论。",
@@ -3170,7 +3258,8 @@
     "method-piecewise-monotonicity": "verify",
     "method-monotonicity-extremum": "verify",
     "method-quantified-range-comparison": "verify",
-    "method-extremum-condition-parameter": "verify"
+    "method-extremum-condition-parameter": "verify",
+    "method-monotonicity-inequality": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

@@ -145,7 +145,8 @@ def _goal(goal, features, text, candidate=None):
     if (source_goal.get("kind") in ('find_monotonic_intervals', 'prove_monotonicity_on_interval', 'select_function_graph', 'draw_function_graph', 'solve_graph_inequality', 'find_function_formula', 'select_range_domain', 'find_extrema_expression', "find_translation_range", "find_abstract_domain", "find_abstract_domain_parameter", "find_abstract_range", "find_value", "check_constant", "finite_sum")
             or source_goal.get("kind") == "find_range" and "object" in source_goal
             or known.get('piecewise_equation', {}).get('structure_supported')
-            or known.get('piecewise_inequality', {}).get('structure_supported')):
+            or known.get('piecewise_inequality', {}).get('structure_supported')
+            or known.get('monotonicity_inequality', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -412,6 +413,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _piecewise_modeling_d1_rows(target, fragments, known, text)
     if known.get('piecewise_inequality', {}).get('structure_supported'):
         return _piecewise_inequality_d1_rows(target, fragments, known, text)
+    if known.get('monotonicity_inequality', {}).get('structure_supported'):
+        return _monotonicity_inequality_d1_rows(target, fragments, known, text)
     if known.get('piecewise_equation', {}).get('structure_supported'):
         return _piecewise_equation_d1_rows(target, fragments, known, text)
     if known.get('function_extremum', {}).get('structure_supported'):
@@ -689,6 +692,31 @@ def _piecewise_inequality_d1_rows(target, fragments, known, text):
     return {'rows': [row], 'givens': [], 'interaction': 'choice',
             'question': '题目给出了分段函数和一个不等式，需要求什么？',
             'feedback': feedback, 'summary': f'找出满足题中不等式的全部 ${variable}$，每个解都要符合所在段的范围。'}
+
+
+def _monotonicity_inequality_d1_rows(target, fragments, known, text):
+    description = known['monotonicity_inequality']
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not selected:
+        return {'rows': [], 'summary': ''}
+    variable = description['variable']
+    function = description['function']
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    proved = description.get('mono_basis') == 'proved_monotonicity'
+    feedback = (f'要先确认 ${function}$ 的严格单调性，再把函数值比较转成输入比较，求 ${variable}$ 的取值范围。'
+                if proved else
+                f'已知 ${function}$ 严格单调，把函数值比较转成输入比较，求 ${variable}$ 的取值范围。')
+    correct = f'利用 ${function}$ 的严格单调性，求满足题中比较的全部 ${variable}$'
+    wrong = '只比较两个函数值大小，不求自变量范围'
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [fragment['id'] for fragment in selected],
+           'knowledge_refs': ['function-monotonicity#inequality'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option(wrong, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, description], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': '这一问比较了同一个函数的两个函数值，需要求什么？',
+            'feedback': feedback, 'summary': correct + '。'}
 
 
 def _piecewise_modeling_d1_rows(target, fragments, known, text):

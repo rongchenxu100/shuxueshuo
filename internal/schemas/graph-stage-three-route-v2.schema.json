@@ -466,6 +466,25 @@
               "type": "object"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mono_inequality_result",
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "mono_inequality_result": {
+              "type": "object"
+            }
+          }
         }
       ]
     },

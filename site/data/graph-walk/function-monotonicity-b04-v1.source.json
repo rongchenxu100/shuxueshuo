@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b04-v1",
+  "title": "已知递减求参数 · B04",
+  "page": "/topics/function-monotonicity/q06/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b04-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b04.json"
+}

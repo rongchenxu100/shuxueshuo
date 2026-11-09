@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b03-v1",
+  "title": "先证分段递增再比较 · B03",
+  "page": "/topics/function-monotonicity/q03b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\begin{cases}2x-1,&x<1,\\\\x^{2},&x\\ge1\\end{cases}$。若 $f(x^{2}+x+3)>f(3x^{2}-3)$，则 $x$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b03-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b03.json"
+}

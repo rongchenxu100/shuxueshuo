@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b09-v1",
+  "title": "分段求值与单调性不等式 · B09",
+  "page": "/topics/function-monotonicity/q09b/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRefs": [
+    "/root/goals/0",
+    "/root/goals/1"
+  ],
+  "targetTitles": [
+    "第（1）问：求 $f(f(1))$",
+    "第（2）问：解单调性不等式"
+  ],
+  "mainTargetRef": "/root/goals/1",
+  "statement": "已知函数 $f(x)=\\begin{cases}3x,&x\\ge3,\\\\-x^{2}+6x,&x<3\\end{cases}$。（1）求 $f(f(1))$ 的值；（2）若 $f(x^{2}-2x)<f(3x-4)$，求 $x$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b09-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b09.json"
+}

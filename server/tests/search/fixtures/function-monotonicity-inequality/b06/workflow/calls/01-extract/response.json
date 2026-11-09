@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"root\":{\"facts\":[\"f(2*a-1)<f(3*a-1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"(-1,1)\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2942,
+      "prompt_tokens": 30331,
+      "total_tokens": 33273,
+      "prompt_cache_hit_tokens": 29952,
+      "prompt_cache_miss_tokens": 379
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 654,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-9fb3c00b-3ef3-424b-b6b2-f6716ec14614",
+        "sha256": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 12437,
+        "expires_at": 1794293711,
+        "uploaded_at": 1794207311.048666
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+        "api_calls": 1,
+        "file_id": "file-api-9fb3c00b-3ef3-424b-b6b2-f6716ec14614",
+        "expires_at": 1794293711,
+        "elapsed_ms": 289
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 21806,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2942,
+          "prompt_tokens": 30331,
+          "total_tokens": 33273,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2694
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 29952
+          },
+          "prompt_cache_hit_tokens": 29952,
+          "prompt_cache_miss_tokens": 379
+        },
+        "raw_payload": {
+          "id": "bea67a1c-448c-40ff-8ed4-f31d4b881671",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2942,
+            "prompt_tokens": 30331,
+            "total_tokens": 33273,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2694
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 29952
+            },
+            "prompt_cache_hit_tokens": 29952,
+            "prompt_cache_miss_tokens": 379
+          },
+          "created": 1794207311,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"root\":{\"facts\":[\"f(2*a-1)<f(3*a-1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"(-1,1)\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目文字。图片显示：\"6. 若函数 y=f(x) 在 (-1,1) 上单调递增，且满足 f(2a-1)<f(3a-1)，则实数 a 的取值范围为 ___。\" 手写答案 \"(0, 2/3]\" 不转录。需要判断配图：无配图。题目没有小问。需要提取 root。\n\n题目：已知抽象函数 f(x) 在 (-1,1) 上单调递增，且 f(2a-1)<f(3a-1)，求 a 范围。需要保留 facts 中函数单调性：题给抽象函数在区间严格递增？原文“单调递增”没有“严格”二字，但通常单调递增可能严格。根据规则：题面明确给定抽象函数在区间上的严格递增／递减时，在 find_range 目标 function_monotonicity 记录 strict=true。这里原文只说“单调递增”，没有“严格”。但规则里 function_monotonicity 的 strict 必须 true（本批仅接受严格单调）。这有冲突？看规则：FM-T3：“原题明确给定抽象函数在区间上的严格递增／递减时，在该 find_range 目标的 function_monotonicity 中记录 function、domain、direction（increasing/decreasing）、strict=true、basis=given。” 原题写“单调递增”，不是明确“严格”。但通常“单调递增”在高中数学里可能指严格递增，但规则要求“明确给定...严格递增”。如果只写单调递增，怎么处理？可能 function_monotonicity 的 strict 是 const true，不能 false。如果使用 function_monotonicity 必须 strict=true，这似乎会把非严格升级。我们可以不把 function_monotonicity 放在目标，而把条件作为 fact？但规则说“这是原题条件的表示，不要再展开成含任意两点和蕴含符号的量词事实。” 对于已知抽象函数单调性，应在目标 function_monotonicity 中记录。strict 只能 true。原题“单调递增”可能被理解为严格递增（教材中单调递增通常指严格？国内教材“增函数”定义：区间内任意 x1<x2，都有 f(x1)<f(x2)，严格；有的称单调递增是严格）。而且题干中条件 f(2a-1)<f(3a-1) 严格，利用单调性可推出输入大小，所以需要严格性。我们按原题“单调递增”记录 direction increasing, strict=true? 这可能符合常见约定。但规则明确“明确给定抽象函数在区间上的严格递增／递减时”才记录，原题没写“严格”。是否应该报告 uncertainty？可能不用，因为通常单调递增即严格递增。需要谨慎。可以保留原目标 find_range symbol=a，facts 放原不等式 f(2a-1)<f(3a-1)。function_monotonicity 放目标里记录函数 f、domain (-1,1)、direction increasing、strict=true、basis given。函数定义没有具体解析式，题面 y=f(x) 抽象。可 definitions 写 f(x)？未给具体解析式，不能编造。不需要 definitions。facts 写 f(2*a-1)<f(3*a-1)。函数单调性也属于题设条件，可以放在目标的 function_monotonicity 中，不放在 facts。目标为 find_range symbol=a。也要注意因为输入要满足定义域？已知 f 在 (-1,1) 上单调递增，且满足不等式。但题干没有明确说 f 的定义域就是 (-1,1)？只说在 (-1,1) 上单调递增。抽象函数定义域未全给。利用单调性解不等式需要保证 2a-1,3a-1 在 (-1,1) 内吗？根据单调性，如果函数在 (-1,1) 上递增，比较的函数值对应的自变量应在该区间内。题面没有明确说定义域，只说在区间上单调递增。按照规则，“仅说‘在某区间上单调’不等于定义域就是该区间；不能擅自补全，也不能为了得到全解补入两个复合输入均在该区间的条件。” 因此不在 facts 中添加 2a-1,3a-1 在 (-1,1) 的条件，也不用 function_domain。目标 function_monotonicity domain=(-1,1)。但实际解题通常需要复合输入在区间内才能利用单调性，但规则明确说不补入两个复合输入均在该区间的条件。这可能是为了不提前补条件？但原题可能隐含 f 在 (-1,1) 上单调递增，并且 f(2a-1)<f(3a-1) 需二者在定义域内，可能函数定义域就是 (-1,1)? 题面只说“在(-1,1)上单调递增”，若抽象函数，通常定义域可能包含该区间？不补。按规则。\n\n需要提取 original_text：完整题干。可写：\n\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\n注意图片手写答案 \"(0,2/3]\" 不转录。填空处印刷是“为 ___”或“为 ”？图片末尾“为”后手写答案，题目可能没有印刷横线？看图片：最后“为”后面是手写 (0,2/3]，可能原题没有横线？只是题号6，然后“为 [手写]”。如果印刷是“为____”被手写覆盖？不应转录手写。original_text 可写“为 [无法辨认]”？但题面明显有手写答案，填空处如果原题有下划线被覆盖，不确定。可以写“为 ______”或只写到“为”。由于手写答案不是题面内容，我们应保留“为”即可？Schema要求完整题干原文，无法辨认处写[无法辨认]。这里手写答案覆盖处，可写“为 [无法辨认]”？但是手写答案不是题面，填空处照印刷原样写横线。图片中似乎“为”后面没有明显的印刷横线，只有手写答案。可能填空处本来空白。我们写“则实数 $a$ 的取值范围为 ______。” 可以。不确定是否是横线，可以写“为 ______”。没有 uncertainty 报告 unreadable，因为手写答案不是题目内容。若原题填空处无法辨认，照印刷原样写横线即可。\n\nroot facts: f(2*a-1)<f(3*a-1)。目标：find_range symbol=a，function_monotonicity {function:\"f\", domain:\"(-1,1)\", direction:\"increasing\", strict:true, basis:\"given\"}。是否需要 facts 包含函数单调性？目标里有了，不要重复。是否需要 facts 包含 a 为实数？题干“实数a”在目标 symbol 和原题中。可以不单独 fact。\n\npublic_content: completeness complete? 题目完整，无选项，无配图。privacy separated? 手写答案被排除，题号6是来源题号？题号6在 original_text 可保留，但 public_content.statement 应排除来源题号。需要 root_label? 图片开头“6.”是题号，不是 root.label? 我们没有 root.label 字段。original_text 保留“6.”。public_content.statement 不包含“6.”。题号仅来源。privacy separated? 图片只有题号，题号可排除。没有姓名等。可 separated。figure not_required。figure_detection status none, regions []。\n\npublic_content.scopes: 只有 /root，statement 为该作用域题干，不含题号。写：\n\"若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\nchoices: target_ref /root/goals/0, status none, selection_mode none, options [].\n\nroot goals: find_range symbol a with function_monotonicity。需要考虑 function_monotonicity 的 strict 字段。原题没有“严格”二字，但 schema 要求 strict const true。如果填写 strict true 是否算改变题意？也许“单调递增”在高中语境就是严格。可以。若不填 function_monotonicity，则 facts 中如何表示？可放 \"∀x1∈(-1,1):∀x2∈(-1,1): x1<x2 -> f(x1)<f(x2)\"，但规则说不要展开成量词事实，应使用 function_monotonicity。那就用 function_monotonicity，strict=true。basis given。domain \"(-1,1)\"。\n\n目标 find_range 是否需要有 expression? schema 的 find_range 可以无 expression（对于 FM-T3）。只 symbol=a 和 function_monotonicity。facts 放不等式。可以。\n\n注意函数单调性的事实表示中 function 是 f，domain (-1,1)，direction increasing，strict true，basis given。由于题干只说“在(-1,1)上单调递增”，没有声明完整定义域，所以不填 function_domain。好的。\n\nuncertainties：无。手写答案不算。无需报告。配图无。\n\npublic_content.privacy separated? 题号6在 original_text，但公开 statement 去掉。手写答案不存在。可以 separated。completeness complete。\n\nroot 是否需要 facts 包含 \"∀a\"? 不等式 f(2a-1)<f(3a-1) 作为条件，求 a。从题面看是“满足”该不等式，等价于存在 a 使成立？题目就是求满足该不等式的 a 范围，可直接 fact。\n\n是否要包含函数定义 y=f(x)? 抽象函数，不需要定义。可能 definitions 可以写 \"y=f(x)\"？但这是题面给出的函数记号，不是具体解析式。可以放 definitions? 规则说函数定义放 definitions。但 f 的解析式未知，只给 y=f(x)，这本身不是定义。可以在 definitions 写 \"f(x)\"? 不必要。题中用 f，目标引用 f。无需 definitions。\n\noriginal_text 要保留题号6吗？可以。公式用 $…$。集合花括号不需要。反斜杠没有。写：\n\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\n图片中“为 (0,2/3]”是手写，不写。横线处如果原题没有，没关系。\n\npublic_content scopes 的 statement 不含小问编号；题号6排除。内容与 original_text 相同去掉题号。\n\nfigure_detection: status none, regions [].\n\n需要确保 JSON 符合 schema。public_content 没有 root_label_role，因为 root.label 未设置。可以省略。completeness complete。\n\n注意 root 的 goals 项 find_range 中 function_monotonicity 的 domain 是 \"(-1,1)\"。facts 是 \"f(2*a-1)<f(3*a-1)\"。这里符号用 *。好。\n\n是否要 fact 中写 a∈ℝ? 题面“实数a”已包含在 symbol，不必。\n\nuncertainties 可空，省略。root 的 goals 只有一项。children 无。\n\n现在考虑 function_monotonicity 的 strict=true 是否会被认为不忠实。原题“单调递增”在中文高中数学里通常指严格递增（因为“单调递增”一般定义为 x1<x2 则 f(x1)<f(x2)；若 f(x1)≤f(x2) 叫不减）。所以可以。如果不确定，可报告 ambiguous? 不需要。\n\n但规则“原题明确给定抽象函数在区间上的严格递增／递减时”才记录。原题没有“严格”。严格说不能使用 function_monotonicity？但原题是“单调递增”，在教材语境中“单调递增”就是严格。而且目标中 strict 常量 true，没有 false 选项，意味着这里必须接受“单调递增”=严格。因此使用。\n\npublic_content 中 choices selection_mode none，status none。target_ref /root/goals/0。\n\n现在输出 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 22129
+  },
+  "raw_payload": {
+    "id": "bea67a1c-448c-40ff-8ed4-f31d4b881671",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"root\":{\"facts\":[\"f(2*a-1)<f(3*a-1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"(-1,1)\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目文字。图片显示：\"6. 若函数 y=f(x) 在 (-1,1) 上单调递增，且满足 f(2a-1)<f(3a-1)，则实数 a 的取值范围为 ___。\" 手写答案 \"(0, 2/3]\" 不转录。需要判断配图：无配图。题目没有小问。需要提取 root。\n\n题目：已知抽象函数 f(x) 在 (-1,1) 上单调递增，且 f(2a-1)<f(3a-1)，求 a 范围。需要保留 facts 中函数单调性：题给抽象函数在区间严格递增？原文“单调递增”没有“严格”二字，但通常单调递增可能严格。根据规则：题面明确给定抽象函数在区间上的严格递增／递减时，在 find_range 目标 function_monotonicity 记录 strict=true。这里原文只说“单调递增”，没有“严格”。但规则里 function_monotonicity 的 strict 必须 true（本批仅接受严格单调）。这有冲突？看规则：FM-T3：“原题明确给定抽象函数在区间上的严格递增／递减时，在该 find_range 目标的 function_monotonicity 中记录 function、domain、direction（increasing/decreasing）、strict=true、basis=given。” 原题写“单调递增”，不是明确“严格”。但通常“单调递增”在高中数学里可能指严格递增，但规则要求“明确给定...严格递增”。如果只写单调递增，怎么处理？可能 function_monotonicity 的 strict 是 const true，不能 false。如果使用 function_monotonicity 必须 strict=true，这似乎会把非严格升级。我们可以不把 function_monotonicity 放在目标，而把条件作为 fact？但规则说“这是原题条件的表示，不要再展开成含任意两点和蕴含符号的量词事实。” 对于已知抽象函数单调性，应在目标 function_monotonicity 中记录。strict 只能 true。原题“单调递增”可能被理解为严格递增（教材中单调递增通常指严格？国内教材“增函数”定义：区间内任意 x1<x2，都有 f(x1)<f(x2)，严格；有的称单调递增是严格）。而且题干中条件 f(2a-1)<f(3a-1) 严格，利用单调性可推出输入大小，所以需要严格性。我们按原题“单调递增”记录 direction increasing, strict=true? 这可能符合常见约定。但规则明确“明确给定抽象函数在区间上的严格递增／递减时”才记录，原题没写“严格”。是否应该报告 uncertainty？可能不用，因为通常单调递增即严格递增。需要谨慎。可以保留原目标 find_range symbol=a，facts 放原不等式 f(2a-1)<f(3a-1)。function_monotonicity 放目标里记录函数 f、domain (-1,1)、direction increasing、strict=true、basis given。函数定义没有具体解析式，题面 y=f(x) 抽象。可 definitions 写 f(x)？未给具体解析式，不能编造。不需要 definitions。facts 写 f(2*a-1)<f(3*a-1)。函数单调性也属于题设条件，可以放在目标的 function_monotonicity 中，不放在 facts。目标为 find_range symbol=a。也要注意因为输入要满足定义域？已知 f 在 (-1,1) 上单调递增，且满足不等式。但题干没有明确说 f 的定义域就是 (-1,1)？只说在 (-1,1) 上单调递增。抽象函数定义域未全给。利用单调性解不等式需要保证 2a-1,3a-1 在 (-1,1) 内吗？根据单调性，如果函数在 (-1,1) 上递增，比较的函数值对应的自变量应在该区间内。题面没有明确说定义域，只说在区间上单调递增。按照规则，“仅说‘在某区间上单调’不等于定义域就是该区间；不能擅自补全，也不能为了得到全解补入两个复合输入均在该区间的条件。” 因此不在 facts 中添加 2a-1,3a-1 在 (-1,1) 的条件，也不用 function_domain。目标 function_monotonicity domain=(-1,1)。但实际解题通常需要复合输入在区间内才能利用单调性，但规则明确说不补入两个复合输入均在该区间的条件。这可能是为了不提前补条件？但原题可能隐含 f 在 (-1,1) 上单调递增，并且 f(2a-1)<f(3a-1) 需二者在定义域内，可能函数定义域就是 (-1,1)? 题面只说“在(-1,1)上单调递增”，若抽象函数，通常定义域可能包含该区间？不补。按规则。\n\n需要提取 original_text：完整题干。可写：\n\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\n注意图片手写答案 \"(0,2/3]\" 不转录。填空处印刷是“为 ___”或“为 ”？图片末尾“为”后手写答案，题目可能没有印刷横线？看图片：最后“为”后面是手写 (0,2/3]，可能原题没有横线？只是题号6，然后“为 [手写]”。如果印刷是“为____”被手写覆盖？不应转录手写。original_text 可写“为 [无法辨认]”？但题面明显有手写答案，填空处如果原题有下划线被覆盖，不确定。可以写“为 ______”或只写到“为”。由于手写答案不是题面内容，我们应保留“为”即可？Schema要求完整题干原文，无法辨认处写[无法辨认]。这里手写答案覆盖处，可写“为 [无法辨认]”？但是手写答案不是题面，填空处照印刷原样写横线。图片中似乎“为”后面没有明显的印刷横线，只有手写答案。可能填空处本来空白。我们写“则实数 $a$ 的取值范围为 ______。” 可以。不确定是否是横线，可以写“为 ______”。没有 uncertainty 报告 unreadable，因为手写答案不是题目内容。若原题填空处无法辨认，照印刷原样写横线即可。\n\nroot facts: f(2*a-1)<f(3*a-1)。目标：find_range symbol=a，function_monotonicity {function:\"f\", domain:\"(-1,1)\", direction:\"increasing\", strict:true, basis:\"given\"}。是否需要 facts 包含函数单调性？目标里有了，不要重复。是否需要 facts 包含 a 为实数？题干“实数a”在目标 symbol 和原题中。可以不单独 fact。\n\npublic_content: completeness complete? 题目完整，无选项，无配图。privacy separated? 手写答案被排除，题号6是来源题号？题号6在 original_text 可保留，但 public_content.statement 应排除来源题号。需要 root_label? 图片开头“6.”是题号，不是 root.label? 我们没有 root.label 字段。original_text 保留“6.”。public_content.statement 不包含“6.”。题号仅来源。privacy separated? 图片只有题号，题号可排除。没有姓名等。可 separated。figure not_required。figure_detection status none, regions []。\n\npublic_content.scopes: 只有 /root，statement 为该作用域题干，不含题号。写：\n\"若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\nchoices: target_ref /root/goals/0, status none, selection_mode none, options [].\n\nroot goals: find_range symbol a with function_monotonicity。需要考虑 function_monotonicity 的 strict 字段。原题没有“严格”二字，但 schema 要求 strict const true。如果填写 strict true 是否算改变题意？也许“单调递增”在高中语境就是严格。可以。若不填 function_monotonicity，则 facts 中如何表示？可放 \"∀x1∈(-1,1):∀x2∈(-1,1): x1<x2 -> f(x1)<f(x2)\"，但规则说不要展开成量词事实，应使用 function_monotonicity。那就用 function_monotonicity，strict=true。basis given。domain \"(-1,1)\"。\n\n目标 find_range 是否需要有 expression? schema 的 find_range 可以无 expression（对于 FM-T3）。只 symbol=a 和 function_monotonicity。facts 放不等式。可以。\n\n注意函数单调性的事实表示中 function 是 f，domain (-1,1)，direction increasing，strict true，basis given。由于题干只说“在(-1,1)上单调递增”，没有声明完整定义域，所以不填 function_domain。好的。\n\nuncertainties：无。手写答案不算。无需报告。配图无。\n\npublic_content.privacy separated? 题号6在 original_text，但公开 statement 去掉。手写答案不存在。可以 separated。completeness complete。\n\nroot 是否需要 facts 包含 \"∀a\"? 不等式 f(2a-1)<f(3a-1) 作为条件，求 a。从题面看是“满足”该不等式，等价于存在 a 使成立？题目就是求满足该不等式的 a 范围，可直接 fact。\n\n是否要包含函数定义 y=f(x)? 抽象函数，不需要定义。可能 definitions 可以写 \"y=f(x)\"？但这是题面给出的函数记号，不是具体解析式。可以放 definitions? 规则说函数定义放 definitions。但 f 的解析式未知，只给 y=f(x)，这本身不是定义。可以在 definitions 写 \"f(x)\"? 不必要。题中用 f，目标引用 f。无需 definitions。\n\noriginal_text 要保留题号6吗？可以。公式用 $…$。集合花括号不需要。反斜杠没有。写：\n\"6. 若函数 $y=f(x)$ 在 $(-1,1)$ 上单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为 ______。\"\n图片中“为 (0,2/3]”是手写，不写。横线处如果原题没有，没关系。\n\npublic_content scopes 的 statement 不含小问编号；题号6排除。内容与 original_text 相同去掉题号。\n\nfigure_detection: status none, regions [].\n\n需要确保 JSON 符合 schema。public_content 没有 root_label_role，因为 root.label 未设置。可以省略。completeness complete。\n\n注意 root 的 goals 项 find_range 中 function_monotonicity 的 domain 是 \"(-1,1)\"。facts 是 \"f(2*a-1)<f(3*a-1)\"。这里符号用 *。好。\n\n是否要 fact 中写 a∈ℝ? 题面“实数a”已包含在 symbol，不必。\n\nuncertainties 可空，省略。root 的 goals 只有一项。children 无。\n\n现在考虑 function_monotonicity 的 strict=true 是否会被认为不忠实。原题“单调递增”在中文高中数学里通常指严格递增（因为“单调递增”一般定义为 x1<x2 则 f(x1)<f(x2)；若 f(x1)≤f(x2) 叫不减）。所以可以。如果不确定，可报告 ambiguous? 不需要。\n\n但规则“原题明确给定抽象函数在区间上的严格递增／递减时”才记录。原题没有“严格”。严格说不能使用 function_monotonicity？但原题是“单调递增”，在教材语境中“单调递增”就是严格。而且目标中 strict 常量 true，没有 false 选项，意味着这里必须接受“单调递增”=严格。因此使用。\n\npublic_content 中 choices selection_mode none，status none。target_ref /root/goals/0。\n\n现在输出 JSON。"
+        }
+      }
+    ],
+    "created": 1794207311,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2942,
+      "prompt_tokens": 30331,
+      "total_tokens": 33273,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2694,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 29952
+      },
+      "prompt_cache_hit_tokens": 29952,
+      "prompt_cache_miss_tokens": 379
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 22.132
+}

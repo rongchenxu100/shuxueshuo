@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-b13-v1",
+  "title": "常量输入与递增 · B13",
+  "page": "/topics/function-monotonicity/q13/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 的定义域为 $[0,+\\infty)$，且 $f(x)$ 是增函数。若 $f(2x-1)<f(\\frac{1}{3})$，则 $x$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-b13-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t3-20261106/b13.json"
+}

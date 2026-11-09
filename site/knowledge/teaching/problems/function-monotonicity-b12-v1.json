@@ -1,0 +1,87 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b12-v1",
+  "label": "常值段不能直接去 f · B12",
+  "path": "/topics/function-monotonicity/q12b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b12-v1.json",
+  "types": [
+    "type-piecewise-function",
+    "type-monotonicity-inequality"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}x^{2}+1,&x\\ge0,\\\\1,&x<0\\end{cases}$。若 $f(1-x^{2})>f(2x)$，则 $x$ 的取值范围是______。",
+  "routes": {
+    "piecewise-inequality": {
+      "label": "分段解不等式法",
+      "methods": [
+        "method-piecewise-inequality"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "piecewise-function"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 3,
+          "refs": [
+            "method-piecewise-inequality"
+          ]
+        },
+        "8ccc748689a16e0e6e464979#1": {
+          "title": "先看整体图像：是否严格单调",
+          "position": 4,
+          "refs": [
+            "method-piecewise-inequality#route"
+          ]
+        },
+        "e2108d42424edca0a0ed033c#1": {
+          "title": "情况1：当 $1 - x^{2}\\ge0$ 且 $2 x\\ge0$",
+          "position": 5,
+          "refs": [
+            "method-piecewise-inequality#two-inputs"
+          ]
+        },
+        "e2108d42424edca0a0ed033c#2": {
+          "title": "情况2：当 $1 - x^{2}\\ge0$ 且 $2 x<0$",
+          "position": 6,
+          "refs": [
+            "method-piecewise-inequality#two-inputs"
+          ]
+        },
+        "e2108d42424edca0a0ed033c#3": {
+          "title": "情况3：当 $1 - x^{2}<0$ 且 $2 x\\ge0$（无解）",
+          "position": 7,
+          "refs": [
+            "method-piecewise-inequality#two-inputs"
+          ]
+        },
+        "e2108d42424edca0a0ed033c#4": {
+          "title": "情况4：当 $1 - x^{2}<0$ 且 $2 x<0$（无解）",
+          "position": 8,
+          "refs": [
+            "method-piecewise-inequality#two-inputs"
+          ]
+        },
+        "6923015c68df5885650a0bf9#1": {
+          "title": "合并各情况的解集",
+          "position": 9,
+          "refs": [
+            "method-piecewise-inequality#two-inputs"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "18737eea13802c4868ad11db155b3436b7585fb754a2791aa041796f57ef597d",
+  "practice_version": "01babfe72a2a7040949c38e36bc623d8598ec1d2b953d23bc87bab30b5758123"
+}

@@ -1,0 +1,206 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-b09-v1",
+  "label": "分段求值与单调性不等式 · B09",
+  "path": "/topics/function-monotonicity/q09b/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-b09-v1.json",
+  "types": [
+    "type-monotonicity-inequality",
+    "type-function-evaluation"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}3x,&x\\ge3,\\\\-x^{2}+6x,&x<3\\end{cases}$。（1）求 $f(f(1))$ 的值；（2）若 $f(x^{2}-2x)<f(3x-4)$，求 $x$ 的取值范围。",
+  "routes": {
+    "function-evaluation": {
+      "label": "第（1）问：求 $f(f(1))$ → 第（2）问：解单调性不等式",
+      "methods": [
+        "method-monotonicity-inequality",
+        "method-function-evaluation"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "解题方法",
+          "position": 3,
+          "refs": [
+            "method-function-evaluation"
+          ]
+        },
+        "9a15b5711e1186ea1707c870#1": {
+          "title": "确定计算顺序",
+          "position": 4,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "1cc8a5f42cdfeb36ee3892d6#1": {
+          "title": "判断内层用哪一段",
+          "position": 5,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "1cc8a5f42cdfeb36ee3892d6#2": {
+          "title": "计算内层函数值",
+          "position": 6,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "493177ed25bf63b84637c67b#1": {
+          "title": "用中间值重新选段",
+          "position": 7,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "493177ed25bf63b84637c67b#2": {
+          "title": "计算外层函数值",
+          "position": 8,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "771fdb8fe3c3142ce7d2e972#1": {
+          "title": "返回本目标结果",
+          "position": 9,
+          "refs": [
+            "method-function-evaluation#evaluate",
+            "function-concept#definition",
+            "function-concept#elements",
+            "skill-expression-defined",
+            "piecewise-function#definition",
+            "piecewise-function#domain-range",
+            "set-intersection-union#intersection",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-equality-transform"
+          ]
+        },
+        "goal-2-D1": {
+          "title": "第（2）问：解单调性不等式",
+          "position": 10,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "goal-2-D2": {
+          "title": "确定题型",
+          "position": 11,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "goal-2-D3": {
+          "title": "选择解题方法",
+          "position": 12,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "52c29c1477a0a2f828f70ce8#1": {
+          "title": "二次函数在 $\\left(-\\infty, 3\\right)$ 上的增减",
+          "position": 13,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "7ef0e15792e93ae3689a17a5#1": {
+          "title": "一次函数在 $\\left[3, \\infty\\right)$ 上的增减",
+          "position": 14,
+          "refs": [
+            "method-monotonicity-structure#analyze",
+            "composite-function-monotonicity#rule",
+            "quadratic-function-properties#monotonicity"
+          ]
+        },
+        "fd9b3525dfb50d956c2ad933#1": {
+          "title": "检查跨段单调性",
+          "position": 15,
+          "refs": [
+            "method-piecewise-monotonicity#join",
+            "skill-piecewise-order-join",
+            "function-monotonicity#interval"
+          ]
+        },
+        "d7fedda57268986961d9f09f#1": {
+          "title": "利用单调性转化比较",
+          "position": 16,
+          "refs": [
+            "method-monotonicity-inequality#order",
+            "skill-monotonicity-order",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "9cda4026149b8c911912d2ad#1": {
+          "title": "回到原目标",
+          "position": 17,
+          "refs": [
+            "method-monotonicity-inequality#conclude",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "cf083933b7959e71f729b5e883dbd4251d5753dd0250708a0b7d3ace858cd6cc",
+  "practice_version": "c39589407512816143142b33c4f6156ace9f3731ce45a48644dd0e49c199a339"
+}

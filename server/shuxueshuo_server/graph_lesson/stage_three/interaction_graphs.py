@@ -39,12 +39,18 @@ def _finite(value):
     return isinstance(value, sp.Expr) and not value.free_symbols and value.is_finite is True and value.is_real is True
 
 
+def _svg_plain_math(text):
+    """SVG text cannot render LaTeX; prefer unicode powers over ``^2``."""
+    return (str(text).replace("sqrt", "√").replace("**", "^")
+            .replace("^2", "²").replace("^3", "³").replace("*", ""))
+
+
 def short_label(value):
     """Plain tick text such as ``-5/2``; the SVG renders no LaTeX."""
     value = sp.nsimplify(value) if isinstance(value, float) else sp.sympify(value)
     if value.is_Rational:
         return str(value.p) if value.q == 1 else f"{value.p}/{value.q}"
-    return sp.sstr(value).replace("sqrt", "√").replace("**", "^").replace("*", "")
+    return _svg_plain_math(sp.sstr(value))
 
 
 def plain(value):
@@ -63,7 +69,7 @@ def plain(value):
         return "空集"
     if value == sp.S.Reals:
         return "(-∞, +∞)"
-    return sp.sstr(value).replace("**", "^").replace("*", "")
+    return _svg_plain_math(sp.sstr(value))
 
 
 def _float(value):
