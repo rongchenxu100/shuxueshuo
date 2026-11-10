@@ -7,13 +7,14 @@ import diagrams, {
   definitionValues, extremaPoints, plotGeometry,
 } from '../../site/assets/explain/knowledge/monotonicity-explorer.js';
 
-test('3.2 contains the four knowledge themes and reuses existing function identities', async () => {
+test('3.2 retains monotonicity themes alongside parity and reuses existing function identities', async () => {
   const {nodes, manifest} = await loadSources();
   const graph = {nodes, edges:validateGraph(nodes, manifest)};
   const section = nodes.find(n => n.id === 'section-3-2');
   assert.deepEqual(section.members.filter(m => m.relation === 'contains').map(m => m.ref), [
     'function-monotonicity', 'function-monotonicity-operations',
     'composite-function-monotonicity', 'function-range-extrema',
+    'function-parity', 'function-parity-graph', 'function-graph-symmetry',
   ]);
   const members = scopeMembers(graph, section.id);
   for (const id of ['linear-interval-extremum', 'reciprocal-function', 'quadratic-function-properties']) {

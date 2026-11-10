@@ -22,6 +22,7 @@
 - [新专题与拍题学能力同步建设：开发流程](topic-and-photo-learning-development-workflow.md)
 - [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)
 - [函数单调性：专题题目、方法与技能建设计划](function-monotonicity-topic-plan.md)
+- [函数奇偶性：专题题目、方法与技能建设计划](function-parity-topic-plan.md)
 - [3.1 函数的概念及其表示：知识图谱设计](function-concepts-and-representation-knowledge-graph-discussion.md)
 - [高中数学公共知识图谱设计](public-knowledge-graph-ontology-design.md)
 - [公共知识图谱：维护与发布](public-knowledge-graph-stage4.md)
@@ -51,6 +52,7 @@
 - [FM-T4 已知函数的单调性求参：题型开发设计](function-monotonicity-parameter-problem-type-design.md)
 - [FM-T4：真实照片 OCR 与课程集成验收](function-monotonicity-t4-acceptance.md)
 - [FM-T5 证明抽象函数的单调性：题型开发设计](function-monotonicity-abstract-proof-problem-type-design.md)
+- [FP-T1 判断函数的奇偶性：设计与实现方案](function-parity-problem-type-design.md)
 
 ## 拍题与交互课程
 

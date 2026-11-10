@@ -163,6 +163,12 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     const rule = s => s.rule ? `<div class="step-rule"><p class="rel-label">这一步先用${link(s.rule)}来选：</p>${branchList(byId.get(s.rule), here)}</div>` : '';
     return `<section id="path"><h2>解题步骤</h2><p class="muted">按顺序做。标了条件的技能，只在题目符合那个条件时才用。</p><ol class="method-path" aria-label="解题步骤">${n.steps.map((s,i)=>`<li id="${s.id}"><div class="step-title"><span class="step-number">${i+1}</span><h3>${h(s.title)}</h3><a class="anchor" href="#${s.id}" aria-label="定位到${h(s.title)}">#</a></div>${paragraphs(s.body)}${calls(s)}${rule(s)}${placed(s.id)}</li>`).join('')}</ol></section>`;
   }
+  function tableSection(n, t) {
+    const here = homes.get(n.id);
+    const cell = c => typeof c === 'string' ? textHtml(c) : `${c.text ? `<span>${textHtml(c.text)}</span>` : ''}${chip(c.ref, here)}`;
+    const marks = '①②③④⑤⑥⑦⑧⑨';
+    return `<section class="kx-table-section" id="table-${t.id}"><h3>${h(t.title)} <a class="anchor" href="#table-${t.id}" aria-label="定位到${h(t.title)}">#</a></h3>${t.lead ? `<p class="muted">${textHtml(t.lead)}</p>` : ''}<div class="kx-table-scroll"><table class="kx-table"><thead><tr>${t.columns.map(c => `<th scope="col">${textHtml(c)}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r => `<tr><th scope="row">${textHtml(r.head)}</th>${r.cells.map(c => `<td>${cell(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${t.notes?.length ? `<div class="kx-table-notes"><p class="kx-note-tag">注意</p><ol>${t.notes.map((x, i) => `<li><span class="kx-note-mark" aria-hidden="true">${marks[i] || i + 1}</span>${textHtml(x)}</li>`).join('')}</ol></div>` : ''}</section>`;
+  }
   function resourceSection(id, html, placed) {
     const r = manifest.resources[id], heading = placed ? 'h3' : 'h2';
     return `<section class="resource-section${placed ? ' is-placed' : ''}" id="resource-${id}"><${heading}>${h(r.title)}</${heading}><p class="condition">${textHtml(r.note)}</p>${r.conditions?`<p class="condition">${textHtml(r.conditions)}</p>`:''}<div class="explain-inline explain-${r.scope}" data-resource="${id}">${html || ''}</div><p data-resource-status="${id}" class="muted" role="status">图解交互正在加载；正文与题例可直接阅读。</p><button type="button" data-resource-retry="${id}" hidden>重试加载图解</button></section>`;
@@ -180,16 +186,17 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     const basis = n.kind==='method' ? inheritedKnowledge(n.id,nodes,edges) : null;
     const resources = includeResources ? (n.resources || []) : [];
     const placedAfter = entry => resources.filter(id => manifest.resources[id].after === entry);
-    const placed = entry => placedAfter(entry).map(id => resourceSection(id, resourceHtml[id], true)).join('');
+    const tablesAt = key => (n.tables || []).filter(t => (t.after || '') === key).map(t => tableSection(n, t)).join('');
+    const placed = entry => tablesAt(entry) + placedAfter(entry).map(id => resourceSection(id, resourceHtml[id], true)).join('');
     let body = '';
-    if (n.input) { const c = CONTRACT[n.kind]; body+=`<section class="contract" id="contract"><h2>${c.title}</h2><dl><dt>${c.input}</dt><dd>${textHtml(n.input)}</dd><dt>${c.output}</dt><dd>${textHtml(n.output)}</dd><dt>要注意</dt><dd>${textHtml(n.conditions)}</dd></dl></section>`; }
+    if (n.input) { const c = CONTRACT[n.kind]; body+=`<section class="contract" id="contract"><h2>${c.title}</h2><dl><dt>${c.input}</dt><dd>${textHtml(n.input)}</dd><dt>${c.output}</dt><dd>${textHtml(n.output)}</dd><dt>要注意</dt><dd>${textHtml(n.conditions)}</dd></dl></section>${tablesAt('contract')}`; }
     if (n.entries) body+=`<section id="entries"><h2>知识条目</h2>${n.entries.map(e=>`<article class="entry" id="${e.id}"><p class="eyebrow">${h(e.type)}</p><h3>${h(e.title)} <a class="anchor" href="#${e.id}" aria-label="定位到${h(e.title)}">#</a></h3>${entryBody(e.body)}<p class="condition"><strong>成立条件：</strong>${textHtml(e.conditions)}</p>${e.references?.length ? `<div class="entry-references"><p>相关知识条目</p>${pills(e.references)}</div>` : ''}${entryUsers(n, e.id)}</article>${placed(e.id)}`).join('')}</section>`;
     if (n.operations) body+=`<section id="operations"><h2>操作步骤</h2><ol class="operations">${n.operations.map(o=>`<li id="${o.id}"><h3>${h(o.title)} <a class="anchor" href="#${o.id}">#</a></h3>${paragraphs(o.body)}${placed(o.id)}</li>`).join('')}</ol></section>`;
     if (n.steps) body+=path(n, placed);
-    if (n.features) body+=features(n)+choose(n);
-    if (n.branches) body+=`<section id="branches"><h2>按题目情况选</h2><p>下面几条可以同时满足，满足哪一条就可以走哪一条。</p>${n.branches.map(b=>`<article id="${b.id}" class="entry"><h3>${h(b.title)}</h3><p>${textHtml(b.condition)}</p><p class="branch-target"><span>满足时用</span>${chip(b.target, homes.get(n.id))}</p></article>`).join('')}</section>`;
+    if (n.features) body+=features(n)+tablesAt('features')+choose(n);
+    if (n.branches) body+=`<section id="branches"><h2>按题目情况选</h2><p>下面几条可以同时满足，满足哪一条就可以走哪一条。</p>${n.branches.map(b=>`<article id="${b.id}" class="entry"><h3>${h(b.title)}</h3><p>${textHtml(b.condition)}</p><p class="branch-target"><span>满足时用</span>${chip(b.target, homes.get(n.id))}</p></article>${placed(b.id)}`).join('')}</section>${tablesAt('branches')}`;
     if (basis?.length) body+=`<section id="basis"><h2>背后用到的知识</h2><p class="muted">上面各步骤用到的性质和公式。做一道具体的题，通常只用到其中一部分。</p>${pills(basis)}</section>`;
-    body+=pitfalls(n)+examples(n);
+    body+=tablesAt('')+pitfalls(n)+examples(n);
     const unplaced = resources.filter(id => !manifest.resources[id].after);
     body+=unplaced.map(id => resourceSection(id, resourceHtml[id], false)).join('');
     return body;
@@ -205,7 +212,8 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     const body = detailBody(n,resourceHtml);
     const toc = [...(n.entries || []),...(n.steps || []),...(n.operations || []),...(n.branches || [])];
     const resourceLink = id => `<li><a href="#resource-${id}">${h(manifest.resources[id].title)}</a></li>`;
-    const localLinks = `${n.input?`<li><a href="#contract">${CONTRACT[n.kind].title}</a></li>`:''}${toc.map(a=>`<li><a href="#${a.id}">${h(a.title)}</a></li>${placedAfter(a.id).map(resourceLink).join('')}`).join('')}${n.features?'<li><a href="#features">题型特征</a></li>':''}${n.features&&(n.methods?.length||n.rules?.length)?'<li><a href="#choose">怎么选方法</a></li>':''}${basis?.length?'<li><a href="#basis">背后用到的知识</a></li>':''}${n.pitfalls?.length?'<li><a href="#pitfalls">易错</a></li>':''}${n.examples?.length?`<li><a href="#examples">${n.kind==='method'?'例题':'说明与题例'}</a></li>`:''}${unplaced.map(resourceLink).join('')}`;
+    const tableLinks = key => (n.tables || []).filter(t => (t.after || '') === key).map(t => `<li><a href="#table-${t.id}">${h(t.title)}</a></li>`).join('');
+    const localLinks = `${n.input?`<li><a href="#contract">${CONTRACT[n.kind].title}</a></li>${tableLinks('contract')}`:''}${toc.map(a=>`<li><a href="#${a.id}">${h(a.title)}</a></li>${tableLinks(a.id)}${placedAfter(a.id).map(resourceLink).join('')}`).join('')}${tableLinks('branches')}${n.features?`<li><a href="#features">题型特征</a></li>${tableLinks('features')}`:''}${n.features&&(n.methods?.length||n.rules?.length)?'<li><a href="#choose">怎么选方法</a></li>':''}${basis?.length?'<li><a href="#basis">背后用到的知识</a></li>':''}${tableLinks('')}${n.pitfalls?.length?'<li><a href="#pitfalls">易错</a></li>':''}${n.examples?.length?`<li><a href="#examples">${n.kind==='method'?'例题':'说明与题例'}</a></li>`:''}${unplaced.map(resourceLink).join('')}`;
     const drill = manifest.drills?.includes(n.id);
     const extra=n.resources?.length ? '<link rel="stylesheet" href="/assets/explain/explain.css?v=1">'+n.resources.map(id=>manifest.resources[id]).filter(r=>r.stylesheet).map(r=>`<link rel="stylesheet" href="${r.stylesheet}?v=${r.version}">`).join('') : '';
     return shell(n.label,`<main id="main" class="workspace kx-detail"><section class="hero detail-hero" data-kind="${n.kind}">${crumbs('<span>高中数学</span>',...trail,`<span class="kind-text" aria-current="page">${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则':'步骤选择规则'}` : ''}</span>`)}<h1>${h(n.label)}</h1>${lifecycleLabel(n) ? `<p class="lifecycle-badge" data-status="${n.status}">${lifecycleLabel(n)}</p>` : ''}<p class="lead">${textHtml(n.summary)}</p>${n.aliases?.length ? `<p class="aliases">也称：${n.aliases.map(h).join('、')}</p>`:''}${appears.length ? `<p class="appears"><span>出现在</span>${appears.join('')}</p>` : ''}${mapHtml(n, sides)}<div class="detail-actions"><a class="primary-link" data-graph-locate href="${href}">在图谱中查看 ↗</a>${drill ? '<button type="button" class="drill-open" data-drill-open hidden>刷题 · 5 题</button>' : ''}</div></section>

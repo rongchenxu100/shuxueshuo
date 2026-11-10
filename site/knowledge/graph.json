@@ -336,6 +336,14 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "function-graph-symmetry",
+      "kind": "knowledge",
+      "label": "函数图像的对称性",
+      "summary": "从相同或互补的函数值识别对称轴、对称中心；通过平移，把一般对称性联系到奇偶性。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "function-graph-transformations",
       "kind": "knowledge",
       "label": "函数的图像及其变换",
@@ -357,6 +365,22 @@
       "kind": "knowledge",
       "label": "函数的单调性",
       "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "function-parity-graph",
+      "kind": "knowledge",
+      "label": "奇偶函数的图像特征",
+      "summary": "用对称点理解奇、偶函数的图像，并把函数值、单调性和最值传递到相反区间。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "function-parity",
+      "kind": "knowledge",
+      "label": "函数的奇偶性",
+      "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
       "aliases": [],
       "home": "compulsory-1-ch3"
     },
@@ -2393,7 +2417,7 @@
       "id": "section-3-2",
       "kind": "section",
       "label": "3.2 函数的基本性质",
-      "summary": "3.2.1 从单调性的定义出发，学习运算性质、复合函数的单调性，以及函数的最大值与最小值。",
+      "summary": "3.2.1 学习单调性与最值；3.2.2 学习函数的奇偶性、奇偶函数的图像特征，以及一般函数图像的对称性。",
       "aliases": [],
       "home": "compulsory-1-ch3"
     },
@@ -2907,6 +2931,15 @@
       ]
     },
     {
+      "id": "function-concept|prerequisite|function-parity",
+      "from": "function-concept",
+      "to": "function-parity",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "function-concept|prerequisite|function-range-extrema",
       "from": "function-concept",
       "to": "function-range-extrema",
@@ -2925,6 +2958,15 @@
       ]
     },
     {
+      "id": "function-graph-transformations|prerequisite|function-graph-symmetry",
+      "from": "function-graph-transformations",
+      "to": "function-graph-symmetry",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "function-monotonicity|prerequisite|composite-function-monotonicity",
       "from": "function-monotonicity",
       "to": "composite-function-monotonicity",
@@ -2937,6 +2979,42 @@
       "id": "function-monotonicity|prerequisite|function-monotonicity-operations",
       "from": "function-monotonicity",
       "to": "function-monotonicity-operations",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-monotonicity|prerequisite|function-parity-graph",
+      "from": "function-monotonicity",
+      "to": "function-parity-graph",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-parity-graph|prerequisite|function-graph-symmetry",
+      "from": "function-parity-graph",
+      "to": "function-graph-symmetry",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-parity|prerequisite|function-parity-graph",
+      "from": "function-parity",
+      "to": "function-parity-graph",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-range-extrema|prerequisite|function-parity-graph",
+      "from": "function-range-extrema",
+      "to": "function-parity-graph",
       "type": "prerequisite",
       "occurrences": [
         {}
@@ -2982,6 +3060,15 @@
       "id": "interval-notation|prerequisite|function-monotonicity",
       "from": "interval-notation",
       "to": "function-monotonicity",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "interval-notation|prerequisite|function-parity",
+      "from": "interval-notation",
+      "to": "function-parity",
       "type": "prerequisite",
       "occurrences": [
         {}
@@ -6073,6 +6160,15 @@
       ]
     },
     {
+      "id": "section-3-2|contains|function-graph-symmetry",
+      "from": "section-3-2",
+      "to": "function-graph-symmetry",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-2|contains|function-monotonicity",
       "from": "section-3-2",
       "to": "function-monotonicity",
@@ -6085,6 +6181,24 @@
       "id": "section-3-2|contains|function-monotonicity-operations",
       "from": "section-3-2",
       "to": "function-monotonicity-operations",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|contains|function-parity",
+      "from": "section-3-2",
+      "to": "function-parity",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-2|contains|function-parity-graph",
+      "from": "section-3-2",
+      "to": "function-parity-graph",
       "type": "contains",
       "occurrences": [
         {}

@@ -87,6 +87,33 @@ export function validateGraph(nodes, manifest) {
       ids.add(p.id);
       if (!p.title || !p.wrong || !p.why || !Array.isArray(p.fix) || !p.fix.length) err(n.id, `易错 ${p.id} 不完整`);
     }
+    const tableSlots = new Set(['', ...anchors(n).map(a => a.id)]);
+    if (n.input) tableSlots.add('contract');
+    if (n.features) tableSlots.add('features');
+    if (n.branches) tableSlots.add('branches');
+    if (n.tables !== undefined && !Array.isArray(n.tables)) err(n.id, 'tables 必须为数组');
+    if (n.tables?.length && ORG_KINDS.includes(n.kind)) err(n.id, '目录节点不展示表格');
+    for (const t of Array.isArray(n.tables) ? n.tables : []) {
+      if (!t || typeof t !== 'object') { err(n.id, '表格必须为对象'); continue; }
+      if (!/^[a-z][a-z0-9-]*$/.test(t.id || '') || ids.has(t.id)) err(n.id, '表格 ID 无效／重复');
+      ids.add(t.id);
+      if (typeof t.title !== 'string' || !t.title.trim() || t.title.includes('$')) err(n.id, `表格 ${t.id} 缺少标题或标题含公式`);
+      if (!tableSlots.has(t.after || '')) err(n.id, `表格 ${t.id} 的位置 ${t.after} 不存在`);
+      if (!Array.isArray(t.columns) || t.columns.length < 2 || t.columns.some(c => typeof c !== 'string' || !c.trim()) || !Array.isArray(t.rows) || !t.rows.length) {
+        err(n.id, `表格 ${t.id} 缺少表头或行`);
+        continue;
+      }
+      for (const r of t.rows || []) {
+        if (typeof r?.head !== 'string' || !r.head.trim() || !Array.isArray(r.cells) || r.cells.length !== t.columns.length - 1) {
+          err(n.id, `表格 ${t.id} 的行与表头列数不符`);
+          continue;
+        }
+        for (const c of r.cells) {
+          if (typeof c === 'string' ? !c.trim() : typeof c?.ref !== 'string') err(n.id, `表格 ${t.id} 有空单元格`);
+        }
+      }
+      if (t.notes && (!Array.isArray(t.notes) || t.notes.some(x => typeof x !== 'string' || !x.trim()))) err(n.id, `表格 ${t.id} 的注意事项无效`);
+    }
     if (n.kind === 'problem_type' && !planned && !((n.methods || []).length || (n.rules || []).length)) err(n.id, '题型缺少方法入口');
     if (n.kind === 'judgment_rule' && !['method_selection', 'step_selection'].includes(n.subtype)) err(n.id, '规则子类无效');
     const allowedFields = {members: ORG_KINDS, prerequisites: ['knowledge'], knowledge: ['problem_type'], methods: ['problem_type'], rules: ['problem_type'], basis: ['skill'], steps: ['method'], branches: ['judgment_rule']};
@@ -128,6 +155,7 @@ export function validateGraph(nodes, manifest) {
       if (after && ![...(n.entries || []), ...(n.operations || []), ...(n.steps || [])].some(e => e.id === after)) err(n.id, `资源 ${r} 的位置条目 ${after} 不存在`);
     }
     for (const p of n.pitfalls || []) if (p.see) checkRef(n.id, p.see, ['knowledge','skill','method','problem_type','judgment_rule'], true);
+    for (const t of Array.isArray(n.tables) ? n.tables : []) for (const r of Array.isArray(t?.rows) ? t.rows : []) for (const c of Array.isArray(r?.cells) ? r.cells : []) if (typeof c === 'object' && c) checkRef(n.id, c.ref, ['knowledge','skill','method','problem_type','judgment_rule'], true);
     if (n.pitfalls && !['knowledge','skill','method'].includes(n.kind)) err(n.id, `${n.kind} 不可维护 pitfalls`);
   }
   // Only prerequisites are a learning dependency DAG; mixed relations are not.

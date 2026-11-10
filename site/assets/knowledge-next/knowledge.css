@@ -717,3 +717,23 @@ a.kx-chapter-link:hover { border-color: var(--teal); color: var(--teal-dark); }
 
 [data-kind="collection"] { --kg: #9fd3c7; }
 .lifecycle-badge { display: inline-block; margin: .25rem .5rem .25rem 0; padding: .2rem .55rem; border: 1px solid currentColor; border-radius: 1rem; font-size: .8rem; color: #586e66; }
+.kx-table-section { margin: 18px 0 22px; }
+.kx-table-section h3 { margin: 0 0 6px; }
+.kx-table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.kx-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.65; }
+.kx-table th, .kx-table td { padding: 9px 12px; border-bottom: 1px solid #e6eeeb; border-right: 1px solid #eef3f1; vertical-align: middle; text-align: left; }
+.kx-table th:last-child, .kx-table td:last-child { border-right: 0; }
+.kx-table tbody tr:last-child th, .kx-table tbody tr:last-child td { border-bottom: 0; }
+.kx-table thead th { background: #eaf5f2; color: var(--teal-dark); font-weight: 700; white-space: nowrap; }
+.kx-table tbody th { min-width: 5.5em; max-width: 16em; background: #f7fbfa; color: #33504a; font-weight: 650; white-space: normal; }
+.kx-table td { white-space: normal; }
+.kx-table .katex { white-space: nowrap; }
+.kx-table td > span + a, .kx-table td > span + .chip { margin-left: 6px; }
+.kx-table-notes { margin-top: 10px; padding: 10px 14px; border-left: 3px solid #d98a1f; border-radius: 0 10px 10px 0; background: #fffaf2; color: #5e4520; font-size: 13.5px; line-height: 1.7; }
+.kx-note-tag { margin: 0 0 4px; font-weight: 700; color: #b06d12; }
+.kx-table-notes ol { margin: 0; padding: 0; list-style: none; }
+.kx-table-notes li { margin: 0; padding: 0 0 0 1.5em; border: 0; background: none; text-indent: -1.5em; }
+.kx-table-notes li::before { content: none; }
+.kx-table-notes li * { text-indent: 0; }
+.kx-table-notes .kx-note-mark { display: inline-block; width: 1.5em; text-indent: 0; color: #b06d12; font-weight: 700; }
+@media (max-width: 600px) { .kx-table { font-size: 13px; } .kx-table th, .kx-table td { padding: 7px 9px; } }

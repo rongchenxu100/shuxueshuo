@@ -1,0 +1,36 @@
+{
+  "source": "User attachments, 2026-11-10, Asia/Shanghai",
+  "purpose": "函数奇偶性：专题题源与方法技能设计",
+  "status": "planning_sources_not_extraction_gold",
+  "processing": "Original bytes copied without rotation, cropping, or annotation changes. Printed questions and handwritten answers are distinguished in the plan.",
+  "plan": "../../../../docs/function-parity-topic-plan.md",
+  "source_question_count": 20,
+  "source_target_count": 25,
+  "multi_target_questions": {
+    "FP-A01": 2,
+    "FP-A05": 2,
+    "FP-A09": 2,
+    "FP-A10": 2,
+    "FP-A11": 2
+  },
+  "images": [
+    {
+      "image_number": 1,
+      "file": "source-image-01.jpg",
+      "original_filename": "奇偶性 1.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "bytes": 160797,
+      "source_question_numbers": "1–11",
+      "planning_ids": "FP-A01–FP-A11"
+    },
+    {
+      "image_number": 2,
+      "file": "source-image-02.jpg",
+      "original_filename": "奇偶性 2.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "bytes": 119098,
+      "source_question_numbers": "12–20",
+      "planning_ids": "FP-A12–FP-A20"
+    }
+  ]
+}

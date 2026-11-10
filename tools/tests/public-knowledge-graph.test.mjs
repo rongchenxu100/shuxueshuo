@@ -15,7 +15,7 @@ const clone=()=>structuredClone(nodes);
 const byId=id=>nodes.find(n=>n.id===id);
 
 test('substantive originals retain explicit lifecycle states and curriculum or collection membership',()=>{
-  assert.equal(nodes.length,145);assert.equal(Object.keys(KINDS).length,9);
+  assert.equal(nodes.length,Object.values(manifest.expectedCounts).reduce((sum,n)=>sum+n,0));assert.equal(Object.keys(KINDS).length,9);
   const whole=scopeMembers(graph,'chapter-quadratic-equations-inequalities');
   assert.equal(whole.size,63);
   for(const id of ['quantifiers','function-monotonicity','function-range-extrema'])assert.ok(whole.has(id),`${id} 仍由 2.3 拓展引用`);
@@ -260,7 +260,7 @@ test('detail pages: position chain, two-sided relations, compact method path, me
   assert.ok(!amgm.includes('data-drill-open'));
   assert.match(amgm,/"drill":false/);
   assert.ok(!outputs.get('type-sum-product-extremum/index.html').includes('data-drill-open'));
-  assert.equal(outputs.get('equality-properties/index.html').match(/<div class="region" data-kind="skill">.*?<\/div><\/div>/s)[0].match(/class="node-chip"/g).length,10);
+  assert.equal(outputs.get('equality-properties/index.html').match(/<div class="region" data-kind="skill">.*?<\/div><\/div>/s)[0].match(/class="node-chip"/g).length,11);
   assert.match(outputs.get('square-nonnegative/index.html'),/前置知识<\/p><span class="region-empty">无，可以直接学习<\/span>/);
   assert.match(outputs.get('method-amgm-direct/index.html'),/data-kind="skill"><p class="region-label">用到的技能/);
   assert.ok(!amgm.includes('<table')&&!amgm.includes('node-identity')&&!amgm.includes('← 返回图谱'));
@@ -336,7 +336,7 @@ test('knowledge city: whole-curriculum outline, chapter 2 built, towers inside t
   assert.equal(homes.get('rule-quadratic-method'),'compulsory-1-ch2');
   const sub=chapterGraph(graph,homes,'compulsory-1-ch2');
   assert.ok(!sub.nodes.some(n=>n.kind==='textbook'||n.id==='quantifiers'));
-  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch3','junior-knowledge',11],['compulsory-1-ch2','compulsory-1-ch3',16],['compulsory-1-ch1','compulsory-1-ch3',9],['compulsory-1-ch1','compulsory-1-ch2',3]]);
+  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch3','junior-knowledge',11],['compulsory-1-ch2','compulsory-1-ch3',16],['compulsory-1-ch1','compulsory-1-ch2',5],['compulsory-1-ch1','compulsory-1-ch3',9]]);
   const crossing=graph.edges.filter(e=>!['contains','extends'].includes(e.type)&&homes.get(e.from)!==homes.get(e.to));
   assert.ok(crossing.some(e=>e.from==='type-quantified-quadratic'&&e.to==='quantifiers'));
   const ch3=city.chapters.find(c=>c.id==='compulsory-1-ch3'),r=towerRadius(ch3);

@@ -4,7 +4,7 @@
   "defaultScope": "section-2-1",
   "expectedCounts": {
     "method": 47,
-    "knowledge": 29,
+    "knowledge": 32,
     "problem_type": 22,
     "judgment_rule": 11,
     "section": 9,
@@ -401,6 +401,69 @@
       "title": "看端点与转折点，检查最值能否取到",
       "after": "monotone-extrema",
       "note": "实心点属于图像，空心点不属于图像。开区间也可能在内部取到最小值；端点取得最值也不一定意味着整体单调。"
+    },
+    "parity-domain": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "domainFigure",
+      "scope": "parity-explorer",
+      "title": "在数轴上检查输入能否成对",
+      "after": "domain",
+      "note": "切换区间与缺口：绿色线段表示允许的输入，实心点取到，空心点不取。一个无法配对的输入，就能否定定义域对称。"
+    },
+    "parity-operations": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "operationsFigure",
+      "scope": "parity-explorer",
+      "title": "运算之后，图像还怎样对称",
+      "after": "operations",
+      "note": "灰线是参与运算的函数，绿色是结果。切换运算，留意商的定义域，以及结果恒为零的特殊情况。图中只展示有限窗口。"
+    },
+    "parity-composition": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "compositionFigure",
+      "scope": "parity-explorer",
+      "title": "让两个相反输入依次通过内层与外层",
+      "after": "composition",
+      "note": "移动输入，沿同一颜色依次读内层和外层的输出。小数读数保留两位；结合正文的恒等关系理解结论，有限次的数值观察不能替代证明。"
+    },
+    "parity-paired-points": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "pairFigure",
+      "scope": "parity-explorer",
+      "title": "移动对称点，看相反输入的函数值",
+      "after": "symmetry",
+      "note": "绿色点 P 与橙色点 Q 的横坐标互为相反数。选择奇函数、偶函数或反例，比较它们的高度。小数读数保留两位；图像截断处只是观察窗口的边界。"
+    },
+    "parity-intervals": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "intervalsFigure",
+      "scope": "parity-explorer",
+      "title": "把一侧的增减与最值传到另一侧",
+      "after": "extrema",
+      "note": "从 $[1,3]$ 出发，按奇性或偶性补出 $[-3,-1]$ 上的图像。沿 $x$ 增大的方向看箭头，再比较最大值与最小值。"
+    },
+    "graph-center-symmetry": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "centerFigure",
+      "scope": "parity-explorer",
+      "title": "移动中心，观察一对点的中点",
+      "after": "center",
+      "note": "拖动 $a$、$b$ 改变中心，拖动 $t$ 选择一对点。连线中点始终是 $(a,b)$，两点纵坐标之和始终是 $2b$。小数读数保留两位。"
+    },
+    "graph-axis-symmetry": {
+      "module": "/assets/explain/knowledge/parity-explorer.js",
+      "part": "axisFigure",
+      "scope": "parity-explorer",
+      "title": "移动对称轴，观察等高的两点",
+      "after": "axis",
+      "note": "紫色虚线为 $x=a$。两点到它的水平距离都为 $t$，纵坐标相等；上下移动图像不改变对称轴的位置。小数读数保留两位。"
+    },
+    "abstract-monotonicity-input": {
+      "module": "/assets/explain/knowledge/abstract-monotonicity.js",
+      "part": "figure",
+      "scope": "abstract-monotonicity",
+      "title": "任取两点：代入的输入落在哪里",
+      "note": "拖动 $x_1$、$x_2$（或用滑块）。加法型代入 $t=x_2-x_1$，乘法型代入 $t=\\dfrac{x_2}{x_1}$；只有 $t$ 落在符号条件管的范围里，才能判断 $f(x_2)-f(x_1)$ 的正负。图中不画 $f$ 的图像，因为题目没有给出解析式。"
     }
   },
   "resourceLinks": {

@@ -36,7 +36,7 @@ export async function generate(root = repoRoot) {
   const chapters=city.chapters.map(c=>({id:c.id,book:bookShort.get(c.book),number:c.number,label:c.label,strand:c.strand,recorded:recorded(c),...(c.node?{node:c.node}:{}),sections:c.sections.filter(s=>s.node).map(s=>({id:s.node,number:s.number,label:s.label}))}));
   // Every current example URL must resolve. No problem routes or steps are copied.
   for (const n of nodes) for (const e of n.examples || []) if (e.url) {
-    if (!/^\/(1|2)\/q\d{2}\/$/.test(e.url)) throw new Error(`例题地址不符合本站题页格式：${e.url}`);
+    if (!/^\/(1|2)\/q\d{2}\/$/.test(e.url) && !/^\/topics\/[a-z][a-z0-9-]*\/q\d+[a-z]?\/$/.test(e.url)) throw new Error(`例题地址不符合本站题页格式：${e.url}`);
     await fileUnderSite(root,`${e.url}index.html`);
   }
   const resourceHtml={}, labels=Object.fromEntries(nodes.map(n=>[n.id,n.label]));
