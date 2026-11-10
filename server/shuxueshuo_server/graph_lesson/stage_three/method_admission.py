@@ -232,6 +232,11 @@ def _function_monotonicity(context, method=None):
     return admitted(context, method)
 
 
+def _abstract_monotonicity(context):
+    from .abstract_monotonicity_runtime import admitted
+    return admitted(context)
+
+
 CHECKS = {
     'piecewise_modeling': _piecewise_modeling_admitted,
     'piecewise_range_parameter': _piecewise_range_parameter_admitted,
@@ -241,6 +246,7 @@ CHECKS = {
     'monotonicity_parameter': _monotonicity_parameter,
     'function_extremum': _function_extremum,
     'function_monotonicity': _function_monotonicity,
+    'abstract_monotonicity': _abstract_monotonicity,
     'function_graph': _function_graph_admitted,
     'absolute_graph': lambda context: context.get('goal', {}).get('kind') == 'draw_function_graph' and _function_graph_admitted(context),
     'absolute_graph_inequality': lambda context: context.get('goal', {}).get('kind') == 'solve_graph_inequality' and _function_graph_admitted(context),

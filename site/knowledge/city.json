@@ -65,7 +65,7 @@
       "partial": true,
       "counts": {
         "knowledge": 3,
-        "skill": 0,
+        "skill": 1,
         "method": 0,
         "problem_type": 0,
         "judgment_rule": 0
@@ -145,7 +145,7 @@
         "skill": 0,
         "method": 0,
         "problem_type": 13,
-        "judgment_rule": 7
+        "judgment_rule": 8
       },
       "sections": [
         {
@@ -814,15 +814,15 @@
     },
     {
       "from": "compulsory-1-ch1",
-      "to": "compulsory-1-ch3",
+      "to": "compulsory-1-ch2",
       "type": "relation",
-      "count": 9
+      "count": 5
     },
     {
       "from": "compulsory-1-ch1",
-      "to": "compulsory-1-ch2",
+      "to": "compulsory-1-ch3",
       "type": "relation",
-      "count": 3
+      "count": 9
     }
   ]
 }

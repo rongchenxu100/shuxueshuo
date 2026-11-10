@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-c01-v1",
+  "title": "加法关系判断单调性 · C01",
+  "page": "/topics/function-monotonicity/q19/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 的定义域为 $\\mathbb{R}$，且对任意的 $x,y\\in\\mathbb{R}$ 均有 $f(x+y)=f(x)+f(y)$，且对任意的 $x>0$，都有 $f(x)>0$，试判断函数 $f(x)$ 在定义域上的单调性。",
+  "evidence": "site/data/graph-walk/function-monotonicity-c01-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t5-20261109/c01.json"
+}

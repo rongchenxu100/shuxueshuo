@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "5be736429f5e10e35ba5e019#1": {
+        "485de4cc05c472bcbea07246#1": {
           "title": "确定讨论范围",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "675653da84ebdefc96057428#1": {
+        "bb2f7431e91b0488ab6bf96c#1": {
           "title": "把二次函数配成顶点式",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "02a3c8a5eb2167a560dfd957#1": {
+        "4a6b66987f83b25f919ecc11#1": {
           "title": "二次函数在 $\\left[0, 2\\right]$ 上的增减",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "02a3c8a5eb2167a560dfd957#2": {
+        "4a6b66987f83b25f919ecc11#2": {
           "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
           "position": 7,
           "refs": [
@@ -71,7 +71,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "26ee667abc6e3038d02ee4c7#1": {
+        "9a74dd172855ff7bf291c33c#1": {
           "title": "写出递增区间",
           "position": 8,
           "refs": [
@@ -83,6 +83,6 @@
       }
     }
   },
-  "page_contract_hash": "8a3455054b4158506950f43b7c8b6e56e830c0422f17cf9bfcc3192bbc6c967e",
-  "practice_version": "b809f2497780b6f0d4d2da3848a2a7c630639e6dfa05e045a97dccb504bd8d51"
+  "page_contract_hash": "e34a663bf77f563bcf2122bfe543e95a65495707ace30766d1dc00fd8880008d",
+  "practice_version": "3d935a65ef8319edaa977ade6bbb6f82041c99523d96c63def3645381c7dedcc"
 }

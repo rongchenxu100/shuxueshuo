@@ -1578,7 +1578,8 @@
             "kind": {
               "enum": [
                 "find_monotonic_intervals",
-                "prove_monotonicity_on_interval"
+                "prove_monotonicity_on_interval",
+                "determine_monotonicity_on_interval"
               ]
             },
             "status": {

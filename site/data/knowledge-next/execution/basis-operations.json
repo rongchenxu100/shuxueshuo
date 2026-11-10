@@ -374,6 +374,31 @@
     "mono_parameter_merge": [
       "function-monotonicity#definition",
       "function-monotonicity#interval"
+    ],
+    "abstract_arbitrary_pair": [
+      "function-monotonicity#definition"
+    ],
+    "abstract_substitution_choice": [
+      "equality-properties#universal-substitution"
+    ],
+    "abstract_relation_substitution": [
+      "equality-properties#universal-substitution",
+      "quantifiers#instantiation"
+    ],
+    "abstract_difference_isolation": [
+      "equality-properties#addition",
+      "equality-properties#multiplication",
+      "equality-properties#identity"
+    ],
+    "abstract_input_order": [
+      "inequality-properties#addition",
+      "inequality-properties#multiplication"
+    ],
+    "abstract_sign_instantiation": [
+      "quantifiers#instantiation"
+    ],
+    "abstract_monotonicity_conclusion": [
+      "function-monotonicity#definition"
     ]
   }
 }

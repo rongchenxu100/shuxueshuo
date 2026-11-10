@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "43c22779ada1fe795e41b5b0#1": {
+        "91df35c8754e4a57f2665feb#1": {
           "title": "找到限制位置",
           "position": 4,
           "refs": [
@@ -45,7 +45,7 @@
             "square-root-expression#meaning"
           ]
         },
-        "038d7f05b666b4dc4c28f8cc#1": {
+        "e27b3305e7a0e5bab6ea2435#1": {
           "title": "列出条件",
           "position": 5,
           "refs": [
@@ -55,7 +55,7 @@
             "square-root-expression#meaning"
           ]
         },
-        "b209eafc281dede2600170fc#1": {
+        "835706b2504f2e005ad90922#1": {
           "title": "解每个条件",
           "position": 6,
           "refs": [
@@ -69,7 +69,7 @@
             "set-intersection-union#intersection"
           ]
         },
-        "0d9ea3c401411b4fc2c2757e#1": {
+        "7aa408589e679e0d8de7a582#1": {
           "title": "把二次函数配成顶点式",
           "position": 7,
           "refs": [
@@ -78,7 +78,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "87fd527fc2042a039ba7d7a5#1": {
+        "0c886b6078b60b5a3ff2fe3e#1": {
           "title": "二次函数在 $\\left(-\\infty, -1\\right)$ 上的增减",
           "position": 8,
           "refs": [
@@ -87,7 +87,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "87fd527fc2042a039ba7d7a5#2": {
+        "0c886b6078b60b5a3ff2fe3e#2": {
           "title": "二次函数在 $\\left(6, \\infty\\right)$ 上的增减",
           "position": 9,
           "refs": [
@@ -96,7 +96,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "b01abaade2ce4f0475d7d828#1": {
+        "c034ae5e4b8b2787b77856f5#1": {
           "title": "开方：$x\\in \\left(-\\infty, -1\\right)$",
           "position": 10,
           "refs": [
@@ -106,7 +106,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "b01abaade2ce4f0475d7d828#2": {
+        "c034ae5e4b8b2787b77856f5#2": {
           "title": "取倒数：$x\\in \\left(-\\infty, -1\\right)$",
           "position": 11,
           "refs": [
@@ -116,7 +116,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "b01abaade2ce4f0475d7d828#3": {
+        "c034ae5e4b8b2787b77856f5#3": {
           "title": "开方：$x\\in \\left(6, \\infty\\right)$",
           "position": 12,
           "refs": [
@@ -126,7 +126,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "b01abaade2ce4f0475d7d828#4": {
+        "c034ae5e4b8b2787b77856f5#4": {
           "title": "取倒数：$x\\in \\left(6, \\infty\\right)$",
           "position": 13,
           "refs": [
@@ -136,7 +136,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "59bb943190e6fe55cd7ab523#1": {
+        "d6ee364c7471261de52a30be#1": {
           "title": "写出递增区间",
           "position": 14,
           "refs": [
@@ -148,6 +148,6 @@
       }
     }
   },
-  "page_contract_hash": "b55958d01ba3a9b70cc491fcbef6f2a6e850c146c5f5af664cd17d670e41ace5",
-  "practice_version": "c3fdbcf42489f0901386af051b61da71ba5bcfdbdb89e2f1d9793f1b2f64450d"
+  "page_contract_hash": "63f245958416a9a83d4aab2f4f14d96ee0b0093089d24dc43e8ba5ddabbbb944",
+  "practice_version": "e58f19b8977bd327e130da2add4b94787b56ad3c7f85e48c47f1a458e59fa89e"
 }

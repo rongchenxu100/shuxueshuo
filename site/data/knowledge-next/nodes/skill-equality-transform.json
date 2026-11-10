@@ -10,8 +10,7 @@
   "basis": [
     "equality-properties#addition",
     "equality-properties#multiplication",
-    "equality-properties#identity",
-    "equality-properties#universal-substitution"
+    "equality-properties#identity"
   ],
   "operations": [
     {
@@ -35,15 +34,6 @@
       "body": [
         "结果连同条件一起写：$y=\\frac{7-x}{x+2}$，$x\\ne-2$。",
         "原来的其他限制也要带上。例如还知道 $x,y>0$，由 $y>0$ 得 $7-x>0$，所以 $0<x<7$。"
-      ]
-    },
-    {
-      "id": "universal-substitution",
-      "title": "给整条恒等关系换一个合法输入",
-      "body": [
-        "先核对新输入属于原关系成立的范围，再同时替换等式两边所有对应变量。",
-        "替换可使 f(x) 和 f(−x)、f(1/x) 等关联函数值互换，得到一个可与原式联立的新方程。",
-        "二元全称关系允许给一个变量赋值或令变量相等；同时代入全部对应位置，保留尚未赋值的自由变量。"
       ]
     }
   ],

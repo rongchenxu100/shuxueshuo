@@ -74,8 +74,11 @@
       "label": "证明抽象函数的单调性",
       "type": "type-monotonicity-abstract-proof",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "没有解析式，只给出函数关系与符号条件：在定义域内任取两点，用函数关系把差写成一个函数值，再由符号条件判断差的正负，回到单调性的定义。加法型关系代入差，乘法型关系代入商。",
+      "problems": [
+        "function-monotonicity-c01-v1",
+        "function-monotonicity-c02-v1"
+      ]
     }
   ],
   "problems": {
@@ -114,7 +117,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "5be736429f5e10e35ba5e019#1": {
+            "485de4cc05c472bcbea07246#1": {
               "title": "确定讨论范围",
               "position": 4,
               "refs": [
@@ -123,7 +126,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "675653da84ebdefc96057428#1": {
+            "bb2f7431e91b0488ab6bf96c#1": {
               "title": "把二次函数配成顶点式",
               "position": 5,
               "refs": [
@@ -132,7 +135,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "02a3c8a5eb2167a560dfd957#1": {
+            "4a6b66987f83b25f919ecc11#1": {
               "title": "二次函数在 $\\left[0, 2\\right]$ 上的增减",
               "position": 6,
               "refs": [
@@ -141,7 +144,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "02a3c8a5eb2167a560dfd957#2": {
+            "4a6b66987f83b25f919ecc11#2": {
               "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
               "position": 7,
               "refs": [
@@ -150,7 +153,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "26ee667abc6e3038d02ee4c7#1": {
+            "9a74dd172855ff7bf291c33c#1": {
               "title": "写出递增区间",
               "position": 8,
               "refs": [
@@ -198,7 +201,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "2a02e9ff44a2c523e1050a4c#1": {
+            "501185cbda4284f5dfa302a4#1": {
               "title": "找到限制位置",
               "position": 4,
               "refs": [
@@ -207,7 +210,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "adde48515103155bb87aa564#1": {
+            "11a4d94ef7d1e021046a19d3#1": {
               "title": "列出条件",
               "position": 5,
               "refs": [
@@ -216,7 +219,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "9dd75bc406494ff56fd2fb8a#1": {
+            "b7ed27e7dd4cfb0528d8bcb8#1": {
               "title": "解每个条件",
               "position": 6,
               "refs": [
@@ -228,7 +231,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "3747b5c92bde1865c91bf81b#1": {
+            "f8ef35c0dcd31ae55f14606c#1": {
               "title": "把二次函数配成顶点式",
               "position": 7,
               "refs": [
@@ -237,7 +240,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "5b9264694df0240a742c9779#1": {
+            "e7de287295501652f9a3b145#1": {
               "title": "二次函数在 $\\left[- \\frac{3}{2}, \\frac{1}{4}\\right]$ 上的增减",
               "position": 8,
               "refs": [
@@ -246,7 +249,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "5b9264694df0240a742c9779#2": {
+            "e7de287295501652f9a3b145#2": {
               "title": "二次函数在 $\\left[\\frac{1}{4}, 2\\right]$ 上的增减",
               "position": 9,
               "refs": [
@@ -255,7 +258,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "da52415c2f8041ad33a672f4#1": {
+            "1eed320a10b2eb58ce0dfcff#1": {
               "title": "开方：$x\\in \\left[- \\frac{3}{2}, \\frac{1}{4}\\right]$",
               "position": 10,
               "refs": [
@@ -265,7 +268,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "da52415c2f8041ad33a672f4#2": {
+            "1eed320a10b2eb58ce0dfcff#2": {
               "title": "开方：$x\\in \\left[\\frac{1}{4}, 2\\right]$",
               "position": 11,
               "refs": [
@@ -275,7 +278,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "575b8615504b278382de173c#1": {
+            "7767ad2d0595e46527920f3b#1": {
               "title": "写出递增区间",
               "position": 12,
               "refs": [
@@ -323,7 +326,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "1f966b7c8745cbdb1285414a#1": {
+            "a4d4ae71f44bee4097f36245#1": {
               "title": "找到限制位置",
               "position": 4,
               "refs": [
@@ -332,7 +335,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "15d3346eedf6a4d9cc09301c#1": {
+            "37e3c82ccb7b74e47bcc8d78#1": {
               "title": "列出条件",
               "position": 5,
               "refs": [
@@ -341,7 +344,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "a14d08a55d651dd99d2dffcb#1": {
+            "f3f3d55aed55c00b9e73b4ae#1": {
               "title": "解每个条件",
               "position": 6,
               "refs": [
@@ -353,7 +356,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "62d02cf6aaac379a0ecd4e10#1": {
+            "1ed69245016c267028a369b9#1": {
               "title": "把二次函数配成顶点式",
               "position": 7,
               "refs": [
@@ -362,7 +365,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "c7cbc96fede19b951d6d717a#1": {
+            "92d7419c4368a925b39d1eb0#1": {
               "title": "二次函数在 $\\left[1, 2\\right]$ 上的增减",
               "position": 8,
               "refs": [
@@ -371,7 +374,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "c7cbc96fede19b951d6d717a#2": {
+            "92d7419c4368a925b39d1eb0#2": {
               "title": "二次函数在 $\\left[2, 3\\right]$ 上的增减",
               "position": 9,
               "refs": [
@@ -380,7 +383,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "640a8fafad1272728fbb7212#1": {
+            "bc3501917b0a8b2f83d02184#1": {
               "title": "开方：$x\\in \\left[1, 2\\right]$",
               "position": 10,
               "refs": [
@@ -390,7 +393,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "640a8fafad1272728fbb7212#2": {
+            "bc3501917b0a8b2f83d02184#2": {
               "title": "开方：$x\\in \\left[2, 3\\right]$",
               "position": 11,
               "refs": [
@@ -400,7 +403,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "fb375242f1e206fade6502b5#1": {
+            "ad788c83481c56e82073eba2#1": {
               "title": "写出递增区间",
               "position": 12,
               "refs": [
@@ -448,7 +451,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "a264de23ac5d66b891cc7757#1": {
+            "6c8d60d2af4445c3bcba08e0#1": {
               "title": "找到限制位置",
               "position": 4,
               "refs": [
@@ -457,7 +460,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "01d012dbc61ee3f812d7227f#1": {
+            "baf52123972647394588ec35#1": {
               "title": "列出条件",
               "position": 5,
               "refs": [
@@ -466,7 +469,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "0101f7456b3f614ecd272e0f#1": {
+            "617ed7831b8f72727a5af252#1": {
               "title": "解每个条件",
               "position": 6,
               "refs": [
@@ -478,7 +481,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "0a50d99ec794f243b12d7810#1": {
+            "9d019525bf761ffc1d1f03b5#1": {
               "title": "把二次函数配成顶点式",
               "position": 7,
               "refs": [
@@ -487,7 +490,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "4f310f8df6633256e139c621#1": {
+            "218af5f2e5a5e2fb7b8c5e52#1": {
               "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
               "position": 8,
               "refs": [
@@ -496,7 +499,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "4f310f8df6633256e139c621#2": {
+            "218af5f2e5a5e2fb7b8c5e52#2": {
               "title": "二次函数在 $\\left[3, \\infty\\right)$ 上的增减",
               "position": 9,
               "refs": [
@@ -505,7 +508,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "f4f7f5c55234299a1b568da3#1": {
+            "129682dcfeea3518f8ffe383#1": {
               "title": "开方：$x\\in \\left(-\\infty, -1\\right]$",
               "position": 10,
               "refs": [
@@ -515,7 +518,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "f4f7f5c55234299a1b568da3#2": {
+            "129682dcfeea3518f8ffe383#2": {
               "title": "开方：$x\\in \\left[3, \\infty\\right)$",
               "position": 11,
               "refs": [
@@ -525,7 +528,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "81b17493b7d08a302e39a414#1": {
+            "e4aa9a81dba4e6f605980c25#1": {
               "title": "写出递减区间",
               "position": 12,
               "refs": [
@@ -573,7 +576,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "43c22779ada1fe795e41b5b0#1": {
+            "91df35c8754e4a57f2665feb#1": {
               "title": "找到限制位置",
               "position": 4,
               "refs": [
@@ -583,7 +586,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "038d7f05b666b4dc4c28f8cc#1": {
+            "e27b3305e7a0e5bab6ea2435#1": {
               "title": "列出条件",
               "position": 5,
               "refs": [
@@ -593,7 +596,7 @@
                 "square-root-expression#meaning"
               ]
             },
-            "b209eafc281dede2600170fc#1": {
+            "835706b2504f2e005ad90922#1": {
               "title": "解每个条件",
               "position": 6,
               "refs": [
@@ -607,7 +610,7 @@
                 "set-intersection-union#intersection"
               ]
             },
-            "0d9ea3c401411b4fc2c2757e#1": {
+            "7aa408589e679e0d8de7a582#1": {
               "title": "把二次函数配成顶点式",
               "position": 7,
               "refs": [
@@ -616,7 +619,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "87fd527fc2042a039ba7d7a5#1": {
+            "0c886b6078b60b5a3ff2fe3e#1": {
               "title": "二次函数在 $\\left(-\\infty, -1\\right)$ 上的增减",
               "position": 8,
               "refs": [
@@ -625,7 +628,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "87fd527fc2042a039ba7d7a5#2": {
+            "0c886b6078b60b5a3ff2fe3e#2": {
               "title": "二次函数在 $\\left(6, \\infty\\right)$ 上的增减",
               "position": 9,
               "refs": [
@@ -634,7 +637,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "b01abaade2ce4f0475d7d828#1": {
+            "c034ae5e4b8b2787b77856f5#1": {
               "title": "开方：$x\\in \\left(-\\infty, -1\\right)$",
               "position": 10,
               "refs": [
@@ -644,7 +647,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "b01abaade2ce4f0475d7d828#2": {
+            "c034ae5e4b8b2787b77856f5#2": {
               "title": "取倒数：$x\\in \\left(-\\infty, -1\\right)$",
               "position": 11,
               "refs": [
@@ -654,7 +657,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "b01abaade2ce4f0475d7d828#3": {
+            "c034ae5e4b8b2787b77856f5#3": {
               "title": "开方：$x\\in \\left(6, \\infty\\right)$",
               "position": 12,
               "refs": [
@@ -664,7 +667,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "b01abaade2ce4f0475d7d828#4": {
+            "c034ae5e4b8b2787b77856f5#4": {
               "title": "取倒数：$x\\in \\left(6, \\infty\\right)$",
               "position": 13,
               "refs": [
@@ -674,7 +677,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "59bb943190e6fe55cd7ab523#1": {
+            "d6ee364c7471261de52a30be#1": {
               "title": "写出递增区间",
               "position": 14,
               "refs": [
@@ -722,7 +725,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "a6af69dbcf0c113481dd7373#1": {
+            "f9e366abccea118eae8a697d#1": {
               "title": "确定讨论范围",
               "position": 4,
               "refs": [
@@ -731,7 +734,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "f4b22d9f7f3bfcce8e97e210#1": {
+            "b199032cbab92f36b264d24d#1": {
               "title": "把二次函数配成顶点式",
               "position": 5,
               "refs": [
@@ -740,7 +743,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "7682fc9ff8f165295de99b6a#1": {
+            "99dddc8b17d0359b542babb5#1": {
               "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
               "position": 6,
               "refs": [
@@ -749,7 +752,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "7682fc9ff8f165295de99b6a#2": {
+            "99dddc8b17d0359b542babb5#2": {
               "title": "二次函数在 $\\left[-1, 0\\right)$ 上的增减",
               "position": 7,
               "refs": [
@@ -758,7 +761,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "ddf62e718b7af87ccf33499e#1": {
+            "087e0717d0b08d49d9ba3f60#1": {
               "title": "写出递增区间",
               "position": 8,
               "refs": [
@@ -767,7 +770,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "ddf62e718b7af87ccf33499e#2": {
+            "087e0717d0b08d49d9ba3f60#2": {
               "title": "写出递减区间",
               "position": 9,
               "refs": [
@@ -776,7 +779,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "8b6cd2088385067be2ef2663#1": {
+            "9c58622e8db8dfbc22116a80#1": {
               "title": "确定讨论范围",
               "position": 10,
               "refs": [
@@ -785,7 +788,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "06a8d65aed3a1da96af99fff#1": {
+            "ec32318c73d2d42145d1ba10#1": {
               "title": "把二次函数配成顶点式",
               "position": 11,
               "refs": [
@@ -794,7 +797,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "fb281be1c368ecb9e09ca2b8#1": {
+            "0dfbed9a6cd1c98a2d2d8aa4#1": {
               "title": "二次函数在 $\\left[0, 1\\right]$ 上的增减",
               "position": 12,
               "refs": [
@@ -803,7 +806,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "fb281be1c368ecb9e09ca2b8#2": {
+            "0dfbed9a6cd1c98a2d2d8aa4#2": {
               "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减",
               "position": 13,
               "refs": [
@@ -812,7 +815,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "646cac1c8d010d435d33dad7#1": {
+            "f90daa17779b7a2bf4c0eb8b#1": {
               "title": "写出递增区间",
               "position": 14,
               "refs": [
@@ -821,7 +824,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "646cac1c8d010d435d33dad7#2": {
+            "f90daa17779b7a2bf4c0eb8b#2": {
               "title": "写出递减区间",
               "position": 15,
               "refs": [
@@ -830,7 +833,7 @@
                 "quadratic-function-properties#monotonicity"
               ]
             },
-            "a728a0ce4aa9ec240052e93f#1": {
+            "1ab90bafaf9e3a39d98d4d00#1": {
               "title": "检查跨段单调性",
               "position": 16,
               "refs": [
@@ -839,7 +842,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "9c1ca38e1d3120175971c432#1": {
+            "3d8caaf77570ea9e4593f875#1": {
               "title": "写出递增区间",
               "position": 17,
               "refs": [
@@ -3107,7 +3110,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "55d7c563560042cc5b86d3ca#1": {
+            "cbcc30d99181688b93aad43f#1": {
               "title": "读清单调性要求",
               "position": 4,
               "refs": [
@@ -3117,7 +3120,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "4f04363539375d7f6c6e1f2f#1": {
+            "30e6754a98c4add57506c700#1": {
               "title": "$x \\leq 2$ 段",
               "position": 5,
               "refs": [
@@ -3127,7 +3130,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "4f04363539375d7f6c6e1f2f#2": {
+            "30e6754a98c4add57506c700#2": {
               "title": "$x > 2$ 段",
               "position": 6,
               "refs": [
@@ -3137,7 +3140,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "04e6f44f8ae778ba628a14f7#1": {
+            "a08bc29f2ab8002ac2e15386#1": {
               "title": "分界点 $x=2$",
               "position": 7,
               "refs": [
@@ -3147,7 +3150,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "b884d6546b92e4644cff9857#1": {
+            "abbc92568abaa9fac6eff619#1": {
               "title": "合并全部条件",
               "position": 8,
               "refs": [
@@ -3195,7 +3198,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "2219b7f3940dc12677a6dd80#1": {
+            "5f8b10aab1374413f42a33ee#1": {
               "title": "读清单调性要求",
               "position": 4,
               "refs": [
@@ -3205,7 +3208,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "1bbc48b350ce44c03b5ccab0#1": {
+            "216377ef247f393117eb1a87#1": {
               "title": "$x < 1$ 段",
               "position": 5,
               "refs": [
@@ -3215,7 +3218,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "1bbc48b350ce44c03b5ccab0#2": {
+            "216377ef247f393117eb1a87#2": {
               "title": "$x \\geq 1$ 段",
               "position": 6,
               "refs": [
@@ -3225,7 +3228,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "c038464c12748acbf478612c#1": {
+            "5dfc9402645e51b7d7df2e90#1": {
               "title": "分界点 $x=1$",
               "position": 7,
               "refs": [
@@ -3235,7 +3238,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "d62ad5c7584211c0cc9f87ce#1": {
+            "a806d8cd4a9d568a9803fb9d#1": {
               "title": "合并全部条件",
               "position": 8,
               "refs": [
@@ -3371,7 +3374,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "6a8e38f64732e25258e38316#1": {
+            "ef9da439ec980531832c87bf#1": {
               "title": "读清单调性要求",
               "position": 4,
               "refs": [
@@ -3381,7 +3384,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "9adf4a64bf901ef5d4bdca64#1": {
+            "b23bb048df9ff54d1fa687f8#1": {
               "title": "转化为内层条件",
               "position": 5,
               "refs": [
@@ -3391,7 +3394,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "638bfe0b44039af52f5e898a#1": {
+            "2bdcacdfb25bacf8cf72ee87#1": {
               "title": "$a=0$",
               "position": 6,
               "refs": [
@@ -3401,7 +3404,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "638bfe0b44039af52f5e898a#2": {
+            "2bdcacdfb25bacf8cf72ee87#2": {
               "title": "$a>0$",
               "position": 7,
               "refs": [
@@ -3411,7 +3414,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "638bfe0b44039af52f5e898a#3": {
+            "2bdcacdfb25bacf8cf72ee87#3": {
               "title": "$a<0$",
               "position": 8,
               "refs": [
@@ -3421,7 +3424,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "638bfe0b44039af52f5e898a#4": {
+            "2bdcacdfb25bacf8cf72ee87#4": {
               "title": "汇总三类",
               "position": 9,
               "refs": [
@@ -3431,7 +3434,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "d621c63fca889dd22473ee3f#1": {
+            "a766f16e8cf9cf25c2fef509#1": {
               "title": "整段能开方",
               "position": 10,
               "refs": [
@@ -3441,13 +3444,231 @@
                 "function-monotonicity#interval"
               ]
             },
-            "c968a7936ab248db97e0d0c3#1": {
+            "b364105d475140cf5e89c964#1": {
               "title": "合并全部条件",
               "position": 11,
               "refs": [
                 "method-monotonicity-parameter#conclude",
                 "function-monotonicity#definition",
                 "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-c01-v1": {
+      "label": "加法关系判断单调性 · C01",
+      "path": "/topics/function-monotonicity/q19/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-c01-v1.json",
+      "types": [
+        "type-monotonicity-abstract-proof"
+      ],
+      "statement": "已知函数 $f(x)$ 的定义域为 $\\mathbb{R}$，且对任意的 $x,y\\in\\mathbb{R}$ 均有 $f(x+y)=f(x)+f(y)$，且对任意的 $x>0$，都有 $f(x)>0$，试判断函数 $f(x)$ 在定义域上的单调性。",
+      "routes": {
+        "monotonicity-definition": {
+          "label": "定义法",
+          "methods": [
+            "method-monotonicity-definition"
+          ],
+          "steps": {
+            "D2": {
+              "title": "确定题型",
+              "position": 1,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "6303f4d73c63fdbe4521b379#1": {
+              "title": "任取两点",
+              "position": 3,
+              "refs": [
+                "method-monotonicity-definition#compare",
+                "function-monotonicity#definition"
+              ]
+            },
+            "f0c879109ff3dd7c440f3c73#1": {
+              "title": "整理函数关系",
+              "position": 4,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "f0c879109ff3dd7c440f3c73#2": {
+              "title": "选择代入",
+              "position": 5,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "f0c879109ff3dd7c440f3c73#3": {
+              "title": "写出差",
+              "position": 6,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "5875967617229873c0c38c75#1": {
+              "title": "利用题给条件判断差的正负",
+              "position": 7,
+              "refs": [
+                "method-difference-comparison#sign",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-universal-substitution",
+                "quantifiers#instantiation"
+              ]
+            },
+            "959bbce3a3b195c0cd6ea51e#1": {
+              "title": "回到单调性的定义",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-definition#conclude",
+                "function-monotonicity#definition"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-c02-v1": {
+      "label": "乘法输入关系判断单调性 · C02",
+      "path": "/topics/function-monotonicity/q20/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-c02-v1.json",
+      "types": [
+        "type-monotonicity-abstract-proof"
+      ],
+      "statement": "已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，当 $x>1$ 时，$f(x)>0$，且 $f(xy)=f(x)+f(y)$，试判断函数 $f(x)$ 在定义域上的单调性。",
+      "routes": {
+        "monotonicity-definition": {
+          "label": "定义法",
+          "methods": [
+            "method-monotonicity-definition"
+          ],
+          "steps": {
+            "D2": {
+              "title": "确定题型",
+              "position": 1,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "8ad2ca76a191b977f908158d#1": {
+              "title": "任取两点",
+              "position": 3,
+              "refs": [
+                "method-monotonicity-definition#compare",
+                "function-monotonicity#definition"
+              ]
+            },
+            "95060038b517492af8394c3e#1": {
+              "title": "整理函数关系",
+              "position": 4,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "95060038b517492af8394c3e#2": {
+              "title": "选择代入",
+              "position": 5,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "95060038b517492af8394c3e#3": {
+              "title": "检查代入",
+              "position": 6,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "95060038b517492af8394c3e#4": {
+              "title": "写出差",
+              "position": 7,
+              "refs": [
+                "method-difference-comparison#simplify",
+                "equality-properties#universal-substitution",
+                "skill-universal-substitution",
+                "quantifiers#instantiation",
+                "skill-equality-transform",
+                "equality-properties#addition",
+                "equality-properties#identity",
+                "equality-properties#multiplication"
+              ]
+            },
+            "43f1ec18931149c3ad7277c7#1": {
+              "title": "利用题给条件判断差的正负",
+              "position": 8,
+              "refs": [
+                "method-difference-comparison#sign",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "skill-universal-substitution",
+                "quantifiers#instantiation"
+              ]
+            },
+            "a7587949168d4408e6d4a5f6#1": {
+              "title": "回到单调性的定义",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-definition#conclude",
+                "function-monotonicity#definition"
               ]
             }
           }

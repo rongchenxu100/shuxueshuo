@@ -213,9 +213,12 @@ def validate_input(value, admission="acceptance"):
         # reviewed results do not contain irrelevant features introduced later;
         # any rows they do contain still receive all shape/source checks above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
+        required = registry - {'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
                                'function_graph', 'piecewise_equation', 'piecewise_inequality'}
-        if kind in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
+        if kind == 'determine_monotonicity_on_interval' or (
+                kind == 'prove_monotonicity_on_interval' and 'relation' in expected[target]['goal']):
+            required.add('abstract_monotonicity')
+        elif kind in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
             required.add('function_monotonicity')
         if kind == 'find_range' and 'required_monotonicity' in expected[target]['goal']:
             required.add('monotonicity_parameter')

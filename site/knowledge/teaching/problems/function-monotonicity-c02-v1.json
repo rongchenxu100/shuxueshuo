@@ -1,0 +1,120 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-c02-v1",
+  "label": "乘法输入关系判断单调性 · C02",
+  "path": "/topics/function-monotonicity/q20/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-c02-v1.json",
+  "types": [
+    "type-monotonicity-abstract-proof"
+  ],
+  "statement": "已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，当 $x>1$ 时，$f(x)>0$，且 $f(xy)=f(x)+f(y)$，试判断函数 $f(x)$ 在定义域上的单调性。",
+  "routes": {
+    "monotonicity-definition": {
+      "label": "定义法",
+      "methods": [
+        "method-monotonicity-definition"
+      ],
+      "steps": {
+        "D2": {
+          "title": "确定题型",
+          "position": 1,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "8ad2ca76a191b977f908158d#1": {
+          "title": "任取两点",
+          "position": 3,
+          "refs": [
+            "method-monotonicity-definition#compare",
+            "function-monotonicity#definition"
+          ]
+        },
+        "95060038b517492af8394c3e#1": {
+          "title": "整理函数关系",
+          "position": 4,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "95060038b517492af8394c3e#2": {
+          "title": "选择代入",
+          "position": 5,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "95060038b517492af8394c3e#3": {
+          "title": "检查代入",
+          "position": 6,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "95060038b517492af8394c3e#4": {
+          "title": "写出差",
+          "position": 7,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "43f1ec18931149c3ad7277c7#1": {
+          "title": "利用题给条件判断差的正负",
+          "position": 8,
+          "refs": [
+            "method-difference-comparison#sign",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-universal-substitution",
+            "quantifiers#instantiation"
+          ]
+        },
+        "a7587949168d4408e6d4a5f6#1": {
+          "title": "回到单调性的定义",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-definition#conclude",
+            "function-monotonicity#definition"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "2de141e32faba9e2b7036c1e14c28b21ca942d9e1bd88fbc78de087e72bccd78",
+  "practice_version": "73c8ce6c41639d7dbe7b3c1a36faba702bdb1585dffef374f46e11ae3914f69c"
+}

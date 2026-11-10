@@ -1,0 +1,44 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-c01-v1",
+  "reviewer": "Codex：依据用户原图与 T5 设计核对印刷题意，独立推导；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-t5-20261109/source-image-01.jpg",
+      "sha256": "66c5320a4a3187b57d85ff4448a49a244d8b9a098b06133ca3451f0bc21d6900",
+      "location": "FM-C01，图 1 第 118 页例 15"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 的定义域为 $\\mathbb{R}$，且对任意的 $x,y\\in\\mathbb{R}$ 均有 $f(x+y)=f(x)+f(y)$，且对任意的 $x>0$，都有 $f(x)>0$，试判断函数 $f(x)$ 在定义域上的单调性。",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "determine_monotonicity_on_interval",
+          "function": "f",
+          "variable": "x",
+          "input_domain": "ℝ",
+          "declared_domain": "ℝ",
+          "relation": "f(x+y)=f(x)+f(y)",
+          "relation_variables": [
+            "x",
+            "y"
+          ],
+          "relation_domain": "ℝ",
+          "sign_condition": {
+            "variable": "x",
+            "domain": "(0,+∞)",
+            "statement": "f(x)>0"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "direction": "increasing",
+    "interval": "ℝ"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

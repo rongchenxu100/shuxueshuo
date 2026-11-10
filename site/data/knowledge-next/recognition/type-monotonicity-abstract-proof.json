@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-monotonicity-abstract-proof",
+  "branches": [
+    {
+      "branch_id": "abstract_relation",
+      "checks": [
+        {
+          "id": "source",
+          "feature_id": "abstract_monotonicity",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

@@ -663,6 +663,9 @@
               },
               {
                 "$ref": "#/$defs/FunctionMonotonicityGoal"
+              },
+              {
+                "$ref": "#/$defs/AbstractMonotonicityGoal"
               }
             ]
           },
@@ -2404,6 +2407,141 @@
           ]
         }
       }
+    },
+    "AbstractMonotonicityGoal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "function",
+        "variable",
+        "input_domain",
+        "declared_domain",
+        "relation",
+        "relation_variables",
+        "relation_domain",
+        "sign_condition"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "determine_monotonicity_on_interval",
+            "prove_monotonicity_on_interval"
+          ],
+          "description": "判断单调性时不填方向；题目明确要求证明某方向时，保留该要求。"
+        },
+        "function": {
+          "type": "string",
+          "pattern": "^[a-z]$",
+          "description": "未知函数名，如 f；不声明函数体。"
+        },
+        "variable": {
+          "type": "string",
+          "pattern": "^[a-z]$",
+          "description": "函数的自变量名，如 x。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S",
+          "description": "待判断单调性的区间原文，如 ℝ 或 (0,+∞)；题问“在定义域上”时与 declared_domain 相同。"
+        },
+        "declared_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S",
+          "description": "题给 f 的完整定义域；不能由答案或常识补写。"
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给函数关系原文，如 f(x+y)=f(x)+f(y)、f(x*y)=f(x)+f(y)；不能提前赋值、移项或填入答案。"
+        },
+        "relation_variables": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "description": "关系中全称量化的两个变量，如 [x,y]。"
+        },
+        "relation_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "\\S",
+          "description": "两个关系变量的共同范围；题面写“对任意实数”记 ℝ；只写在定义域内成立时记定义域。"
+        },
+        "sign_condition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "variable",
+            "domain",
+            "statement"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string",
+              "pattern": "^[a-z]$"
+            },
+            "domain": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "\\S",
+              "description": "符号条件成立的输入范围原文，如 (0,+∞) 表示 x>0、(1,+∞) 表示 x>1。"
+            },
+            "statement": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "\\S",
+              "description": "题给符号比较原文，如 f(x)>0；保留严格或非严格。"
+            }
+          },
+          "description": "题给某个输入范围内成立的函数值比较条件；保留原文，不填写结论。"
+        },
+        "direction": {
+          "enum": [
+            "increasing",
+            "decreasing"
+          ],
+          "description": "仅记录题目要求证明的方向，不能填写推导出的方向。"
+        }
+      },
+      "description": "抽象函数单调性：分别保存完整定义域、函数关系、函数值比较条件和目标；不代入具体函数。",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "prove_monotonicity_on_interval"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "direction"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "direction"
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }

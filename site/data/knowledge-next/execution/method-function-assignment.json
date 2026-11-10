@@ -26,7 +26,7 @@
         {
           "id": "specialize",
           "capability": "specialize_function_relation",
-          "public_ref": "skill-equality-transform",
+          "public_ref": "skill-universal-substitution",
           "inputs": {
             "description": "$description",
             "assignment_plan": "$assignment_plan"

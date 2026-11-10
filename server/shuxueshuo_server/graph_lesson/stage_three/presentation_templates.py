@@ -75,6 +75,11 @@ def _mono_parameter_view(values):
     return presentation(values)
 
 
+def _abstract_monotonicity_view(values):
+    from .abstract_monotonicity_presentation import presentation
+    return presentation(values)
+
+
 def _monotonicity_view(values):
     from .monotonicity_presentation import presentation
     return presentation(values)
@@ -488,6 +493,7 @@ PREPARERS = {
     'mono_inequality_view': _mono_inequality_view,
     'mono_parameter_view': _mono_parameter_view,
     'monotonicity_view': _monotonicity_view,
+    'abstract_monotonicity_view': _abstract_monotonicity_view,
     'function_graph_view': _function_graph_view,
     'function_formula_view': formula_presentation,
     'function_range_view': range_presentation,
@@ -531,6 +537,7 @@ PREPARED_FIELDS = {
     'extremum_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'mono_inequality_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'mono_parameter_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'abstract_monotonicity_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'function_graph_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'function_formula_view': {
         'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label',

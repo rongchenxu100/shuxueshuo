@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-c02-v1",
+  "title": "乘法输入关系判断单调性 · C02",
+  "page": "/topics/function-monotonicity/q20/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，当 $x>1$ 时，$f(x)>0$，且 $f(xy)=f(x)+f(y)$，试判断函数 $f(x)$ 在定义域上的单调性。",
+  "evidence": "site/data/graph-walk/function-monotonicity-c02-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t5-20261109/c02.json"
+}

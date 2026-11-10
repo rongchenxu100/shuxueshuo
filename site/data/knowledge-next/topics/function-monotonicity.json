@@ -121,8 +121,11 @@
       "label": "证明抽象函数的单调性",
       "type": "type-monotonicity-abstract-proof",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "没有解析式，只给出函数关系与符号条件：在定义域内任取两点，用函数关系把差写成一个函数值，再由符号条件判断差的正负，回到单调性的定义。加法型关系代入差，乘法型关系代入商。",
+      "problems": [
+        "function-monotonicity-c01-v1",
+        "function-monotonicity-c02-v1"
+      ]
     }
   ],
   "problems": {
@@ -405,6 +408,24 @@
       "bundle": "/data/graph-walk/function-monotonicity-a13-v1.json",
       "types": [
         "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-c01-v1": {
+      "label": "加法关系判断单调性 · C01",
+      "path": "/topics/function-monotonicity/q19/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-c01-v1.json",
+      "types": [
+        "type-monotonicity-abstract-proof"
+      ]
+    },
+    "function-monotonicity-c02-v1": {
+      "label": "乘法输入关系判断单调性 · C02",
+      "path": "/topics/function-monotonicity/q20/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-c02-v1.json",
+      "types": [
+        "type-monotonicity-abstract-proof"
       ]
     }
   }

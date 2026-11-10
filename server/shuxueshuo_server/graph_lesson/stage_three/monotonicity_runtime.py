@@ -20,6 +20,9 @@ from .trajectory import decode_value, encode_value
 
 
 def admitted(context, method=None):
+    if 'abstract_monotonicity_goal' in context:
+        from .abstract_monotonicity_runtime import admitted as abstract_admitted
+        return method in (None, 'definition') and abstract_admitted(context)
     desc = context.get('monotonicity_goal', {})
     entries = [{k: row[k] for k in ('source_ref', 'expression')} for row in context.get('entries', [])]
     if (context.get('goal', {}).get('kind') not in KINDS or not desc.get('structure_supported')
@@ -36,6 +39,9 @@ def admitted(context, method=None):
 
 def prepare(context):
     from .context import build_context
+    if 'abstract_monotonicity_goal' in context:
+        from .abstract_monotonicity_runtime import prepare as abstract_prepare
+        return abstract_prepare(context)
     if not admitted(context):
         raise CapabilityGap('monotonicity.input_class_unavailable')
     desc = deepcopy(context['monotonicity_goal'])

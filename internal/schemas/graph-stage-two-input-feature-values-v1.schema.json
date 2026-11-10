@@ -278,7 +278,8 @@
             "kind": {
               "enum": [
                 "find_monotonic_intervals",
-                "prove_monotonicity_on_interval"
+                "prove_monotonicity_on_interval",
+                "determine_monotonicity_on_interval"
               ]
             }
           }
@@ -3451,6 +3452,110 @@
         }
       },
       "additionalProperties": true
+    },
+    "abstract_monotonicity": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_definitions",
+        "structure_supported",
+        "version",
+        "family"
+      ],
+      "properties": {
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_ref",
+              "expression"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "expression": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "family": {
+          "const": "abstract"
+        },
+        "relation_family": {
+          "enum": [
+            "additive",
+            "multiplicative",
+            "exponential",
+            "power"
+          ]
+        },
+        "function": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "relation_variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "interval": {
+          "type": "string"
+        },
+        "relation_domain": {
+          "type": "string"
+        },
+        "sign_variable": {
+          "type": "string"
+        },
+        "sign_domain": {
+          "type": "string"
+        },
+        "sign_statement": {
+          "type": "string"
+        },
+        "sign_relation": {
+          "enum": [
+            "<",
+            ">"
+          ]
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

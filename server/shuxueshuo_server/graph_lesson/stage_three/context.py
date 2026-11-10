@@ -135,7 +135,10 @@ def build_context(candidate, target_ref):
     from ..monotonicity_inequality_math import routed_description as mono_inequality_description
     from ..monotonicity_parameter_math import routed_description as mono_parameter_description
     source_entries = [{k: r[k] for k in ('source_ref', 'expression')} for r in entries]
-    if desc := mono_parameter_description(goal, target_ref, source_entries):
+    from ..abstract_monotonicity_math import routed_description as abstract_mono_description
+    if desc := abstract_mono_description(goal, target_ref, source_entries):
+        context['abstract_monotonicity_goal'] = desc
+    elif desc := mono_parameter_description(goal, target_ref, source_entries):
         context['mono_parameter_goal'] = desc
     elif desc := mono_inequality_description(goal, target_ref, source_entries):
         context['mono_inequality_goal'] = desc

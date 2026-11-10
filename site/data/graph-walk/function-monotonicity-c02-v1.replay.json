@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-c02-v1",
+  "bundleVersion": "[\"stream\",\"c8d6d1cf8a703197cd95c8e2b65429ec2b27216d9f7034720a8f6038c7f0456b\",\"4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206\",\"cb6fd924be824b429f1d0e0c5a7ef6a6\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "monotonicity-definition"
+  ],
+  "actions": [
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-abstract-proof"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "definition"
+        ],
+        "method": "definition",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "8ad2ca76a191b977f908158d#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "95060038b517492af8394c3e#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "95060038b517492af8394c3e#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "95060038b517492af8394c3e#3",
+      "answer": "o1"
+    },
+    {
+      "decision": "95060038b517492af8394c3e#4",
+      "answer": "o1"
+    },
+    {
+      "decision": "43f1ec18931149c3ad7277c7#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "a7587949168d4408e6d4a5f6#1",
+      "answer": "o1"
+    }
+  ]
+}

@@ -272,3 +272,29 @@ test('function evaluation names constant judgment and finite sum as two same-sco
   const formulas = [...html.matchAll(/\$([^$]+)\$/g)].map(match => match[1]);
   for (const formula of formulas) assert.doesNotThrow(() => katex.renderToString(formula, {throwOnError: true}));
 });
+
+for (const name of ['c01', 'c02']) {
+  test(`abstract monotonicity ${name} meaning retains all source conditions without inventing direction`, () => {
+    const record = JSON.parse(fs.readFileSync(new URL(`internal/senior-high/authored-courses/function-monotonicity-t5-20261109/${name}.json`, base), 'utf8'));
+    const g = record.candidate.root.goals[0];
+    const text = context.meaningBlocks(record.candidate.root, '', []).join('');
+    assert.ok(text.includes(`$${tex(g.declared_domain)}$`));
+    assert.ok(text.includes(`$${tex(g.relation)}$`));
+    assert.ok(text.includes(tex(g.sign_condition.statement).replace(/>/g, '&gt;')));
+    assert.ok(text.includes(`判断 $f$ 在 $${tex(g.input_domain)}$ 上的单调性`));
+    assert.doesNotMatch(text, /undefined|严格递增|严格递减/);
+    for (const [, formula] of text.matchAll(/\$([^$]+)\$/g)) {
+      assert.doesNotThrow(() => katex.renderToString(formula.replace(/&gt;/g, '>').replace(/&lt;/g, '<'), {throwOnError: true}));
+    }
+  });
+}
+
+test('abstract proof meaning preserves the requested direction and chained sign condition', () => {
+  const g = {kind: 'prove_monotonicity_on_interval', direction: 'decreasing', function: 'g', variable: 't',
+    declared_domain: 'ℝ', input_domain: '[1,2]', relation_variables: ['u', 'v'], relation_domain: 'ℝ',
+    relation: 'g(u+v)=g(u)*g(v)', sign_condition: {variable: 't', domain: '(0,+∞)', statement: '0<g(t)<1'}};
+  const text = context.meaningBlocks({goals: [g]}, '', []).join('');
+  assert.match(text, /证明 \$g\$ 在 \$\[1,2\]\$ 上严格递减/);
+  assert.match(text, /0&lt;g\(t\)&lt;1/);
+  assert.doesNotMatch(text, /严格递增|undefined/);
+});

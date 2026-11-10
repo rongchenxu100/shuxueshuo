@@ -230,6 +230,9 @@ export function routeAnswerSummary(answer = {}, {routeId} = {}) {
     }
     return answer.status === 'undefined' ? {label: answer.reason === 'quantity_unavailable' ? '所需量不存在，所求式无定义。' : '所求式无定义。', formula: ''} : null;
   }
+  if (['determine_monotonicity_on_interval', 'prove_monotonicity_on_interval'].includes(answer.kind) && answer.status === 'complete' && typeof answer.latex === 'string') {
+    return {label: '单调性：', formula: answer.latex};
+  }
   if (['draw_function_graph', 'solve_graph_inequality'].includes(answer.kind) && answer.status === 'complete' && typeof answer.latex === 'string') {
     return {label: answer.kind === 'draw_function_graph' ? '作图依据：' : '不等式的解集：', formula: answer.latex};
   }

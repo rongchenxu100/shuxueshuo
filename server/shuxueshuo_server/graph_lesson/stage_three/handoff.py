@@ -114,7 +114,7 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
     extremum = (isinstance(answer, dict) and 'extremum_result' in (route.get('result') or {})
                 and route['result'].get('answer') == answer and answer.get('kind') == 'derived_answer'
                 and answer.get('request_kind') == 'extremum')
-    monotonicity = isinstance(answer, dict) and answer.get('kind') in ('find_monotonic_intervals', 'prove_monotonicity_on_interval')
+    monotonicity = isinstance(answer, dict) and answer.get('kind') in ('find_monotonic_intervals', 'prove_monotonicity_on_interval', 'determine_monotonicity_on_interval')
     model = isinstance(answer, dict) and answer.get('kind') == 'find_equation'
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
     evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')

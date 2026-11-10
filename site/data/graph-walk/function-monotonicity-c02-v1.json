@@ -1,0 +1,2117 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-c02-v1",
+  "graphVersion": "b6fc7e9ead06dfc524577dbf7e9ccdc693b0af6e5fa35f9618fba5d1a80b9474",
+  "problem": {
+    "text": "已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，当 $x>1$ 时，$f(x)>0$，且 $f(xy)=f(x)+f(y)$，试判断函数 $f(x)$ 在定义域上的单调性。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-monotonicity-abstract-proof",
+            "label": "证明抽象函数的单调性",
+            "note": "任取考察区间内的两点，利用函数关系把差化成能判断正负的函数值或乘积"
+          },
+          {
+            "value": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "note": "原目标是判断增减或求完整单调区间",
+            "feedback": "函数有具体解析式时，直接用定义法或基本函数性质判断，不需要函数关系代入。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-monotonicity-abstract-proof"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-monotonicity-abstract-proof",
+        "type-function-monotonicity"
+      ],
+      "effects": {
+        "nodes": [
+          "type-monotonicity-abstract-proof"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "判断依据：函数没有解析式，只给出对任意输入成立的关系；输入可以相加或相乘，函数值可以相加或相乘。"
+        ],
+        "log": "作答判断：选择主要题型「证明抽象函数的单调性」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {
+        "checks": {
+          "source": "definition"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "没有解析式时，在定义域内任取两个数，看输入变大时，函数值之差是正还是负。",
+            "id": "source",
+            "options": [
+              {
+                "label": "没有解析式，只给出函数关系与符号条件",
+                "note": "如本题：$f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)$，且当 $x>1$ 时 $f\\left(x\\right)>0$。",
+                "value": "definition"
+              },
+              {
+                "label": "给出了具体的一次、二次等函数解析式",
+                "note": "这时可以直接用常见函数的增减规律。",
+                "value": "structure"
+              }
+            ],
+            "question": "本题给出的函数是什么样的？",
+            "resolved": "定义法"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "definition",
+            "method": "definition"
+          },
+          {
+            "cue": "structure",
+            "method": "structure"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "定义法",
+            "value": "definition"
+          },
+          {
+            "label": "基本函数与复合法",
+            "value": "structure"
+          }
+        ],
+        "method_notes": {
+          "structure": "本题没有解析式，无法套用常见函数的增减规律。"
+        },
+        "source_refs": [
+          "/root/goals/0"
+        ],
+        "type": "method_cards",
+        "methods": [
+          {
+            "value": "definition",
+            "label": "定义法",
+            "target": "method-monotonicity-definition",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "monotonicity-definition"
+          },
+          {
+            "value": "structure",
+            "label": "基本函数与复合法"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-monotonicity-abstract-proof",
+        "op": "methods"
+      },
+      "question": "结合本题给出的条件，选择解题方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "definition": {
+          "message": "没有解析式时，在定义域内任取两个数，看输入变大时，函数值之差是正还是负。",
+          "value": "fit"
+        },
+        "structure": {
+          "message": "本题没有给出解析式，只能从单调性的定义出发，任取两点比较。",
+          "value": "unfit"
+        }
+      },
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "rule-monotonicity-abstract-method",
+        "method-monotonicity-definition"
+      ],
+      "effects": {
+        "nodes": [
+          "rule-monotonicity-abstract-method"
+        ],
+        "edges": [
+          "type-monotonicity-abstract-proof|method_rule|rule-monotonicity-abstract-method"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "根据本题条件选择解题方法。"
+      }
+    }
+  ],
+  "routes": {
+    "monotonicity-definition": {
+      "id": "monotonicity-definition",
+      "method": "method-monotonicity-definition",
+      "label": "定义法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "任取两点",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "考察区间",
+                "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)"
+              },
+              {
+                "label": "两个输入",
+                "math": "\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "8ad2ca76a191b977f908158d#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "函数值的大小是需要证明的结论，不能事先假设。",
+                "label": "$\\text{先假设}\\ f\\left(x_{1}\\right)<f\\left(x_{2}\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "只比较一组输入不能代表区间内任意两点。",
+                "label": "$\\text{只取一组}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "要判断整个考察区间上的单调性，比较的两个输入应怎样选？",
+          "stem_board": {
+            "caption": "任取两点",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "考察区间",
+                "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)"
+              },
+              {
+                "label": "两个输入",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "任取两点",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "50eab8e8db2f57d4306c783477fa09edb50b484f05cd49c77415116e78a114f2",
+              "step_id": "39e5646dcb-monotonicity-definition-001-pair"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "8ad2ca76a191b977f908158d",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "任取两点",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：任取两点"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题给关系",
+                "math": "f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)"
+              },
+              {
+                "label": "整理后的关系",
+                "math": "f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "95060038b517492af8394c3e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "移项时检查符号；重新命名全称变量不会改变运算关系。",
+                "label": "$f\\left(u\\cdot v\\right)=f\\left(u\\right)-f\\left(v\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把题给关系中的两个全称变量重新记作 $u,v$，整理等式。",
+          "stem_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题给关系",
+                "math": "f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)"
+              },
+              {
+                "label": "整理后的关系",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "整理函数关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+              "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "95060038b517492af8394c3e",
+          "stream_part_index": 0,
+          "stream_part_count": 4,
+          "stream_group_title": "用函数关系构造差式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：整理函数关系"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "函数关系与目标",
+                "math": "\\begin{gathered}f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)\\\\x_{1}\\cdot v=x_{2}\\end{gathered}"
+              },
+              {
+                "label": "代入的值",
+                "math": "v=\\frac{x_{2}}{x_{1}}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "95060038b517492af8394c3e#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$v=\\frac{x_{2}}{x_{1}}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "代入后检查输入的组合是否等于目标；不能交换差或商的方向。",
+                "label": "$v=x_{2}$",
+                "value": "o3"
+              },
+              {
+                "feedback": "代入后检查输入的组合是否等于目标；不能交换差或商的方向。",
+                "label": "$v=\\frac{x_{1}}{x_{2}}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "令 $u=x_{1}$。要使输入 $x_{1}\\cdot v$ 等于 $x_{2}$，$v$ 应取什么？",
+          "stem_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "函数关系与目标",
+                "math": "\\begin{gathered}f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)\\\\x_{1}\\cdot v=x_{2}\\end{gathered}"
+              },
+              {
+                "label": "代入的值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "选择代入",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+              "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "95060038b517492af8394c3e",
+          "stream_part_index": 1,
+          "stream_part_count": 4,
+          "stream_group_title": "用函数关系构造差式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：选择代入"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "关系成立的范围",
+                "math": "u,v\\in \\left(0, +\\infty\\right)"
+              },
+              {
+                "label": "输入条件",
+                "math": "x_{1}>0,\\ \\frac{x_{2}}{x_{1}}>0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "95060038b517492af8394c3e#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x_{1}>0,\\ \\frac{x_{2}}{x_{1}}>0$",
+                "value": "o1"
+              },
+              {
+                "feedback": "不仅分母不能为零，代入关系的两个输入还必须都是正数。",
+                "label": "$x_{2}-x_{1}\\ne0$",
+                "value": "o3"
+              },
+              {
+                "feedback": "不仅分母不能为零，代入关系的两个输入还必须都是正数。",
+                "label": "$x_{1}\\ne0$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给关系只对正数输入成立。代入前要完整核对什么？",
+          "stem_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "关系成立的范围",
+                "math": "u,v\\in \\left(0, +\\infty\\right)"
+              },
+              {
+                "label": "输入条件",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "检查代入",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+              "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+            }
+          ],
+          "stream_last_part": false,
+          "stream_interaction_id": "95060038b517492af8394c3e",
+          "stream_part_index": 2,
+          "stream_part_count": 4,
+          "stream_group_title": "用函数关系构造差式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：检查代入"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入后的等式",
+                "math": "f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+              },
+              {
+                "label": "函数值之差",
+                "math": "f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "95060038b517492af8394c3e#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "统一计算第二个函数值减第一个函数值，移项时保持差的方向。",
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=-\\left(f\\left(\\frac{x_{2}}{x_{1}}\\right)\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "两个输入不同，不能把两个函数值直接消去。",
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "整理代入后的等式，$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)$ 等于什么？",
+          "stem_board": {
+            "caption": "用函数关系构造差式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入后的等式",
+                "math": "f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+              },
+              {
+                "label": "函数值之差",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "写出差",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+              "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "95060038b517492af8394c3e",
+          "stream_part_index": 3,
+          "stream_part_count": 4,
+          "stream_group_title": "用函数关系构造差式",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：写出差"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "利用题给条件判断差的正负",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "差式与题给条件",
+                "math": "\\begin{gathered}f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\x>1\\Rightarrow f\\left(x\\right)>0\\end{gathered}"
+              },
+              {
+                "label": "差的符号",
+                "math": "f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "43f1ec18931149c3ad7277c7#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
+                "value": "o3"
+              },
+              {
+                "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)<0$",
+                "value": "o2"
+              },
+              {
+                "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先检查新输入是否落在题给条件的范围内，再结合差式判断正负。",
+          "stem_board": {
+            "caption": "利用题给条件判断差的正负",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "差式与题给条件",
+                "math": "\\begin{gathered}f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\x>1\\Rightarrow f\\left(x\\right)>0\\end{gathered}"
+              },
+              {
+                "label": "差的符号",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "利用题给条件判断差的正负",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "77c0add5ceee7f5d2dae8e55a9f82aa0ee124859041ff135d81165dac94bdd2e",
+              "step_id": "39e5646dcb-monotonicity-definition-003-sign"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "43f1ec18931149c3ad7277c7",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "利用题给条件判断差的正负",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：利用题给条件判断差的正负"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "回到单调性的定义",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "任意两点的比较",
+                "math": "\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)"
+              },
+              {
+                "label": "单调性",
+                "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a7587949168d4408e6d4a5f6#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
+                "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上为常函数}$",
+                "value": "o3"
+              },
+              {
+                "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
+                "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递减}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "比较结果对考察区间内任意两点都成立，由定义可得什么结论？",
+          "stem_board": {
+            "caption": "回到单调性的定义",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "任意两点的比较",
+                "math": "\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)"
+              },
+              {
+                "label": "单调性",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到单调性的定义",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "e0e8e24cc77de96cbf26c8023c7dcc3451ac6b7f7743fb4e3744367c70af85b6",
+              "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "a7587949168d4408e6d4a5f6",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "回到单调性的定义",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：回到单调性的定义"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "direction": "increasing",
+          "interval_families": {
+            "increasing": [
+              {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              }
+            ]
+          },
+          "kind": "determine_monotonicity_on_interval",
+          "latex": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}\\ (\\uparrow)",
+          "status": "complete"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "math_steps": [
+          {
+            "math_step_sha256": "50eab8e8db2f57d4306c783477fa09edb50b484f05cd49c77415116e78a114f2",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-monotonicity-definition-001-pair"
+          },
+          {
+            "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+          },
+          {
+            "math_step_sha256": "77c0add5ceee7f5d2dae8e55a9f82aa0ee124859041ff135d81165dac94bdd2e",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-monotonicity-definition-003-sign"
+          },
+          {
+            "math_step_sha256": "e0e8e24cc77de96cbf26c8023c7dcc3451ac6b7f7743fb4e3744367c70af85b6",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
+          }
+        ],
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "1cc3c024ad8315ca54ab7f9fd50908bde3832f2ef0b3240acda5558f3ca6c5bf",
+        "verified_route_sha256": "dd8f35f4566a023d25385da09e87d6060cc0c83fe60a9e280b40d45e0884051d"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-monotonicity/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "type-monotonicity-abstract-proof",
+        "kind": "problem_type",
+        "label": "证明抽象函数的单调性",
+        "summary": "没有解析式，只给出函数关系与严格的符号条件，判断或证明抽象函数在给定区间上的单调性。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-monotonicity",
+        "kind": "problem_type",
+        "label": "判断函数的单调性",
+        "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "rule-monotonicity-abstract-method",
+        "kind": "judgment_rule",
+        "subtype": "method_selection",
+        "label": "抽象函数单调性的选法判断",
+        "summary": "没有解析式、只给函数关系与符号条件时，用定义法：任取两点，借助函数关系判断差的正负。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-monotonicity-definition",
+        "kind": "method",
+        "label": "定义法",
+        "summary": "用区间内任意两个有序输入的函数值之差证明单调性。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "domain",
+            "title": "确定定义域",
+            "calls": []
+          },
+          {
+            "id": "analyze",
+            "title": "划分并判断单调区间",
+            "calls": []
+          },
+          {
+            "id": "compare",
+            "title": "任取两点作差比较",
+            "calls": [
+              "method-difference-comparison"
+            ]
+          },
+          {
+            "id": "conclude",
+            "title": "写出单调结论",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "回到原目标核验",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "function-monotonicity",
+        "kind": "knowledge",
+        "label": "函数的单调性",
+        "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-difference-comparison",
+        "kind": "method",
+        "label": "作差比较法",
+        "summary": "要比较两个式子谁大，就用一个减另一个，看差是正、是负还是 0。",
+        "aliases": [],
+        "home": "compulsory-1-ch2",
+        "steps": [
+          {
+            "id": "difference",
+            "title": "前式减后式",
+            "calls": []
+          },
+          {
+            "id": "simplify",
+            "title": "把差化简到能看出正负",
+            "calls": [
+              "skill-simplify",
+              "method-complete-square",
+              "skill-factor",
+              "skill-universal-substitution",
+              "skill-equality-transform"
+            ]
+          },
+          {
+            "id": "sign",
+            "title": "判断差的正负",
+            "calls": [
+              "skill-inequality-transform",
+              "skill-universal-substitution"
+            ]
+          },
+          {
+            "id": "conclude",
+            "title": "写出谁大谁小",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-universal-substitution",
+        "kind": "skill",
+        "label": "全称条件的合法代入",
+        "summary": "把“对任意……都成立”的等式或不等式，换成作用域里的具体输入，得到一个可以直接使用的特例。",
+        "aliases": [],
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "quantifiers",
+        "kind": "knowledge",
+        "label": "全称量词与存在量词",
+        "summary": "先明确“对谁、在哪个范围内”，再区分全部满足与至少一次满足。",
+        "aliases": [
+          "恒成立",
+          "存在成立",
+          "任意",
+          "有解"
+        ],
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "skill-equality-transform",
+        "kind": "skill",
+        "label": "等式变形与推导",
+        "summary": "用两边同加减、同乘除等办法整理等式，并分清每一步能不能倒推回去。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-inequality-transform",
+        "kind": "skill",
+        "label": "不等式变形与推导",
+        "summary": "对不等式两边加减、乘除或取倒数时，先看乘除的数是正是负，再决定不等号要不要改方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "inequality-properties",
+        "kind": "knowledge",
+        "label": "不等式的性质",
+        "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-difference-comparison|calls|skill-equality-transform",
+        "from": "method-difference-comparison",
+        "to": "skill-equality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "simplify",
+            "when": "代入函数关系后，需要移项得到差时"
+          }
+        ]
+      },
+      {
+        "id": "method-difference-comparison|calls|skill-inequality-transform",
+        "from": "method-difference-comparison",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "sign",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-difference-comparison|calls|skill-universal-substitution",
+        "from": "method-difference-comparison",
+        "to": "skill-universal-substitution",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "simplify",
+            "when": "比较对象是同一抽象函数的两个函数值，且题给函数关系时"
+          },
+          {
+            "step": "sign",
+            "when": "用题给的全称符号条件判断抽象函数值的正负时"
+          }
+        ]
+      },
+      {
+        "id": "method-monotonicity-definition|calls|method-difference-comparison",
+        "from": "method-monotonicity-definition",
+        "to": "method-difference-comparison",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "compare",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "rule-monotonicity-abstract-method|selects|method-monotonicity-definition",
+        "from": "rule-monotonicity-abstract-method",
+        "to": "method-monotonicity-definition",
+        "type": "selects",
+        "occurrences": [
+          {
+            "branch": "definition",
+            "condition": "只给出函数关系与符号条件，需要判断或证明整个区间上的单调性。"
+          }
+        ]
+      },
+      {
+        "id": "skill-equality-transform|uses|equality-properties",
+        "from": "skill-equality-transform",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform|uses|inequality-properties",
+        "from": "skill-inequality-transform",
+        "to": "inequality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "reciprocal"
+          }
+        ]
+      },
+      {
+        "id": "skill-universal-substitution|uses|equality-properties",
+        "from": "skill-universal-substitution",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "universal-substitution"
+          }
+        ]
+      },
+      {
+        "id": "skill-universal-substitution|uses|quantifiers",
+        "from": "skill-universal-substitution",
+        "to": "quantifiers",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "instantiation"
+          }
+        ]
+      },
+      {
+        "id": "type-function-monotonicity|candidate|method-monotonicity-definition",
+        "from": "type-function-monotonicity",
+        "to": "method-monotonicity-definition",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-monotonicity|involves|function-monotonicity",
+        "from": "type-function-monotonicity",
+        "to": "function-monotonicity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-monotonicity-abstract-proof|candidate|method-monotonicity-definition",
+        "from": "type-monotonicity-abstract-proof",
+        "to": "method-monotonicity-definition",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+        "from": "type-monotonicity-abstract-proof",
+        "to": "function-monotonicity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-monotonicity-abstract-proof|method_rule|rule-monotonicity-abstract-method",
+        "from": "type-monotonicity-abstract-proof",
+        "to": "rule-monotonicity-abstract-method",
+        "type": "method_rule",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": []
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "function-monotonicity",
+          "equality-properties",
+          "skill-universal-substitution",
+          "quantifiers",
+          "skill-equality-transform",
+          "skill-inequality-transform",
+          "inequality-properties"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"c8d6d1cf8a703197cd95c8e2b65429ec2b27216d9f7034720a8f6038c7f0456b\",\"4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206\",\"cb6fd924be824b429f1d0e0c5a7ef6a6\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+    "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+    "stream_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "c8d6d1cf8a703197cd95c8e2b65429ec2b27216d9f7034720a8f6038c7f0456b",
+    "d3": {
+      "expected_answer": {
+        "checks": {
+          "source": "definition"
+        }
+      },
+      "id": "D3",
+      "interaction": {
+        "checks": [
+          {
+            "feedback": "没有解析式时，在定义域内任取两个数，看输入变大时，函数值之差是正还是负。",
+            "id": "source",
+            "options": [
+              {
+                "label": "没有解析式，只给出函数关系与符号条件",
+                "note": "如本题：$f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)$，且当 $x>1$ 时 $f\\left(x\\right)>0$。",
+                "value": "definition"
+              },
+              {
+                "label": "给出了具体的一次、二次等函数解析式",
+                "note": "这时可以直接用常见函数的增减规律。",
+                "value": "structure"
+              }
+            ],
+            "question": "本题给出的函数是什么样的？",
+            "resolved": "定义法"
+          }
+        ],
+        "connections": [
+          {
+            "cue": "definition",
+            "method": "definition"
+          },
+          {
+            "cue": "structure",
+            "method": "structure"
+          }
+        ],
+        "facts": [],
+        "layout": "connections",
+        "method_choices": [
+          {
+            "label": "定义法",
+            "value": "definition"
+          },
+          {
+            "label": "基本函数与复合法",
+            "value": "structure"
+          }
+        ],
+        "method_notes": {
+          "structure": "本题没有解析式，无法套用常见函数的增减规律。"
+        },
+        "source_refs": [
+          "/root/goals/0"
+        ],
+        "type": "method_cards"
+      },
+      "query": {
+        "from": "type-monotonicity-abstract-proof",
+        "op": "methods"
+      },
+      "question": "结合本题给出的条件，选择解题方法。",
+      "submit_label": "确认选法",
+      "title": "选择解题方法",
+      "verdicts": {
+        "definition": {
+          "message": "没有解析式时，在定义域内任取两个数，看输入变大时，函数值之差是正还是负。",
+          "value": "fit"
+        },
+        "structure": {
+          "message": "本题没有给出解析式，只能从单调性的定义出发，任取两点比较。",
+          "value": "unfit"
+        }
+      }
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "definition",
+          "message": "开始解题",
+          "method": "method-monotonicity-definition",
+          "recommendation": "preferred",
+          "route_id": "monotonicity-definition",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "按所选方法解题"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "pair",
+        "explanation": "$$\\begin{gathered}\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\\\\\Delta=f\\left(x_{2}\\right)-f\\left(x_{1}\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "任取两点",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "考察区间",
+              "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)"
+            },
+            {
+              "label": "两个输入",
+              "math": "\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "local_check": "passed",
+        "math_step_sha256": "50eab8e8db2f57d4306c783477fa09edb50b484f05cd49c77415116e78a114f2",
+        "method_ref": "method-monotonicity-definition#compare",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "8c211ccb405586a57e8ec7219a0b69fcaf76123bf96eb2653e1793adeb1868dc",
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-definition-001-pair",
+        "target_ref": "/root/goals/0",
+        "title": "任取两点",
+        "used_basis": [
+          "function-monotonicity#definition"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "construct",
+        "explanation": "$$\\begin{gathered}f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)\\\\f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)\\end{gathered}$$\n\n$$\\begin{gathered}u=x_{1},\\ v=\\frac{x_{2}}{x_{1}}\\\\f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)\\end{gathered}$$\n\n$$\\begin{gathered}x_{1}>0,\\ \\frac{x_{2}}{x_{1}}>0\\\\f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)\\end{gathered}$$\n\n$$\\begin{gathered}f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\end{gathered}$$",
+        "highlight": {
+          "caption": "用函数关系构造差式",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "题给关系",
+              "math": "f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)"
+            },
+            {
+              "label": "整理后的关系",
+              "math": "f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "local_check": "passed",
+        "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+        "method_ref": "method-difference-comparison#simplify",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "8c211ccb405586a57e8ec7219a0b69fcaf76123bf96eb2653e1793adeb1868dc",
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "source_refs": [
+          "/steps/4/calls/0",
+          "/steps/4/calls/1",
+          "/steps/4/calls/2",
+          "/steps/4/skipped_calls/0",
+          "/steps/4/skipped_calls/1",
+          "/steps/4/skipped_calls/2"
+        ],
+        "step_id": "39e5646dcb-monotonicity-definition-002-construct",
+        "target_ref": "/root/goals/0",
+        "title": "用函数关系构造差式",
+        "used_basis": [
+          "equality-properties#addition",
+          "equality-properties#identity",
+          "equality-properties#multiplication",
+          "equality-properties#universal-substitution",
+          "quantifiers#instantiation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "sign",
+        "explanation": "$$\\begin{gathered}\\frac{x_{2}}{x_{1}}>1\\\\f\\left(\\frac{x_{2}}{x_{1}}\\right)>0\\\\f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)>0\\end{gathered}$$",
+        "highlight": {
+          "caption": "利用题给条件判断差的正负",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "差式与题给条件",
+              "math": "\\begin{gathered}f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\x>1\\Rightarrow f\\left(x\\right)>0\\end{gathered}"
+            },
+            {
+              "label": "差的符号",
+              "math": "f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "local_check": "passed",
+        "math_step_sha256": "77c0add5ceee7f5d2dae8e55a9f82aa0ee124859041ff135d81165dac94bdd2e",
+        "method_ref": "method-difference-comparison#sign",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "8c211ccb405586a57e8ec7219a0b69fcaf76123bf96eb2653e1793adeb1868dc",
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "source_refs": [
+          "/steps/5/calls/0",
+          "/steps/5/calls/1",
+          "/steps/5/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-definition-003-sign",
+        "target_ref": "/root/goals/0",
+        "title": "利用题给条件判断差的正负",
+        "used_basis": [
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "quantifiers#instantiation"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "conclude",
+        "explanation": "$$\\begin{gathered}\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)\\\\f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}\\end{gathered}$$",
+        "highlight": {
+          "caption": "回到单调性的定义",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "任意两点的比较",
+              "math": "\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)"
+            },
+            {
+              "label": "单调性",
+              "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "local_check": "passed",
+        "math_step_sha256": "e0e8e24cc77de96cbf26c8023c7dcc3451ac6b7f7743fb4e3744367c70af85b6",
+        "method_ref": "method-monotonicity-definition#conclude",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "8c211ccb405586a57e8ec7219a0b69fcaf76123bf96eb2653e1793adeb1868dc",
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "source_refs": [
+          "/steps/7/calls/0",
+          "/steps/7/skipped_calls/0"
+        ],
+        "step_id": "39e5646dcb-monotonicity-definition-004-conclude",
+        "target_ref": "/root/goals/0",
+        "title": "回到单调性的定义",
+        "used_basis": [
+          "function-monotonicity#definition"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"monotonicity-definition\",\"39e5646dcb-monotonicity-definition-001-pair\"]": [
+        {
+          "method": "method-monotonicity-definition",
+          "step": "compare",
+          "ref": null,
+          "usedBasis": [
+            "function-monotonicity#definition"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"monotonicity-definition\",\"39e5646dcb-monotonicity-definition-002-construct\"]": [
+        {
+          "method": "method-difference-comparison",
+          "step": "simplify",
+          "ref": null,
+          "usedBasis": [
+            "equality-properties#universal-substitution"
+          ],
+          "source": "/steps/4/calls/0"
+        },
+        {
+          "method": "method-difference-comparison",
+          "step": "simplify",
+          "ref": "skill-universal-substitution",
+          "usedBasis": [
+            "equality-properties#universal-substitution",
+            "quantifiers#instantiation"
+          ],
+          "source": "/steps/4/calls/1"
+        },
+        {
+          "method": "method-difference-comparison",
+          "step": "simplify",
+          "ref": "skill-equality-transform",
+          "usedBasis": [
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ],
+          "source": "/steps/4/calls/2"
+        }
+      ],
+      "[\"monotonicity-definition\",\"39e5646dcb-monotonicity-definition-003-sign\"]": [
+        {
+          "method": "method-difference-comparison",
+          "step": "sign",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication"
+          ],
+          "source": "/steps/5/calls/0"
+        },
+        {
+          "method": "method-difference-comparison",
+          "step": "sign",
+          "ref": "skill-universal-substitution",
+          "usedBasis": [
+            "quantifiers#instantiation"
+          ],
+          "source": "/steps/5/calls/1"
+        }
+      ],
+      "[\"monotonicity-definition\",\"39e5646dcb-monotonicity-definition-004-conclude\"]": [
+        {
+          "method": "method-monotonicity-definition",
+          "step": "conclude",
+          "ref": null,
+          "usedBasis": [
+            "function-monotonicity#definition"
+          ],
+          "source": "/steps/7/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-definition",
+        "step_id": "39e5646dcb-monotonicity-definition-001-pair",
+        "ordinal": 1,
+        "math_step_sha256": "50eab8e8db2f57d4306c783477fa09edb50b484f05cd49c77415116e78a114f2",
+        "status": "interactive",
+        "interaction_id": "8ad2ca76a191b977f908158d"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-definition",
+        "step_id": "39e5646dcb-monotonicity-definition-002-construct",
+        "ordinal": 2,
+        "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+        "status": "interactive",
+        "interaction_id": "95060038b517492af8394c3e"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-definition",
+        "step_id": "39e5646dcb-monotonicity-definition-003-sign",
+        "ordinal": 3,
+        "math_step_sha256": "77c0add5ceee7f5d2dae8e55a9f82aa0ee124859041ff135d81165dac94bdd2e",
+        "status": "interactive",
+        "interaction_id": "43f1ec18931149c3ad7277c7"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "monotonicity-definition",
+        "step_id": "39e5646dcb-monotonicity-definition-004-conclude",
+        "ordinal": 4,
+        "math_step_sha256": "e0e8e24cc77de96cbf26c8023c7dcc3451ac6b7f7743fb4e3744367c70af85b6",
+        "status": "interactive",
+        "interaction_id": "a7587949168d4408e6d4a5f6"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8ad2ca76a191b977f908158d",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "76b39f4c7aabf260d71a34ecb2e3ede5aa37d663b2e995f107fd59406b28a2c6",
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "任取两点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "考察区间",
+                  "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)"
+                },
+                {
+                  "label": "两个输入",
+                  "math": "\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "8ad2ca76a191b977f908158d#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "函数值的大小是需要证明的结论，不能事先假设。",
+                  "label": "$\\text{先假设}\\ f\\left(x_{1}\\right)<f\\left(x_{2}\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\text{任取}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "只比较一组输入不能代表区间内任意两点。",
+                  "label": "$\\text{只取一组}\\ x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "要判断整个考察区间上的单调性，比较的两个输入应怎样选？",
+            "stem_board": {
+              "caption": "任取两点",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "考察区间",
+                  "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)"
+                },
+                {
+                  "label": "两个输入",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "任取两点"
+          }
+        ],
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "50eab8e8db2f57d4306c783477fa09edb50b484f05cd49c77415116e78a114f2",
+            "step_id": "39e5646dcb-monotonicity-definition-001-pair"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "95060038b517492af8394c3e",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "2dedcdac4e158cfdf0d199826a64afc70ec482bd206f8dda5d9076f022b789a3",
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给关系",
+                  "math": "f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)"
+                },
+                {
+                  "label": "整理后的关系",
+                  "math": "f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "95060038b517492af8394c3e#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "移项时检查符号；重新命名全称变量不会改变运算关系。",
+                  "label": "$f\\left(u\\cdot v\\right)=f\\left(u\\right)-f\\left(v\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "把题给关系中的两个全称变量重新记作 $u,v$，整理等式。",
+            "stem_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "题给关系",
+                  "math": "f\\left(x\\cdot y\\right)=f\\left(x\\right)+f\\left(y\\right)"
+                },
+                {
+                  "label": "整理后的关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "整理函数关系"
+          },
+          {
+            "completion_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数关系与目标",
+                  "math": "\\begin{gathered}f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)\\\\x_{1}\\cdot v=x_{2}\\end{gathered}"
+                },
+                {
+                  "label": "代入的值",
+                  "math": "v=\\frac{x_{2}}{x_{1}}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "95060038b517492af8394c3e#2",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$v=\\frac{x_{2}}{x_{1}}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "代入后检查输入的组合是否等于目标；不能交换差或商的方向。",
+                  "label": "$v=x_{2}$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "代入后检查输入的组合是否等于目标；不能交换差或商的方向。",
+                  "label": "$v=\\frac{x_{1}}{x_{2}}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "令 $u=x_{1}$。要使输入 $x_{1}\\cdot v$ 等于 $x_{2}$，$v$ 应取什么？",
+            "stem_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "函数关系与目标",
+                  "math": "\\begin{gathered}f\\left(u\\cdot v\\right)=f\\left(u\\right)+f\\left(v\\right)\\\\x_{1}\\cdot v=x_{2}\\end{gathered}"
+                },
+                {
+                  "label": "代入的值",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "选择代入"
+          },
+          {
+            "completion_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "关系成立的范围",
+                  "math": "u,v\\in \\left(0, +\\infty\\right)"
+                },
+                {
+                  "label": "输入条件",
+                  "math": "x_{1}>0,\\ \\frac{x_{2}}{x_{1}}>0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "95060038b517492af8394c3e#3",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$x_{1}>0,\\ \\frac{x_{2}}{x_{1}}>0$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "不仅分母不能为零，代入关系的两个输入还必须都是正数。",
+                  "label": "$x_{2}-x_{1}\\ne0$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "不仅分母不能为零，代入关系的两个输入还必须都是正数。",
+                  "label": "$x_{1}\\ne0$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "题给关系只对正数输入成立。代入前要完整核对什么？",
+            "stem_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "关系成立的范围",
+                  "math": "u,v\\in \\left(0, +\\infty\\right)"
+                },
+                {
+                  "label": "输入条件",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查代入"
+          },
+          {
+            "completion_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的等式",
+                  "math": "f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+                },
+                {
+                  "label": "函数值之差",
+                  "math": "f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "95060038b517492af8394c3e#4",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "统一计算第二个函数值减第一个函数值，移项时保持差的方向。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=-\\left(f\\left(\\frac{x_{2}}{x_{1}}\\right)\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "两个输入不同，不能把两个函数值直接消去。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "整理代入后的等式，$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)$ 等于什么？",
+            "stem_board": {
+              "caption": "用函数关系构造差式",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "代入后的等式",
+                  "math": "f\\left(x_{2}\\right)=f\\left(x_{1}\\right)+f\\left(\\frac{x_{2}}{x_{1}}\\right)"
+                },
+                {
+                  "label": "函数值之差",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "写出差"
+          }
+        ],
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "99f83387f9968b950860798cd3698db711ae498ff13f366bf0d01daf693a0b1c",
+            "step_id": "39e5646dcb-monotonicity-definition-002-construct"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "43f1ec18931149c3ad7277c7",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "c92662f86b77ddb16fdb23d77988be16dca594c6b683829c8dcc867597e47700",
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "利用题给条件判断差的正负",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "差式与题给条件",
+                  "math": "\\begin{gathered}f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\x>1\\Rightarrow f\\left(x\\right)>0\\end{gathered}"
+                },
+                {
+                  "label": "差的符号",
+                  "math": "f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "43f1ec18931149c3ad7277c7#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)<0$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0$",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先检查新输入是否落在题给条件的范围内，再结合差式判断正负。",
+            "stem_board": {
+              "caption": "利用题给条件判断差的正负",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "差式与题给条件",
+                  "math": "\\begin{gathered}f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(\\frac{x_{2}}{x_{1}}\\right)\\\\x>1\\Rightarrow f\\left(x\\right)>0\\end{gathered}"
+                },
+                {
+                  "label": "差的符号",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "利用题给条件判断差的正负"
+          }
+        ],
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "77c0add5ceee7f5d2dae8e55a9f82aa0ee124859041ff135d81165dac94bdd2e",
+            "step_id": "39e5646dcb-monotonicity-definition-003-sign"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a7587949168d4408e6d4a5f6",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "9a52b3c4b5b019acac0e43dcf59dea487037f101a0bb5e442608df232f3c028c",
+        "lesson_version": "4642a3798e2a3615cb075ee9194bed543fe129590fe2cc14996a7f8dfa53c206",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "回到单调性的定义",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "任意两点的比较",
+                  "math": "\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)"
+                },
+                {
+                  "label": "单调性",
+                  "math": "f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "a7587949168d4408e6d4a5f6#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
+                  "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上为常函数}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递增}$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
+                  "label": "$f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上严格递减}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "比较结果对考察区间内任意两点都成立，由定义可得什么结论？",
+            "stem_board": {
+              "caption": "回到单调性的定义",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "任意两点的比较",
+                  "math": "\\forall x_{1},x_{2}\\in \\left(0, +\\infty\\right),\\ x_{1}<x_{2}\\Rightarrow f\\left(x_{1}\\right)<f\\left(x_{2}\\right)"
+                },
+                {
+                  "label": "单调性",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "回到单调性的定义"
+          }
+        ],
+        "route_id": "monotonicity-definition",
+        "run_id": "cb6fd924be824b429f1d0e0c5a7ef6a6",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e0e8e24cc77de96cbf26c8023c7dcc3451ac6b7f7743fb4e3744367c70af85b6",
+            "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

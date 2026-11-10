@@ -762,6 +762,23 @@ for _name, _function in {'analyze_monotonicity_parameter': 'analyze',
     REGISTRY[_name] = _mono_parameter_capability(_function)
 
 
+def _abstract_monotonicity_capability(name):
+    def call(**inputs):
+        from .. import abstract_monotonicity_runtime
+        return getattr(abstract_monotonicity_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'choose_abstract_pair': 'choose_pair',
+                         'choose_abstract_substitution': 'choose_substitution',
+                         'instantiate_abstract_relation': 'instantiate_relation',
+                         'isolate_abstract_difference': 'isolate_difference',
+                         'order_abstract_input': 'order_input',
+                         'instantiate_abstract_sign': 'instantiate_sign',
+                         'confirm_abstract_monotonicity': 'confirm'}.items():
+    REGISTRY[_name] = _abstract_monotonicity_capability(_function)
+
+
 def _monotonicity_capability(name):
     def call(**inputs):
         from .. import monotonicity_runtime

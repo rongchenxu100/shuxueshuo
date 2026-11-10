@@ -1,0 +1,106 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-c01-v1",
+  "label": "加法关系判断单调性 · C01",
+  "path": "/topics/function-monotonicity/q19/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-c01-v1.json",
+  "types": [
+    "type-monotonicity-abstract-proof"
+  ],
+  "statement": "已知函数 $f(x)$ 的定义域为 $\\mathbb{R}$，且对任意的 $x,y\\in\\mathbb{R}$ 均有 $f(x+y)=f(x)+f(y)$，且对任意的 $x>0$，都有 $f(x)>0$，试判断函数 $f(x)$ 在定义域上的单调性。",
+  "routes": {
+    "monotonicity-definition": {
+      "label": "定义法",
+      "methods": [
+        "method-monotonicity-definition"
+      ],
+      "steps": {
+        "D2": {
+          "title": "确定题型",
+          "position": 1,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "6303f4d73c63fdbe4521b379#1": {
+          "title": "任取两点",
+          "position": 3,
+          "refs": [
+            "method-monotonicity-definition#compare",
+            "function-monotonicity#definition"
+          ]
+        },
+        "f0c879109ff3dd7c440f3c73#1": {
+          "title": "整理函数关系",
+          "position": 4,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "f0c879109ff3dd7c440f3c73#2": {
+          "title": "选择代入",
+          "position": 5,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "f0c879109ff3dd7c440f3c73#3": {
+          "title": "写出差",
+          "position": 6,
+          "refs": [
+            "method-difference-comparison#simplify",
+            "equality-properties#universal-substitution",
+            "skill-universal-substitution",
+            "quantifiers#instantiation",
+            "skill-equality-transform",
+            "equality-properties#addition",
+            "equality-properties#identity",
+            "equality-properties#multiplication"
+          ]
+        },
+        "5875967617229873c0c38c75#1": {
+          "title": "利用题给条件判断差的正负",
+          "position": 7,
+          "refs": [
+            "method-difference-comparison#sign",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "skill-universal-substitution",
+            "quantifiers#instantiation"
+          ]
+        },
+        "959bbce3a3b195c0cd6ea51e#1": {
+          "title": "回到单调性的定义",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-definition#conclude",
+            "function-monotonicity#definition"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "cc010b4617db2e3cdbf30053739237ae0c6eb8eac89f5efcf3ce57bf3be81b4e",
+  "practice_version": "6a5e96007e29a6c5aa154ae8569f9f55be518aac30639281a4bdc0ee70fadf21"
+}

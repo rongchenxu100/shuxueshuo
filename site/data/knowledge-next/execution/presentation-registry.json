@@ -3250,6 +3250,35 @@
         ],
         "connector": "⇒"
       }
+    },
+    "abstract_monotonicity_derivation": {
+      "title": "{formula_title}",
+      "explanation": "由本步已知条件推出本步结论。",
+      "required_bindings": [
+        "description",
+        "proof",
+        "phase",
+        "before",
+        "after"
+      ],
+      "prepare": "abstract_monotonicity_view",
+      "render": "{formula_explanation}",
+      "highlight": {
+        "layout": "derivation",
+        "caption": "{derivation_caption}",
+        "items": [
+          {
+            "label": "{derivation_left_label}",
+            "math": "{derivation_left_math}",
+            "note": "{derivation_left_note}"
+          },
+          {
+            "label": "{derivation_right_label}",
+            "math": "{derivation_right_math}"
+          }
+        ],
+        "connector": "⇒"
+      }
     }
   },
   "boundary_steps": {

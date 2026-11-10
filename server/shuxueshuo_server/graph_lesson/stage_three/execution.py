@@ -386,6 +386,38 @@ def _finish_mono_parameter(state, candidate, goal, store, calculator, previous, 
     return state
 
 
+def _finish_abstract_monotonicity(state, candidate, goal, store, calculator, previous, hooks):
+    state.setdefault('monotonicity_result_exact', deepcopy(state['result']['monotonicity_result']))
+    finalization = state.setdefault('finalization', [])
+    if 'verification' not in state:
+        if hooks and hooks.get('before_verification'):
+            hooks['before_verification'](state, store)
+        state['verification'] = calculator.call('independent_abstract_monotonicity_verification', {
+            'operation': 'verify_abstract_monotonicity', 'candidate': candidate, 'target_ref': goal['target_ref'],
+            'context': goal['constraint_context'], 'monotonicity_result_exact': state['monotonicity_result_exact'],
+        }, bucket='verification')
+        finalization.append({'capability': 'independent_abstract_monotonicity_verification', **state['verification']})
+        calculator.sync_state(state)
+        _commit(store, state, 'abstract-monotonicity-verification', phase='verification', hooks=hooks)
+    if state['verification']['status'] != 'verified':
+        state['status'] = state['verification']['status']
+        state.setdefault('diagnostics', []).extend(state['verification'].get('diagnostics', []))
+        return state
+    if not state.get('goal_finalized'):
+        result = calculator.call('abstract_monotonicity_goal_finalize', {
+            'operation': 'finish_abstract_monotonicity', 'state': state,
+            'context': goal['constraint_context'], 'previous': list(previous),
+        }, bucket='verification')
+        state = _accept_state(state, result['state'])
+        state['verified_result'] = {'monotonicity_result': result['monotonicity_result_exact'], 'answer': result['answer']}
+        state['consistency'] = result['consistency']
+        state['goal_finalized'] = True
+        calculator.sync_state(state)
+        _commit(store, state, 'abstract-monotonicity-goal-finalization', phase='finalization', hooks=hooks)
+    state['status'] = 'verified'
+    return state
+
+
 def _finish_monotonicity(state, candidate, goal, store, calculator, previous, hooks):
     state.setdefault('monotonicity_result_exact', deepcopy(state['result']['monotonicity_result']))
     finalization = state.setdefault('finalization', [])
@@ -533,6 +565,8 @@ def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=
                 state = _finish_mono_inequality(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and 'mono_parameter_result' in state.get('result', {}):
                 state = _finish_mono_parameter(state, candidate, goal, store, calculator, previous, hooks)
+            if state['status'] == 'method_complete' and 'abstract_monotonicity_goal' in goal['constraint_context']:
+                state = _finish_abstract_monotonicity(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and goal['goal']['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
                 state = _finish_monotonicity(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and goal['goal']['kind'] in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality'):

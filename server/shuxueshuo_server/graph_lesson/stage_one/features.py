@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('abstract_monotonicity', ('goal',), 'abstract_monotonicity',
+                ('function-monotonicity#definition', 'quantifiers#instantiation'), '由函数关系与符号条件判断抽象函数的单调性',
+                version='abstract-monotonicity/v2', supported_structures=('additive_relation', 'multiplicative_input_relation', 'exponential_relation', 'power_relation'),
+                computation_boundary='original relation, its universal variables and scope, a strict sign condition and the asked interval; no formula for the function'),
     FeatureSpec('monotonicity_parameter', ('goal',), 'monotonicity_parameter',
                 ('function-monotonicity#definition',), '已知指定区间上的严格增减性求函数参数',
                 version='monotonicity-parameter/v6', supported_structures=('quadratic_parameter', 'piecewise_parameter', 'radical_parameter', 'reciprocal_parameter'),
@@ -586,6 +590,19 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_piecewise_equation'}, source_refs=[target_ref])
+            continue
+        if goal['kind'] == 'determine_monotonicity_on_interval' or (
+                    goal['kind'] == 'prove_monotonicity_on_interval' and 'relation' in goal):
+            from ..abstract_monotonicity_math import describe as describe_abstract
+            original = {key: value for key, value in goal.items() if key != 'target'}
+            sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))}
+                       for row in records]
+            description = describe_abstract(original, target_ref, sources)
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('abstract_monotonicity', description, source_refs=description['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_abstract_monotonicity_goal'}, source_refs=[target_ref])
             continue
         if goal['kind'] in ('find_monotonic_intervals', 'prove_monotonicity_on_interval'):
             from ..function_monotonicity import describe

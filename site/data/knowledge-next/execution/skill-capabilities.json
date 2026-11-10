@@ -12,7 +12,8 @@
       "solve_abstract_function_domain",
       "solve_abstract_domain_parameter",
       "return_fraction_range",
-      "prove_monotonicity_difference"
+      "prove_monotonicity_difference",
+      "order_abstract_input"
     ],
     "skill-equality-transform": [
       "separation_division",
@@ -22,8 +23,8 @@
       "verify_function_coefficients",
       "interchange_function_inputs",
       "verify_system_formula",
-      "specialize_function_relation",
-      "verify_assignment_formula"
+      "verify_assignment_formula",
+      "isolate_abstract_difference"
     ],
     "skill-simplify": [
       "simplify_expression",
@@ -159,6 +160,11 @@
     ],
     "method-interval-extremum": [
       "submethod"
+    ],
+    "skill-universal-substitution": [
+      "specialize_function_relation",
+      "instantiate_abstract_relation",
+      "instantiate_abstract_sign"
     ]
   },
   "internal": {
@@ -392,6 +398,15 @@
     ],
     "check_extremum_ranges": [
       "method-quantified-range-comparison#ranges"
+    ],
+    "choose_abstract_pair": [
+      "method-monotonicity-definition#compare"
+    ],
+    "confirm_abstract_monotonicity": [
+      "method-monotonicity-definition#conclude"
+    ],
+    "choose_abstract_substitution": [
+      "method-difference-comparison#simplify"
     ]
   }
 }

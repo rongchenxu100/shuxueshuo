@@ -455,6 +455,21 @@ function meaningBlocks(scope, title, blocks) {
   const abstractGivens = new Set();
   const relationGivens = new Set();
   const goals = (scope.goals || []).map(goal => {
+    if (goal.kind === 'determine_monotonicity_on_interval' ||
+        (goal.kind === 'prove_monotonicity_on_interval' && goal.relation)) {
+      const sign = goal.sign_condition;
+      const givens = [
+        `${math(goal.function)} 的定义域为 ${math(goal.declared_domain)}`,
+        `对任意 ${math(`${goal.relation_variables.join(',')}∈${goal.relation_domain}`)}，${math(goal.relation)}`,
+        `当 ${math(`${sign.variable}∈${sign.domain}`)} 时，${math(sign.statement)}`,
+      ].join('；');
+      const prefix = relationGivens.has(givens) ? '' : `已知 ${givens}；`;
+      relationGivens.add(givens);
+      const target = `${math(goal.function)} 在 ${math(goal.input_domain)} 上`;
+      return prefix + (goal.kind === 'prove_monotonicity_on_interval'
+        ? `证明 ${target}${{increasing: '严格递增', decreasing: '严格递减'}[goal.direction]}`
+        : `判断 ${target}的单调性`);
+    }
     const requirement = goal.required_monotonicity;
     // A stated condition belongs in the question. Difference quotient/product conditions
     // remain in the original facts; do not present their inferred direction as a given.

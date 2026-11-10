@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "6a8e38f64732e25258e38316#1": {
+        "ef9da439ec980531832c87bf#1": {
           "title": "读清单调性要求",
           "position": 4,
           "refs": [
@@ -45,7 +45,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "9adf4a64bf901ef5d4bdca64#1": {
+        "b23bb048df9ff54d1fa687f8#1": {
           "title": "转化为内层条件",
           "position": 5,
           "refs": [
@@ -55,7 +55,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "638bfe0b44039af52f5e898a#1": {
+        "2bdcacdfb25bacf8cf72ee87#1": {
           "title": "$a=0$",
           "position": 6,
           "refs": [
@@ -65,7 +65,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "638bfe0b44039af52f5e898a#2": {
+        "2bdcacdfb25bacf8cf72ee87#2": {
           "title": "$a>0$",
           "position": 7,
           "refs": [
@@ -75,7 +75,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "638bfe0b44039af52f5e898a#3": {
+        "2bdcacdfb25bacf8cf72ee87#3": {
           "title": "$a<0$",
           "position": 8,
           "refs": [
@@ -85,7 +85,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "638bfe0b44039af52f5e898a#4": {
+        "2bdcacdfb25bacf8cf72ee87#4": {
           "title": "汇总三类",
           "position": 9,
           "refs": [
@@ -95,7 +95,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "d621c63fca889dd22473ee3f#1": {
+        "a766f16e8cf9cf25c2fef509#1": {
           "title": "整段能开方",
           "position": 10,
           "refs": [
@@ -105,7 +105,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "c968a7936ab248db97e0d0c3#1": {
+        "b364105d475140cf5e89c964#1": {
           "title": "合并全部条件",
           "position": 11,
           "refs": [
@@ -117,6 +117,6 @@
       }
     }
   },
-  "page_contract_hash": "ebda2cfaaf8e87e20282d365951d886aaba08a7a35ad3c070913f84666790120",
-  "practice_version": "a7b27dcd69a5547a9a507bb8b2911bb471907a0e989e57a1364da5cc8fde1da7"
+  "page_contract_hash": "ae3df91ccb4df82176afcf2e040cd6a92251232becb410b35c3abb1807ea82ca",
+  "practice_version": "e83f5e5ec1804d2b1595271f33f5ae357b099d6d3e72576a1311e1e9d44a9929"
 }

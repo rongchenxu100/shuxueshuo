@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "a6af69dbcf0c113481dd7373#1": {
+        "f9e366abccea118eae8a697d#1": {
           "title": "确定讨论范围",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "f4b22d9f7f3bfcce8e97e210#1": {
+        "b199032cbab92f36b264d24d#1": {
           "title": "把二次函数配成顶点式",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "7682fc9ff8f165295de99b6a#1": {
+        "99dddc8b17d0359b542babb5#1": {
           "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "7682fc9ff8f165295de99b6a#2": {
+        "99dddc8b17d0359b542babb5#2": {
           "title": "二次函数在 $\\left[-1, 0\\right)$ 上的增减",
           "position": 7,
           "refs": [
@@ -71,7 +71,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "ddf62e718b7af87ccf33499e#1": {
+        "087e0717d0b08d49d9ba3f60#1": {
           "title": "写出递增区间",
           "position": 8,
           "refs": [
@@ -80,7 +80,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "ddf62e718b7af87ccf33499e#2": {
+        "087e0717d0b08d49d9ba3f60#2": {
           "title": "写出递减区间",
           "position": 9,
           "refs": [
@@ -89,7 +89,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "8b6cd2088385067be2ef2663#1": {
+        "9c58622e8db8dfbc22116a80#1": {
           "title": "确定讨论范围",
           "position": 10,
           "refs": [
@@ -98,7 +98,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "06a8d65aed3a1da96af99fff#1": {
+        "ec32318c73d2d42145d1ba10#1": {
           "title": "把二次函数配成顶点式",
           "position": 11,
           "refs": [
@@ -107,7 +107,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "fb281be1c368ecb9e09ca2b8#1": {
+        "0dfbed9a6cd1c98a2d2d8aa4#1": {
           "title": "二次函数在 $\\left[0, 1\\right]$ 上的增减",
           "position": 12,
           "refs": [
@@ -116,7 +116,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "fb281be1c368ecb9e09ca2b8#2": {
+        "0dfbed9a6cd1c98a2d2d8aa4#2": {
           "title": "二次函数在 $\\left[1, \\infty\\right)$ 上的增减",
           "position": 13,
           "refs": [
@@ -125,7 +125,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "646cac1c8d010d435d33dad7#1": {
+        "f90daa17779b7a2bf4c0eb8b#1": {
           "title": "写出递增区间",
           "position": 14,
           "refs": [
@@ -134,7 +134,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "646cac1c8d010d435d33dad7#2": {
+        "f90daa17779b7a2bf4c0eb8b#2": {
           "title": "写出递减区间",
           "position": 15,
           "refs": [
@@ -143,7 +143,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "a728a0ce4aa9ec240052e93f#1": {
+        "1ab90bafaf9e3a39d98d4d00#1": {
           "title": "检查跨段单调性",
           "position": 16,
           "refs": [
@@ -152,7 +152,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "9c1ca38e1d3120175971c432#1": {
+        "3d8caaf77570ea9e4593f875#1": {
           "title": "写出递增区间",
           "position": 17,
           "refs": [
@@ -164,6 +164,6 @@
       }
     }
   },
-  "page_contract_hash": "039cd4d83d1cc02c42038cb8f4bc03c1f63ac5b3d2f5baca48456dd51448b2f9",
-  "practice_version": "32123be73277050808b2af0bce6f8671094df9f76f7f3371648054cf2f0739b3"
+  "page_contract_hash": "36e29e4abd18f8f8f79cc54b61674c931bc57777735f9f9b3073a86f88d56437",
+  "practice_version": "164a4ac4ea25ce9a9194ecdcaa900aa5f043867dbb3fecc374fa27cbb696b027"
 }

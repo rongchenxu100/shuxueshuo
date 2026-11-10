@@ -8,6 +8,10 @@
     {
       "ref": "quantifiers",
       "relation": "contains"
+    },
+    {
+      "ref": "skill-universal-substitution",
+      "relation": "contains"
     }
   ]
 }

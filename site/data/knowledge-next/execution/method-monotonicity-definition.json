@@ -48,7 +48,11 @@
           "outputs": {
             "monotonicity_result": "monotonicity_result"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
         }
       ],
       "judgments": [],
@@ -86,11 +90,69 @@
           "outputs": {
             "monotonicity_result": "monotonicity_result"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
+        },
+        {
+          "id": "pair",
+          "capability": "choose_abstract_pair",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "pair": "pair"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        },
+        {
+          "id": "compare_abstract",
+          "capability": "submethod",
+          "public_ref": "method-difference-comparison",
+          "inputs": {
+            "description": "$description",
+            "monotonicity_result": "$pair"
+          },
+          "outputs": {
+            "abstract_result": "monotonicity_result"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
         }
       ],
       "judgments": [],
-      "display_units": []
+      "display_units": [
+        {
+          "id": "pair",
+          "after": "pair",
+          "template": "abstract_monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "proof": "$pair",
+            "phase": "pair",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "pair"
+          ],
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        }
+      ]
     },
     {
       "id": "conclude",
@@ -106,7 +168,28 @@
           "outputs": {
             "monotonicity_result": "monotonicity_result"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
+        },
+        {
+          "id": "confirm_abstract",
+          "capability": "confirm_abstract_monotonicity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "abstract_result": "$abstract_result"
+          },
+          "outputs": {
+            "abstract_result": "abstract_result"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
         }
       ],
       "judgments": [],
@@ -126,6 +209,52 @@
           "depends_on": [
             "description",
             "monotonicity_result"
+          ]
+        },
+        {
+          "id": "conclude",
+          "after": "confirm_abstract",
+          "template": "abstract_monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "proof": "$abstract_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "abstract_result"
+          ],
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        }
+      ],
+      "merges": [
+        {
+          "id": "result",
+          "order": 2,
+          "branches": [
+            {
+              "guard": {
+                "ref": "description.family",
+                "equals": "polynomial"
+              },
+              "bindings": {
+                "monotonicity_result": "$monotonicity_result"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.family",
+                "equals": "abstract"
+              },
+              "bindings": {
+                "monotonicity_result": "$abstract_result"
+              }
+            }
           ]
         }
       ]

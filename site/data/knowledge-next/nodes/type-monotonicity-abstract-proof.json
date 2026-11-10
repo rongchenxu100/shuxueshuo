@@ -2,19 +2,54 @@
   "id": "type-monotonicity-abstract-proof",
   "kind": "problem_type",
   "label": "证明抽象函数的单调性",
-  "status": "planned",
-  "summary": "证明抽象函数的单调性；后续题型建设。",
+  "status": "active",
+  "summary": "没有解析式，只给出函数关系与严格的符号条件，判断或证明抽象函数在给定区间上的单调性。",
   "source": "函数单调性专题计划",
   "features": [
     {
-      "cue": "由函数关系与符号条件证明任意两点的函数值次序。"
+      "cue": "函数没有解析式，只给出对任意输入成立的关系；输入可以相加或相乘，函数值可以相加或相乘。"
+    },
+    {
+      "cue": "另给函数值与 0 或 1 的比较条件；要检查条件适用的输入范围。"
+    },
+    {
+      "cue": "原目标是判断或证明函数在定义域（或给定区间）上的单调性。"
     }
   ],
-  "confuse": [],
+  "confuse": [
+    {
+      "text": "函数有具体解析式时，直接用定义法或基本函数性质判断，不需要函数关系代入。",
+      "ref": "type-function-monotonicity"
+    },
+    {
+      "text": "已知单调性去解函数值不等式，单调性是条件而不是待证结论。",
+      "ref": "type-monotonicity-inequality"
+    },
+    {
+      "text": "同样给出函数关系并赋值，但原目标是求解析式，不是判断单调性。",
+      "ref": "type-function-formula"
+    }
+  ],
   "knowledge": [
     "function-monotonicity"
   ],
-  "methods": [],
-  "rules": [],
-  "examples": []
+  "methods": [
+    "method-monotonicity-definition"
+  ],
+  "rules": [
+    "rule-monotonicity-abstract-method"
+  ],
+  "examples": [
+    {
+      "title": "加法关系判断单调性",
+      "prompt": "函数 $f$ 的定义域为 $\\mathbb R$，对任意实数 $x,y$，$f(x+y)=f(x)+f(y)$，且 $x>0$ 时 $f(x)>0$。判断 $f$ 的单调性。",
+      "solution": [
+        "任取 $x_1<x_2$，令 $x=x_1,\\ y=x_2-x_1$，得 $f(x_2)-f(x_1)=f(x_2-x_1)$。",
+        "$x_2-x_1>0$，所以 $f(x_2-x_1)>0$。",
+        "因此 $f$ 在 $\\mathbb R$ 上严格递增。"
+      ],
+      "source": "函数单调性 FM-T5"
+    }
+  ],
+  "choice_hint": "任取考察区间内的两点，利用函数关系把差化成能判断正负的函数值或乘积"
 }

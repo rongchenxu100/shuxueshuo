@@ -4379,28 +4379,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     },
     {
@@ -4464,6 +4464,20 @@
       "problem": "function-monotonicity-b14-v2",
       "route": "extremum-condition-parameter",
       "step": "ea7650fd97cad3ea9f58642e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
       "conditions": {}
     },
     {
@@ -4871,28 +4885,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     },
     {
@@ -4935,6 +4949,20 @@
       "problem": "function-monotonicity-b08-v2",
       "route": "extremum-condition-parameter",
       "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
       "conditions": {}
     },
     {
@@ -5522,6 +5550,55 @@
       "problem": "function-monotonicity-b09-v1",
       "route": "function-evaluation",
       "step": "771fdb8fe3c3142ce7d2e972#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
       "conditions": {}
     },
     {
@@ -9522,56 +9599,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "2a02e9ff44a2c523e1050a4c#1",
+      "step": "501185cbda4284f5dfa302a4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "adde48515103155bb87aa564#1",
+      "step": "11a4d94ef7d1e021046a19d3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1f966b7c8745cbdb1285414a#1",
+      "step": "a4d4ae71f44bee4097f36245#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "15d3346eedf6a4d9cc09301c#1",
+      "step": "37e3c82ccb7b74e47bcc8d78#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "a264de23ac5d66b891cc7757#1",
+      "step": "6c8d60d2af4445c3bcba08e0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "01d012dbc61ee3f812d7227f#1",
+      "step": "baf52123972647394588ec35#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "43c22779ada1fe795e41b5b0#1",
+      "step": "91df35c8754e4a57f2665feb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "038d7f05b666b4dc4c28f8cc#1",
+      "step": "e27b3305e7a0e5bab6ea2435#1",
       "conditions": {}
     }
   ],
@@ -9909,56 +9986,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "2a02e9ff44a2c523e1050a4c#1",
+      "step": "501185cbda4284f5dfa302a4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "adde48515103155bb87aa564#1",
+      "step": "11a4d94ef7d1e021046a19d3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1f966b7c8745cbdb1285414a#1",
+      "step": "a4d4ae71f44bee4097f36245#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "15d3346eedf6a4d9cc09301c#1",
+      "step": "37e3c82ccb7b74e47bcc8d78#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "a264de23ac5d66b891cc7757#1",
+      "step": "6c8d60d2af4445c3bcba08e0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "01d012dbc61ee3f812d7227f#1",
+      "step": "baf52123972647394588ec35#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "43c22779ada1fe795e41b5b0#1",
+      "step": "91df35c8754e4a57f2665feb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "038d7f05b666b4dc4c28f8cc#1",
+      "step": "e27b3305e7a0e5bab6ea2435#1",
       "conditions": {}
     },
     {
@@ -10709,21 +10786,21 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "43c22779ada1fe795e41b5b0#1",
+      "step": "91df35c8754e4a57f2665feb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "038d7f05b666b4dc4c28f8cc#1",
+      "step": "e27b3305e7a0e5bab6ea2435#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     }
   ],
@@ -10928,63 +11005,63 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "2a02e9ff44a2c523e1050a4c#1",
+      "step": "501185cbda4284f5dfa302a4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "adde48515103155bb87aa564#1",
+      "step": "11a4d94ef7d1e021046a19d3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1f966b7c8745cbdb1285414a#1",
+      "step": "a4d4ae71f44bee4097f36245#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "15d3346eedf6a4d9cc09301c#1",
+      "step": "37e3c82ccb7b74e47bcc8d78#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "a264de23ac5d66b891cc7757#1",
+      "step": "6c8d60d2af4445c3bcba08e0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "01d012dbc61ee3f812d7227f#1",
+      "step": "baf52123972647394588ec35#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "43c22779ada1fe795e41b5b0#1",
+      "step": "91df35c8754e4a57f2665feb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "038d7f05b666b4dc4c28f8cc#1",
+      "step": "e27b3305e7a0e5bab6ea2435#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     }
   ],
@@ -11007,28 +11084,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     }
   ],
@@ -11338,28 +11415,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     },
     {
@@ -11409,6 +11486,20 @@
       "problem": "function-monotonicity-b08-v2",
       "route": "extremum-condition-parameter",
       "step": "a2ff0eb69ac23200f0bca843#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
       "conditions": {}
     },
     {
@@ -11802,28 +11893,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     },
     {
@@ -14413,6 +14504,55 @@
       "conditions": {}
     },
     {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10",
       "route": "function-evaluation",
@@ -16783,28 +16923,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "9dd75bc406494ff56fd2fb8a#1",
+      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a14d08a55d651dd99d2dffcb#1",
+      "step": "f3f3d55aed55c00b9e73b4ae#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0101f7456b3f614ecd272e0f#1",
+      "step": "617ed7831b8f72727a5af252#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b209eafc281dede2600170fc#1",
+      "step": "835706b2504f2e005ad90922#1",
       "conditions": {}
     },
     {
@@ -20528,168 +20668,168 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "5be736429f5e10e35ba5e019#1",
+      "step": "485de4cc05c472bcbea07246#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "675653da84ebdefc96057428#1",
+      "step": "bb2f7431e91b0488ab6bf96c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#1",
+      "step": "4a6b66987f83b25f919ecc11#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#2",
+      "step": "4a6b66987f83b25f919ecc11#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "3747b5c92bde1865c91bf81b#1",
+      "step": "f8ef35c0dcd31ae55f14606c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#1",
+      "step": "e7de287295501652f9a3b145#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#2",
+      "step": "e7de287295501652f9a3b145#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "62d02cf6aaac379a0ecd4e10#1",
+      "step": "1ed69245016c267028a369b9#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#1",
+      "step": "92d7419c4368a925b39d1eb0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#2",
+      "step": "92d7419c4368a925b39d1eb0#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0a50d99ec794f243b12d7810#1",
+      "step": "9d019525bf761ffc1d1f03b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#1",
+      "step": "218af5f2e5a5e2fb7b8c5e52#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#2",
+      "step": "218af5f2e5a5e2fb7b8c5e52#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0d9ea3c401411b4fc2c2757e#1",
+      "step": "7aa408589e679e0d8de7a582#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#1",
+      "step": "0c886b6078b60b5a3ff2fe3e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#2",
+      "step": "0c886b6078b60b5a3ff2fe3e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a6af69dbcf0c113481dd7373#1",
+      "step": "f9e366abccea118eae8a697d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f4b22d9f7f3bfcce8e97e210#1",
+      "step": "b199032cbab92f36b264d24d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#1",
+      "step": "99dddc8b17d0359b542babb5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#2",
+      "step": "99dddc8b17d0359b542babb5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "8b6cd2088385067be2ef2663#1",
+      "step": "9c58622e8db8dfbc22116a80#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "06a8d65aed3a1da96af99fff#1",
+      "step": "ec32318c73d2d42145d1ba10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#1",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#2",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
       "conditions": {}
     },
     {
@@ -20726,308 +20866,308 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "5be736429f5e10e35ba5e019#1",
+      "step": "485de4cc05c472bcbea07246#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "675653da84ebdefc96057428#1",
+      "step": "bb2f7431e91b0488ab6bf96c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#1",
+      "step": "4a6b66987f83b25f919ecc11#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#2",
+      "step": "4a6b66987f83b25f919ecc11#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "26ee667abc6e3038d02ee4c7#1",
+      "step": "9a74dd172855ff7bf291c33c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "3747b5c92bde1865c91bf81b#1",
+      "step": "f8ef35c0dcd31ae55f14606c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#1",
+      "step": "e7de287295501652f9a3b145#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#2",
+      "step": "e7de287295501652f9a3b145#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#1",
+      "step": "1eed320a10b2eb58ce0dfcff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#2",
+      "step": "1eed320a10b2eb58ce0dfcff#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "575b8615504b278382de173c#1",
+      "step": "7767ad2d0595e46527920f3b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "62d02cf6aaac379a0ecd4e10#1",
+      "step": "1ed69245016c267028a369b9#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#1",
+      "step": "92d7419c4368a925b39d1eb0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#2",
+      "step": "92d7419c4368a925b39d1eb0#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#1",
+      "step": "bc3501917b0a8b2f83d02184#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#2",
+      "step": "bc3501917b0a8b2f83d02184#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "fb375242f1e206fade6502b5#1",
+      "step": "ad788c83481c56e82073eba2#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0a50d99ec794f243b12d7810#1",
+      "step": "9d019525bf761ffc1d1f03b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#1",
+      "step": "218af5f2e5a5e2fb7b8c5e52#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#2",
+      "step": "218af5f2e5a5e2fb7b8c5e52#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#1",
+      "step": "129682dcfeea3518f8ffe383#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#2",
+      "step": "129682dcfeea3518f8ffe383#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "81b17493b7d08a302e39a414#1",
+      "step": "e4aa9a81dba4e6f605980c25#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0d9ea3c401411b4fc2c2757e#1",
+      "step": "7aa408589e679e0d8de7a582#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#1",
+      "step": "0c886b6078b60b5a3ff2fe3e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#2",
+      "step": "0c886b6078b60b5a3ff2fe3e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#1",
+      "step": "c034ae5e4b8b2787b77856f5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#2",
+      "step": "c034ae5e4b8b2787b77856f5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#3",
+      "step": "c034ae5e4b8b2787b77856f5#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#4",
+      "step": "c034ae5e4b8b2787b77856f5#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "59bb943190e6fe55cd7ab523#1",
+      "step": "d6ee364c7471261de52a30be#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a6af69dbcf0c113481dd7373#1",
+      "step": "f9e366abccea118eae8a697d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f4b22d9f7f3bfcce8e97e210#1",
+      "step": "b199032cbab92f36b264d24d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#1",
+      "step": "99dddc8b17d0359b542babb5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#2",
+      "step": "99dddc8b17d0359b542babb5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#1",
+      "step": "087e0717d0b08d49d9ba3f60#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#2",
+      "step": "087e0717d0b08d49d9ba3f60#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "8b6cd2088385067be2ef2663#1",
+      "step": "9c58622e8db8dfbc22116a80#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "06a8d65aed3a1da96af99fff#1",
+      "step": "ec32318c73d2d42145d1ba10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#1",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#2",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#1",
+      "step": "f90daa17779b7a2bf4c0eb8b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#2",
+      "step": "f90daa17779b7a2bf4c0eb8b#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c1ca38e1d3120175971c432#1",
+      "step": "3d8caaf77570ea9e4593f875#1",
       "conditions": {}
     },
     {
@@ -21064,308 +21204,308 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "5be736429f5e10e35ba5e019#1",
+      "step": "485de4cc05c472bcbea07246#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "675653da84ebdefc96057428#1",
+      "step": "bb2f7431e91b0488ab6bf96c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#1",
+      "step": "4a6b66987f83b25f919ecc11#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "02a3c8a5eb2167a560dfd957#2",
+      "step": "4a6b66987f83b25f919ecc11#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "26ee667abc6e3038d02ee4c7#1",
+      "step": "9a74dd172855ff7bf291c33c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "3747b5c92bde1865c91bf81b#1",
+      "step": "f8ef35c0dcd31ae55f14606c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#1",
+      "step": "e7de287295501652f9a3b145#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "5b9264694df0240a742c9779#2",
+      "step": "e7de287295501652f9a3b145#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#1",
+      "step": "1eed320a10b2eb58ce0dfcff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#2",
+      "step": "1eed320a10b2eb58ce0dfcff#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "575b8615504b278382de173c#1",
+      "step": "7767ad2d0595e46527920f3b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "62d02cf6aaac379a0ecd4e10#1",
+      "step": "1ed69245016c267028a369b9#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#1",
+      "step": "92d7419c4368a925b39d1eb0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "c7cbc96fede19b951d6d717a#2",
+      "step": "92d7419c4368a925b39d1eb0#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#1",
+      "step": "bc3501917b0a8b2f83d02184#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#2",
+      "step": "bc3501917b0a8b2f83d02184#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "fb375242f1e206fade6502b5#1",
+      "step": "ad788c83481c56e82073eba2#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "0a50d99ec794f243b12d7810#1",
+      "step": "9d019525bf761ffc1d1f03b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#1",
+      "step": "218af5f2e5a5e2fb7b8c5e52#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "4f310f8df6633256e139c621#2",
+      "step": "218af5f2e5a5e2fb7b8c5e52#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#1",
+      "step": "129682dcfeea3518f8ffe383#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#2",
+      "step": "129682dcfeea3518f8ffe383#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "81b17493b7d08a302e39a414#1",
+      "step": "e4aa9a81dba4e6f605980c25#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0d9ea3c401411b4fc2c2757e#1",
+      "step": "7aa408589e679e0d8de7a582#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#1",
+      "step": "0c886b6078b60b5a3ff2fe3e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "87fd527fc2042a039ba7d7a5#2",
+      "step": "0c886b6078b60b5a3ff2fe3e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#1",
+      "step": "c034ae5e4b8b2787b77856f5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#2",
+      "step": "c034ae5e4b8b2787b77856f5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#3",
+      "step": "c034ae5e4b8b2787b77856f5#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#4",
+      "step": "c034ae5e4b8b2787b77856f5#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "59bb943190e6fe55cd7ab523#1",
+      "step": "d6ee364c7471261de52a30be#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a6af69dbcf0c113481dd7373#1",
+      "step": "f9e366abccea118eae8a697d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f4b22d9f7f3bfcce8e97e210#1",
+      "step": "b199032cbab92f36b264d24d#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#1",
+      "step": "99dddc8b17d0359b542babb5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "7682fc9ff8f165295de99b6a#2",
+      "step": "99dddc8b17d0359b542babb5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#1",
+      "step": "087e0717d0b08d49d9ba3f60#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#2",
+      "step": "087e0717d0b08d49d9ba3f60#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "8b6cd2088385067be2ef2663#1",
+      "step": "9c58622e8db8dfbc22116a80#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "06a8d65aed3a1da96af99fff#1",
+      "step": "ec32318c73d2d42145d1ba10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#1",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "fb281be1c368ecb9e09ca2b8#2",
+      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#1",
+      "step": "f90daa17779b7a2bf4c0eb8b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#2",
+      "step": "f90daa17779b7a2bf4c0eb8b#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c1ca38e1d3120175971c432#1",
+      "step": "3d8caaf77570ea9e4593f875#1",
       "conditions": {}
     },
     {
@@ -21402,63 +21542,63 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "26ee667abc6e3038d02ee4c7#1",
+      "step": "9a74dd172855ff7bf291c33c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "575b8615504b278382de173c#1",
+      "step": "7767ad2d0595e46527920f3b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "fb375242f1e206fade6502b5#1",
+      "step": "ad788c83481c56e82073eba2#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "81b17493b7d08a302e39a414#1",
+      "step": "e4aa9a81dba4e6f605980c25#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "59bb943190e6fe55cd7ab523#1",
+      "step": "d6ee364c7471261de52a30be#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#1",
+      "step": "087e0717d0b08d49d9ba3f60#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ddf62e718b7af87ccf33499e#2",
+      "step": "087e0717d0b08d49d9ba3f60#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#1",
+      "step": "f90daa17779b7a2bf4c0eb8b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "646cac1c8d010d435d33dad7#2",
+      "step": "f90daa17779b7a2bf4c0eb8b#2",
       "conditions": {}
     }
   ],
@@ -21467,70 +21607,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#1",
+      "step": "1eed320a10b2eb58ce0dfcff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#2",
+      "step": "1eed320a10b2eb58ce0dfcff#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#1",
+      "step": "bc3501917b0a8b2f83d02184#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#2",
+      "step": "bc3501917b0a8b2f83d02184#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#1",
+      "step": "129682dcfeea3518f8ffe383#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#2",
+      "step": "129682dcfeea3518f8ffe383#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#1",
+      "step": "c034ae5e4b8b2787b77856f5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#2",
+      "step": "c034ae5e4b8b2787b77856f5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#3",
+      "step": "c034ae5e4b8b2787b77856f5#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#4",
+      "step": "c034ae5e4b8b2787b77856f5#4",
       "conditions": {}
     }
   ],
@@ -21539,70 +21679,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#1",
+      "step": "1eed320a10b2eb58ce0dfcff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "da52415c2f8041ad33a672f4#2",
+      "step": "1eed320a10b2eb58ce0dfcff#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#1",
+      "step": "bc3501917b0a8b2f83d02184#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "640a8fafad1272728fbb7212#2",
+      "step": "bc3501917b0a8b2f83d02184#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#1",
+      "step": "129682dcfeea3518f8ffe383#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "f4f7f5c55234299a1b568da3#2",
+      "step": "129682dcfeea3518f8ffe383#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#1",
+      "step": "c034ae5e4b8b2787b77856f5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#2",
+      "step": "c034ae5e4b8b2787b77856f5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#3",
+      "step": "c034ae5e4b8b2787b77856f5#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "b01abaade2ce4f0475d7d828#4",
+      "step": "c034ae5e4b8b2787b77856f5#4",
       "conditions": {}
     }
   ],
@@ -21611,7 +21751,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a728a0ce4aa9ec240052e93f#1",
+      "step": "1ab90bafaf9e3a39d98d4d00#1",
       "conditions": {}
     },
     {
@@ -21634,7 +21774,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a728a0ce4aa9ec240052e93f#1",
+      "step": "1ab90bafaf9e3a39d98d4d00#1",
       "conditions": {}
     },
     {
@@ -21657,7 +21797,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "a728a0ce4aa9ec240052e93f#1",
+      "step": "1ab90bafaf9e3a39d98d4d00#1",
       "conditions": {}
     },
     {
@@ -21979,70 +22119,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "55d7c563560042cc5b86d3ca#1",
+      "step": "cbcc30d99181688b93aad43f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#1",
+      "step": "30e6754a98c4add57506c700#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#2",
+      "step": "30e6754a98c4add57506c700#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "04e6f44f8ae778ba628a14f7#1",
+      "step": "a08bc29f2ab8002ac2e15386#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "b884d6546b92e4644cff9857#1",
+      "step": "abbc92568abaa9fac6eff619#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "2219b7f3940dc12677a6dd80#1",
+      "step": "5f8b10aab1374413f42a33ee#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#1",
+      "step": "216377ef247f393117eb1a87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#2",
+      "step": "216377ef247f393117eb1a87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "c038464c12748acbf478612c#1",
+      "step": "5dfc9402645e51b7d7df2e90#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "d62ad5c7584211c0cc9f87ce#1",
+      "step": "a806d8cd4a9d568a9803fb9d#1",
       "conditions": {}
     },
     {
@@ -22084,56 +22224,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "6a8e38f64732e25258e38316#1",
+      "step": "ef9da439ec980531832c87bf#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "9adf4a64bf901ef5d4bdca64#1",
+      "step": "b23bb048df9ff54d1fa687f8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#1",
+      "step": "2bdcacdfb25bacf8cf72ee87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#2",
+      "step": "2bdcacdfb25bacf8cf72ee87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#3",
+      "step": "2bdcacdfb25bacf8cf72ee87#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#4",
+      "step": "2bdcacdfb25bacf8cf72ee87#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "d621c63fca889dd22473ee3f#1",
+      "step": "a766f16e8cf9cf25c2fef509#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "c968a7936ab248db97e0d0c3#1",
+      "step": "b364105d475140cf5e89c964#1",
       "conditions": {}
     }
   ],
@@ -22142,7 +22282,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c1ca38e1d3120175971c432#1",
+      "step": "3d8caaf77570ea9e4593f875#1",
       "conditions": {}
     }
   ],
@@ -23068,56 +23208,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "55d7c563560042cc5b86d3ca#1",
+      "step": "cbcc30d99181688b93aad43f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#1",
+      "step": "30e6754a98c4add57506c700#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#2",
+      "step": "30e6754a98c4add57506c700#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "04e6f44f8ae778ba628a14f7#1",
+      "step": "a08bc29f2ab8002ac2e15386#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "2219b7f3940dc12677a6dd80#1",
+      "step": "5f8b10aab1374413f42a33ee#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#1",
+      "step": "216377ef247f393117eb1a87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#2",
+      "step": "216377ef247f393117eb1a87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "c038464c12748acbf478612c#1",
+      "step": "5dfc9402645e51b7d7df2e90#1",
       "conditions": {}
     },
     {
@@ -23152,49 +23292,49 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "6a8e38f64732e25258e38316#1",
+      "step": "ef9da439ec980531832c87bf#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "9adf4a64bf901ef5d4bdca64#1",
+      "step": "b23bb048df9ff54d1fa687f8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#1",
+      "step": "2bdcacdfb25bacf8cf72ee87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#2",
+      "step": "2bdcacdfb25bacf8cf72ee87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#3",
+      "step": "2bdcacdfb25bacf8cf72ee87#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#4",
+      "step": "2bdcacdfb25bacf8cf72ee87#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "d621c63fca889dd22473ee3f#1",
+      "step": "a766f16e8cf9cf25c2fef509#1",
       "conditions": {}
     }
   ],
@@ -23828,70 +23968,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "55d7c563560042cc5b86d3ca#1",
+      "step": "cbcc30d99181688b93aad43f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#1",
+      "step": "30e6754a98c4add57506c700#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#2",
+      "step": "30e6754a98c4add57506c700#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "04e6f44f8ae778ba628a14f7#1",
+      "step": "a08bc29f2ab8002ac2e15386#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "b884d6546b92e4644cff9857#1",
+      "step": "abbc92568abaa9fac6eff619#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "2219b7f3940dc12677a6dd80#1",
+      "step": "5f8b10aab1374413f42a33ee#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#1",
+      "step": "216377ef247f393117eb1a87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#2",
+      "step": "216377ef247f393117eb1a87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "c038464c12748acbf478612c#1",
+      "step": "5dfc9402645e51b7d7df2e90#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "d62ad5c7584211c0cc9f87ce#1",
+      "step": "a806d8cd4a9d568a9803fb9d#1",
       "conditions": {}
     },
     {
@@ -23933,56 +24073,84 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "6a8e38f64732e25258e38316#1",
+      "step": "ef9da439ec980531832c87bf#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "9adf4a64bf901ef5d4bdca64#1",
+      "step": "b23bb048df9ff54d1fa687f8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#1",
+      "step": "2bdcacdfb25bacf8cf72ee87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#2",
+      "step": "2bdcacdfb25bacf8cf72ee87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#3",
+      "step": "2bdcacdfb25bacf8cf72ee87#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#4",
+      "step": "2bdcacdfb25bacf8cf72ee87#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "d621c63fca889dd22473ee3f#1",
+      "step": "a766f16e8cf9cf25c2fef509#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "c968a7936ab248db97e0d0c3#1",
+      "step": "b364105d475140cf5e89c964#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "6303f4d73c63fdbe4521b379#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "959bbce3a3b195c0cd6ea51e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "8ad2ca76a191b977f908158d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "a7587949168d4408e6d4a5f6#1",
       "conditions": {}
     }
   ],
@@ -24785,56 +24953,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "55d7c563560042cc5b86d3ca#1",
+      "step": "cbcc30d99181688b93aad43f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#1",
+      "step": "30e6754a98c4add57506c700#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "4f04363539375d7f6c6e1f2f#2",
+      "step": "30e6754a98c4add57506c700#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "04e6f44f8ae778ba628a14f7#1",
+      "step": "a08bc29f2ab8002ac2e15386#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "2219b7f3940dc12677a6dd80#1",
+      "step": "5f8b10aab1374413f42a33ee#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#1",
+      "step": "216377ef247f393117eb1a87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "1bbc48b350ce44c03b5ccab0#2",
+      "step": "216377ef247f393117eb1a87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "c038464c12748acbf478612c#1",
+      "step": "5dfc9402645e51b7d7df2e90#1",
       "conditions": {}
     },
     {
@@ -24869,49 +25037,49 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "6a8e38f64732e25258e38316#1",
+      "step": "ef9da439ec980531832c87bf#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "9adf4a64bf901ef5d4bdca64#1",
+      "step": "b23bb048df9ff54d1fa687f8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#1",
+      "step": "2bdcacdfb25bacf8cf72ee87#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#2",
+      "step": "2bdcacdfb25bacf8cf72ee87#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#3",
+      "step": "2bdcacdfb25bacf8cf72ee87#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "638bfe0b44039af52f5e898a#4",
+      "step": "2bdcacdfb25bacf8cf72ee87#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "d621c63fca889dd22473ee3f#1",
+      "step": "a766f16e8cf9cf25c2fef509#1",
       "conditions": {}
     }
   ],
@@ -24948,14 +25116,14 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a08-v1",
       "route": "monotonicity-parameter",
-      "step": "b884d6546b92e4644cff9857#1",
+      "step": "abbc92568abaa9fac6eff619#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a17-v1",
       "route": "monotonicity-parameter",
-      "step": "d62ad5c7584211c0cc9f87ce#1",
+      "step": "a806d8cd4a9d568a9803fb9d#1",
       "conditions": {}
     },
     {
@@ -24969,7 +25137,1764 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a13-v1",
       "route": "monotonicity-parameter",
-      "step": "c968a7936ab248db97e0d0c3#1",
+      "step": "b364105d475140cf5e89c964#1",
+      "conditions": {}
+    }
+  ],
+  "type-monotonicity-abstract-proof": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1"
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1"
+    }
+  ],
+  "method-monotonicity-definition#compare": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "6303f4d73c63fdbe4521b379#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "8ad2ca76a191b977f908158d#1",
+      "conditions": {}
+    }
+  ],
+  "method-difference-comparison#simplify": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    }
+  ],
+  "equality-properties#universal-substitution": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "69c46566b69e60e4eeeb3a80#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "95dc09bb3da18d3847ab91fd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "4c6c5f1e1daca9f2380d4e78#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "b80b7d89757cf2d24dc5fc9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "85d6493b9f26142bcd8ce298#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "0c7d94d7bbd88d3b331b4545#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "7621d46f975e3c899e842ba4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "e1835ab42e6ef468176f2c21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "f0ca58cf26b1a1f9116ce647#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "cdfe73aaca1b26d9ae948e92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "c4f5a9fc8d88a46f5628a520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "3751f0c581b80f0e3299badf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "49d4d4b7a4c8936bec326f03#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "67552aa3cb1db541fd8942e3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "a4f515752d02c1646191614b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "60374b3699dd333520b12829#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "e409f2c7e6fed7ff5a66e1e9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "2bb6487aa04fcb0bceee1f1b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "6f2f2be4333567c33c7a4405#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "37fd1e4dd35936f95ad0181b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "28f66c41c3d4b995d78828e4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "b8dd261c6a9d1f450ba8d30f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "129b082b659c7c98ec9c789e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "e3b66fcbb97bf4402ed3c2c3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "94a1f48b42d655ab37f4736d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "1c4ebe3e79ce880aa872e586#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "594a7110a7ed5882d97d81d1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "04084e96a0d43b4d1cca98f8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "0a94b62147a1ed378f616704#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "de1169675e127d42cdb37dd1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "aa79922849aef1bc82bde364#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "45708f3eceea87b665d82be5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "2a01ff35ad5f5c44f30de811#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "57af383b912ec273321bac58#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "d2fc7909418a7bc90495b9b4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "c45cf0b319ba9b6b9f314f2b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "68ab2e163501f5001fe34c85#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "a8975c7a6edf02661a146573#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "0b7149332b5534f55d72bf8e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "b7ed4ddfa41ac30406816aa2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "2e749e72e6cf95ad844cc8aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22ec90180a272441545e245c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "e202f000ca6f679907b485a5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22f041fa980e84d6f1749454#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "20d8c868d3c493f0af0d8b93#1",
+      "conditions": {}
+    }
+  ],
+  "skill-universal-substitution": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
+      "conditions": {}
+    }
+  ],
+  "quantifiers#instantiation": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
+      "conditions": {}
+    }
+  ],
+  "equality-properties#addition": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "27ead00557dccb270ee8f9aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "61ac47f7c30432b37dbc2438#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "2f8c654e3cfa0349af2bbcd0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "b77abe5f0e51781662f7d30e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "411fbd64ab754cf12e740269#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "02dd0c2591239bf66102e9d2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "c570033e93e6c3e19e6fd866#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "e8b7263ba73226c16829c753#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a17bfffc2dc40488a13e4f00#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "ea80ab89ab0514168e291d7d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "78ba1030a50b9db2194ef591#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a291aab6ac415dfa8fe2cba9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "ca72a2126b8781c3889bc77b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "34802a878c0161d2067c988f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "84cab7bf8bd98278b289e042#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "980bb25c04cf488b303ff37f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "540c35079d7d53e8bf6b2626#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "07173b84f187e037f81e2ddd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3abdf29863b394db825a64c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "521353f84a8f0c18e1a3bdc3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "400846fdf813b05702dbdacf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3be794b6dd773def900319bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "2c5240db9d237216c69b77d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "d4ef721a3a65e600267d60ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "60586a484491cfabdc8808c9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "0c15483542ffc991b5596280#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "c6f2e04da3ea7ee46c1b1439#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "241a21d58fb2170979f3cc3c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "50fdcc09abe04af52479d0bc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "cc493a8d635ba88caa30c135#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "69c46566b69e60e4eeeb3a80#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "95dc09bb3da18d3847ab91fd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "4c6c5f1e1daca9f2380d4e78#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "b80b7d89757cf2d24dc5fc9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "85d6493b9f26142bcd8ce298#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "0c7d94d7bbd88d3b331b4545#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "7621d46f975e3c899e842ba4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "e1835ab42e6ef468176f2c21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "f0ca58cf26b1a1f9116ce647#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "cdfe73aaca1b26d9ae948e92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "c4f5a9fc8d88a46f5628a520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "3751f0c581b80f0e3299badf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "49d4d4b7a4c8936bec326f03#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "67552aa3cb1db541fd8942e3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "a4f515752d02c1646191614b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "60374b3699dd333520b12829#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "e409f2c7e6fed7ff5a66e1e9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "2bb6487aa04fcb0bceee1f1b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "6f2f2be4333567c33c7a4405#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "37fd1e4dd35936f95ad0181b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "28f66c41c3d4b995d78828e4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "b8dd261c6a9d1f450ba8d30f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "129b082b659c7c98ec9c789e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "e3b66fcbb97bf4402ed3c2c3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "94a1f48b42d655ab37f4736d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "1c4ebe3e79ce880aa872e586#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "594a7110a7ed5882d97d81d1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "04084e96a0d43b4d1cca98f8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "0a94b62147a1ed378f616704#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "de1169675e127d42cdb37dd1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "aa79922849aef1bc82bde364#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "45708f3eceea87b665d82be5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "2a01ff35ad5f5c44f30de811#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "57af383b912ec273321bac58#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "d2fc7909418a7bc90495b9b4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "c45cf0b319ba9b6b9f314f2b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "68ab2e163501f5001fe34c85#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "a8975c7a6edf02661a146573#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "0b7149332b5534f55d72bf8e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "b7ed4ddfa41ac30406816aa2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "2e749e72e6cf95ad844cc8aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22ec90180a272441545e245c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "e202f000ca6f679907b485a5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22f041fa980e84d6f1749454#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "20d8c868d3c493f0af0d8b93#1",
+      "conditions": {}
+    }
+  ],
+  "equality-properties#multiplication": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "f0c879109ff3dd7c440f3c73#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "95060038b517492af8394c3e#4",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "27ead00557dccb270ee8f9aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "61ac47f7c30432b37dbc2438#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "2f8c654e3cfa0349af2bbcd0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "b77abe5f0e51781662f7d30e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "411fbd64ab754cf12e740269#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "02dd0c2591239bf66102e9d2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "c570033e93e6c3e19e6fd866#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "e8b7263ba73226c16829c753#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a17bfffc2dc40488a13e4f00#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "ea80ab89ab0514168e291d7d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "78ba1030a50b9db2194ef591#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a291aab6ac415dfa8fe2cba9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "ca72a2126b8781c3889bc77b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "34802a878c0161d2067c988f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "84cab7bf8bd98278b289e042#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "980bb25c04cf488b303ff37f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "540c35079d7d53e8bf6b2626#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "07173b84f187e037f81e2ddd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3abdf29863b394db825a64c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "521353f84a8f0c18e1a3bdc3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "400846fdf813b05702dbdacf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3be794b6dd773def900319bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "2c5240db9d237216c69b77d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "d4ef721a3a65e600267d60ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "60586a484491cfabdc8808c9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "0c15483542ffc991b5596280#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "c6f2e04da3ea7ee46c1b1439#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "241a21d58fb2170979f3cc3c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "50fdcc09abe04af52479d0bc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "cc493a8d635ba88caa30c135#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "69c46566b69e60e4eeeb3a80#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "95dc09bb3da18d3847ab91fd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "4c6c5f1e1daca9f2380d4e78#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "b80b7d89757cf2d24dc5fc9d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06",
+      "route": "function-system",
+      "step": "85d6493b9f26142bcd8ce298#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "0c7d94d7bbd88d3b331b4545#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "7621d46f975e3c899e842ba4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "e1835ab42e6ef468176f2c21#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "f0ca58cf26b1a1f9116ce647#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b06-v",
+      "route": "function-system",
+      "step": "cdfe73aaca1b26d9ae948e92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "c4f5a9fc8d88a46f5628a520#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "3751f0c581b80f0e3299badf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "49d4d4b7a4c8936bec326f03#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "67552aa3cb1db541fd8942e3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w03",
+      "route": "function-system",
+      "step": "a4f515752d02c1646191614b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "60374b3699dd333520b12829#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "e409f2c7e6fed7ff5a66e1e9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "2bb6487aa04fcb0bceee1f1b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "6f2f2be4333567c33c7a4405#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w05",
+      "route": "function-system",
+      "step": "37fd1e4dd35936f95ad0181b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "28f66c41c3d4b995d78828e4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "b8dd261c6a9d1f450ba8d30f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "129b082b659c7c98ec9c789e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "e3b66fcbb97bf4402ed3c2c3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w06",
+      "route": "function-system",
+      "step": "94a1f48b42d655ab37f4736d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "1c4ebe3e79ce880aa872e586#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "594a7110a7ed5882d97d81d1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "04084e96a0d43b4d1cca98f8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "0a94b62147a1ed378f616704#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w07",
+      "route": "function-system",
+      "step": "de1169675e127d42cdb37dd1#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "aa79922849aef1bc82bde364#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "45708f3eceea87b665d82be5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "2a01ff35ad5f5c44f30de811#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "57af383b912ec273321bac58#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w14",
+      "route": "function-system",
+      "step": "d2fc7909418a7bc90495b9b4#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "c45cf0b319ba9b6b9f314f2b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "68ab2e163501f5001fe34c85#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "a8975c7a6edf02661a146573#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "0b7149332b5534f55d72bf8e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07",
+      "route": "function-assignment",
+      "step": "b7ed4ddfa41ac30406816aa2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "2e749e72e6cf95ad844cc8aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22ec90180a272441545e245c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "e202f000ca6f679907b485a5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "22f041fa980e84d6f1749454#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b07-v",
+      "route": "function-assignment",
+      "step": "20d8c868d3c493f0af0d8b93#1",
+      "conditions": {}
+    }
+  ],
+  "method-difference-comparison#sign": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "5875967617229873c0c38c75#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "43f1ec18931149c3ad7277c7#1",
+      "conditions": {}
+    }
+  ],
+  "method-monotonicity-definition#conclude": [
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c01-v1",
+      "route": "monotonicity-definition",
+      "step": "959bbce3a3b195c0cd6ea51e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-monotonicity",
+      "problem": "function-monotonicity-c02-v1",
+      "route": "monotonicity-definition",
+      "step": "a7587949168d4408e6d4a5f6#1",
       "conditions": {}
     }
   ],
@@ -26311,1060 +28236,6 @@
       "conditions": {}
     }
   ],
-  "equality-properties#addition": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "27ead00557dccb270ee8f9aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "61ac47f7c30432b37dbc2438#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "2f8c654e3cfa0349af2bbcd0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "b77abe5f0e51781662f7d30e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "411fbd64ab754cf12e740269#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "02dd0c2591239bf66102e9d2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "c570033e93e6c3e19e6fd866#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "e8b7263ba73226c16829c753#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a17bfffc2dc40488a13e4f00#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "ea80ab89ab0514168e291d7d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "78ba1030a50b9db2194ef591#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a291aab6ac415dfa8fe2cba9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "ca72a2126b8781c3889bc77b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "34802a878c0161d2067c988f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "84cab7bf8bd98278b289e042#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "980bb25c04cf488b303ff37f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "540c35079d7d53e8bf6b2626#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "07173b84f187e037f81e2ddd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3abdf29863b394db825a64c0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "521353f84a8f0c18e1a3bdc3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "400846fdf813b05702dbdacf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3be794b6dd773def900319bf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "2c5240db9d237216c69b77d0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "d4ef721a3a65e600267d60ce#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "60586a484491cfabdc8808c9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "0c15483542ffc991b5596280#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "c6f2e04da3ea7ee46c1b1439#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "241a21d58fb2170979f3cc3c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "50fdcc09abe04af52479d0bc#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "cc493a8d635ba88caa30c135#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "69c46566b69e60e4eeeb3a80#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "95dc09bb3da18d3847ab91fd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "4c6c5f1e1daca9f2380d4e78#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "b80b7d89757cf2d24dc5fc9d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "85d6493b9f26142bcd8ce298#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "0c7d94d7bbd88d3b331b4545#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "7621d46f975e3c899e842ba4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "e1835ab42e6ef468176f2c21#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "f0ca58cf26b1a1f9116ce647#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "cdfe73aaca1b26d9ae948e92#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "c4f5a9fc8d88a46f5628a520#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "3751f0c581b80f0e3299badf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "49d4d4b7a4c8936bec326f03#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "67552aa3cb1db541fd8942e3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "a4f515752d02c1646191614b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "60374b3699dd333520b12829#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "e409f2c7e6fed7ff5a66e1e9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "2bb6487aa04fcb0bceee1f1b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "6f2f2be4333567c33c7a4405#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "37fd1e4dd35936f95ad0181b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "28f66c41c3d4b995d78828e4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "b8dd261c6a9d1f450ba8d30f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "129b082b659c7c98ec9c789e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "e3b66fcbb97bf4402ed3c2c3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "94a1f48b42d655ab37f4736d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "1c4ebe3e79ce880aa872e586#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "594a7110a7ed5882d97d81d1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "04084e96a0d43b4d1cca98f8#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "0a94b62147a1ed378f616704#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "de1169675e127d42cdb37dd1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "aa79922849aef1bc82bde364#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "45708f3eceea87b665d82be5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "2a01ff35ad5f5c44f30de811#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "57af383b912ec273321bac58#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "d2fc7909418a7bc90495b9b4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "c45cf0b319ba9b6b9f314f2b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "68ab2e163501f5001fe34c85#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "a8975c7a6edf02661a146573#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "0b7149332b5534f55d72bf8e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "b7ed4ddfa41ac30406816aa2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "2e749e72e6cf95ad844cc8aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22ec90180a272441545e245c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "e202f000ca6f679907b485a5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22f041fa980e84d6f1749454#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "20d8c868d3c493f0af0d8b93#1",
-      "conditions": {}
-    }
-  ],
-  "equality-properties#multiplication": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "27ead00557dccb270ee8f9aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "61ac47f7c30432b37dbc2438#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "2f8c654e3cfa0349af2bbcd0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "b77abe5f0e51781662f7d30e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "411fbd64ab754cf12e740269#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "02dd0c2591239bf66102e9d2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "c570033e93e6c3e19e6fd866#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "e8b7263ba73226c16829c753#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a17bfffc2dc40488a13e4f00#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "ea80ab89ab0514168e291d7d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "78ba1030a50b9db2194ef591#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a291aab6ac415dfa8fe2cba9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "ca72a2126b8781c3889bc77b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "34802a878c0161d2067c988f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "84cab7bf8bd98278b289e042#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "980bb25c04cf488b303ff37f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "540c35079d7d53e8bf6b2626#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "07173b84f187e037f81e2ddd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3abdf29863b394db825a64c0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "521353f84a8f0c18e1a3bdc3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "400846fdf813b05702dbdacf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3be794b6dd773def900319bf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "2c5240db9d237216c69b77d0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "d4ef721a3a65e600267d60ce#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "60586a484491cfabdc8808c9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "0c15483542ffc991b5596280#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "c6f2e04da3ea7ee46c1b1439#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "241a21d58fb2170979f3cc3c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "50fdcc09abe04af52479d0bc#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "cc493a8d635ba88caa30c135#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "69c46566b69e60e4eeeb3a80#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "95dc09bb3da18d3847ab91fd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "4c6c5f1e1daca9f2380d4e78#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "b80b7d89757cf2d24dc5fc9d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "85d6493b9f26142bcd8ce298#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "0c7d94d7bbd88d3b331b4545#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "7621d46f975e3c899e842ba4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "e1835ab42e6ef468176f2c21#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "f0ca58cf26b1a1f9116ce647#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "cdfe73aaca1b26d9ae948e92#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "c4f5a9fc8d88a46f5628a520#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "3751f0c581b80f0e3299badf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "49d4d4b7a4c8936bec326f03#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "67552aa3cb1db541fd8942e3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "a4f515752d02c1646191614b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "60374b3699dd333520b12829#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "e409f2c7e6fed7ff5a66e1e9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "2bb6487aa04fcb0bceee1f1b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "6f2f2be4333567c33c7a4405#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "37fd1e4dd35936f95ad0181b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "28f66c41c3d4b995d78828e4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "b8dd261c6a9d1f450ba8d30f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "129b082b659c7c98ec9c789e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "e3b66fcbb97bf4402ed3c2c3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "94a1f48b42d655ab37f4736d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "1c4ebe3e79ce880aa872e586#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "594a7110a7ed5882d97d81d1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "04084e96a0d43b4d1cca98f8#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "0a94b62147a1ed378f616704#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "de1169675e127d42cdb37dd1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "aa79922849aef1bc82bde364#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "45708f3eceea87b665d82be5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "2a01ff35ad5f5c44f30de811#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "57af383b912ec273321bac58#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "d2fc7909418a7bc90495b9b4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "c45cf0b319ba9b6b9f314f2b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "68ab2e163501f5001fe34c85#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "a8975c7a6edf02661a146573#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "0b7149332b5534f55d72bf8e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "b7ed4ddfa41ac30406816aa2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "2e749e72e6cf95ad844cc8aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22ec90180a272441545e245c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "e202f000ca6f679907b485a5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22f041fa980e84d6f1749454#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "20d8c868d3c493f0af0d8b93#1",
-      "conditions": {}
-    }
-  ],
   "method-function-equation-system#recover": [
     {
       "topic": "function-representations",
@@ -27609,323 +28480,6 @@
       "problem": "function-representations-w14",
       "route": "function-system",
       "step": "d2fc7909418a7bc90495b9b4#1",
-      "conditions": {}
-    }
-  ],
-  "equality-properties#universal-substitution": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "69c46566b69e60e4eeeb3a80#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "95dc09bb3da18d3847ab91fd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "4c6c5f1e1daca9f2380d4e78#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "b80b7d89757cf2d24dc5fc9d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06",
-      "route": "function-system",
-      "step": "85d6493b9f26142bcd8ce298#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "0c7d94d7bbd88d3b331b4545#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "7621d46f975e3c899e842ba4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "e1835ab42e6ef468176f2c21#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "f0ca58cf26b1a1f9116ce647#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b06-v",
-      "route": "function-system",
-      "step": "cdfe73aaca1b26d9ae948e92#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "c4f5a9fc8d88a46f5628a520#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "3751f0c581b80f0e3299badf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "49d4d4b7a4c8936bec326f03#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "67552aa3cb1db541fd8942e3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w03",
-      "route": "function-system",
-      "step": "a4f515752d02c1646191614b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "60374b3699dd333520b12829#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "e409f2c7e6fed7ff5a66e1e9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "2bb6487aa04fcb0bceee1f1b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "6f2f2be4333567c33c7a4405#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w05",
-      "route": "function-system",
-      "step": "37fd1e4dd35936f95ad0181b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "28f66c41c3d4b995d78828e4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "b8dd261c6a9d1f450ba8d30f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "129b082b659c7c98ec9c789e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "e3b66fcbb97bf4402ed3c2c3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w06",
-      "route": "function-system",
-      "step": "94a1f48b42d655ab37f4736d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "1c4ebe3e79ce880aa872e586#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "594a7110a7ed5882d97d81d1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "04084e96a0d43b4d1cca98f8#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "0a94b62147a1ed378f616704#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w07",
-      "route": "function-system",
-      "step": "de1169675e127d42cdb37dd1#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "aa79922849aef1bc82bde364#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "45708f3eceea87b665d82be5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "2a01ff35ad5f5c44f30de811#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "57af383b912ec273321bac58#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w14",
-      "route": "function-system",
-      "step": "d2fc7909418a7bc90495b9b4#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "c45cf0b319ba9b6b9f314f2b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "68ab2e163501f5001fe34c85#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "a8975c7a6edf02661a146573#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "0b7149332b5534f55d72bf8e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07",
-      "route": "function-assignment",
-      "step": "b7ed4ddfa41ac30406816aa2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "2e749e72e6cf95ad844cc8aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22ec90180a272441545e245c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "e202f000ca6f679907b485a5#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "22f041fa980e84d6f1749454#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b07-v",
-      "route": "function-assignment",
-      "step": "20d8c868d3c493f0af0d8b93#1",
       "conditions": {}
     }
   ],

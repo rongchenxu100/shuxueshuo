@@ -70,6 +70,7 @@ def frozen_files():
         package / "graph_lesson/recurrence_extremum.py",
         package / "graph_lesson/monotonicity_inequality_math.py",
         package / "graph_lesson/monotonicity_parameter_math.py",
+        package / "graph_lesson/abstract_monotonicity_math.py",
         package / "graph_lesson/absolute_graph.py",
         package / "graph_lesson/quadratic_translation.py",
         package / "graph_lesson/schematic_transform.py",
@@ -171,6 +172,9 @@ def _alias_policy(scope, scope_path, related):
                 # Abstract calls bind a local function identity without a body;
                 # known_call / target_call are not global scalar aliases.
                 continue
+            if goal['kind'] == 'determine_monotonicity_on_interval' or (
+                    goal['kind'] == 'prove_monotonicity_on_interval' and 'relation' in goal):
+                continue  # The unknown function and relation binders belong to this goal.
             if goal['kind'] == 'find_function_formula' or (goal['kind'] in ('find_value', 'find_range') and 'relation' in goal):
                 continue  # Unknown function identity belongs to its relation goal.
             target = next(

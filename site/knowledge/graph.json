@@ -553,14 +553,17 @@
           "calls": [
             "skill-simplify",
             "method-complete-square",
-            "skill-factor"
+            "skill-factor",
+            "skill-universal-substitution",
+            "skill-equality-transform"
           ]
         },
         {
           "id": "sign",
           "title": "判断差的正负",
           "calls": [
-            "skill-inequality-transform"
+            "skill-inequality-transform",
+            "skill-universal-substitution"
           ]
         },
         {
@@ -890,6 +893,7 @@
           "id": "recover",
           "title": "选择合法赋值并整理关系",
           "calls": [
+            "skill-universal-substitution",
             "skill-equality-transform",
             "method-elimination",
             "skill-simplify"
@@ -1187,7 +1191,7 @@
         },
         {
           "id": "conclude",
-          "title": "列出完整单调区间",
+          "title": "写出单调结论",
           "calls": []
         },
         {
@@ -2269,6 +2273,15 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "rule-monotonicity-abstract-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "抽象函数单调性的选法判断",
+      "summary": "没有解析式、只给函数关系与符号条件时，用定义法：任取两点，借助函数关系判断差的正负。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-monotonicity-extremum-method",
       "kind": "judgment_rule",
       "subtype": "method_selection",
@@ -2555,6 +2568,14 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "skill-universal-substitution",
+      "kind": "skill",
+      "label": "全称条件的合法代入",
+      "summary": "把“对任意……都成立”的等式或不等式，换成作用域里的具体输入，得到一个可以直接使用的特例。",
+      "aliases": [],
+      "home": "compulsory-1-ch1"
+    },
+    {
       "id": "square-nonnegative",
       "kind": "knowledge",
       "label": "平方的非负性",
@@ -2678,9 +2699,9 @@
       "id": "type-monotonicity-abstract-proof",
       "kind": "problem_type",
       "label": "证明抽象函数的单调性",
-      "summary": "证明抽象函数的单调性；后续题型建设。",
+      "summary": "没有解析式，只给出函数关系与严格的符号条件，判断或证明抽象函数在给定区间上的单调性。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -3203,6 +3224,18 @@
       ]
     },
     {
+      "id": "method-difference-comparison|calls|skill-equality-transform",
+      "from": "method-difference-comparison",
+      "to": "skill-equality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "simplify",
+          "when": "代入函数关系后，需要移项得到差时"
+        }
+      ]
+    },
+    {
       "id": "method-difference-comparison|calls|skill-factor",
       "from": "method-difference-comparison",
       "to": "skill-factor",
@@ -3235,6 +3268,22 @@
         {
           "step": "simplify",
           "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-difference-comparison|calls|skill-universal-substitution",
+      "from": "method-difference-comparison",
+      "to": "skill-universal-substitution",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "simplify",
+          "when": "比较对象是同一抽象函数的两个函数值，且题给函数关系时"
+        },
+        {
+          "step": "sign",
+          "when": "用题给的全称符号条件判断抽象函数值的正负时"
         }
       ]
     },
@@ -3547,6 +3596,18 @@
       "id": "method-function-assignment|calls|skill-simplify",
       "from": "method-function-assignment",
       "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "recover",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-assignment|calls|skill-universal-substitution",
+      "from": "method-function-assignment",
+      "to": "skill-universal-substitution",
       "type": "calls",
       "occurrences": [
         {
@@ -5080,6 +5141,18 @@
       ]
     },
     {
+      "id": "rule-monotonicity-abstract-method|selects|method-monotonicity-definition",
+      "from": "rule-monotonicity-abstract-method",
+      "to": "method-monotonicity-definition",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "definition",
+          "condition": "只给出函数关系与符号条件，需要判断或证明整个区间上的单调性。"
+        }
+      ]
+    },
+    {
       "id": "rule-monotonicity-extremum-method|selects|method-extremum-condition-parameter",
       "from": "rule-monotonicity-extremum-method",
       "to": "method-extremum-condition-parameter",
@@ -5238,6 +5311,15 @@
       "id": "section-1-5|contains|quantifiers",
       "from": "section-1-5",
       "to": "quantifiers",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-1-5|contains|skill-universal-substitution",
+      "from": "section-1-5",
+      "to": "skill-universal-substitution",
       "type": "contains",
       "occurrences": [
         {}
@@ -6175,9 +6257,6 @@
         },
         {
           "entry": "identity"
-        },
-        {
-          "entry": "universal-substitution"
         }
       ]
     },
@@ -6526,6 +6605,28 @@
         },
         {
           "entry": "vieta"
+        }
+      ]
+    },
+    {
+      "id": "skill-universal-substitution|uses|equality-properties",
+      "from": "skill-universal-substitution",
+      "to": "equality-properties",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "universal-substitution"
+        }
+      ]
+    },
+    {
+      "id": "skill-universal-substitution|uses|quantifiers",
+      "from": "skill-universal-substitution",
+      "to": "quantifiers",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "instantiation"
         }
       ]
     },
@@ -7313,10 +7414,28 @@
       ]
     },
     {
+      "id": "type-monotonicity-abstract-proof|candidate|method-monotonicity-definition",
+      "from": "type-monotonicity-abstract-proof",
+      "to": "method-monotonicity-definition",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
       "from": "type-monotonicity-abstract-proof",
       "to": "function-monotonicity",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-abstract-proof|method_rule|rule-monotonicity-abstract-method",
+      "from": "type-monotonicity-abstract-proof",
+      "to": "rule-monotonicity-abstract-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

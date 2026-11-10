@@ -61,6 +61,7 @@ def fingerprint():
         Path(__file__).parent.parent / 'function_formula.py',
         Path(__file__).parent.parent / 'function_graph.py',
         Path(__file__).parent.parent / 'function_monotonicity.py',
+        Path(__file__).parent.parent / 'abstract_monotonicity_math.py',
         Path(__file__).parent.parent / 'extremum_math.py',
         Path(__file__).parent.parent / 'monotonicity_inequality_math.py',
         Path(__file__).parent / 'monotonicity_inequality_runtime.py',

@@ -26,7 +26,11 @@
             "variable": "variable",
             "use_square": "use_square"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
         }
       ],
       "judgments": [],
@@ -45,7 +49,11 @@
           "outputs": {
             "simplified": "expression"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
         },
         {
           "id": "factor",
@@ -57,7 +65,11 @@
           "outputs": {
             "factored": "expression"
           },
-          "order": 1
+          "order": 1,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
         },
         {
           "id": "square",
@@ -72,13 +84,93 @@
           },
           "order": 2,
           "guard": {
-            "ref": "use_square",
-            "equals": true
+            "all": [
+              {
+                "ref": "description.family",
+                "equals": "polynomial"
+              },
+              {
+                "ref": "use_square",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "choose",
+          "capability": "choose_abstract_substitution",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "pair": "$monotonicity_result"
+          },
+          "outputs": {
+            "abstract_proof": "abstract_proof"
+          },
+          "order": 3,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        },
+        {
+          "id": "substitute",
+          "capability": "instantiate_abstract_relation",
+          "public_ref": "skill-universal-substitution",
+          "inputs": {
+            "description": "$description",
+            "abstract_proof": "$abstract_proof"
+          },
+          "outputs": {
+            "abstract_proof": "abstract_proof"
+          },
+          "order": 4,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        },
+        {
+          "id": "isolate",
+          "capability": "isolate_abstract_difference",
+          "public_ref": "skill-equality-transform",
+          "inputs": {
+            "description": "$description",
+            "abstract_proof": "$abstract_proof"
+          },
+          "outputs": {
+            "abstract_proof": "abstract_proof"
+          },
+          "order": 5,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
           }
         }
       ],
       "judgments": [],
-      "display_units": []
+      "display_units": [
+        {
+          "id": "construct",
+          "after": "isolate",
+          "template": "abstract_monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "proof": "$abstract_proof",
+            "phase": "construct",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "abstract_proof"
+          ],
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        }
+      ]
     },
     {
       "id": "sign",
@@ -95,7 +187,45 @@
           "outputs": {
             "monotonicity_result": "monotonicity_result"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
+        },
+        {
+          "id": "order",
+          "capability": "order_abstract_input",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "description": "$description",
+            "abstract_proof": "$abstract_proof"
+          },
+          "outputs": {
+            "abstract_proof": "abstract_proof"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
+        },
+        {
+          "id": "sign_instance",
+          "capability": "instantiate_abstract_sign",
+          "public_ref": "skill-universal-substitution",
+          "inputs": {
+            "description": "$description",
+            "abstract_proof": "$abstract_proof"
+          },
+          "outputs": {
+            "abstract_order": "abstract_proof"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
         }
       ],
       "judgments": [],
@@ -115,7 +245,31 @@
           "depends_on": [
             "description",
             "monotonicity_result"
-          ]
+          ],
+          "guard": {
+            "ref": "description.family",
+            "equals": "polynomial"
+          }
+        },
+        {
+          "id": "sign",
+          "after": "sign_instance",
+          "template": "abstract_monotonicity_derivation",
+          "bindings": {
+            "description": "$description",
+            "proof": "$abstract_order",
+            "phase": "sign",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "abstract_order"
+          ],
+          "guard": {
+            "ref": "description.family",
+            "equals": "abstract"
+          }
         }
       ]
     },
@@ -123,7 +277,33 @@
       "id": "conclude",
       "calls": [],
       "judgments": [],
-      "display_units": []
+      "display_units": [],
+      "merges": [
+        {
+          "id": "result",
+          "order": 0,
+          "branches": [
+            {
+              "guard": {
+                "ref": "description.family",
+                "equals": "polynomial"
+              },
+              "bindings": {
+                "monotonicity_result": "$monotonicity_result"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.family",
+                "equals": "abstract"
+              },
+              "bindings": {
+                "monotonicity_result": "$abstract_order"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "outputs": {

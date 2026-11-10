@@ -1,0 +1,44 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-c02-v1",
+  "reviewer": "Codex：依据用户原图与 T5 设计核对印刷题意，独立推导；不是照片自动识别。题面未写“对任意正数 x,y”，按定义域内恒成立的函数关系绑定。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-t5-20261109/source-image-02.jpg",
+      "sha256": "4c6bbb87e62f0a7d27faa90175baae106f4f211c793737fd8ce132e3dbc6310b",
+      "location": "FM-C02，图 2 变式"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，当 $x>1$ 时，$f(x)>0$，且 $f(xy)=f(x)+f(y)$，试判断函数 $f(x)$ 在定义域上的单调性。",
+    "root": {
+      "definitions": [],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "determine_monotonicity_on_interval",
+          "function": "f",
+          "variable": "x",
+          "input_domain": "(0,+∞)",
+          "declared_domain": "(0,+∞)",
+          "relation": "f(x*y)=f(x)+f(y)",
+          "relation_variables": [
+            "x",
+            "y"
+          ],
+          "relation_domain": "(0,+∞)",
+          "sign_condition": {
+            "variable": "x",
+            "domain": "(1,+∞)",
+            "statement": "f(x)>0"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "direction": "increasing",
+    "interval": "(0,+∞)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

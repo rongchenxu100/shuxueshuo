@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "2219b7f3940dc12677a6dd80#1": {
+        "5f8b10aab1374413f42a33ee#1": {
           "title": "读清单调性要求",
           "position": 4,
           "refs": [
@@ -45,7 +45,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "1bbc48b350ce44c03b5ccab0#1": {
+        "216377ef247f393117eb1a87#1": {
           "title": "$x < 1$ 段",
           "position": 5,
           "refs": [
@@ -55,7 +55,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "1bbc48b350ce44c03b5ccab0#2": {
+        "216377ef247f393117eb1a87#2": {
           "title": "$x \\geq 1$ 段",
           "position": 6,
           "refs": [
@@ -65,7 +65,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "c038464c12748acbf478612c#1": {
+        "5dfc9402645e51b7d7df2e90#1": {
           "title": "分界点 $x=1$",
           "position": 7,
           "refs": [
@@ -75,7 +75,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "d62ad5c7584211c0cc9f87ce#1": {
+        "a806d8cd4a9d568a9803fb9d#1": {
           "title": "合并全部条件",
           "position": 8,
           "refs": [
@@ -87,6 +87,6 @@
       }
     }
   },
-  "page_contract_hash": "0ac063eebd43475bd143036498a56e26eed1033ea2a860a7c03cb1be038d457b",
-  "practice_version": "6945ef16b23d3947ca48af8a966ce01721756d543003172cafeb7b8a13edfdb4"
+  "page_contract_hash": "2189516ff815a9047ec402af9ab523965b608ce9d509fe4a4af6eca6639ae9b5",
+  "practice_version": "cd0d54e62a96c4bef553c702927f4a6b98b3e3300e7e13bd731a6ee8b5c0d9df"
 }

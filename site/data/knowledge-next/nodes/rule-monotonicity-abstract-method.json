@@ -1,0 +1,31 @@
+{
+  "id": "rule-monotonicity-abstract-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "抽象函数单调性的选法判断",
+  "summary": "没有解析式、只给函数关系与符号条件时，用定义法：任取两点，借助函数关系判断差的正负。",
+  "source": "函数单调性 FM-T5",
+  "input": "函数关系、符号条件与待判断单调性的区间。",
+  "output": "适用的解题方法。",
+  "conditions": "函数没有解析式；不能先假设具体函数，也不能只比较几个特殊点。",
+  "branches": [
+    {
+      "id": "definition",
+      "title": "定义法",
+      "condition": "只给出函数关系与符号条件，需要判断或证明整个区间上的单调性。",
+      "target": "method-monotonicity-definition"
+    }
+  ],
+  "examples": [
+    {
+      "title": "加法关系判断单调性",
+      "prompt": "函数 $f$ 的定义域为 $\\mathbb R$，对任意实数 $x,y$，$f(x+y)=f(x)+f(y)$，且 $x>0$ 时 $f(x)>0$。判断 $f$ 的单调性。",
+      "solution": [
+        "任取 $x_1<x_2$，令 $x=x_1,\\ y=x_2-x_1$，得 $f(x_2)-f(x_1)=f(x_2-x_1)$。",
+        "$x_2-x_1>0$，所以 $f(x_2-x_1)>0$。",
+        "因此 $f$ 在 $\\mathbb R$ 上严格递增。"
+      ],
+      "source": "函数单调性 FM-T5"
+    }
+  ]
+}

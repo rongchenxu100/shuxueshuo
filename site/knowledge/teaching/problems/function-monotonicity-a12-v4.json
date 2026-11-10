@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "a264de23ac5d66b891cc7757#1": {
+        "6c8d60d2af4445c3bcba08e0#1": {
           "title": "找到限制位置",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "square-root-expression#meaning"
           ]
         },
-        "01d012dbc61ee3f812d7227f#1": {
+        "baf52123972647394588ec35#1": {
           "title": "列出条件",
           "position": 5,
           "refs": [
@@ -53,7 +53,7 @@
             "square-root-expression#meaning"
           ]
         },
-        "0101f7456b3f614ecd272e0f#1": {
+        "617ed7831b8f72727a5af252#1": {
           "title": "解每个条件",
           "position": 6,
           "refs": [
@@ -65,7 +65,7 @@
             "set-intersection-union#intersection"
           ]
         },
-        "0a50d99ec794f243b12d7810#1": {
+        "9d019525bf761ffc1d1f03b5#1": {
           "title": "把二次函数配成顶点式",
           "position": 7,
           "refs": [
@@ -74,7 +74,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "4f310f8df6633256e139c621#1": {
+        "218af5f2e5a5e2fb7b8c5e52#1": {
           "title": "二次函数在 $\\left(-\\infty, -1\\right]$ 上的增减",
           "position": 8,
           "refs": [
@@ -83,7 +83,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "4f310f8df6633256e139c621#2": {
+        "218af5f2e5a5e2fb7b8c5e52#2": {
           "title": "二次函数在 $\\left[3, \\infty\\right)$ 上的增减",
           "position": 9,
           "refs": [
@@ -92,7 +92,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "f4f7f5c55234299a1b568da3#1": {
+        "129682dcfeea3518f8ffe383#1": {
           "title": "开方：$x\\in \\left(-\\infty, -1\\right]$",
           "position": 10,
           "refs": [
@@ -102,7 +102,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "f4f7f5c55234299a1b568da3#2": {
+        "129682dcfeea3518f8ffe383#2": {
           "title": "开方：$x\\in \\left[3, \\infty\\right)$",
           "position": 11,
           "refs": [
@@ -112,7 +112,7 @@
             "quadratic-function-properties#monotonicity"
           ]
         },
-        "81b17493b7d08a302e39a414#1": {
+        "e4aa9a81dba4e6f605980c25#1": {
           "title": "写出递减区间",
           "position": 12,
           "refs": [
@@ -124,6 +124,6 @@
       }
     }
   },
-  "page_contract_hash": "7d6da6fd48bd22504a960b343b5d97847f56df365284f12fa38579901dccfc2c",
-  "practice_version": "a5c2fddab606b21f03213365aba82afaea7a679815d8a8723b6db2ecf2ab2e6c"
+  "page_contract_hash": "b438b45788e97b1a1e18109527c6e0db86fb3dac00e343cbe46c699661803009",
+  "practice_version": "4296534e45cc45f1cf3202a8603d67e854243945c71be3c9d7f3e5b882a0b6bd"
 }

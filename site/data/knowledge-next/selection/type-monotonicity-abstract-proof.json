@@ -1,0 +1,15 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-monotonicity-abstract-proof",
+  "admission": "abstract_monotonicity",
+  "rule": "rule-monotonicity-abstract-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-monotonicity-definition",
+      "route_id": "monotonicity-definition",
+      "admission": "abstract_monotonicity",
+      "label": "定义法"
+    }
+  ]
+}

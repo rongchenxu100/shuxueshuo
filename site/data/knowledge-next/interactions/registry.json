@@ -1862,6 +1862,11 @@
       "repeat": "always",
       "compiler": "monotonicity_parameter",
       "parts": []
+    },
+    "abstract_monotonicity_derivation": {
+      "repeat": "always",
+      "compiler": "abstract_monotonicity",
+      "parts": []
     }
   },
   "overrides": {
