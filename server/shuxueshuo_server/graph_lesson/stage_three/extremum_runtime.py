@@ -6,15 +6,17 @@ from .capabilities import CapabilityGap, LocalCheckFailed, result
 from .trajectory import decode_value, encode_value
 
 METHODS = {'direct': 'method-monotonicity-extremum', 'quantified': 'method-quantified-range-comparison',
-           'specified': 'method-extremum-condition-parameter'}
-LABELS = {'direct': '单调性求最值法', 'quantified': '量词比较求参法', 'specified': '指定最值求参法'}
+           'specified': 'method-extremum-condition-parameter', 'recurrence': 'method-monotonicity-extremum'}
+LABELS = {'direct': '单调性求最值法', 'quantified': '量词比较求参法', 'specified': '指定最值求参法',
+          'recurrence': '单调性求最值法'}
 
 
 def admitted(context, task=None):
     d = context.get('extremum_goal', {})
     entries = [{k: r[k] for k in ('source_ref', 'expression')} for r in context.get('entries', [])]
     return bool(d.get('structure_supported') and d['source'] == context['goal']
-                and d['given_definitions'] == entries and (task is None or d['task'] == task))
+                and d['given_definitions'] == entries and (task is None or d['task'] == task
+                    or task == 'direct' and d['task'] == 'recurrence'))
 
 
 def analyze(context):
@@ -22,7 +24,11 @@ def analyze(context):
         raise CapabilityGap('extremum.unsupported_source')
     d = context['extremum_goal']
     try:
-        m = numeric_model(d) if d['task'] == 'direct' else parameter_model(d)
+        if d['task'] == 'recurrence':
+            from ..recurrence_extremum import solve
+            m = solve(d)
+        else:
+            m = numeric_model(d) if d['task'] == 'direct' else parameter_model(d)
     except (ValueError, NotImplementedError) as exc:
         raise CapabilityGap(str(exc)) from exc
     if not verify(d, m):
@@ -59,6 +65,9 @@ def confirm_children(description, extremum_result, branch_results):
 
 
 def verify(description, model):
+    if description['task'] == 'recurrence':
+        from ..recurrence_extremum import verify as verify_recurrence
+        return verify_recurrence(description, model)
     return verify_numeric(description, model) if description['task'] == 'direct' else verify_parameter(description, model)
 
 
@@ -329,7 +338,7 @@ def accept_parameter_children(description, extremum_result, piece_results):
 
 def answer(m):
     from .goals import _exact_math, finalize_goal_with_evidence
-    if m['task'] != 'direct':
+    if m['task'] in ('quantified', 'specified'):
         return finalize_goal_with_evidence({'kind': 'find_range'}, m['feasible_set'])[0]
     # Same public answer protocol as a quantity extracted from a full image,
     # but the mathematical input here is the verified extremum certificate.
@@ -357,7 +366,7 @@ def finish(state, context, previous):
     final = answer(m)
     consistency = 'conflict' if any(r['status'] == 'verified' and r.get('answer') != final for r in previous) else 'consistent'
     output = {'state': deepcopy(state), 'answer': final, 'extremum_result_exact': encode_value(m), 'consistency': consistency}
-    if m['task'] != 'direct':
+    if m['task'] in ('quantified', 'specified'):
         from .goals import _exact_math
         output['feasible_set'] = _exact_math(m['feasible_set'])
     return output
@@ -365,6 +374,7 @@ def finish(state, context, previous):
 
 def select(context, contract, primary):
     task = context['extremum_goal']['task']
+    choices = ['recurrence'] if task == 'recurrence' else ['direct', 'quantified', 'specified']
     # Use the existing method-card protocol; eligibility is specific to the goal.
     if not admitted(context):
         return {'status': 'no_applicable_method', 'selection': {'kind': 'method_cards', 'rule': contract['rule'], 'branches': [],
@@ -372,15 +382,18 @@ def select(context, contract, primary):
                 'diagnostics': [{'code': context['extremum_goal']['reason']}]}
     notes = {'direct': '根据同一区间内的增减，选择最值位置，再检查能否取到。',
              'quantified': '先分清谁随便取、谁负责配合，再比较两边能取到的值或最值。',
-             'specified': '先算出指定点的函数值，再检查定义域里其他点都不越过它。'}
+             'specified': '先算出指定点的函数值，再检查定义域里其他点都不越过它。',
+             'recurrence': '先用递推关系连接各段，比较整段最小值，再找第一次越过下界的位置。'}
     # Cue titles name what students see in the stem; notes say the first action, not the full solution.
     cue_labels = {
         'direct': '给出函数，求最大值或最小值',
         'quantified': '一边随便取，另一边都能配上',
         'specified': '指定某一点已经是最大或最小',
+        'recurrence': '给出递推关系，要求整个左侧区间都满足下界',
     }
     cue_notes = {
         'direct': notes['direct'],
+        'recurrence': notes['recurrence'],
         'quantified': r'题面常见「对任意 $x_1$，存在 $x_2$，使 $f(x_1)\le g(x_2)$」：左边每一个函数值，右边都能找到配合。先分清谁随便取、谁负责配合，再比较两边的取值范围（或最值），求出使条件成立的参数。',
         'specified': r'例如已知 $f(0)$ 是最小值：先算出这个值，再要求定义域里其他点都不比它更小；若是最大值，则其他点都不比它更大。不必要求只在这一点取到。',
     }
@@ -388,21 +401,28 @@ def select(context, contract, primary):
               'trigger': 'triggered', 'applicability': 'applicable', 'recommendation': 'preferred',
               'route_plan': 'capability_gap', 'missing_capabilities': ['execution:'+METHODS[task]],
               'checks': [{'check_id': 'original_extremum_goal', 'status': 'holds', 'source_refs': context['extremum_goal']['source_refs']}]}
-    return {'status': 'no_verified_route',
+    selected = {'status': 'no_verified_route',
             'selection': {'kind': 'method_cards', 'rule': contract['rule'], 'branches': [branch],
                           'recommendation_rule': 'extremum_goal', 'recommendation_checks': []},
             'd3': {'id': 'D3', 'title': '选择解题方法', 'question': '结合本题的目标，选择解题方法。',
                    'query': {'op': 'methods', 'from': primary},
                    'interaction': {'type': 'method_cards', 'layout': 'connections', 'facts': [], 'method_notes': {},
                                    'checks': [{'id': 'goal', 'question': '这道题需要完成什么？',
-                                               'options': [{'value': t, 'label': cue_labels[t], 'note': cue_notes[t]} for t in METHODS],
+                                               'options': [{'value': t, 'label': cue_labels[t], 'note': cue_notes[t]} for t in choices],
                                                'resolved': LABELS[task], 'feedback': notes[task]}],
-                                   'method_choices': [{'value': t, 'label': LABELS[t]} for t in METHODS],
-                                   'connections': [{'cue': t, 'method': t} for t in METHODS],
+                                   'method_choices': [{'value': t, 'label': LABELS[t]} for t in choices],
+                                   'connections': [{'cue': t, 'method': t} for t in choices],
                                    'source_refs': context['extremum_goal']['source_refs']},
                    'expected_answer': {'checks': {'goal': task}},
-                   'verdicts': {t: {'value': 'fit' if t == task else 'unfit', 'message': notes[t] if t == task else '请先核对题目所求的目标。'} for t in METHODS},
+                   'verdicts': {t: {'value': 'fit' if t == task else 'unfit', 'message': notes[t] if t == task else '请先核对题目所求的目标。'} for t in choices},
                    'submit_label': '确认选法'},
             'd4': {'id': 'D4', 'title': '按所选方法解题', 'options': [
                 {'branch': task, 'method': METHODS[task], 'route_id': branch['route_id'],
                  'recommendation': 'preferred', 'route_plan': 'capability_gap', 'message': LABELS[task]}]}, 'diagnostics': []}
+    if task == 'recurrence':
+        # One admitted route uses the existing read/confirm protocol. A method
+        # choice requires at least two genuine choices, not invented distractors.
+        selected['d3'] = {'id': 'D3', 'title': '选择解题方法', 'question': notes[task],
+                          'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
+                          'expected_answer': {}, 'verdicts': {}, 'submit_label': '用单调性求最值法解题'}
+    return selected

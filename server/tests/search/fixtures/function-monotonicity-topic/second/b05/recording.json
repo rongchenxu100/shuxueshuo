@@ -1,0 +1,51 @@
+{
+  "recorded_at": "2026-11-10",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "needs_confirmation",
+  "call_stages": [
+    "extract"
+  ],
+  "historical_semantic_calls": 1,
+  "historical_network_attempts": 1,
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "94aa9511afd792447a339f9c8d7562fd563827b76adac40e1f830a868c3cee85"
+  },
+  "api_acceptance": {
+    "case": "b05",
+    "search_id": "580eafe384d1",
+    "recognition_status": "needs_confirmation",
+    "lesson_status": "not_started",
+    "elapsed_seconds": 34.543,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      }
+    ],
+    "status": "needs_confirmation",
+    "recognition_seconds": 34.218
+  },
+  "files": {
+    "api-final.json": "de4aaab21d15cec66cf561ce7ad33963bd35ecd4972e5f01f0bc43f942872460",
+    "created.json": "530400ae8d83c496eed517595e59b92c00e993b9a36451ac01d7c65e8228f6d1",
+    "crop.json": "9ccc762785fdb69cad3d6f8c3902745e09f669df07e25653ed476202d06d0c51",
+    "original.png": "f53d4f4d1a45400c4bc15f227fb30ade9c11f2d348d9edebae3e9f05838c8e35",
+    "question.png": "ab7c22bc10378551e51bbab6cfb625348e65505deda04d624e1ebb7f1e76df93",
+    "result.json": "1afa880eb05be3d1f08089fe6fa8a753a801d55d11c71aa8f523091e113071a9",
+    "source.json": "d31aca90a348196b7e2eb03f03d213474c280ddea04594630c36f053d81ecc36",
+    "workflow/artifacts/94/94aa9511afd792447a339f9c8d7562fd563827b76adac40e1f830a868c3cee85.txt": "94aa9511afd792447a339f9c8d7562fd563827b76adac40e1f830a868c3cee85",
+    "workflow/artifacts/fd/fd3469c581bd373833413f62c30d47efeff31e5a87d8b6850f2e8300a25d4bd0.json": "fd3469c581bd373833413f62c30d47efeff31e5a87d8b6850f2e8300a25d4bd0",
+    "workflow/calls/01-extract/file-operations.json": "f484970fc800d273c411551826ec7b0ef959c3569465819bd092d17477382f6c",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "369c3fb4a4b0f08ece143fb517440f33bc3470df15bbe31c81bd5b93d9dcf5fb",
+    "workflow/calls/01-extract/request.json": "bdfdf53647d194ab40221cff85a129699f020ddf3aedafb73de05283a02b1fa4",
+    "workflow/calls/01-extract/response.json": "29cdfba2c736a44fe540220a1fe0ea185c66f1db11aa687f31cdf5ddafea7ee8",
+    "workflow/candidate.json": "c55c4ffd8eb06b6d2b8a4981541df9b57df674957eec5136e9c6bbcd55eef4ec",
+    "workflow/first-parsed.json": "b00cc261966cd1c1e0da5366f190fe1166e9e3ea43ccf0bd8b298c52f648a3b0",
+    "workflow/first-response.json": "29cdfba2c736a44fe540220a1fe0ea185c66f1db11aa687f31cdf5ddafea7ee8",
+    "workflow/ledger.json": "03a26408ae730cd995688b9d7b1ea2e06638d895e1ab29f1eded7d605f3e3539",
+    "workflow/parsed.json": "b00cc261966cd1c1e0da5366f190fe1166e9e3ea43ccf0bd8b298c52f648a3b0",
+    "workflow/workflow-result.json": "fa264133d59a67471a51e2afbd38ce658454ca96a96684f06dbc3e4e82a43d91",
+    "workflow/workflow.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

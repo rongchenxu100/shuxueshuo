@@ -1,0 +1,152 @@
+{
+  "status_code": 200,
+  "body": {
+    "page_id": "2fbcf08fa783",
+    "image_url": "/api/search/pages/2fbcf08fa783/image",
+    "preview_url": "/api/search/pages/2fbcf08fa783/preview",
+    "width": 1279,
+    "height": 1706,
+    "orientation": {
+      "status": "upright",
+      "rotation_degrees": 0,
+      "predicted_degrees": 0,
+      "confidence": 0.9257199764251709
+    },
+    "rotation_reference": "upload_after_exif",
+    "rotation_count": 0,
+    "mode": "numbered",
+    "regions": [
+      {
+        "number": 3,
+        "column": 0,
+        "box": [
+          0.04792,
+          0.26719,
+          0.97792,
+          0.36969
+        ],
+        "crop": [
+          0.04792,
+          0.26719,
+          0.97792,
+          0.36969
+        ],
+        "index": 1
+      },
+      {
+        "number": 4,
+        "column": 0,
+        "box": [
+          0.04708,
+          0.36969,
+          1.0,
+          0.48281
+        ],
+        "crop": [
+          0.04708,
+          0.35656,
+          1.0,
+          0.48281
+        ],
+        "index": 2
+      },
+      {
+        "number": 5,
+        "column": 0,
+        "box": [
+          0.04958,
+          0.48281,
+          0.97792,
+          0.57656
+        ],
+        "crop": [
+          0.04958,
+          0.46531,
+          0.97792,
+          0.57656
+        ],
+        "index": 3
+      },
+      {
+        "number": 6,
+        "column": 0,
+        "box": [
+          0.04458,
+          0.59594,
+          0.97792,
+          0.69406
+        ],
+        "crop": [
+          0.04458,
+          0.59594,
+          0.97792,
+          0.69406
+        ],
+        "index": 4
+      },
+      {
+        "number": 7,
+        "column": 0,
+        "box": [
+          0.04375,
+          0.71281,
+          0.97792,
+          0.83359
+        ],
+        "crop": [
+          0.04375,
+          0.71281,
+          0.97792,
+          0.83359
+        ],
+        "index": 5
+      },
+      {
+        "number": 8,
+        "column": 0,
+        "box": [
+          0.05292,
+          0.83359,
+          0.97792,
+          0.99656
+        ],
+        "crop": [
+          0.05292,
+          0.82734,
+          0.97792,
+          0.99656
+        ],
+        "index": 6
+      }
+    ],
+    "diagnostics": {
+      "angle_degrees": 0.0,
+      "median_line_height": 53.0,
+      "candidates": [
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2
+      ],
+      "chain": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "columns": 1
+    },
+    "latency_ms": {
+      "orientation": 25,
+      "layout": 90,
+      "detect": 812,
+      "recognize_heads": 793
+    }
+  },
+  "elapsed_seconds": 2.019
+}

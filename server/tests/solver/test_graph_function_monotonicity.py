@@ -138,6 +138,21 @@ def test_declared_domain_cannot_silently_intersect_away_invalid_inputs():
     assert not d['structure_supported']  # singleton is not a nondegenerate interval
 
 
+@pytest.mark.parametrize('wording,role', [
+    (r'函数 $y=-x^2+4x+3$，$x\in[0,3]$', 'declared'),
+    (r'函数 $y=-x^2+4x+3$，定义域为 $x\in[0,3]$', 'restriction'),
+])
+def test_source_domain_wording_can_vary_when_the_whole_interval_is_legal(wording, role):
+    from shuxueshuo_server.graph_lesson.stage_two.fragments import _abstract_formula_matches
+    from shuxueshuo_server.graph_lesson.stage_two.monotonicity_surface import source_spans
+    candidate = {'original_text': wording + ' 的单调递增区间是____。'}
+    d = describe(goal('-x^2+4*x+3', direction='increasing', input_domain='[0,3]', domain_role=role), TARGET)
+    assert source_spans(candidate, TARGET, [(0, len(candidate['original_text']))], d, _abstract_formula_matches)
+    candidate['original_text'] = wording.replace('y=-x^2+4x+3', r'f(x)=\sqrt{x}').replace('[0,3]', '[-1,1]') + ' 的单调递增区间是____。'
+    d = describe(goal('sqrt(x)', direction='increasing', input_domain='[-1,1]', domain_role=role), TARGET)
+    assert source_spans(candidate, TARGET, [(0, len(candidate['original_text']))], d, _abstract_formula_matches) is None
+
+
 def test_definition_proves_only_the_requested_interval_and_direction():
     g = goal('-x^2+4*x+3', input_domain='[0,2]', direction='increasing', kind='prove_monotonicity_on_interval')
     d = describe(g, TARGET); m = solve(d, 'definition')

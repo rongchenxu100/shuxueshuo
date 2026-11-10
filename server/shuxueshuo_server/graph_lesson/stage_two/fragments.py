@@ -94,6 +94,8 @@ def _domain_formula_body_matches(body, expected):
         return "".join(output), index
 
     def original_structure(tree):
+        if not tree:
+            return tree
         # TeX a\frac{b}{c} and a*b/c differ only in product grouping.
         # Keep every divisor as an intact expression: never cancel factors
         # or turn a/(b/c) into a*c/b (which would lose the c != 0 condition).
@@ -588,6 +590,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             add(surface, 0, len(surface.text), kind, ['goal', 'piecewise_inequality'])
             fragments[-1]['source_refs'] = refs
             fragments[-1]['knowledge_refs'] = ['piecewise-function#inequality']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('monotonicity_parameter', {}).get('structure_supported'):
+        from .monotonicity_parameter_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['monotonicity_parameter'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{
+                'code': 'd1.monotonicity_parameter_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'monotonicity_parameter'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-monotonicity#definition']
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}

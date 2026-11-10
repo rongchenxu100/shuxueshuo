@@ -1,0 +1,503 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "code_gap",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "invalid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "code_gap"
+  },
+  "diagnostics": [
+    {
+      "stage": "compile",
+      "code": "notation.unrecognized_token",
+      "path": "/root/facts/0",
+      "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+      "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f",
+      "action": "code_gap"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": false,
+    "reports": {
+      "ir": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "r.facts[0]",
+            "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+            "code": "notation.parse",
+            "reason_code": "notation.unrecognized_token",
+            "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f"
+          }
+        ],
+        "defaults": [
+          {
+            "ref": "r:scalar:a",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:a",
+            "name": "a",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {}
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "2af7da5c805d188efd1eab9279e8acf04fcc867001936986c9298996e60e3bea",
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "piecewise",
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ],
+              [
+                ">",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "-",
+                [
+                  "number",
+                  "1"
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": [
+              "ref",
+              "r:scalar:a",
+              "scalar"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+        }
+      },
+      "normalization_report": {}
+    },
+    "binding": {
+      "problem_id": "c430c4f752f1",
+      "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "compile",
+          "code": "notation.unrecognized_token",
+          "path": "/root/facts/0",
+          "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+          "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f",
+          "action": "code_gap"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": false,
+        "reports": {
+          "ir": {
+            "ok": false,
+            "issues": [
+              {
+                "path": "r.facts[0]",
+                "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+                "code": "notation.parse",
+                "reason_code": "notation.unrecognized_token",
+                "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f"
+              }
+            ],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {}
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "2af7da5c805d188efd1eab9279e8acf04fcc867001936986c9298996e60e3bea",
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "piecewise",
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    ">",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "number",
+                      "1"
+                    ],
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "<=",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+            }
+          },
+          "normalization_report": {}
+        },
+        "binding": {
+          "problem_id": "c430c4f752f1",
+          "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+        }
+      },
+      "revision": "2af7da5c805d188efd1eab9279e8acf04fcc867001936986c9298996e60e3bea"
+    }
+  ]
+}

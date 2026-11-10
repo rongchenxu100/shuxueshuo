@@ -1,8 +1,9 @@
 """Locate each original function/condition and the requested extrema goal."""
 import re
+from itertools import pairwise
 
-from .evaluation_surface import _formula_parts, _piecewise_source_matches
 from ...problem_understanding.notation_parser import parse
+from .evaluation_surface import _piecewise_source_matches, source_formulas
 
 
 def _text(ast):
@@ -68,6 +69,50 @@ def _natural_fact(text, ast, formulas, matches):
     return None
 
 
+def _recurrence_fact(text, ast, formulas, matches, function):
+    """Bind explicit global domain, global identity, and separate local conditions."""
+    if ast[0] == '=' and ast[1][:2] == ['call', 'Dom']:
+        from .formula_surface import _real_spelling
+        hits = []
+        for first, second in pairwise(formulas):
+            printed_set = _real_spelling(second[2]).strip()
+            if (re.fullmatch(re.escape(function)+r'\([^()]+\)', first[2].strip())
+                    and re.search(r'定义域(?:为|是)', text[first[1]:second[0]])
+                    and (matches(printed_set, _text(ast[2]))
+                         or ast[2] == ['real'] and printed_set == 'R')):
+                # Plain R denotes the real set only in this explicit domain
+                # position, never as a global replacement of a parameter R.
+                hits.append((first[0], second[1]))
+        return hits if len(hits) == 1 else None
+    if ast[0] != 'quantifier' or ast[1] != '∀':
+        return None
+    member = _text(['∈', ['name', ast[2]], ast[3]])
+    def body_matches(body):
+        # The quantifier binds a real scalar, so x(x-c) is juxtaposed
+        # multiplication here; it cannot introduce a function named x.
+        body = re.sub(r'(?<![A-Za-z0-9_])'+re.escape(ast[2])+r'\s*(?=\()', ast[2]+'*', body)
+        return matches(body, _text(ast[4]))
+    bodies = [(a, b) for a, b, body in formulas if body_matches(body)]
+    if len(bodies) != 1:
+        return None
+    body_start, body_end = bodies[0]
+    members = [(a, b) for a, b, body in formulas
+               if matches(re.sub(r'\\forall|∀', '', body).strip(), member) and b < body_start]
+    if len(members) == 1:
+        a, b = members[0]
+        # A stated local formula uses “当...时”; the requested prefix must
+        # explicitly quantify all its inputs. Never promote an existential.
+        words = r'当|任意|每个' if ast[4][0] == '=' else r'任意|每个'
+        if re.search(words+r'[^。；;$]{0,12}\$?$', text[max(0, a-20):a]) or re.search(r'\\forall|∀', text[a:b]):
+            return [(a, b), (body_start, body_end)]
+    # Ordinary “satisfies f(x+L)=Kf(x)” states an identity on the explicitly
+    # declared real domain, not a local formula with an omitted restriction.
+    if ast[3] == ['real'] and ast[4][0] == '=' and re.search(
+            r'(?:满足|且有)\s*\$?$', text[max(0, body_start-12):body_start]):
+        return bodies
+    return None
+
+
 def source_spans(candidate, target_ref, ranges, description, matches):
     text = candidate['original_text']
     original_matches = matches
@@ -85,8 +130,7 @@ def source_spans(candidate, target_ref, ranges, description, matches):
             except ValueError:
                 return False
         return original_matches(body, expected)
-    formulas = [part for begin, end in ranges for m in re.finditer(r'\$([^$\n]+)\$', text[begin:end])
-                for part in _formula_parts(m[1], begin+m.start(1))]
+    formulas = source_formulas(text, ranges)
     expanded = []
     for a, b, body in formulas:
         # A trailing parenthesized parameter condition is a separate given,
@@ -103,11 +147,27 @@ def source_spans(candidate, target_ref, ranges, description, matches):
         found = [f for f in formulas if matches(f[2], source['expression'])
                  or _piecewise_source_matches(f[2], source['expression'], matches)]
         spans = [found[0][:2]] if len(found) == 1 else _natural_fact(text, parse(source['expression']), formulas, matches)
+        if not spans and description['task'] == 'recurrence':
+            spans = _recurrence_fact(text, parse(source['expression']), formulas, matches, description['function'])
+        if not spans and description['task'] == 'direct':
+            from ...problem_understanding.notation_parser import definition
+            ast = parse(source['expression'])
+            fn = next(definition(r['expression']) for r in description['given_definitions']
+                      if definition(r['expression'])[:2] == ['function_definition', description['function']])
+            if ast[:2] == ['∈', ['name', fn[2]]]:
+                hits = [f for f in formulas if matches(f[2], _text(ast[2]))
+                        and re.search(r'(?:在|区间)\s*\$?$', text[max(0, f[0]-8):f[0]])]
+                spans = [hits[0][:2]] if len(hits) == 1 else None
         if not spans:
             return None
         rows.extend((a, b, 'given_domain' if 'Dom(' in source['expression'] else 'relation', [source['source_ref']]) for a, b in spans)
     goal = description['source']
-    if description['task'] == 'direct':
+    if description['task'] == 'recurrence':
+        found = [(a, b) for a, b, body in formulas if matches(body, description['parameter'])
+                 and re.match(r'\$?\s*的最大值', text[b:])]
+        if len(found) != 1:
+            return None
+    elif description['task'] == 'direct':
         label = '最大值' if description['quantity'] == 'maximum' else '最小值'
         found = [(start+m.start(), start+m.end()) for start, end in ranges for m in re.finditer(label, text[start:end])]
         if len(found) != 1:

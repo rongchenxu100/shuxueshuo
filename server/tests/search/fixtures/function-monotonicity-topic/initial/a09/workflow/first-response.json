@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"9. 如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"root\":{\"label\":\"9.\",\"definitions\":[\"f(x)=x^2-2*(a-1)*x+2\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"x^2-2*(a-1)*x+2\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,4]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2326,
+      "prompt_tokens": 24256,
+      "total_tokens": 26582,
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 192
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 734,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-12d3e51e-bbc7-4bfc-946f-bb80a2e0d20c",
+        "sha256": "4c5e2c137ec6a59feacb3cd28be45d79a5acfc7e87f1c65f3504e0cec55d3f12",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 11922,
+        "expires_at": 1794366936,
+        "uploaded_at": 1794280536.3947039
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "4c5e2c137ec6a59feacb3cd28be45d79a5acfc7e87f1c65f3504e0cec55d3f12",
+        "api_calls": 1,
+        "file_id": "file-api-12d3e51e-bbc7-4bfc-946f-bb80a2e0d20c",
+        "expires_at": 1794366936,
+        "elapsed_ms": 263
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 17903,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2326,
+          "prompt_tokens": 24256,
+          "total_tokens": 26582,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2054
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 24064
+          },
+          "prompt_cache_hit_tokens": 24064,
+          "prompt_cache_miss_tokens": 192
+        },
+        "raw_payload": {
+          "id": "606ed606-7aac-4428-9342-961cb962794a",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2326,
+            "prompt_tokens": 24256,
+            "total_tokens": 26582,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2054
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 24064
+            },
+            "prompt_cache_hit_tokens": 24064,
+            "prompt_cache_miss_tokens": 192
+          },
+          "created": 1794280536,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"9. 如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"root\":{\"label\":\"9.\",\"definitions\":[\"f(x)=x^2-2*(a-1)*x+2\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"x^2-2*(a-1)*x+2\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,4]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片中提取题目。题号9。题干：如果函数 f(x)=x^2-2(a-1)x+2 在区间(-∞,4]上是减函数，则实数 a 的取值范围是____。手写答案 [5,+∞) 不转录。需要提取题意，不求解。配图无。\n\n需要返回 JSON 符合 schema。original_text 转录完整题干，手写答案不转，填空处照印刷横线。公式用 $…$，保留题面变量。题中“减函数”意味着在区间上递减，求参数 a 范围。这是 find_range symbol a，且 required_monotonicity：expression x^2-2*(a-1)*x+2, variable x, direction decreasing, strict? 题面“减函数”不是严格递减？高中数学“减函数”通常可能指严格递减，但题面没写严格。Schema required_monotonicity strict 是 const true 只允许 true？ required 字段 strict const true，描述说 true strict, false non-strict；但 schema 里 const true 意味着只能 true。题面写“减函数”，按严格递减？中文“减函数”一般指严格递减（在教材中，减函数：任意x1<x2，f(x1)>f(x2)），可以 strict true。input_domain (-∞,4]。facts? 单调性要求是目标的一部分，可放 goal.required_monotonicity。root facts 可不必重复。函数定义放 definitions: f(x)=x^2-2*(a-1)*x+2。目标 {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}。 input_domain 字段在 goal? required_monotonicity.input_domain 是 \\((-\\infty,4]\\)。注意区间符号 (-∞,4]。题干“在区间(-∞,4]上是减函数”。function_monotonicity 不用，因为这是待求参数必须满足的单调要求，不是已知函数事实？已知函数表达式含参数，是要求该函数在区间上递减。应该用 required_monotonicity。目标 kind find_range symbol a。\n\nroot label 题号“9.”？图片左有 9.。这是来源题号，root.label 可以填 \"9.\"，root_label_role source? 原图明确题号 9.，是来源/试卷题号，所以 source。但是否需要保留 label？可以保留，公开题面不包含题号。public_content.root_label_role = source。root.label = \"9.\"? schema label minLength 1. 是。需要 uncertainties 空。\n\npublic_content: completeness complete, privacy separated? 无姓名等，手写答案有，但可分离？手写答案不是题目内容，已排除。题号是来源，已标记 source，可 separated。figure not_required，figure_detection status none regions [].\n\npublic_content.scopes 对应 root 一个作用域，scope_ref \"/root\", statement 只保留该作用域自己的题干，不含题号和小问编号。statement: \"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-\\infty,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 注意空格和填空横线。公式用 $...$。不用手写答案。choices 每个 goal 对应。这里 root.goals 一项，target_ref \"/root/goals/0\"，status none, selection_mode none, options [].\n\noriginal_text：应保留题号？完整题干原文，可以保留“9. 如果函数...”。公式用 LaTeX 或 Unicode。图片公式 f(x)=x^2-2(a-1)x+2。区间 (-∞,4]。设空横线。手写答案不转录。写：\"9. 如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-\\infty,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 是否需要保留下划线长度，难以辨认；用横线。填空处照印刷原样写横线，图片上是横线，可以写 ______。没有无法辨认。手写答案不写。\n\n需要检查 required_monotonicity 表达式按照目录用 *: \"x^2-2*(a-1)*x+2\" 或者保留题面 f(x)=x^2-2(a-1)x+2 可以 definitions 用 f(x)=x^2-2*(a-1)*x+2，required expression 应为 \"x^2-2*(a-1)*x+2\" 或 \"f(x)\"? schema required expression 含参数的原函数表达式，如 x^2-m*x+5。可以填 \"x^2-2*(a-1)*x+2\"。variable \"x\"; direction decreasing; strict true; input_domain \"(-∞,4]\" 但目录 Unicode 允许 (-∞,4] 吗，区间记法示例。用 \"(-∞,4]\"? 目录中无穷是 -∞，允许。也可以 \"(-\\infty,4]\" 但 root 数学式不写反斜杠，仍用 Unicode 记法，所以 \"(-∞,4]\"。function 字段可选填 \"f\"。basis 可选，题目直接说减函数，可以 basis kind stated statement \"\"。schema basis 如果省略表示直接说明。required_monotonicity 有 basis 可选。可省略。\n\nfacts 是否放 “减函数”这个条件？目标里 required_monotonicity 已经包含，无需 facts。目标中 kind find_range symbol a, required_monotonicity。父节点 definitions 放函数定义。Good.\n\npublic_content.statement 中公式应保留 f(x)=x^2-2(a-1)x+2，不是内部别名。使用 $f(x)=x^2-2(a-1)x+2$。区间 $(-\\infty,4]$ 或者 $(-∞,4]$? 公开公式用 LaTeX，可以 $(-\\infty,4]$。填空题横线原样。不要写手写答案。\n\nfigure_detection none。\n\n需要输出 JSON，不能有额外字段。root 的 label 是 \"9.\"? 注意 original_text 保留题号，root.label 也保留，public_content statement 不含题号。正确。\n\npublic_content.root_label_role source.\n\n需要 root.uncertainties 不输出或空？可省略。schema 可省略。为了符合，可以给 []? 不是必须。可以省略。\n\npublic_content.completeness complete. privacy separated. figure not_required. scopes list. figure_detection.\n\nJSON 中的反斜杠在 original_text 公式中需双反斜杠，例如 $(-\\\\infty,4]$。public_content 同样，JSON 字符串中反斜杠必须转义，所以写 $-\\\\infty$。根数学式用 Unicode ∞，不写反斜杠。original_text 可以用 LaTeX。注意 original_text 字符串里 $f(x)=x^2-2(a-1)x+2$ 没有反斜杠。区间 $-\\\\infty$。可以不用 LaTeX \\infty，直接用 $(-∞,4]$？公式用 $…$ 周围，内部用 Unicode ∞ 也能识别。为了简单，original_text 写 \"$(-∞,4]$\" 就没有反斜杠。可以。公式内使用 Unicode ∞。schema 允许。同样 public_content statement 用 $(-∞,4]$。可避免转义。但 original_text 的数学式里有 ^ 等。没问题。\n\n注意 public_content statement 公式用 $…$。横线可以直接 “______”。 \n\nroot facts 可以空数组或省略。definitions [\"f(x)=x^2-2*(a-1)*x+2\"]。goals 一项。required_monotonicity expression \"x^2-2*(a-1)*x+2\"; variable \"x\"; function \"f\"; direction \"decreasing\"; strict true; input_domain \"(-∞,4]\". 这里 root 中使用 Unicode ∞，不是 LaTeX。可以。\n\n目标中 find_range symbol a。注意 schema find_range oneOf: symbol not object; required_monotonicity then symbol. Good.\n\n是否需要 facts 写 \"∀x1,x2∈(-∞,4], x1<x2 => f(x1)>f(x2)\"? 不需要，由目标表示。通常提取单调性目标。\n\npublic_content.scopes[0].statement 要包括函数定义和条件，所求。不能包含题号。statement: \"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 这是该作用域自己的题干。注意“完整题干”和“条件”都包含。可以。choices 的状态 none。\n\n问题：original_text 中学生手写答案 [5,+∞) 不应转录。题干原有填空横线；不要写学生答案。好。\n\n是否需要标 root_label_role? 有 root.label 则必须? description 说仅在 root.label 存在时填写。存在 label \"9.\"，填 source。 public_content 中 root_label_role source。OK.\n\n需要确保 JSON 无注释。\n\n潜在问题：root.label 用 \"9.\" 可能表示题号，但 source 角色。题号是否应从公开题干删掉？statement 不含。Original_text 保留题号允许。privacy separated.\n\n配图检测：无。status none, regions [].\n\n最终输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 18192
+  },
+  "raw_payload": {
+    "id": "606ed606-7aac-4428-9342-961cb962794a",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"9. 如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"root\":{\"label\":\"9.\",\"definitions\":[\"f(x)=x^2-2*(a-1)*x+2\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"x^2-2*(a-1)*x+2\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,4]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片中提取题目。题号9。题干：如果函数 f(x)=x^2-2(a-1)x+2 在区间(-∞,4]上是减函数，则实数 a 的取值范围是____。手写答案 [5,+∞) 不转录。需要提取题意，不求解。配图无。\n\n需要返回 JSON 符合 schema。original_text 转录完整题干，手写答案不转，填空处照印刷横线。公式用 $…$，保留题面变量。题中“减函数”意味着在区间上递减，求参数 a 范围。这是 find_range symbol a，且 required_monotonicity：expression x^2-2*(a-1)*x+2, variable x, direction decreasing, strict? 题面“减函数”不是严格递减？高中数学“减函数”通常可能指严格递减，但题面没写严格。Schema required_monotonicity strict 是 const true 只允许 true？ required 字段 strict const true，描述说 true strict, false non-strict；但 schema 里 const true 意味着只能 true。题面写“减函数”，按严格递减？中文“减函数”一般指严格递减（在教材中，减函数：任意x1<x2，f(x1)>f(x2)），可以 strict true。input_domain (-∞,4]。facts? 单调性要求是目标的一部分，可放 goal.required_monotonicity。root facts 可不必重复。函数定义放 definitions: f(x)=x^2-2*(a-1)*x+2。目标 {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}。 input_domain 字段在 goal? required_monotonicity.input_domain 是 \\((-\\infty,4]\\)。注意区间符号 (-∞,4]。题干“在区间(-∞,4]上是减函数”。function_monotonicity 不用，因为这是待求参数必须满足的单调要求，不是已知函数事实？已知函数表达式含参数，是要求该函数在区间上递减。应该用 required_monotonicity。目标 kind find_range symbol a。\n\nroot label 题号“9.”？图片左有 9.。这是来源题号，root.label 可以填 \"9.\"，root_label_role source? 原图明确题号 9.，是来源/试卷题号，所以 source。但是否需要保留 label？可以保留，公开题面不包含题号。public_content.root_label_role = source。root.label = \"9.\"? schema label minLength 1. 是。需要 uncertainties 空。\n\npublic_content: completeness complete, privacy separated? 无姓名等，手写答案有，但可分离？手写答案不是题目内容，已排除。题号是来源，已标记 source，可 separated。figure not_required，figure_detection status none regions [].\n\npublic_content.scopes 对应 root 一个作用域，scope_ref \"/root\", statement 只保留该作用域自己的题干，不含题号和小问编号。statement: \"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-\\infty,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 注意空格和填空横线。公式用 $...$。不用手写答案。choices 每个 goal 对应。这里 root.goals 一项，target_ref \"/root/goals/0\"，status none, selection_mode none, options [].\n\noriginal_text：应保留题号？完整题干原文，可以保留“9. 如果函数...”。公式用 LaTeX 或 Unicode。图片公式 f(x)=x^2-2(a-1)x+2。区间 (-∞,4]。设空横线。手写答案不转录。写：\"9. 如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-\\infty,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 是否需要保留下划线长度，难以辨认；用横线。填空处照印刷原样写横线，图片上是横线，可以写 ______。没有无法辨认。手写答案不写。\n\n需要检查 required_monotonicity 表达式按照目录用 *: \"x^2-2*(a-1)*x+2\" 或者保留题面 f(x)=x^2-2(a-1)x+2 可以 definitions 用 f(x)=x^2-2*(a-1)*x+2，required expression 应为 \"x^2-2*(a-1)*x+2\" 或 \"f(x)\"? schema required expression 含参数的原函数表达式，如 x^2-m*x+5。可以填 \"x^2-2*(a-1)*x+2\"。variable \"x\"; direction decreasing; strict true; input_domain \"(-∞,4]\" 但目录 Unicode 允许 (-∞,4] 吗，区间记法示例。用 \"(-∞,4]\"? 目录中无穷是 -∞，允许。也可以 \"(-\\infty,4]\" 但 root 数学式不写反斜杠，仍用 Unicode 记法，所以 \"(-∞,4]\"。function 字段可选填 \"f\"。basis 可选，题目直接说减函数，可以 basis kind stated statement \"\"。schema basis 如果省略表示直接说明。required_monotonicity 有 basis 可选。可省略。\n\nfacts 是否放 “减函数”这个条件？目标里 required_monotonicity 已经包含，无需 facts。目标中 kind find_range symbol a, required_monotonicity。父节点 definitions 放函数定义。Good.\n\npublic_content.statement 中公式应保留 f(x)=x^2-2(a-1)x+2，不是内部别名。使用 $f(x)=x^2-2(a-1)x+2$。区间 $(-\\infty,4]$ 或者 $(-∞,4]$? 公开公式用 LaTeX，可以 $(-\\infty,4]$。填空题横线原样。不要写手写答案。\n\nfigure_detection none。\n\n需要输出 JSON，不能有额外字段。root 的 label 是 \"9.\"? 注意 original_text 保留题号，root.label 也保留，public_content statement 不含题号。正确。\n\npublic_content.root_label_role source.\n\n需要 root.uncertainties 不输出或空？可省略。schema 可省略。为了符合，可以给 []? 不是必须。可以省略。\n\npublic_content.completeness complete. privacy separated. figure not_required. scopes list. figure_detection.\n\nJSON 中的反斜杠在 original_text 公式中需双反斜杠，例如 $(-\\\\infty,4]$。public_content 同样，JSON 字符串中反斜杠必须转义，所以写 $-\\\\infty$。根数学式用 Unicode ∞，不写反斜杠。original_text 可以用 LaTeX。注意 original_text 字符串里 $f(x)=x^2-2(a-1)x+2$ 没有反斜杠。区间 $-\\\\infty$。可以不用 LaTeX \\infty，直接用 $(-∞,4]$？公式用 $…$ 周围，内部用 Unicode ∞ 也能识别。为了简单，original_text 写 \"$(-∞,4]$\" 就没有反斜杠。可以。公式内使用 Unicode ∞。schema 允许。同样 public_content statement 用 $(-∞,4]$。可避免转义。但 original_text 的数学式里有 ^ 等。没问题。\n\n注意 public_content statement 公式用 $…$。横线可以直接 “______”。 \n\nroot facts 可以空数组或省略。definitions [\"f(x)=x^2-2*(a-1)*x+2\"]。goals 一项。required_monotonicity expression \"x^2-2*(a-1)*x+2\"; variable \"x\"; function \"f\"; direction \"decreasing\"; strict true; input_domain \"(-∞,4]\". 这里 root 中使用 Unicode ∞，不是 LaTeX。可以。\n\n目标中 find_range symbol a。注意 schema find_range oneOf: symbol not object; required_monotonicity then symbol. Good.\n\n是否需要 facts 写 \"∀x1,x2∈(-∞,4], x1<x2 => f(x1)>f(x2)\"? 不需要，由目标表示。通常提取单调性目标。\n\npublic_content.scopes[0].statement 要包括函数定义和条件，所求。不能包含题号。statement: \"如果函数 $f(x)=x^2-2(a-1)x+2$ 在区间 $(-∞,4]$ 上是减函数，则实数 $a$ 的取值范围是______。\" 这是该作用域自己的题干。注意“完整题干”和“条件”都包含。可以。choices 的状态 none。\n\n问题：original_text 中学生手写答案 [5,+∞) 不应转录。题干原有填空横线；不要写学生答案。好。\n\n是否需要标 root_label_role? 有 root.label 则必须? description 说仅在 root.label 存在时填写。存在 label \"9.\"，填 source。 public_content 中 root_label_role source。OK.\n\n需要确保 JSON 无注释。\n\n潜在问题：root.label 用 \"9.\" 可能表示题号，但 source 角色。题号是否应从公开题干删掉？statement 不含。Original_text 保留题号允许。privacy separated.\n\n配图检测：无。status none, regions [].\n\n最终输出。"
+        }
+      }
+    ],
+    "created": 1794280536,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2326,
+      "prompt_tokens": 24256,
+      "total_tokens": 26582,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2054,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 24064
+      },
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 192
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 18.194
+}

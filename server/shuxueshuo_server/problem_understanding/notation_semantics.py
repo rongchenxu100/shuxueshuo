@@ -239,7 +239,7 @@ class Canonical:
             return (
                 ["role", self.tree(ast[1]), "fixed"] if ast[2] == "fixed" else ["and"]
             )
-        if kind in ("and", "or"):
+        if kind in ("and", "or", "implies"):
             return [kind, *[self.fact(x) for x in ast[1:]]]
         if kind == "quantifier":
             return [kind, ast[1], self.tree(ast[3]), self.logic([ast[4]])]

@@ -1,0 +1,697 @@
+{
+  "search_id": "d6c350aacdaa",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "ca8849ba-70d7-4587-ba76-4006d622c54f",
+  "statement": "已知函数 $f(x)=\\begin{cases}3x, & x \\ge 3 \\\\ -x^2+6x, & x<3\\end{cases}$，则不等式 $f(x^2-2x)<f(3x-4)$ 的解集是________.",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "a140370e1fab9b655c32304b05bd87b2758851975a6fcdd0925ae551504b3efb",
+      "width": 1130,
+      "height": 140,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/d6c350aacdaa/figures/original?version=0df76545cc9ff3ff012a87028567d0056d58e871aaef135a8f4603e4196e0ec6"
+      }
+    ],
+    "content_id": "0df76545cc9ff3ff012a87028567d0056d58e871aaef135a8f4603e4196e0ec6"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f71a6b5e75b0",
+    "box": [
+      0.07427677873338545,
+      0.7004689331770223,
+      0.9577795152462861,
+      0.7825322391559203
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1130,
+      140
+    ],
+    "bytes": 10906
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "7. 已知函数 $f(x)=\\begin{cases}3x, & x \\ge 3 \\\\ -x^2+6x, & x<3\\end{cases}$，则不等式 $f(x^2-2x)<f(3x-4)$ 的解集是________.",
+  "parts": [],
+  "root": {
+    "label": "7",
+    "definitions": [
+      "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+    ],
+    "facts": [
+      "f(x^2-2*x) < f(3*x-4)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "3f2f2049423e8603f0b24f0fed36c608442dbdbb83dfcafe03706679d6b79daf",
+    "sent_image_sha256": [
+      "3f2f2049423e8603f0b24f0fed36c608442dbdbb83dfcafe03706679d6b79daf"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 19.325,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "7",
+        "status": "resolved",
+        "primary": "type-monotonicity-inequality",
+        "supported": [
+          "type-monotonicity-inequality"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 95,
+                  "end": 99,
+                  "text": " 的解集"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-monotonicity#inequality"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只比较两个函数值大小，不求自变量范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "dc95fffa25747fef"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问比较了同一个函数的两个函数值，需要求什么？",
+          "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。",
+          "summary": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-inequality",
+            "label": "利用单调性解不等式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知单调性，比较同一函数的两个输入所对应的函数值。"
+            ],
+            "choice_hint": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是解函数值不等式。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "d6c350aacdaa//root/goals/0",
+            "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
+            "problem": {
+              "text": "已知函数 $f(x)=\\begin{cases}3x, & x \\ge 3 \\\\ -x^2+6x, & x<3\\end{cases}$，则不等式 $f(x^2-2x)<f(3x-4)$ 的解集是________."
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问比较了同一个函数的两个函数值，需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只比较两个函数值大小，不求自变量范围",
+                      "feedback": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "要先确认 $f$ 的严格单调性，再把函数值比较转成输入比较，求 $x$ 的取值范围。"
+                },
+                "candidateNodes": [
+                  "function-monotonicity",
+                  "type-monotonicity-inequality",
+                  "type-function-monotonicity",
+                  "type-monotonicity-abstract-proof",
+                  "type-monotonicity-extremum",
+                  "type-monotonicity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-monotonicity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-monotonicity-inequality",
+                      "label": "利用单调性解不等式",
+                      "note": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化"
+                    },
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间",
+                      "feedback": "原目标是求完整单调区间或证明增减，不是解函数值不等式。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-monotonicity-inequality"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-monotonicity-inequality",
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-monotonicity-inequality"
+                  ],
+                  "edges": [
+                    "type-monotonicity-inequality|involves|function-monotonicity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知单调性，比较同一函数的两个输入所对应的函数值。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用单调性解不等式」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-monotonicity",
+                  "kind": "knowledge",
+                  "label": "函数的单调性",
+                  "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用单调性解不等式",
+                  "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof",
+                  "kind": "problem_type",
+                  "label": "证明抽象函数的单调性",
+                  "summary": "证明抽象函数的单调性；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-parameter",
+                  "kind": "problem_type",
+                  "label": "已知函数的单调性求参",
+                  "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-monotonicity-inequality-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "单调性不等式的选法判断",
+                  "summary": "同一函数的两个函数值比较时，优先用单调性解不等式；常值段或非严格时改走分段求解。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-monotonicity-inequality",
+                  "kind": "method",
+                  "label": "单调性解不等式法",
+                  "summary": "检查两个输入落在同一严格单调区间，再按增减性把函数值比较转为输入比较，最后与合法域求交。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "核对比较对象与单调性",
+                      "calls": []
+                    },
+                    {
+                      "id": "basis-prove",
+                      "title": "证明分段整体严格单调",
+                      "calls": [
+                        "method-piecewise-monotonicity"
+                      ]
+                    },
+                    {
+                      "id": "basis-confirm",
+                      "title": "带回整体严格单调结论",
+                      "calls": [
+                        "skill-piecewise-order-join"
+                      ]
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "写出两个输入的合法条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "order",
+                      "title": "利用单调性转化比较",
+                      "calls": [
+                        "skill-monotonicity-order"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "解代数不等式并回到原目标",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-monotonicity-inequality-method|selects|method-monotonicity-inequality",
+                  "from": "rule-monotonicity-inequality-method",
+                  "to": "method-monotonicity-inequality",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "order",
+                      "condition": "同一函数的两个函数值比大小，且已有严格单调依据。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|involves|function-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+                  "from": "type-monotonicity-abstract-proof",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-monotonicity",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|candidate|method-monotonicity-inequality",
+                  "from": "type-monotonicity-inequality",
+                  "to": "method-monotonicity-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|involves|function-monotonicity",
+                  "from": "type-monotonicity-inequality",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|method_rule|rule-monotonicity-inequality-method",
+                  "from": "type-monotonicity-inequality",
+                  "to": "rule-monotonicity-inequality-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|involves|function-monotonicity",
+                  "from": "type-monotonicity-parameter",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-monotonicity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "04ad1bed760c163064963015b37a21306a50c8be0b2a6fc3fb835672d0a9e60a"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "d6c350aacdaa//root/goals/0",
+            "bundleVersion": "04ad1bed760c163064963015b37a21306a50c8be0b2a6fc3fb835672d0a9e60a",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "利用 $f$ 的严格单调性，求满足题中比较的全部 $x$。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-monotonicity-inequality",
+                "reason": "选「利用单调性解不等式」：已知单调性，比较同一函数的两个输入所对应的函数值。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "435194ec3608498480847fef0fd212cf",
+      "lesson_version": "a181fdc061c148d446223c228596ba074805bf1601ba141cc05cad3a7da6dceb",
+      "stream_id": "435194ec3608498480847fef0fd212cf",
+      "snapshot_url": "/api/search/problems/d6c350aacdaa/lesson/435194ec3608498480847fef0fd212cf/snapshot",
+      "events_url": "/api/search/problems/d6c350aacdaa/lesson/435194ec3608498480847fef0fd212cf/events",
+      "websocket_url": "/api/search/problems/d6c350aacdaa/lesson/435194ec3608498480847fef0fd212cf/ws"
+    }
+  }
+}

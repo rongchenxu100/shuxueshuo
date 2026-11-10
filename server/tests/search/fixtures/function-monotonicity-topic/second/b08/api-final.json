@@ -1,0 +1,65 @@
+{
+  "search_id": "3b8fbbe1d58d",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "a825a6594c7bbb64a33471baa3c7be71d28608736f346e49948e4b7f9bbbb78c",
+      "width": 1125,
+      "height": 125,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/3b8fbbe1d58d/figures/original?version=91abf6395cdfbd75da10f43b6ca638983213faa361d5b105120af6a2f6e47ab7"
+      }
+    ],
+    "content_id": "91abf6395cdfbd75da10f43b6ca638983213faa361d5b105120af6a2f6e47ab7"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f71a6b5e75b0",
+    "box": [
+      0.07818608287724785,
+      0.7971864009378663,
+      0.9577795152462861,
+      0.8704572098475967
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1125,
+      125
+    ],
+    "bytes": 11942
+  },
+  "state": "done",
+  "status": "failed",
+  "outcome": "error",
+  "error_code": "search.recognition_failed"
+}

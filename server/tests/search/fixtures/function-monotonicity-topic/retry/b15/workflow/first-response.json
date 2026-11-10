@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"15. 设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"∀x∈ℝ: f(x+2)=2*f(x)\",\"∀x∈(0,2]: f(x)=x*(x-2)\",\"∀x∈(-∞,m]: f(x)≥-3\"],\"goals\":[{\"kind\":\"find_maximum\",\"expression\":\"m\",\"variables\":[\"m\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3587,
+      "prompt_tokens": 24284,
+      "total_tokens": 27871,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 476
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 756,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-20a4bd51-c6e3-4b2a-a5f2-9012a4690f08",
+        "sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 15068,
+        "expires_at": 1794369510,
+        "uploaded_at": 1794283110.288933
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+        "api_calls": 1,
+        "file_id": "file-api-20a4bd51-c6e3-4b2a-a5f2-9012a4690f08",
+        "expires_at": 1794369510,
+        "elapsed_ms": 201
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 22268,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3587,
+          "prompt_tokens": 24284,
+          "total_tokens": 27871,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3253
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 476
+        },
+        "raw_payload": {
+          "id": "243702f2-6a52-4555-b038-776052dc387e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3587,
+            "prompt_tokens": 24284,
+            "total_tokens": 27871,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3253
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 476
+          },
+          "created": 1794283110,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"∀x∈ℝ: f(x+2)=2*f(x)\",\"∀x∈(0,2]: f(x)=x*(x-2)\",\"∀x∈(-∞,m]: f(x)≥-3\"],\"goals\":[{\"kind\":\"find_maximum\",\"expression\":\"m\",\"variables\":[\"m\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。需要理解数学结构。题目图片：\n\n“15. 设函数f(x)的定义域为R，满足f(x+2)=2f(x)，且当x∈(0,2]时，f(x)=x(x-2). 若对任意x∈(-∞,m]，都有f(x)≥-3，则m的最大值为____。”\n\n手写答案2不转录。需要按 schema 输出 original_text, root, public_content, figure_detection。\n\n题目无小问。root facts/definitions:\n函数 f 定义域 R，满足 f(x+2)=2f(x)。当 x∈(0,2] 时 f(x)=x(x-2)。对任意 x∈(-∞,m]，f(x)≥-3。求 m 的最大值。目标 find_range? 求“m的最大值”可以表示 find_range? 实际上求参数最大值。根据契约：未知数或参数范围用 find_range.symbol，题目所求“m的最大值”是最大值，不是范围。但 goals 有 find_maximum expression。应使用 find_maximum， expression 是 m? 目标为求 m 的最大值，expression 填 m。有没有更具体？目标“m 的最大值”用 find_maximum，expression \"m\"，variables [\"m\"]? 可能是 find_maximum expression m。不要求解。\n\n定义：题面说“设函数f(x)的定义域为R，满足...且当...，f(x)=x(x-2)”。函数定义域 R 可以放 definitions? 规则：函数定义放 definitions；Dom(f)=ℝ 可以放 facts 或 definition? 完整定义域声明 Dom(f)=D 用于范围字段，这里题面给定义域为R。可放 facts: Dom(f)=ℝ。但题面已有函数名 f。当 x∈(0,2] 时 f(x)=x(x-2) —— 这是分段/局部定义，可放 definitions 里：\"f(x)=piecewise(x*(x-2), 0 < x <= 2)\"？但只给了 (0,2] 和递推关系，函数其他部分由递推决定。不能当成完整 piecewise 定义？目录说分段函数定义记录每段及条件。但这里只有一段和递推，不是 piecewise 完整定义。可放 facts: 当 x∈(0,2]时 f(x)=x*(x-2)。作为条件，或 definitions 中的局部定义? 规则：“函数定义（f(t)=t^2）...放 definitions”。题面“当 x∈(0,2] 时，f(x)=x(x-2)”是函数定义条件，可以放 facts，因为非全局定义关系。但也可以 definitions? 需要看字段：definitions 仅曲线定义、函数定义及题内新概念原文。局部条件可能放 facts。条件 f(x+2)=2f(x) 放 facts。Dom(f)=ℝ 放 facts。∀x∈(-∞,m]: f(x) ≥ -3 放 facts。目标 find_maximum expression \"m\"。也可以 find_range? “m的最大值为___”是求最大值。有 find_maximum 目标。表达式 m，变量 m。\n\n注意量词：题面“对任意x∈(-∞,m]，都有f(x)≥-3”保留∀x∈(-∞,m]: f(x)≥-3。\n\nf(x+2)=2f(x) 对定义域 R 上的 x? 因为 f 定义域 R，若 x∈R 则 x+2∈R，关系对所有x∈R成立。可写 ∀x∈ℝ: f(x+2)=2*f(x)。题面直接说满足 f(x+2)=2f(x)，默认对所有x∈R。根据规则没有量词范围取ℝ。可 facts: ∀x∈ℝ: f(x+2)=2*f(x)。但题面同时定义域 R。保留。\n\n当 x∈(0,2] 时 f(x)=x(x-2)：写 facts: ∀x∈(0,2]: f(x)=x*(x-2) ？题面“且当x∈(0,2]时”可以保留量词。如果只是“当”条件，可以用 ∀x∈(0,2]: ...。这会在后面推理时使用。可以放 definitions? 不太确定。我会放 facts: ∀x∈(0,2]: f(x)=x*(x-2)。同时 facts Dom(f)=ℝ。也许 f(x)=x*(x-2) for x∈... 作为局部定义可放 facts。\n\n原题有“设函数f(x)的定义域为R”，可 facts \"Dom(f)=ℝ\"。\n\n目标为 find_maximum.expression = \"m\"；需要 variables [\"m\"]? 可选。可以不加。\n\nroot 没有 label? 题号15可以是题号来源。original_text 保留“15. 设函数...”。root.label 可填 \"15\"？如果填 label 则 public_content.root_label_role 应该是 source? 原图明确题号15，是来源/试卷题号。规则：仅原图明确是来源或试卷题号时为 source。可设置 root.label=\"15\" 和 public_content.root_label_role=\"source\"。但 root.label 存在时 public_content 需要角色。题号确实是来源。也可以在 original_text 保留题号，但 root.label 不必要。public_content.statement 不要题号。为了简化，root 不设 label；original_text 含题号。题号不是题目内容。public_content.statement 去掉“15.”。这样不需要 root_label_role。可以吗？root_label_role 可选仅在 root.label 存在时。OK。\n\npublic_content 需要 scopes 对应 root 所有作用域。只有 root。statement 只保留该作用域自己的题干、条件、所求。需要包含完整题面去掉题号、手写答案。公式用$…$。statement：\"设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。\" 是否填空处横线保留？可以写“____”。不要手写答案。公式的集合花括号？这里没有集合花括号，区间。注意 original_text 公式用 $…$，集合花括号转义。本题无集合花括号。\n\nchoices: 无选项，每个 goal 对应 choices 项 status none selection_mode none options []。\n\nfigure_detection: 图片无配图，status none, regions []。\n\ncompleteness: complete? 题目完整。privacy: separated? 有手写答案和题号，但 public_content 去掉了手写答案和题号，题目来源题号也排除。可以 separated，因为手写答案不是公开。但是“隐私”包括姓名班级等，没有。题号是来源明确分离。可以 separated。 figure: not_required。\n\noriginal_text 转录完整题干，保留题号，不抄手写答案。填空横线。可以：\n\"15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。\"\n这里用 LaTeX 排版。要求“公式用 $…$ 包围”，可以。需要 JSON 转义反斜杠，所以 \\mathbb 写成 \\\\mathbb，\\in 写成 \\\\in，\\infty 写成 \\\\infty，\\ge 写成 \\\\ge。字符串。\n\nroot facts 使用目录 Unicode 记法，不写 $ 和反斜杠。例如 Dom(f)=ℝ，∀x∈ℝ: f(x+2)=2*f(x)，∀x∈(0,2]: f(x)=x*(x-2)，∀x∈(-∞,m]: f(x)≥-3。definitions: 可以放 \"f(x)=x*(x-2)\"? 但局部，放 facts。或许 definitions 放 \"f(x) 的定义域为 ℝ\"? definitions 只放函数定义；定义域放 facts。可没有 definitions。root facts 里有 Dom(f)=ℝ 和关系。目标 find_maximum。\n\n关于 find_maximum 的 expression：原题求“m的最大值”，表达式 m。可以 \"m\"。是否 expression 应该是 \"m\" 或 \"max m\"？契约说“求最大值：expression 填写原表达式，不再套min”。所以 expression \"m\"。\n\nroot.facts 中“∀x∈(-∞,m]: f(x) ≥ -3”带有 m，是条件。目标求 m 的最大值。对。\n\n但是函数 f 在 x∈(0,2] 定义，又满足 f(x+2)=2f(x) 对所有 x∈R。这给了递归关系到负半轴和正半轴。不用管。\n\n需要不求解。不要添加解析式。好。\n\npublic_content.statement 是否包含题号？不要。手写答案不要。填空横线保留。statement 可以匹配 original_text 去掉题号并保留横线。例如 \"设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\" 注意 LaTeX 的 \\mathbb{R} 转义。Good.\n\npublic_content scopes 数组 item:\n{\n\"scope_ref\": \"/root\",\n\"statement\": \"...\",\n\"choices\": [\n{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}\n]\n}\n\npublic_content completeness complete, privacy separated, figure not_required, scopes..., figure_detection none.\n\n是否需要 uncertainties? 没有。root.uncertainties 可省略或空。不输出契约外字段。figure_detection 是 public_content 同级? response root? 根据 schema public_content 内包含 figure_detection 字段。所以放在 public_content 里。同时顶层没有 figure_detection。注意 schema public_content 的 required 包括 figure_detection。顶层 required original_text root public_content。好。\n\nroot 中可以省略 uncertainties。可以省略 definitions 或 facts? root facts required? not required but should include. Use facts. goals.\n\nPotential issue: root facts “Dom(f)=ℝ” 是否 math_expression_catalog 支持? yes domain and maybe Dom. Schema允许。也可放 \"f(x+2)=2*f(x)\" 不带 ∀? 规则说题面只说恒成立未写出量词变量范围按实数域补全。这里不是恒成立，是函数满足对定义域R所有x。应该补 ∀x∈ℝ。这样更好。\n\n“当 x∈(0,2] 时”是否应该用 ∀x∈(0,2]: f(x)=x*(x-2)。可以。\n\n“对任意 x∈(-∞,m]” 保留 ∀x∈(-∞,m]: f(x)≥-3。好。\n\n目标 find_maximum: `{\"kind\":\"find_maximum\",\"expression\":\"m\",\"variables\":[\"m\"]}`。variables 可选，题面明确的优化变量是 m，但 m 是参数，可选。可省略。不过变量提示 \"m\" 可以。匹配 expression m。用 variables [\"m\"] 没问题。但 expression 和 variables 可能重复？无碍。不过“变量提示”用于 optimize；m 是所求参数。这题求参数最大值，使用 find_maximum.expression m 是合适的。variables 可省略避免误为动点。可以不加。\n\n有没有目标 find_range + answer_request extremum? 参数最大值可能 find_range? 契约：未知数或参数范围用 find_range.symbol；具体函数最值用 find_maximum/find_minimum。这里求 m 的最大值可以 find_maximum。它不要求范围。OK。\n\n根 facts 中条件“∀x∈(-∞,m]: f(x)≥-3”的目标符号是 m，find_maximum m。没问题。\n\n注意原题“若对任意 x∈(-∞,m]，都有 f(x)≥-3”中的“若”是条件。保留。\n\n现在 JSON 字符串转义。original_text 中 \\mathbb{R} 需写成 \\\\mathbb{R}，\\in 写成 \\\\in，\\infty 写成 \\\\infty，\\ge 写成 \\\\ge。JSON 中反斜杠必须双。public_content.statement 同样。\n\noriginal_text 使用 $f(x)$ 等，$f(x+2)=2f(x)$ 包含 f(x+2) 无空格。题转录。x∈(0,2] 写 $x\\\\in(0,2]$。(-\\infty,m] 写 $(-\\\\infty,m]$。f(x)≥-3 写 $f(x)\\\\ge -3$。m 最大值为____。保留“____”。题号“15.”。\n\n实际上原图“15.”后有两个空格；“设函数f(x)的定义域为R，满足f(x+2)=2f(x)，且当x∈(0,2]时，f(x)=x(x-2). 若”句号英文点？“f(x)=x(x-2).”是英文句点。题干后面“若对任意...”中文。我们保留原标点？可以是“，且当...时，$f(x)=x(x-2)$. 若”。题面中是“.”英文句点。original_text 可以保留英文点。public_content 也可以。OK。\n\n手写答案在横线中“2”，不要转录。原题填空横线；输出“____”。\n\n现在根 facts “∀x∈ℝ: f(x+2)=2*f(x)” 使用 Unicode ∀, ∈, ℝ。乘积显式 *。 “∀x∈(0,2]: f(x)=x*(x-2)” 。“∀x∈(-∞,m]: f(x)≥-3”。Dom(f)=ℝ。\n\n注意 catalog 的 comparison ≥ Unicode。good.\n\n现在有没有原始函数定义“f(x) = x(x-2)”需要写乘法 x*(x-2)，不是 x(x-2)? 规则乘法必须显式写*，不写隐式。facts 里写 x*(x-2)。在 original_text 保留原式 x(x-2)。public_content 保留原式。好。\n\n定义域 R 在 original_text 写 $\\mathbb{R}$。public_content 一样。\n\nPotential issue: function relation f(x+2)=2f(x) 在 facts 需写 2*f(x)。good.\n\n现在输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 22496
+  },
+  "raw_payload": {
+    "id": "243702f2-6a52-4555-b038-776052dc387e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"∀x∈ℝ: f(x+2)=2*f(x)\",\"∀x∈(0,2]: f(x)=x*(x-2)\",\"∀x∈(-∞,m]: f(x)≥-3\"],\"goals\":[{\"kind\":\"find_maximum\",\"expression\":\"m\",\"variables\":[\"m\"]}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。需要理解数学结构。题目图片：\n\n“15. 设函数f(x)的定义域为R，满足f(x+2)=2f(x)，且当x∈(0,2]时，f(x)=x(x-2). 若对任意x∈(-∞,m]，都有f(x)≥-3，则m的最大值为____。”\n\n手写答案2不转录。需要按 schema 输出 original_text, root, public_content, figure_detection。\n\n题目无小问。root facts/definitions:\n函数 f 定义域 R，满足 f(x+2)=2f(x)。当 x∈(0,2] 时 f(x)=x(x-2)。对任意 x∈(-∞,m]，f(x)≥-3。求 m 的最大值。目标 find_range? 求“m的最大值”可以表示 find_range? 实际上求参数最大值。根据契约：未知数或参数范围用 find_range.symbol，题目所求“m的最大值”是最大值，不是范围。但 goals 有 find_maximum expression。应使用 find_maximum， expression 是 m? 目标为求 m 的最大值，expression 填 m。有没有更具体？目标“m 的最大值”用 find_maximum，expression \"m\"，variables [\"m\"]? 可能是 find_maximum expression m。不要求解。\n\n定义：题面说“设函数f(x)的定义域为R，满足...且当...，f(x)=x(x-2)”。函数定义域 R 可以放 definitions? 规则：函数定义放 definitions；Dom(f)=ℝ 可以放 facts 或 definition? 完整定义域声明 Dom(f)=D 用于范围字段，这里题面给定义域为R。可放 facts: Dom(f)=ℝ。但题面已有函数名 f。当 x∈(0,2] 时 f(x)=x(x-2) —— 这是分段/局部定义，可放 definitions 里：\"f(x)=piecewise(x*(x-2), 0 < x <= 2)\"？但只给了 (0,2] 和递推关系，函数其他部分由递推决定。不能当成完整 piecewise 定义？目录说分段函数定义记录每段及条件。但这里只有一段和递推，不是 piecewise 完整定义。可放 facts: 当 x∈(0,2]时 f(x)=x*(x-2)。作为条件，或 definitions 中的局部定义? 规则：“函数定义（f(t)=t^2）...放 definitions”。题面“当 x∈(0,2] 时，f(x)=x(x-2)”是函数定义条件，可以放 facts，因为非全局定义关系。但也可以 definitions? 需要看字段：definitions 仅曲线定义、函数定义及题内新概念原文。局部条件可能放 facts。条件 f(x+2)=2f(x) 放 facts。Dom(f)=ℝ 放 facts。∀x∈(-∞,m]: f(x) ≥ -3 放 facts。目标 find_maximum expression \"m\"。也可以 find_range? “m的最大值为___”是求最大值。有 find_maximum 目标。表达式 m，变量 m。\n\n注意量词：题面“对任意x∈(-∞,m]，都有f(x)≥-3”保留∀x∈(-∞,m]: f(x)≥-3。\n\nf(x+2)=2f(x) 对定义域 R 上的 x? 因为 f 定义域 R，若 x∈R 则 x+2∈R，关系对所有x∈R成立。可写 ∀x∈ℝ: f(x+2)=2*f(x)。题面直接说满足 f(x+2)=2f(x)，默认对所有x∈R。根据规则没有量词范围取ℝ。可 facts: ∀x∈ℝ: f(x+2)=2*f(x)。但题面同时定义域 R。保留。\n\n当 x∈(0,2] 时 f(x)=x(x-2)：写 facts: ∀x∈(0,2]: f(x)=x*(x-2) ？题面“且当x∈(0,2]时”可以保留量词。如果只是“当”条件，可以用 ∀x∈(0,2]: ...。这会在后面推理时使用。可以放 definitions? 不太确定。我会放 facts: ∀x∈(0,2]: f(x)=x*(x-2)。同时 facts Dom(f)=ℝ。也许 f(x)=x*(x-2) for x∈... 作为局部定义可放 facts。\n\n原题有“设函数f(x)的定义域为R”，可 facts \"Dom(f)=ℝ\"。\n\n目标为 find_maximum.expression = \"m\"；需要 variables [\"m\"]? 可选。可以不加。\n\nroot 没有 label? 题号15可以是题号来源。original_text 保留“15. 设函数...”。root.label 可填 \"15\"？如果填 label 则 public_content.root_label_role 应该是 source? 原图明确题号15，是来源/试卷题号。规则：仅原图明确是来源或试卷题号时为 source。可设置 root.label=\"15\" 和 public_content.root_label_role=\"source\"。但 root.label 存在时 public_content 需要角色。题号确实是来源。也可以在 original_text 保留题号，但 root.label 不必要。public_content.statement 不要题号。为了简化，root 不设 label；original_text 含题号。题号不是题目内容。public_content.statement 去掉“15.”。这样不需要 root_label_role。可以吗？root_label_role 可选仅在 root.label 存在时。OK。\n\npublic_content 需要 scopes 对应 root 所有作用域。只有 root。statement 只保留该作用域自己的题干、条件、所求。需要包含完整题面去掉题号、手写答案。公式用$…$。statement：\"设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。\" 是否填空处横线保留？可以写“____”。不要手写答案。公式的集合花括号？这里没有集合花括号，区间。注意 original_text 公式用 $…$，集合花括号转义。本题无集合花括号。\n\nchoices: 无选项，每个 goal 对应 choices 项 status none selection_mode none options []。\n\nfigure_detection: 图片无配图，status none, regions []。\n\ncompleteness: complete? 题目完整。privacy: separated? 有手写答案和题号，但 public_content 去掉了手写答案和题号，题目来源题号也排除。可以 separated，因为手写答案不是公开。但是“隐私”包括姓名班级等，没有。题号是来源明确分离。可以 separated。 figure: not_required。\n\noriginal_text 转录完整题干，保留题号，不抄手写答案。填空横线。可以：\n\"15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。\"\n这里用 LaTeX 排版。要求“公式用 $…$ 包围”，可以。需要 JSON 转义反斜杠，所以 \\mathbb 写成 \\\\mathbb，\\in 写成 \\\\in，\\infty 写成 \\\\infty，\\ge 写成 \\\\ge。字符串。\n\nroot facts 使用目录 Unicode 记法，不写 $ 和反斜杠。例如 Dom(f)=ℝ，∀x∈ℝ: f(x+2)=2*f(x)，∀x∈(0,2]: f(x)=x*(x-2)，∀x∈(-∞,m]: f(x)≥-3。definitions: 可以放 \"f(x)=x*(x-2)\"? 但局部，放 facts。或许 definitions 放 \"f(x) 的定义域为 ℝ\"? definitions 只放函数定义；定义域放 facts。可没有 definitions。root facts 里有 Dom(f)=ℝ 和关系。目标 find_maximum。\n\n关于 find_maximum 的 expression：原题求“m的最大值”，表达式 m。可以 \"m\"。是否 expression 应该是 \"m\" 或 \"max m\"？契约说“求最大值：expression 填写原表达式，不再套min”。所以 expression \"m\"。\n\nroot.facts 中“∀x∈(-∞,m]: f(x) ≥ -3”带有 m，是条件。目标求 m 的最大值。对。\n\n但是函数 f 在 x∈(0,2] 定义，又满足 f(x+2)=2f(x) 对所有 x∈R。这给了递归关系到负半轴和正半轴。不用管。\n\n需要不求解。不要添加解析式。好。\n\npublic_content.statement 是否包含题号？不要。手写答案不要。填空横线保留。statement 可以匹配 original_text 去掉题号并保留横线。例如 \"设函数 $f(x)$ 的定义域为 $\\\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\\\in(-\\\\infty,m]$，都有 $f(x)\\\\ge -3$，则 $m$ 的最大值为____。\" 注意 LaTeX 的 \\mathbb{R} 转义。Good.\n\npublic_content scopes 数组 item:\n{\n\"scope_ref\": \"/root\",\n\"statement\": \"...\",\n\"choices\": [\n{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}\n]\n}\n\npublic_content completeness complete, privacy separated, figure not_required, scopes..., figure_detection none.\n\n是否需要 uncertainties? 没有。root.uncertainties 可省略或空。不输出契约外字段。figure_detection 是 public_content 同级? response root? 根据 schema public_content 内包含 figure_detection 字段。所以放在 public_content 里。同时顶层没有 figure_detection。注意 schema public_content 的 required 包括 figure_detection。顶层 required original_text root public_content。好。\n\nroot 中可以省略 uncertainties。可以省略 definitions 或 facts? root facts required? not required but should include. Use facts. goals.\n\nPotential issue: root facts “Dom(f)=ℝ” 是否 math_expression_catalog 支持? yes domain and maybe Dom. Schema允许。也可放 \"f(x+2)=2*f(x)\" 不带 ∀? 规则说题面只说恒成立未写出量词变量范围按实数域补全。这里不是恒成立，是函数满足对定义域R所有x。应该补 ∀x∈ℝ。这样更好。\n\n“当 x∈(0,2] 时”是否应该用 ∀x∈(0,2]: f(x)=x*(x-2)。可以。\n\n“对任意 x∈(-∞,m]” 保留 ∀x∈(-∞,m]: f(x)≥-3。好。\n\n目标 find_maximum: `{\"kind\":\"find_maximum\",\"expression\":\"m\",\"variables\":[\"m\"]}`。variables 可选，题面明确的优化变量是 m，但 m 是参数，可选。可省略。不过变量提示 \"m\" 可以。匹配 expression m。用 variables [\"m\"] 没问题。但 expression 和 variables 可能重复？无碍。不过“变量提示”用于 optimize；m 是所求参数。这题求参数最大值，使用 find_maximum.expression m 是合适的。variables 可省略避免误为动点。可以不加。\n\n有没有目标 find_range + answer_request extremum? 参数最大值可能 find_range? 契约：未知数或参数范围用 find_range.symbol；具体函数最值用 find_maximum/find_minimum。这里求 m 的最大值可以 find_maximum。它不要求范围。OK。\n\n根 facts 中条件“∀x∈(-∞,m]: f(x)≥-3”的目标符号是 m，find_maximum m。没问题。\n\n注意原题“若对任意 x∈(-∞,m]，都有 f(x)≥-3”中的“若”是条件。保留。\n\n现在 JSON 字符串转义。original_text 中 \\mathbb{R} 需写成 \\\\mathbb{R}，\\in 写成 \\\\in，\\infty 写成 \\\\infty，\\ge 写成 \\\\ge。JSON 中反斜杠必须双。public_content.statement 同样。\n\noriginal_text 使用 $f(x)$ 等，$f(x+2)=2f(x)$ 包含 f(x+2) 无空格。题转录。x∈(0,2] 写 $x\\\\in(0,2]$。(-\\infty,m] 写 $(-\\\\infty,m]$。f(x)≥-3 写 $f(x)\\\\ge -3$。m 最大值为____。保留“____”。题号“15.”。\n\n实际上原图“15.”后有两个空格；“设函数f(x)的定义域为R，满足f(x+2)=2f(x)，且当x∈(0,2]时，f(x)=x(x-2). 若”句号英文点？“f(x)=x(x-2).”是英文句点。题干后面“若对任意...”中文。我们保留原标点？可以是“，且当...时，$f(x)=x(x-2)$. 若”。题面中是“.”英文句点。original_text 可以保留英文点。public_content 也可以。OK。\n\n手写答案在横线中“2”，不要转录。原题填空横线；输出“____”。\n\n现在根 facts “∀x∈ℝ: f(x+2)=2*f(x)” 使用 Unicode ∀, ∈, ℝ。乘积显式 *。 “∀x∈(0,2]: f(x)=x*(x-2)” 。“∀x∈(-∞,m]: f(x)≥-3”。Dom(f)=ℝ。\n\n注意 catalog 的 comparison ≥ Unicode。good.\n\n现在有没有原始函数定义“f(x) = x(x-2)”需要写乘法 x*(x-2)，不是 x(x-2)? 规则乘法必须显式写*，不写隐式。facts 里写 x*(x-2)。在 original_text 保留原式 x(x-2)。public_content 保留原式。好。\n\n定义域 R 在 original_text 写 $\\mathbb{R}$。public_content 一样。\n\nPotential issue: function relation f(x+2)=2f(x) 在 facts 需写 2*f(x)。good.\n\n现在输出。"
+        }
+      }
+    ],
+    "created": 1794283110,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3587,
+      "prompt_tokens": 24284,
+      "total_tokens": 27871,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3253,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 476
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 22.498
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-monotonicity-b01-v1",
-  "graphVersion": "33c4fb13ac434724279261d05b05e136dcbd69b2cf8f14913909b369bf278e06",
+  "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
   "problem": {
     "text": "已知函数 $f$ 的定义域为 $(0,+\\infty)$，且 $f(x)$ 是增函数。若 $f(2x)<f(x+1)$，则 $x$ 的取值范围是______。"
   },
@@ -234,7 +234,7 @@
               },
               {
                 "label": "题给单调性",
-                "math": "f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上 }\\uparrow"
+                "math": "f\\text{ 在 }\\left(0, +\\infty\\right)\\text{ 上 }\\uparrow"
               }
             ],
             "layout": "derivation"
@@ -247,26 +247,26 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "36840d5bad653aec3e19e71e#1",
+          "id": "066994cd9a055f3789db6d3d#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上 }\\uparrow$",
+                "label": "$\\downarrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$f\\text{ 在 }\\left(0, +\\infty\\right)\\text{ 上 }\\uparrow$",
                 "value": "o1"
               },
               {
                 "label": "$\\text{非严格}$",
                 "value": "o3"
-              },
-              {
-                "label": "$\\downarrow$",
-                "value": "o2"
               }
             ],
             "type": "choice"
           },
-          "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left(0, \\infty\\right)$ 上怎样变化？",
+          "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left(0, +\\infty\\right)$ 上怎样变化？",
           "stem_board": {
             "caption": "核对比较对象与单调性",
             "connector": "⇒",
@@ -287,12 +287,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "1ba2438178c746b13715ced1fb7eeab39df45ddd2266de87e95fc1430f7c37ea",
+              "math_step_sha256": "b10d6fd2a6ba329979ef5c851efa213f4af61ca93fcb05a3c2b6840851b39edb",
               "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "6077dd455f51732c62c22300",
+          "stream_interaction_id": "066994cd9a055f3789db6d3d",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "核对比较对象与单调性",
@@ -311,11 +311,11 @@
             "items": [
               {
                 "label": "输入条件",
-                "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, \\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+                "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
               },
               {
                 "label": "合法域",
-                "math": "x\\in \\left(0, \\infty\\right)"
+                "math": "x\\in \\left(0, +\\infty\\right)"
               }
             ],
             "layout": "derivation"
@@ -328,37 +328,37 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "bf4efddd9c60d1ee624b46ce#1",
+          "id": "f20d6b65d8c6f1aa2c25db59#1",
           "interaction": {
             "field": "answer",
             "options": [
               {
-                "label": "$x\\in \\left(0, \\infty\\right)$",
-                "value": "o1"
-              },
-              {
                 "label": "$x\\in \\mathbb{R}$",
                 "value": "o3"
+              },
+              {
+                "label": "$x\\in \\left(0, +\\infty\\right)$",
+                "value": "o1"
               },
               {
                 "label": "$x\\in \\varnothing$",
                 "value": "o2"
               },
               {
-                "label": "$x\\in \\left[0, \\infty\\right)$",
+                "label": "$x\\in \\left[0, +\\infty\\right)$",
                 "value": "o4"
               }
             ],
             "type": "choice"
           },
-          "question": "要使单调性可用来比较，两个输入都必须落在 $\\left(0, \\infty\\right)$。$x$ 需要满足什么？",
+          "question": "要使单调性可用来比较，两个输入都必须落在 $\\left(0, +\\infty\\right)$。$x$ 需要满足什么？",
           "stem_board": {
             "caption": "两个输入的合法条件",
             "connector": "⇒",
             "items": [
               {
                 "label": "输入条件",
-                "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, \\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+                "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
               },
               {
                 "label": "合法域",
@@ -372,12 +372,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f3e599ee4b4f86eabc32fef07847cc695452cc112436cb5bd9868ba5deca81b4",
+              "math_step_sha256": "8ce71203c16c2e9baa9424eb7ddf775b9ce21169d262949d97ad7834dfd8780c",
               "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "f7cafb39417bf3341943d2de",
+          "stream_interaction_id": "f20d6b65d8c6f1aa2c25db59",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "两个输入的合法条件",
@@ -396,7 +396,7 @@
             "items": [
               {
                 "label": "已确认的条件",
-                "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, \\infty\\right)\\end{gathered}"
+                "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\end{gathered}"
               },
               {
                 "label": "输入比较",
@@ -413,7 +413,7 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "6bb022fd0fe1208cd8ed0475#1",
+          "id": "7ac47da5295373b9d984237f#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -422,12 +422,12 @@
                 "value": "o1"
               },
               {
-                "label": "$2 x\\,\\ge\\,x + 1$",
-                "value": "o4"
-              },
-              {
                 "label": "$2 x\\,\\le\\,x + 1$",
                 "value": "o2"
+              },
+              {
+                "label": "$2 x\\,\\ge\\,x + 1$",
+                "value": "o4"
               },
               {
                 "label": "$2 x\\,>\\,x + 1$",
@@ -443,7 +443,7 @@
             "items": [
               {
                 "label": "已确认的条件",
-                "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, \\infty\\right)\\end{gathered}"
+                "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\end{gathered}"
               },
               {
                 "label": "输入比较",
@@ -457,12 +457,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "f0aeffed89071b66b171b19b6d50f3301884364f02093d098eef5790567ac7e6",
+              "math_step_sha256": "ed952d8e95e15f4a262c617a30aeb6a4a54a1b092d3658c432b83ce745f2b7f6",
               "step_id": "39e5646dcb-monotonicity-inequality-003-order"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "0842a83838cbe733db0719ae",
+          "stream_interaction_id": "7ac47da5295373b9d984237f",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "利用单调性转化比较",
@@ -481,7 +481,7 @@
             "items": [
               {
                 "label": "转化后 ∩ 合法域",
-                "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, \\infty\\right)\\end{gathered}"
+                "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}"
               },
               {
                 "label": "解集",
@@ -498,7 +498,7 @@
           "feedback": {
             "answer": "结合卡片中的式子和范围，再核对一次。"
           },
-          "id": "08f7915bcb7ac8463d0f04c5#1",
+          "id": "85b777cd055b39665c1820a7#1",
           "interaction": {
             "field": "answer",
             "options": [
@@ -507,16 +507,16 @@
                 "value": "o3"
               },
               {
-                "label": "$x\\in \\varnothing$",
-                "value": "o2"
-              },
-              {
                 "label": "$x\\in \\left(0, 1\\right)$",
                 "value": "o1"
               },
               {
                 "label": "$x\\in \\left[0, 1\\right)$",
                 "value": "o4"
+              },
+              {
+                "label": "$x\\in \\varnothing$",
+                "value": "o2"
               }
             ],
             "type": "choice"
@@ -528,7 +528,7 @@
             "items": [
               {
                 "label": "转化后 ∩ 合法域",
-                "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, \\infty\\right)\\end{gathered}"
+                "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}"
               },
               {
                 "label": "解集",
@@ -542,12 +542,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "14335c37e4314c38bee35ba15a0bcb4da3f7d36bbe1a48512b99ae8ffd47dce8",
+              "math_step_sha256": "e2cc5bd07ebc42cdfc0d19bff5efa9aa6240943d00fa756c6688783c8c8eacca",
               "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7dd66c0f5eeefd625e9d8aa4",
+          "stream_interaction_id": "85b777cd055b39665c1820a7",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "回到原目标",
@@ -598,35 +598,35 @@
           "expression": "Interval.open(0, 1)",
           "latex": "\\left(0, 1\\right)"
         },
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "math_steps": [
           {
-            "math_step_sha256": "1ba2438178c746b13715ced1fb7eeab39df45ddd2266de87e95fc1430f7c37ea",
+            "math_step_sha256": "b10d6fd2a6ba329979ef5c851efa213f4af61ca93fcb05a3c2b6840851b39edb",
             "ordinal": 1,
             "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
           },
           {
-            "math_step_sha256": "f3e599ee4b4f86eabc32fef07847cc695452cc112436cb5bd9868ba5deca81b4",
+            "math_step_sha256": "8ce71203c16c2e9baa9424eb7ddf775b9ce21169d262949d97ad7834dfd8780c",
             "ordinal": 2,
             "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
           },
           {
-            "math_step_sha256": "f0aeffed89071b66b171b19b6d50f3301884364f02093d098eef5790567ac7e6",
+            "math_step_sha256": "ed952d8e95e15f4a262c617a30aeb6a4a54a1b092d3658c432b83ce745f2b7f6",
             "ordinal": 3,
             "step_id": "39e5646dcb-monotonicity-inequality-003-order"
           },
           {
-            "math_step_sha256": "14335c37e4314c38bee35ba15a0bcb4da3f7d36bbe1a48512b99ae8ffd47dce8",
+            "math_step_sha256": "e2cc5bd07ebc42cdfc0d19bff5efa9aa6240943d00fa756c6688783c8c8eacca",
             "ordinal": 4,
             "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "8cc7710e78f2eef52fa03766304d819b0016aea816e891888b5b81555c7e6622",
-        "verified_route_sha256": "30277436e660bfc48f9edc8bba60524716858d504f5a6f5688a0108bf24c3c55"
+        "task_id": "2011e7586348119b688c16306371309737173c7e434f9fac0b9d680f1ab0b52b",
+        "verified_route_sha256": "fcce6c39c0106bfcb91a46ee2e9b5cae290b0f860c81d44d8dd001420f2ade31"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -698,9 +698,9 @@
         "id": "type-monotonicity-parameter",
         "kind": "problem_type",
         "label": "已知函数的单调性求参",
-        "summary": "已知函数的单调性求参；后续题型建设。",
+        "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
         "aliases": [],
-        "status": "planned",
+        "status": "active",
         "home": "compulsory-1-ch3"
       },
       {
@@ -900,13 +900,13 @@
       }
     ]
   },
-  "bundleVersion": "[\"stream\",\"588f985a226dadd2108f27555f71aab422e0de36428d68e65d3e020b26c09f68\",\"bbb99b71a3159cd5d4195d20c03d08ede44a315ec9cc3196eb84b478ab063319\",\"9ba820fc54624f9b954f9005d6dea83b\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"bdffc4403de121537c20004e976d6070c76ac70766d23e0cf700398d3ee82642\",\"5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5\",\"679d187012674d8abde1d7c161b4fa58\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "758842d2bf014dfca355697d63db3435",
-    "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
-    "stream_id": "758842d2bf014dfca355697d63db3435",
+    "run_id": "679d187012674d8abde1d7c161b4fa58",
+    "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
+    "stream_id": "679d187012674d8abde1d7c161b4fa58",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "588f985a226dadd2108f27555f71aab422e0de36428d68e65d3e020b26c09f68",
+    "base_bundle_version": "bdffc4403de121537c20004e976d6070c76ac70766d23e0cf700398d3ee82642",
     "d3": {
       "expected_answer": {
         "checks": {
@@ -1005,7 +1005,7 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "prepare",
-        "explanation": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left(0, \\infty\\right)$ 上怎样变化？",
+        "explanation": "$$\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\text{在}\\ \\left(0, +\\infty\\right)\\ \\text{上}\\ \\uparrow\\end{gathered}$$",
         "highlight": {
           "caption": "核对比较对象与单调性",
           "connector": "⇒",
@@ -1016,20 +1016,20 @@
             },
             {
               "label": "题给单调性",
-              "math": "f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上 }\\uparrow"
+              "math": "f\\text{ 在 }\\left(0, +\\infty\\right)\\text{ 上 }\\uparrow"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "local_check": "passed",
-        "math_step_sha256": "1ba2438178c746b13715ced1fb7eeab39df45ddd2266de87e95fc1430f7c37ea",
+        "math_step_sha256": "b10d6fd2a6ba329979ef5c851efa213f4af61ca93fcb05a3c2b6840851b39edb",
         "method_ref": "method-monotonicity-inequality#prepare",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "revisions_ref": "4d670d00609cca9a63d8ad57ee5c672292f69a6aed69517c71d5db3d18aeb82f",
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "source_refs": [
           "/steps/0/calls/0",
           "/steps/0/calls/1"
@@ -1048,31 +1048,31 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "inputs",
-        "explanation": "要使单调性可用来比较，两个输入都必须落在 $\\left(0, \\infty\\right)$。$x$ 需要满足什么？",
+        "explanation": "$$\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}$$",
         "highlight": {
           "caption": "两个输入的合法条件",
           "connector": "⇒",
           "items": [
             {
               "label": "输入条件",
-              "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, \\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+              "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
             },
             {
               "label": "合法域",
-              "math": "x\\in \\left(0, \\infty\\right)"
+              "math": "x\\in \\left(0, +\\infty\\right)"
             }
           ],
           "layout": "derivation"
         },
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "local_check": "passed",
-        "math_step_sha256": "f3e599ee4b4f86eabc32fef07847cc695452cc112436cb5bd9868ba5deca81b4",
+        "math_step_sha256": "8ce71203c16c2e9baa9424eb7ddf775b9ce21169d262949d97ad7834dfd8780c",
         "method_ref": "method-monotonicity-inequality#inputs",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "revisions_ref": "4d670d00609cca9a63d8ad57ee5c672292f69a6aed69517c71d5db3d18aeb82f",
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -1089,14 +1089,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "order",
-        "explanation": "在同一严格递增区间上，原函数值比较等价于怎样的输入比较？",
+        "explanation": "$$\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\\\Rightarrow 2 x\\,<\\,x + 1\\end{gathered}$$",
         "highlight": {
           "caption": "利用单调性转化比较",
           "connector": "⇒",
           "items": [
             {
               "label": "已确认的条件",
-              "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, \\infty\\right)\\end{gathered}"
+              "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\end{gathered}"
             },
             {
               "label": "输入比较",
@@ -1105,15 +1105,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "local_check": "passed",
-        "math_step_sha256": "f0aeffed89071b66b171b19b6d50f3301884364f02093d098eef5790567ac7e6",
+        "math_step_sha256": "ed952d8e95e15f4a262c617a30aeb6a4a54a1b092d3658c432b83ce745f2b7f6",
         "method_ref": "method-monotonicity-inequality#order",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "revisions_ref": "4d670d00609cca9a63d8ad57ee5c672292f69a6aed69517c71d5db3d18aeb82f",
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "source_refs": [
           "/steps/4/calls/0"
         ],
@@ -1131,14 +1131,14 @@
         "case_path": [],
         "contract": "graph-math-step/v2",
         "display_unit": "conclude",
-        "explanation": "把转化后的不等式与合法域求交，$x$ 的取值范围是？",
+        "explanation": "$$\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\\\x\\in \\left(0, 1\\right)\\end{gathered}$$",
         "highlight": {
           "caption": "回到原目标",
           "connector": "⇒",
           "items": [
             {
               "label": "转化后 ∩ 合法域",
-              "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, \\infty\\right)\\end{gathered}"
+              "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}"
             },
             {
               "label": "解集",
@@ -1147,15 +1147,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "local_check": "passed",
-        "math_step_sha256": "14335c37e4314c38bee35ba15a0bcb4da3f7d36bbe1a48512b99ae8ffd47dce8",
+        "math_step_sha256": "e2cc5bd07ebc42cdfc0d19bff5efa9aa6240943d00fa756c6688783c8c8eacca",
         "method_ref": "method-monotonicity-inequality#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "832be853a38597949f7d8556f5bfea038de850b1f1bd767e144d2285530dde50",
+        "revisions_ref": "4d670d00609cca9a63d8ad57ee5c672292f69a6aed69517c71d5db3d18aeb82f",
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -1231,45 +1231,45 @@
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
         "ordinal": 1,
-        "math_step_sha256": "1ba2438178c746b13715ced1fb7eeab39df45ddd2266de87e95fc1430f7c37ea",
+        "math_step_sha256": "b10d6fd2a6ba329979ef5c851efa213f4af61ca93fcb05a3c2b6840851b39edb",
         "status": "interactive",
-        "interaction_id": "6077dd455f51732c62c22300"
+        "interaction_id": "066994cd9a055f3789db6d3d"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-002-inputs",
         "ordinal": 2,
-        "math_step_sha256": "f3e599ee4b4f86eabc32fef07847cc695452cc112436cb5bd9868ba5deca81b4",
+        "math_step_sha256": "8ce71203c16c2e9baa9424eb7ddf775b9ce21169d262949d97ad7834dfd8780c",
         "status": "interactive",
-        "interaction_id": "f7cafb39417bf3341943d2de"
+        "interaction_id": "f20d6b65d8c6f1aa2c25db59"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-003-order",
         "ordinal": 3,
-        "math_step_sha256": "f0aeffed89071b66b171b19b6d50f3301884364f02093d098eef5790567ac7e6",
+        "math_step_sha256": "ed952d8e95e15f4a262c617a30aeb6a4a54a1b092d3658c432b83ce745f2b7f6",
         "status": "interactive",
-        "interaction_id": "0842a83838cbe733db0719ae"
+        "interaction_id": "7ac47da5295373b9d984237f"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-inequality",
         "step_id": "39e5646dcb-monotonicity-inequality-004-conclude",
         "ordinal": 4,
-        "math_step_sha256": "14335c37e4314c38bee35ba15a0bcb4da3f7d36bbe1a48512b99ae8ffd47dce8",
+        "math_step_sha256": "e2cc5bd07ebc42cdfc0d19bff5efa9aa6240943d00fa756c6688783c8c8eacca",
         "status": "interactive",
-        "interaction_id": "7dd66c0f5eeefd625e9d8aa4"
+        "interaction_id": "85b777cd055b39665c1820a7"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "6077dd455f51732c62c22300",
-        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
-        "interaction_sha256": "7592d144521a680f49dcd09d5558c0e9d7fdc647cf0fa46e519ebe792e8ae53f",
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "interaction_id": "066994cd9a055f3789db6d3d",
+        "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+        "interaction_sha256": "8c3377ac87160e70f2c9aad6a46c91011582dedc4d5211012e553f590425a555",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "parts": [
           {
             "completion_board": {
@@ -1282,7 +1282,7 @@
                 },
                 {
                   "label": "题给单调性",
-                  "math": "f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上 }\\uparrow"
+                  "math": "f\\text{ 在 }\\left(0, +\\infty\\right)\\text{ 上 }\\uparrow"
                 }
               ],
               "layout": "derivation"
@@ -1295,17 +1295,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "6077dd455f51732c62c22300#1",
+            "id": "066994cd9a055f3789db6d3d#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上 }\\uparrow$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\downarrow$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f\\text{ 在 }\\left(0, +\\infty\\right)\\text{ 上 }\\uparrow$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\text{非严格}$",
@@ -1314,7 +1314,7 @@
               ],
               "type": "choice"
             },
-            "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left(0, \\infty\\right)$ 上怎样变化？",
+            "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left(0, +\\infty\\right)$ 上怎样变化？",
             "stem_board": {
               "caption": "核对比较对象与单调性",
               "connector": "⇒",
@@ -1335,11 +1335,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "1ba2438178c746b13715ced1fb7eeab39df45ddd2266de87e95fc1430f7c37ea",
+            "math_step_sha256": "b10d6fd2a6ba329979ef5c851efa213f4af61ca93fcb05a3c2b6840851b39edb",
             "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
           }
         ],
@@ -1347,10 +1347,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "f7cafb39417bf3341943d2de",
-        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
-        "interaction_sha256": "95bf0d36fb91e179cb5d5cb9c4dd0d9c3c3022b1e0c1f095d3710e4e2a5d68d2",
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "interaction_id": "f20d6b65d8c6f1aa2c25db59",
+        "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+        "interaction_sha256": "b90fbcfc8024e26b7d05a6a8214f5265c4016822bf5f98bc35d0a21e9f1295e4",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "parts": [
           {
             "completion_board": {
@@ -1359,11 +1359,11 @@
               "items": [
                 {
                   "label": "输入条件",
-                  "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, \\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+                  "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
                 },
                 {
                   "label": "合法域",
-                  "math": "x\\in \\left(0, \\infty\\right)"
+                  "math": "x\\in \\left(0, +\\infty\\right)"
                 }
               ],
               "layout": "derivation"
@@ -1376,37 +1376,37 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "f7cafb39417bf3341943d2de#1",
+            "id": "f20d6b65d8c6f1aa2c25db59#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$x\\in \\left(0, \\infty\\right)$",
-                  "value": "o1"
-                },
                 {
                   "label": "$x\\in \\mathbb{R}$",
                   "value": "o3"
                 },
                 {
-                  "label": "$x\\in \\left[0, \\infty\\right)$",
-                  "value": "o4"
+                  "label": "$x\\in \\left(0, +\\infty\\right)$",
+                  "value": "o1"
                 },
                 {
                   "label": "$x\\in \\varnothing$",
                   "value": "o2"
+                },
+                {
+                  "label": "$x\\in \\left[0, +\\infty\\right)$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
             },
-            "question": "要使单调性可用来比较，两个输入都必须落在 $\\left(0, \\infty\\right)$。$x$ 需要满足什么？",
+            "question": "要使单调性可用来比较，两个输入都必须落在 $\\left(0, +\\infty\\right)$。$x$ 需要满足什么？",
             "stem_board": {
               "caption": "两个输入的合法条件",
               "connector": "⇒",
               "items": [
                 {
                   "label": "输入条件",
-                  "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, \\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+                  "math": "\\begin{gathered}2 x,x + 1\\in \\left(0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
                 },
                 {
                   "label": "合法域",
@@ -1420,11 +1420,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f3e599ee4b4f86eabc32fef07847cc695452cc112436cb5bd9868ba5deca81b4",
+            "math_step_sha256": "8ce71203c16c2e9baa9424eb7ddf775b9ce21169d262949d97ad7834dfd8780c",
             "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
           }
         ],
@@ -1432,10 +1432,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "0842a83838cbe733db0719ae",
-        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
-        "interaction_sha256": "3dbbeff592db22380667b5cf73013472ce21781a8efdc6a8c24b2fbcb455955e",
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "interaction_id": "7ac47da5295373b9d984237f",
+        "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+        "interaction_sha256": "4de361961fa33fc81547f1d2f7319448b36d567dae1d33f061c3a9006c460893",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "parts": [
           {
             "completion_board": {
@@ -1444,7 +1444,7 @@
               "items": [
                 {
                   "label": "已确认的条件",
-                  "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, \\infty\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\end{gathered}"
                 },
                 {
                   "label": "输入比较",
@@ -1461,7 +1461,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "0842a83838cbe733db0719ae#1",
+            "id": "7ac47da5295373b9d984237f#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1470,12 +1470,12 @@
                   "value": "o1"
                 },
                 {
-                  "label": "$2 x\\,\\ge\\,x + 1$",
-                  "value": "o4"
-                },
-                {
                   "label": "$2 x\\,\\le\\,x + 1$",
                   "value": "o2"
+                },
+                {
+                  "label": "$2 x\\,\\ge\\,x + 1$",
+                  "value": "o4"
                 },
                 {
                   "label": "$2 x\\,>\\,x + 1$",
@@ -1491,7 +1491,7 @@
               "items": [
                 {
                   "label": "已确认的条件",
-                  "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, \\infty\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}f\\!\\left(2 x\\right)\\,<\\,f\\!\\left(x + 1\\right)\\\\f\\ \\uparrow\\text{（严格递增）}\\\\2 x,x + 1\\in \\left(0, +\\infty\\right)\\end{gathered}"
                 },
                 {
                   "label": "输入比较",
@@ -1505,11 +1505,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "f0aeffed89071b66b171b19b6d50f3301884364f02093d098eef5790567ac7e6",
+            "math_step_sha256": "ed952d8e95e15f4a262c617a30aeb6a4a54a1b092d3658c432b83ce745f2b7f6",
             "step_id": "39e5646dcb-monotonicity-inequality-003-order"
           }
         ],
@@ -1517,10 +1517,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7dd66c0f5eeefd625e9d8aa4",
-        "interaction_revision": "fd79a3f23bf378cccbaf471eb9b2b5afea32ce569fad2e72c00e8b4342346a44",
-        "interaction_sha256": "6e152ac02bf2ea309b9741bb402c6234ca652797c55839be957089afe62c83dc",
-        "lesson_version": "775dd02767d5e9f8e5288ae069cea2f51cb4f8acee4c355b9365182c8a9c8516",
+        "interaction_id": "85b777cd055b39665c1820a7",
+        "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+        "interaction_sha256": "8b0a9f0f5f55c4bd64f7c782ed151da304e65de2b94b982ff0c92a8626916f4e",
+        "lesson_version": "5c7467cdb13827e4e1c913d4bba6a22c0bfdc6b2bd2e2c5e74f3a4830cc592f5",
         "parts": [
           {
             "completion_board": {
@@ -1529,7 +1529,7 @@
               "items": [
                 {
                   "label": "转化后 ∩ 合法域",
-                  "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, \\infty\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}"
                 },
                 {
                   "label": "解集",
@@ -1546,25 +1546,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7dd66c0f5eeefd625e9d8aa4#1",
+            "id": "85b777cd055b39665c1820a7#1",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$x\\in \\varnothing$",
-                  "value": "o2"
+                  "label": "$x\\in \\mathbb{R}$",
+                  "value": "o3"
                 },
                 {
                   "label": "$x\\in \\left(0, 1\\right)$",
                   "value": "o1"
                 },
                 {
-                  "label": "$x\\in \\mathbb{R}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$x\\in \\left[0, 1\\right)$",
                   "value": "o4"
+                },
+                {
+                  "label": "$x\\in \\varnothing$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1576,7 +1576,7 @@
               "items": [
                 {
                   "label": "转化后 ∩ 合法域",
-                  "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, \\infty\\right)\\end{gathered}"
+                  "math": "\\begin{gathered}2 x\\,<\\,x + 1\\\\x\\in \\left(0, +\\infty\\right)\\end{gathered}"
                 },
                 {
                   "label": "解集",
@@ -1590,11 +1590,11 @@
           }
         ],
         "route_id": "monotonicity-inequality",
-        "run_id": "758842d2bf014dfca355697d63db3435",
+        "run_id": "679d187012674d8abde1d7c161b4fa58",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "14335c37e4314c38bee35ba15a0bcb4da3f7d36bbe1a48512b99ae8ffd47dce8",
+            "math_step_sha256": "e2cc5bd07ebc42cdfc0d19bff5efa9aa6240943d00fa756c6688783c8c8eacca",
             "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
           }
         ],

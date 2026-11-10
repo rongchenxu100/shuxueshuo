@@ -1,0 +1,1546 @@
+{
+  "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+  "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+  "input_sha256": "4478b11442a190fa4086730df837ca30b2fe5386e47bb940a797a4b72aa70a23",
+  "stream_id": "3ab3dd006cc14e458d72db5d60cdb296",
+  "last_seq": 29,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "$f(x)=\\frac{2 x + 1}{x + 3},\\ x\\in \\left[-2, 2\\right]$\n$\\text{分离常数与倒数项}$\n$\\therefore\\ f(x)=2-\\frac{5}{x + 3}$",
+      "highlight": {
+        "caption": "分离分式",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+          },
+          {
+            "label": "分离后的式子",
+            "math": "2-\\frac{5}{x + 3}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "local_check": "passed",
+      "math_step_sha256": "71d260c4b845cd094c7f9391d95824581f858872ab0b0edb8a4d3b3b80380606",
+      "method_ref": "method-monotonicity-extremum#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "分离分式",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "children",
+      "explanation": "$g(x)=x + 3,\\ x\\in\\left[-2, 2\\right]$\n$\\because\\ \\text{一次项系数 }1>0$\n$\\therefore\\ g(x)\\;\\uparrow\\text{（递增）}$",
+      "highlight": {
+        "caption": "判断一次函数的增减",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "一次函数与区间",
+            "math": "\\begin{gathered}g(x)=x + 3\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+          },
+          {
+            "label": "从左向右",
+            "math": "\\uparrow"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "local_check": "passed",
+      "math_step_sha256": "de211b7d80d7b25d3fa7c5879cd71a2a309033a1b7083b40b9d1b05d410532ec",
+      "method_ref": "method-monotonicity-extremum#operations",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "source_refs": [
+        "/steps/10/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-002-children",
+      "target_ref": "/root/goals/0",
+      "title": "判断辅助函数的增减",
+      "used_basis": [
+        "function-monotonicity-operations#reciprocal",
+        "function-monotonicity-operations#sum-difference"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "operations",
+      "explanation": "$x\\in \\left[-2, 2\\right]$\n$\\because\\ x + 3>0\\text{，取倒数变号}（\\uparrow\\to \\downarrow）$\n$\\therefore\\ \\downarrow$\n$\\because\\ \\text{乘 }-5\\text{（变号）}（\\downarrow\\to \\uparrow）$\n$\\therefore\\ \\uparrow$\n$\\text{加常数不改变增减}（\\uparrow\\to \\uparrow）$\n$\\therefore\\ \\uparrow$\n$\\therefore\\ f(x)\\;\\uparrow\\text{ 于 }\\left[-2, 2\\right]$",
+      "highlight": {
+        "caption": "加常数后的增减",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=- \\frac{5}{x + 3}\\;\\uparrow\\end{gathered}"
+          },
+          {
+            "label": "运算后的方向",
+            "math": "\\uparrow"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "local_check": "passed",
+      "math_step_sha256": "2186804e4af26159a6dd9fbed229440d3a7ad34205c82c160cabcc0efd442d5e",
+      "method_ref": "method-monotonicity-extremum#operations",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "source_refs": [
+        "/steps/10/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-003-operations",
+      "target_ref": "/root/goals/0",
+      "title": "判断运算后的增减",
+      "used_basis": [
+        "function-monotonicity-operations#reciprocal",
+        "function-monotonicity-operations#sum-difference"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$f(x)=\\frac{2 x + 1}{x + 3},\\ x\\in \\left[-2, 2\\right]$\n$\\because\\ f\\text{ 在 }\\left[-2, 2\\right]\\text{ 上递增}$\n$\\therefore\\ 最大值\\text{在 }\\left\\{2\\right\\}\\text{ 取得}$\n$\\therefore\\ f(2)=1$",
+      "highlight": {
+        "caption": "求出最大值",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}\\\\x\\in \\left\\{2\\right\\}\\end{gathered}"
+          },
+          {
+            "label": "最大值",
+            "math": "1"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "local_check": "passed",
+      "math_step_sha256": "d7dfb768424ce098bd1c9e5ca71773a454621b11a34e53e883efdee3eef095e7",
+      "method_ref": "method-monotonicity-extremum#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "source_refs": [
+        "/steps/11/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-004-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "确定最值与取得位置",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "derived_answer",
+        "quantity": "maximum",
+        "request_kind": "extremum",
+        "status": "attained",
+        "value": {
+          "exact": {
+            "$math": "Integer",
+            "value": "1"
+          },
+          "expression": "1",
+          "latex": "1"
+        }
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "derived_answer",
+        "quantity": "maximum",
+        "request_kind": "extremum",
+        "status": "attained",
+        "value": {
+          "exact": {
+            "$math": "Integer",
+            "value": "1"
+          },
+          "expression": "1",
+          "latex": "1"
+        }
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "math_steps": [
+        {
+          "math_step_sha256": "71d260c4b845cd094c7f9391d95824581f858872ab0b0edb8a4d3b3b80380606",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-monotonicity-extremum-001-prepare"
+        },
+        {
+          "math_step_sha256": "de211b7d80d7b25d3fa7c5879cd71a2a309033a1b7083b40b9d1b05d410532ec",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-monotonicity-extremum-002-children"
+        },
+        {
+          "math_step_sha256": "2186804e4af26159a6dd9fbed229440d3a7ad34205c82c160cabcc0efd442d5e",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-monotonicity-extremum-003-operations"
+        },
+        {
+          "math_step_sha256": "d7dfb768424ce098bd1c9e5ca71773a454621b11a34e53e883efdee3eef095e7",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-monotonicity-extremum-004-conclude"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "9188a6cb6c0b203caf332771622d8513bb95053946effa0aff021d736956164e",
+      "verified_route_sha256": "c6cf96b5ff3e40f3b5bcc235ab028c3566de4415927896ffad01fd382f3a2201"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "direct"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "给出函数，求最大值或最小值",
+                  "note": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+                  "value": "direct"
+                },
+                {
+                  "label": "一边随便取，另一边都能配上",
+                  "note": "题面常见「对任意 $x_1$，存在 $x_2$，使 $f(x_1)\\le g(x_2)$」：左边每一个函数值，右边都能找到配合。先分清谁随便取、谁负责配合，再比较两边的取值范围（或最值），求出使条件成立的参数。",
+                  "value": "quantified"
+                },
+                {
+                  "label": "指定某一点已经是最大或最小",
+                  "note": "例如已知 $f(0)$ 是最小值：先算出这个值，再要求定义域里其他点都不比它更小；若是最大值，则其他点都不比它更大。不必要求只在这一点取到。",
+                  "value": "specified"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "单调性求最值法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "direct",
+              "method": "direct"
+            },
+            {
+              "cue": "quantified",
+              "method": "quantified"
+            },
+            {
+              "cue": "specified",
+              "method": "specified"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性求最值法",
+              "value": "direct"
+            },
+            {
+              "label": "量词比较求参法",
+              "value": "quantified"
+            },
+            {
+              "label": "指定最值求参法",
+              "value": "specified"
+            }
+          ],
+          "method_notes": {},
+          "source_refs": [
+            "/root/goals/0",
+            "/root/definitions/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-extremum",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "direct": {
+            "message": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+            "value": "fit"
+          },
+          "quantified": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          },
+          "specified": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-monotonicity-extremum",
+            "recommendation": "preferred",
+            "route_id": "monotonicity-extremum",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "71d260c4b845cd094c7f9391d95824581f858872ab0b0edb8a4d3b3b80380606",
+      "status": "interactive",
+      "interaction_id": "a28daaacf65eea36bac822f3"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-002-children",
+      "ordinal": 2,
+      "math_step_sha256": "de211b7d80d7b25d3fa7c5879cd71a2a309033a1b7083b40b9d1b05d410532ec",
+      "status": "interactive",
+      "interaction_id": "64496c56b1cef7946492e606"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-003-operations",
+      "ordinal": 3,
+      "math_step_sha256": "2186804e4af26159a6dd9fbed229440d3a7ad34205c82c160cabcc0efd442d5e",
+      "status": "interactive",
+      "interaction_id": "1b9c9d7d4624b0e01d18a5ac"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-004-conclude",
+      "ordinal": 4,
+      "math_step_sha256": "d7dfb768424ce098bd1c9e5ca71773a454621b11a34e53e883efdee3eef095e7",
+      "status": "interactive",
+      "interaction_id": "d500007461856e340ef244cc"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:monotonicity-extremum:complete",
+      "last_seq": 29
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-monotonicity-extremum",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-monotonicity-extremum",
+          "step": "inputs",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-monotonicity-extremum",
+          "step": "inputs",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-monotonicity-extremum",
+          "step": "children",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-monotonicity-structure",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-monotonicity-structure",
+          "step": "domain",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#elements"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-monotonicity-structure",
+          "step": "square",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 7,
+          "method": "method-monotonicity-structure",
+          "step": "analyze",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 8,
+          "method": "method-monotonicity-structure",
+          "step": "compose",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 9,
+          "method": "method-monotonicity-structure",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 10,
+          "method": "method-monotonicity-structure",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 11,
+          "method": "method-monotonicity-extremum",
+          "step": "operations",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-operations",
+              "used_basis": [
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 12,
+          "method": "method-monotonicity-extremum",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 13,
+          "method": "method-monotonicity-extremum",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "a28daaacf65eea36bac822f3",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "a9617bea4bc5e041afc031b03f955e920bf22ff571915fcd88f96ba290422f30",
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "分离分式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "分离后的式子",
+                "math": "2-\\frac{5}{x + 3}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a28daaacf65eea36bac822f3#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2 + \\frac{5}{x + 3}$",
+                "value": "o2"
+              },
+              {
+                "label": "$- 5 x - 13$",
+                "value": "o3"
+              },
+              {
+                "label": "$2-\\frac{5}{x + 3}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将分式写成常数与一个倒数项，原分母的限制仍要保留。",
+          "stem_board": {
+            "caption": "分离分式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "分离后的式子",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "分离分式"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "71d260c4b845cd094c7f9391d95824581f858872ab0b0edb8a4d3b3b80380606",
+          "step_id": "39e5646dcb-monotonicity-extremum-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "64496c56b1cef7946492e606",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "2d7bc11c8360cbe5dcb5d916fe6b6dd83d588954bec0e137a5ce63bd7facd860",
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "判断一次函数的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "一次函数与区间",
+                "math": "\\begin{gathered}g(x)=x + 3\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "从左向右",
+                "math": "\\uparrow"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "辅助函数 g；图中箭头与区间对应前面已确认的增减方向。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3.0,
+                3.0,
+                -1.0,
+                6.0
+              ],
+              "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+              "interval": [
+                -2.0,
+                2.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2.0,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2.0,
+                  "trend": "increasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0.0,
+                    1.0,
+                    3.0
+                  ],
+                  "interval": [
+                    -2.0,
+                    2.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "辅助函数 g",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  2.0,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "辅助函数 g；着色区间是当前小问，问号处待判断。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3.0,
+                3.0,
+                -1.0,
+                6.0
+              ],
+              "description": "只绘制允许输入范围内的曲线；实心端点取到，空心端点不取。区间标在图下方；问号对应当前待判断的一段，箭头表示已确认的增减。",
+              "interval": [
+                -2.0,
+                2.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2.0,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2.0,
+                  "trend": "pending"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0.0,
+                    1.0,
+                    3.0
+                  ],
+                  "interval": [
+                    -2.0,
+                    2.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "transform": "identity"
+                }
+              ],
+              "title": "辅助函数 g",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  2.0,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "64496c56b1cef7946492e606#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\downarrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\uparrow$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{常值}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "根据一次项系数判断；系数为零时是常值。",
+          "stem_board": {
+            "caption": "判断一次函数的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "一次函数与区间",
+                "math": "\\begin{gathered}g(x)=x + 3\\\\x\\in \\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "从左向右",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "一次函数在 $\\left[-2, 2\\right]$ 上的增减"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "de211b7d80d7b25d3fa7c5879cd71a2a309033a1b7083b40b9d1b05d410532ec",
+          "step_id": "39e5646dcb-monotonicity-extremum-002-children"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "1b9c9d7d4624b0e01d18a5ac",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "8ad077dc545421b00872d3dff829c8c0865ec52bb280a210ef6df607d7270505",
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "取倒数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=x + 3\\;\\uparrow\\end{gathered}\\\\x + 3>0\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": "\\downarrow"
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "取倒数",
+              "math": "v=\\frac{1}{u}"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1b9c9d7d4624b0e01d18a5ac#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\rightarrow\\;\\text{常值}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\uparrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\downarrow$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在图示区间和符号条件下，这次运算后增减方向怎样变化？",
+          "stem_board": {
+            "caption": "取倒数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=x + 3\\;\\uparrow\\end{gathered}\\\\x + 3>0\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": null
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "取倒数",
+              "math": "v=\\frac{1}{u}"
+            }
+          },
+          "submit_label": "确认判断",
+          "title": "取倒数后的增减"
+        },
+        {
+          "completion_board": {
+            "caption": "乘常数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=\\frac{1}{x + 3}\\;\\downarrow\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": "\\uparrow"
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "乘常数",
+              "math": "v=- 5 u"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1b9c9d7d4624b0e01d18a5ac#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\downarrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\rightarrow\\;\\text{常值}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\uparrow$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在图示区间和符号条件下，这次运算后增减方向怎样变化？",
+          "stem_board": {
+            "caption": "乘常数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=\\frac{1}{x + 3}\\;\\downarrow\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": null
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "乘常数",
+              "math": "v=- 5 u"
+            }
+          },
+          "submit_label": "确认判断",
+          "title": "乘常数后的增减"
+        },
+        {
+          "completion_board": {
+            "caption": "加常数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=- \\frac{5}{x + 3}\\;\\uparrow\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": "\\uparrow"
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "加常数",
+              "math": "v=u + 2"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1b9c9d7d4624b0e01d18a5ac#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\uparrow$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\downarrow$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\rightarrow\\;\\text{常值}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在图示区间和符号条件下，这次运算后增减方向怎样变化？",
+          "stem_board": {
+            "caption": "加常数后的增减",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left[-2, 2\\right]\\\\u=- \\frac{5}{x + 3}\\;\\uparrow\\end{gathered}"
+              },
+              {
+                "label": "运算后的方向",
+                "math": null
+              }
+            ],
+            "layout": "derivation",
+            "operation": {
+              "label": "加常数",
+              "math": "v=u + 2"
+            }
+          },
+          "submit_label": "确认判断",
+          "title": "加常数后的增减"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "2186804e4af26159a6dd9fbed229440d3a7ad34205c82c160cabcc0efd442d5e",
+          "step_id": "39e5646dcb-monotonicity-extremum-003-operations"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "d500007461856e340ef244cc",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "16020908e3d7918bd10f8fece79ebf55c10d6d909985f041357cc2071e8a5013",
+      "lesson_version": "f0bece8ca591d4065035337918faddb5b538e29f35ea0b6fba1ff8a68a881a0c",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "选择最大值的位置",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}\\\\x\\in \\left[-2, 2\\right]\\quad \\uparrow\\end{gathered}"
+              },
+              {
+                "label": "可取得的位置",
+                "math": "\\left\\{2\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "取等位置已标出；虚线对应这个位置的函数值。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3.0,
+                3.0,
+                -3.761904761904762,
+                1.98989898989899
+              ],
+              "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+              "interval": [
+                -2.0,
+                2.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2.0,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2.0,
+                  "trend": "increasing"
+                }
+              ],
+              "level": 1.0,
+              "points": [
+                {
+                  "label": "2",
+                  "open": false,
+                  "x": 2.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    0.0,
+                    2.0,
+                    1.0
+                  ],
+                  "denominator": [
+                    1.0,
+                    3.0
+                  ],
+                  "interval": [
+                    -2.0,
+                    2.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "transform": "rational"
+                }
+              ],
+              "title": "根据增减寻找最值",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  2.0,
+                  "2"
+                ]
+              ],
+              "yTicks": [
+                [
+                  1.0,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "图中标出已确认的增减区间；最值还要检查取等位置。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3.0,
+                3.0,
+                -3.761904761904762,
+                1.98989898989899
+              ],
+              "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+              "interval": [
+                -2.0,
+                2.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2.0,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2.0,
+                  "trend": "increasing"
+                }
+              ],
+              "points": [],
+              "segments": [
+                {
+                  "coefficients": [
+                    0.0,
+                    2.0,
+                    1.0
+                  ],
+                  "denominator": [
+                    1.0,
+                    3.0
+                  ],
+                  "interval": [
+                    -2.0,
+                    2.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "transform": "rational"
+                }
+              ],
+              "title": "根据增减寻找最值",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  2.0,
+                  "2"
+                ]
+              ]
+            }
+          },
+          "id": "d500007461856e340ef244cc#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left\\{2\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{没有能取到该界的输入}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left\\{-2\\right\\}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "根据已确认的增减选择位置；先检查这个输入是否允许取到。",
+          "stem_board": {
+            "caption": "选择最大值的位置",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}\\\\x\\in \\left[-2, 2\\right]\\quad \\uparrow\\end{gathered}"
+              },
+              {
+                "label": "可取得的位置",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "选择最大值的位置"
+        },
+        {
+          "completion_board": {
+            "caption": "求出最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}\\\\x\\in \\left\\{2\\right\\}\\end{gathered}"
+              },
+              {
+                "label": "最大值",
+                "math": "1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "取等位置已标出；虚线对应这个位置的函数值。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -3.0,
+                3.0,
+                -3.761904761904762,
+                1.98989898989899
+              ],
+              "description": "箭头是已确认的方向。实心端点可以取到，空心端点不能取到。",
+              "interval": [
+                -2.0,
+                2.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [
+                {
+                  "from": -2.0,
+                  "label": "[-2, 2]",
+                  "left_closed": true,
+                  "right_closed": true,
+                  "to": 2.0,
+                  "trend": "increasing"
+                }
+              ],
+              "level": 1.0,
+              "points": [
+                {
+                  "label": "2",
+                  "open": false,
+                  "x": 2.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    0.0,
+                    2.0,
+                    1.0
+                  ],
+                  "denominator": [
+                    1.0,
+                    3.0
+                  ],
+                  "interval": [
+                    -2.0,
+                    2.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ],
+                  "transform": "rational"
+                }
+              ],
+              "title": "根据增减寻找最值",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  2.0,
+                  "2"
+                ]
+              ],
+              "yTicks": [
+                [
+                  1.0,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "d500007461856e340ef244cc#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2$",
+                "value": "o2"
+              },
+              {
+                "label": "$1$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{不存在}$",
+                "value": "o4"
+              },
+              {
+                "label": "$-1$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把合法位置代回原式；有限但取不到的界不能叫最值。",
+          "stem_board": {
+            "caption": "求出最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\begin{gathered}f(x)=\\frac{2 x + 1}{x + 3}\\\\x\\in \\left[-2, 2\\right]\\end{gathered}\\\\x\\in \\left\\{2\\right\\}\\end{gathered}"
+              },
+              {
+                "label": "最大值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求出最大值"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "3ab3dd006cc14e458d72db5d60cdb296",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "d7dfb768424ce098bd1c9e5ca71773a454621b11a34e53e883efdee3eef095e7",
+          "step_id": "39e5646dcb-monotonicity-extremum-004-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

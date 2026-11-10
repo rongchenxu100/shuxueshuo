@@ -1291,6 +1291,40 @@
       ]
     },
     {
+      "id": "method-monotonicity-parameter",
+      "kind": "method",
+      "label": "单调性条件求参法",
+      "summary": "按参数分类讨论斜率、开口或对称轴，保证指定区间上的严格增减；分段函数还要逐段判断并检查分界点处的函数值，再合并必要充分的参数范围。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "读清单调性要求",
+          "calls": []
+        },
+        {
+          "id": "classify",
+          "title": "按参数与结构分情况",
+          "calls": []
+        },
+        {
+          "id": "axis",
+          "title": "判断段内增减条件",
+          "calls": []
+        },
+        {
+          "id": "conclude",
+          "title": "合并条件并回到原目标",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "独立核验",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-monotonicity-structure",
       "kind": "method",
       "label": "基本函数与复合法",
@@ -2253,6 +2287,15 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "rule-monotonicity-parameter-method",
+      "kind": "judgment_rule",
+      "subtype": "method_selection",
+      "label": "单调性求参的选法判断",
+      "summary": "已知函数在指定区间上的增减性求参数时，用单调性条件求参法。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "rule-piecewise-range-parameter",
       "kind": "judgment_rule",
       "subtype": "step_selection",
@@ -2662,9 +2705,9 @@
       "id": "type-monotonicity-parameter",
       "kind": "problem_type",
       "label": "已知函数的单调性求参",
-      "summary": "已知函数的单调性求参；后续题型建设。",
+      "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
       "aliases": [],
-      "status": "planned",
+      "status": "active",
       "home": "compulsory-1-ch3"
     },
     {
@@ -5085,6 +5128,18 @@
       ]
     },
     {
+      "id": "rule-monotonicity-parameter-method|selects|method-monotonicity-parameter",
+      "from": "rule-monotonicity-parameter-method",
+      "to": "method-monotonicity-parameter",
+      "type": "selects",
+      "occurrences": [
+        {
+          "branch": "parameter",
+          "condition": "已知或要求函数在指定区间严格递增／递减，求使该性质成立的参数。"
+        }
+      ]
+    },
+    {
       "id": "rule-piecewise-range-parameter|selects|method-piecewise-range-parameter",
       "from": "rule-piecewise-range-parameter",
       "to": "method-piecewise-range-parameter",
@@ -7348,10 +7403,28 @@
       ]
     },
     {
+      "id": "type-monotonicity-parameter|candidate|method-monotonicity-parameter",
+      "from": "type-monotonicity-parameter",
+      "to": "method-monotonicity-parameter",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-monotonicity-parameter|involves|function-monotonicity",
       "from": "type-monotonicity-parameter",
       "to": "function-monotonicity",
       "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-monotonicity-parameter|method_rule|rule-monotonicity-parameter-method",
+      "from": "type-monotonicity-parameter",
+      "to": "rule-monotonicity-parameter-method",
+      "type": "method_rule",
       "occurrences": [
         {}
       ]

@@ -1,0 +1,965 @@
+{
+  "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+  "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+  "input_sha256": "265f3a0d2cc8d16d41d36f508f630de311236c57e5c28d668ff2aeb327382c48",
+  "stream_id": "53b9acfc7ffa47a999094c2d200a0567",
+  "last_seq": 30,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "$$\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\n\\in\\mathbb Z,\\quad 0<t\\le 2\\end{gathered}$$",
+      "highlight": {
+        "caption": "把各段移回已知区间",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}f(x+2)=2f(x)\\\\f(0+t)=t \\left(t - 2\\right),\\quad 0<t\\le 2\\end{gathered}"
+          },
+          {
+            "label": "任意一段的函数式",
+            "math": "\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\n\\in\\mathbb Z,\\quad 0<t\\le 2\\end{gathered}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "local_check": "passed",
+      "math_step_sha256": "5083afdada3492ae01f6b01c337228a67f911ba43a2b5e21a2f61f53a43a8aee",
+      "method_ref": "method-monotonicity-extremum#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "10c23ab4ecc72313b370b22c74aea3248953a86a60e365d0c377783ac5c86e61",
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "把各段移回已知区间",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "children",
+      "explanation": "$$\\min=2^n\\cdot\\left(-1\\right)$$",
+      "highlight": {
+        "caption": "求每一整段的最小值",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\t \\left(t - 2\\right)=\\left(t - 1\\right)^{2} - 1\\end{gathered}"
+          },
+          {
+            "label": "第 n 段的最小值",
+            "math": "\\min=2^n\\cdot\\left(-1\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "local_check": "passed",
+      "math_step_sha256": "d62a9a846628ca2084a51174024ce9c8643caffa3236b3c807ade1f56c6f60b3",
+      "method_ref": "method-monotonicity-extremum#operations",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "10c23ab4ecc72313b370b22c74aea3248953a86a60e365d0c377783ac5c86e61",
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "source_refs": [
+        "/steps/10/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-002-children",
+      "target_ref": "/root/goals/0",
+      "title": "求每一整段的最小值",
+      "used_basis": [
+        "function-monotonicity-operations#reciprocal",
+        "function-monotonicity-operations#sum-difference"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "operations",
+      "explanation": "$2>1,\\quad -1<0$\n$j<2\\Rightarrow -1\\cdot 2^j\\ge -2\\ge -3$\n$\\text{此前所有整段均满足下界；只需研究 }(4,6]$",
+      "highlight": {
+        "caption": "找到第一次低于下界的一段",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}\\min_n=-1\\cdot 2^n\\\\f(x)\\ge -3\\end{gathered}"
+          },
+          {
+            "label": "首次出现不满足下界的位置",
+            "math": "\\begin{gathered}n=2\\\\\\min_{1}=-2\\ge -3\\\\\\min_{2}=-4<-3\\end{gathered}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "local_check": "passed",
+      "math_step_sha256": "696d19fcc1721d83e64ab75023975001717bf3c09fa647c50bea37a96c921102",
+      "method_ref": "method-monotonicity-extremum#operations",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "10c23ab4ecc72313b370b22c74aea3248953a86a60e365d0c377783ac5c86e61",
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "source_refs": [
+        "/steps/10/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-003-operations",
+      "target_ref": "/root/goals/0",
+      "title": "找到第一次低于下界的一段",
+      "used_basis": [
+        "function-monotonicity-operations#reciprocal",
+        "function-monotonicity-operations#sum-difference"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$$\\begin{gathered}\\begin{gathered}t=\\frac{1}{2}\\\\x=4+t=\\frac{9}{2}\\end{gathered}\\\\m_{\\max}=\\frac{9}{2}\\end{gathered}$$",
+      "highlight": {
+        "caption": "写出右端点的最大值",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}\\forall x\\le m,\\quad f(x)\\ge -3\\\\f(\\frac{9}{2})=-3\\end{gathered}"
+          },
+          {
+            "label": "右端点的最大值",
+            "math": "m_{\\max}=\\frac{9}{2}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "local_check": "passed",
+      "math_step_sha256": "ad645618598952f905b99676e58ed2d96e3f15d889e0d55877849b6f069c6ca4",
+      "method_ref": "method-monotonicity-extremum#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "10c23ab4ecc72313b370b22c74aea3248953a86a60e365d0c377783ac5c86e61",
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "source_refs": [
+        "/steps/11/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-extremum-004-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "写出右端点的最大值",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "derived_answer",
+        "quantity": "maximum",
+        "request_kind": "extremum",
+        "status": "attained",
+        "value": {
+          "exact": {
+            "$math": "Rational",
+            "p": "9",
+            "q": "2"
+          },
+          "expression": "9/2",
+          "latex": "\\frac{9}{2}"
+        }
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "derived_answer",
+        "quantity": "maximum",
+        "request_kind": "extremum",
+        "status": "attained",
+        "value": {
+          "exact": {
+            "$math": "Rational",
+            "p": "9",
+            "q": "2"
+          },
+          "expression": "9/2",
+          "latex": "\\frac{9}{2}"
+        }
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "math_steps": [
+        {
+          "math_step_sha256": "5083afdada3492ae01f6b01c337228a67f911ba43a2b5e21a2f61f53a43a8aee",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-monotonicity-extremum-001-prepare"
+        },
+        {
+          "math_step_sha256": "d62a9a846628ca2084a51174024ce9c8643caffa3236b3c807ade1f56c6f60b3",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-monotonicity-extremum-002-children"
+        },
+        {
+          "math_step_sha256": "696d19fcc1721d83e64ab75023975001717bf3c09fa647c50bea37a96c921102",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-monotonicity-extremum-003-operations"
+        },
+        {
+          "math_step_sha256": "ad645618598952f905b99676e58ed2d96e3f15d889e0d55877849b6f069c6ca4",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-monotonicity-extremum-004-conclude"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "d8cc10a669572dd5c38c89388c288ad817e92e09730bcb6d569449d312439f59",
+      "verified_route_sha256": "f35d8ad2ddb662a9c7db3e4e43df4e8e8398afc642a61f7f056d3fe7fad0040c"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-monotonicity-extremum",
+          "op": "methods"
+        },
+        "question": "先用递推关系连接各段，比较整段最小值，再找第一次越过下界的位置。",
+        "submit_label": "用单调性求最值法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "recurrence",
+            "message": "开始解题",
+            "method": "method-monotonicity-extremum",
+            "recommendation": "preferred",
+            "route_id": "monotonicity-extremum",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "5083afdada3492ae01f6b01c337228a67f911ba43a2b5e21a2f61f53a43a8aee",
+      "status": "interactive",
+      "interaction_id": "d3d2c65c60f49a8b4ae84a91"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-002-children",
+      "ordinal": 2,
+      "math_step_sha256": "d62a9a846628ca2084a51174024ce9c8643caffa3236b3c807ade1f56c6f60b3",
+      "status": "interactive",
+      "interaction_id": "4440205447c8305f4ff68265"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-003-operations",
+      "ordinal": 3,
+      "math_step_sha256": "696d19fcc1721d83e64ab75023975001717bf3c09fa647c50bea37a96c921102",
+      "status": "interactive",
+      "interaction_id": "d9b6c25b1631a07d9e8c751e"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "step_id": "39e5646dcb-monotonicity-extremum-004-conclude",
+      "ordinal": 4,
+      "math_step_sha256": "ad645618598952f905b99676e58ed2d96e3f15d889e0d55877849b6f069c6ca4",
+      "status": "interactive",
+      "interaction_id": "23d356da0b57367065732029"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "10c23ab4ecc72313b370b22c74aea3248953a86a60e365d0c377783ac5c86e61",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:monotonicity-extremum:complete",
+      "last_seq": 30
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-extremum",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-monotonicity-extremum",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-monotonicity-extremum",
+          "step": "inputs",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-monotonicity-extremum",
+          "step": "inputs",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-monotonicity-extremum",
+          "step": "children",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-monotonicity-structure",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-monotonicity-structure",
+          "step": "domain",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#elements"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-monotonicity-structure",
+          "step": "square",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-complete-square",
+              "used_basis": [
+                "equality-properties#identity",
+                "square-nonnegative#nonnegative"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 7,
+          "method": "method-monotonicity-structure",
+          "step": "analyze",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 8,
+          "method": "method-monotonicity-structure",
+          "step": "compose",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 9,
+          "method": "method-monotonicity-structure",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "composite-function-monotonicity#rule",
+                "quadratic-function-properties#monotonicity"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 10,
+          "method": "method-monotonicity-structure",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 11,
+          "method": "method-monotonicity-extremum",
+          "step": "operations",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-operations",
+              "used_basis": [
+                "function-monotonicity-operations#reciprocal",
+                "function-monotonicity-operations#sum-difference"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 12,
+          "method": "method-monotonicity-extremum",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 13,
+          "method": "method-monotonicity-extremum",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "d3d2c65c60f49a8b4ae84a91",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "e308f792185e0d86dd2238517e62bc2378a87d733136f4ffe4e6c33ed8b82f67",
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "把各段移回已知区间",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x+2)=2f(x)\\\\f(0+t)=t \\left(t - 2\\right),\\quad 0<t\\le 2\\end{gathered}"
+              },
+              {
+                "label": "任意一段的函数式",
+                "math": "\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\n\\in\\mathbb Z,\\quad 0<t\\le 2\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "d3d2c65c60f49a8b4ae84a91#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(0+n\\cdot 2+t)=t \\left(t - 2\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(0+n\\cdot 2+t)=2^n+t \\left(t - 2\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\n\\in\\mathbb Z,\\quad 0<t\\le 2\\end{gathered}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "向右平移一段乘同一个正数，向左则除以它。整数 n 可以为负，因此也覆盖左侧所有区间。",
+          "stem_board": {
+            "caption": "把各段移回已知区间",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x+2)=2f(x)\\\\f(0+t)=t \\left(t - 2\\right),\\quad 0<t\\le 2\\end{gathered}"
+              },
+              {
+                "label": "任意一段的函数式",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把各段移回已知区间"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "5083afdada3492ae01f6b01c337228a67f911ba43a2b5e21a2f61f53a43a8aee",
+          "step_id": "39e5646dcb-monotonicity-extremum-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "4440205447c8305f4ff68265",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "e07dd835fa2563a3363450523865fff8b092ae9edfcb95b1b50b851741cb9642",
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "求每一整段的最小值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\t \\left(t - 2\\right)=\\left(t - 1\\right)^{2} - 1\\end{gathered}"
+              },
+              {
+                "label": "第 n 段的最小值",
+                "math": "\\min=2^n\\cdot\\left(-1\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "4440205447c8305f4ff68265#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2^n\\cdot 1$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\min=2^n\\cdot\\left(-1\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$0$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先把基准段配方。乘数始终为正，所以每段都在中点取得最小值。",
+          "stem_board": {
+            "caption": "求每一整段的最小值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(0+n\\cdot 2+t)=2^n\\cdot t \\left(t - 2\\right)\\\\t \\left(t - 2\\right)=\\left(t - 1\\right)^{2} - 1\\end{gathered}"
+              },
+              {
+                "label": "第 n 段的最小值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求每一整段的最小值"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "d62a9a846628ca2084a51174024ce9c8643caffa3236b3c807ade1f56c6f60b3",
+          "step_id": "39e5646dcb-monotonicity-extremum-002-children"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "d9b6c25b1631a07d9e8c751e",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "02473cf4ad3f9004e6e852ed8ba25e7d7d09802f1611d8ece4490e82fcd234e1",
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "找到第一次低于下界的一段",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\min_n=-1\\cdot 2^n\\\\f(x)\\ge -3\\end{gathered}"
+              },
+              {
+                "label": "首次出现不满足下界的位置",
+                "math": "\\begin{gathered}n=2\\\\\\min_{1}=-2\\ge -3\\\\\\min_{2}=-4<-3\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "d9b6c25b1631a07d9e8c751e#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\begin{gathered}n=2\\\\\\min_{1}=-2\\ge -3\\\\\\min_{2}=-4<-3\\end{gathered}$",
+                "value": "o1"
+              },
+              {
+                "label": "$n=1$",
+                "value": "o2"
+              },
+              {
+                "label": "$n=3$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "整段最小值随 n 增大而变小。只要上一整段仍满足下界，就能同时保证它前面的所有整段。",
+          "stem_board": {
+            "caption": "找到第一次低于下界的一段",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\min_n=-1\\cdot 2^n\\\\f(x)\\ge -3\\end{gathered}"
+              },
+              {
+                "label": "首次出现不满足下界的位置",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "找到第一次低于下界的一段"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "696d19fcc1721d83e64ab75023975001717bf3c09fa647c50bea37a96c921102",
+          "step_id": "39e5646dcb-monotonicity-extremum-003-operations"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "23d356da0b57367065732029",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "579d83468b926752d7daa7cf8ab060b5a1eaee53f805dc6f936a3b72ce8830c1",
+      "lesson_version": "ca4ff84a8fb8d2fae1bb478095da2fcc80059ce11eb94363c92f933df09ca33f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "在下降的一侧找到边界",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}4 t^{2} - 8 t=-3\\\\0<t<1\\end{gathered}"
+              },
+              {
+                "label": "第一次到达下界",
+                "math": "\\begin{gathered}t=\\frac{1}{2}\\\\x=4+t=\\frac{9}{2}\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "23d356da0b57367065732029#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x=5$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\begin{gathered}t=\\frac{1}{2}\\\\x=4+t=\\frac{9}{2}\\end{gathered}$",
+                "value": "o1"
+              },
+              {
+                "label": "$x=\\frac{11}{2}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "这一段从左端向中点递减。先求第一次碰到下界的位置；超过它后，会出现小于下界的函数值。",
+          "stem_board": {
+            "caption": "在下降的一侧找到边界",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}4 t^{2} - 8 t=-3\\\\0<t<1\\end{gathered}"
+              },
+              {
+                "label": "第一次到达下界",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "在下降的一侧找到边界"
+        },
+        {
+          "completion_board": {
+            "caption": "写出右端点的最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\forall x\\le m,\\quad f(x)\\ge -3\\\\f(\\frac{9}{2})=-3\\end{gathered}"
+              },
+              {
+                "label": "右端点的最大值",
+                "math": "m_{\\max}=\\frac{9}{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "23d356da0b57367065732029#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$m_{\\max}=\\frac{9}{2}$",
+                "value": "o1"
+              },
+              {
+                "label": "$m_{\\max}=-3$",
+                "value": "o2"
+              },
+              {
+                "label": "$m_{\\max}=\\frac{11}{2}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "边界处恰好等于下界，可以取到；任何更大的右端点都会包含不满足条件的点。",
+          "stem_board": {
+            "caption": "写出右端点的最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\forall x\\le m,\\quad f(x)\\ge -3\\\\f(\\frac{9}{2})=-3\\end{gathered}"
+              },
+              {
+                "label": "右端点的最大值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "写出右端点的最大值"
+        }
+      ],
+      "route_id": "monotonicity-extremum",
+      "run_id": "53b9acfc7ffa47a999094c2d200a0567",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "ad645618598952f905b99676e58ed2d96e3f15d889e0d55877849b6f069c6ca4",
+          "step_id": "39e5646dcb-monotonicity-extremum-004-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

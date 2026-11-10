@@ -1,0 +1,312 @@
+{
+  "search_id": "1c774cb24eaf",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "50156aad-e9d7-49bb-b0d3-b12b934b68a8",
+  "statement": "函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是 ______．",
+  "recognition_status": "reviewed",
+  "lesson_status": "failed",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "0fe8d7a8f7eb177be3d22f56e5472696bfdc94dd69d2e936501ac8684069ed7e",
+      "width": 1010,
+      "height": 110,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/1c774cb24eaf/figures/original?version=4432613bb3aadb4f17fbca2cd8683bbb194f70e85b39ce63ab56718ac9f7d8c1"
+      }
+    ],
+    "content_id": "4432613bb3aadb4f17fbca2cd8683bbb194f70e85b39ce63ab56718ac9f7d8c1"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "45aa63cfb456",
+    "box": [
+      0.11727912431587177,
+      0.5744431418522861,
+      0.9069585613760751,
+      0.6389214536928488
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1010,
+      110
+    ],
+    "bytes": 5963
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "16. 函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是 ______．",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=(2*x+1)/(x+3)"
+    ],
+    "facts": [
+      "x∈[-2,2]"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f",
+        "input_domain": "[-2,2]",
+        "answer_request": {
+          "kind": "extremum",
+          "quantity": "maximum"
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "6edb6f60c3e812bdfe4900987c38e72afdb4730c1a51473db9727163f0ef25a4",
+    "sent_image_sha256": [
+      "6edb6f60c3e812bdfe4900987c38e72afdb4730c1a51473db9727163f0ef25a4"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 53.955,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-extremum",
+        "supported": [
+          "type-monotonicity-extremum"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.extremum_source_not_located",
+              "target_ref": "/root/goals/0"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-extremum",
+            "label": "利用单调性求最值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+            ],
+            "choice_hint": "直接求最值，或把量词比较／指定点最值条件转化成参数范围"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是求最值或转化成参数范围。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "b1a1adc5f0b440768de216d71dba8568",
+      "lesson_version": "881c388d82ff18dcddaa9af574529f2129e7d8ce99cab9eeb63edec1ca76a313",
+      "stream_id": "b1a1adc5f0b440768de216d71dba8568",
+      "snapshot_url": "/api/search/problems/1c774cb24eaf/lesson/b1a1adc5f0b440768de216d71dba8568/snapshot",
+      "events_url": "/api/search/problems/1c774cb24eaf/lesson/b1a1adc5f0b440768de216d71dba8568/events",
+      "websocket_url": "/api/search/problems/1c774cb24eaf/lesson/b1a1adc5f0b440768de216d71dba8568/ws"
+    }
+  }
+}

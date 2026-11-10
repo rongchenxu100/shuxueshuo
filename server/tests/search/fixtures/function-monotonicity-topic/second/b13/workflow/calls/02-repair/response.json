@@ -1,0 +1,150 @@
+{
+  "text": "{\"original_text\":\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________\",\"root\":{\"facts\":[\"Dom(f)=[0,+∞)\",\"f(2*x-1) < f(1/3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在区间 $[0,+\\\\infty)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\\\left(\\\\frac{1}{3}\\\\right)$ 的 $x$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3171,
+      "prompt_tokens": 23965,
+      "total_tokens": 27136,
+      "prompt_cache_hit_tokens": 23296,
+      "prompt_cache_miss_tokens": 669
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 739,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-62ce2ea8-e773-4c7d-8d0e-2f92d1cc4204",
+        "sha256": "591412cdbb371140c7ea4652971ba6b145ea906ffc06759de29116117a54650b",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14965,
+        "expires_at": 1794368301,
+        "uploaded_at": 1794281901.959328
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "591412cdbb371140c7ea4652971ba6b145ea906ffc06759de29116117a54650b",
+        "file_id": "file-api-62ce2ea8-e773-4c7d-8d0e-2f92d1cc4204",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 20838,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3171,
+          "prompt_tokens": 23965,
+          "total_tokens": 27136,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2889
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23296
+          },
+          "prompt_cache_hit_tokens": 23296,
+          "prompt_cache_miss_tokens": 669
+        },
+        "raw_payload": {
+          "id": "3bfca343-53f2-402b-849c-b4286befe0dd",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3171,
+            "prompt_tokens": 23965,
+            "total_tokens": 27136,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2889
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23296
+            },
+            "prompt_cache_hit_tokens": 23296,
+            "prompt_cache_miss_tokens": 669
+          },
+          "created": 1794281929,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________\",\"root\":{\"facts\":[\"Dom(f)=[0,+∞)\",\"f(2*x-1) < f(1/3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在区间 $[0,+\\\\infty)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\\\left(\\\\frac{1}{3}\\\\right)$ 的 $x$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要输出 JSON 满足 schema。需要从图片提取题目，不抄手写答案（手写答案 [1/2,2/3) 不能写）。图片内容：\n\n\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是____\"\n\n手写圈了单调递增，答案区间被手写填写 [1/2,2/3)。不能写入。原始题号13是来源题号，root.label? 图片开头有13.，通常题号。可以放 original_text 保留13，但 public_content statement 不包含题号。root.label 可选，如果放 root.label 可能 \"13\"。需 root_label_role=source。但 schema root.label optional, if exists role. 可以不在root放label? 题目提取通常 root label 可省略。为了 privacy separated，不把题号放公开。original_text 可保留13。root label 可以不放，避免麻烦。但是需要表示题号？ original_text 保留。public_content scopes statement 不含13。\n\n数学结构：已知 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，求满足 f(2x-1) < f(1/3) 的 x 的取值范围。这是抽象函数，已知定义域 [0,+∞)，在区间上单调递增，求参数 x 范围。目标类型？ find_range.symbol x? 但涉及函数单调性。可以使用 find_range symbol=x，加 function_monotonicity? 这里单调性是题给已知事实，用于比较函数值。求 x 的范围。schema find_range 可以 symbol 求参数范围；function_monotonicity 表示题给同一函数的严格单调性事实；仅用于函数值比较转输入比较。这里题给 f 在 [0,+∞) 上单调递增，需记录 function_monotonicity with function f, domain [0,+∞), direction increasing, strict? 原题只说“单调递增”，没有说严格递增？在中文高中数学“单调递增”有时含严格递增，但按规则 strict 按原题保留，原题未说严格，但单调递增通常 strict? 需要小心。Schema says strict true表示严格单调，false表示非严格；按原题保留。原题“单调递增”一般指严格递增？但规则要求“无论某段或某参数是否看似...” 以及“没有‘唯一’不添加唯一性”。这里“单调递增”中文通常指严格递增？数学教材中“单调递增”定义可能 f(x1)<f(x2) 严格。然而 schema 描述 strict true 严格单调，false 非严格；按原题保留。题面没写“严格”，但“单调递增”在教材里一般指严格递增，且由 f(2x-1)<f(1/3) 推导需要严格。但提取不能推导。可以 strict=true? 需要判断。如果按原题字面“单调递增”，中文数学中“单调递增”通常确实表示随x增大函数值增大，严格不等。所以 strict=true 合理。但规则说“没有‘唯一’不添加唯一性”不是此。可选。若不确定可用 uncertainty ambiguous? 但可能不需要。记录事实：f定义在[0,+∞)，在区间上单调递增。定义放 definitions: f(x)? 函数f没有解析式，只定义域。definitions 可放 \"Dom(f)=[0,+∞)\"？规则：declared_domain 或 Dom(f)=D 是完整函数定义域。题面给定义在区间 [0,+∞)，事实可放 facts \"Dom(f)=[0,+∞)\"。不过 function_monotonicity 里没有 function_domain? 有 function_domain 可选，仅当原题明确给出完整定义域时转录。可填 function_domain=\"[0,+∞)\"。domain 是单调性成立区间，也 \"[0,+∞)\"。还需目标 f(2x-1)<f(1/3) 中，x 的范围。求范围目标用 find_range.symbol=\"x\"，同时条件放 facts 原不等式? 用 function_monotonicity 字段表示已知事实，并且需要记录目标不等式。find_range 的 symbol 目标，题面不等式应放 facts? 规则：find_range.symbol；原不等式或量词条件放所属 facts。这里目标求 x 范围，原不等式放 facts: \"f(2*x-1) < f(1/3)\"。同时定义域限制：f 的定义域 [0,+∞) 要求 2x-1≥0 与 1/3≥0，后者自然满足但不得推导。事实已有 Dom(f)=[0,+∞) 和不等式。求 x 范围目标。也可以使用函数单调性字段，但不能只靠它，还需要原不等式 condition。find_range 的 function_monotonicity 字段用于已知单调事实。同时 find_range.symbol=x。但是 find_range 的 oneOf? find_range symbol allowed with function_monotonicity. Good.\n\n目标： {\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}。 但是 find_range 目标还带有 function_monotonicity，这表示题给已知单调事实；可以。目标没有 expression 字段；原不等式在 facts。这样完整。\n\n但是否需要表达“x”范围是参数，而 function_monotonicity 中 f 是已知函数。Good.\n\n是否需要定义 f? 没有解析式。definitions 可放 \"f(x)\"? 不应补函数规则。题面“函数f(x)”可定义符号 f. 规则：definitions 仅曲线/函数定义及新概念；函数定义如 f(t)=...; 这里没有解析式，但 \"f(x)\" 命名函数？可以不放定义，facts 里用 f 也可识别？最好放 definitions: \"f(x)\"? 但定义没有右式，可能不合适。可用 facts \"Dom(f)=[0,+∞)\"。函数 f 未定义具体规则，但题面已有 f(x) 调用。root 的 facts 可包括 Dom(f)=[0,+∞)\" 和 \"f(2*x-1) < f(1/3)\"。find_range 的目标 function_monotonicity 引入 f。是否需要定义 f 名？可省略。但 abstract function known? 不强制。可以 definitions: [] 或省略。需要保留“函数f(x)是定义在区间[0,+∞)上的函数”这句；facts 放 Dom(f)=[0,+∞)。注意规则说：题给某函数定义域用 Dom(f)=D 放 facts。OK.\n\n函数单调性：“在该区间上单调递增” 可放 function_monotonicity 字段，而不是 facts，因为它是已知单调事实。但目标的字段属于目标，是否条件? 它在 root 的 facts? 规则：function_monotonicity 表示原题给定的已知单调事实。这字段在 find_range 目标内。如果题目是求范围，可以直接放在目标里。但“题给已知事实”似乎可放 find_range.function_monotonicity。不过条件属于根作用域更合适? 但字段只能目标没有 facts 中专门 monotonicity 类型，facts 可以用数学式 ∀? 单调性不是受控表达式? 可以在 facts 里写 \"f在[0,+∞)上单调递增\"? 但 facts 要求受控数学字符串，不夹带解释句；不能中文。因此 function_monotonicity 字段用于此。目标带有 function_monotonicity。也可能单独 fact 无法表示。所以放目标字段可以。\n\n需要 public_content。作用域只有 root（无小问）。 statement 要保留题干、条件和所求，不含题号、手写答案。公式用 $…$。可写：\n\"已知函数 $f(x)$ 是定义在区间 $[0,+\\infty)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\left(\\frac{1}{3}\\right)$ 的 $x$ 的取值范围是____。\"\n不含答案。手写圈和答案不抄。选择：无选项，choices status none, selection_mode none, options []，target_ref \"/root/goals/0\"。\n\noriginal_text: 保留完整原文包括13? 规则 original_text 保留原题转录，可保留题号。手写答案不能抄。图片手写圈“单调递增”是批注？是圈画，不是文字。手写答案 [1/2,2/3) 不能抄。原文最后的空白下划线可保留“____”或不含答案。可以写：\n\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________\"\n使用 LaTeX 或 Unicode 等义。注意 public 的 statement 不含题号13。 original_text 可以包含13。题号 13 是来源。 privacy separated 需要题号已分离？ public statement 不含，original_text 包含没关系? 规则 privacy 也涵盖 root 所有内容；original_text 可以保留来源题号，不能将其中题号误报成 statement 内容。所以 privacy 可以 separated，因为题号只在 original_text 保留，公开 statement 不含。root.label 若不放，不会暴露。Good.\n\nfigure_detection: no figure? 只有文字和公式，没有配图。 status none, regions [].\n\npublic_content.figure: not_required. completeness complete. privacy separated. root_label_role 可省略? schema 可选。由于 root.label 不放，可省略。scopes one with statement. Note statement should not include answer.\n\nroot fields: definitions maybe []? JSON allows optional. We can include definitions: []? Schema says definitions optional. facts array. goals array. children optional empty? Don't include. uncertainties optional maybe empty. Need label? no. Let's decide root:\n{\n \"facts\": [\"Dom(f)=[0,+∞)\", \"f(2*x-1) < f(1/3)\"],\n \"goals\": [{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}]\n}\nCan facts include Dom(f) if f not defined? It references f. It's a controlled relation. Is Dom(f) allowed? Catalog explicit function domain? It mentions Dom(f)=D. Yes.\n\nBut \"已知函数f(x)是定义在区间...\" Maybe need include \"Dom(f)=[0,+∞)\" and not \"f(x)\" def. Good.\n\nPotential issue: target x range also exists because f(2x-1) argument must be in domain; facts Dom(f). Code computes. Good.\n\nShould we include \"f(2*x-1) < f(1/3)\" in facts although also in statement. Yes.\n\nNo in_terms_of. No input_domain for target? This target symbol x is the variable; no additional input domain. Fine.\n\nCould we use find_range.symbol=\"x\" with function_monotonicity to compare f values? Yes.\n\nStrict: I think true. But is \"单调递增\" maybe non-strict? In Chinese high school, 单调递增 means strict? Actually人教A版: 如果对于定义域I内某个区间D上的任意两个自变量的值x1,x2，当x1<x2时，都有f(x1)<f(x2)，那么就说函数f(x)在区间D上是增函数（严格）。\"单调递增\" often equivalent. Use strict true.\n\nDOMAIN interval uses [0,+∞) with infinity. In JSON string need \"+∞\" or \"∞\"? Catalog interval syntax [a,∞). Use \"[0,+∞)\". Function domain same. The original \"区间[0,+∞)\". Good.\n\nOriginal text can use f(1/3) with parentheses. Fine.\n\nNeed output only JSON object. Ensure no figure_detection top-level (diagnostics said initial had top-level figure_detection unexpected and missing under public_content). So figure_detection inside public_content only. Response schema top-level required original_text, root, public_content. No extra top-level.\n\nNeed maybe include \"uncertainties\": []? Optional. Could omit.\n\npublic_content scopes statement includes no answer. Choices array. For target_ref /root/goals/0.\n\nNeed selection_mode for choices \"none\". status \"none\".\n\nLet's craft final JSON. Use exact field names. public_content has completeness, privacy, figure, scopes, figure_detection. Root label omitted. root_label_role omitted. The schema public_content requires figure_detection property; include status none regions [].\n\nNeed ensure statement contains no \"13.\" and no answer. It can include \"则满足...的取值范围是____。\" This is desired.\n\nOriginal_text can include \"13.\" and final blank. Is \"13.\" a source; allowed. Should not include hand-written answer. Good.\n\nLet's output.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 20865
+  },
+  "raw_payload": {
+    "id": "3bfca343-53f2-402b-849c-b4286befe0dd",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________\",\"root\":{\"facts\":[\"Dom(f)=[0,+∞)\",\"f(2*x-1) < f(1/3)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在区间 $[0,+\\\\infty)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\\\left(\\\\frac{1}{3}\\\\right)$ 的 $x$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要输出 JSON 满足 schema。需要从图片提取题目，不抄手写答案（手写答案 [1/2,2/3) 不能写）。图片内容：\n\n\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是____\"\n\n手写圈了单调递增，答案区间被手写填写 [1/2,2/3)。不能写入。原始题号13是来源题号，root.label? 图片开头有13.，通常题号。可以放 original_text 保留13，但 public_content statement 不包含题号。root.label 可选，如果放 root.label 可能 \"13\"。需 root_label_role=source。但 schema root.label optional, if exists role. 可以不在root放label? 题目提取通常 root label 可省略。为了 privacy separated，不把题号放公开。original_text 可保留13。root label 可以不放，避免麻烦。但是需要表示题号？ original_text 保留。public_content scopes statement 不含13。\n\n数学结构：已知 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，求满足 f(2x-1) < f(1/3) 的 x 的取值范围。这是抽象函数，已知定义域 [0,+∞)，在区间上单调递增，求参数 x 范围。目标类型？ find_range.symbol x? 但涉及函数单调性。可以使用 find_range symbol=x，加 function_monotonicity? 这里单调性是题给已知事实，用于比较函数值。求 x 的范围。schema find_range 可以 symbol 求参数范围；function_monotonicity 表示题给同一函数的严格单调性事实；仅用于函数值比较转输入比较。这里题给 f 在 [0,+∞) 上单调递增，需记录 function_monotonicity with function f, domain [0,+∞), direction increasing, strict? 原题只说“单调递增”，没有说严格递增？在中文高中数学“单调递增”有时含严格递增，但按规则 strict 按原题保留，原题未说严格，但单调递增通常 strict? 需要小心。Schema says strict true表示严格单调，false表示非严格；按原题保留。原题“单调递增”一般指严格递增？但规则要求“无论某段或某参数是否看似...” 以及“没有‘唯一’不添加唯一性”。这里“单调递增”中文通常指严格递增？数学教材中“单调递增”定义可能 f(x1)<f(x2) 严格。然而 schema 描述 strict true 严格单调，false 非严格；按原题保留。题面没写“严格”，但“单调递增”在教材里一般指严格递增，且由 f(2x-1)<f(1/3) 推导需要严格。但提取不能推导。可以 strict=true? 需要判断。如果按原题字面“单调递增”，中文数学中“单调递增”通常确实表示随x增大函数值增大，严格不等。所以 strict=true 合理。但规则说“没有‘唯一’不添加唯一性”不是此。可选。若不确定可用 uncertainty ambiguous? 但可能不需要。记录事实：f定义在[0,+∞)，在区间上单调递增。定义放 definitions: f(x)? 函数f没有解析式，只定义域。definitions 可放 \"Dom(f)=[0,+∞)\"？规则：declared_domain 或 Dom(f)=D 是完整函数定义域。题面给定义在区间 [0,+∞)，事实可放 facts \"Dom(f)=[0,+∞)\"。不过 function_monotonicity 里没有 function_domain? 有 function_domain 可选，仅当原题明确给出完整定义域时转录。可填 function_domain=\"[0,+∞)\"。domain 是单调性成立区间，也 \"[0,+∞)\"。还需目标 f(2x-1)<f(1/3) 中，x 的范围。求范围目标用 find_range.symbol=\"x\"，同时条件放 facts 原不等式? 用 function_monotonicity 字段表示已知事实，并且需要记录目标不等式。find_range 的 symbol 目标，题面不等式应放 facts? 规则：find_range.symbol；原不等式或量词条件放所属 facts。这里目标求 x 范围，原不等式放 facts: \"f(2*x-1) < f(1/3)\"。同时定义域限制：f 的定义域 [0,+∞) 要求 2x-1≥0 与 1/3≥0，后者自然满足但不得推导。事实已有 Dom(f)=[0,+∞) 和不等式。求 x 范围目标。也可以使用函数单调性字段，但不能只靠它，还需要原不等式 condition。find_range 的 function_monotonicity 字段用于已知单调事实。同时 find_range.symbol=x。但是 find_range 的 oneOf? find_range symbol allowed with function_monotonicity. Good.\n\n目标： {\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}。 但是 find_range 目标还带有 function_monotonicity，这表示题给已知单调事实；可以。目标没有 expression 字段；原不等式在 facts。这样完整。\n\n但是否需要表达“x”范围是参数，而 function_monotonicity 中 f 是已知函数。Good.\n\n是否需要定义 f? 没有解析式。definitions 可放 \"f(x)\"? 不应补函数规则。题面“函数f(x)”可定义符号 f. 规则：definitions 仅曲线/函数定义及新概念；函数定义如 f(t)=...; 这里没有解析式，但 \"f(x)\" 命名函数？可以不放定义，facts 里用 f 也可识别？最好放 definitions: \"f(x)\"? 但定义没有右式，可能不合适。可用 facts \"Dom(f)=[0,+∞)\"。函数 f 未定义具体规则，但题面已有 f(x) 调用。root 的 facts 可包括 Dom(f)=[0,+∞)\" 和 \"f(2*x-1) < f(1/3)\"。find_range 的目标 function_monotonicity 引入 f。是否需要定义 f 名？可省略。但 abstract function known? 不强制。可以 definitions: [] 或省略。需要保留“函数f(x)是定义在区间[0,+∞)上的函数”这句；facts 放 Dom(f)=[0,+∞)。注意规则说：题给某函数定义域用 Dom(f)=D 放 facts。OK.\n\n函数单调性：“在该区间上单调递增” 可放 function_monotonicity 字段，而不是 facts，因为它是已知单调事实。但目标的字段属于目标，是否条件? 它在 root 的 facts? 规则：function_monotonicity 表示原题给定的已知单调事实。这字段在 find_range 目标内。如果题目是求范围，可以直接放在目标里。但“题给已知事实”似乎可放 find_range.function_monotonicity。不过条件属于根作用域更合适? 但字段只能目标没有 facts 中专门 monotonicity 类型，facts 可以用数学式 ∀? 单调性不是受控表达式? 可以在 facts 里写 \"f在[0,+∞)上单调递增\"? 但 facts 要求受控数学字符串，不夹带解释句；不能中文。因此 function_monotonicity 字段用于此。目标带有 function_monotonicity。也可能单独 fact 无法表示。所以放目标字段可以。\n\n需要 public_content。作用域只有 root（无小问）。 statement 要保留题干、条件和所求，不含题号、手写答案。公式用 $…$。可写：\n\"已知函数 $f(x)$ 是定义在区间 $[0,+\\infty)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\left(\\frac{1}{3}\\right)$ 的 $x$ 的取值范围是____。\"\n不含答案。手写圈和答案不抄。选择：无选项，choices status none, selection_mode none, options []，target_ref \"/root/goals/0\"。\n\noriginal_text: 保留完整原文包括13? 规则 original_text 保留原题转录，可保留题号。手写答案不能抄。图片手写圈“单调递增”是批注？是圈画，不是文字。手写答案 [1/2,2/3) 不能抄。原文最后的空白下划线可保留“____”或不含答案。可以写：\n\"13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________\"\n使用 LaTeX 或 Unicode 等义。注意 public 的 statement 不含题号13。 original_text 可以包含13。题号 13 是来源。 privacy separated 需要题号已分离？ public statement 不含，original_text 包含没关系? 规则 privacy 也涵盖 root 所有内容；original_text 可以保留来源题号，不能将其中题号误报成 statement 内容。所以 privacy 可以 separated，因为题号只在 original_text 保留，公开 statement 不含。root.label 若不放，不会暴露。Good.\n\nfigure_detection: no figure? 只有文字和公式，没有配图。 status none, regions [].\n\npublic_content.figure: not_required. completeness complete. privacy separated. root_label_role 可省略? schema 可选。由于 root.label 不放，可省略。scopes one with statement. Note statement should not include answer.\n\nroot fields: definitions maybe []? JSON allows optional. We can include definitions: []? Schema says definitions optional. facts array. goals array. children optional empty? Don't include. uncertainties optional maybe empty. Need label? no. Let's decide root:\n{\n \"facts\": [\"Dom(f)=[0,+∞)\", \"f(2*x-1) < f(1/3)\"],\n \"goals\": [{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[0,+∞)\",\"direction\":\"increasing\",\"strict\":true,\"function_domain\":\"[0,+∞)\",\"basis\":\"given\"}}]\n}\nCan facts include Dom(f) if f not defined? It references f. It's a controlled relation. Is Dom(f) allowed? Catalog explicit function domain? It mentions Dom(f)=D. Yes.\n\nBut \"已知函数f(x)是定义在区间...\" Maybe need include \"Dom(f)=[0,+∞)\" and not \"f(x)\" def. Good.\n\nPotential issue: target x range also exists because f(2x-1) argument must be in domain; facts Dom(f). Code computes. Good.\n\nShould we include \"f(2*x-1) < f(1/3)\" in facts although also in statement. Yes.\n\nNo in_terms_of. No input_domain for target? This target symbol x is the variable; no additional input domain. Fine.\n\nCould we use find_range.symbol=\"x\" with function_monotonicity to compare f values? Yes.\n\nStrict: I think true. But is \"单调递增\" maybe non-strict? In Chinese high school, 单调递增 means strict? Actually人教A版: 如果对于定义域I内某个区间D上的任意两个自变量的值x1,x2，当x1<x2时，都有f(x1)<f(x2)，那么就说函数f(x)在区间D上是增函数（严格）。\"单调递增\" often equivalent. Use strict true.\n\nDOMAIN interval uses [0,+∞) with infinity. In JSON string need \"+∞\" or \"∞\"? Catalog interval syntax [a,∞). Use \"[0,+∞)\". Function domain same. The original \"区间[0,+∞)\". Good.\n\nOriginal text can use f(1/3) with parentheses. Fine.\n\nNeed output only JSON object. Ensure no figure_detection top-level (diagnostics said initial had top-level figure_detection unexpected and missing under public_content). So figure_detection inside public_content only. Response schema top-level required original_text, root, public_content. No extra top-level.\n\nNeed maybe include \"uncertainties\": []? Optional. Could omit.\n\npublic_content scopes statement includes no answer. Choices array. For target_ref /root/goals/0.\n\nNeed selection_mode for choices \"none\". status \"none\".\n\nLet's craft final JSON. Use exact field names. public_content has completeness, privacy, figure, scopes, figure_detection. Root label omitted. root_label_role omitted. The schema public_content requires figure_detection property; include status none regions [].\n\nNeed ensure statement contains no \"13.\" and no answer. It can include \"则满足...的取值范围是____。\" This is desired.\n\nOriginal_text can include \"13.\" and final blank. Is \"13.\" a source; allowed. Should not include hand-written answer. Good.\n\nLet's output."
+        }
+      }
+    ],
+    "created": 1794281929,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3171,
+      "prompt_tokens": 23965,
+      "total_tokens": 27136,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2889,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23296
+      },
+      "prompt_cache_hit_tokens": 23296,
+      "prompt_cache_miss_tokens": 669
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 20.868
+}

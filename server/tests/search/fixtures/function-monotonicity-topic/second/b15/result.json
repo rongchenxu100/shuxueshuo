@@ -1,0 +1,111 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "code_gap",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+    "root": {
+      "label": "15",
+      "definitions": [],
+      "facts": [
+        "Dom(f)=ℝ",
+        "∀x∈ℝ: f(x+2)=2*f(x)",
+        "∀x∈(0,2]: f(x)=x*(x-2)",
+        "∀x∈(-∞,m]: f(x) ≥ -3"
+      ],
+      "goals": [
+        {
+          "kind": "find_maximum",
+          "expression": "m"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+    "root": {
+      "label": "15",
+      "definitions": [],
+      "facts": [
+        "Dom(f)=ℝ",
+        "∀x∈ℝ: f(x+2)=2*f(x)",
+        "∀x∈(0,2]: f(x)=x*(x-2)",
+        "∀x∈(-∞,m]: f(x) ≥ -3"
+      ],
+      "goals": [
+        {
+          "kind": "find_maximum",
+          "expression": "m"
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/1",
+      "source": "∀x∈ℝ: f(x+2)=2*f(x)",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/2",
+      "source": "∀x∈(0,2]: f(x)=x*(x-2)",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/3",
+      "source": "∀x∈(-∞,m]: f(x) ≥ -3",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    }
+  ],
+  "question_sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+  "sent_image_sha256": [
+    "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c"
+  ],
+  "elapsed_seconds": 14.437,
+  "figure_attempts": [],
+  "stored_original_sha256": "4cfc3dea64fd8cb9e4b9cfa1560bbf62a885904fe819d05b403124bfc0bafc38"
+}

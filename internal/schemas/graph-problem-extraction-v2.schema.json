@@ -325,17 +325,89 @@
                       },
                       "strict": {
                         "const": true,
-                        "description": "本批仅接受严格单调；非严格不得写成 true。"
+                        "description": "true 表示严格单调，false 表示非严格；按原题保留。"
                       },
                       "basis": {
                         "enum": [
                           "given",
                           "proved_monotonicity"
                         ],
-                        "description": "单调性依据：题给已知，或先由分段单调性等方法证明后再应用。"
+                        "description": "given 表示题给已知；proved_monotonicity 仅供后续程序写入，原图提取不得生成。"
                       }
                     },
                     "description": "题给同一函数的严格单调性事实；仅用于函数值比较转输入比较，不写答案。"
+                  },
+                  "required_monotonicity": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "expression",
+                      "variable",
+                      "direction",
+                      "strict",
+                      "input_domain"
+                    ],
+                    "properties": {
+                      "expression": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "含参数的原函数表达式，如 x^2-m*x+5；不写答案参数集。"
+                      },
+                      "variable": {
+                        "type": "string",
+                        "pattern": "^[a-z]$",
+                        "description": "自变量，与所求参数 symbol 不同。"
+                      },
+                      "function": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "description": "可选函数名，如 f；不写解析式。"
+                      },
+                      "direction": {
+                        "enum": [
+                          "increasing",
+                          "decreasing"
+                        ],
+                        "description": "要求在指定区间上严格递增或严格递减。"
+                      },
+                      "strict": {
+                        "const": true,
+                        "description": "true 表示严格单调，false 表示非严格；按原题保留。"
+                      },
+                      "input_domain": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512,
+                        "description": "单调性必须成立的指定区间，如 [1,2]；不是所求参数答案。"
+                      },
+                      "basis": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "statement"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "stated",
+                              "difference_quotient",
+                              "difference_product"
+                            ],
+                            "description": "题目直接说增减用 stated；以任意两点差商或差积恒正／恒负给出时用对应类型。"
+                          },
+                          "statement": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "description": "差商／差积原式，保持原题两个输入的顺序，如 (f(x_1)-f(x_2))/(x_1-x_2)<0；stated 时为空串。"
+                          }
+                        },
+                        "description": "可选：单调要求的原始来源；省略表示题目直接说明增减。"
+                      }
+                    },
+                    "description": "使含参函数在指定区间上严格单调的求参目标；与 function_monotonicity（题给已知事实）互斥。"
                   }
                 },
                 "additionalProperties": false,
@@ -394,6 +466,37 @@
                       "required": [
                         "object"
                       ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "required": [
+                        "required_monotonicity"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "symbol"
+                      ],
+                      "not": {
+                        "required": [
+                          "function_monotonicity"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "required": [
+                        "function_monotonicity"
+                      ]
+                    },
+                    "then": {
+                      "not": {
+                        "required": [
+                          "required_monotonicity"
+                        ]
+                      }
                     }
                   }
                 ]
@@ -827,7 +930,7 @@
             "exact",
             "meaningful_only"
           ],
-          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。当前可执行路线仅开放 exact，不能为了通过准入改写关系强度。"
+          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。按原文保留关系强度。"
         },
         "target_call": {
           "type": "string",
@@ -950,7 +1053,7 @@
             "exact",
             "meaningful_only"
           ],
-          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。当前可执行路线仅开放 exact，不能为了通过准入改写关系强度。"
+          "description": "exact 表示已知调用恰为完整定义域；meaningful_only 仅表示在该范围有意义。按原文保留关系强度。"
         },
         "target_call": {
           "type": "string",
@@ -1112,7 +1215,7 @@
           "minLength": 1,
           "maxLength": 4096,
           "pattern": "\\S",
-          "description": "周期函数的题给定义域；本批仅支持 ℝ。"
+          "description": "周期函数的题给定义域，不是目标函数的输入区间。"
         },
         "known_domain": {
           "type": "string",

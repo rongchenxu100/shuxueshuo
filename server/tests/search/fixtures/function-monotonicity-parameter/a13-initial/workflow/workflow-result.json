@@ -1,0 +1,2173 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "workflow.budget_exhausted",
+  "source_status": "correction_required",
+  "source_reviewed": false,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "workflow.budget_exhausted"
+  },
+  "diagnostics": [
+    {
+      "stage": "review",
+      "code": "missing_condition",
+      "path": "/root/goals/0/required_monotonicity/basis/statement",
+      "source": "(f(x_2)-f(x_1))/(x_2-x_1)<0",
+      "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+      "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。",
+      "action": "repair"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 4,
+  "content_calls": 3,
+  "review_calls": 1,
+  "network_attempts": 4,
+  "network_reserved": 4,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "13. 已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "sqrt(a*x^2+2*x-5*a+5)",
+            "variable": "x",
+            "function": "f",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "(-∞,-2]",
+            "basis": {
+              "kind": "difference_quotient",
+              "statement": "(f(x_2)-f(x_1))/(x_2-x_1)<0"
+            }
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "13. 已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "sqrt(a*x^2+2*x-5*a+5)",
+            "variable": "x",
+            "function": "f",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "(-∞,-2]",
+            "basis": {
+              "kind": "difference_quotient",
+              "statement": "(f(x_2)-f(x_1))/(x_2-x_1)<0"
+            }
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [
+          {
+            "ref": "r:scalar:a",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:a",
+            "name": "a",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "5"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "5"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Pow(Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5)), Rational(1, 2))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": "Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)"
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": [
+        "[\"nonnegative_radicand\",\"Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5))\"]"
+      ]
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "sqrt",
+              [
+                "+",
+                [
+                  "-",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "5"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "5"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": [
+              "ref",
+              "r:scalar:a",
+              "scalar"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"*\",[\"number\",\"5\"],[\"ref\",\"r:scalar:a\",\"scalar\"]]],[\"number\",\"5\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "sqrt",
+                [
+                  "+",
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "5"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "sqrt",
+                [
+                  "+",
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "5"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "50b443947695",
+      "source_sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+    "status": "correction_required",
+    "findings": [
+      {
+        "path": "/root/goals/0/required_monotonicity/basis/statement",
+        "kind": "missing_condition",
+        "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+        "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。"
+      }
+    ]
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Pow(Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5)), Rational(1, 2))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": [
+            "[\"nonnegative_radicand\",\"Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5))\"]"
+          ]
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "5"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"*\",[\"number\",\"5\"],[\"ref\",\"r:scalar:a\",\"scalar\"]]],[\"number\",\"5\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "50b443947695",
+          "source_sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113"
+        }
+      },
+      "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "missing_condition",
+          "path": "/root/goals/0/required_monotonicity/basis/statement",
+          "source": "(f(x_2)-f(x_1))/(x_2-x_1)<0",
+          "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+          "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "review": {
+        "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/goals/0/required_monotonicity/basis/statement",
+            "kind": "missing_condition",
+            "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+            "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。"
+          }
+        ]
+      }
+    },
+    {
+      "call": 3,
+      "stage": "repair",
+      "base_revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "missing_condition",
+          "path": "/root/goals/0/required_monotonicity/basis/statement",
+          "source": "(f(x_2)-f(x_1))/(x_2-x_1)<0",
+          "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+          "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "df9b4b45f8a55f29ab37679bbe8bf362a125929d26fcd073646e02413638e5a1",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Pow(Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5)), Rational(1, 2))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": [
+            "[\"nonnegative_radicand\",\"Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5))\"]"
+          ]
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "5"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"*\",[\"number\",\"5\"],[\"ref\",\"r:scalar:a\",\"scalar\"]]],[\"number\",\"5\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "50b443947695",
+          "source_sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113"
+        }
+      },
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/required_monotonicity/basis/statement",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        }
+      ]
+    },
+    {
+      "call": 4,
+      "stage": "repair",
+      "base_revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "missing_condition",
+          "path": "/root/goals/0/required_monotonicity/basis/statement",
+          "source": "(f(x_2)-f(x_1))/(x_2-x_1)<0",
+          "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+          "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "-",
+                          [
+                            "+",
+                            [
+                              "*",
+                              [
+                                "ref",
+                                "r:scalar:a",
+                                "scalar"
+                              ],
+                              [
+                                "^",
+                                [
+                                  "bound",
+                                  "function_argument"
+                                ],
+                                [
+                                  "number",
+                                  "2"
+                                ]
+                              ]
+                            ],
+                            [
+                              "*",
+                              [
+                                "number",
+                                "2"
+                              ],
+                              [
+                                "bound",
+                                "function_argument"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "5"
+                            ],
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "2b9b0d615a7644de5182e6153d34160d108bc4d3c5a5a075201302e950168588",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Pow(Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5)), Rational(1, 2))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": [
+            "[\"nonnegative_radicand\",\"Add(Mul(Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(5), Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)), Mul(Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(5))\"]"
+          ]
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "5"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"*\",[\"number\",\"5\"],[\"ref\",\"r:scalar:a\",\"scalar\"]]],[\"number\",\"5\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "ref",
+                              "r:scalar:a",
+                              "scalar"
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "*",
+                            [
+                              "number",
+                              "2"
+                            ],
+                            [
+                              "bound",
+                              "function_argument"
+                            ]
+                          ]
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "5"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:a",
+                            "scalar"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "50b443947695",
+          "source_sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113"
+        }
+      },
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/goals/0/required_monotonicity/basis/statement",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，抽象目标漏写的域条件可在该目标补入一个缺失字段，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        }
+      ]
+    }
+  ]
+}

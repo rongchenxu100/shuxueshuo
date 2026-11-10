@@ -447,6 +447,21 @@ test('problem meaning follows the confirmed conversion and ignores another goal 
   assert.match(element('#pq-meaning-body').innerHTML, /原命题为假/);
 });
 
+test('A05 shows its interval and monotonicity while checking the photo and after review', () => {
+  const {context, element} = setup('problem.js');
+  const candidate = JSON.parse(fs.readFileSync(new URL(
+    '../../server/tests/search/fixtures/function-monotonicity-topic/initial/a05/workflow/candidate.json', import.meta.url), 'utf8'));
+  context.showProblem(candidate.original_text, [], candidate.root);
+  context.setVerify('checking');
+  const meaning = element('#pq-meaning-body').innerHTML;
+  assert.match(meaning, /求使 \$f\(x\)\$ 在 \$\[1,2\]\$ 上严格递增的 \$m\$ 的取值范围/);
+  assert.equal(element('#pq-verify').textContent, '正在核对原图');
+  context.settle(candidate.original_text, [], candidate.root);
+  assert.equal(element('#pq-verify').textContent, '已核对原图');
+  assert.equal(element('#pq-meaning-body').innerHTML, meaning);
+  assert.equal(element('#pq-meaning').hidden, false);
+});
+
 test('one scope keeps distinct domain and range targets and explains partial availability', () => {
   const {context, element} = setup('problem.js');
   vm.runInContext(`

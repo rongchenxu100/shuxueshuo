@@ -1,0 +1,31 @@
+{
+  "id": "rule-monotonicity-parameter-method",
+  "kind": "judgment_rule",
+  "subtype": "method_selection",
+  "label": "单调性求参的选法判断",
+  "summary": "已知函数在指定区间上的增减性求参数时，用单调性条件求参法。",
+  "source": "函数单调性 FM-T4",
+  "input": "含参函数、指定区间与严格增减要求。",
+  "output": "适用的解题方法。",
+  "conditions": "原目标是参数范围，不是求单调区间、最值或解函数值不等式。",
+  "branches": [
+    {
+      "id": "parameter",
+      "title": "单调性条件求参法",
+      "condition": "已知或要求函数在指定区间严格递增／递减，求使该性质成立的参数。",
+      "target": "method-monotonicity-parameter"
+    }
+  ],
+  "examples": [
+    {
+      "title": "二次函数区间递增求参",
+      "prompt": "已知 $f(x)=x^{2}-mx+5$ 在 $[1,2]$ 上单调递增，求 $m$。",
+      "solution": [
+        "开口向上，对称轴 $x=\\dfrac{m}{2}$。",
+        "区间在轴的右侧（含端点）要求 $\\dfrac{m}{2}\\le1$。",
+        "得 $m\\in(-\\infty,2]$。"
+      ],
+      "source": "函数单调性 FM-T4"
+    }
+  ]
+}

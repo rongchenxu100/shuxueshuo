@@ -1,0 +1,51 @@
+{
+  "recorded_at": "2026-11-10",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "code_gap",
+  "call_stages": [
+    "extract"
+  ],
+  "historical_semantic_calls": 1,
+  "historical_network_attempts": 1,
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "b85ee7a438eee09d7bb7849307438dd6d968620cfdd49c7c0a870a37d172df70"
+  },
+  "api_acceptance": {
+    "case": "b15",
+    "search_id": "98bdfbd1b1c1",
+    "recognition_status": "failed",
+    "lesson_status": "not_started",
+    "elapsed_seconds": 14.64,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      }
+    ],
+    "status": "code_gap",
+    "recognition_seconds": 14.437
+  },
+  "files": {
+    "api-final.json": "1849c0031fd600c46b91a42b19897123ffd3277992616790f4b77b76efa47470",
+    "created.json": "303c22c4d9e5e2c1fead4eff58b6e04089f8aa2bf26ca5f671d582cd4651d3d3",
+    "crop.json": "c9cc4df14c6e894f25a5ee358e64fe56783b9167078c08c069541bf5f9fc9319",
+    "original.png": "4cfc3dea64fd8cb9e4b9cfa1560bbf62a885904fe819d05b403124bfc0bafc38",
+    "question.png": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+    "result.json": "ce84da4785ffc08d2c7a1073ddf69390ee60c00166cebef9c7af0591929a0705",
+    "source.json": "9e3b6fcfa7383ee79707da659909e9dc68aaba7d28fba695302d0c691bee57a2",
+    "workflow/artifacts/b8/b85ee7a438eee09d7bb7849307438dd6d968620cfdd49c7c0a870a37d172df70.txt": "b85ee7a438eee09d7bb7849307438dd6d968620cfdd49c7c0a870a37d172df70",
+    "workflow/artifacts/dd/dda53957f8cee2ab2f5d1d931dffb14c84d490ea98e590d990affa672e65d70e.json": "dda53957f8cee2ab2f5d1d931dffb14c84d490ea98e590d990affa672e65d70e",
+    "workflow/calls/01-extract/file-operations.json": "f0f05e7bffdba86379a97cc91204b473856ba0adfaec93753358baa78061d198",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "44bf36b88f4c1659dc0a8d34f0989e60ec3a3547c69b228770db66f676801a5c",
+    "workflow/calls/01-extract/request.json": "d77b0c411a2dbdf755b598c8804f923c52610cbc92137714321d8fbcc257b2b9",
+    "workflow/calls/01-extract/response.json": "9883f7dca66f288994f618be178928fb4085172d66619c9e3d379e1514b12fe8",
+    "workflow/candidate.json": "004d801312881dac38c6b3c20326e0f882302faa366a9c970ba2ccbbbd21904c",
+    "workflow/first-parsed.json": "edc99fd1e4b6a595d7d0e88788b4beb9e77e7b8c1e0fd9f9285c3d38651c7856",
+    "workflow/first-response.json": "9883f7dca66f288994f618be178928fb4085172d66619c9e3d379e1514b12fe8",
+    "workflow/ledger.json": "e8ee93fde5ed1e5135829e2a70694a5c7e0584c6356f8048b68ed93d24837049",
+    "workflow/parsed.json": "edc99fd1e4b6a595d7d0e88788b4beb9e77e7b8c1e0fd9f9285c3d38651c7856",
+    "workflow/workflow-result.json": "82071c4884706867c870cf6777959ee30808aa3bbe0da44bc0074a964de41bb8",
+    "workflow/workflow.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

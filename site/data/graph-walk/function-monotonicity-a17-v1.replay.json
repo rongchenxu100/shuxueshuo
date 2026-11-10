@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-monotonicity-a17-v1",
+  "bundleVersion": "[\"stream\",\"47e148ee4c1bb9020954069baf51ac642132eee3a705916fb16a06573ddded58\",\"af8aacf213ce735e4f264f93f5be9315788dba03073993283d1dfa1b32511163\",\"c2c2f2e6f3e643189dfc96f4f661328d\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "monotonicity-parameter"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-monotonicity-parameter"
+    },
+    {
+      "decision": "D3",
+      "answer": {
+        "checks": [
+          "parameter"
+        ],
+        "method": "parameter",
+        "confirmed": 1
+      }
+    },
+    {
+      "decision": "5f8b10aab1374413f42a33ee#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "216377ef247f393117eb1a87#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "216377ef247f393117eb1a87#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "5dfc9402645e51b7d7df2e90#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "a806d8cd4a9d568a9803fb9d#1",
+      "answer": "o1"
+    }
+  ]
+}

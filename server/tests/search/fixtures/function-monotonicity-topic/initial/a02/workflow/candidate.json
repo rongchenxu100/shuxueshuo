@@ -1,0 +1,40 @@
+{
+  "original_text": "2. 函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+  "root": {
+    "definitions": [
+      "f(x)=sqrt(-2*x^2+x+6)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "sqrt(-2*x^2+x+6)",
+        "variable": "x",
+        "direction": "increasing"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

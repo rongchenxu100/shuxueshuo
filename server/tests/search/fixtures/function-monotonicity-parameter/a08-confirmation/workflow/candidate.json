@@ -1,0 +1,48 @@
+{
+  "original_text": "8. 若函数 $f(x)=\\begin{cases}x^2+ax-a,&x>2,\\\\1-ax,&x\\le2.\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+  "root": {
+    "label": "8",
+    "definitions": [
+      "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+    ],
+    "facts": [
+      "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "ambiguous_symbol",
+        "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $f(x)$ 在 $x>2$ 时满足 $f(x)=x^2+ax-a$，在 $x\\le2$ 时满足 $f(x)=1-ax$，且对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

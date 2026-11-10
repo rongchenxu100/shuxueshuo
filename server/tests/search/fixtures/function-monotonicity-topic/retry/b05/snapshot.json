@@ -1,0 +1,899 @@
+{
+  "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+  "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+  "input_sha256": "f84c9d8e45aac6a026a03d9615cb5dac571361919741dc6f92ebfcf8ed7b3919",
+  "stream_id": "d975c920d72c4b38835bd6b8ea92ea33",
+  "last_seq": 21,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "$$\\begin{gathered}f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)\\\\f\\ \\text{在}\\ \\left[0, +\\infty\\right)\\ \\text{上}\\ \\downarrow\\end{gathered}$$",
+      "highlight": {
+        "caption": "核对比较对象与单调性",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "原比较",
+            "math": "f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)"
+          },
+          {
+            "label": "题给单调性",
+            "math": "f\\text{ 在 }\\left[0, +\\infty\\right)\\text{ 上 }\\downarrow"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "local_check": "passed",
+      "math_step_sha256": "9d7ffdcdea8894eca9769f41fc8517c259de3833515ad8fc7b441474895f9781",
+      "method_ref": "method-monotonicity-inequality#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "source_refs": [
+        "/steps/0/calls/0",
+        "/steps/0/calls/1"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "核对比较对象与单调性",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "inputs",
+      "explanation": "$$\\begin{gathered}2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\\\x\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}$$",
+      "highlight": {
+        "caption": "两个输入的合法条件",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "输入条件",
+            "math": "\\begin{gathered}2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+          },
+          {
+            "label": "合法域",
+            "math": "x\\in \\left[\\frac{1}{2}, +\\infty\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "local_check": "passed",
+      "math_step_sha256": "40b06b3ffe61420020c5e5e18b632ec3e526bc983466a1d38a665f9c1019fa43",
+      "method_ref": "method-monotonicity-inequality#inputs",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-002-inputs",
+      "target_ref": "/root/goals/0",
+      "title": "两个输入的合法条件",
+      "used_basis": [
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "order",
+      "explanation": "$$\\begin{gathered}f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\\\\\Rightarrow 2 x - 1\\,<\\,\\frac{1}{3}\\end{gathered}$$",
+      "highlight": {
+        "caption": "利用单调性转化比较",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已确认的条件",
+            "math": "\\begin{gathered}f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\end{gathered}"
+          },
+          {
+            "label": "输入比较",
+            "math": "2 x - 1\\,<\\,\\frac{1}{3}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "local_check": "passed",
+      "math_step_sha256": "8649757e7e404478e889aeec7707c9114a3c3248a1c3423e5ba9166dec1414bc",
+      "method_ref": "method-monotonicity-inequality#order",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "source_refs": [
+        "/steps/4/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-003-order",
+      "target_ref": "/root/goals/0",
+      "title": "利用单调性转化比较",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$$\\begin{gathered}2 x - 1\\,<\\,\\frac{1}{3}\\\\x\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)\\end{gathered}$$",
+      "highlight": {
+        "caption": "回到原目标",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "转化后 ∩ 合法域",
+            "math": "\\begin{gathered}2 x - 1\\,<\\,\\frac{1}{3}\\\\x\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}"
+          },
+          {
+            "label": "解集",
+            "math": "x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "local_check": "passed",
+      "math_step_sha256": "a6fb50c1488403a7c020c40cbace0cebe077b41176a7ff55ea23216347294b29",
+      "method_ref": "method-monotonicity-inequality#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "source_refs": [
+        "/steps/5/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-inequality-004-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "回到原目标",
+      "used_basis": [
+        "function-monotonicity#interval"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.Ropen(1/2, 2/3)",
+          "latex": "\\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "2"
+            },
+            {
+              "$math": "Rational",
+              "p": "2",
+              "q": "3"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.Ropen(1/2, 2/3)",
+        "latex": "\\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.Ropen(1/2, 2/3)",
+          "latex": "\\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "2"
+            },
+            {
+              "$math": "Rational",
+              "p": "2",
+              "q": "3"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.Ropen(1/2, 2/3)",
+        "latex": "\\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+      },
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "math_steps": [
+        {
+          "math_step_sha256": "9d7ffdcdea8894eca9769f41fc8517c259de3833515ad8fc7b441474895f9781",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
+        },
+        {
+          "math_step_sha256": "40b06b3ffe61420020c5e5e18b632ec3e526bc983466a1d38a665f9c1019fa43",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
+        },
+        {
+          "math_step_sha256": "8649757e7e404478e889aeec7707c9114a3c3248a1c3423e5ba9166dec1414bc",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-monotonicity-inequality-003-order"
+        },
+        {
+          "math_step_sha256": "a6fb50c1488403a7c020c40cbace0cebe077b41176a7ff55ea23216347294b29",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "2e51524cbaba88f68f0c8562f1d251844bca4ed870e35e7ce7a06fc925a36b57",
+      "verified_route_sha256": "90eb2785bf00e8654e8a5594ec613dcc062f0e2d83d409b6befd5d8537c2415a"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "order"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "先检查两个输入，再利用递增或递减比较它们的大小。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "同一个函数的两个函数值比大小",
+                  "note": "如 $f(2x)<f(x+1)$。先检查两个输入，再利用递增或递减比较它们的大小。",
+                  "value": "order"
+                },
+                {
+                  "label": "函数分段给出，需要分别代入比较",
+                  "note": "先看两个输入各落在哪一段，再代入对应式子；有常值段时，不能直接去掉 $f$。",
+                  "value": "piecewise"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "单调性解不等式法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "order",
+              "method": "order"
+            },
+            {
+              "cue": "piecewise",
+              "method": "piecewise"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性解不等式法",
+              "value": "order"
+            },
+            {
+              "label": "分段解不等式法",
+              "value": "piecewise"
+            }
+          ],
+          "method_notes": {
+            "piecewise": "本题未给出分段定义，优先利用已知单调性。"
+          },
+          "source_refs": [
+            "/root/goals/0",
+            "/root/facts/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-inequality",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "order": {
+            "message": "先检查两个输入，再利用递增或递减比较它们的大小。",
+            "value": "fit"
+          },
+          "piecewise": {
+            "message": "本题没有分段表达式，不能按分支分别代入。",
+            "value": "unfit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "order",
+            "message": "开始解题",
+            "method": "method-monotonicity-inequality",
+            "recommendation": "preferred",
+            "route_id": "monotonicity-inequality",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "9d7ffdcdea8894eca9769f41fc8517c259de3833515ad8fc7b441474895f9781",
+      "status": "interactive",
+      "interaction_id": "ea188e7e11387eb420fed21c"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-002-inputs",
+      "ordinal": 2,
+      "math_step_sha256": "40b06b3ffe61420020c5e5e18b632ec3e526bc983466a1d38a665f9c1019fa43",
+      "status": "interactive",
+      "interaction_id": "6db4b069fc71587d123ccbb0"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-003-order",
+      "ordinal": 3,
+      "math_step_sha256": "8649757e7e404478e889aeec7707c9114a3c3248a1c3423e5ba9166dec1414bc",
+      "status": "interactive",
+      "interaction_id": "1e85e8f1f9b59cb7259d337c"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "step_id": "39e5646dcb-monotonicity-inequality-004-conclude",
+      "ordinal": 4,
+      "math_step_sha256": "a6fb50c1488403a7c020c40cbace0cebe077b41176a7ff55ea23216347294b29",
+      "status": "interactive",
+      "interaction_id": "04ab2407038f97a68a584cbe"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "7a4037954ff325cd3fc1949c116a146781c3008df8cc80765f63f27f606154f4",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:monotonicity-inequality:complete",
+      "last_seq": 21
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-inequality",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-monotonicity-inequality",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-monotonicity-inequality",
+          "step": "basis-prove",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-monotonicity-inequality",
+          "step": "basis-confirm",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-monotonicity-inequality",
+          "step": "inputs",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-monotonicity-inequality",
+          "step": "order",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-order",
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-monotonicity-inequality",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 7,
+          "method": "method-monotonicity-inequality",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "ea188e7e11387eb420fed21c",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "73c885de06be09aea941bfb434446a4c92a283a93783aea147951f7e640baa8a",
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "核对比较对象与单调性",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原比较",
+                "math": "f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)"
+              },
+              {
+                "label": "题给单调性",
+                "math": "f\\text{ 在 }\\left[0, +\\infty\\right)\\text{ 上 }\\downarrow"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "ea188e7e11387eb420fed21c#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f\\text{ 在 }\\left[0, +\\infty\\right)\\text{ 上 }\\downarrow$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{非严格}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\uparrow$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本题比较的是同一个函数的两个函数值。已知 $f$ 在 $\\left[0, +\\infty\\right)$ 上怎样变化？",
+          "stem_board": {
+            "caption": "核对比较对象与单调性",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原比较",
+                "math": "f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)"
+              },
+              {
+                "label": "题给单调性",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "核对比较对象与单调性"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "9d7ffdcdea8894eca9769f41fc8517c259de3833515ad8fc7b441474895f9781",
+          "step_id": "39e5646dcb-monotonicity-inequality-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "6db4b069fc71587d123ccbb0",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "ff0f2c3907dc374f09cab25faa275b7ef3bab7c33411935ee5327e7946359a27",
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "两个输入的合法条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "输入条件",
+                "math": "\\begin{gathered}2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+              },
+              {
+                "label": "合法域",
+                "math": "x\\in \\left[\\frac{1}{2}, +\\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "6db4b069fc71587d123ccbb0#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x\\in \\left[\\frac{1}{2}, +\\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$x\\in \\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$x\\in \\left(\\frac{1}{2}, +\\infty\\right)$",
+                "value": "o4"
+              },
+              {
+                "label": "$x\\in \\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "要使单调性可用来比较，两个输入都必须落在 $\\left[0, +\\infty\\right)$。$x$ 需要满足什么？",
+          "stem_board": {
+            "caption": "两个输入的合法条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "输入条件",
+                "math": "\\begin{gathered}2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\\\x\\text{ 的合法范围 }\\end{gathered}"
+              },
+              {
+                "label": "合法域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "两个输入的合法条件"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "40b06b3ffe61420020c5e5e18b632ec3e526bc983466a1d38a665f9c1019fa43",
+          "step_id": "39e5646dcb-monotonicity-inequality-002-inputs"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "1e85e8f1f9b59cb7259d337c",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "8f367920fcf9c7cd61ff2011ad0725092626d7861cd2714648edda032d8ee74b",
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "利用单调性转化比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认的条件",
+                "math": "\\begin{gathered}f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "输入比较",
+                "math": "2 x - 1\\,<\\,\\frac{1}{3}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1e85e8f1f9b59cb7259d337c#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$2 x - 1\\,\\ge\\,\\frac{1}{3}$",
+                "value": "o4"
+              },
+              {
+                "label": "$2 x - 1\\,>\\,\\frac{1}{3}$",
+                "value": "o3"
+              },
+              {
+                "label": "$2 x - 1\\,\\le\\,\\frac{1}{3}$",
+                "value": "o2"
+              },
+              {
+                "label": "$2 x - 1\\,<\\,\\frac{1}{3}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "在同一严格递减区间上，原函数值比较等价于怎样的输入比较？",
+          "stem_board": {
+            "caption": "利用单调性转化比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认的条件",
+                "math": "\\begin{gathered}f\\!\\left(2 x - 1\\right)\\,>\\,f\\!\\left(\\frac{1}{3}\\right)\\\\f\\ \\downarrow\\text{（严格递减）}\\\\2 x - 1,\\frac{1}{3}\\in \\left[0, +\\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "输入比较",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "利用单调性转化比较"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "8649757e7e404478e889aeec7707c9114a3c3248a1c3423e5ba9166dec1414bc",
+          "step_id": "39e5646dcb-monotonicity-inequality-003-order"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "04ab2407038f97a68a584cbe",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "d8f0cac9669b7a49ff6b847c49f24c1603edf21bcff1848905207dd8a2c1575b",
+      "lesson_version": "c6b3dcf898578c18f936dd9a6e0e6c91293a186896768341bdb663463ea1039d",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "回到原目标",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "转化后 ∩ 合法域",
+                "math": "\\begin{gathered}2 x - 1\\,<\\,\\frac{1}{3}\\\\x\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": "x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "04ab2407038f97a68a584cbe#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x\\in \\left(\\frac{1}{2}, \\frac{2}{3}\\right)$",
+                "value": "o4"
+              },
+              {
+                "label": "$x\\in \\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$x\\in \\left[\\frac{1}{2}, \\frac{2}{3}\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$x\\in \\mathbb{R}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "把转化后的不等式与合法域求交，$x$ 的取值范围是？",
+          "stem_board": {
+            "caption": "回到原目标",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "转化后 ∩ 合法域",
+                "math": "\\begin{gathered}2 x - 1\\,<\\,\\frac{1}{3}\\\\x\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到原目标"
+        }
+      ],
+      "route_id": "monotonicity-inequality",
+      "run_id": "d975c920d72c4b38835bd6b8ea92ea33",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "a6fb50c1488403a7c020c40cbace0cebe077b41176a7ff55ea23216347294b29",
+          "step_id": "39e5646dcb-monotonicity-inequality-004-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

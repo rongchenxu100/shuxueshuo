@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"7. 函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"root\":{\"label\":\"7\",\"definitions\":[\"g(x)=a*x+1\",\"f(x)=x^2+2*x\"],\"facts\":[\"a > 0\",\"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2880,
+      "prompt_tokens": 24241,
+      "total_tokens": 27121,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 433
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 717,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-20ccd91e-e296-477a-84fc-7dfd0efeb09a",
+        "sha256": "e0d2a784c0ceaece4724c98f1835af67935bd57473cd6aa7f3194485e29a21bc",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14548,
+        "expires_at": 1794366748,
+        "uploaded_at": 1794280348.780384
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "e0d2a784c0ceaece4724c98f1835af67935bd57473cd6aa7f3194485e29a21bc",
+        "api_calls": 1,
+        "file_id": "file-api-20ccd91e-e296-477a-84fc-7dfd0efeb09a",
+        "expires_at": 1794366748,
+        "elapsed_ms": 190
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 18961,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2880,
+          "prompt_tokens": 24241,
+          "total_tokens": 27121,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2550
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 433
+        },
+        "raw_payload": {
+          "id": "156be811-44c4-419e-9c73-7d72a4590546",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2880,
+            "prompt_tokens": 24241,
+            "total_tokens": 27121,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2550
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 433
+          },
+          "created": 1794280348,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"7. 函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"root\":{\"label\":\"7\",\"definitions\":[\"g(x)=a*x+1\",\"f(x)=x^2+2*x\"],\"facts\":[\"a > 0\",\"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片中提取题干，不求解。图片内容：\n\"7. 函数 g(x)=ax+1 (a>0)，f(x)=x^2+2x，若 ∀x_1 ∈ [-1,1]，∃x_0 ∈ [-2,1] 使 g(x_1)=f(x_0) 成立，则 a 的取值范围是 [2,+∞)。\" 但手写答案 [2,+∞) 和涂改不是题目内容。题目是填空题，原题可能横线。印刷题干：函数 g(x)=ax+1 (a>0)，f(x)=x^2+2x，若 ∀x_1∈[-1,1]，∃x_0∈[-2,1]使 g(x_1)=f(x_0)成立，则a的取值范围是____。手写答案不转录。注意图片中有下划线，填空处照原样写横线。\n\n需要确定 root 结构。题目没有小问。定义：g(x)=a*x+1, f(x)=x^2+2*x，条件 a>0。事实：∀x_1∈[-1,1] ∃x_0∈[-2,1]: g(x_1)=f(x_0)。目标：find_range symbol a。需要按目录：集合区间用 [-1,1], [-2,1]。量词顺序保留：∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)。也可以写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。但注意这是存在 x0 使等式，正确。\n\nroot definitions 放两个函数定义：g(x)=a*x+1; f(x)=x^2+2*x。facts 放 a>0 和量词条件。goals find_range symbol a。\n\noriginal_text 保留题号？原图有 \"7.\" 题号。可以保留题号在 original_text，但 public_content statement 不包含题号，题号作为来源可以在 root.label? root.label 可写 \"7\" 角色 source？题目来源题号明确是试卷题号，可 root.label=\"7\", public_content.root_label_role=\"source\"。但 public_content scopes statement 不含题号。privacy=separated? 原图有手写答案和批注 \"a≤2\", \"g(x)=ax+1\" 等。手写不是题目，已分离。题号可以分离。privacy 可以 separated。但是手写答案明显是学生作答，与题干分离？可以声明 separated。figure：无配图，none。completeness complete。选项无，choices status none。\n\n需要 public_content 的 scopes 与 root 先序对应：root 无 children，所以一个 scope_ref \"/root\"，statement 写原题自身题干，不含父题干（root自身就是全部），不含题号，但可包含填空横线。选项空。target_ref 对应 goals/0。choices 中目标恰好出现一次：status none selection_mode none options []。\n\n注意 original_text 中公式用 $…$。需要转义反斜杠。可以用 Unicode 或 LaTeX。原题转录：\"7. 函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $\\forall x_1 \\in [-1,1]$，$\\exists x_0 \\in [-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\" 注意变量下标 x_1, x_0 用 LaTeX。原图中 ∀x_1∈[-1,1], ∃x_0∈[-2,1]。填空横线：图片显示下划线，可能 \"______\"。我们保留 \"____\" 四个下划线或 \"______\"。用 \"____\" 可以。题目原文\"则 a 的取值范围是____。\" 手写答案 [2,+∞) 不写。\n\nroot definitions 字符串：g(x)=a*x+1；f(x)=x^2+2*x。注意目录中乘法用 *，a*x。facts: \"a > 0\"，\"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。但目录中量词语法是 \"∀变量∈定义域: 关系；∃变量∈定义域: 关系\"，可以写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。需要注意量词嵌套顺序。变量名 x_1, x_0 可以。或者写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。facts 中的数学字符串没有 $。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\"}。没有 in_terms_of。\n\n是否需要定义 f, g 为函数定义。是的。root.facts 包含 a>0。函数定义里已经有 a 参数但 a>0单独条件。\n\nroot.label \"7\" 存在，public_content.root_label_role source。但 schema public_content.root_label_role 可选。需要用。\n\nuncertainties：无？但图片有手写涂改，不影响。没有无法辨认。可省略或空数组。schema 允许省略。不输出不确定。\n\nfigure_detection：status none regions []。\n\n需要确保 public_content 的 statement 使用 $…$，公式正确。statement 不包含小问编号和选项。题干：函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $\\forall x_1\\in[-1,1]$，$\\exists x_0\\in[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。注意 public_content statement 不应包含题号。可以包含填空。公式内集合花括号不涉及。但量词符号\\forall \\exists 在 $…$ 内应该用 LaTeX 命令，JSON 反斜杠双写。例如 \"$\\\\forall x_1\\\\in[-1,1]$\"。需要 JSON 字符串内反斜杠转义。response 是 JSON，属性值中要写 \"\\\\forall\" 表示输出 \\forall。我们可以手工构造。\n\noriginal_text 同样需要 \"\\\\forall\" 等在 JSON 字符串。可以直接用 Unicode ∀ ∃ 避免反斜杠？original_text 要求公式用 $…$ 包围；可以使用 Unicode ∀，∃，∈。但 LaTeX 也行。为了减少转义，使用 Unicode 数学符号。比如 \"$\\forall x_1\\in[-1,1]$\" 但 \\in 需要反斜杠。或者使用 \"∀x_1∈[-1,1]\" 在 $...$ 内。可以用 \"$∀x_1∈[-1,1]$\" 保留 Unicode。公式用 $…$ 包围即可，未要求 LaTeX。这样避免反斜杠。但 root 的数学字符串不用 $，使用目录 Unicode 记法 ∀。可以。original_text 可以用 Unicode 公式：函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。这样良好。注意 \"∀x_1∈[-1,1]\" 在 $…$ 内。变量下标写 x_1 可以（下划线不是数学下标渲染，但可以接受）。或者用 x₁ Unicode 下标 1？原图是 x_1；用 x_1 更忠实。\n\nroot definitions 可以用 \"g(x)=a*x+1\" 和 \"f(x)=x^2+2*x\"。facts \"a>0\" 和 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。注意目录中量词域用 ℝ等；区间 [-1,1]。嵌套量词可以连写。\n\npublic_content.scopes[0].statement: \"函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\" 这里没有题号。注意 \"使\" 前后。可以。choices target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\ncompleteness complete。privacy separated。figure not_required。root_label_role source。\n\nfigure_detection status none, regions []。\n\n需要有可能 root.uncertainties？没有。可省略。\n\n检查 public_content 的 root_label_role 和 root.label 是否一致。root.label 是 \"7\"，角色 source。public_content 没有 label 字段，只有 root_label_role。可以。\n\n但 schema 中 root 的 label 可选；当存在时 public_content.root_label_role 应该填。这里题号 \"7.\" 是来源题号，可以 source。不过 public_content statement 不包含 \"7.\"。好的。\n\n需要确保 original_text 中手写答案不转录。没有。\n\n有无选项？无。题目最后\"则a的取值范围是____\"填空，不是选择。choices none。\n\n配图是否存在？无图。题中没有图。figure_detection none。\n\n现在构造 JSON。注意 JSON 字符串中的 Unicode 符号没问题。不要输出额外字段。response_schema 中 public_content 需要 completeness, privacy, figure, scopes, figure_detection。可以加 root_label_role。scopes 中每个对象需要 scope_ref, statement, choices。choices 中每个对象需要 target_ref, status, selection_mode, options。options 空。target_ref \"/root/goals/0\"。root 需要 definitions, facts, goals, label 可选。不要 children。goals 中 find_range 仅 symbol。字符串 \"a\"。\n\n需要 facts 中的数学式不写 $。用 \"a > 0\" 和 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。注意冒号是中文还是英文？目录示例用英文冒号。可以。量词域和变量。为了严格，可写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。注意 g 和 f 定义在 definitions，引用没问题。a>0。\n\ndefinitions 中 \"g(x)=a*x+1\", \"f(x)=x^2+2*x\"。注意题目原式 g(x)=ax+1，有 a>0。好。\n\nroot.label \"7\"。 public_content.root_label_role \"source\"。privacy \"separated\"：题干与手写答案分离。可以。\n\n原题图片中 \"a>0\" 被手写圈出？圈是批注？a>0 是印刷题设。保留。手写 \"a≤2\" 不是题目。不转录。手写 \"g(x)=ax+1\" 重复不是题目。不转录。\n\n需要 original_text 中的 \"∀x_1∈[-1,1]\" 在公式 $…$ 中。好。\n\n完整 JSON 如下。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 19177
+  },
+  "raw_payload": {
+    "id": "156be811-44c4-419e-9c73-7d72a4590546",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"7. 函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"root\":{\"label\":\"7\",\"definitions\":[\"g(x)=a*x+1\",\"f(x)=x^2+2*x\"],\"facts\":[\"a > 0\",\"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片中提取题干，不求解。图片内容：\n\"7. 函数 g(x)=ax+1 (a>0)，f(x)=x^2+2x，若 ∀x_1 ∈ [-1,1]，∃x_0 ∈ [-2,1] 使 g(x_1)=f(x_0) 成立，则 a 的取值范围是 [2,+∞)。\" 但手写答案 [2,+∞) 和涂改不是题目内容。题目是填空题，原题可能横线。印刷题干：函数 g(x)=ax+1 (a>0)，f(x)=x^2+2x，若 ∀x_1∈[-1,1]，∃x_0∈[-2,1]使 g(x_1)=f(x_0)成立，则a的取值范围是____。手写答案不转录。注意图片中有下划线，填空处照原样写横线。\n\n需要确定 root 结构。题目没有小问。定义：g(x)=a*x+1, f(x)=x^2+2*x，条件 a>0。事实：∀x_1∈[-1,1] ∃x_0∈[-2,1]: g(x_1)=f(x_0)。目标：find_range symbol a。需要按目录：集合区间用 [-1,1], [-2,1]。量词顺序保留：∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)。也可以写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。但注意这是存在 x0 使等式，正确。\n\nroot definitions 放两个函数定义：g(x)=a*x+1; f(x)=x^2+2*x。facts 放 a>0 和量词条件。goals find_range symbol a。\n\noriginal_text 保留题号？原图有 \"7.\" 题号。可以保留题号在 original_text，但 public_content statement 不包含题号，题号作为来源可以在 root.label? root.label 可写 \"7\" 角色 source？题目来源题号明确是试卷题号，可 root.label=\"7\", public_content.root_label_role=\"source\"。但 public_content scopes statement 不含题号。privacy=separated? 原图有手写答案和批注 \"a≤2\", \"g(x)=ax+1\" 等。手写不是题目，已分离。题号可以分离。privacy 可以 separated。但是手写答案明显是学生作答，与题干分离？可以声明 separated。figure：无配图，none。completeness complete。选项无，choices status none。\n\n需要 public_content 的 scopes 与 root 先序对应：root 无 children，所以一个 scope_ref \"/root\"，statement 写原题自身题干，不含父题干（root自身就是全部），不含题号，但可包含填空横线。选项空。target_ref 对应 goals/0。choices 中目标恰好出现一次：status none selection_mode none options []。\n\n注意 original_text 中公式用 $…$。需要转义反斜杠。可以用 Unicode 或 LaTeX。原题转录：\"7. 函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $\\forall x_1 \\in [-1,1]$，$\\exists x_0 \\in [-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\" 注意变量下标 x_1, x_0 用 LaTeX。原图中 ∀x_1∈[-1,1], ∃x_0∈[-2,1]。填空横线：图片显示下划线，可能 \"______\"。我们保留 \"____\" 四个下划线或 \"______\"。用 \"____\" 可以。题目原文\"则 a 的取值范围是____。\" 手写答案 [2,+∞) 不写。\n\nroot definitions 字符串：g(x)=a*x+1；f(x)=x^2+2*x。注意目录中乘法用 *，a*x。facts: \"a > 0\"，\"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。但目录中量词语法是 \"∀变量∈定义域: 关系；∃变量∈定义域: 关系\"，可以写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。需要注意量词嵌套顺序。变量名 x_1, x_0 可以。或者写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。facts 中的数学字符串没有 $。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\"}。没有 in_terms_of。\n\n是否需要定义 f, g 为函数定义。是的。root.facts 包含 a>0。函数定义里已经有 a 参数但 a>0单独条件。\n\nroot.label \"7\" 存在，public_content.root_label_role source。但 schema public_content.root_label_role 可选。需要用。\n\nuncertainties：无？但图片有手写涂改，不影响。没有无法辨认。可省略或空数组。schema 允许省略。不输出不确定。\n\nfigure_detection：status none regions []。\n\n需要确保 public_content 的 statement 使用 $…$，公式正确。statement 不包含小问编号和选项。题干：函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $\\forall x_1\\in[-1,1]$，$\\exists x_0\\in[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。注意 public_content statement 不应包含题号。可以包含填空。公式内集合花括号不涉及。但量词符号\\forall \\exists 在 $…$ 内应该用 LaTeX 命令，JSON 反斜杠双写。例如 \"$\\\\forall x_1\\\\in[-1,1]$\"。需要 JSON 字符串内反斜杠转义。response 是 JSON，属性值中要写 \"\\\\forall\" 表示输出 \\forall。我们可以手工构造。\n\noriginal_text 同样需要 \"\\\\forall\" 等在 JSON 字符串。可以直接用 Unicode ∀ ∃ 避免反斜杠？original_text 要求公式用 $…$ 包围；可以使用 Unicode ∀，∃，∈。但 LaTeX 也行。为了减少转义，使用 Unicode 数学符号。比如 \"$\\forall x_1\\in[-1,1]$\" 但 \\in 需要反斜杠。或者使用 \"∀x_1∈[-1,1]\" 在 $...$ 内。可以用 \"$∀x_1∈[-1,1]$\" 保留 Unicode。公式用 $…$ 包围即可，未要求 LaTeX。这样避免反斜杠。但 root 的数学字符串不用 $，使用目录 Unicode 记法 ∀。可以。original_text 可以用 Unicode 公式：函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。这样良好。注意 \"∀x_1∈[-1,1]\" 在 $…$ 内。变量下标写 x_1 可以（下划线不是数学下标渲染，但可以接受）。或者用 x₁ Unicode 下标 1？原图是 x_1；用 x_1 更忠实。\n\nroot definitions 可以用 \"g(x)=a*x+1\" 和 \"f(x)=x^2+2*x\"。facts \"a>0\" 和 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。注意目录中量词域用 ℝ等；区间 [-1,1]。嵌套量词可以连写。\n\npublic_content.scopes[0].statement: \"函数 $g(x)=ax+1$ $(a>0)$，$f(x)=x^2+2x$，若 $∀x_1∈[-1,1]$，$∃x_0∈[-2,1]$ 使 $g(x_1)=f(x_0)$ 成立，则 $a$ 的取值范围是____。\" 这里没有题号。注意 \"使\" 前后。可以。choices target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\ncompleteness complete。privacy separated。figure not_required。root_label_role source。\n\nfigure_detection status none, regions []。\n\n需要有可能 root.uncertainties？没有。可省略。\n\n检查 public_content 的 root_label_role 和 root.label 是否一致。root.label 是 \"7\"，角色 source。public_content 没有 label 字段，只有 root_label_role。可以。\n\n但 schema 中 root 的 label 可选；当存在时 public_content.root_label_role 应该填。这里题号 \"7.\" 是来源题号，可以 source。不过 public_content statement 不包含 \"7.\"。好的。\n\n需要确保 original_text 中手写答案不转录。没有。\n\n有无选项？无。题目最后\"则a的取值范围是____\"填空，不是选择。choices none。\n\n配图是否存在？无图。题中没有图。figure_detection none。\n\n现在构造 JSON。注意 JSON 字符串中的 Unicode 符号没问题。不要输出额外字段。response_schema 中 public_content 需要 completeness, privacy, figure, scopes, figure_detection。可以加 root_label_role。scopes 中每个对象需要 scope_ref, statement, choices。choices 中每个对象需要 target_ref, status, selection_mode, options。options 空。target_ref \"/root/goals/0\"。root 需要 definitions, facts, goals, label 可选。不要 children。goals 中 find_range 仅 symbol。字符串 \"a\"。\n\n需要 facts 中的数学式不写 $。用 \"a > 0\" 和 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1) = f(x_0)\"。注意冒号是中文还是英文？目录示例用英文冒号。可以。量词域和变量。为了严格，可写 \"∀x_1∈[-1,1]: ∃x_0∈[-2,1]: g(x_1)=f(x_0)\"。注意 g 和 f 定义在 definitions，引用没问题。a>0。\n\ndefinitions 中 \"g(x)=a*x+1\", \"f(x)=x^2+2*x\"。注意题目原式 g(x)=ax+1，有 a>0。好。\n\nroot.label \"7\"。 public_content.root_label_role \"source\"。privacy \"separated\"：题干与手写答案分离。可以。\n\n原题图片中 \"a>0\" 被手写圈出？圈是批注？a>0 是印刷题设。保留。手写 \"a≤2\" 不是题目。不转录。手写 \"g(x)=ax+1\" 重复不是题目。不转录。\n\n需要 original_text 中的 \"∀x_1∈[-1,1]\" 在公式 $…$ 中。好。\n\n完整 JSON 如下。"
+        }
+      }
+    ],
+    "created": 1794280348,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2880,
+      "prompt_tokens": 24241,
+      "total_tokens": 27121,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2550,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 433
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 19.179
+}

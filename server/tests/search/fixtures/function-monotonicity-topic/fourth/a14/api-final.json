@@ -1,0 +1,279 @@
+{
+  "search_id": "d5d5756926b0",
+  "user_id": "3614cb1d-ac62-4a11-bcfe-ec9117434e43",
+  "problem_id": "3586af01-50e6-421e-a54b-6f489204d8c1",
+  "statement": "已知函数 $f(x)=\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "f272d78561b97b19588c14f70d7011e537119fd0159e54e2a8f3206007d2fd65",
+      "width": 665,
+      "height": 65,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/d5d5756926b0/figures/original?version=0a374472ecc54e120ed73af211cad16bf403bcd9d55819ddf99c924ee1809d40"
+      }
+    ],
+    "content_id": "0a374472ecc54e120ed73af211cad16bf403bcd9d55819ddf99c924ee1809d40"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "3df877e232be",
+    "box": [
+      0.11336982017200939,
+      0.4249706916764361,
+      0.6333072713057076,
+      0.4630715123094959
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      665,
+      65
+    ],
+    "bytes": 4473
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "14. 已知函数 $f(x)=\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.",
+  "parts": [],
+  "root": {
+    "label": "14",
+    "definitions": [
+      "f(x)=sqrt(1-2*x+2*x^2)-5*x+5"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f",
+        "answer_request": {
+          "kind": "extremum",
+          "quantity": "minimum"
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "6173bc02a41e57075cce5a9c78a2debe3446c85497215c434f710683a25d7218",
+    "sent_image_sha256": [
+      "6173bc02a41e57075cce5a9c78a2debe3446c85497215c434f710683a25d7218"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 44.19,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "14",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "4afc54e144954bfcba4513f5867a231b",
+      "lesson_version": "eb56a502f3aa173cafee49aacd0addd4856918e4ae4e26a5e928a5c1b8444805",
+      "stream_id": "4afc54e144954bfcba4513f5867a231b",
+      "snapshot_url": "/api/search/problems/d5d5756926b0/lesson/4afc54e144954bfcba4513f5867a231b/snapshot",
+      "events_url": "/api/search/problems/d5d5756926b0/lesson/4afc54e144954bfcba4513f5867a231b/events",
+      "websocket_url": "/api/search/problems/d5d5756926b0/lesson/4afc54e144954bfcba4513f5867a231b/ws"
+    }
+  }
+}

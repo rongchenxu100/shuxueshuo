@@ -1,0 +1,41 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "b15",
+      "search_id": "667efe212ee5",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 94.214,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 82.565,
+      "original_text": "15. 设函数 $f(x)$ 的定义域为 $R$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$．若\n对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为 $\\underline{\\qquad}$．",
+      "root": {
+        "label": "15.",
+        "facts": [
+          "Dom(f)=ℝ",
+          "∀x∈ℝ: f(x+2)=2*f(x)",
+          "∀x∈(0,2]: f(x)=x*(x-2)",
+          "∀x∈(-∞,m]: f(x) ≥ -3"
+        ],
+        "goals": [
+          {
+            "kind": "find_maximum",
+            "expression": "m"
+          }
+        ],
+        "uncertainties": []
+      }
+    }
+  ]
+}

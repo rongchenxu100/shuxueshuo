@@ -1,0 +1,949 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "2. 函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(-2*x^2+x+6)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_monotonic_intervals",
+          "expression": "sqrt(-2*x^2+x+6)",
+          "variable": "x",
+          "direction": "increasing"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "2. 函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(-2*x^2+x+6)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_monotonic_intervals",
+          "expression": "sqrt(-2*x^2+x+6)",
+          "variable": "x",
+          "direction": "increasing"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Pow(Add(Mul(Integer(-1), Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(6)), Rational(1, 2))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_monotonic_intervals",
+            "expression": "sqrt(-2*x^2+x+6)",
+            "variable": "x",
+            "direction": "increasing"
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": [
+        "[\"nonnegative_radicand\",\"Add(Mul(Integer(-1), Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(6))\"]"
+      ]
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "sqrt",
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "6"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_monotonic_intervals",
+            "expression": "sqrt(-2*x^2+x+6)",
+            "variable": "x",
+            "direction": "increasing",
+            "target": [
+              "call",
+              "sqrt",
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "6"
+                ]
+              ]
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"+\",[\"*\",[\"neg\",[\"number\",\"2\"]],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"bound\",\"function_argument\"]],[\"number\",\"6\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=sqrt(-2*x^2+x+6)"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "sqrt",
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "6"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "sqrt",
+                [
+                  "+",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "6"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "25dd1bb7ca84",
+      "source_sha256": "b29b3fc6a3e17a8c7ab151d3a5cb383597b7239c4db3d388ad11f3f48069e65c"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "neg",
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "sqrt",
+                      [
+                        "+",
+                        [
+                          "+",
+                          [
+                            "*",
+                            [
+                              "neg",
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ],
+                            [
+                              "^",
+                              [
+                                "bound",
+                                "function_argument"
+                              ],
+                              [
+                                "number",
+                                "2"
+                              ]
+                            ]
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "6"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Pow(Add(Mul(Integer(-1), Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(6)), Rational(1, 2))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_monotonic_intervals",
+                "expression": "sqrt(-2*x^2+x+6)",
+                "variable": "x",
+                "direction": "increasing"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": [
+            "[\"nonnegative_radicand\",\"Add(Mul(Integer(-1), Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(6))\"]"
+          ]
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_monotonic_intervals",
+                "expression": "sqrt(-2*x^2+x+6)",
+                "variable": "x",
+                "direction": "increasing",
+                "target": [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r.goals[0]:scalar:x",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ],
+                      [
+                        "ref",
+                        "r.goals[0]:scalar:x",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "6"
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"sqrt\",[\"+\",[\"+\",[\"*\",[\"neg\",[\"number\",\"2\"]],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"bound\",\"function_argument\"]],[\"number\",\"6\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=sqrt(-2*x^2+x+6)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "neg",
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "neg",
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ],
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "2"
+                            ]
+                          ]
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "6"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "25dd1bb7ca84",
+          "source_sha256": "b29b3fc6a3e17a8c7ab151d3a5cb383597b7239c4db3d388ad11f3f48069e65c"
+        }
+      },
+      "revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "584c7adf96fe3367fa78d8001651c13c97ec3e572668e5ac862504e816912235",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

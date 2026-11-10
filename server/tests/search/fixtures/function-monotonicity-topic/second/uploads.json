@@ -1,0 +1,26 @@
+[
+  {
+    "file": "upload-01.json",
+    "sha256": "f67f72130efae72271a91ce1908e7f9b615e1740a610903576f3b367b820d07a",
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+    "source_sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5"
+  },
+  {
+    "file": "upload-02.json",
+    "sha256": "88ca1b0e91d76b25c56f0762920d3748860425db180e4dcc40a17ea89a75247f",
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+    "source_sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f"
+  },
+  {
+    "file": "upload-03.json",
+    "sha256": "da0f6fc15c8ec187f72df6d3edd499b2e9a89a149bc1b3fa743b4814d76b1b65",
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-03.jpg",
+    "source_sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad"
+  },
+  {
+    "file": "upload-04.json",
+    "sha256": "8f4b5c27c48c18efdac240a3ea7d9ad246d5d0094ffc8f51489bf0a077a8c543",
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+    "source_sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a"
+  }
+]

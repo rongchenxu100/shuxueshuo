@@ -137,7 +137,7 @@ def test_real_review_can_repair_both_modes_then_review_without_oscillation(tmp_p
     for request in provider.requests:
         assert contracts.SOURCE_RULES in request.prompt.system
         assert '正确项数量反推单选或多选' in request.prompt.system
-        assert '默认按不定项选择处理' in request.prompt.system
+        assert '原题未明示选择模式时为 unspecified' in request.prompt.system
 
 
 def test_source_mode_repair_does_not_authorize_formula_or_polarity_changes(tmp_path):

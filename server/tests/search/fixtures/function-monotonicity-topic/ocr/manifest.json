@@ -1,0 +1,38 @@
+{
+  "1": {
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+    "source_sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+    "file": "page-1.json",
+    "sha256": "e3929540aea1b44bec6943dca5b025f0437d0ba1f2896e1230c187cf37a60c07",
+    "detector_side": 960,
+    "provider": "PP-OCRv6_medium_det + PP-OCRv6_small_rec",
+    "mode": "real_local_ocr"
+  },
+  "2": {
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+    "source_sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+    "file": "page-2.json",
+    "sha256": "2361c08bf90182502459a88ae7e57356e81ee870828fce06d6b3ba469a291ac8",
+    "detector_side": 960,
+    "provider": "PP-OCRv6_medium_det + PP-OCRv6_small_rec",
+    "mode": "real_local_ocr"
+  },
+  "3": {
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-03.jpg",
+    "source_sha256": "d9d342e44d852db78de967ca752e1a392f30d5c8e7e7464600a6fe8b607c48ad",
+    "file": "page-3.json",
+    "sha256": "2b04d743b2f11cc5417875b14417d30c18bd26c737d0237b194133f3c628ed02",
+    "detector_side": 960,
+    "provider": "PP-OCRv6_medium_det + PP-OCRv6_small_rec",
+    "mode": "real_local_ocr"
+  },
+  "4": {
+    "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+    "source_sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+    "file": "page-4.json",
+    "sha256": "3c53f24d8be8add36a27f7b23129d60858a2987c8955219f14a6a6740b468ce9",
+    "detector_side": 960,
+    "provider": "PP-OCRv6_medium_det + PP-OCRv6_small_rec",
+    "mode": "real_local_ocr"
+  }
+}

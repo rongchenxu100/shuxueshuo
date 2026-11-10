@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,+∞)\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3118,
+      "prompt_tokens": 24265,
+      "total_tokens": 27383,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 457
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 668,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-cf021463-4180-4bd3-a23c-ba3bc9c545b5",
+        "sha256": "7c7adc1bdba5e33f92f60bee44a72f4010c480c702839eda6ae17e5044224484",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8689,
+        "expires_at": 1794364397,
+        "uploaded_at": 1794277997.842537
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "7c7adc1bdba5e33f92f60bee44a72f4010c480c702839eda6ae17e5044224484",
+        "api_calls": 1,
+        "file_id": "file-api-cf021463-4180-4bd3-a23c-ba3bc9c545b5",
+        "expires_at": 1794364397,
+        "elapsed_ms": 134
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 23508,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3118,
+          "prompt_tokens": 24265,
+          "total_tokens": 27383,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2879
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 457
+        },
+        "raw_payload": {
+          "id": "95b0d35b-1018-4b19-8cd7-4bb6c8982e60",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3118,
+            "prompt_tokens": 24265,
+            "total_tokens": 27383,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2879
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 457
+          },
+          "created": 1794277998,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,+∞)\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片中提取题目。图片显示题号11，题干：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。手写答案(-∞,0)等不转录。需要输出 JSON。需要识别没有配图。需要构造 root。题目：已知函数 y=ax^2-2x+3 在 [2,+∞) 上是减函数，求实数 a 的取值范围。这是含参二次函数在区间上单调递减。目标 find_range symbol a。root facts 应该写函数定义和单调性条件？ 需要根据规则：函数定义放 definitions：f(x)=a*x^2-2*x+3 或 y=a*x^2-2*x+3？ 题面是 y=...，内部别名可用 f(x)=...；公开保留 y。facts 写函数在 [2,+∞) 上是减函数。这属于 required_monotonicity 或者直接 fact？目标 find_range 可以带 required_monotonicity 字段，表示参数必须满足的单调要求。但题面条件“y=ax^2-2x+3 在 [2,+∞) 上是减函数”正是对含参函数在指定区间上的单调要求，求参数。因此 goal find_range 带 symbol=a, required_monotonicity {expression: a*x^2-2*x+3, variable:x, direction:decreasing, strict:true?, input_domain:\"[2,+∞)\"}。题面“减函数”通常严格递减？数学中“减函数”可能非严格？中文教材：减函数通常对任意 x1<x2 有 f(x1)>f(x2)，严格递减？ 需要按原题保留。目录字段 strict 必须填 boolean，required_monotonicity strict 类型 const true，说明只支持严格？定义是 strict: true 表示严格单调；false 非严格；但 const true? 看 schema: required strict const true，没法填 false。因此按严格递减。事实中的单调性也可直接 fact：“函数 f(x)=... 在 [2,+∞) 上是减函数” 用 ∀? 但 required_monotonicity 更合适。函数定义放 definitions: f(x)=a*x^2-2*x+3。是否题面已有 y=...，内部别名 f 可按规则。公开 statement 保留原式 y=a x^2-2x+3。facts 可为空，因为 required_monotonicity 在 goal 中。目标 find_range symbol a；required_monotonicity expression a*x^2-2*x+3, variable x, direction decreasing, strict true, input_domain [2,+∞)。是否需要把“在[2,+∞)上是减函数”也放 facts？ 规则说 required_monotonicity 表示待求参数必须满足的单调要求。它放在目标字段，不是 facts。这样条件就在 goal 里。父节点没有其他条件？ definitions 有函数定义。题面条件已在目标里。可以吗？ 目标字段只填写种类、对象或表达式及适用的答案形式/变量提示，不另带数学条件。但是 required_monotonicity 是目标字段中允许的，表示参数必须满足的单调要求。可以。root definitions 放 f(x)=a*x^2-2*x+3。但公开题干中有 y=...；definitions 别名不写公开。public_content statement 中应写完整题干：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。注意填空题横线。根 label 是 \"11.\"? 题号是来源题号，是否放 root.label？题号“11.”是来源题号，root.label 可设 \"11.\"? 规则：root.label 存在时用 root_label_role 区分。题号是来源或试卷题号 -> source。但公开 statement 不应包含题号。original_text 可以保留题号。public_content root_label_role=source, scopes statement 不含题号。是否要设置 root.label? 可以设置 \"11.\"，并 root_label_role=\"source\"。但题号也许不需要。如果设了 label，public_content root_label_role=source，且 public_content.statement 不包含题号。这是合适的。但 root.label 会作为题面标签，不用于 object ID。我们可以省略 label 以避免分类。但题号不放入 root.label 也可以，original_text保留题号。public_content statement 不含题号。为了简洁，不设 root.label，避免必须给 root_label_role？ 但 public_content root_label_role 可选，仅当root.label存在时填。可以省略。\n\nuncertainties: 手写答案是学生答案，不转录。无需报告。图片中有些手写“a<0”等，不是题目内容。没有无法辨认。题干中的函数“y=a x^2 - 2x +3”清晰。区间 [2,+∞) 清晰。求实数a取值范围。无选项。无配图。\n\n需要 output JSON with fields original_text, root, public_content. 可以选择 root 没有 children。root 使用 definitions, facts? 我倾向于将单调性条件放 facts 作为 ∀ 条件，而不是 goal required_monotonicity？但目标求a范围。规则：“find_range.function_monotonicity 表示原题给定的已知单调事实：...。required_monotonicity 表示待求参数必须满足的单调要求：...”。题面给函数含参，且说它在该区间是减函数，这是条件，求参数。required_monotonicity 正是为此。可以用。目标字段中带 required_monotonicity，fact 不需要重复。但 root.facts 为空或许没问题。definitions 中函数定义。public_content.scopes statement 包含全部题干。\n\n注意 required_monotonicity 的 expression 是否要写原函数表达式含等号？ 字段 expression 是“含参数的原函数表达式，如 x^2-m*x+5”，不要等号。填 a*x^2-2*x+3。variable x。function 可选填 f。input_domain \"[2,+∞)\" 或 \"[2,+∞)\"？题面是 [2, +∞)。保留开闭：左闭右开无穷。字符串 \"[2,+∞)\"。方向 decreasing，strict true。basis 可选 stated，因为直接说减函数。basis {kind:\"stated\", statement:\"\"} 可省略。根据 schema required_monotonicity 的 required 包括 expression, variable, direction, strict, input_domain。basis 可选。可以省略。这样目标：\n{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,+∞)\",\"function\":\"f\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}\n注意 schema required_monotonicity 的 basis.kind enum stated, difference_quotient, difference_product。statement for stated 为空串。可填也可省略。不输出模拟答案。\n\ndefinitions: [\"f(x)=a*x^2-2*x+3\"]。题面给 y=...，别名 f(x)。目标 expression 用 a*x^2... 可以。没有 facts。也许把“函数 y=...” 用 y 定义？ 可用 \"y=a*x^2-2*x+3\" 定义，但目标 required_monotonicity.expression 字段需要含参数原函数表达式，且 required_monotonicity.function 可选 \"f\"；定义可用 y 别名？ 规则：y=原式需要函数引用时，可用不冲突的 f(x)=原式作为内部别名。所以 definitions 用 f(x)=...。公开 statement 保留 y。可以。\n\npublic_content.completeness: complete。privacy: separated? 学生手写答案存在，但公开字段是否已分离？ 题目正文和手写答案明确分离：我们只写题干，不写手写答案。privacy 应 separated（姓名班级没有）。题号来源？ public_content statement 不包含题号。可以 separated。figure: not_required。figure_detection status none, regions []。scopes 一个：scope_ref \"/root\", statement 自身题干（不含题号）：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。root_label_role? root没有label，可以省略。如果 root 没有 label，public_content 的可选 root_label_role 不填。public_content required fields includes completeness privacy figure scopes figure_detection; root_label_role optional. 不需要。\n\noriginal_text: \"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\"。需要 LaTeX 内反斜杠写成 \\\\ 因为 JSON 字符串。注意 original_text 里 $…$ 内集合花括号转义，区间括号无需转义。∞用 \\infty。JSON 中反斜杠需 \"\\\\infty\"。 public_content statement 同样需 \"$[2,+\\\\infty)$\"。题目原文字中的 \"a\" 等。手写答案不写。\n\n需要不要输出其他字段。root 的 facts 可以为空数组? Schema 可选 facts? 可省略或空。定义数组。root 应包含 definitions, goals。也许还需要 facts? 不必须，但我们可以放空 facts? additionalProperties false, facts 可选。为了明确，definitions 和 goals。可没有 facts。root 没有 label。uncertainties 可以省略或空数组。无不确定。可以省略。\n\n但题面条件“在[2,+∞)上是减函数”是在 root 目标内 required_monotonicity，不属于 facts。这样 root 只有目标。目标字段的 required_monotonicity 中有 input_domain。好。\n\n不过从题型看，求参数 a 范围，由于函数是开口方向未知的二次函数。如果 a=0 时是直线 y=-2x+3，在[2,+∞)递减，所以 a=0 也可能。手写答案(-∞,0]？ 图片手写似乎是 (-∞,0]? 但学生答案不转录。题目本身求 a 范围。目标即可。\n\n要确保 public_content.scopes 与 root 先序遍历对应所有作用域：只有一个 root。choices 中 target_ref 必须实际 goals/0。status none. selection_mode none. options [].\n\nfigure_detection: status \"none\", regions [].\n\n是否需要 figure 标 none。没有配图。\n\n输出 JSON。注意 original_text 中的“减函数”后似乎有个逗号，图片有“减函数”后逗号？ 可写成“减函数，则...”。原图是“减函数，则实数a的取值范围是____”。保留标点。题号11. 后空格。公式用 $...$。使用 $y=ax^2-2x+3$ 和 $[2,+\\infty)$。original_text 的 $[2,+\\infty)$ 中 + 没有空格。题面是 [2, +∞)，可在公式内加空格吗？ 尽量 “[2,+\\\\infty)”。 \"实数 $a$\". 填空横线“______”。手写答案不写，所以横线后没有内容。图片中填空横线在答案范围后，似乎有手写答案写在横线处？ 不转录。原题填空处是横线。可以写“______”。好。\n\nroot definitions \"f(x)=a*x^2-2*x+3\" 使用 catalog 数学字符串，乘法显式。变量 x。目标 required_monotonicity expression \"a*x^2-2*x+3\"；input_domain \"[2,+∞)\"。使用 \"+∞\" 在 JSON 字符串中， + 和 Unicode ∞ 可以。catalog 的区间写法有 [a,∞)，\"[2,+∞)\" 可以。strict true。direction decreasing。basis stated 可选，省略。function \"f\" 可选，但目标 required_monotonicity 的 function 字段可填 f。对，我们定义 f，故填。variable 是 x。strict true。好。\n\n是否有必要在 definitions 中使用 y 而不是 f？ 目标 required_monotonicity.function \"f\" 引用。题面中函数是 y，但内部别名 f 可以。definitions 用 f(x)=...。符合规则。\n\npublic_content statement 只保留自身题干，没有题号，公式用 LaTeX。不要把手写答案放在 statement。可写“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。注意 $[2,+\\infty)$ 在 JSON 字符串写 \"$[2,+\\\\infty)$\"。public_content.scopes 只有一个，statement 同上。choices target_ref /root/goals/0。\n\n现在输出 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 23667
+  },
+  "raw_payload": {
+    "id": "95b0d35b-1018-4b19-8cd7-4bb6c8982e60",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,+∞)\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片中提取题目。图片显示题号11，题干：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。手写答案(-∞,0)等不转录。需要输出 JSON。需要识别没有配图。需要构造 root。题目：已知函数 y=ax^2-2x+3 在 [2,+∞) 上是减函数，求实数 a 的取值范围。这是含参二次函数在区间上单调递减。目标 find_range symbol a。root facts 应该写函数定义和单调性条件？ 需要根据规则：函数定义放 definitions：f(x)=a*x^2-2*x+3 或 y=a*x^2-2*x+3？ 题面是 y=...，内部别名可用 f(x)=...；公开保留 y。facts 写函数在 [2,+∞) 上是减函数。这属于 required_monotonicity 或者直接 fact？目标 find_range 可以带 required_monotonicity 字段，表示参数必须满足的单调要求。但题面条件“y=ax^2-2x+3 在 [2,+∞) 上是减函数”正是对含参函数在指定区间上的单调要求，求参数。因此 goal find_range 带 symbol=a, required_monotonicity {expression: a*x^2-2*x+3, variable:x, direction:decreasing, strict:true?, input_domain:\"[2,+∞)\"}。题面“减函数”通常严格递减？数学中“减函数”可能非严格？中文教材：减函数通常对任意 x1<x2 有 f(x1)>f(x2)，严格递减？ 需要按原题保留。目录字段 strict 必须填 boolean，required_monotonicity strict 类型 const true，说明只支持严格？定义是 strict: true 表示严格单调；false 非严格；但 const true? 看 schema: required strict const true，没法填 false。因此按严格递减。事实中的单调性也可直接 fact：“函数 f(x)=... 在 [2,+∞) 上是减函数” 用 ∀? 但 required_monotonicity 更合适。函数定义放 definitions: f(x)=a*x^2-2*x+3。是否题面已有 y=...，内部别名 f 可按规则。公开 statement 保留原式 y=a x^2-2x+3。facts 可为空，因为 required_monotonicity 在 goal 中。目标 find_range symbol a；required_monotonicity expression a*x^2-2*x+3, variable x, direction decreasing, strict true, input_domain [2,+∞)。是否需要把“在[2,+∞)上是减函数”也放 facts？ 规则说 required_monotonicity 表示待求参数必须满足的单调要求。它放在目标字段，不是 facts。这样条件就在 goal 里。父节点没有其他条件？ definitions 有函数定义。题面条件已在目标里。可以吗？ 目标字段只填写种类、对象或表达式及适用的答案形式/变量提示，不另带数学条件。但是 required_monotonicity 是目标字段中允许的，表示参数必须满足的单调要求。可以。root definitions 放 f(x)=a*x^2-2*x+3。但公开题干中有 y=...；definitions 别名不写公开。public_content statement 中应写完整题干：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。注意填空题横线。根 label 是 \"11.\"? 题号是来源题号，是否放 root.label？题号“11.”是来源题号，root.label 可设 \"11.\"? 规则：root.label 存在时用 root_label_role 区分。题号是来源或试卷题号 -> source。但公开 statement 不应包含题号。original_text 可以保留题号。public_content root_label_role=source, scopes statement 不含题号。是否要设置 root.label? 可以设置 \"11.\"，并 root_label_role=\"source\"。但题号也许不需要。如果设了 label，public_content root_label_role=source，且 public_content.statement 不包含题号。这是合适的。但 root.label 会作为题面标签，不用于 object ID。我们可以省略 label 以避免分类。但题号不放入 root.label 也可以，original_text保留题号。public_content statement 不含题号。为了简洁，不设 root.label，避免必须给 root_label_role？ 但 public_content root_label_role 可选，仅当root.label存在时填。可以省略。\n\nuncertainties: 手写答案是学生答案，不转录。无需报告。图片中有些手写“a<0”等，不是题目内容。没有无法辨认。题干中的函数“y=a x^2 - 2x +3”清晰。区间 [2,+∞) 清晰。求实数a取值范围。无选项。无配图。\n\n需要 output JSON with fields original_text, root, public_content. 可以选择 root 没有 children。root 使用 definitions, facts? 我倾向于将单调性条件放 facts 作为 ∀ 条件，而不是 goal required_monotonicity？但目标求a范围。规则：“find_range.function_monotonicity 表示原题给定的已知单调事实：...。required_monotonicity 表示待求参数必须满足的单调要求：...”。题面给函数含参，且说它在该区间是减函数，这是条件，求参数。required_monotonicity 正是为此。可以用。目标字段中带 required_monotonicity，fact 不需要重复。但 root.facts 为空或许没问题。definitions 中函数定义。public_content.scopes statement 包含全部题干。\n\n注意 required_monotonicity 的 expression 是否要写原函数表达式含等号？ 字段 expression 是“含参数的原函数表达式，如 x^2-m*x+5”，不要等号。填 a*x^2-2*x+3。variable x。function 可选填 f。input_domain \"[2,+∞)\" 或 \"[2,+∞)\"？题面是 [2, +∞)。保留开闭：左闭右开无穷。字符串 \"[2,+∞)\"。方向 decreasing，strict true。basis 可选 stated，因为直接说减函数。basis {kind:\"stated\", statement:\"\"} 可省略。根据 schema required_monotonicity 的 required 包括 expression, variable, direction, strict, input_domain。basis 可选。可以省略。这样目标：\n{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,+∞)\",\"function\":\"f\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}\n注意 schema required_monotonicity 的 basis.kind enum stated, difference_quotient, difference_product。statement for stated 为空串。可填也可省略。不输出模拟答案。\n\ndefinitions: [\"f(x)=a*x^2-2*x+3\"]。题面给 y=...，别名 f(x)。目标 expression 用 a*x^2... 可以。没有 facts。也许把“函数 y=...” 用 y 定义？ 可用 \"y=a*x^2-2*x+3\" 定义，但目标 required_monotonicity.expression 字段需要含参数原函数表达式，且 required_monotonicity.function 可选 \"f\"；定义可用 y 别名？ 规则：y=原式需要函数引用时，可用不冲突的 f(x)=原式作为内部别名。所以 definitions 用 f(x)=...。公开 statement 保留 y。可以。\n\npublic_content.completeness: complete。privacy: separated? 学生手写答案存在，但公开字段是否已分离？ 题目正文和手写答案明确分离：我们只写题干，不写手写答案。privacy 应 separated（姓名班级没有）。题号来源？ public_content statement 不包含题号。可以 separated。figure: not_required。figure_detection status none, regions []。scopes 一个：scope_ref \"/root\", statement 自身题干（不含题号）：“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。root_label_role? root没有label，可以省略。如果 root 没有 label，public_content 的可选 root_label_role 不填。public_content required fields includes completeness privacy figure scopes figure_detection; root_label_role optional. 不需要。\n\noriginal_text: \"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______\"。需要 LaTeX 内反斜杠写成 \\\\ 因为 JSON 字符串。注意 original_text 里 $…$ 内集合花括号转义，区间括号无需转义。∞用 \\infty。JSON 中反斜杠需 \"\\\\infty\"。 public_content statement 同样需 \"$[2,+\\\\infty)$\"。题目原文字中的 \"a\" 等。手写答案不写。\n\n需要不要输出其他字段。root 的 facts 可以为空数组? Schema 可选 facts? 可省略或空。定义数组。root 应包含 definitions, goals。也许还需要 facts? 不必须，但我们可以放空 facts? additionalProperties false, facts 可选。为了明确，definitions 和 goals。可没有 facts。root 没有 label。uncertainties 可以省略或空数组。无不确定。可以省略。\n\n但题面条件“在[2,+∞)上是减函数”是在 root 目标内 required_monotonicity，不属于 facts。这样 root 只有目标。目标字段的 required_monotonicity 中有 input_domain。好。\n\n不过从题型看，求参数 a 范围，由于函数是开口方向未知的二次函数。如果 a=0 时是直线 y=-2x+3，在[2,+∞)递减，所以 a=0 也可能。手写答案(-∞,0]？ 图片手写似乎是 (-∞,0]? 但学生答案不转录。题目本身求 a 范围。目标即可。\n\n要确保 public_content.scopes 与 root 先序遍历对应所有作用域：只有一个 root。choices 中 target_ref 必须实际 goals/0。status none. selection_mode none. options [].\n\nfigure_detection: status \"none\", regions [].\n\n是否需要 figure 标 none。没有配图。\n\n输出 JSON。注意 original_text 中的“减函数”后似乎有个逗号，图片有“减函数”后逗号？ 可写成“减函数，则...”。原图是“减函数，则实数a的取值范围是____”。保留标点。题号11. 后空格。公式用 $...$。使用 $y=ax^2-2x+3$ 和 $[2,+\\infty)$。original_text 的 $[2,+\\infty)$ 中 + 没有空格。题面是 [2, +∞)，可在公式内加空格吗？ 尽量 “[2,+\\\\infty)”。 \"实数 $a$\". 填空横线“______”。手写答案不写，所以横线后没有内容。图片中填空横线在答案范围后，似乎有手写答案写在横线处？ 不转录。原题填空处是横线。可以写“______”。好。\n\nroot definitions \"f(x)=a*x^2-2*x+3\" 使用 catalog 数学字符串，乘法显式。变量 x。目标 required_monotonicity expression \"a*x^2-2*x+3\"；input_domain \"[2,+∞)\"。使用 \"+∞\" 在 JSON 字符串中， + 和 Unicode ∞ 可以。catalog 的区间写法有 [a,∞)，\"[2,+∞)\" 可以。strict true。direction decreasing。basis stated 可选，省略。function \"f\" 可选，但目标 required_monotonicity 的 function 字段可填 f。对，我们定义 f，故填。variable 是 x。strict true。好。\n\n是否有必要在 definitions 中使用 y 而不是 f？ 目标 required_monotonicity.function \"f\" 引用。题面中函数是 y，但内部别名 f 可以。definitions 用 f(x)=...。符合规则。\n\npublic_content statement 只保留自身题干，没有题号，公式用 LaTeX。不要把手写答案放在 statement。可写“已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是______”。注意 $[2,+\\infty)$ 在 JSON 字符串写 \"$[2,+\\\\infty)$\"。public_content.scopes 只有一个，statement 同上。choices target_ref /root/goals/0。\n\n现在输出 JSON。"
+        }
+      }
+    ],
+    "created": 1794277998,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3118,
+      "prompt_tokens": 24265,
+      "total_tokens": 27383,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2879,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 457
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 23.669
+}

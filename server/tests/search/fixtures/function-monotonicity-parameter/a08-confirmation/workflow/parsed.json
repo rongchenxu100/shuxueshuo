@@ -1,0 +1,185 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": false,
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.facts[0]",
+          "source": "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0",
+          "code": "notation.bind",
+          "reason_code": "binding.quantifier_domain",
+          "message": "binding.quantifier_domain"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {}
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "9660950bb7ac30e5429ee92c2eaeb76d1f91068b533c4d1001b8c9836ed2c662",
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_definition",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          [
+            "call",
+            "piecewise",
+            [
+              "-",
+              [
+                "+",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ]
+            ],
+            [
+              ">",
+              [
+                "bound",
+                "function_argument"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ],
+            [
+              "-",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "*",
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "bound",
+                "function_argument"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:scalar:a",
+            "scalar"
+          ]
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "ambiguous_symbol",
+          "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+        }
+      ],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      },
+      {
+        "ref": "r:scalar:a",
+        "name": "a",
+        "kind": "scalar",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+        "path": "r.definitions[0]",
+        "source": "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+      }
+    },
+    "normalization_report": {}
+  },
+  "binding": {
+    "problem_id": "64a476510c12",
+    "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+  }
+}

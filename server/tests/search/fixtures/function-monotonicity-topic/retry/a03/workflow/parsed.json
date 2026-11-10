@@ -1,0 +1,387 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": true,
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "4"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "4"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "366c58906c2efdb7c5fb4fecb2896291ee2d1b952c30cef647916c0c8f158a72",
+  "canonical": {
+    "root": {
+      "facts": [
+        [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "Add(Mul(Integer(-1), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(4), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(3))"
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_monotonic_intervals",
+          "expression": "-x^2+4*x+3",
+          "variable": "x",
+          "function": "f",
+          "direction": "increasing",
+          "input_domain": "[0,3]",
+          "domain_role": "restriction"
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "well_definedness": []
+  },
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_definition",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          [
+            "+",
+            [
+              "+",
+              [
+                "neg",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "4"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "3"
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_monotonic_intervals",
+          "expression": "-x^2+4*x+3",
+          "variable": "x",
+          "function": "f",
+          "direction": "increasing",
+          "input_domain": "[0,3]",
+          "domain_role": "restriction",
+          "target": [
+            "+",
+            [
+              "+",
+              [
+                "neg",
+                [
+                  "^",
+                  [
+                    "ref",
+                    "r.goals[0]:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "4"
+                ],
+                [
+                  "ref",
+                  "r.goals[0]:scalar:x",
+                  "scalar"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "3"
+            ]
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"number\",\"4\"],[\"bound\",\"function_argument\"]]],[\"number\",\"3\"]]]": {
+        "path": "r.definitions[0]",
+        "source": "f(x)=-x^2+4*x+3"
+      }
+    },
+    "normalization_report": {
+      "version": "semantic-equivalence/v1",
+      "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+      "initial_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "+",
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "4"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "3"
+              ]
+            ]
+          ]
+        }
+      ],
+      "canonical_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "+",
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "4"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "3"
+              ]
+            ]
+          ]
+        }
+      ],
+      "derived_facts": [],
+      "proofs": [],
+      "blocked": []
+    }
+  },
+  "binding": {
+    "problem_id": "291a6e9e6573",
+    "source_sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf"
+  }
+}

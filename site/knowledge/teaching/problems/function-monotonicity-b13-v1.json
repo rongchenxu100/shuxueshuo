@@ -35,7 +35,7 @@
           "refs": [],
           "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
         },
-        "a02ba77a623d87475f8acfb3#1": {
+        "f114ab42b8b7d9a9a1c44d5d#1": {
           "title": "核对比较对象与单调性",
           "position": 4,
           "refs": [
@@ -44,7 +44,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "90dcc3a5d521b7e45a250962#1": {
+        "f1eb43f6f983aa845acdd907#1": {
           "title": "两个输入的合法条件",
           "position": 5,
           "refs": [
@@ -52,7 +52,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "c42053dd6500d69651e9c28d#1": {
+        "253a1d5a093cc87f12766f15#1": {
           "title": "利用单调性转化比较",
           "position": 6,
           "refs": [
@@ -62,7 +62,7 @@
             "function-monotonicity#interval"
           ]
         },
-        "2e01a5bd84ba15f6b97160da#1": {
+        "aef7c7e95103df6023c0909a#1": {
           "title": "回到原目标",
           "position": 7,
           "refs": [
@@ -73,6 +73,6 @@
       }
     }
   },
-  "page_contract_hash": "588079eaf0bd6cb2b335ebdeef5663305d3609fb002eec8ab21aa83fb45e509f",
-  "practice_version": "aa1cd10f534d610eaed61fae259e0ec9e666d4fccffbfc87afedf35deb8f9f4d"
+  "page_contract_hash": "1ea479485459d02afdf5aa069ad2814752806dcf59980e53f3c80e3c1e975dbc",
+  "practice_version": "f7af7bbe740e440a27dd94561946b6756c3eb1aadc0c1a91201d1f3f8a9f1c37"
 }

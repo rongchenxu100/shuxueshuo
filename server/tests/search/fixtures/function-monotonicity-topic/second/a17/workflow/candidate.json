@@ -1,0 +1,41 @@
+{
+  "original_text": "17. 已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1,\\\\ \\frac{a}{x},&x\\ge 1,\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1\\ne x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是______。",
+  "root": {
+    "definitions": [
+      "f(x)=piecewise((3*a-1)*x+4*a,x<1,a/x,x>=1)"
+    ],
+    "facts": [
+      "∀x_1∈ℝ: ∀x_2∈ℝ: (x_1≠x_2 → (f(x_1)-f(x_2))*(x_1-x_2)<0)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1,\\\\ \\frac{a}{x},&x\\ge 1,\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1\\ne x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

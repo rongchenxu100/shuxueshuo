@@ -1,0 +1,48 @@
+{
+  "original_text": "2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。",
+  "root": {
+    "label": "2.",
+    "facts": [
+      "Dom(f)=[-1,1]",
+      "f(x-1)>f(1-3*x)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "[-1,1]",
+          "function_domain": "[-1,1]",
+          "direction": "increasing",
+          "strict": true,
+          "basis": "given"
+        }
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

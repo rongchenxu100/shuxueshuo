@@ -104,8 +104,17 @@
       "label": "已知函数的单调性求参",
       "type": "type-monotonicity-parameter",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "已知函数在指定区间上严格递增或递减，反求参数：从二次函数的对称轴位置、二次项系数含参的分类讨论，到分段函数的逐段判断与分界点衔接，以及根式函数的内层同向与整段可开方。",
+      "problems": [
+        "function-monotonicity-a05-v1",
+        "function-monotonicity-a09-v1",
+        "function-monotonicity-a11-v1",
+        "function-monotonicity-a06-v1",
+        "function-monotonicity-a08-v1",
+        "function-monotonicity-a17-v1",
+        "function-monotonicity-a10-v1",
+        "function-monotonicity-a13-v1"
+      ]
     },
     {
       "id": "abstract-proof",
@@ -324,6 +333,78 @@
       "bundle": "/data/graph-walk/function-monotonicity-b13-v1.json",
       "types": [
         "type-monotonicity-inequality"
+      ]
+    },
+    "function-monotonicity-a05-v1": {
+      "label": "二次函数区间递增求参 · A05",
+      "path": "/topics/function-monotonicity/q05a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a05-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a09-v1": {
+      "label": "二次函数区间递减求参 · A09",
+      "path": "/topics/function-monotonicity/q09a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a09-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a11-v1": {
+      "label": "含退化的二次递减求参 · A11",
+      "path": "/topics/function-monotonicity/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a11-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a06-v1": {
+      "label": "分段函数整体递增求参 · A06",
+      "path": "/topics/function-monotonicity/q06a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a06-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a08-v1": {
+      "label": "差商恒负的分段求参 · A08",
+      "path": "/topics/function-monotonicity/q08a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a08-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a17-v1": {
+      "label": "差积恒负的分段求参 · A17",
+      "path": "/topics/function-monotonicity/q17/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a17-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a10-v1": {
+      "label": "分段含对勾的递增求参 · A10",
+      "path": "/topics/function-monotonicity/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a10-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ]
+    },
+    "function-monotonicity-a13-v1": {
+      "label": "根式函数递减求参 · A13",
+      "path": "/topics/function-monotonicity/q13a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a13-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
       ]
     }
   }

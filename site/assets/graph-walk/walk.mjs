@@ -143,21 +143,24 @@ const axisPositions = new Map();
 
 function mountAxisExplorer(host) {
   const spec = JSON.parse(host.dataset.graph);
-  const {uid, params} = spec, {min, max, step} = params.axis;
+  const {uid, params} = spec, coefficient = spec.kind === 'coefficient_explorer';
+  const {min, max, step} = coefficient ? params.parameter : params.axis;
+  const layer = coefficient ? PracticeComponents.coefficientExplorerLayer : PracticeComponents.axisExplorerLayer;
   const explorer = {...params, uid};
   const input = host.querySelector('[data-axis-input]'), svg = host.querySelector('svg');
   const move = value => {
     const h = Number(Math.min(max, Math.max(min, min + Math.round((value - min) / step) * step)).toFixed(6));
     axisPositions.set(uid, h);
-    host.querySelector('[data-axis-layer]').innerHTML = PracticeComponents.axisExplorerLayer(explorer, h);
+    host.querySelector('[data-axis-layer]').innerHTML = layer(explorer, h);
     input.value = h;
   };
+  if (axisPositions.has(uid)) move(axisPositions.get(uid));
+  input.addEventListener('input', () => move(Number(input.value)));
+  if (coefficient) return;
   const fromPointer = event => {
     const box = svg.getBoundingClientRect(), [xmin, xmax] = params.bounds;
     move(xmin + ((event.clientX - box.left) / box.width * 360 - 48) / 270 * (xmax - xmin));
   };
-  if (axisPositions.has(uid)) move(axisPositions.get(uid));
-  input.addEventListener('input', () => move(Number(input.value)));
   svg.addEventListener('pointerdown', event => { fromPointer(event); svg.setPointerCapture(event.pointerId); });
   svg.addEventListener('pointermove', event => { if (svg.hasPointerCapture(event.pointerId)) fromPointer(event); });
 }

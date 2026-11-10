@@ -1,0 +1,12 @@
+{
+  "revision": "bf367cc6a2b57d9537645a2b23a8bf544c39b188420d0db37fb791ad60f09d12",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/goals/0/kind",
+      "kind": "wrong_goal",
+      "source_excerpt": "已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。",
+      "message": "原题要求具体函数的最小值。候选目标使用 find_minimum；应按具体函数值域/最值目标表示，使用 find_range 引用 f，并用 answer_request 的 extremum=minimum 记录所求最小值。"
+    }
+  ]
+}

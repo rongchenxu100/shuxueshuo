@@ -1,0 +1,274 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-monotonicity-parameter",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "analyze",
+          "capability": "analyze_monotonicity_parameter",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description",
+            "mono_parameter_result": "mono_parameter_result",
+            "needs_leading_split": "needs_leading_split",
+            "layout": "layout"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "prepare",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "prepare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ]
+        },
+        {
+          "id": "classify",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "classify",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "split"
+          }
+        },
+        {
+          "id": "axis",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "axis",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "axis"
+          }
+        },
+        {
+          "id": "pieces",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "pieces",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "piecewise"
+          }
+        },
+        {
+          "id": "join",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "join",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "piecewise"
+          }
+        },
+        {
+          "id": "outer",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "outer",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "radical"
+          }
+        },
+        {
+          "id": "inner",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "inner",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "radical"
+          }
+        },
+        {
+          "id": "domain",
+          "after": "analyze",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ],
+          "guard": {
+            "ref": "layout",
+            "equals": "radical"
+          }
+        }
+      ]
+    },
+    {
+      "id": "classify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "axis",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "confirm",
+          "capability": "confirm_monotonicity_parameter",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result"
+          },
+          "outputs": {
+            "mono_parameter_result": "mono_parameter_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "conclude",
+          "after": "confirm",
+          "template": "mono_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "mono_parameter_result": "$mono_parameter_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mono_parameter_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "mono_parameter_result": "$mono_parameter_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "monotonicity_parameter",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1741,
+      "prompt_tokens": 24261,
+      "total_tokens": 26002,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 453
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 624,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-eb8eed37-0a26-476a-a9f4-5e8bf2af3cc8",
+        "sha256": "807dd45a2e7314cb0ca64ef5ef57d4a24e1dfda11f12f2358fc34e461c4d2e74",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6180,
+        "expires_at": 1794366595,
+        "uploaded_at": 1794280194.969036
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "807dd45a2e7314cb0ca64ef5ef57d4a24e1dfda11f12f2358fc34e461c4d2e74",
+        "api_calls": 1,
+        "file_id": "file-api-eb8eed37-0a26-476a-a9f4-5e8bf2af3cc8",
+        "expires_at": 1794366595,
+        "elapsed_ms": 191
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 12849,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1741,
+          "prompt_tokens": 24261,
+          "total_tokens": 26002,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1523
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 453
+        },
+        "raw_payload": {
+          "id": "d29b8245-f4e2-4c61-9ca0-5359cf64b570",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1741,
+            "prompt_tokens": 24261,
+            "total_tokens": 26002,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1523
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 453
+          },
+          "created": 1794280195,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要回答 JSON。需要提取题意不求解。图片题目：4. 函数 f(x)=1/√(x^2-5x-6) 的单调递增区间是____。需要转录完整题干。有手写答案遮盖/涂改，不转录。配图？没有配图。需要 root 定义函数，目标单调递增区间。函数 f(x)=1/sqrt(x^2-5*x-6)。目标 kind find_monotonic_intervals expression f(x) variable x direction increasing。是否 function f。input_domain 没有。definitions [\"f(x)=1/sqrt(x^2-5*x-6)\"]。原题说“函数 f(x)=... 的单调递增区间是____”。填空处横线。root facts 无。goals 目标 find_monotonic_intervals expression \"f(x)\"? Schema FunctionMonotonicityGoal requires expression, variable, direction. function optional. expression 填原函数表达式还是 f(x)? Catalog examples? It says expression 原函数表达式，如 x^2-m*x+5; 函数已命名时可填 function. For monotonic intervals, expression should probably \"1/sqrt(x^2-5*x-6)\"? But we have defined f. Could fill expression \"f(x)\"? Need catalog says find_monotonic_intervals expression variable direction. \"表达式\" likely original. To be safe definitions f(x)=..., goal expression \"f(x)\"? Hmm examples in schema: FunctionMonotonicityGoal expression any string no description. In catalog function_range? It says expression variable direction. For monotonicity source fields expression \"含参数的原函数表达式，如 x^2-m*x+5\". Here we can use \"1/sqrt(x^2-5*x-6)\" and function \"f\" optional. But the target requested \"函数 f(x)=... 的单调递增区间\" so expression can be original RHS. Use function \"f\" and expression \"f(x)\"? They might compile expression. Better use expression \"1/sqrt(x^2-5*x-6)\", variable \"x\", direction \"increasing\", function \"f\". No input_domain. domain_role? Could omit since optional? It has domain_role optional. For monotonic intervals no input domain. omit.\n\nNeed public_content scopes one root. statement retain own题干 no小问编号? Public statement should not contain小问编号. Original \"函数 $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" We need omit题号4. Keep blank. Maybe use $f(x)=...$. choices none. target_ref /root/goals/0. status none selection_mode none options [].\n\noriginal_text include \"4. 函数 $f(x)=...$ 的单调递增区间是____。\" Can retain题号? original_text can保留来源题号. It says original_text完整题干原文，保留题号? yes can. Does not need omit. But handwrite not include. Need math with LaTeX. Use $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$. For JSON backslashes double. Chinese. Maybe \"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" Good.\n\nUncertainties: maybe handwritten answer obscures after \"是\", but printed blank? The image has handwritten scribbles overlay after \"是\" maybe blank line obscured. But not needed. We can mention unreadable? The blank may be obscured by handwritten answers. But student answers not report. We don't need uncertainty? The question text readable. There is a handwritten answer (something) covering blank; not report. No figure. Figure detection status none regions [].\n\nNeed root label? Image题号 4. Is root.label? Could omit label because题号 not a label? In schema root.label optional. If include \"4\" root_label_role source maybe. But public statement should not include. The instruction says original_text can retain source题号; root.label exists? We can omit. But root label not needed. If no label no root_label_role. Fine.\n\nNeed ensure JSON schema no extra. public_content contains completeness, privacy, figure, scopes, figure_detection. privacy separated? Since no personal info and handwritten answers excluded. Need ensure source题号 in original_text only? public statement no题号. separated yes. completeness complete. figure not_required.\n\nRoot definitions one string. Facts maybe none? goals. root no label. uncertainties maybe empty array or omit. If no uncertainties could omit. But perhaps there is a handwritten answer covering blank not issue. Use uncertainties [].\n\nNeed note formula original_text uses \\frac etc. JSON escaped. Good.\n\nQuestion: \"标记配图是否存在及其位置\" figure_detection status none. regions [].\n\nNeed root facts maybe include \"Dom(f)=...?\" Not given; don't derive. We only define function. Good.\n\nNeed statement public: \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" It says public_content statement only own题干, no小问编号, okay.\n\nPotential issue: original_text \"4. 函数...\" includes source题号. Good.\n\nGoal kind \"find_monotonic_intervals\". direction \"increasing\". expression maybe \"1/sqrt(x^2-5*x-6)\" or \"f(x)\". Need choose. Since root defines f, perhaps target expression \"f(x)\". The catalog says expression for FunctionMonotonicityGoal no description, but other fields? In schema \"expression\" max string. For monotonic intervals, they might expect expression. To represent original, expression as \"f(x)\" could be considered reference. But \"函数 f(x)=...\" their expression maybe original RHS. However if function optional, expression required. We can set expression \"1/sqrt(x^2-5*x-6)\" and function \"f\" too. But schema says if function named can fill function, but doesn't say expression must be body. For monotonic required, expression is含参数原函数表达式. Let's use expression \"1/sqrt(x^2-5*x-6)\", function \"f\", variable \"x\", direction \"increasing\". This preserves原式 and object recognized. But the target is intervals; expression has no parameter. Good.\n\nPotential subtle: definition f(x)=1/sqrt(...); goal expression same as RHS may duplicate. Fine.\n\nNeed public_content choices per goal exactly once. status none. selection_mode none. options [].\n\nDo we need public_content.scopes statement \"函数 $f(x)=...$ 的单调递增区间是____。\" no extra. Good.\n\nOriginal_text formula: use \\frac{1}{\\sqrt{x^2-5x-6}}. In JSON: \"$f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$\". Need escape backslash. Good.\n\nPublic statement same but JSON escaping. Use \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" Good.\n\nNeed output only JSON. Ensure no markdown. final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13064
+  },
+  "raw_payload": {
+    "id": "d29b8245-f4e2-4c61-9ca0-5359cf64b570",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"root\":{\"definitions\":[\"f(x)=1/sqrt(x^2-5*x-6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"1/sqrt(x^2-5*x-6)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON。需要提取题意不求解。图片题目：4. 函数 f(x)=1/√(x^2-5x-6) 的单调递增区间是____。需要转录完整题干。有手写答案遮盖/涂改，不转录。配图？没有配图。需要 root 定义函数，目标单调递增区间。函数 f(x)=1/sqrt(x^2-5*x-6)。目标 kind find_monotonic_intervals expression f(x) variable x direction increasing。是否 function f。input_domain 没有。definitions [\"f(x)=1/sqrt(x^2-5*x-6)\"]。原题说“函数 f(x)=... 的单调递增区间是____”。填空处横线。root facts 无。goals 目标 find_monotonic_intervals expression \"f(x)\"? Schema FunctionMonotonicityGoal requires expression, variable, direction. function optional. expression 填原函数表达式还是 f(x)? Catalog examples? It says expression 原函数表达式，如 x^2-m*x+5; 函数已命名时可填 function. For monotonic intervals, expression should probably \"1/sqrt(x^2-5*x-6)\"? But we have defined f. Could fill expression \"f(x)\"? Need catalog says find_monotonic_intervals expression variable direction. \"表达式\" likely original. To be safe definitions f(x)=..., goal expression \"f(x)\"? Hmm examples in schema: FunctionMonotonicityGoal expression any string no description. In catalog function_range? It says expression variable direction. For monotonicity source fields expression \"含参数的原函数表达式，如 x^2-m*x+5\". Here we can use \"1/sqrt(x^2-5*x-6)\" and function \"f\" optional. But the target requested \"函数 f(x)=... 的单调递增区间\" so expression can be original RHS. Use function \"f\" and expression \"f(x)\"? They might compile expression. Better use expression \"1/sqrt(x^2-5*x-6)\", variable \"x\", direction \"increasing\", function \"f\". No input_domain. domain_role? Could omit since optional? It has domain_role optional. For monotonic intervals no input domain. omit.\n\nNeed public_content scopes one root. statement retain own题干 no小问编号? Public statement should not contain小问编号. Original \"函数 $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" We need omit题号4. Keep blank. Maybe use $f(x)=...$. choices none. target_ref /root/goals/0. status none selection_mode none options [].\n\noriginal_text include \"4. 函数 $f(x)=...$ 的单调递增区间是____。\" Can retain题号? original_text can保留来源题号. It says original_text完整题干原文，保留题号? yes can. Does not need omit. But handwrite not include. Need math with LaTeX. Use $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$. For JSON backslashes double. Chinese. Maybe \"4. 函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" Good.\n\nUncertainties: maybe handwritten answer obscures after \"是\", but printed blank? The image has handwritten scribbles overlay after \"是\" maybe blank line obscured. But not needed. We can mention unreadable? The blank may be obscured by handwritten answers. But student answers not report. We don't need uncertainty? The question text readable. There is a handwritten answer (something) covering blank; not report. No figure. Figure detection status none regions [].\n\nNeed root label? Image题号 4. Is root.label? Could omit label because题号 not a label? In schema root.label optional. If include \"4\" root_label_role source maybe. But public statement should not include. The instruction says original_text can retain source题号; root.label exists? We can omit. But root label not needed. If no label no root_label_role. Fine.\n\nNeed ensure JSON schema no extra. public_content contains completeness, privacy, figure, scopes, figure_detection. privacy separated? Since no personal info and handwritten answers excluded. Need ensure source题号 in original_text only? public statement no题号. separated yes. completeness complete. figure not_required.\n\nRoot definitions one string. Facts maybe none? goals. root no label. uncertainties maybe empty array or omit. If no uncertainties could omit. But perhaps there is a handwritten answer covering blank not issue. Use uncertainties [].\n\nNeed note formula original_text uses \\frac etc. JSON escaped. Good.\n\nQuestion: \"标记配图是否存在及其位置\" figure_detection status none. regions [].\n\nNeed root facts maybe include \"Dom(f)=...?\" Not given; don't derive. We only define function. Good.\n\nNeed statement public: \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" It says public_content statement only own题干, no小问编号, okay.\n\nPotential issue: original_text \"4. 函数...\" includes source题号. Good.\n\nGoal kind \"find_monotonic_intervals\". direction \"increasing\". expression maybe \"1/sqrt(x^2-5*x-6)\" or \"f(x)\". Need choose. Since root defines f, perhaps target expression \"f(x)\". The catalog says expression for FunctionMonotonicityGoal no description, but other fields? In schema \"expression\" max string. For monotonic intervals, they might expect expression. To represent original, expression as \"f(x)\" could be considered reference. But \"函数 f(x)=...\" their expression maybe original RHS. However if function optional, expression required. We can set expression \"1/sqrt(x^2-5*x-6)\" and function \"f\" too. But schema says if function named can fill function, but doesn't say expression must be body. For monotonic required, expression is含参数原函数表达式. Let's use expression \"1/sqrt(x^2-5*x-6)\", function \"f\", variable \"x\", direction \"increasing\". This preserves原式 and object recognized. But the target is intervals; expression has no parameter. Good.\n\nPotential subtle: definition f(x)=1/sqrt(...); goal expression same as RHS may duplicate. Fine.\n\nNeed public_content choices per goal exactly once. status none. selection_mode none. options [].\n\nDo we need public_content.scopes statement \"函数 $f(x)=...$ 的单调递增区间是____。\" no extra. Good.\n\nOriginal_text formula: use \\frac{1}{\\sqrt{x^2-5x-6}}. In JSON: \"$f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$\". Need escape backslash. Good.\n\nPublic statement same but JSON escaping. Use \"函数 $f(x)=\\\\frac{1}{\\\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。\" Good.\n\nNeed output only JSON. Ensure no markdown. final."
+        }
+      }
+    ],
+    "created": 1794280195,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1741,
+      "prompt_tokens": 24261,
+      "total_tokens": 26002,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1523,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 453
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.065
+}

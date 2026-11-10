@@ -1,0 +1,42 @@
+{
+  "recorded_at": "2026-11-10",
+  "scope": "real_page_upload_ocr_with_manual_question_crops_not_holdout",
+  "uploads": [
+    {
+      "file": "round-01-upload-01.json",
+      "sha256": "4fa8f7e18dccf214d53c4f802b399bc663ceafdcfd257f98c93f79c7252eae34",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "source_sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5"
+    },
+    {
+      "file": "round-01-upload-02.json",
+      "sha256": "13fff05a294d623b342e90ee9331a3b409e9068c90bc98ab14721c28b2da7399",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "source_sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f"
+    },
+    {
+      "file": "round-02-upload-01.json",
+      "sha256": "dbe4cd659d73c9b3682b77baa33a24a421d0d479b7ad8d8fb24f4495a096eab1",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "source_sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5"
+    },
+    {
+      "file": "round-02-upload-02.json",
+      "sha256": "b557ad62c97c6b8c28dcef80e1a17c86f31dd7f984368bd6ab97ec3fc1014033",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "source_sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f"
+    },
+    {
+      "file": "round-03-upload-01.json",
+      "sha256": "212704edff0ae004798fcd58d728a44a2e42ff0ff147091d86dc4731b13985e9",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "source_sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5"
+    },
+    {
+      "file": "round-03-upload-02.json",
+      "sha256": "f6c13561c43135c3c7cc42eba9c54a558dd4c170998fc800da9d28695a2e851e",
+      "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "source_sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f"
+    }
+  ]
+}

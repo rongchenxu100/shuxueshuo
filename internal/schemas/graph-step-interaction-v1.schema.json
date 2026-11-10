@@ -413,6 +413,70 @@
         }
       }
     },
+    "coefficientExplorerParams": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/functionGraphParams"
+        }
+      ],
+      "unevaluatedProperties": false,
+      "required": [
+        "coefficients",
+        "parameter",
+        "target"
+      ],
+      "properties": {
+        "coefficients": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 4,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "parameter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "min",
+            "max",
+            "step",
+            "value"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/text",
+              "minLength": 1
+            },
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "step": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "value": {
+              "type": "number"
+            }
+          }
+        },
+        "target": {
+          "enum": [
+            "increasing",
+            "decreasing"
+          ]
+        }
+      }
+    },
     "axisExplorerParams": {
       "allOf": [
         {
@@ -523,7 +587,9 @@
         "target": {
           "enum": [
             "min",
-            "max"
+            "max",
+            "increasing",
+            "decreasing"
           ]
         }
       }
@@ -623,6 +689,7 @@
             "reciprocal_sum",
             "number_line",
             "axis_explorer",
+            "coefficient_explorer",
             "absolute_affine",
             "piecewise_curve"
           ]
@@ -682,6 +749,16 @@
             },
             "params": {
               "$ref": "#/$defs/axisExplorerParams"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "coefficient_explorer"
+            },
+            "params": {
+              "$ref": "#/$defs/coefficientExplorerParams"
             }
           }
         },

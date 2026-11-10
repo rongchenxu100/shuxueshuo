@@ -5,17 +5,15 @@ import re
 from ...problem_understanding.notation_parser import parse
 from ..monotonicity_inequality_math import declared_domain_ast
 from .evaluation_surface import (
-    _formula_parts,
     _piecewise_source_matches,
     range_goal_span,
+    source_formulas,
 )
 
 
 def source_spans(candidate, target_ref, ranges, description, matches):
     text = candidate['original_text']
-    formulas = [part for begin, end in ranges
-                for m in re.finditer(r'\$([^$\n]+)\$', text[begin:end])
-                for part in _formula_parts(m[1], begin + m.start(1))]
+    formulas = source_formulas(text, ranges)
     spans = []
     relation = None
     for row in description.get('given_definitions') or []:

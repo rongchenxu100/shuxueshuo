@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=x^2-m*x+5\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"required_monotonicity\":{\"expression\":\"x^2-m*x+5\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"[1,2]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1866,
+      "prompt_tokens": 24271,
+      "total_tokens": 26137,
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 207
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 658,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-186e4155-5568-496d-8039-0aab392bd6b6",
+        "sha256": "fb3e90d4e8f7237c7365b6e1b1dd800d256f34a4afd3088ba7de9e391122c6d8",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7835,
+        "expires_at": 1794366629,
+        "uploaded_at": 1794280229.450508
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "fb3e90d4e8f7237c7365b6e1b1dd800d256f34a4afd3088ba7de9e391122c6d8",
+        "api_calls": 1,
+        "file_id": "file-api-186e4155-5568-496d-8039-0aab392bd6b6",
+        "expires_at": 1794366629,
+        "elapsed_ms": 196
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 13420,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1866,
+          "prompt_tokens": 24271,
+          "total_tokens": 26137,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1629
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 24064
+          },
+          "prompt_cache_hit_tokens": 24064,
+          "prompt_cache_miss_tokens": 207
+        },
+        "raw_payload": {
+          "id": "d9c163af-976e-40a2-a297-2dbb3c465f3c",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1866,
+            "prompt_tokens": 24271,
+            "total_tokens": 26137,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1629
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 24064
+            },
+            "prompt_cache_hit_tokens": 24064,
+            "prompt_cache_miss_tokens": 207
+          },
+          "created": 1794280229,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=x^2-m*x+5\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"required_monotonicity\":{\"expression\":\"x^2-m*x+5\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"[1,2]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意，不求解。题目：5. 若函数 f(x)=x^2 - mx + 5 在区间 [1,2] 上单调递增，则实数 m 的取值范围是 ______。手写答案 (-∞,2] 不是题目内容，不转录。需要输出 original_text 包含完整题干，保留横线，不包含手写答案。注意图片中横线上有手写 (-∞,2]，但是填空处照印刷原样写横线。所以 original_text: 5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。题号5是否来源？ root.label可能是5？题面开头有5.，可以放original_text保留，public_content statement不包含题号。root.label? 题号是来源题号，可以label \"5\"，root_label_role source。但规则说root.label存在时 role。可以不加label以避免。original_text保留题号没问题。public_content statement不含题号。\n\nroot：定义 f(x)=x^2-m*x+5；事实：f在[1,2]上单调递增。目标：求m范围，find_range symbol m。但是有 required_monotonicity 字段可表示待求参数必须满足的单调要求。题面已经说函数在区间上单调递增，求m范围。这可以放 facts? 或者目标的 required_monotonicity。根据说明：find_range.required_monotonicity 表示待求参数必须满足的单调要求：expression、variable、direction、strict、input_domain，函数已命名时可填 function。因此目标应包含 required_monotonicity：expression \"x^2-m*x+5\", variable \"x\", direction increasing, strict true (单调递增通常严格？题面“单调递增”可能严格递增？在中文数学中“单调递增”有时指非严格？但题目高中通常指严格递增? 需要保留原措辞，strict字段要求true仅严格；如果“单调递增”通常理解为单调递增（可能是严格）？题面没有“严格”，但字段只有 strict const true? required_monotonicity 的 strict 是 const true，说明只能表示严格递增？目录写 strict true 表示严格单调，false 非严格；但 schema 中 required_monotonicity strict: {\"const\": true} 固定 true。所以填 true。方向 increasing，input_domain \"[1,2]\"，function \"f\" 可选。目标 kind find_range, symbol \"m\", required_monotonicity。还需定义 f(x)=x^2-m*x+5。父 facts 是否也需要包含单调条件？required_monotonicity 已经承载条件，可能不需要重复 facts。根据“条件放 facts；…单调要求… required_monotonicity”，目标字段可以包含该条件。也可以 facts 放 ∀x1,x2? 不必。使用 required_monotonicity 是合适的。没有其他条件。\n\n变量 m 是参数。目标 symbol m。\n\npublic_content: completeness complete, privacy separated? 图片为学生拍题，有手写答案和题号。题干与手写答案已分离？手写答案在填空处，公开字段不包含手写答案，算 separated 吗？privacy 说仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时 separated。我们排除了手写答案和题号，可以 separated。但题号5在original_text中保留，public_content statement不含。来源题号没有进入公开字段，可以 separated。figure_detection status none, regions []。public_content scopes: root scope_ref /root, statement: \"若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\" choices: target_ref /root/goals/0, status none, selection_mode none, options []。\n\nroot label? 不加。uncertainties 空。Original_text 包含题号5。数学用 $…$ 包围，注意反斜杠。没有反斜杠。original_text 中 mx 可写 $f(x)=x^2-mx+5$，区间 $[1,2]$，横线 ______。\n\n需要确保 root.definitions 中数学字符串不使用 $，乘法显式 *：f(x)=x^2-m*x+5。required_monotonicity.expression 也写 x^2-m*x+5，variable x，direction increasing，strict true，input_domain [1,2]，function f。目标 kind find_range, symbol m, required_monotonicity。但 required_monotonicity 中 expression 应含参数原函数表达式，如 x^2-m*x+5。variable \"x\"，function \"f\"。好。\n\n是否需要在 facts 放\"f(x)=x^2-m*x+5\"？函数定义放 definitions。是的。\n\nOriginal_text 中“5.”是题号，保留。题干完整。不转录手写答案。填空处横线。不确定手写答案是否被误认为题目？不。\n\npublic_content root_label_role 可选。因为未设置 root.label，不需要。root.label可省略。\n\n目标 find_range 中 input_domain 不应填，因为这是函数值域目标的额外输入范围，不是求参数范围。required_monotonicity 已包含 input_domain。\n\n注意 schema find_range 的 oneOf: symbol vs object。有 symbol 可以。required_monotonicity 要求 symbol，不可以 function_monotonicity。好。\n\npublic_content choices 每个目标恰好一次。只有一个目标，status none。\n\nFigure_detection status none。没有配图。\n\n还需要 root.uncertainties 可省略。Original_text 中公式使用 LaTeX 但题目变量没有反斜杠；$…$。写 \"5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\" 可以。题号5不是数学？保留。\n\npublic_content statement 不写题号，公式用 $…$。填空横线。好。\n\n现在输出 JSON only。需要遵循 schema 结构。root 包含 definitions, goals。public_content包含completeness etc. 注意 \"privacy\": \"separated\" 是否合适？手写答案没有被公开；题号也没有进入公开字段。所以可以。figure \"not_required\". scopes array. figure_detection.\n\n需要确保 public_content.scopes 按 root 先序遍历逐个对应所有作用域。只有一个 root。scope_ref \"/root\"。statement包含该作用域自身的题干、条件和所求。可以。\n\nroot.definitions: [\"f(x)=x^2-m*x+5\"]。facts 可空数组或省略。目标:\n{\"kind\":\"find_range\",\"symbol\":\"m\",\"required_monotonicity\":{\"expression\":\"x^2-m*x+5\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"[1,2]\"}}\n是否需要 basis? 可省略，表示题目直接说明增减。strict 必须 true（schema const true）。OK。\n\n但题面“单调递增”可能不一定是严格递增；schema 只允许 true，无法表示非严格。是否需要 uncertainties 报告 ambiguous? 不需要，题目常规。\n\npublic_content choices target_ref \"/root/goals/0\". Good.\n\nOriginal_text 中集合花括号无。所有公式 $…$。\n\n输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13643
+  },
+  "raw_payload": {
+    "id": "d9c163af-976e-40a2-a297-2dbb3c465f3c",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=x^2-m*x+5\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"required_monotonicity\":{\"expression\":\"x^2-m*x+5\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"[1,2]\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意，不求解。题目：5. 若函数 f(x)=x^2 - mx + 5 在区间 [1,2] 上单调递增，则实数 m 的取值范围是 ______。手写答案 (-∞,2] 不是题目内容，不转录。需要输出 original_text 包含完整题干，保留横线，不包含手写答案。注意图片中横线上有手写 (-∞,2]，但是填空处照印刷原样写横线。所以 original_text: 5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。题号5是否来源？ root.label可能是5？题面开头有5.，可以放original_text保留，public_content statement不包含题号。root.label? 题号是来源题号，可以label \"5\"，root_label_role source。但规则说root.label存在时 role。可以不加label以避免。original_text保留题号没问题。public_content statement不含题号。\n\nroot：定义 f(x)=x^2-m*x+5；事实：f在[1,2]上单调递增。目标：求m范围，find_range symbol m。但是有 required_monotonicity 字段可表示待求参数必须满足的单调要求。题面已经说函数在区间上单调递增，求m范围。这可以放 facts? 或者目标的 required_monotonicity。根据说明：find_range.required_monotonicity 表示待求参数必须满足的单调要求：expression、variable、direction、strict、input_domain，函数已命名时可填 function。因此目标应包含 required_monotonicity：expression \"x^2-m*x+5\", variable \"x\", direction increasing, strict true (单调递增通常严格？题面“单调递增”可能严格递增？在中文数学中“单调递增”有时指非严格？但题目高中通常指严格递增? 需要保留原措辞，strict字段要求true仅严格；如果“单调递增”通常理解为单调递增（可能是严格）？题面没有“严格”，但字段只有 strict const true? required_monotonicity 的 strict 是 const true，说明只能表示严格递增？目录写 strict true 表示严格单调，false 非严格；但 schema 中 required_monotonicity strict: {\"const\": true} 固定 true。所以填 true。方向 increasing，input_domain \"[1,2]\"，function \"f\" 可选。目标 kind find_range, symbol \"m\", required_monotonicity。还需定义 f(x)=x^2-m*x+5。父 facts 是否也需要包含单调条件？required_monotonicity 已经承载条件，可能不需要重复 facts。根据“条件放 facts；…单调要求… required_monotonicity”，目标字段可以包含该条件。也可以 facts 放 ∀x1,x2? 不必。使用 required_monotonicity 是合适的。没有其他条件。\n\n变量 m 是参数。目标 symbol m。\n\npublic_content: completeness complete, privacy separated? 图片为学生拍题，有手写答案和题号。题干与手写答案已分离？手写答案在填空处，公开字段不包含手写答案，算 separated 吗？privacy 说仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时 separated。我们排除了手写答案和题号，可以 separated。但题号5在original_text中保留，public_content statement不含。来源题号没有进入公开字段，可以 separated。figure_detection status none, regions []。public_content scopes: root scope_ref /root, statement: \"若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\" choices: target_ref /root/goals/0, status none, selection_mode none, options []。\n\nroot label? 不加。uncertainties 空。Original_text 包含题号5。数学用 $…$ 包围，注意反斜杠。没有反斜杠。original_text 中 mx 可写 $f(x)=x^2-mx+5$，区间 $[1,2]$，横线 ______。\n\n需要确保 root.definitions 中数学字符串不使用 $，乘法显式 *：f(x)=x^2-m*x+5。required_monotonicity.expression 也写 x^2-m*x+5，variable x，direction increasing，strict true，input_domain [1,2]，function f。目标 kind find_range, symbol m, required_monotonicity。但 required_monotonicity 中 expression 应含参数原函数表达式，如 x^2-m*x+5。variable \"x\"，function \"f\"。好。\n\n是否需要在 facts 放\"f(x)=x^2-m*x+5\"？函数定义放 definitions。是的。\n\nOriginal_text 中“5.”是题号，保留。题干完整。不转录手写答案。填空处横线。不确定手写答案是否被误认为题目？不。\n\npublic_content root_label_role 可选。因为未设置 root.label，不需要。root.label可省略。\n\n目标 find_range 中 input_domain 不应填，因为这是函数值域目标的额外输入范围，不是求参数范围。required_monotonicity 已包含 input_domain。\n\n注意 schema find_range 的 oneOf: symbol vs object。有 symbol 可以。required_monotonicity 要求 symbol，不可以 function_monotonicity。好。\n\npublic_content choices 每个目标恰好一次。只有一个目标，status none。\n\nFigure_detection status none。没有配图。\n\n还需要 root.uncertainties 可省略。Original_text 中公式使用 LaTeX 但题目变量没有反斜杠；$…$。写 \"5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是 ______。\" 可以。题号5不是数学？保留。\n\npublic_content statement 不写题号，公式用 $…$。填空横线。好。\n\n现在输出 JSON only。需要遵循 schema 结构。root 包含 definitions, goals。public_content包含completeness etc. 注意 \"privacy\": \"separated\" 是否合适？手写答案没有被公开；题号也没有进入公开字段。所以可以。figure \"not_required\". scopes array. figure_detection.\n\n需要确保 public_content.scopes 按 root 先序遍历逐个对应所有作用域。只有一个 root。scope_ref \"/root\"。statement包含该作用域自身的题干、条件和所求。可以。\n\nroot.definitions: [\"f(x)=x^2-m*x+5\"]。facts 可空数组或省略。目标:\n{\"kind\":\"find_range\",\"symbol\":\"m\",\"required_monotonicity\":{\"expression\":\"x^2-m*x+5\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"[1,2]\"}}\n是否需要 basis? 可省略，表示题目直接说明增减。strict 必须 true（schema const true）。OK。\n\n但题面“单调递增”可能不一定是严格递增；schema 只允许 true，无法表示非严格。是否需要 uncertainties 报告 ambiguous? 不需要，题目常规。\n\npublic_content choices target_ref \"/root/goals/0\". Good.\n\nOriginal_text 中集合花括号无。所有公式 $…$。\n\n输出。"
+        }
+      }
+    ],
+    "created": 1794280229,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1866,
+      "prompt_tokens": 24271,
+      "total_tokens": 26137,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1629,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 24064
+      },
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 207
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.644
+}

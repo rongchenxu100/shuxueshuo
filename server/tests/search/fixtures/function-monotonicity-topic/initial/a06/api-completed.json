@@ -1,0 +1,689 @@
+{
+  "search_id": "80f73b922c18",
+  "user_id": "be130735-8f91-463b-a534-c322b089e24b",
+  "problem_id": "61d982aa-6ebd-41b8-8459-0da8616655c5",
+  "statement": "若函数 $f(x)=\\begin{cases} x^2-ax+\\frac{a}{2},&x\\ge 1,\\\\ (2a+4)x-5,&x<1 \\end{cases}$，在 $ℝ$ 上单调递增，则实数 $a$ 的取值范围为 ______。",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "c6eae6e358112d0b9e70e715d32e89d08118fabb57f571a36e39951c8b3b6945",
+      "width": 990,
+      "height": 93,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/80f73b922c18/figures/original?version=d8c2a41377b61e8491a2fb9bb0e125f6e7fcc289114da12cee2de068918368d9"
+      }
+    ],
+    "content_id": "d8c2a41377b61e8491a2fb9bb0e125f6e7fcc289114da12cee2de068918368d9"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "b42b2e13da98",
+    "box": [
+      0.1485535574667709,
+      0.5363423212192263,
+      0.9225957779515246,
+      0.5908558030480656
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      990,
+      93
+    ],
+    "bytes": 9507
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "6. 若函数 $f(x)=\\begin{cases} x^2-ax+\\frac{a}{2},&x\\ge 1,\\\\ (2a+4)x-5,&x<1 \\end{cases}$，在 $\\mathbb{R}$ 上单调递增，则实数 $a$ 的取值范围为 ______。",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a",
+        "required_monotonicity": {
+          "expression": "piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)",
+          "variable": "x",
+          "function": "f",
+          "direction": "increasing",
+          "strict": true,
+          "input_domain": "ℝ",
+          "basis": {
+            "kind": "stated",
+            "statement": ""
+          }
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "0a432e1f14ed93261a382c77c8427df6f54da55a39e39600f8b939328c1d6de7",
+    "sent_image_sha256": [
+      "0a432e1f14ed93261a382c77c8427df6f54da55a39e39600f8b939328c1d6de7"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 56.171,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-parameter",
+        "supported": [
+          "type-monotonicity-parameter"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 111,
+                  "end": 112,
+                  "text": "$a$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-monotonicity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递减的全部 $a$",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求 $f(x)$ 在 $\\mathbb{R}$ 上严格递增，再求满足要求的全部 $a$。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递增的全部 $a$",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "c5ba2b42369e1218"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问对参数提出了什么要求？",
+          "feedback": "题目要求 $f(x)$ 在 $\\mathbb{R}$ 上严格递增，再求满足要求的全部 $a$。",
+          "summary": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递增的全部 $a$。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是求参数。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          },
+          {
+            "type_id": "type-monotonicity-parameter",
+            "label": "已知函数的单调性求参",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "原目标是使函数在指定区间内增减的参数范围。"
+            ],
+            "choice_hint": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合要求"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "80f73b922c18//root/goals/0",
+            "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
+            "problem": {
+              "text": "若函数 $f(x)=\\begin{cases} x^2-ax+\\frac{a}{2},&x\\ge 1,\\\\ (2a+4)x-5,&x<1 \\end{cases}$，在 $ℝ$ 上单调递增，则实数 $a$ 的取值范围为 ______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问对参数提出了什么要求？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递减的全部 $a$",
+                      "feedback": "题目要求 $f(x)$ 在 $\\mathbb{R}$ 上严格递增，再求满足要求的全部 $a$。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递增的全部 $a$"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求 $f(x)$ 在 $\\mathbb{R}$ 上严格递增，再求满足要求的全部 $a$。"
+                },
+                "candidateNodes": [
+                  "function-monotonicity",
+                  "type-function-monotonicity",
+                  "type-monotonicity-parameter",
+                  "type-monotonicity-abstract-proof",
+                  "type-monotonicity-extremum",
+                  "type-monotonicity-inequality"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-monotonicity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递增的全部 $a$。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间",
+                      "feedback": "原目标是求完整单调区间或证明增减，不是求参数。"
+                    },
+                    {
+                      "value": "type-monotonicity-parameter",
+                      "label": "已知函数的单调性求参",
+                      "note": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合要求"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-monotonicity-parameter"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-monotonicity",
+                  "type-monotonicity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-monotonicity-parameter"
+                  ],
+                  "edges": [
+                    "type-monotonicity-parameter|involves|function-monotonicity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：原目标是使函数在指定区间内增减的参数范围。"
+                  ],
+                  "log": "作答判断：选择主要题型「已知函数的单调性求参」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-monotonicity",
+                  "kind": "knowledge",
+                  "label": "函数的单调性",
+                  "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-parameter",
+                  "kind": "problem_type",
+                  "label": "已知函数的单调性求参",
+                  "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof",
+                  "kind": "problem_type",
+                  "label": "证明抽象函数的单调性",
+                  "summary": "证明抽象函数的单调性；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用单调性解不等式",
+                  "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-monotonicity-parameter-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "单调性求参的选法判断",
+                  "summary": "已知函数在指定区间上的增减性求参数时，用单调性条件求参法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-monotonicity-parameter",
+                  "kind": "method",
+                  "label": "单调性条件求参法",
+                  "summary": "按参数分类讨论斜率、开口或对称轴，保证指定区间上的严格增减；分段函数还要逐段判断并检查分界点处的函数值，再合并必要充分的参数范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "读清单调性要求",
+                      "calls": []
+                    },
+                    {
+                      "id": "classify",
+                      "title": "按参数与结构分情况",
+                      "calls": []
+                    },
+                    {
+                      "id": "axis",
+                      "title": "判断段内增减条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "合并条件并回到原目标",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-monotonicity-parameter-method|selects|method-monotonicity-parameter",
+                  "from": "rule-monotonicity-parameter-method",
+                  "to": "method-monotonicity-parameter",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "parameter",
+                      "condition": "已知或要求函数在指定区间严格递增／递减，求使该性质成立的参数。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|involves|function-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+                  "from": "type-monotonicity-abstract-proof",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-monotonicity",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|involves|function-monotonicity",
+                  "from": "type-monotonicity-inequality",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|candidate|method-monotonicity-parameter",
+                  "from": "type-monotonicity-parameter",
+                  "to": "method-monotonicity-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|involves|function-monotonicity",
+                  "from": "type-monotonicity-parameter",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|method_rule|rule-monotonicity-parameter-method",
+                  "from": "type-monotonicity-parameter",
+                  "to": "rule-monotonicity-parameter-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-monotonicity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "0143a4eae23a402fc083f3686b5246b6405c5f9b4c1ceb7bdc3ad32f901e6003"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "80f73b922c18//root/goals/0",
+            "bundleVersion": "0143a4eae23a402fc083f3686b5246b6405c5f9b4c1ceb7bdc3ad32f901e6003",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "求使 $f(x)$ 在 $\\mathbb{R}$ 上严格递增的全部 $a$。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-monotonicity-parameter",
+                "reason": "选「已知函数的单调性求参」：原目标是使函数在指定区间内增减的参数范围。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "fc358b880c214638b8c60acf9906ac5c",
+      "lesson_version": "c972f4fe42f48a6b3df89334ac0b3b023499f1907a7d75090a69700263a60486",
+      "stream_id": "fc358b880c214638b8c60acf9906ac5c",
+      "snapshot_url": "/api/search/problems/80f73b922c18/lesson/fc358b880c214638b8c60acf9906ac5c/snapshot",
+      "events_url": "/api/search/problems/80f73b922c18/lesson/fc358b880c214638b8c60acf9906ac5c/events",
+      "websocket_url": "/api/search/problems/80f73b922c18/lesson/fc358b880c214638b8c60acf9906ac5c/ws"
+    }
+  }
+}

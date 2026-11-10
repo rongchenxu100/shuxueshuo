@@ -1,0 +1,529 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "needs_confirmation",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "invalid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "needs_confirmation"
+  },
+  "diagnostics": [
+    {
+      "stage": "source",
+      "code": "ambiguous_symbol",
+      "path": "/root/uncertainties/0",
+      "source": {
+        "kind": "ambiguous_symbol",
+        "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+      },
+      "message": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。",
+      "action": "needs_confirmation"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}x^2+ax-a,&x>2,\\\\1-ax,&x\\le2.\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+    "root": {
+      "label": "8",
+      "definitions": [
+        "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "ambiguous_symbol",
+          "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)$ 在 $x>2$ 时满足 $f(x)=x^2+ax-a$，在 $x\\le2$ 时满足 $f(x)=1-ax$，且对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}x^2+ax-a,&x>2,\\\\1-ax,&x\\le2.\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+    "root": {
+      "label": "8",
+      "definitions": [
+        "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ],
+      "uncertainties": [
+        {
+          "kind": "ambiguous_symbol",
+          "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)$ 在 $x>2$ 时满足 $f(x)=x^2+ax-a$，在 $x\\le2$ 时满足 $f(x)=1-ax$，且对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": false,
+    "reports": {
+      "ir": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "r.facts[0]",
+            "source": "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0",
+            "code": "notation.bind",
+            "reason_code": "binding.quantifier_domain",
+            "message": "binding.quantifier_domain"
+          }
+        ],
+        "defaults": [
+          {
+            "ref": "r:scalar:a",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:a",
+            "name": "a",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {}
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "9660950bb7ac30e5429ee92c2eaeb76d1f91068b533c4d1001b8c9836ed2c662",
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "piecewise",
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ],
+              [
+                ">",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "-",
+                [
+                  "number",
+                  "1"
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": [
+              "ref",
+              "r:scalar:a",
+              "scalar"
+            ]
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "ambiguous_symbol",
+            "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+          }
+        ],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+        }
+      },
+      "normalization_report": {}
+    },
+    "binding": {
+      "problem_id": "64a476510c12",
+      "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "source",
+          "code": "ambiguous_symbol",
+          "path": "/root/uncertainties/0",
+          "source": {
+            "kind": "ambiguous_symbol",
+            "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+          },
+          "message": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。",
+          "action": "needs_confirmation"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": false,
+        "reports": {
+          "ir": {
+            "ok": false,
+            "issues": [
+              {
+                "path": "r.facts[0]",
+                "source": "∀x1∈ℝ: ∀x2∈ℝ∖{x1}: (f(x1)-f(x2))/(x1-x2) < 0",
+                "code": "notation.bind",
+                "reason_code": "binding.quantifier_domain",
+                "message": "binding.quantifier_domain"
+              }
+            ],
+            "defaults": [
+              {
+                "ref": "r:scalar:a",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:a",
+                "name": "a",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {}
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "9660950bb7ac30e5429ee92c2eaeb76d1f91068b533c4d1001b8c9836ed2c662",
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "piecewise",
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:a",
+                          "scalar"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    ">",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "number",
+                      "1"
+                    ],
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:a",
+                        "scalar"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "<=",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "ambiguous_symbol",
+                "text": "分段函数第二段条件处“x≤2”后似有点状痕迹，结合上下段分界判读为 x≤2。"
+              }
+            ],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:a",
+              "name": "a",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=piecewise(x^2+a*x-a,x>2,1-a*x,x<=2)"
+            }
+          },
+          "normalization_report": {}
+        },
+        "binding": {
+          "problem_id": "64a476510c12",
+          "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+        }
+      },
+      "revision": "9660950bb7ac30e5429ee92c2eaeb76d1f91068b533c4d1001b8c9836ed2c662"
+    }
+  ]
+}

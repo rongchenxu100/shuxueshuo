@@ -30,7 +30,8 @@ from shuxueshuo_server.search.segmentation import page_head_candidates
 from shuxueshuo_server.search.segmentation_labels import incomplete_heading
 
 MAX_SIDE = 1600
-DETECT_SIDE = 736
+# 960 preserves heads interrupted by handwritten circles on phone worksheets.
+DETECT_SIDE = 960
 # One thread measured fastest on the 2-vCPU (one physical core) server: 8.9 s vs 12.9 s with 8.
 # oneDNN (run_mode=mkldnn) hangs there, so it stays off.
 ENGINE = {"run_mode": "paddle", "device_type": "cpu",

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a09-v1",
+  "title": "二次函数区间递减求参 · A09",
+  "page": "/topics/function-monotonicity/q09a/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=x^{2}-2(a-1)x+2$ 在 $(-\\infty,4]$ 上单调递减，求实数 $a$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a09-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a09.json"
+}

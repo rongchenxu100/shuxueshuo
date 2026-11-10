@@ -1,0 +1,12 @@
+{
+  "revision": "f5f8ab17384ed704742fbb8da59c2f3eedf5cc95c3db0639ae6a552ef9a80e91",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/goals/0/required_monotonicity/basis/statement",
+      "kind": "missing_condition",
+      "source_excerpt": "对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立",
+      "message": "差商条件只保留了不等式本身，遗漏了原文的全称量词“对任意”、$x_1,x_2\\in(-\\infty,-2]$ 的双变量范围以及“不相等”的限制；应将这些量词和限制一并保留在 basis.statement（或该作用域的事实条件）中，不能仅用 input_domain 代替。"
+    }
+  ]
+}

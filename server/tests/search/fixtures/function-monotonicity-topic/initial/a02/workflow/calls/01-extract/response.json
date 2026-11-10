@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-2*x^2+x+6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-2*x^2+x+6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1062,
+      "prompt_tokens": 24266,
+      "total_tokens": 25328,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 458
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 574,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-0f235927-03ad-435e-83aa-c15f2b0fbf49",
+        "sha256": "b29b3fc6a3e17a8c7ab151d3a5cb383597b7239c4db3d388ad11f3f48069e65c",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6672,
+        "expires_at": 1794366518,
+        "uploaded_at": 1794280118.878293
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "b29b3fc6a3e17a8c7ab151d3a5cb383597b7239c4db3d388ad11f3f48069e65c",
+        "api_calls": 1,
+        "file_id": "file-api-0f235927-03ad-435e-83aa-c15f2b0fbf49",
+        "expires_at": 1794366518,
+        "elapsed_ms": 175
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 8344,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1062,
+          "prompt_tokens": 24266,
+          "total_tokens": 25328,
+          "completion_tokens_details": {
+            "reasoning_tokens": 867
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 458
+        },
+        "raw_payload": {
+          "id": "fd9816a1-ea75-4845-83b3-bf2305fe5d3a",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1062,
+            "prompt_tokens": 24266,
+            "total_tokens": 25328,
+            "completion_tokens_details": {
+              "reasoning_tokens": 867
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 458
+          },
+          "created": 1794280119,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-2*x^2+x+6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-2*x^2+x+6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题干。图片文字：\"2. 函数 f(x)=√(-2x²+x+6) 的递增区间是 ______\"。学生手写答案是 [-3/2, 1/4] 等，不转录。题目要求递增区间，不是求具体函数值域。目标：find_monotonic_intervals，expression 为 sqrt(-2*x^2+x+6)，variable x，direction increasing。题号2属于来源题号，root.label可写\"2.\"角色source? 图片显示\"2.\"明确题号，可作为source。但root.label可选。公开题干不包含题号。需要填写原题完整。函数定义可以放definitions: f(x)=sqrt(-2*x^2+x+6)。目标引用 expression 原式，或 function f. 按 FunctionMonotonicityGoal 字段：kind find_monotonic_intervals, expression 原表达式，variable x，direction increasing。可以 function f? 有函数名 f，可填。input_domain 未给，不填。domain_role 不填? 若没有 input_domain 可不填。需要目标。公开content.scopes root statement 题干不含题号：\"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\" 注意开闭端点和严格性未在题干中，目标只方向。\n\n配图：图片没有图形，没有配图。figure_detection status none regions [].\n\nuncertainties 无。手写答案不报告。\n\n需要 original_text 保留题号？\"2. 函数 ... 的递增区间是 ______\" 可以。不要手写答案。JSON 字符串反斜杠双写。公式用 $…$。\n\npublic_content completeness complete, privacy separated? 题号可以分离；没有个人信息。手写答案排除。可 separated。root_label_role source 因为原图明确题号2。但root.label \"2.\"? label写\"2.\"。public_content root_label_role source。root 的 label \"2.\"? 可以用。但label作为题号可能被排除。Schema root.label存在时填写。可以省略root.label避免麻烦，但原图题号不必放root。题号不是题意，不需要root.label。如果省略root_label_role也可。但是题干开头有2.，在original_text保留，root不label。public_content statement不含题号。这样privacy separated没问题。是否要root.label? 不需要，题号不是数学标签。省略即可。uncertainties可空数组。\n\ndefinitions: [\"f(x)=sqrt(-2*x^2+x+6)\"]。facts 空。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-2*x^2+x+6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]。FunctionMonotonicityGoal允许 function字段可选，但 expression 已足够。没有 input_domain，domain_role省略。\n\n注意目标对象与public_content choices 对应：每个goal必须有个choices项 status none, selection_mode none, options []。scope_ref \"/root\", statement \"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\", choices [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\noriginal_text 公式：函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。需要用反斜杠双写。JSON内写 \"$f(x)=\\\\sqrt{-2x^{2}+x+6}$\"。\n\nfigure_detection none。\n\n需要不要输出额外字段。public_content scopes 只有root。completeness complete。\n\n注意题目可能“函数 f(x)=... 的递增区间是____”。是求单调增区间。目标 kind find_monotonic_intervals。direction increasing。没有给定义域限定，不填input_domain。\n\n关于根号范围：原图为 \\sqrt{-2x^2+x+6}。转录完全。\n\n可以输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 8542
+  },
+  "raw_payload": {
+    "id": "fd9816a1-ea75-4845-83b3-bf2305fe5d3a",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(-2*x^2+x+6)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-2*x^2+x+6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题干。图片文字：\"2. 函数 f(x)=√(-2x²+x+6) 的递增区间是 ______\"。学生手写答案是 [-3/2, 1/4] 等，不转录。题目要求递增区间，不是求具体函数值域。目标：find_monotonic_intervals，expression 为 sqrt(-2*x^2+x+6)，variable x，direction increasing。题号2属于来源题号，root.label可写\"2.\"角色source? 图片显示\"2.\"明确题号，可作为source。但root.label可选。公开题干不包含题号。需要填写原题完整。函数定义可以放definitions: f(x)=sqrt(-2*x^2+x+6)。目标引用 expression 原式，或 function f. 按 FunctionMonotonicityGoal 字段：kind find_monotonic_intervals, expression 原表达式，variable x，direction increasing。可以 function f? 有函数名 f，可填。input_domain 未给，不填。domain_role 不填? 若没有 input_domain 可不填。需要目标。公开content.scopes root statement 题干不含题号：\"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\" 注意开闭端点和严格性未在题干中，目标只方向。\n\n配图：图片没有图形，没有配图。figure_detection status none regions [].\n\nuncertainties 无。手写答案不报告。\n\n需要 original_text 保留题号？\"2. 函数 ... 的递增区间是 ______\" 可以。不要手写答案。JSON 字符串反斜杠双写。公式用 $…$。\n\npublic_content completeness complete, privacy separated? 题号可以分离；没有个人信息。手写答案排除。可 separated。root_label_role source 因为原图明确题号2。但root.label \"2.\"? label写\"2.\"。public_content root_label_role source。root 的 label \"2.\"? 可以用。但label作为题号可能被排除。Schema root.label存在时填写。可以省略root.label避免麻烦，但原图题号不必放root。题号不是题意，不需要root.label。如果省略root_label_role也可。但是题干开头有2.，在original_text保留，root不label。public_content statement不含题号。这样privacy separated没问题。是否要root.label? 不需要，题号不是数学标签。省略即可。uncertainties可空数组。\n\ndefinitions: [\"f(x)=sqrt(-2*x^2+x+6)\"]。facts 空。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-2*x^2+x+6)\",\"variable\":\"x\",\"direction\":\"increasing\"}]。FunctionMonotonicityGoal允许 function字段可选，但 expression 已足够。没有 input_domain，domain_role省略。\n\n注意目标对象与public_content choices 对应：每个goal必须有个choices项 status none, selection_mode none, options []。scope_ref \"/root\", statement \"函数 $f(x)=\\\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。\", choices [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\noriginal_text 公式：函数 $f(x)=\\sqrt{-2x^{2}+x+6}$ 的递增区间是 ______。需要用反斜杠双写。JSON内写 \"$f(x)=\\\\sqrt{-2x^{2}+x+6}$\"。\n\nfigure_detection none。\n\n需要不要输出额外字段。public_content scopes 只有root。completeness complete。\n\n注意题目可能“函数 f(x)=... 的递增区间是____”。是求单调增区间。目标 kind find_monotonic_intervals。direction increasing。没有给定义域限定，不填input_domain。\n\n关于根号范围：原图为 \\sqrt{-2x^2+x+6}。转录完全。\n\n可以输出。"
+        }
+      }
+    ],
+    "created": 1794280119,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1062,
+      "prompt_tokens": 24266,
+      "total_tokens": 25328,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 867,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 458
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 8.543
+}

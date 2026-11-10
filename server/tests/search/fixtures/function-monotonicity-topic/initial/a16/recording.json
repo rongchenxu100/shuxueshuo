@@ -1,0 +1,25 @@
+{
+  "recorded_at": "2026-11-10",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "api_error",
+  "call_stages": [],
+  "historical_semantic_calls": 0,
+  "historical_network_attempts": 0,
+  "response_text_sha256": {},
+  "api_acceptance": {
+    "case": "a16",
+    "search_id": null,
+    "status": "api_error",
+    "recognition_status": "unknown",
+    "lesson_status": "api_error",
+    "elapsed_seconds": 0.061,
+    "error": {
+      "exception_type": "AssertionError",
+      "message": "{\"detail\":\"search.daily_generation_limit\"}"
+    }
+  },
+  "files": {
+    "api-error.json": "64662b20c2072084dbe29c68142d4f6898fce02a07f97c1831c6e4c7f661ecd0"
+  }
+}

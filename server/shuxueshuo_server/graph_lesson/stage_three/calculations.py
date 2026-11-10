@@ -100,6 +100,13 @@ def dispatch(payload):
     if operation == 'finish_monotonicity_inequality':
         from .monotonicity_inequality_runtime import finish
         return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_monotonicity_parameter':
+        from .monotonicity_parameter_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],
+                             payload['mono_parameter_result_exact'])
+    if operation == 'finish_monotonicity_parameter':
+        from .monotonicity_parameter_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
     if operation == 'verify_function_monotonicity':
         from .monotonicity_runtime import verify_frozen
         return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'], payload['monotonicity_result_exact'])

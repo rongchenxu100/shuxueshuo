@@ -140,6 +140,9 @@ def routed_description(goal, target_ref, entries):
     Parameter tasks retain their unsupported diagnostics; only direct extrema
     have a pre-existing function-range path to fall back to.
     """
+    from . import recurrence_extremum
+    if recurrence_extremum.relevant(goal, entries):
+        return recurrence_extremum.describe(goal, target_ref, entries)
     if not relevant(goal, entries):
         return None
     result = describe(goal, target_ref, entries)
@@ -242,6 +245,8 @@ def describe(goal, target_ref, entries):
                 raise ValueError('extremum.single_condition_required')
             s = special[0]
             def used_functions(ast):
+                if not ast:
+                    return set()
                 used = {ast[1]} if ast[0] == 'call' and ast[1] in funcs else set()
                 return used.union(*(used_functions(v) for v in ast[1:] if isinstance(v, list)))
             if used_functions(s) != set(funcs):
@@ -484,9 +489,22 @@ def parameter_inputs(desc):
     if len(special) != 1:
         raise ValueError('extremum.single_condition_required')
     special, = special
+    if special[0] == '=':
+        # min(f(x)) is the unindexed spelling of min_x f(x), but only
+        # the function's declared formal argument may supply the binder.
+        special = deepcopy(special)
+        for side in special[1:]:
+            if side[0] == 'extremum':
+                call = side[3]
+                if call[0] != 'call' or call[1] not in funcs:
+                    raise ValueError('extremum.specified_function_required')
+                variable = funcs[call[1]]['variable']
+                if call[2:] != [['name', variable]] or side[2] not in ([], [variable]):
+                    raise ValueError('extremum.specified_variable_binding')
+                side[2] = [variable]
     allowed, sets = sp.S.Reals, {}
     for f in facts:
-        if f is special or f == ['∈', ['name', str(p)], ['real']]:
+        if (f[0] == '=' and any(v[0] == 'extremum' for v in f[1:])) or f is special or f == ['∈', ['name', str(p)], ['real']]:
             continue
         if f[0] == '=' and f[1][0] == 'name' and f[2][0] in ('interval', 'set', 'tuple', 'set_builder'):
             sets[f[1][1]] = f[2]

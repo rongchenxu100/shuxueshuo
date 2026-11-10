@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a05-v1",
+  "title": "二次函数区间递增求参 · A05",
+  "page": "/topics/function-monotonicity/q05a/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=x^{2}-mx+5$，若 $f(x)$ 在区间 $[1,2]$ 上单调递增，求实数 $m$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a05-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a05.json"
+}

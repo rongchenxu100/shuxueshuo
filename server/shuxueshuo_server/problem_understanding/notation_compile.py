@@ -521,8 +521,7 @@ class Scope:
             domain = bind(domain)
             if domain[0] == "tuple":
                 domain = node("interval", False, False, *domain[1:])
-            named_scalar_set = domain[0] == "ref" and domain[2] in ("set", "domain")
-            if domain[0] not in ("real", "interval") and not named_scalar_set:
+            if typecheck(domain) not in ("domain", "set"):
                 raise NotationError("binding.quantifier_domain")
             variable = f"quantified_{len(bound)}"
             return node(
@@ -744,7 +743,7 @@ def typecheck(ast):
             "area": "area",
             "bisects": "boolean",
         }.get(name, "scalar")
-    if kind in ("and", "or"):
+    if kind in ("and", "or", "implies"):
         if any(typecheck(x) != "boolean" for x in ast[1:]):
             raise NotationError("type.logic")
         return "boolean"
@@ -930,6 +929,15 @@ class NotationValidator:
                     pass
             if len(report.objects) == known:
                 break
+        # An explicit Dom(f) declaration introduces an abstract function even
+        # without a globally given formula. Do not infer one from an arbitrary call.
+        for ast in set_sources:
+            if ast[0] == '=':
+                for side in ast[1:]:
+                    if len(side) == 3 and side[:2] == ['call', 'Dom'] and side[2][0] == 'name':
+                        name = side[2][1]
+                        env.declare(name, 'function')
+                        env.abstract_functions.add(name)
         # Known-monotonicity inequalities introduce an abstract function before
         # facts bind f(u)□f(v); the body is never a concrete definition.
         for goal in source.get("goals", []):

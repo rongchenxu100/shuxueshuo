@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a10-v1",
+  "title": "分段含对勾的递增求参 · A10",
+  "page": "/topics/function-monotonicity/q10/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\begin{cases}\\frac{a}{x},&0<x\\le1,\\\\x-\\frac{a}{x}-2,&x>1\\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a10-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a10.json"
+}

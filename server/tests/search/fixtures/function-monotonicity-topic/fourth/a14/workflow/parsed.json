@@ -1,0 +1,506 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": true,
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "-",
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "number",
+                          "1"
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "5"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "5"
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "-",
+                  [
+                    "call",
+                    "sqrt",
+                    [
+                      "+",
+                      [
+                        "-",
+                        [
+                          "number",
+                          "1"
+                        ],
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "5"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "5"
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "62c2c210123e32be363c0e7332e5f2479b731f595ec94856b1f9ce9a26c9f0af",
+  "canonical": {
+    "root": {
+      "facts": [
+        [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "Add(Mul(Integer(-1), Integer(5), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Pow(Add(Mul(Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(1)), Rational(1, 2)), Integer(5))"
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "answer_request": {
+            "kind": "extremum",
+            "quantity": "minimum"
+          },
+          "input_domain": [
+            "real"
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "well_definedness": [
+      "[\"nonnegative_radicand\",\"Add(Mul(Integer(2), Pow(Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True), Integer(2))), Mul(Integer(-1), Integer(2), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Integer(1))\"]"
+    ]
+  },
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_definition",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          [
+            "+",
+            [
+              "-",
+              [
+                "call",
+                "sqrt",
+                [
+                  "+",
+                  [
+                    "-",
+                    [
+                      "number",
+                      "1"
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "5"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "5"
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "answer_request": {
+            "kind": "extremum",
+            "quantity": "minimum"
+          }
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"-\",[\"call\",\"sqrt\",[\"+\",[\"-\",[\"number\",\"1\"],[\"*\",[\"number\",\"2\"],[\"bound\",\"function_argument\"]]],[\"*\",[\"number\",\"2\"],[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]],[\"*\",[\"number\",\"5\"],[\"bound\",\"function_argument\"]]],[\"number\",\"5\"]]]": {
+        "path": "r.definitions[0]",
+        "source": "f(x)=sqrt(1-2*x+2*x^2)-5*x+5"
+      }
+    },
+    "normalization_report": {
+      "version": "semantic-equivalence/v1",
+      "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+      "initial_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "+",
+              [
+                "-",
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "number",
+                        "1"
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "5"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "5"
+              ]
+            ]
+          ]
+        }
+      ],
+      "canonical_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "+",
+              [
+                "-",
+                [
+                  "call",
+                  "sqrt",
+                  [
+                    "+",
+                    [
+                      "-",
+                      [
+                        "number",
+                        "1"
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "5"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "5"
+              ]
+            ]
+          ]
+        }
+      ],
+      "derived_facts": [],
+      "proofs": [],
+      "blocked": []
+    }
+  },
+  "binding": {
+    "problem_id": "d5d5756926b0",
+    "source_sha256": "6173bc02a41e57075cce5a9c78a2debe3446c85497215c434f710683a25d7218"
+  }
+}

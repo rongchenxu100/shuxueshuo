@@ -34,7 +34,17 @@ def source_spans(candidate, target_ref, ranges, description, matches):
         rows.append((*found[0][:2], 'given_domain', [target_ref+'/input_domain']))
         declared = bool(re.search(r'定义域(?:为|是)', text))
         if declared != (goal.get('domain_role', 'restriction') == 'declared'):
-            return None
+            # A bare x∈I after the formula can describe either its declared
+            # domain or a restriction. Those readings are equivalent only when
+            # every input in I is legal; never intersect away invalid inputs.
+            from ..function_monotonicity import effective_domain, source
+            try:
+                spec = source(goal)
+                _, effective = effective_domain(spec, {**goal, 'domain_role': 'restriction'})
+                if effective != spec['input_domain']:
+                    return None
+            except (ValueError, TypeError, KeyError):
+                return None
     elif domain_mentions or re.search(r'定义域(?:为|是)|在区间', text):
         return None
     if goal['kind'] == 'prove_monotonicity_on_interval' and not re.search('证明|求证', text):

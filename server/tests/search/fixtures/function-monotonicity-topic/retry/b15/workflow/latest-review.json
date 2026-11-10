@@ -1,0 +1,12 @@
+{
+  "revision": "a64e3b51b29eb608931df348323777cc7c4c81261c39df02fd8c7f8cde4d6c9e",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/goals/0",
+      "kind": "wrong_goal",
+      "source_excerpt": "则 $m$ 的最大值为____。",
+      "message": "候选将所求表示为未在目标约定中定义的 kind=\"find_maximum\"，且 expression 只写了 m，未按目录保留“求最大值”的 extremum 语义。原题要求的是在给定全称不等式条件下参数 m 的最大值；应改用目录支持的参数最值/范围目标表示并记录 maximum，不得自造目标类型。"
+    }
+  ]
+}

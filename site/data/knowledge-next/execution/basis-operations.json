@@ -366,6 +366,14 @@
     "mono_inequality_order": [
       "function-monotonicity#definition",
       "function-monotonicity#interval"
+    ],
+    "mono_parameter_axis": [
+      "function-monotonicity#common-functions",
+      "function-monotonicity#interval"
+    ],
+    "mono_parameter_merge": [
+      "function-monotonicity#definition",
+      "function-monotonicity#interval"
     ]
   }
 }

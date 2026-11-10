@@ -174,9 +174,12 @@ def describe(goal, target_ref, entries=()):
         if goal['kind'] not in KINDS or goal.get('direction') not in ('increasing', 'decreasing', 'both'):
             raise ValueError('monotonicity.goal_required')
         expected = ['=', ['call', goal.get('function', 'f'), parse(goal['variable'])], parse(goal['expression'])]
+        output_alias = ['=', ['name', 'y'], parse(goal['expression'])]
         for row in entries:
             clean = {key: row[key] for key in ('source_ref', 'expression')}
-            if '/definitions/' in row['source_ref'] and parse(row['expression']) == expected:
+            ast = parse(row['expression'])
+            if '/definitions/' in row['source_ref'] and (ast == expected or
+                    (goal['variable'] != 'y' and ast == output_alias)):
                 desc['given_definitions'].append(clean)
                 desc['source_refs'].append(row['source_ref'])
             else:

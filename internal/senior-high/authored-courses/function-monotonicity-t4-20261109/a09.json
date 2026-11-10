@@ -1,0 +1,39 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a09-v1",
+  "reviewer": "Codex：依据用户原图与 T4 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+      "location": "FM-A09，图 1"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=x^{2}-2(a-1)x+2$ 在 $(-\\infty,4]$ 上单调递减，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=x^2-2*(a-1)*x+2"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "x^2-2*(a-1)*x+2",
+            "variable": "x",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "(-∞,4]",
+            "function": "f"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "[5,+∞)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

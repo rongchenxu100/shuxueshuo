@@ -1,0 +1,17 @@
+{
+  "source": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-04.jpg",
+  "source_sha256": "597632a1a8d7df0543a87ba5390afaaabefe81aabf27ae2c506281b26c086a3a",
+  "crop_pixels": [
+    80,
+    1200,
+    1255,
+    1380
+  ],
+  "box": [
+    0.06254886630179828,
+    0.7033997655334114,
+    0.9812353401094606,
+    0.8089097303634232
+  ],
+  "usage": "development_real_photo_not_holdout"
+}

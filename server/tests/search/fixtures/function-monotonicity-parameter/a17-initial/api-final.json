@@ -1,0 +1,274 @@
+{
+  "search_id": "ac2adea5041d",
+  "user_id": "7cea174b-fe91-4c8f-89e5-fff0ca6b4f0a",
+  "problem_id": "b1aaa179-0d6b-4f8b-9c0d-23e65d77833c",
+  "statement": "已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1\\\\\\frac{a}{x},&x\\ge1\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1≠x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是 ____",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "5b0a876b21dbbe509a9e9f82c3b60007e2c414cfb7b03953a308f581487bfefc",
+      "width": 1065,
+      "height": 165,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/ac2adea5041d/figures/original?version=7892b23541ca07afe577951382058c6bb975362250bb4760876bf02342110e1d"
+      }
+    ],
+    "content_id": "7892b23541ca07afe577951382058c6bb975362250bb4760876bf02342110e1d"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "b5d28cf074a4",
+    "box": [
+      0.10946051602814699,
+      0.6418522860492379,
+      0.9421422986708365,
+      0.738569753810082
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1065,
+      165
+    ],
+    "bytes": 15412
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "17. 已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1\\\\\\frac{a}{x},&x\\ge1\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1\\ne x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是 ____",
+  "parts": [],
+  "root": {
+    "label": "17",
+    "definitions": [
+      "f(x)=piecewise((3*a-1)*x+4*a,x<1,a/x,x>=1)"
+    ],
+    "facts": [
+      "∀x_1∈ℝ: ∀x_2∈ℝ: x_1=x_2 ∨ (f(x_1)-f(x_2))*(x_1-x_2)<0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "71e87b58fea5ad43c870506695d3538f7a1761c87a5e0b15c951d4c614cc2fd3",
+    "sent_image_sha256": [
+      "71e87b58fea5ad43c870506695d3538f7a1761c87a5e0b15c951d4c614cc2fd3"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 84.44,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "17",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "bd2c060f270947a6943226820cf079cd",
+      "lesson_version": "5e5a31618a5578541b743443285effe3560c36058dc81dbde9845bc373320d7c",
+      "stream_id": "bd2c060f270947a6943226820cf079cd",
+      "snapshot_url": "/api/search/problems/ac2adea5041d/lesson/bd2c060f270947a6943226820cf079cd/snapshot",
+      "events_url": "/api/search/problems/ac2adea5041d/lesson/bd2c060f270947a6943226820cf079cd/events",
+      "websocket_url": "/api/search/problems/ac2adea5041d/lesson/bd2c060f270947a6943226820cf079cd/ws"
+    }
+  }
+}

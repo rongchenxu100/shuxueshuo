@@ -1,0 +1,90 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "code_gap",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "8. 若函数 $f(x)=\\begin{cases}-x^2+ax-a,&x>2\\\\1-ax,&x\\le 2\\end{cases}$，满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [
+        "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a"
+        }
+      ]
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [
+    {
+      "stage": "compile",
+      "code": "notation.unrecognized_token",
+      "path": "/root/facts/0",
+      "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+      "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f",
+      "action": "code_gap"
+    }
+  ],
+  "question_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad",
+  "sent_image_sha256": [
+    "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+  ],
+  "elapsed_seconds": 27.199,
+  "figure_attempts": [],
+  "stored_original_sha256": "b68ffd96c1e24991e7c951895c34185eb8ca495915dbef48befaf33b4b5a9ad4"
+}

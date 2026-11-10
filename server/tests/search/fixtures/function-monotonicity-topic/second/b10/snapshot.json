@@ -1,0 +1,1639 @@
+{
+  "run_id": "4e75190d646a42f397a42d6ddc481664",
+  "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+  "input_sha256": "59ddd617d40a2fdbfa676472f2f5087aeb688ebf3b92f3b64acfacb74e4863e7",
+  "stream_id": "4e75190d646a42f397a42d6ddc481664",
+  "last_seq": 18,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "ranges",
+      "explanation": "$\\text{先使 }g\\text{ 的输入区间非空：}a \\geq 1$\n$\\text{需 }\\max f<\\max g$\n$\\text{因此先读出两边的最大值}$\n$f(x)=x - \\frac{1}{x},\\ x\\in[-2,-1]$\n$\\therefore\\ f\\text{ 的最大值}=0$\n$g(x)=\\left(x - 2\\right)^2-7,\\ x\\in[1,a]$\n$\\because\\ a\\in \\left[1, 3\\right],\\ \\therefore\\ g\\text{ 的最大值}=-6$\n$\\because\\ a\\in \\left(3, \\infty\\right),\\ \\therefore\\ g\\text{ 的最大值}=a^{2} - 4 a - 3$",
+      "highlight": {
+        "caption": "求 g 的最大值：按端点高低分成两类",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "g(a)-g(1)=\\left(a - 3\\right) \\left(a - 1\\right)"
+          },
+          {
+            "label": "$a$ 的分类",
+            "math": "\\begin{cases}g_{\\max}=g(1),& a\\in \\left[1, 3\\right]\\\\g_{\\max}=g(a),& a\\in \\left(3, \\infty\\right)\\end{cases}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "local_check": "passed",
+      "math_step_sha256": "843614f1902be95fb0888d789ba213e61f74291b8323a2ace163a77fdfec7b3d",
+      "method_ref": "method-quantified-range-comparison#ranges",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "source_refs": [
+        "/steps/1/calls/0"
+      ],
+      "step_id": "39e5646dcb-quantified-range-comparison-001-ranges",
+      "target_ref": "/root/goals/0",
+      "title": "由图像读出两边需要的最值",
+      "used_basis": [
+        "quadratic-interval-extremum",
+        "reciprocal-sum-function"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conditions",
+      "explanation": "$\\because\\ \\text{需 }\\max f<\\max g$\n$\\text{情况 }1\\ (a\\in \\left[1, 3\\right]):$\n$f\\text{ 的最大值}=0$\n$g\\text{ 的最大值}=-6$\n$\\therefore\\ \\text{本支覆盖条件不成立}$\n$\\therefore\\ \\varnothing$\n$\\text{情况 }2\\ (a\\in \\left(3, \\infty\\right)):$\n$f\\text{ 的最大值}=0$\n$g\\text{ 的最大值}=a^{2} - 4 a - 3$\n$\\therefore\\ a^{2} - 4 a - 3 > 0$\n$\\therefore\\ a > 2 + \\sqrt{7}$",
+      "highlight": {
+        "caption": "求参数（$a > 3$）",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}a\\in \\left(3, \\infty\\right)\\\\f\\text{ 的最大值}=0\\\\g\\text{ 的最大值}=a^{2} - 4 a - 3\\\\\\max f<\\max g\\end{gathered}"
+          },
+          {
+            "label": "本支条件与 $a$",
+            "math": "a^{2} - 4 a - 3 > 0\\Rightarrow a > 2 + \\sqrt{7}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "local_check": "passed",
+      "math_step_sha256": "9440a6939b016df94f964bb6e74d8d0ecd92fbdb9ecb7a7f79e0fdf2d1ce6d10",
+      "method_ref": "method-quantified-range-comparison#conditions",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "source_refs": [
+        "/steps/2/calls/0"
+      ],
+      "step_id": "39e5646dcb-quantified-range-comparison-002-conditions",
+      "target_ref": "/root/goals/0",
+      "title": "由覆盖关系求参数条件",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$\\text{情况 }1\\ (a\\in \\left[1, 3\\right]):\\ \\varnothing$\n$\\text{情况 }2\\ (a\\in \\left(3, \\infty\\right)):\\ a > 2 + \\sqrt{7}$\n$\\text{分类结果取并集，再保留题目原有的参数限制}$\n$\\therefore\\ a > 2 + \\sqrt{7}$",
+      "highlight": {
+        "caption": "回到原题，汇总参数范围",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}\\varnothing\\\\a > 2 + \\sqrt{7}\\end{gathered}"
+          },
+          {
+            "label": "$a$ 的取值范围",
+            "math": "a > 2 + \\sqrt{7}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "local_check": "passed",
+      "math_step_sha256": "a43ce4cb98d4f4969a7fc7156e1988c58710bd8f5f1bfaaac47e4738c5bfe92f",
+      "method_ref": "method-quantified-range-comparison#conclude",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-quantified-range-comparison-003-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "合并参数范围",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(2 + sqrt(7), oo)",
+          "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "7"
+                    },
+                    {
+                      "$math": "Rational",
+                      "p": "1",
+                      "q": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$math": "Infinity"
+            },
+            {
+              "$math": "BooleanTrue"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.open(2 + sqrt(7), oo)",
+        "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval.open(2 + sqrt(7), oo)",
+          "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Add",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                },
+                {
+                  "$math": "Pow",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "7"
+                    },
+                    {
+                      "$math": "Rational",
+                      "p": "1",
+                      "q": "2"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$math": "Infinity"
+            },
+            {
+              "$math": "BooleanTrue"
+            },
+            {
+              "$math": "BooleanTrue"
+            }
+          ]
+        },
+        "expression": "Interval.open(2 + sqrt(7), oo)",
+        "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+      },
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "math_steps": [
+        {
+          "math_step_sha256": "843614f1902be95fb0888d789ba213e61f74291b8323a2ace163a77fdfec7b3d",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
+        },
+        {
+          "math_step_sha256": "9440a6939b016df94f964bb6e74d8d0ecd92fbdb9ecb7a7f79e0fdf2d1ce6d10",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
+        },
+        {
+          "math_step_sha256": "a43ce4cb98d4f4969a7fc7156e1988c58710bd8f5f1bfaaac47e4738c5bfe92f",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
+        }
+      ],
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "2e90d28fe8f475004d14bc1241beb81b11ef57afb6da5ea02bbe7a20d88c7db1",
+      "verified_route_sha256": "1f0f600de1d9b8e5a5406239bc2f50097aedf7dfbf689a58f5a98158a66344d9"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "quantified"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "先分清谁随便取、谁负责配合，再比较两边能取到的值或最值。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "给出函数，求最大值或最小值",
+                  "note": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+                  "value": "direct"
+                },
+                {
+                  "label": "一边随便取，另一边都能配上",
+                  "note": "题面常见「对任意 $x_1$，存在 $x_2$，使 $f(x_1)\\le g(x_2)$」：左边每一个函数值，右边都能找到配合。先分清谁随便取、谁负责配合，再比较两边的取值范围（或最值），求出使条件成立的参数。",
+                  "value": "quantified"
+                },
+                {
+                  "label": "指定某一点已经是最大或最小",
+                  "note": "例如已知 $f(0)$ 是最小值：先算出这个值，再要求定义域里其他点都不比它更小；若是最大值，则其他点都不比它更大。不必要求只在这一点取到。",
+                  "value": "specified"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "量词比较求参法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "direct",
+              "method": "direct"
+            },
+            {
+              "cue": "quantified",
+              "method": "quantified"
+            },
+            {
+              "cue": "specified",
+              "method": "specified"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性求最值法",
+              "value": "direct"
+            },
+            {
+              "label": "量词比较求参法",
+              "value": "quantified"
+            },
+            {
+              "label": "指定最值求参法",
+              "value": "specified"
+            }
+          ],
+          "method_notes": {},
+          "source_refs": [
+            "/root/goals/0",
+            "/root/definitions/0",
+            "/root/definitions/1",
+            "/root/facts/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-extremum",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "direct": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          },
+          "quantified": {
+            "message": "先分清谁随便取、谁负责配合，再比较两边能取到的值或最值。",
+            "value": "fit"
+          },
+          "specified": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "quantified",
+            "message": "开始解题",
+            "method": "method-quantified-range-comparison",
+            "recommendation": "preferred",
+            "route_id": "quantified-range-comparison",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "quantified-range-comparison",
+      "step_id": "39e5646dcb-quantified-range-comparison-001-ranges",
+      "ordinal": 1,
+      "math_step_sha256": "843614f1902be95fb0888d789ba213e61f74291b8323a2ace163a77fdfec7b3d",
+      "status": "interactive",
+      "interaction_id": "4f015b5d05cd2fd102384958"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "quantified-range-comparison",
+      "step_id": "39e5646dcb-quantified-range-comparison-002-conditions",
+      "ordinal": 2,
+      "math_step_sha256": "9440a6939b016df94f964bb6e74d8d0ecd92fbdb9ecb7a7f79e0fdf2d1ce6d10",
+      "status": "interactive",
+      "interaction_id": "566f789b375715589a7949a2"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "quantified-range-comparison",
+      "step_id": "39e5646dcb-quantified-range-comparison-003-conclude",
+      "ordinal": 3,
+      "math_step_sha256": "a43ce4cb98d4f4969a7fc7156e1988c58710bd8f5f1bfaaac47e4738c5bfe92f",
+      "status": "interactive",
+      "interaction_id": "512fed47b4a6e95f7b1f10c2"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "quantified-range-comparison",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:quantified-range-comparison:complete",
+      "last_seq": 18
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "quantified-range-comparison",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-quantified-range-comparison",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-quantified-range-comparison",
+          "step": "ranges",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "quadratic-interval-extremum",
+                "reciprocal-sum-function"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 3,
+          "method": "method-quantified-range-comparison",
+          "step": "conditions",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-quantified-range",
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-quantified-range-comparison",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-quantified-range-comparison",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "4f015b5d05cd2fd102384958",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "8560dbbd2e9112d38e0e33c088e7ccb507cfa8e4d6c900dc1efcdc131efadb60",
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "parts": [
+        {
+          "card_group": "nonempty",
+          "card_group_title": "存在域非空",
+          "completion_board": {
+            "caption": "先保证 g 有输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "x_{2}\\in[1,a]"
+              },
+              {
+                "label": "使区间非空的 $a$",
+                "math": "a \\geq 1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "4f015b5d05cd2fd102384958#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a \\geq 1$",
+                "value": "o1"
+              },
+              {
+                "label": "$a\\in \\mathbb R$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\varnothing$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "g 必须能选到输入；先判断其区间什么时候非空。",
+          "stem_board": {
+            "caption": "先保证 g 有输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "x_{2}\\in[1,a]"
+              },
+              {
+                "label": "使区间非空的 $a$",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "先保证 g 有输入"
+        },
+        {
+          "card_group": "reduce",
+          "card_group_title": "化归最值比较",
+          "completion_board": {
+            "caption": "先把量词关系化成最值比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\text{f 取到的每个值，都要有某个 g 的值比它大}"
+              },
+              {
+                "label": "等价的最值关系",
+                "math": "\\max f<\\max g"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "4f015b5d05cd2fd102384958#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\max g<\\max f$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\min f<\\min g$",
+                "value": "o3"
+              },
+              {
+                "label": "$f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }$",
+                "value": "o4"
+              },
+              {
+                "label": "$\\max f<\\max g$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "原命题要保证什么？先化成对最值的比较，再去读图。",
+          "stem_board": {
+            "caption": "先把量词关系化成最值比较",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\text{f 取到的每个值，都要有某个 g 的值比它大}"
+              },
+              {
+                "label": "等价的最值关系",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "先把量词关系化成最值比较"
+        },
+        {
+          "card_group": "side_f",
+          "card_group_title": "求 f 的最大值",
+          "completion_board": {
+            "caption": "由图像读出 f 的最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=x - \\frac{1}{x}\\\\x\\in[-2,-1]\\end{gathered}"
+              },
+              {
+                "label": "f 的最大值",
+                "math": "0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "图中标出增减方向；根据箭头直接读出值域或最值。",
+            "kind": "reciprocal_sum",
+            "params": {
+              "a": 1.0,
+              "b": -1.0,
+              "bounds": [
+                -2.5,
+                0.5,
+                -2.0,
+                0.5
+              ],
+              "description": "x=-2 处函数值为 -3/2（实心点）；x=-1 处函数值为 0（实心点）",
+              "interval": [
+                -2.0,
+                -1.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "negative": true,
+              "points": [
+                {
+                  "x": -2.0
+                },
+                {
+                  "x": -1.0
+                }
+              ],
+              "title": "f 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  -1.0,
+                  "-1"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "图中标出增减方向；根据箭头直接读出值域或最值。",
+            "kind": "reciprocal_sum",
+            "params": {
+              "a": 1.0,
+              "b": -1.0,
+              "bounds": [
+                -2.5,
+                0.5,
+                -2.0,
+                0.5
+              ],
+              "description": "x=-2 处函数值为 -3/2（实心点）；x=-1 处函数值为 0（实心点）",
+              "interval": [
+                -2.0,
+                -1.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "negative": true,
+              "points": [
+                {
+                  "x": -2.0
+                },
+                {
+                  "x": -1.0
+                }
+              ],
+              "title": "f 的图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ],
+                [
+                  -1.0,
+                  "-1"
+                ]
+              ]
+            }
+          },
+          "id": "4f015b5d05cd2fd102384958#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0$",
+                "value": "o1"
+              },
+              {
+                "label": "$1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "看图中标出的增减方向，直接读出 f 在本区间上的最大值。",
+          "stem_board": {
+            "caption": "由图像读出 f 的最大值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=x - \\frac{1}{x}\\\\x\\in[-2,-1]\\end{gathered}"
+              },
+              {
+                "label": "f 的最大值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "由图像读出 f 的最大值"
+        },
+        {
+          "card_group": "side_g",
+          "card_group_title": "求 g 的最大值",
+          "completion_board": {
+            "caption": "求 g 的最大值：配成顶点式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}g(x)=x^{2} - 4 x - 3\\\\x\\in[1,a]\\end{gathered}"
+              },
+              {
+                "label": "顶点式",
+                "math": "g(x)=\\left(x - 2\\right)^2-7"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "4f015b5d05cd2fd102384958#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$g(x)=x^{2} - 4 x - 2$",
+                "value": "o3"
+              },
+              {
+                "label": "$g(x)=\\left(x - 2\\right)^2-7$",
+                "value": "o1"
+              },
+              {
+                "label": "$g(x)=\\left(x + 2\\right)^2-6$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先配方，确认对称轴与开口，再讨论题目允许的输入范围。",
+          "stem_board": {
+            "caption": "求 g 的最大值：配成顶点式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}g(x)=x^{2} - 4 x - 3\\\\x\\in[1,a]\\end{gathered}"
+              },
+              {
+                "label": "顶点式",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求 g 的最大值：配成顶点式"
+        },
+        {
+          "card_group": "side_g",
+          "card_group_title": "求 g 的最大值",
+          "completion_board": {
+            "caption": "求 g 的最大值：比较二次函数两端",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}g(x)=x^{2} - 4 x - 3\\\\x\\in[1,a]\\\\g(1)=-6\\\\g(a)=a^{2} - 4 a - 3\\end{gathered}"
+              },
+              {
+                "label": "两端函数值之差",
+                "math": "g(a)-g(1)=\\left(a - 3\\right) \\left(a - 1\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图（取 $a=4$）；虚线是 $y=g(1)$，用来对照另一端的高低；分类结论靠代数。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -1.0,
+                5.0,
+                -7.999375000000001,
+                1.0
+              ],
+              "description": "示意抛物线；虚线 y=g(1)；两端是 g(1) 与 g(a)。",
+              "interval": [
+                1.0,
+                4.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [],
+              "level": -6.0,
+              "points": [
+                {
+                  "label": "g(1)",
+                  "place": "above-left",
+                  "x": 1.0
+                },
+                {
+                  "label": "g(a)",
+                  "place": "above-right",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    -4.0,
+                    -3.0
+                  ],
+                  "interval": [
+                    1.0,
+                    4.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "g：两端比较示意",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  1.0,
+                  "1"
+                ],
+                [
+                  2.0,
+                  "2"
+                ],
+                [
+                  4.0,
+                  "a"
+                ]
+              ],
+              "yTicks": [
+                [
+                  -6.0,
+                  "g(1)"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "示意图（取 $a=4$）；虚线是 $y=g(1)$，用来对照另一端的高低；分类结论靠代数。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -1.0,
+                5.0,
+                -7.999375000000001,
+                1.0
+              ],
+              "description": "示意抛物线；虚线 y=g(1)；两端是 g(1) 与 g(a)。",
+              "interval": [
+                1.0,
+                4.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [],
+              "level": -6.0,
+              "points": [
+                {
+                  "label": "g(1)",
+                  "place": "above-left",
+                  "x": 1.0
+                },
+                {
+                  "label": "g(a)",
+                  "place": "above-right",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    -4.0,
+                    -3.0
+                  ],
+                  "interval": [
+                    1.0,
+                    4.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "g：两端比较示意",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  1.0,
+                  "1"
+                ],
+                [
+                  2.0,
+                  "2"
+                ],
+                [
+                  4.0,
+                  "a"
+                ]
+              ],
+              "yTicks": [
+                [
+                  -6.0,
+                  "g(1)"
+                ]
+              ]
+            }
+          },
+          "id": "4f015b5d05cd2fd102384958#5",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$g(a)-g(1)=\\left(a - 3\\right) \\left(a - 1\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$g(1)-g(a)=- \\left(a - 3\\right) \\left(a - 1\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$g(a)-g(1)=a^{2} - 4 a - 9$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "开口向上时，先写出两端的函数值再相减；差的符号决定最大值落在哪一侧。",
+          "stem_board": {
+            "caption": "求 g 的最大值：比较二次函数两端",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}g(x)=x^{2} - 4 x - 3\\\\x\\in[1,a]\\\\g(1)=-6\\\\g(a)=a^{2} - 4 a - 3\\end{gathered}"
+              },
+              {
+                "label": "两端函数值之差",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求 g 的最大值：比较二次函数两端"
+        },
+        {
+          "card_group": "side_g",
+          "card_group_title": "求 g 的最大值",
+          "completion_board": {
+            "caption": "求 g 的最大值：按端点高低分成两类",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "g(a)-g(1)=\\left(a - 3\\right) \\left(a - 1\\right)"
+              },
+              {
+                "label": "$a$ 的分类",
+                "math": "\\begin{cases}g_{\\max}=g(1),& a\\in \\left[1, 3\\right]\\\\g_{\\max}=g(a),& a\\in \\left(3, \\infty\\right)\\end{cases}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "示意图（取 $a=4$）；虚线是 $y=g(1)$，用来对照另一端的高低；分类结论靠代数。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -1.0,
+                5.0,
+                -7.999375000000001,
+                1.0
+              ],
+              "description": "示意抛物线；虚线 y=g(1)；两端是 g(1) 与 g(a)。",
+              "interval": [
+                1.0,
+                4.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [],
+              "level": -6.0,
+              "points": [
+                {
+                  "label": "g(1)",
+                  "place": "above-left",
+                  "x": 1.0
+                },
+                {
+                  "label": "g(a)",
+                  "place": "above-right",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    -4.0,
+                    -3.0
+                  ],
+                  "interval": [
+                    1.0,
+                    4.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "g：两端比较示意",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  1.0,
+                  "1"
+                ],
+                [
+                  2.0,
+                  "2"
+                ],
+                [
+                  4.0,
+                  "a"
+                ]
+              ],
+              "yTicks": [
+                [
+                  -6.0,
+                  "g(1)"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "示意图（取 $a=4$）；虚线是 $y=g(1)$，用来对照另一端的高低；分类结论靠代数。",
+            "kind": "piecewise_curve",
+            "params": {
+              "bounds": [
+                -1.0,
+                5.0,
+                -7.999375000000001,
+                1.0
+              ],
+              "description": "示意抛物线；虚线 y=g(1)；两端是 g(1) 与 g(a)。",
+              "interval": [
+                1.0,
+                4.0
+              ],
+              "interval_closed": [
+                true,
+                true
+              ],
+              "interval_marks": [],
+              "level": -6.0,
+              "points": [
+                {
+                  "label": "g(1)",
+                  "place": "above-left",
+                  "x": 1.0
+                },
+                {
+                  "label": "g(a)",
+                  "place": "above-right",
+                  "x": 4.0
+                }
+              ],
+              "segments": [
+                {
+                  "coefficients": [
+                    1.0,
+                    -4.0,
+                    -3.0
+                  ],
+                  "interval": [
+                    1.0,
+                    4.0
+                  ],
+                  "interval_closed": [
+                    true,
+                    true
+                  ]
+                }
+              ],
+              "title": "g：两端比较示意",
+              "variable": "x",
+              "xTicks": [
+                [
+                  0.0,
+                  "0"
+                ],
+                [
+                  1.0,
+                  "1"
+                ],
+                [
+                  2.0,
+                  "2"
+                ],
+                [
+                  4.0,
+                  "a"
+                ]
+              ],
+              "yTicks": [
+                [
+                  -6.0,
+                  "g(1)"
+                ]
+              ]
+            }
+          },
+          "id": "4f015b5d05cd2fd102384958#6",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\begin{cases}g_{\\max}=g(a),& a\\in \\left[1, 3\\right]\\\\g_{\\max}=g(1),& a\\in \\left(3, \\infty\\right)\\end{cases}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\begin{cases}g_{\\max}=g(1),& a\\in \\left[1, 3\\right]\\\\g_{\\max}=g(a),& a\\in \\left(3, \\infty\\right)\\end{cases}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\begin{cases}a\\in \\left[1, 3\\right]\\\\a\\in \\left(3, \\infty\\right)\\end{cases}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "对照虚线 $y=g(1)$，看另一端是更高还是更低，把参数一次分成两类，并写出每类的最大值。",
+          "stem_board": {
+            "caption": "求 g 的最大值：按端点高低分成两类",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "g(a)-g(1)=\\left(a - 3\\right) \\left(a - 1\\right)"
+              },
+              {
+                "label": "$a$ 的分类",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求 g 的最大值：按端点高低分成两类"
+        }
+      ],
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "843614f1902be95fb0888d789ba213e61f74291b8323a2ace163a77fdfec7b3d",
+          "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "566f789b375715589a7949a2",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "c2f553ee1070015e73f4c721832be4d5872b6c19345217d2e458f0e09d703c8d",
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "parts": [
+        {
+          "card_group": "solve",
+          "card_group_title": "求参数",
+          "completion_board": {
+            "caption": "求参数（$1 \\leq a \\leq 3$）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}a\\in \\left[1, 3\\right]\\\\f\\text{ 的最大值}=0\\\\g\\text{ 的最大值}=-6\\\\\\max f<\\max g\\end{gathered}"
+              },
+              {
+                "label": "本支条件与 $a$",
+                "math": "\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "566f789b375715589a7949a2#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a^{2} - 4 a - 3 > 0\\Rightarrow a > 2 + \\sqrt{7}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\text{本支覆盖条件不成立}\\Rightarrow a > 2 + \\sqrt{7}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本支先确认两边的最大值，再代入比较关系，选出判断并搭配保留的 $a$。",
+          "stem_board": {
+            "caption": "求参数（$1 \\leq a \\leq 3$）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}a\\in \\left[1, 3\\right]\\\\f\\text{ 的最大值}=0\\\\g\\text{ 的最大值}=-6\\\\\\max f<\\max g\\end{gathered}"
+              },
+              {
+                "label": "本支条件与 $a$",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求参数（$1 \\leq a \\leq 3$）"
+        },
+        {
+          "card_group": "solve",
+          "card_group_title": "求参数",
+          "completion_board": {
+            "caption": "求参数（$a > 3$）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}a\\in \\left(3, \\infty\\right)\\\\f\\text{ 的最大值}=0\\\\g\\text{ 的最大值}=a^{2} - 4 a - 3\\\\\\max f<\\max g\\end{gathered}"
+              },
+              {
+                "label": "本支条件与 $a$",
+                "math": "a^{2} - 4 a - 3 > 0\\Rightarrow a > 2 + \\sqrt{7}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "566f789b375715589a7949a2#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a^{2} - 4 a - 3 > 0\\Rightarrow a > 2 + \\sqrt{7}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$a^{2} - 4 a - 3 > 0\\Rightarrow \\varnothing$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本支先确认两边的最大值，再代入比较关系，选出判断并搭配保留的 $a$。",
+          "stem_board": {
+            "caption": "求参数（$a > 3$）",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}a\\in \\left(3, \\infty\\right)\\\\f\\text{ 的最大值}=0\\\\g\\text{ 的最大值}=a^{2} - 4 a - 3\\\\\\max f<\\max g\\end{gathered}"
+              },
+              {
+                "label": "本支条件与 $a$",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求参数（$a > 3$）"
+        }
+      ],
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "9440a6939b016df94f964bb6e74d8d0ecd92fbdb9ecb7a7f79e0fdf2d1ce6d10",
+          "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "512fed47b4a6e95f7b1f10c2",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "3bb1f1ded5d180d5063bf1adfcaed1cabf627f11a986eb5b38b92f7ebe30f502",
+      "lesson_version": "a7ed0c78bcb5ced5d6df385f596efe88e73cedb3cf927c4eab26c6b986da206a",
+      "parts": [
+        {
+          "card_group": "solve",
+          "card_group_title": "求参数",
+          "completion_board": {
+            "caption": "回到原题，汇总参数范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\varnothing\\\\a > 2 + \\sqrt{7}\\end{gathered}"
+              },
+              {
+                "label": "$a$ 的取值范围",
+                "math": "a > 2 + \\sqrt{7}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "512fed47b4a6e95f7b1f10c2#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a\\in \\mathbb R$",
+                "value": "o4"
+              },
+              {
+                "label": "$\\varnothing$",
+                "value": "o3"
+              },
+              {
+                "label": "$a \\geq 1$",
+                "value": "o2"
+              },
+              {
+                "label": "$a > 2 + \\sqrt{7}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "分类结果取并集，再保留题目原有的参数限制。",
+          "stem_board": {
+            "caption": "回到原题，汇总参数范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}\\varnothing\\\\a > 2 + \\sqrt{7}\\end{gathered}"
+              },
+              {
+                "label": "$a$ 的取值范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到原题，汇总参数范围"
+        }
+      ],
+      "route_id": "quantified-range-comparison",
+      "run_id": "4e75190d646a42f397a42d6ddc481664",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "a43ce4cb98d4f4969a7fc7156e1988c58710bd8f5f1bfaaac47e4738c5bfe92f",
+          "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

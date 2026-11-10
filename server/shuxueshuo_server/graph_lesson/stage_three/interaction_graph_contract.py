@@ -101,6 +101,11 @@ def validate_graph(graph):
             _ordered(axis["min"], axis["max"])
             if not axis["min"] <= axis["value"] <= axis["max"]:
                 raise ValueError("interaction.graph_axis_outside_track")
+        if graph["kind"] == "coefficient_explorer":
+            track = params["parameter"]
+            _ordered(track["min"], track["max"])
+            if not track["min"] <= track["value"] <= track["max"]:
+                raise ValueError("interaction.graph_axis_outside_track")
     return graph
 
 

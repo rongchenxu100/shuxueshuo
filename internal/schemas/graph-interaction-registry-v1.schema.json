@@ -364,7 +364,8 @@
             "substitution",
             "function_monotonicity",
             "function_extremum",
-            "monotonicity_inequality"
+            "monotonicity_inequality",
+            "monotonicity_parameter"
           ]
         },
         "parts": {

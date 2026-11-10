@@ -1,0 +1,43 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a13-v1",
+  "reviewer": "Codex：依据用户原图与 T4 设计核对印刷题意，独立计算；原图手写答案漏掉根号内整段非负条件，金标按印刷题意取 [1/2,1]。不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "FM-A13，图 2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1,x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是______。",
+    "root": {
+      "definitions": [
+        "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "sqrt(a*x^2+2*x-5*a+5)",
+            "variable": "x",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "(-∞,-2]",
+            "function": "f",
+            "basis": {
+              "kind": "difference_quotient",
+              "statement": "(f(x_2)-f(x_1))/(x_2-x_1)<0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "[1/2,1]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

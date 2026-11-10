@@ -1,0 +1,83 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a14",
+      "search_id": "d5d5756926b0",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 46.554,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 44.19,
+      "original_text": "14. 已知函数 $f(x)=\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.",
+      "root": {
+        "label": "14",
+        "definitions": [
+          "f(x)=sqrt(1-2*x+2*x^2)-5*x+5"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "object": "f",
+            "answer_request": {
+              "kind": "extremum",
+              "quantity": "minimum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "b15",
+      "search_id": "368e1267742f",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 96.953,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 88.292,
+      "original_text": "15. 设函数$f(x)$的定义域为R，满足$f(x+2)=2f(x)$，且当$x\\in(0,2]$时，$f(x)=x(x-2)$。若对任意$x\\in(-\\infty,m]$，都有$f(x)\\ge -3$，则$m$的最大值为____。",
+      "root": {
+        "facts": [
+          "Dom(f)=ℝ",
+          "∀x∈ℝ: f(x+2) = 2*f(x)",
+          "∀x∈(0,2]: f(x) = x*(x-2)",
+          "∀x∈(-∞,m]: f(x) ≥ -3"
+        ],
+        "goals": [
+          {
+            "kind": "find_maximum",
+            "expression": "m"
+          }
+        ]
+      }
+    }
+  ]
+}

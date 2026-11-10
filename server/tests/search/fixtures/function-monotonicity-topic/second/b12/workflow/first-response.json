@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"root\":{\"label\":\"12\",\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2)>f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2290,
+      "prompt_tokens": 24251,
+      "total_tokens": 26541,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 443
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 670,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-cc23c825-0bbe-4574-861b-11351dff754c",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 9943,
+        "expires_at": 1794368270,
+        "uploaded_at": 1794281870.361294
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+        "api_calls": 1,
+        "file_id": "file-api-cc23c825-0bbe-4574-861b-11351dff754c",
+        "expires_at": 1794368270,
+        "elapsed_ms": 211
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 15099,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2290,
+          "prompt_tokens": 24251,
+          "total_tokens": 26541,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2037
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 443
+        },
+        "raw_payload": {
+          "id": "b724e58e-f248-4f7c-ae83-7b01e96d75ad",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2290,
+            "prompt_tokens": 24251,
+            "total_tokens": 26541,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2037
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 443
+          },
+          "created": 1794281870,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"root\":{\"label\":\"12\",\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2)>f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。需要输出 JSON 符合 schema。题干：12. 若函数 f(x)= { x^2+1, x≥0; 1, x<0 }，则不等式 f(1-x^2)>f(2x) 的解集合是____。手写答案 [0,+∞) 不转录。题号 12 可能是来源题号。original_text 可保留题号？要求完整题干原文，保留原有... 不抄手写答案。题号12可保留在 original_text 但 public_content statement 不包含题号。root.label 可以放12? root label 存在时用 root_label_role。原图明确来源或试卷题号则 source。这里题号12，是试卷题号？应该是。可以 root.label \"12\"，public_content.root_label_role=\"source\"。但是 schema root.label optional; 若放则 public_content root_label_role 明确 source。original_text 保留 \"12. \"。公开 statement 不含题号。题目是分段函数，求不等式解集。目标：find_range symbol x? “解集合”对未知数，find_range symbol=\"x\"。需要 root definitions 放函数定义 f(x)=piecewise(x^2+1,x>=0,1,x<0)。facts 放不等式 f(1-x^2)>f(2x)。goal find_range symbol x。不需要求定义域。题目条件全部在 root。没有小问。figure none.\n\n需要仔细表示 original_text LaTeX。函数分段用 cases。original_text:\n\"12. 若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\n需要 JSON 字符串内反斜杠双写。可能中文“解集合是____”手写答案不转录，填空处照印刷横线。图片中横线上有手写 [0,+∞) 覆盖了填空，填空处照印刷原样写横线，可以用“______”。由于手写覆盖，无法判断原横线长度，但用横线。不要报告看不清手写。题号12保留 original_text。public_content scope statement: \"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\" 或 public_content 不要求横线？保留所求。可以。\n\nroot definitions 使用 catalog 字符串： \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"。facts: \"f(1-x^2)>f(2*x)\"? 输入 2x 写成 2*x。 目标 find_range symbol \"x\"。注意 find_range 不能 object。好。\n\nuncertainties 空。completeness complete。privacy separated? 原图有手写答案，但 public_content 不包含，题目正文与手写答案分离。但是隐私涉及姓名班级等，没有。可以 separated. figure_detection status none, regions [].\n\n需要输出 public_content.scopes: one scope_ref /root, statement as above, choices for each goal. Goal no options: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nRoot label \"12\" maybe. public_content.root_label_role \"source\" if root.label. Need if original text includes \"12.\"; yes. 题号是来源/试卷题号，source. 但要求“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件。”这里是明确题号12，可作为label source，statement不含。好的。\n\n注意 root facts 是不等式 f(1-x^2)>f(2x)。但分段函数 f 的自变量是任意实数，条件没问题。\n\nJSON 输出有效，无额外字段。original_text 中 LaTeX 反斜杠需转义。需要 cases 环境。在 JSON 字符串中，每个 \\ 双写。例如 `$f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$`。注意 cases 内换行 `\\\\\\\\` 在 JSON 中是 `\\\\` 输出 LaTeX 换行；字符序列反斜杠反斜杠在 JSON 写作 `\\\\\\\\`? Let's reason: 字符串值需要包含 `\\begin` 一个反斜杠。JSON 文本中写 `\\\\begin`。`\\\\ge` 需要 JSON `\\\\ge`。cases 换行需要 LaTeX `\\\\` 即值包含两个反斜杠。JSON 文本每个反斜杠转义，所以写 `\\\\\\\\`。 所以 public_content statement 中可能是 `...x\\\\ge 0\\\\\\\\1,x<0...`? Wait raw JSON text: `\"$f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$\"` yields value: `$f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$`. 对。\n\noriginal_text 也可以 `\\begin{cases}`。需要转义。\n\n题目的函数在 original_text 中是 f(x)= { ... } 分段。保留全角逗号？图片中条件逗号：“x ≥ 0” 逗号，下一行“1, x<0”。使用中文逗号？可以保留。用 LaTeX cases. 但是“保留原题排版”不必完全一致。用 `\\begin{cases}...\\end{cases}`好。original_text 中“解集合是”后面手写横线？图片有手写答案覆盖，一条横线？要求填空处照印刷原样写横线。写 `______`。\n\n是否需要 original_text 中 \"解集合是 [0,+∞)\"? 不，学生手写答案不是题。写横线。\n\nroot definitions: \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"。在 JSON 中 >= 正常。\n\nfacts: \"f(1-x^2)>f(2*x)\" 这里 `1-x^2` 要保持。可以。\n\ngoal find_range symbol \"x\"。是否使用函数关系形式？原题求不等式解集合，未知数 x，find_range symbol x 正确，不等式作为 facts。无需 expression 字段。\n\nlabel \"12\" root; public_content root_label_role source.\n\nNo children. Uncertainties none.\n\n检查 public_content 字段：completeness, privacy, figure, scopes, figure_detection. root_label_role optional. scopes item statement, choices. choices target_ref each goal exactly once. 一个目标。\n\n需要注意 public_content.statement 中不得有题号，不含“12.”。要包含完整定义、条件和所求。可以写：“若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。” 这个 statement 与 original 一致，不含题号。选项 none.\n\noriginal_text 是否也包含题号？可以。根 label source 时，source元信息在 root.label，公开不再。original_text 可以有题号没问题。但“不把手写答案...放进公开字段”。original_text 不是公开？它是展示，但可以保留手写？不。不写手写。\n\n根 label 12 如果 original_text 已包含题号，公开去重可能使用 statement，不含题号。OK.\n\nfigure_detection status \"none\" 因为没有配图。题目中没有提到图。regions [].\n\n需要输出只 JSON no markdown. 顶部有 `{\"type\": \"json_object\"}`? 最终只需 JSON object。不要围绕。\n\n检查 schema 对 root.$defs Scope definitions/facts/goals optional. Need include definitions, facts, goals. label. Could include uncertainties [] omitted.\n\nPotential issue root.label length okay. public_content.root_label_role only necessary if root.label exists. Good.\n\nPotential issue original_text max length. Fine.\n\nLet's craft final JSON with proper escaping. Need ensure LaTeX backslashes in JSON strings are double escaped. We'll write as raw JSON.\n\noriginal_text string value:\n\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\nIn JSON text, `\\\\begin` displays backslash. `\\\\\\\\` displays two backslashes. Good.\n\npublic statement same without \"12. \".\n\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\n\nRoot definitions string: \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" no backslash.\nFacts: \"f(1-x^2)>f(2*x)\".\nGoal: {\"kind\":\"find_range\",\"symbol\":\"x\"}.\n\nNo other.\n\nShould original_text use Unicode ≥ or LaTeX `\\ge`; okay. It says公式用$…$。 We did $ around whole formula and不等式.\n\nRoot label \"12\" maybe source. Good.\n\nLet's final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 15335
+  },
+  "raw_payload": {
+    "id": "b724e58e-f248-4f7c-ae83-7b01e96d75ad",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"root\":{\"label\":\"12\",\"definitions\":[\"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"],\"facts\":[\"f(1-x^2)>f(2*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。需要输出 JSON 符合 schema。题干：12. 若函数 f(x)= { x^2+1, x≥0; 1, x<0 }，则不等式 f(1-x^2)>f(2x) 的解集合是____。手写答案 [0,+∞) 不转录。题号 12 可能是来源题号。original_text 可保留题号？要求完整题干原文，保留原有... 不抄手写答案。题号12可保留在 original_text 但 public_content statement 不包含题号。root.label 可以放12? root label 存在时用 root_label_role。原图明确来源或试卷题号则 source。这里题号12，是试卷题号？应该是。可以 root.label \"12\"，public_content.root_label_role=\"source\"。但是 schema root.label optional; 若放则 public_content root_label_role 明确 source。original_text 保留 \"12. \"。公开 statement 不含题号。题目是分段函数，求不等式解集。目标：find_range symbol x? “解集合”对未知数，find_range symbol=\"x\"。需要 root definitions 放函数定义 f(x)=piecewise(x^2+1,x>=0,1,x<0)。facts 放不等式 f(1-x^2)>f(2x)。goal find_range symbol x。不需要求定义域。题目条件全部在 root。没有小问。figure none.\n\n需要仔细表示 original_text LaTeX。函数分段用 cases。original_text:\n\"12. 若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\n需要 JSON 字符串内反斜杠双写。可能中文“解集合是____”手写答案不转录，填空处照印刷横线。图片中横线上有手写 [0,+∞) 覆盖了填空，填空处照印刷原样写横线，可以用“______”。由于手写覆盖，无法判断原横线长度，但用横线。不要报告看不清手写。题号12保留 original_text。public_content scope statement: \"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\" 或 public_content 不要求横线？保留所求。可以。\n\nroot definitions 使用 catalog 字符串： \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"。facts: \"f(1-x^2)>f(2*x)\"? 输入 2x 写成 2*x。 目标 find_range symbol \"x\"。注意 find_range 不能 object。好。\n\nuncertainties 空。completeness complete。privacy separated? 原图有手写答案，但 public_content 不包含，题目正文与手写答案分离。但是隐私涉及姓名班级等，没有。可以 separated. figure_detection status none, regions [].\n\n需要输出 public_content.scopes: one scope_ref /root, statement as above, choices for each goal. Goal no options: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nRoot label \"12\" maybe. public_content.root_label_role \"source\" if root.label. Need if original text includes \"12.\"; yes. 题号是来源/试卷题号，source. 但要求“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件。”这里是明确题号12，可作为label source，statement不含。好的。\n\n注意 root facts 是不等式 f(1-x^2)>f(2x)。但分段函数 f 的自变量是任意实数，条件没问题。\n\nJSON 输出有效，无额外字段。original_text 中 LaTeX 反斜杠需转义。需要 cases 环境。在 JSON 字符串中，每个 \\ 双写。例如 `$f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$`。注意 cases 内换行 `\\\\\\\\` 在 JSON 中是 `\\\\` 输出 LaTeX 换行；字符序列反斜杠反斜杠在 JSON 写作 `\\\\\\\\`? Let's reason: 字符串值需要包含 `\\begin` 一个反斜杠。JSON 文本中写 `\\\\begin`。`\\\\ge` 需要 JSON `\\\\ge`。cases 换行需要 LaTeX `\\\\` 即值包含两个反斜杠。JSON 文本每个反斜杠转义，所以写 `\\\\\\\\`。 所以 public_content statement 中可能是 `...x\\\\ge 0\\\\\\\\1,x<0...`? Wait raw JSON text: `\"$f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$\"` yields value: `$f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$`. 对。\n\noriginal_text 也可以 `\\begin{cases}`。需要转义。\n\n题目的函数在 original_text 中是 f(x)= { ... } 分段。保留全角逗号？图片中条件逗号：“x ≥ 0” 逗号，下一行“1, x<0”。使用中文逗号？可以保留。用 LaTeX cases. 但是“保留原题排版”不必完全一致。用 `\\begin{cases}...\\end{cases}`好。original_text 中“解集合是”后面手写横线？图片有手写答案覆盖，一条横线？要求填空处照印刷原样写横线。写 `______`。\n\n是否需要 original_text 中 \"解集合是 [0,+∞)\"? 不，学生手写答案不是题。写横线。\n\nroot definitions: \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\"。在 JSON 中 >= 正常。\n\nfacts: \"f(1-x^2)>f(2*x)\" 这里 `1-x^2` 要保持。可以。\n\ngoal find_range symbol \"x\"。是否使用函数关系形式？原题求不等式解集合，未知数 x，find_range symbol x 正确，不等式作为 facts。无需 expression 字段。\n\nlabel \"12\" root; public_content root_label_role source.\n\nNo children. Uncertainties none.\n\n检查 public_content 字段：completeness, privacy, figure, scopes, figure_detection. root_label_role optional. scopes item statement, choices. choices target_ref each goal exactly once. 一个目标。\n\n需要注意 public_content.statement 中不得有题号，不含“12.”。要包含完整定义、条件和所求。可以写：“若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。” 这个 statement 与 original 一致，不含题号。选项 none.\n\noriginal_text 是否也包含题号？可以。根 label source 时，source元信息在 root.label，公开不再。original_text 可以有题号没问题。但“不把手写答案...放进公开字段”。original_text 不是公开？它是展示，但可以保留手写？不。不写手写。\n\n根 label 12 如果 original_text 已包含题号，公开去重可能使用 statement，不含题号。OK.\n\nfigure_detection status \"none\" 因为没有配图。题目中没有提到图。regions [].\n\n需要输出只 JSON no markdown. 顶部有 `{\"type\": \"json_object\"}`? 最终只需 JSON object。不要围绕。\n\n检查 schema 对 root.$defs Scope definitions/facts/goals optional. Need include definitions, facts, goals. label. Could include uncertainties [] omitted.\n\nPotential issue root.label length okay. public_content.root_label_role only necessary if root.label exists. Good.\n\nPotential issue original_text max length. Fine.\n\nLet's craft final JSON with proper escaping. Need ensure LaTeX backslashes in JSON strings are double escaped. We'll write as raw JSON.\n\noriginal_text string value:\n\"12. 若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\nIn JSON text, `\\\\begin` displays backslash. `\\\\\\\\` displays two backslashes. Good.\n\npublic statement same without \"12. \".\n\"若函数 $f(x)=\\\\begin{cases}x^2+1,x\\\\ge 0\\\\\\\\1,x<0\\\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。\"\n\nRoot definitions string: \"f(x)=piecewise(x^2+1,x>=0,1,x<0)\" no backslash.\nFacts: \"f(1-x^2)>f(2*x)\".\nGoal: {\"kind\":\"find_range\",\"symbol\":\"x\"}.\n\nNo other.\n\nShould original_text use Unicode ≥ or LaTeX `\\ge`; okay. It says公式用$…$。 We did $ around whole formula and不等式.\n\nRoot label \"12\" maybe source. Good.\n\nLet's final."
+        }
+      }
+    ],
+    "created": 1794281870,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2290,
+      "prompt_tokens": 24251,
+      "total_tokens": 26541,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2037,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 443
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 15.337
+}

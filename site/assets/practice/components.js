@@ -337,7 +337,51 @@
     }
     return `<text class="axis-value-label" x="180" y="262" text-anchor="middle" fill="#526e64" font-size="12">${escape(label)}</text>`;
   }
+  // target "increasing"／"decreasing": the interval part of the curve is green where the parabola moves the
+  // required way and red where it does not; the status line says whether the whole interval qualifies.
+  // The status sits over the plot; a pale plate keeps it readable where the curve passes behind it.
+  function trendStatus(status, ok) {
+    return `<rect x="51" y="53" width="${Math.min(264, [...status].length * 13 + 8)}" height="21" rx="4" fill="#fff" opacity=".88"/>
+      <text class="axis-trend-status${ok ? ' is-ok' : ''}" x="56" y="68" fill="${ok ? '#07665f' : '#b0503c'}" font-size="13">${escape(status)}</text>`;
+  }
+  function axisMonotoneLayer(spec, h) {
+    const {coefficient, constant, bounds, target} = spec;
+    const interval = bounded(spec.interval);
+    const closed = spec.interval_closed ?? [true, true];
+    const {x, y} = axisFrame(spec);
+    const movingConstant = spec.constant_by_axis
+      ? constant + spec.constant_by_axis.linear * h + spec.constant_by_axis.quadratic * h * h : constant;
+    const f = value => coefficient * (value - h) ** 2 + movingConstant - coefficient * h * h;
+    const low = Math.max(interval[0], bounds[0]), high = Math.min(interval[1], bounds[1]);
+    const curve = (from, to) => sampleRange(from, to, [], 120)
+      .map((value, i) => `${i ? 'L' : 'M'}${x(value).toFixed(2)} ${Math.max(-400, Math.min(700, y(f(value)))).toFixed(2)}`).join(' ');
+    const increasing = target === 'increasing';
+    // Right of the axis an upward parabola rises; a downward one falls.
+    const wantedRight = (coefficient > 0) === increasing;
+    const cut = Math.min(high, Math.max(low, h));
+    const parts = [[low, cut, !wantedRight], [cut, high, wantedRight]].filter(([from, to]) => to - from > 1e-9);
+    const word = increasing ? '递增' : '递减', other = increasing ? '递减' : '递增';
+    const inside = h > interval[0] + 1e-9 && h < interval[1] - 1e-9;
+    const ok = !inside && parts.length === 1 && parts[0][2];
+    const touching = ok && interval.some(end => Number.isFinite(end) && Math.abs(end - h) < 1e-9);
+    const turn = coefficient > 0 ? '先减后增' : '先增后减';
+    const status = ok ? `✓ 区间上整段严格${word}${touching ? '（对称轴恰过端点）' : ''}`
+      : inside ? `✗ 对称轴在区间内部：${turn}` : `✗ 区间上整段严格${other}`;
+    const endpoint = (value, shut) => `<circle class="axis-endpoint" cx="${x(value)}" cy="${y(f(value))}" r="4.5" fill="${shut ? '#3d5d56' : '#fff'}" stroke="#3d5d56" stroke-width="2.2"/>`;
+    return `<g clip-path="url(#${escape(spec.uid)}-clip)">
+        <path class="graph-outside" d="${curve(bounds[0], bounds[1])}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".25"/>
+        ${parts.map(([from, to, good]) => `<path class="${good ? 'trend-wanted' : 'trend-wrong'}" d="${curve(from, to)}" fill="none" stroke="${good ? '#07847d' : '#c4553f'}" stroke-width="3.6"/>`).join('')}
+        <path class="axis-line" d="M${x(h)} 48V222" fill="none" stroke="#b6782c" stroke-width="2.4" stroke-dasharray="7 4"/>
+        <circle class="axis-vertex" cx="${x(h)}" cy="${y(f(h))}" r="3.5" fill="#b6782c"/>
+      </g>
+      <rect class="axis-handle" x="${x(h) - 30}" y="30" width="60" height="20" rx="10" fill="#b6782c"/>
+      <text x="${x(h)}" y="44" text-anchor="middle" fill="#fff" font-size="12">‹ 对称轴 ›</text>
+      ${interval.map((end, i) => Number.isFinite(end) && end >= bounds[0] && end <= bounds[1] ? endpoint(end, closed[i]) : '').join('')}
+      ${trendStatus(status, ok)}
+      ${axisValueLabel(spec, h)}`;
+  }
   function axisExplorerLayer(spec, h) {
+    if (spec.target === 'increasing' || spec.target === 'decreasing') return axisMonotoneLayer(spec, h);
     const {coefficient, constant, bounds, open = false, target = 'max'} = spec;
     const interval = bounded(spec.interval);
     const closed = spec.interval_closed ?? [!open, !open];
@@ -400,6 +444,144 @@
         <g data-axis-layer font-family="Georgia,serif">${axisExplorerLayer(spec, h)}</g>
       </svg>
       <input class="axis-slider" type="range" data-axis-input min="${axis.min}" max="${axis.max}" step="${axis.step}" value="${h}" aria-label="对称轴的位置">
+    </div>`;
+  }
+  // The parameter itself slides (coefficients [[x² in p], [x in p], [1 in p]], descending powers of p), so the
+  // opening, the axis and degeneracy all move. The interval part is green where the curve moves the target way;
+  // the status judges the whole interval, including an unbounded side beyond the window.
+  // A fourth coefficient row is r(p) in s·x + d + r/x (the x² row is then zero). The piece lies on one side of the
+  // asymptote x = 0; when r/s > 0 the trend turns at x = ±√(r/s), which moves with the parameter like an axis.
+  function reciprocalExplorerLayer(spec, p) {
+    const {bounds, coefficients, target, parameter} = spec;
+    const interval = bounded(spec.interval);
+    const closed = spec.interval_closed ?? [true, true];
+    const {x, y} = axisFrame(spec);
+    const horner = row => row.reduce((total, value) => total * p + value, 0);
+    const [, s, d, r] = coefficients.map(horner);
+    const f = value => s * value + d + r / value;
+    const slope = value => s - r / (value * value);
+    const increasing = target === 'increasing';
+    const word = increasing ? '递增' : '递减', other = increasing ? '递减' : '递增';
+    const number = value => String(Number(value.toFixed(2)));
+    const variable = spec.variable ?? 'x';
+    const side = interval[0] >= 0 ? 1 : -1;
+    const gap = (bounds[1] - bounds[0]) / 400;
+    const low = Math.max(interval[0], bounds[0], side > 0 ? gap : -Infinity);
+    const high = Math.min(interval[1], bounds[1], side < 0 ? -gap : Infinity);
+    const curve = (from, to) => sampleRange(from, to, [], 160)
+      .map((value, i) => `${i ? 'L' : 'M'}${x(value).toFixed(2)} ${Math.max(-400, Math.min(700, y(f(value)))).toFixed(2)}`).join(' ');
+    const tiny = value => Math.abs(value) < 1e-12;
+    const turn = !tiny(s) && r / s > 0 ? side * Math.sqrt(r / s) : null;
+    const cuts = turn !== null && turn > low && turn < high ? [low, turn, high] : [low, high];
+    const parts = cuts.slice(1).map((to, i) => {
+      const from = cuts[i], mid = (from + to) / 2;
+      return [from, to, !tiny(slope(mid)) && (slope(mid) > 0) === increasing];
+    }).filter(([from, to]) => to - from > 1e-9);
+    const inside = turn !== null && turn > interval[0] + 1e-9 && turn < interval[1] - 1e-9;
+    const probe = Number.isFinite(interval[0]) && Number.isFinite(interval[1]) ? (interval[0] + interval[1]) / 2
+      : Number.isFinite(interval[0]) ? interval[0] + 1 : interval[1] - 1;
+    let ok, status;
+    if (tiny(s) && tiny(r)) {
+      ok = false; status = '✗ 常值函数，不严格单调';
+    } else if (tiny(s)) {
+      ok = (r < 0) === increasing;
+      status = `${ok ? '✓' : '✗'} 分子 ${number(r)}${r > 0 ? '>' : '<'}0，本段严格${ok ? word : other}`;
+    } else if (inside) {
+      // Away from the asymptote the slope has the sign of s; near it, the opposite sign.
+      const order = (s > 0) === (side > 0) ? '先减后增' : '先增后减';
+      ok = false; status = `✗ 转折点 ${variable}=${number(turn)} 在区间内部：${order}`;
+    } else {
+      ok = (slope(probe) > 0) === increasing;
+      const where = turn === null ? '无转折点' : `转折点 ${variable}=${number(turn)} 不在区间内`;
+      status = `${ok ? '✓' : '✗'} ${where}，本段严格${ok ? word : other}`;
+    }
+    const turnVisible = turn !== null && turn >= bounds[0] && turn <= bounds[1];
+    const offscreen = turn === null || turnVisible ? '' : `<text x="${turn > bounds[1] ? 312 : 54}" y="216" text-anchor="${turn > bounds[1] ? 'end' : 'start'}" fill="#9a6424" font-size="12">${turn > bounds[1] ? `转折点 ${variable}=${number(turn)} →` : `← 转折点 ${variable}=${number(turn)}`}</text>`;
+    const endpoint = (value, shut) => `<circle class="axis-endpoint" cx="${x(value)}" cy="${y(f(value))}" r="4.5" fill="${shut ? '#3d5d56' : '#fff'}" stroke="#3d5d56" stroke-width="2.2"/>`;
+    const readout = `${parameter.name} = ${number(p)}${turn === null ? '' : `；转折点 ${variable} = ${number(turn)}`}`;
+    const asymptote = bounds[0] < 0 && bounds[1] > 0 ? `<path class="graph-asymptote" d="M${x(0)} 48V222" fill="none" stroke="#9dafaa" stroke-width="1.4" stroke-dasharray="3 4"/>` : '';
+    return `<g clip-path="url(#${escape(spec.uid)}-clip)">
+        ${asymptote}
+        ${bounds[0] < -gap ? `<path class="graph-outside" d="${curve(bounds[0], Math.min(-gap, bounds[1]))}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".25"/>` : ''}
+        ${bounds[1] > gap ? `<path class="graph-outside" d="${curve(Math.max(gap, bounds[0]), bounds[1])}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".25"/>` : ''}
+        ${parts.map(([from, to, good]) => `<path class="${good ? 'trend-wanted' : 'trend-wrong'}" d="${curve(from, to)}" fill="none" stroke="${good ? '#07847d' : '#c4553f'}" stroke-width="3.6"/>`).join('')}
+        ${turnVisible ? `<path class="axis-line" d="M${x(turn)} 48V222" fill="none" stroke="#b6782c" stroke-width="2.4" stroke-dasharray="7 4"/>` : ''}
+      </g>
+      ${offscreen}
+      ${interval.map((end, i) => Number.isFinite(end) && end !== 0 && end >= bounds[0] && end <= bounds[1] ? endpoint(end, closed[i]) : '').join('')}
+      ${trendStatus(status, ok)}
+      <text class="axis-value-label" x="180" y="262" text-anchor="middle" fill="#526e64" font-size="12">${escape(readout)}</text>`;
+  }
+  function coefficientExplorerLayer(spec, p) {
+    if (spec.coefficients.length === 4) return reciprocalExplorerLayer(spec, p);
+    const {bounds, coefficients, target, parameter} = spec;
+    const interval = bounded(spec.interval);
+    const closed = spec.interval_closed ?? [true, true];
+    const {x, y} = axisFrame(spec);
+    const horner = row => row.reduce((total, value) => total * p + value, 0);
+    const [c2, c1, c0] = coefficients.map(horner);
+    const f = value => (c2 * value + c1) * value + c0;
+    const increasing = target === 'increasing';
+    const word = increasing ? '递增' : '递减', other = increasing ? '递减' : '递增';
+    const number = value => String(Number(value.toPrecision(6)));
+    const variable = spec.variable ?? 'x';
+    const low = Math.max(interval[0], bounds[0]), high = Math.min(interval[1], bounds[1]);
+    const curve = (from, to) => sampleRange(from, to, [], 120)
+      .map((value, i) => `${i ? 'L' : 'M'}${x(value).toFixed(2)} ${Math.max(-400, Math.min(700, y(f(value)))).toFixed(2)}`).join(' ');
+    const flat = Math.abs(c2) < 1e-12;
+    const h = flat ? null : -c1 / (2 * c2);
+    // Beyond the axis an upward parabola rises; a downward one falls.
+    const wantedBeyond = flat ? (c1 > 0) === increasing : (c2 > 0) === increasing;
+    const cut = h === null ? low : Math.min(high, Math.max(low, h));
+    const parts = h === null ? [[low, high, Math.abs(c1) > 1e-12 && wantedBeyond]]
+      : [[low, cut, !wantedBeyond], [cut, high, wantedBeyond]].filter(([from, to]) => to - from > 1e-9);
+    let ok, status;
+    if (h === null) {
+      ok = Math.abs(c1) > 1e-12 && wantedBeyond;
+      status = Math.abs(c1) < 1e-12 ? '✗ 常值函数，不严格单调' : ok ? `✓ 一次函数，整段严格${word}` : `✗ 一次函数，整段严格${other}`;
+    } else {
+      const inside = h > interval[0] + 1e-9 && h < interval[1] - 1e-9;
+      ok = !inside && (wantedBeyond ? interval[0] >= h - 1e-9 : interval[1] <= h + 1e-9);
+      const unbounded = wantedBeyond ? interval[0] === -Infinity : interval[1] === Infinity;
+      status = ok ? `✓ 区间上整段严格${word}`
+        : inside && unbounded ? `✗ 过了对称轴 ${variable}=${number(h)} 后${other}`
+        : inside ? `✗ 对称轴在区间内部：${c2 > 0 ? '先减后增' : '先增后减'}` : `✗ 区间上整段严格${other}`;
+    }
+    const axisVisible = h !== null && h >= bounds[0] && h <= bounds[1];
+    const offscreen = h === null || axisVisible ? '' : `<text x="${h > bounds[1] ? 312 : 54}" y="216" text-anchor="${h > bounds[1] ? 'end' : 'start'}" fill="#9a6424" font-size="12">${h > bounds[1] ? `对称轴 ${variable}=${number(h)} →` : `← 对称轴 ${variable}=${number(h)}`}</text>`;
+    const endpoint = (value, shut) => `<circle class="axis-endpoint" cx="${x(value)}" cy="${y(f(value))}" r="4.5" fill="${shut ? '#3d5d56' : '#fff'}" stroke="#3d5d56" stroke-width="2.2"/>`;
+    const readout = `${parameter.name} = ${number(p)}${h === null ? '' : `；对称轴 ${variable} = ${number(h)}`}`;
+    return `<g clip-path="url(#${escape(spec.uid)}-clip)">
+        <path class="graph-outside" d="${curve(bounds[0], bounds[1])}" fill="none" stroke="#07847d" stroke-width="2.2" opacity=".25"/>
+        ${parts.map(([from, to, good]) => `<path class="${good ? 'trend-wanted' : 'trend-wrong'}" d="${curve(from, to)}" fill="none" stroke="${good ? '#07847d' : '#c4553f'}" stroke-width="3.6"/>`).join('')}
+        ${axisVisible ? `<path class="axis-line" d="M${x(h)} 48V222" fill="none" stroke="#b6782c" stroke-width="2.4" stroke-dasharray="7 4"/>` : ''}
+      </g>
+      ${offscreen}
+      ${interval.map((end, i) => Number.isFinite(end) && end >= bounds[0] && end <= bounds[1] ? endpoint(end, closed[i]) : '').join('')}
+      ${trendStatus(status, ok)}
+      <text class="axis-value-label" x="180" y="262" text-anchor="middle" fill="#526e64" font-size="12">${escape(readout)}</text>`;
+  }
+  function coefficientExplorer(spec, p = spec.parameter.value) {
+    const {bounds, title, description, parameter, variable = 'x'} = spec;
+    const interval = bounded(spec.interval);
+    const {x, y} = axisFrame(spec);
+    const id = escape(spec.uid);
+    return `<div class="axis-explorer" data-explorer="coefficient">
+      <svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-description">
+        <title id="${id}-title">${escape(title)}</title><desc id="${id}-description">${escape(description)}</desc>
+        <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
+        <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
+        <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+        <path d="m325 ${y(0)-4} 5 4-5 4M${x(0)-4} 40l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+        ${intervalGuides(interval, x)}
+        <g fill="#526e64" font-family="Georgia,serif" font-size="14">
+          ${(spec.xTicks ?? []).map(([value, label]) => `<text x="${x(value)}" y="240" text-anchor="middle">${escape(label)}</text>`).join('')}
+          <text x="335" y="${y(0)+5}" font-style="italic">${escape(variable)}</text>
+          <text x="${x(0)-8}" y="28" text-anchor="end" font-style="italic">y</text>
+        </g>
+        <g data-axis-layer font-family="Georgia,serif">${coefficientExplorerLayer(spec, p)}</g>
+      </svg>
+      <input class="axis-slider" type="range" data-axis-input min="${parameter.min}" max="${parameter.max}" step="${parameter.step}" value="${p}" aria-label="${escape(`参数 ${parameter.name} 的取值`)}">
     </div>`;
   }
   // Read-only set of parameter values on a number line. pieces [{from, to, left_closed, right_closed}] use null for an
@@ -588,7 +770,8 @@
   // A server-built picture {kind, params, uid}: the page only picks the component for its kind.
   // axis_explorer returns a draggable explorer (SVG plus slider); the page mounts its dragging.
   const graphKinds = {quadratic: quadraticGraph, reciprocal_sum: reciprocalSumGraph, linear: linearGraph, number_line: numberLine,
-    absolute_affine: absoluteAffineGraph, piecewise_curve: piecewiseCurveGraph, axis_explorer: spec => axisExplorer(spec)};
+    absolute_affine: absoluteAffineGraph, piecewise_curve: piecewiseCurveGraph, axis_explorer: spec => axisExplorer(spec),
+    coefficient_explorer: spec => coefficientExplorer(spec)};
   // Validate streamed pictures separately from the older authored quadratic API.
   // A rejected picture is optional presentation: callers can keep the original answer labels.
   function validateGraph(spec) {
@@ -659,11 +842,19 @@
       const fields = (value, keys) => object(value) && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
       return Number.isFinite(p.coefficient) && p.coefficient !== 0 && Number.isFinite(p.constant) && object(axis) &&
         ['min', 'max', 'step', 'value'].every(key => Number.isFinite(axis[key])) && axis.min < axis.max && axis.step > 0 &&
-        axis.value >= axis.min && axis.value <= axis.max && optional(p, 'target', value => ['min', 'max'].includes(value)) &&
+        axis.value >= axis.min && axis.value <= axis.max && optional(p, 'target', value => ['min', 'max', 'increasing', 'decreasing'].includes(value)) &&
         optional(p, 'marks', value => array(value, mark => object(mark) && Number.isFinite(mark.x) && string(mark.label))) &&
         optional(p, 'constant_by_axis', value => fields(value, ['linear', 'quadratic']) && Number.isFinite(value.linear) && Number.isFinite(value.quadratic)) &&
         optional(p, 'parameter', value => fields(value, ['name', 'scale', 'offset']) && string(value.name) && value.name.length > 0 &&
           Number.isFinite(value.scale) && value.scale !== 0 && Number.isFinite(value.offset));
+    }
+    if (spec.kind === 'coefficient_explorer') {
+      const track = p.parameter;
+      return array(p.coefficients, row => array(row, Number.isFinite) && row.length >= 1 && row.length <= 4) &&
+        (p.coefficients.length === 3 || p.coefficients.length === 4) && object(track) && string(track.name) && track.name.length > 0 &&
+        ['min', 'max', 'step', 'value'].every(key => Number.isFinite(track[key])) && track.min < track.max &&
+        track.step > 0 && track.value >= track.min && track.value <= track.max &&
+        ['increasing', 'decreasing'].includes(p.target);
     }
     if (spec.kind === 'reciprocal_sum') return Number.isFinite(p.a) && Number.isFinite(p.b) && p.b !== 0 && boolean(p.negative) &&
       optional(p, 'c', Number.isFinite) && optional(p, 'outputVariable', string) && optional(p, 'yTicks', ticks) &&
@@ -688,5 +879,5 @@
       return /\b(?:d|x|y|cx|cy|width|height|points)="[^"]*(?:NaN|Infinity)/.test(svg) ? '' : svg;
     } catch { return ''; }
   }
-  window.PracticeComponents = {slot, choices, controls, structure, amgm, completedAmgm, equality, symmetry, substitution, homogeneity, fill, checklist, rewrite, quadraticGraph, reciprocalSumGraph, linearGraph, numberLine, validateGraph, graph, axisExplorer, axisExplorerLayer, radical, hintIcon};
+  window.PracticeComponents = {slot, choices, controls, structure, amgm, completedAmgm, equality, symmetry, substitution, homogeneity, fill, checklist, rewrite, quadraticGraph, reciprocalSumGraph, linearGraph, numberLine, validateGraph, graph, axisExplorer, axisExplorerLayer, coefficientExplorer, coefficientExplorerLayer, radical, hintIcon};
 })();

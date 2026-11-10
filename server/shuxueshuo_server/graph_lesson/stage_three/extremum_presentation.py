@@ -1499,6 +1499,9 @@ def parameter_views(values):
 
 def phase_views(values):
     m, phase = values['extremum_result'], values['phase']
+    if m['task'] == 'recurrence':
+        from .recurrence_extremum_presentation import phase_views as recurrence_views
+        return recurrence_views(values)
     views = []
     if m['task'] == 'direct':
         x, expr, domain = m['variable'], m['expression'], m['domain']
@@ -1629,6 +1632,8 @@ def presentation(values):
              'ranges': ranges_title, 'conditions': '由覆盖关系求参数条件',
              'conclude': '确定最值与取得位置' if result['task'] == 'direct' else '合并参数范围',
              'independent': view['title']}.get(phase, view['title'])
+    if result['task'] == 'recurrence':
+        title = view['title']
     # Prefer an explicit student write-up when a view provides one
     # (prepare / conclude / 无参段快速验证).
     if view.get('full_derivation'):

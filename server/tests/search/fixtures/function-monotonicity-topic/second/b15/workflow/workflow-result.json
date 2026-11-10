@@ -1,0 +1,417 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "code_gap",
+  "source_status": "not_reviewed",
+  "source_reviewed": false,
+  "parse_status": "invalid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": true,
+    "reason": "code_gap"
+  },
+  "diagnostics": [
+    {
+      "stage": "compile",
+      "code": "type.call_arguments",
+      "path": "/root/facts/0",
+      "source": "Dom(f)=ℝ",
+      "message": "type.call_arguments: Dom",
+      "action": "repair"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/1",
+      "source": "∀x∈ℝ: f(x+2)=2*f(x)",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/2",
+      "source": "∀x∈(0,2]: f(x)=x*(x-2)",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    },
+    {
+      "stage": "compile",
+      "code": "binding.unknown_function",
+      "path": "/root/facts/3",
+      "source": "∀x∈(-∞,m]: f(x) ≥ -3",
+      "message": "binding.unknown_function: f",
+      "action": "code_gap"
+    }
+  ],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 1,
+  "content_calls": 1,
+  "review_calls": 0,
+  "network_attempts": 1,
+  "network_reserved": 1,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+    "root": {
+      "label": "15",
+      "definitions": [],
+      "facts": [
+        "Dom(f)=ℝ",
+        "∀x∈ℝ: f(x+2)=2*f(x)",
+        "∀x∈(0,2]: f(x)=x*(x-2)",
+        "∀x∈(-∞,m]: f(x) ≥ -3"
+      ],
+      "goals": [
+        {
+          "kind": "find_maximum",
+          "expression": "m"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+    "root": {
+      "label": "15",
+      "definitions": [],
+      "facts": [
+        "Dom(f)=ℝ",
+        "∀x∈ℝ: f(x+2)=2*f(x)",
+        "∀x∈(0,2]: f(x)=x*(x-2)",
+        "∀x∈(-∞,m]: f(x) ≥ -3"
+      ],
+      "goals": [
+        {
+          "kind": "find_maximum",
+          "expression": "m"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "root_label_role": "source",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": false,
+    "reports": {
+      "ir": {
+        "ok": false,
+        "issues": [
+          {
+            "path": "r.facts[0]",
+            "source": "Dom(f)=ℝ",
+            "code": "notation.bind",
+            "reason_code": "type.call_arguments",
+            "message": "type.call_arguments: Dom"
+          },
+          {
+            "path": "r.facts[1]",
+            "source": "∀x∈ℝ: f(x+2)=2*f(x)",
+            "code": "notation.bind",
+            "reason_code": "binding.unknown_function",
+            "message": "binding.unknown_function: f"
+          },
+          {
+            "path": "r.facts[2]",
+            "source": "∀x∈(0,2]: f(x)=x*(x-2)",
+            "code": "notation.bind",
+            "reason_code": "binding.unknown_function",
+            "message": "binding.unknown_function: f"
+          },
+          {
+            "path": "r.facts[3]",
+            "source": "∀x∈(-∞,m]: f(x) ≥ -3",
+            "code": "notation.bind",
+            "reason_code": "binding.unknown_function",
+            "message": "binding.unknown_function: f"
+          }
+        ],
+        "defaults": [
+          {
+            "ref": "r:scalar:f",
+            "domain": "real",
+            "origin": "code_default"
+          },
+          {
+            "ref": "r:scalar:m",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:scalar:f",
+            "name": "f",
+            "kind": "scalar",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:m",
+            "name": "m",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {}
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "dd8f4fa252565ff77f5dfb33ed49389bf9eece93af5042fb7888f6137268872e",
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_maximum",
+            "target": [
+              "ref",
+              "r:scalar:m",
+              "scalar"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:scalar:f",
+          "name": "f",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {},
+      "normalization_report": {}
+    },
+    "binding": {
+      "problem_id": "98bdfbd1b1c1",
+      "source_sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": null,
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [
+        {
+          "stage": "compile",
+          "code": "type.call_arguments",
+          "path": "/root/facts/0",
+          "source": "Dom(f)=ℝ",
+          "message": "type.call_arguments: Dom",
+          "action": "repair"
+        },
+        {
+          "stage": "compile",
+          "code": "binding.unknown_function",
+          "path": "/root/facts/1",
+          "source": "∀x∈ℝ: f(x+2)=2*f(x)",
+          "message": "binding.unknown_function: f",
+          "action": "code_gap"
+        },
+        {
+          "stage": "compile",
+          "code": "binding.unknown_function",
+          "path": "/root/facts/2",
+          "source": "∀x∈(0,2]: f(x)=x*(x-2)",
+          "message": "binding.unknown_function: f",
+          "action": "code_gap"
+        },
+        {
+          "stage": "compile",
+          "code": "binding.unknown_function",
+          "path": "/root/facts/3",
+          "source": "∀x∈(-∞,m]: f(x) ≥ -3",
+          "message": "binding.unknown_function: f",
+          "action": "code_gap"
+        }
+      ],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": false,
+        "reports": {
+          "ir": {
+            "ok": false,
+            "issues": [
+              {
+                "path": "r.facts[0]",
+                "source": "Dom(f)=ℝ",
+                "code": "notation.bind",
+                "reason_code": "type.call_arguments",
+                "message": "type.call_arguments: Dom"
+              },
+              {
+                "path": "r.facts[1]",
+                "source": "∀x∈ℝ: f(x+2)=2*f(x)",
+                "code": "notation.bind",
+                "reason_code": "binding.unknown_function",
+                "message": "binding.unknown_function: f"
+              },
+              {
+                "path": "r.facts[2]",
+                "source": "∀x∈(0,2]: f(x)=x*(x-2)",
+                "code": "notation.bind",
+                "reason_code": "binding.unknown_function",
+                "message": "binding.unknown_function: f"
+              },
+              {
+                "path": "r.facts[3]",
+                "source": "∀x∈(-∞,m]: f(x) ≥ -3",
+                "code": "notation.bind",
+                "reason_code": "binding.unknown_function",
+                "message": "binding.unknown_function: f"
+              }
+            ],
+            "defaults": [
+              {
+                "ref": "r:scalar:f",
+                "domain": "real",
+                "origin": "code_default"
+              },
+              {
+                "ref": "r:scalar:m",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:scalar:f",
+                "name": "f",
+                "kind": "scalar",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:m",
+                "name": "m",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {}
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "dd8f4fa252565ff77f5dfb33ed49389bf9eece93af5042fb7888f6137268872e",
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_maximum",
+                "target": [
+                  "ref",
+                  "r:scalar:m",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:scalar:f",
+              "name": "f",
+              "kind": "scalar",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:m",
+              "name": "m",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {},
+          "normalization_report": {}
+        },
+        "binding": {
+          "problem_id": "98bdfbd1b1c1",
+          "source_sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c"
+        }
+      },
+      "revision": "dd8f4fa252565ff77f5dfb33ed49389bf9eece93af5042fb7888f6137268872e"
+    }
+  ]
+}

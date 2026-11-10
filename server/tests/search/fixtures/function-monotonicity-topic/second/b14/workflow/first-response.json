@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"14. 设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)\"],\"facts\":[\"max_{x}(f(x))=f(1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2532,
+      "prompt_tokens": 24247,
+      "total_tokens": 26779,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 439
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 742,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-908ee44f-7448-45b8-bc60-358da9a16686",
+        "sha256": "6d9bbd6de6e4296bd0d6930b6fbc10f67bf2a59508d1c474d51d06544dd59622",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 14000,
+        "expires_at": 1794368384,
+        "uploaded_at": 1794281984.558007
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "6d9bbd6de6e4296bd0d6930b6fbc10f67bf2a59508d1c474d51d06544dd59622",
+        "api_calls": 1,
+        "file_id": "file-api-908ee44f-7448-45b8-bc60-358da9a16686",
+        "expires_at": 1794368384,
+        "elapsed_ms": 211
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 15400,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2532,
+          "prompt_tokens": 24247,
+          "total_tokens": 26779,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2225
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 439
+        },
+        "raw_payload": {
+          "id": "d3f06963-f48c-4bd9-b3b0-061168a08abd",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2532,
+            "prompt_tokens": 24247,
+            "total_tokens": 26779,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2225
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 439
+          },
+          "created": 1794281984,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"14. 设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)\"],\"facts\":[\"max_{x}(f(x))=f(1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。需要识别手写答案是 [5,+∞)？手写批注不算题目。题干：14. 设函数 f(x) = { -(x-a)^2 + a + 5/2, x<1; -1/2 x +1, x≥1 }，若 f(1) 是函数 f(x) 的最大值，则实数 a 的取值范围为____。手写答案 [5,+∞) 不转录。\n\n需要构建 root：definitions 函数分段。facts 条件 f(1) 是最大值：max_x(f(x))=f(1) 或者 ∀x: f(x)≤f(1)? 题面“f(1)是函数f(x)的最大值”记为 max_{x}(f(x))=f(1) 根据目录。目录有 attained_extremum? \"max_x(f(x))=f(1)\" 最值条件。这样。目标 find_range symbol a。\n\n需要保留分段定义：definitions: [\"f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x>=1)\"] 注意目录分段字段语法 piecewise(表达式1,条件1,表达式2,条件2)。条件 x<1 和 x≥1。数学表达式中使用 >= 还是 ≥？目录说使用 Unicode 或受控字符串？facts 数学式示例用 ≥。但分段 piecewise 语法使用 x<=0, x>0；可以通过字符串写 x<1 和 x≥1? 最好 Unicode ≥。但目录 piecewise 里用了 <=。受控字符串可能可以 ≥。使用 x<1 和 x≥1。表达式 -(x-a)^2+a+5/2，第二项 -1/2*x+1。注意幂符号 ^。\n\nroot facts: [\"max_{x}(f(x))=f(1)\"] 目录给出的最值条件。或者 \"f(1)=max_{x}(f(x))\" 看示例：max_{x}(f(x))=f(c)。用 max_{x}(f(x))=f(1)。题面说 f(1) 是函数 f(x) 的最大值，不是“最大值是f(1)” 可以。目标 {\"kind\":\"find_range\",\"symbol\":\"a\"}。\n\noriginal_text 完整：14. 设函数 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。 需要把公式用 $...$ 包围，LaTeX cases 中可以。JSON 反斜杠双写。注意 original_text 中花括号？公式里的 cases 有 { }，题面公式不是集合。没问题。需要保留题号 14. 原图上有手写答案，不转录。\n\npublic_content: scopes 一个 /root。statement 不含题号和小问编号：设函数 $f(x)=...$，若...则...。choices 对目标: status none, selection_mode none, options []. figure_detection: none，无图。privacy：题号 14 是题号，但公开字段不能含题号。original_text保留题号可以。public_content statement 不包含题号。没有姓名等。privacy separable? 可以 separated，因为题号在公开 statement 中已分离，original_text 可以保留来源题号。root 无 label。privacy=separated。\n\ncompleteness complete。figure not_required。\n\n是否需要 uncertainties？图片手写答案清晰，不影响题干。没有无法辨认。无需。\n\n原图有手写批注 “-1/2 +1” “-1/2” 不转录不报告。题号 14 保留在 original_text；public_content 不包含。root facts 注意 “f(1) 是函数 f(x) 的最大值” 是否应记录 f(1)=max... 或 max...=f(1)。okay。\n\n需要 public_content scopes statement 使用原公式，不包含 \"14.\"。可包含“设函数...，若...，则实数a的取值范围为______。” 使用 $...$。不要包含手写答案。选择题无。\n\n现在考虑 schema 中 root 无 required 字段，definitions/facts/goals 都可省，但需要放。goals 一项。children 没有。uncertainties 可省略或不写。只输出 JSON。需要遵守“不要输出契约以外字段”。\n\n原始文字中分段函数花括号：$f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$。在 JSON 字符串中反斜杠写 \\\\。例如 \"\\\\begin{cases}\"等。也可以用 \\begin{cases}，但在 JSON 必须双写。公式用 $...$，保留。\n\npublic_content statement 同样需要 LaTeX。反斜杠双写。\n\n目标 find_range symbol a. 但题面 f(1) 最大值条件要求 a 取值范围；没有单调性等字段。okay.\n\n需要检查 original_text 中 “$f(1)$ 是函数 $f(x)$ 的最大值” 保留。a 的取值范围为____。图片填空处印刷横线 “取值范围为___”。照原样写横线，可以四个下划线。原图看起来“取值范围为[5,+∞)”手写覆盖？但印刷填空横线被手写覆盖。题目正文最后“取值范围为___”。需要不转录手写。写成“取值范围为______。” 可以。图片其实印刷可能是“取值范围为______”学生写了[5,+∞)。保留横线。\n\npublic_content statement 同样“______”。\n\n现在是否需要将函数定义放 definitions 而不放 facts。definitions 一条。facts 一条 max。\n\n分段函数条件 x<1, x≥1。表达式 a+5/2 写作 a+5/2. 幂 -(x-a)^2 正确。\n\n原题是“设函数 f(x) = { -(x-a)^2 + a + 5/2, x<1 ; -1/2 x + 1, x≥1 }”。注意第二段“- 1/2 x +1” 可能表示 -1/2*x +1 还是 -1/(2x)+1? 图像显示 \\(-\\frac{1}{2}x+1\\)，所以 -1/2*x+1。第一段 \\(-(x-a)^2+a+\\frac{5}{2}\\)。\n\n目标“实数 a 的取值范围” 用 find_range symbol a。没有 input_domain 之类。\n\nFact max_{x}(f(x))=f(1)，缺少 x 范围？默认全实数。函数分段定义覆盖全体。okay.\n\n要不要在 facts 写 ∀x∈ℝ: f(x)≤f(1)？题面“f(1)是函数f(x)的最大值”等价，但目录支持 max_x(f(x))=f(1)。示例说最值条件放facts。用 max_{x}(f(x))=f(1) 即可。不要加一阶逻辑。\n\npublic_content.scopes target_ref \"/root/goals/0\". choices status none.\n\nfigure_detection status none regions [].\n\ncompleteness complete privacy separated figure not_required.\n\noriginal_text 可带 14. 题号。公开 statement 不带题号且不包含手写。root 没有 label，所以 root_label_role 省略。schema 中 root_label_role optional. 不要输出。\n\nPotential issue: original_text 要求集合花括号写成 \\{ \\}，但 cases 的 { 不是集合？这条“original_text 的 $…$ 内集合花括号写成 \\{ \\}（如 ...）” 针对集合花括号；分段函数 cases 的 { 可以正常。如果必须转义？LaTeX cases 用 \\begin{cases}，里面不是集合。保持。\n\nJSON 字符串中 LaTeX \\begin 需要 \\\\begin。We'll output valid JSON with escaped backslashes.\n\nLet's craft JSON. Need not include uncertainties. But root schema says properties no required, can include definitions facts goals. public_content required all.\n\nCheck original_text \"设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$\" 在 JSON 中每反斜杠双写。换行行内双反斜杠要写成四个？在 JSON string 中要表示 LaTeX 的 `\\\\` 两个字符（换行），在 JSON 源码中每个反斜杠转义，因此写 `\\\\\\\\`。所以 \"-\\\\begin{cases}... x<1\\\\\\\\-\\\\frac{...}...\" 会变成 LaTeX x<1 加两个反斜杠（JSON 的四个显示为两个）。对，需要 x<1\\\\\\\\-\\\\frac。在最终 JSON 中写四个反斜杠。类似 \\frac -> \\\\frac。\\end -> \\\\end。\n\npublic_content statement 也需如此。\n\nRoot definitions 数学字符串不用 $ 和反斜杠？规则：root 中的数学式不写 $ 和反斜杠，仍用目录的 Unicode 记法。所以 root definitions 不能有 LaTeX `\\frac` 或 `piecewise` 里面可以写 5/2. 用 `piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)`。数学式不能有反斜杠，所以 ≥ 用 Unicode。这符合。root 中 \"max_{x}(f(x))=f(1)\" 有下划线，可以。使用 `max_{x}(f(x))=f(1)`。注意目录 `max_{P,Q}` 这种。可以。\n\nRoot definitions 字符串有花括号吗？`piecewise(...)` 无花括号。函数名 f(x)。好。\n\nPotential issue: `piecewise` 条件 x≥1 是否用 Unicode ≥；目录例子用 `x>0`，但 facts 示例用 ≥。可以。数学字符串不能使用 LaTeX \\ge; 用 ≥。\n\nNow answer.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 15653
+  },
+  "raw_payload": {
+    "id": "d3f06963-f48c-4bd9-b3b0-061168a08abd",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"14. 设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)\"],\"facts\":[\"max_{x}(f(x))=f(1)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。需要识别手写答案是 [5,+∞)？手写批注不算题目。题干：14. 设函数 f(x) = { -(x-a)^2 + a + 5/2, x<1; -1/2 x +1, x≥1 }，若 f(1) 是函数 f(x) 的最大值，则实数 a 的取值范围为____。手写答案 [5,+∞) 不转录。\n\n需要构建 root：definitions 函数分段。facts 条件 f(1) 是最大值：max_x(f(x))=f(1) 或者 ∀x: f(x)≤f(1)? 题面“f(1)是函数f(x)的最大值”记为 max_{x}(f(x))=f(1) 根据目录。目录有 attained_extremum? \"max_x(f(x))=f(1)\" 最值条件。这样。目标 find_range symbol a。\n\n需要保留分段定义：definitions: [\"f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x>=1)\"] 注意目录分段字段语法 piecewise(表达式1,条件1,表达式2,条件2)。条件 x<1 和 x≥1。数学表达式中使用 >= 还是 ≥？目录说使用 Unicode 或受控字符串？facts 数学式示例用 ≥。但分段 piecewise 语法使用 x<=0, x>0；可以通过字符串写 x<1 和 x≥1? 最好 Unicode ≥。但目录 piecewise 里用了 <=。受控字符串可能可以 ≥。使用 x<1 和 x≥1。表达式 -(x-a)^2+a+5/2，第二项 -1/2*x+1。注意幂符号 ^。\n\nroot facts: [\"max_{x}(f(x))=f(1)\"] 目录给出的最值条件。或者 \"f(1)=max_{x}(f(x))\" 看示例：max_{x}(f(x))=f(c)。用 max_{x}(f(x))=f(1)。题面说 f(1) 是函数 f(x) 的最大值，不是“最大值是f(1)” 可以。目标 {\"kind\":\"find_range\",\"symbol\":\"a\"}。\n\noriginal_text 完整：14. 设函数 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。 需要把公式用 $...$ 包围，LaTeX cases 中可以。JSON 反斜杠双写。注意 original_text 中花括号？公式里的 cases 有 { }，题面公式不是集合。没问题。需要保留题号 14. 原图上有手写答案，不转录。\n\npublic_content: scopes 一个 /root。statement 不含题号和小问编号：设函数 $f(x)=...$，若...则...。choices 对目标: status none, selection_mode none, options []. figure_detection: none，无图。privacy：题号 14 是题号，但公开字段不能含题号。original_text保留题号可以。public_content statement 不包含题号。没有姓名等。privacy separable? 可以 separated，因为题号在公开 statement 中已分离，original_text 可以保留来源题号。root 无 label。privacy=separated。\n\ncompleteness complete。figure not_required。\n\n是否需要 uncertainties？图片手写答案清晰，不影响题干。没有无法辨认。无需。\n\n原图有手写批注 “-1/2 +1” “-1/2” 不转录不报告。题号 14 保留在 original_text；public_content 不包含。root facts 注意 “f(1) 是函数 f(x) 的最大值” 是否应记录 f(1)=max... 或 max...=f(1)。okay。\n\n需要 public_content scopes statement 使用原公式，不包含 \"14.\"。可包含“设函数...，若...，则实数a的取值范围为______。” 使用 $...$。不要包含手写答案。选择题无。\n\n现在考虑 schema 中 root 无 required 字段，definitions/facts/goals 都可省，但需要放。goals 一项。children 没有。uncertainties 可省略或不写。只输出 JSON。需要遵守“不要输出契约以外字段”。\n\n原始文字中分段函数花括号：$f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$。在 JSON 字符串中反斜杠写 \\\\。例如 \"\\\\begin{cases}\"等。也可以用 \\begin{cases}，但在 JSON 必须双写。公式用 $...$，保留。\n\npublic_content statement 同样需要 LaTeX。反斜杠双写。\n\n目标 find_range symbol a. 但题面 f(1) 最大值条件要求 a 取值范围；没有单调性等字段。okay.\n\n需要检查 original_text 中 “$f(1)$ 是函数 $f(x)$ 的最大值” 保留。a 的取值范围为____。图片填空处印刷横线 “取值范围为___”。照原样写横线，可以四个下划线。原图看起来“取值范围为[5,+∞)”手写覆盖？但印刷填空横线被手写覆盖。题目正文最后“取值范围为___”。需要不转录手写。写成“取值范围为______。” 可以。图片其实印刷可能是“取值范围为______”学生写了[5,+∞)。保留横线。\n\npublic_content statement 同样“______”。\n\n现在是否需要将函数定义放 definitions 而不放 facts。definitions 一条。facts 一条 max。\n\n分段函数条件 x<1, x≥1。表达式 a+5/2 写作 a+5/2. 幂 -(x-a)^2 正确。\n\n原题是“设函数 f(x) = { -(x-a)^2 + a + 5/2, x<1 ; -1/2 x + 1, x≥1 }”。注意第二段“- 1/2 x +1” 可能表示 -1/2*x +1 还是 -1/(2x)+1? 图像显示 \\(-\\frac{1}{2}x+1\\)，所以 -1/2*x+1。第一段 \\(-(x-a)^2+a+\\frac{5}{2}\\)。\n\n目标“实数 a 的取值范围” 用 find_range symbol a。没有 input_domain 之类。\n\nFact max_{x}(f(x))=f(1)，缺少 x 范围？默认全实数。函数分段定义覆盖全体。okay.\n\n要不要在 facts 写 ∀x∈ℝ: f(x)≤f(1)？题面“f(1)是函数f(x)的最大值”等价，但目录支持 max_x(f(x))=f(1)。示例说最值条件放facts。用 max_{x}(f(x))=f(1) 即可。不要加一阶逻辑。\n\npublic_content.scopes target_ref \"/root/goals/0\". choices status none.\n\nfigure_detection status none regions [].\n\ncompleteness complete privacy separated figure not_required.\n\noriginal_text 可带 14. 题号。公开 statement 不带题号且不包含手写。root 没有 label，所以 root_label_role 省略。schema 中 root_label_role optional. 不要输出。\n\nPotential issue: original_text 要求集合花括号写成 \\{ \\}，但 cases 的 { 不是集合？这条“original_text 的 $…$ 内集合花括号写成 \\{ \\}（如 ...）” 针对集合花括号；分段函数 cases 的 { 可以正常。如果必须转义？LaTeX cases 用 \\begin{cases}，里面不是集合。保持。\n\nJSON 字符串中 LaTeX \\begin 需要 \\\\begin。We'll output valid JSON with escaped backslashes.\n\nLet's craft JSON. Need not include uncertainties. But root schema says properties no required, can include definitions facts goals. public_content required all.\n\nCheck original_text \"设函数 $f(x)=\\\\begin{cases}-(x-a)^2+a+\\\\frac{5}{2},&x<1\\\\\\\\-\\\\frac{1}{2}x+1,&x\\\\ge 1\\\\end{cases}$\" 在 JSON 中每反斜杠双写。换行行内双反斜杠要写成四个？在 JSON string 中要表示 LaTeX 的 `\\\\` 两个字符（换行），在 JSON 源码中每个反斜杠转义，因此写 `\\\\\\\\`。所以 \"-\\\\begin{cases}... x<1\\\\\\\\-\\\\frac{...}...\" 会变成 LaTeX x<1 加两个反斜杠（JSON 的四个显示为两个）。对，需要 x<1\\\\\\\\-\\\\frac。在最终 JSON 中写四个反斜杠。类似 \\frac -> \\\\frac。\\end -> \\\\end。\n\npublic_content statement 也需如此。\n\nRoot definitions 数学字符串不用 $ 和反斜杠？规则：root 中的数学式不写 $ 和反斜杠，仍用目录的 Unicode 记法。所以 root definitions 不能有 LaTeX `\\frac` 或 `piecewise` 里面可以写 5/2. 用 `piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)`。数学式不能有反斜杠，所以 ≥ 用 Unicode。这符合。root 中 \"max_{x}(f(x))=f(1)\" 有下划线，可以。使用 `max_{x}(f(x))=f(1)`。注意目录 `max_{P,Q}` 这种。可以。\n\nRoot definitions 字符串有花括号吗？`piecewise(...)` 无花括号。函数名 f(x)。好。\n\nPotential issue: `piecewise` 条件 x≥1 是否用 Unicode ≥；目录例子用 `x>0`，但 facts 示例用 ≥。可以。数学字符串不能使用 LaTeX \\ge; 用 ≥。\n\nNow answer."
+        }
+      }
+    ],
+    "created": 1794281984,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2532,
+      "prompt_tokens": 24247,
+      "total_tokens": 26779,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2225,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 439
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 15.655
+}

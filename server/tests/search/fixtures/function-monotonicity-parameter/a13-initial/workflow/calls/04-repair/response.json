@@ -1,0 +1,150 @@
+{
+  "text": "{\n  \"original_text\": \"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=sqrt(a*x^2+2*x-5*a+5)\"\n    ],\n    \"facts\": [],\n    \"goals\": [\n      {\n        \"kind\": \"find_range\",\n        \"symbol\": \"a\",\n        \"required_monotonicity\": {\n          \"expression\": \"sqrt(a*x^2+2*x-5*a+5)\",\n          \"variable\": \"x\",\n          \"function\": \"f\",\n          \"direction\": \"decreasing\",\n          \"strict\": true,\n          \"input_domain\": \"(-∞,-2]\",\n          \"basis\": {\n            \"kind\": \"difference_quotient\",\n            \"statement\": \"∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n          }\n        }\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2728,
+      "prompt_tokens": 24487,
+      "total_tokens": 27215,
+      "prompt_cache_hit_tokens": 23936,
+      "prompt_cache_miss_tokens": 551
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1391,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-9417a705-da84-4a2a-9da4-e65a8fb13b01",
+        "sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 18328,
+        "expires_at": 1794364442,
+        "uploaded_at": 1794278042.817607
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113",
+        "file_id": "file-api-9417a705-da84-4a2a-9da4-e65a8fb13b01",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 18420,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2728,
+          "prompt_tokens": 24487,
+          "total_tokens": 27215,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2217
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23936
+          },
+          "prompt_cache_hit_tokens": 23936,
+          "prompt_cache_miss_tokens": 551
+        },
+        "raw_payload": {
+          "id": "1b4ad7d6-31fc-4f08-b21e-bb49f21ce4e2",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2728,
+            "prompt_tokens": 24487,
+            "total_tokens": 27215,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2217
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23936
+            },
+            "prompt_cache_hit_tokens": 23936,
+            "prompt_cache_miss_tokens": 551
+          },
+          "created": 1794278128,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"original_text\": \"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=sqrt(a*x^2+2*x-5*a+5)\"\n    ],\n    \"facts\": [],\n    \"goals\": [\n      {\n        \"kind\": \"find_range\",\n        \"symbol\": \"a\",\n        \"required_monotonicity\": {\n          \"expression\": \"sqrt(a*x^2+2*x-5*a+5)\",\n          \"variable\": \"x\",\n          \"function\": \"f\",\n          \"direction\": \"decreasing\",\n          \"strict\": true,\n          \"input_domain\": \"(-∞,-2]\",\n          \"basis\": {\n            \"kind\": \"difference_quotient\",\n            \"statement\": \"∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n          }\n        }\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+                "reasoning_content": "我们需要回答JSON。需要根据图复核候选并修复诊断。不能使用金标，只能原图。base_candidate已有。诊断指出required_monotonicity.basis.statement遗漏全称量词和x1,x2范围及不相等。repair_feedback说上一版修复未被采用，继续以base_candidate为修复基础，不重复被拒绝越权删除。需要注意修复授权：诊断 missing_condition path /root/goals/0/required_monotonicity/basis/statement 只授权补缺失字段？ 但是必填字段 basis.statement 已存在，诊断要求将量词和限制保留在 statement。原字段可改？ missing_condition 指向已有字段，授权修正所指字段。需要修改statement为完整条件？ 需要看 schema basis.statement 是差商/差积原式，最大512，保持原题两个输入顺序。原文“对任意两个不相等的实数 x1,x2∈(-∞,-2]，都有不等式 (f(x2)-f(x1))/(x2-x1)<0 成立”。diagnostic要求将量词和限制一并保留在 basis.statement（或该作用域的事实条件）中。因为字段是 statement，应可包含 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0`。不过 schema basis.kind = difference_quotient, statement description \"差商／差积原式，保持原题两个输入的顺序，如 ...\" 也许 statement 可以包含量词？ 诊断明确授权。需要输出完整 JSON，包含 original_text, root, public_content, figure_detection? Schema顶层required original_text root public_content，但还要求 figure_detection 在 public_content 内，顶层不需要。响应schema没有顶层 figure_detection。候选有public_content.figure_detection。需要在public_content中包含。同时 diagnostics? 响应schema未定义diagnostics顶层，不要输出。只输出schema字段。需要填写root和public_content。检查是否需要修复其他问题。original_text包括题号13。root.label缺失？ 题号在original_text中，root.label可以省略。public_content statement没有题号，符合。privacy separated：原图有手写“单调递减”、“[1/2,+∞)”、“② x2-x1>0=>x2>x1”等手写批注答案。公开题干已排除手写，可以 separated。原始 original_text 也不抄手写答案。OK.\n\n需要检查 required_monotonicity.basis.statement 修改长度<512。 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0` 长度小。但是数学目录中量词语法 `∀变量∈定义域: 关系`，多个变量? 允许 ∀x_1,x_2∈... 应可。原题是“任意两个不相等的实数 x1,x2∈...”，保留双变量范围及不相等。 注意 `x_1,x_2∈(-∞,-2]` 本身在集合记法中表示两者各自在集合；加x1≠x2。\n\n需要决定 facts 是否还要添加原句作为完整条件？ Diagnostic says basis.statement (or facts) should retain. 已有 required_monotonicity 已包含 input_domain 和 statement。仅修改 statement即可，不需要新增 facts，以免重复。但 required_monotonicity.input_domain 也是(-∞,-2]，statement里也有范围，重复可接受？ 原诊断说不能仅用 input_domain 代替。我们保留 input_domain 和完整的 statement。OK.\n\n还需要检查 definitions `f(x)=sqrt(a*x^2+2*x-5*a+5)` 是否正确。原图函数 f(x)=√(ax^2+2x-5a+5)，对。变量 x1 x2。目标求a范围。无选项。public_content choices status none selection none options [].\n\n需要检查 figure_detection none。原图没有配图。OK.\n\n需要输出完整JSON，字段名按照 schema。public_content.scopes 的 statement 保持原公开题干，不含题号、手写答案。choices target_ref /root/goals/0. status none selection_mode none options [].\n\nroot.definitions facts goals. facts maybe none. goals required_monotonicity. 需要字段 basis.statement 修改。可能 `direction`: decreasing? 原题差商小于0意味着 f(x2)-f(x1)与x2-x1异号，函数递减。候选填decreasing。没有问题。`strict`: true. input_domain \"(-∞,-2]\"，注意原图区间 `(-∞,-2]` 是 x1,x2 ∈ (-∞,-2]，不是 input_domain? 这里 required_monotonicity.input_domain 应该表单调性必须成立的指定区间，即(-∞,-2]。OK。但是 statement 中是否要包含 `∀x_1,x_2∈(-∞,-2], x_1≠x_2`？ 是。\n\n需要小心 schema 中 `FindRangeGoal` required_monotonicity.basis.kind 只能 \"stated\",\"difference_quotient\",\"difference_product\"; statement max512. Fine.\n\n需要 output only JSON no markdown. 包含 original_text 和 public_content。顶层可以有 root, public_content, original_text。schema required all. AdditionalProperties false on root? Scope additionalProperties false，允许 label definitions facts goals children uncertainties。不要加其他。public_content additionalProperties false 仅允许 completeness privacy figure root_label_role scopes figure_detection. Root_label_role可省略。 figure_detection required status regions. OK.\n\nPotential issue: original_text \"13. 已知函数 ...\" 题号是否要保留？ original_text可以保留来源题号。public_content statement已去掉题号。OK.\n\nPotential issue: privacy: 原图有手写答案 \"单调递减\" 和 \"[1/2,+∞)\"。这些不是题目，已不放入公开。 original_text 也没写。privacy=separated? 公开字段无手写答案。OK.\n\nPotential issue: root.definitions中使用 a x etc 乘法显式。`sqrt(a*x^2+2*x-5*a+5)` good.\n\nPotential issue: basis.statement中 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: ...` 不符合 math_expression_catalog quantifier exactly? It uses ∀ variables∈domain: relation. Multiple variables with shared domain okay? Could be `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: ...` More explicit. Let's use `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0` to retain quantifier order. 但是 statement 原式 maybe \"对任意两个不相等的实数 x1,x2∈(-∞,-2]\" 可以写成 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: ...`。目录允许量词，变量范围。采用更明确的两次∀。长度约90。OK.\n\nPotential issue: required_monotonicity expression `sqrt(a*x^2+2*x-5*a+5)` with variable x. function f. input_domain \"(-∞,-2]\". basis statement contains f(x_1) etc. Good.\n\nNeed ensure public_content.completeness \"complete\". It is complete. Figure \"not_required\". `figure_detection`: {\"status\":\"none\",\"regions\":[]}. Good.\n\nNeed maybe `root.uncertainties` not needed. No `diagnostics`. Use JSON object.\n\nNeed decide whether to include public_content root_label_role? root.label absent, omit. Good.\n\nNeed maybe public_content.statement should include \"已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\" Candidate has that. Good.\n\nNeed original_text exact. Candidate original_text uses `$f(x)=\\sqrt{ax^2+2x-5a+5}$` maybe sqrt braces with no parentheses fine. Text \"任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$\" has space after comma; okay. \"都有不等式\". No handwritten. Good.\n\nBut wait, original image text: \"13. 已知函数 f(x)=√(ax^2+2x-5a+5) 对任意两个不相等的实数 x1, x2∈(-∞,-2], 都有不等式 (f(x2)-f(x1))/(x2-x1)<0 成立，则实数 a 的取值范围是 ______。\" Yes.\n\nOne nuance: `f(x_2)-f(x_1)` in source? yes numerator f(x2)-f(x1), denominator x2-x1. Candidate uses that. Good.\n\nNeed maybe include root facts `∀x_1,x_2...`? Diagnostic authorized or basis.statement. Since basis statement now full, no extra facts. Good.\n\nLet's formulate JSON. Ensure valid JSON no trailing. Use Unicode ∈ etc. Strings can include Unicode. `(-∞,-2]`. Use `\\\\infty`? In JSON strings, LaTeX backslash must escape. For root math strings, math_expression_catalog supports `-∞`? It uses `(-∞,b)`. So use Unicode ∞. In original_text and public statement, use LaTeX `\\infty` but in JSON needs `\\\\infty`. Candidate did. We'll output with escaped backslashes. Root math use Unicode. Good.\n\nNeed ensure `basis.statement` with `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: ...` no LaTeX backslashes. Good.\n\nLet's output.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 18443
+  },
+  "raw_payload": {
+    "id": "1b4ad7d6-31fc-4f08-b21e-bb49f21ce4e2",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"original_text\": \"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=sqrt(a*x^2+2*x-5*a+5)\"\n    ],\n    \"facts\": [],\n    \"goals\": [\n      {\n        \"kind\": \"find_range\",\n        \"symbol\": \"a\",\n        \"required_monotonicity\": {\n          \"expression\": \"sqrt(a*x^2+2*x-5*a+5)\",\n          \"variable\": \"x\",\n          \"function\": \"f\",\n          \"direction\": \"decreasing\",\n          \"strict\": true,\n          \"input_domain\": \"(-∞,-2]\",\n          \"basis\": {\n            \"kind\": \"difference_quotient\",\n            \"statement\": \"∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n          }\n        }\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答JSON。需要根据图复核候选并修复诊断。不能使用金标，只能原图。base_candidate已有。诊断指出required_monotonicity.basis.statement遗漏全称量词和x1,x2范围及不相等。repair_feedback说上一版修复未被采用，继续以base_candidate为修复基础，不重复被拒绝越权删除。需要注意修复授权：诊断 missing_condition path /root/goals/0/required_monotonicity/basis/statement 只授权补缺失字段？ 但是必填字段 basis.statement 已存在，诊断要求将量词和限制保留在 statement。原字段可改？ missing_condition 指向已有字段，授权修正所指字段。需要修改statement为完整条件？ 需要看 schema basis.statement 是差商/差积原式，最大512，保持原题两个输入顺序。原文“对任意两个不相等的实数 x1,x2∈(-∞,-2]，都有不等式 (f(x2)-f(x1))/(x2-x1)<0 成立”。diagnostic要求将量词和限制一并保留在 basis.statement（或该作用域的事实条件）中。因为字段是 statement，应可包含 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0`。不过 schema basis.kind = difference_quotient, statement description \"差商／差积原式，保持原题两个输入的顺序，如 ...\" 也许 statement 可以包含量词？ 诊断明确授权。需要输出完整 JSON，包含 original_text, root, public_content, figure_detection? Schema顶层required original_text root public_content，但还要求 figure_detection 在 public_content 内，顶层不需要。响应schema没有顶层 figure_detection。候选有public_content.figure_detection。需要在public_content中包含。同时 diagnostics? 响应schema未定义diagnostics顶层，不要输出。只输出schema字段。需要填写root和public_content。检查是否需要修复其他问题。original_text包括题号13。root.label缺失？ 题号在original_text中，root.label可以省略。public_content statement没有题号，符合。privacy separated：原图有手写“单调递减”、“[1/2,+∞)”、“② x2-x1>0=>x2>x1”等手写批注答案。公开题干已排除手写，可以 separated。原始 original_text 也不抄手写答案。OK.\n\n需要检查 required_monotonicity.basis.statement 修改长度<512。 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0` 长度小。但是数学目录中量词语法 `∀变量∈定义域: 关系`，多个变量? 允许 ∀x_1,x_2∈... 应可。原题是“任意两个不相等的实数 x1,x2∈...”，保留双变量范围及不相等。 注意 `x_1,x_2∈(-∞,-2]` 本身在集合记法中表示两者各自在集合；加x1≠x2。\n\n需要决定 facts 是否还要添加原句作为完整条件？ Diagnostic says basis.statement (or facts) should retain. 已有 required_monotonicity 已包含 input_domain 和 statement。仅修改 statement即可，不需要新增 facts，以免重复。但 required_monotonicity.input_domain 也是(-∞,-2]，statement里也有范围，重复可接受？ 原诊断说不能仅用 input_domain 代替。我们保留 input_domain 和完整的 statement。OK.\n\n还需要检查 definitions `f(x)=sqrt(a*x^2+2*x-5*a+5)` 是否正确。原图函数 f(x)=√(ax^2+2x-5a+5)，对。变量 x1 x2。目标求a范围。无选项。public_content choices status none selection none options [].\n\n需要检查 figure_detection none。原图没有配图。OK.\n\n需要输出完整JSON，字段名按照 schema。public_content.scopes 的 statement 保持原公开题干，不含题号、手写答案。choices target_ref /root/goals/0. status none selection_mode none options [].\n\nroot.definitions facts goals. facts maybe none. goals required_monotonicity. 需要字段 basis.statement 修改。可能 `direction`: decreasing? 原题差商小于0意味着 f(x2)-f(x1)与x2-x1异号，函数递减。候选填decreasing。没有问题。`strict`: true. input_domain \"(-∞,-2]\"，注意原图区间 `(-∞,-2]` 是 x1,x2 ∈ (-∞,-2]，不是 input_domain? 这里 required_monotonicity.input_domain 应该表单调性必须成立的指定区间，即(-∞,-2]。OK。但是 statement 中是否要包含 `∀x_1,x_2∈(-∞,-2], x_1≠x_2`？ 是。\n\n需要小心 schema 中 `FindRangeGoal` required_monotonicity.basis.kind 只能 \"stated\",\"difference_quotient\",\"difference_product\"; statement max512. Fine.\n\n需要 output only JSON no markdown. 包含 original_text 和 public_content。顶层可以有 root, public_content, original_text。schema required all. AdditionalProperties false on root? Scope additionalProperties false，允许 label definitions facts goals children uncertainties。不要加其他。public_content additionalProperties false 仅允许 completeness privacy figure root_label_role scopes figure_detection. Root_label_role可省略。 figure_detection required status regions. OK.\n\nPotential issue: original_text \"13. 已知函数 ...\" 题号是否要保留？ original_text可以保留来源题号。public_content statement已去掉题号。OK.\n\nPotential issue: privacy: 原图有手写答案 \"单调递减\" 和 \"[1/2,+∞)\"。这些不是题目，已不放入公开。 original_text 也没写。privacy=separated? 公开字段无手写答案。OK.\n\nPotential issue: root.definitions中使用 a x etc 乘法显式。`sqrt(a*x^2+2*x-5*a+5)` good.\n\nPotential issue: basis.statement中 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: ...` 不符合 math_expression_catalog quantifier exactly? It uses ∀ variables∈domain: relation. Multiple variables with shared domain okay? Could be `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: ...` More explicit. Let's use `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0` to retain quantifier order. 但是 statement 原式 maybe \"对任意两个不相等的实数 x1,x2∈(-∞,-2]\" 可以写成 `∀x_1,x_2∈(-∞,-2], x_1≠x_2: ...`。目录允许量词，变量范围。采用更明确的两次∀。长度约90。OK.\n\nPotential issue: required_monotonicity expression `sqrt(a*x^2+2*x-5*a+5)` with variable x. function f. input_domain \"(-∞,-2]\". basis statement contains f(x_1) etc. Good.\n\nNeed ensure public_content.completeness \"complete\". It is complete. Figure \"not_required\". `figure_detection`: {\"status\":\"none\",\"regions\":[]}. Good.\n\nNeed maybe `root.uncertainties` not needed. No `diagnostics`. Use JSON object.\n\nNeed decide whether to include public_content root_label_role? root.label absent, omit. Good.\n\nNeed maybe public_content.statement should include \"已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\" Candidate has that. Good.\n\nNeed original_text exact. Candidate original_text uses `$f(x)=\\sqrt{ax^2+2x-5a+5}$` maybe sqrt braces with no parentheses fine. Text \"任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$\" has space after comma; okay. \"都有不等式\". No handwritten. Good.\n\nBut wait, original image text: \"13. 已知函数 f(x)=√(ax^2+2x-5a+5) 对任意两个不相等的实数 x1, x2∈(-∞,-2], 都有不等式 (f(x2)-f(x1))/(x2-x1)<0 成立，则实数 a 的取值范围是 ______。\" Yes.\n\nOne nuance: `f(x_2)-f(x_1)` in source? yes numerator f(x2)-f(x1), denominator x2-x1. Candidate uses that. Good.\n\nNeed maybe include root facts `∀x_1,x_2...`? Diagnostic authorized or basis.statement. Since basis statement now full, no extra facts. Good.\n\nLet's formulate JSON. Ensure valid JSON no trailing. Use Unicode ∈ etc. Strings can include Unicode. `(-∞,-2]`. Use `\\\\infty`? In JSON strings, LaTeX backslash must escape. For root math strings, math_expression_catalog supports `-∞`? It uses `(-∞,b)`. So use Unicode ∞. In original_text and public statement, use LaTeX `\\infty` but in JSON needs `\\\\infty`. Candidate did. We'll output with escaped backslashes. Root math use Unicode. Good.\n\nNeed ensure `basis.statement` with `∀x_1∈(-∞,-2],∀x_2∈(-∞,-2],x_1≠x_2: ...` no LaTeX backslashes. Good.\n\nLet's output."
+        }
+      }
+    ],
+    "created": 1794278128,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2728,
+      "prompt_tokens": 24487,
+      "total_tokens": 27215,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2217,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23936
+      },
+      "prompt_cache_hit_tokens": 23936,
+      "prompt_cache_miss_tokens": 551
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 18.446
+}

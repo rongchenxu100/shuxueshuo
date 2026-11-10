@@ -1,0 +1,820 @@
+{
+  "search_id": "291a6e9e6573",
+  "user_id": "01c8c467-aff4-49ce-ae6a-10e5129003fe",
+  "problem_id": "4b580734-fcea-4774-96c0-be970f8ccf52",
+  "statement": "函数 $y=-x^2+4x+3$，$x∈[0,3]$ 的单调递增区间是____",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "b65e267226636c7b9f9ef2df238e53ed84163f5236ecfeb085bee29151790004",
+      "width": 950,
+      "height": 90,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/291a6e9e6573/figures/original?version=abd49909bd12f7ec15699af79c2daeb560ef6629d3db61eda0e749d8b44f878b"
+      }
+    ],
+    "content_id": "abd49909bd12f7ec15699af79c2daeb560ef6629d3db61eda0e749d8b44f878b"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f29000fa8c4d",
+    "box": [
+      0.14464425332290853,
+      0.2989449003516999,
+      0.887412040656763,
+      0.3516998827667057
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      950,
+      90
+    ],
+    "bytes": 6499
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "3. 函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是____",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=-x^2+4*x+3"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "-x^2+4*x+3",
+        "variable": "x",
+        "function": "f",
+        "direction": "increasing",
+        "input_domain": "[0,3]",
+        "domain_role": "restriction"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+    "sent_image_sha256": [
+      "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 16.061,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-monotonicity",
+        "supported": [
+          "type-function-monotonicity"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 7,
+                  "end": 18,
+                  "text": "$y=-x^2+4x+3$"
+                },
+                {
+                  "start": 35,
+                  "end": 41,
+                  "text": "单调递增区间"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2"
+              ],
+              "knowledge_refs": [
+                "function-monotonicity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求函数的递增区间",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求函数的值域",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "a094912933729d34"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问需要做什么？",
+          "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。",
+          "summary": "求函数的递增区间"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+            ],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "291a6e9e6573//root/goals/0",
+            "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
+            "problem": {
+              "text": "函数 $y=-x^2+4x+3$，$x∈[0,3]$ 的单调递增区间是____"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问需要做什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求函数的递增区间"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求函数的值域",
+                      "feedback": "题目要求判断增减，不能把已知表达式当成已知单调性。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求判断增减，不能把已知表达式当成已知单调性。"
+                },
+                "candidateNodes": [
+                  "function-monotonicity",
+                  "type-function-monotonicity",
+                  "type-monotonicity-abstract-proof",
+                  "type-monotonicity-extremum",
+                  "type-monotonicity-inequality",
+                  "type-monotonicity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-monotonicity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "求函数的递增区间"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 5 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-monotonicity"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-monotonicity"
+                  ],
+                  "edges": [
+                    "type-function-monotonicity|involves|function-monotonicity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+                  ],
+                  "log": "作答判断：选择主要题型「判断函数的单调性」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-monotonicity",
+                  "kind": "knowledge",
+                  "label": "函数的单调性",
+                  "summary": "先确定区间，再比较任意两个自变量对应的函数值；用次序、差商和图像描述严格递增与严格递减。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof",
+                  "kind": "problem_type",
+                  "label": "证明抽象函数的单调性",
+                  "summary": "证明抽象函数的单调性；后续题型建设。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用单调性解不等式",
+                  "summary": "已知或先证明严格单调性，把同一函数的两个函数值比较转为输入比较，再求完整解集。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-monotonicity-parameter",
+                  "kind": "problem_type",
+                  "label": "已知函数的单调性求参",
+                  "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-function-monotonicity-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "单调性题的选法判断",
+                  "summary": "依据任务和函数结构选择方法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-monotonicity-definition",
+                  "kind": "method",
+                  "label": "定义法",
+                  "summary": "用区间内任意两个有序输入的函数值之差证明单调性。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": []
+                    },
+                    {
+                      "id": "analyze",
+                      "title": "划分并判断单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "compare",
+                      "title": "任取两点作差比较",
+                      "calls": [
+                        "method-difference-comparison"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-monotonicity-structure",
+                  "kind": "method",
+                  "label": "基本函数与复合法",
+                  "summary": "由基本函数的性质逐层判断复合后的增减方向。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "domain",
+                      "title": "确定定义域",
+                      "calls": [
+                        "method-domain-intersection"
+                      ]
+                    },
+                    {
+                      "id": "square",
+                      "title": "整理基本函数",
+                      "calls": [
+                        "method-complete-square"
+                      ]
+                    },
+                    {
+                      "id": "analyze",
+                      "title": "划分并判断单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "compose",
+                      "title": "逐层判断复合方向",
+                      "calls": [
+                        "skill-composite-monotonicity"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-monotonicity",
+                  "kind": "method",
+                  "label": "分段单调性法",
+                  "summary": "先判断每段，再检查分界点两侧的次序，确定完整单调区间。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "split",
+                      "title": "按绝对值符号分段",
+                      "calls": [
+                        "skill-absolute-sign-split"
+                      ]
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "绑定各段范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "branches",
+                      "title": "分别判断段内增减",
+                      "calls": [
+                        "method-monotonicity-structure"
+                      ]
+                    },
+                    {
+                      "id": "join",
+                      "title": "检查跨段单调性",
+                      "calls": [
+                        "skill-piecewise-order-join"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "列出完整单调区间",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回到原目标核验",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-piecewise-monotonicity|calls|method-monotonicity-structure",
+                  "from": "method-piecewise-monotonicity",
+                  "to": "method-monotonicity-structure",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "branches",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-monotonicity-definition",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-monotonicity-definition",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "definition",
+                      "condition": "要求用定义证明，或希望用任意两点作差验证。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-monotonicity-structure",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-monotonicity-structure",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "structure",
+                      "condition": "单个基本函数，或可逐层分析的根式、倒数复合。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-function-monotonicity-method|selects|method-piecewise-monotonicity",
+                  "from": "rule-function-monotonicity-method",
+                  "to": "method-piecewise-monotonicity",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "piecewise",
+                      "condition": "含绝对值，需要先分段，再检查连接。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-monotonicity-definition",
+                  "from": "type-function-monotonicity",
+                  "to": "method-monotonicity-definition",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-monotonicity-structure",
+                  "from": "type-function-monotonicity",
+                  "to": "method-monotonicity-structure",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|candidate|method-piecewise-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "method-piecewise-monotonicity",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|involves|function-monotonicity",
+                  "from": "type-function-monotonicity",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-monotonicity|method_rule|rule-function-monotonicity-method",
+                  "from": "type-function-monotonicity",
+                  "to": "rule-function-monotonicity-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-abstract-proof|involves|function-monotonicity",
+                  "from": "type-monotonicity-abstract-proof",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|involves|function-monotonicity",
+                  "from": "type-monotonicity-extremum",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-inequality|involves|function-monotonicity",
+                  "from": "type-monotonicity-inequality",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-parameter|involves|function-monotonicity",
+                  "from": "type-monotonicity-parameter",
+                  "to": "function-monotonicity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-monotonicity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "16271d3e885012cda8110dd38e9a5b33fcfd913e0f27049ea58e4929d4257e79"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "291a6e9e6573//root/goals/0",
+            "bundleVersion": "16271d3e885012cda8110dd38e9a5b33fcfd913e0f27049ea58e4929d4257e79",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "求函数的递增区间"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-monotonicity",
+                "reason": "选「判断函数的单调性」：给出具体函数，要求单调递增区间、单调递减区间或指定区间内的单调性。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "0e65ab92e753489a9f742e36601dda06",
+      "lesson_version": "9ca3f3d2d2d556671729ed526bb59943aafd43aa764b83d85a838f77000f65b2",
+      "stream_id": "0e65ab92e753489a9f742e36601dda06",
+      "snapshot_url": "/api/search/problems/291a6e9e6573/lesson/0e65ab92e753489a9f742e36601dda06/snapshot",
+      "events_url": "/api/search/problems/291a6e9e6573/lesson/0e65ab92e753489a9f742e36601dda06/events",
+      "websocket_url": "/api/search/problems/291a6e9e6573/lesson/0e65ab92e753489a9f742e36601dda06/ws"
+    }
+  }
+}

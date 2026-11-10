@@ -1,0 +1,1523 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 4,
+  "content_calls": 2,
+  "review_calls": 2,
+  "network_attempts": 4,
+  "network_reserved": 4,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____",
+    "root": {
+      "facts": [
+        "f(m^2+2) > f(2m+5)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "m",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "ℝ",
+            "function_domain": "ℝ",
+            "direction": "decreasing",
+            "strict": true,
+            "basis": "given"
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____",
+    "root": {
+      "facts": [
+        "f(m^2+2) > f(2*m+5)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "m",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "ℝ",
+            "function_domain": "ℝ",
+            "direction": "decreasing",
+            "strict": true,
+            "basis": "given"
+          }
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [
+          {
+            "ref": "r:scalar:m",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:m",
+            "name": "m",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                ">",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                ">",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "relation",
+              "<",
+              "Add(Mul(Integer(-1), Symbol('n_ca8816e51b69ddd7edf542e65a3e9ec5e0c32ecd756e6dc57698d32b83984898', real=True)), Symbol('n_cfea268dbd1e8848833d61c884de866eb3aebccf79d78b8db8e3671ad27a556c', real=True))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": "Symbol('n_4b81502ac2984f662ca6dfeef514add032f3259226faa320bf73bf64e3dd1c7e', real=True)",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "ℝ",
+              "function_domain": "ℝ",
+              "direction": "decreasing",
+              "strict": true,
+              "basis": "given"
+            },
+            "input_domain": [
+              "real"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            ">",
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "^",
+                  [
+                    "ref",
+                    "r:scalar:m",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "function_call",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "+",
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:m",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "number",
+                  "5"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": [
+              "ref",
+              "r:scalar:m",
+              "scalar"
+            ],
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "ℝ",
+              "function_domain": "ℝ",
+              "direction": "decreasing",
+              "strict": true,
+              "basis": "given"
+            }
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\">\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"^\",[\"ref\",\"r:scalar:m\",\"scalar\"],[\"number\",\"2\"]],[\"number\",\"2\"]]],[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"*\",[\"number\",\"2\"],[\"ref\",\"r:scalar:m\",\"scalar\"]],[\"number\",\"5\"]]]]": {
+          "path": "r.facts[0]",
+          "source": "f(m^2+2) > f(2*m+5)"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:m",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:m",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:m",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:m",
+                      "scalar"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "d0965c2c0bec",
+      "source_sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:m",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:m",
+                "name": "m",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    ">",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    ">",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "39bc4039257154f49ffb099bfc5a87011a9f975d3054503d6efc0c61f229e41c",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "relation",
+                  "<",
+                  "Add(Mul(Integer(-1), Symbol('n_ca8816e51b69ddd7edf542e65a3e9ec5e0c32ecd756e6dc57698d32b83984898', real=True)), Symbol('n_cfea268dbd1e8848833d61c884de866eb3aebccf79d78b8db8e3671ad27a556c', real=True))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_4b81502ac2984f662ca6dfeef514add032f3259226faa320bf73bf64e3dd1c7e', real=True)",
+                "function_monotonicity": {
+                  "function": "f",
+                  "domain": "ℝ",
+                  "function_domain": "ℝ",
+                  "direction": "decreasing",
+                  "strict": true,
+                  "basis": "given"
+                },
+                "input_domain": [
+                  "real"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                ">",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:m",
+                  "scalar"
+                ],
+                "function_monotonicity": {
+                  "function": "f",
+                  "domain": "ℝ",
+                  "function_domain": "ℝ",
+                  "direction": "decreasing",
+                  "strict": true,
+                  "basis": "given"
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:m",
+              "name": "m",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\">\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"^\",[\"ref\",\"r:scalar:m\",\"scalar\"],[\"number\",\"2\"]],[\"number\",\"2\"]]],[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"*\",[\"number\",\"2\"],[\"ref\",\"r:scalar:m\",\"scalar\"]],[\"number\",\"5\"]]]]": {
+              "path": "r.facts[0]",
+              "source": "f(m^2+2) > f(2m+5)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  ">",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  ">",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "d0965c2c0bec",
+          "source_sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925"
+        }
+      },
+      "revision": "39bc4039257154f49ffb099bfc5a87011a9f975d3054503d6efc0c61f229e41c"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "39bc4039257154f49ffb099bfc5a87011a9f975d3054503d6efc0c61f229e41c",
+      "diagnostics": [
+        {
+          "stage": "review",
+          "code": "wrong_expression",
+          "path": "/root/facts/0",
+          "source": "f(m^2+2) > f(2m+5)",
+          "source_excerpt": "若 $f(m^2+2)>f(2m+5)$",
+          "message": "root 的 fact 中 `2m+5` 未按目录记法显式写出乘号；应改为 `f(m^2+2) > f(2*m+5)`。原文和公开题干中的 LaTeX 写法 `2m+5` 可保留。",
+          "action": "repair"
+        }
+      ],
+      "adopted": false,
+      "review": {
+        "revision": "39bc4039257154f49ffb099bfc5a87011a9f975d3054503d6efc0c61f229e41c",
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "若 $f(m^2+2)>f(2m+5)$",
+            "message": "root 的 fact 中 `2m+5` 未按目录记法显式写出乘号；应改为 `f(m^2+2) > f(2*m+5)`。原文和公开题干中的 LaTeX 写法 `2m+5` 可保留。"
+          }
+        ]
+      }
+    },
+    {
+      "call": 3,
+      "stage": "repair",
+      "base_revision": "39bc4039257154f49ffb099bfc5a87011a9f975d3054503d6efc0c61f229e41c",
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:m",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:m",
+                "name": "m",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    ">",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    ">",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "^",
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ],
+                          [
+                            "number",
+                            "2"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "number",
+                            "2"
+                          ],
+                          [
+                            "ref",
+                            "r:scalar:m",
+                            "scalar"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "relation",
+                  "<",
+                  "Add(Mul(Integer(-1), Symbol('n_ca8816e51b69ddd7edf542e65a3e9ec5e0c32ecd756e6dc57698d32b83984898', real=True)), Symbol('n_cfea268dbd1e8848833d61c884de866eb3aebccf79d78b8db8e3671ad27a556c', real=True))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_4b81502ac2984f662ca6dfeef514add032f3259226faa320bf73bf64e3dd1c7e', real=True)",
+                "function_monotonicity": {
+                  "function": "f",
+                  "domain": "ℝ",
+                  "function_domain": "ℝ",
+                  "direction": "decreasing",
+                  "strict": true,
+                  "basis": "given"
+                },
+                "input_domain": [
+                  "real"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                ">",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:m",
+                        "scalar"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:m",
+                  "scalar"
+                ],
+                "function_monotonicity": {
+                  "function": "f",
+                  "domain": "ℝ",
+                  "function_domain": "ℝ",
+                  "direction": "decreasing",
+                  "strict": true,
+                  "basis": "given"
+                }
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:m",
+              "name": "m",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\">\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"^\",[\"ref\",\"r:scalar:m\",\"scalar\"],[\"number\",\"2\"]],[\"number\",\"2\"]]],[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"+\",[\"*\",[\"number\",\"2\"],[\"ref\",\"r:scalar:m\",\"scalar\"]],[\"number\",\"5\"]]]]": {
+              "path": "r.facts[0]",
+              "source": "f(m^2+2) > f(2*m+5)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  ">",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  ">",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "^",
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:m",
+                          "scalar"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "d0965c2c0bec",
+          "source_sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925"
+        }
+      },
+      "revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef"
+    },
+    {
+      "call": 4,
+      "stage": "review",
+      "base_revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "ae3888b547059a4af107fd09c009d4c374ab1f47906f0fe932b1e1877b5657ef",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

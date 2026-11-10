@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 437,
+      "prompt_tokens": 10685,
+      "total_tokens": 11122,
+      "prompt_cache_hit_tokens": 9984,
+      "prompt_cache_miss_tokens": 701
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-9ec47455-e2f2-4153-9440-3d71a2462084",
+        "sha256": "289c3891b01387b2ea473edff7cacebf2e15df00234c26b186d89f327e2b711a",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 16114,
+        "expires_at": 1794370101,
+        "uploaded_at": 1794283702.010357
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "289c3891b01387b2ea473edff7cacebf2e15df00234c26b186d89f327e2b711a",
+        "file_id": "file-api-9ec47455-e2f2-4153-9440-3d71a2462084",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 3168,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 437,
+          "prompt_tokens": 10685,
+          "total_tokens": 11122,
+          "completion_tokens_details": {
+            "reasoning_tokens": 426
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 9984
+          },
+          "prompt_cache_hit_tokens": 9984,
+          "prompt_cache_miss_tokens": 701
+        },
+        "raw_payload": {
+          "id": "72e7255c-85fb-4bbd-a2f1-90f12d5e6bdc",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 437,
+            "prompt_tokens": 10685,
+            "total_tokens": 11122,
+            "completion_tokens_details": {
+              "reasoning_tokens": 426
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 9984
+            },
+            "prompt_cache_hit_tokens": 9984,
+            "prompt_cache_miss_tokens": 701
+          },
+          "created": 1794283754,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "我们需要回答 JSON，顶层 status 和 findings。需要核对图片与 candidate。图片显示：“14. 已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为 ____.” 手写答案 6 不算题设。candidate original_text 是 \"14. 已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ____.\" 看起来完全匹配？需要注意根号覆盖范围：原图根号覆盖 \"1-2x+2x²-5x+5\" 全部。candidate 有 sqrt{1-2x+2x^2-5x+5}，正确。root definitions f(x)=sqrt(1-2*x+2*x^2-5*x+5)，正确。goals object f answer_request extremum minimum，问题求最小值，find_range object f answer_request extremum minimum 符合。无 facts。public_content statement 保留原式，含题号“14.”？public_content.statement 中有 \"已知函数...\" 不包含题号。规则说题号不应放进公开字段。正确没有题号。original_text 包含题号允许保留。completeness complete, privacy separated, figure not_required, figure_detection none。似乎 confirmed。但需要检查 candidate public_content.scopes 中 choices target_ref /root/goals/0 status none selection_mode none options []，无选项正确。\n\n有没有遗漏？图片手写答案 6 不写入，正确。题目可能有隐藏根号：原图 f(x)=√(1-2x+2x²-5x+5) 的最小值。 root 用 find_range object f answer_request extremum minimum，可以。answer_request 的 minimum 是求最小值。是否需要 expression? schema 示例 extremum quantity minimum 即可。无选项。status=confirmed findings=[]。\n\n需要输出 JSON 顶层仅 status findings。不返回 candidate 等。好的。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 3170
+  },
+  "raw_payload": {
+    "id": "72e7255c-85fb-4bbd-a2f1-90f12d5e6bdc",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON，顶层 status 和 findings。需要核对图片与 candidate。图片显示：“14. 已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为 ____.” 手写答案 6 不算题设。candidate original_text 是 \"14. 已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ____.\" 看起来完全匹配？需要注意根号覆盖范围：原图根号覆盖 \"1-2x+2x²-5x+5\" 全部。candidate 有 sqrt{1-2x+2x^2-5x+5}，正确。root definitions f(x)=sqrt(1-2*x+2*x^2-5*x+5)，正确。goals object f answer_request extremum minimum，问题求最小值，find_range object f answer_request extremum minimum 符合。无 facts。public_content statement 保留原式，含题号“14.”？public_content.statement 中有 \"已知函数...\" 不包含题号。规则说题号不应放进公开字段。正确没有题号。original_text 包含题号允许保留。completeness complete, privacy separated, figure not_required, figure_detection none。似乎 confirmed。但需要检查 candidate public_content.scopes 中 choices target_ref /root/goals/0 status none selection_mode none options []，无选项正确。\n\n有没有遗漏？图片手写答案 6 不写入，正确。题目可能有隐藏根号：原图 f(x)=√(1-2x+2x²-5x+5) 的最小值。 root 用 find_range object f answer_request extremum minimum，可以。answer_request 的 minimum 是求最小值。是否需要 expression? schema 示例 extremum quantity minimum 即可。无选项。status=confirmed findings=[]。\n\n需要输出 JSON 顶层仅 status findings。不返回 candidate 等。好的。"
+        }
+      }
+    ],
+    "created": 1794283754,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 437,
+      "prompt_tokens": 10685,
+      "total_tokens": 11122,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 426,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 9984
+      },
+      "prompt_cache_hit_tokens": 9984,
+      "prompt_cache_miss_tokens": 701
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 3.172
+}

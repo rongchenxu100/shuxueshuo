@@ -1,0 +1,122 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a13-v1",
+  "label": "根式函数递减求参 · A13",
+  "path": "/topics/function-monotonicity/q13a/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a13-v1.json",
+  "types": [
+    "type-monotonicity-parameter"
+  ],
+  "statement": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1,x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-parameter": {
+      "label": "单调性条件求参法",
+      "methods": [
+        "method-monotonicity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "6a8e38f64732e25258e38316#1": {
+          "title": "读清单调性要求",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "9adf4a64bf901ef5d4bdca64#1": {
+          "title": "转化为内层条件",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "638bfe0b44039af52f5e898a#1": {
+          "title": "$a=0$",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "638bfe0b44039af52f5e898a#2": {
+          "title": "$a>0$",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "638bfe0b44039af52f5e898a#3": {
+          "title": "$a<0$",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "638bfe0b44039af52f5e898a#4": {
+          "title": "汇总三类",
+          "position": 9,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "d621c63fca889dd22473ee3f#1": {
+          "title": "整段能开方",
+          "position": 10,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "c968a7936ab248db97e0d0c3#1": {
+          "title": "合并全部条件",
+          "position": 11,
+          "refs": [
+            "method-monotonicity-parameter#conclude",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "ebda2cfaaf8e87e20282d365951d886aaba08a7a35ad3c070913f84666790120",
+  "practice_version": "a7b27dcd69a5547a9a507bb8b2911bb471907a0e989e57a1364da5cc8fde1da7"
+}

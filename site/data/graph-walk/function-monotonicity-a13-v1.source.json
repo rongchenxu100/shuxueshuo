@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a13-v1",
+  "title": "根式函数递减求参 · A13",
+  "page": "/topics/function-monotonicity/q13a/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1,x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a13-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a13.json"
+}

@@ -1,0 +1,45 @@
+{
+  "original_text": "3. 函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是______",
+  "root": {
+    "label": "3.",
+    "definitions": [
+      "f(x)=-x^2+4*x+3"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "-x^2+4*x+3",
+        "variable": "x",
+        "function": "f",
+        "direction": "increasing",
+        "input_domain": "[0,3]",
+        "domain_role": "declared"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是______",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a06-v1",
+  "title": "分段函数整体递增求参 · A06",
+  "page": "/topics/function-monotonicity/q06a/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "若函数 $f(x)=\\begin{cases}x^{2}-ax+\\frac{a}{2},&x\\ge1,\\\\(2a+4)x-5,&x<1\\end{cases}$ 在 $\\mathbb{R}$ 上单调递增，则实数 $a$ 的取值范围为______。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a06-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a06.json"
+}

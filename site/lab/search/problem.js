@@ -455,6 +455,14 @@ function meaningBlocks(scope, title, blocks) {
   const abstractGivens = new Set();
   const relationGivens = new Set();
   const goals = (scope.goals || []).map(goal => {
+    const requirement = goal.required_monotonicity;
+    // A stated condition belongs in the question. Difference quotient/product conditions
+    // remain in the original facts; do not present their inferred direction as a given.
+    if (goal.kind === 'find_range' && requirement && (!requirement.basis || requirement.basis.kind === 'stated')) {
+      const subject = requirement.function ? `${requirement.function}(${requirement.variable})` : requirement.expression;
+      const direction = {increasing: '严格递增', decreasing: '严格递减'}[requirement.direction];
+      return `求使 ${math(subject)} 在 ${math(requirement.input_domain)} 上${direction}的 ${goalLine(goal)}`;
+    }
     if (goal.relation && ['find_function_formula', 'find_value', 'find_range'].includes(goal.kind)) {
       const givens = [];
       const type = {linear: '一次函数', quadratic: '二次函数'}[goal.function_type];

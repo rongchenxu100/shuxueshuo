@@ -161,8 +161,8 @@ def test_q26_shared_repair_keeps_known_call_and_repairs_only_reported_field(tmp_
     assert [event['stage'] for event in result['events']] == ['extract', 'review', 'repair', 'review']
     for request in provider.requests:
         assert contracts.SOURCE_RULES in request.prompt.system
-        assert '不能把推导出的 [-1,4] 填入 known_domain' in request.prompt.system
+        assert 'known_domain 不得填入推导范围' in request.prompt.system
         assert '不能省略，也不能搬到目标的 input_domain' in request.prompt.system
-        assert '公开题干与 root 中该目标的 known_call 都必须保留 x+2' in request.prompt.system
+        assert '与 root 中各原式、函数调用、范围及变量的归属一致' in request.prompt.system
     repair = json.loads(provider.requests[2].prompt.user_prefix)
     assert {item['path'] for item in repair['diagnostics']} == {TARGET + '/known_call'}

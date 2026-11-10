@@ -40,7 +40,8 @@
         "piecewise_routes",
         "function_monotonicity",
         "function_extremum",
-        "monotonicity_inequality"
+        "monotonicity_inequality",
+        "monotonicity_parameter"
       ]
     },
     "routes": {
@@ -87,7 +88,8 @@
               "piecewise_modeling",
               "function_monotonicity",
               "function_extremum",
-        "monotonicity_inequality"
+        "monotonicity_inequality",
+        "monotonicity_parameter"
             ]
           },
           "label": {
@@ -128,7 +130,8 @@
             "piecewise_equation",
             "function_monotonicity",
             "function_extremum",
-        "monotonicity_inequality"
+        "monotonicity_inequality",
+        "monotonicity_parameter"
           ]
         }
       }
@@ -161,7 +164,8 @@
             "piecewise_routes",
             "function_monotonicity",
             "function_extremum",
-        "monotonicity_inequality"
+        "monotonicity_inequality",
+        "monotonicity_parameter"
           ]
         }
       }

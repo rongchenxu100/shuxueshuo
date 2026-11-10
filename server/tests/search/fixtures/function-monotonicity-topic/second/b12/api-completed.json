@@ -1,0 +1,723 @@
+{
+  "search_id": "89c7b3dd161a",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "41d4dd4f-9e14-470f-ac08-51f4ee28ba3f",
+  "statement": "若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "f68ada881508e6d567548bf93ca63284917af18c44bada64f0880ed572a2ca12",
+      "width": 1165,
+      "height": 144,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/89c7b3dd161a/figures/original?version=7b9557d7bff0b49befa55a5ba39c6f3200c020290970374eaaf0daa83fca04b5"
+      }
+    ],
+    "content_id": "7b9557d7bff0b49befa55a5ba39c6f3200c020290970374eaaf0daa83fca04b5"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "6133b62ea0b5",
+    "box": [
+      0.0508209538702111,
+      0.35756154747948415,
+      0.9616888193901486,
+      0.44196951934349354
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1165,
+      144
+    ],
+    "bytes": 9943
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "12. 若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。",
+  "parts": [],
+  "root": {
+    "label": "12",
+    "definitions": [
+      "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+    ],
+    "facts": [
+      "f(1-x^2)>f(2*x)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2",
+    "sent_image_sha256": [
+      "5320bd73e8ecba04d079bf33ce543d0bccada1ad2fbd2181760bd18a2afa8cd2"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 21.272,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "12",
+        "status": "resolved",
+        "primary": "type-piecewise-function",
+        "supported": [
+          "type-piecewise-function"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 80,
+                  "end": 85,
+                  "text": " 的解集合"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "piecewise-function#inequality"
+              ],
+              "source_refs": [
+                "/root/goals/0"
+              ],
+              "options": [
+                {
+                  "text": "求出满足题中不等式的全部 $x$",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "只算出比较用的函数值就结束",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题目要求的是使不等式成立的全部输入；先算比较值，再逐段判断。",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ],
+              "signature": "853edecaa226ec1a"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "题目给出了分段函数和一个不等式，需要求什么？",
+          "feedback": "题目要求的是使不等式成立的全部输入；先算比较值，再逐段判断。",
+          "summary": "找出满足题中不等式的全部 $x$，每个解都要符合所在段的范围。"
+        },
+        "d2": [
+          {
+            "type_id": "type-piecewise-function",
+            "label": "分段函数常规问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+            ],
+            "choice_hint": "对应规则随输入所在区间变化，需要选段并核对分界点"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "89c7b3dd161a//root/goals/0",
+            "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
+            "problem": {
+              "text": "若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目给出了分段函数和一个不等式，需要求什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求出满足题中不等式的全部 $x$"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "只算出比较用的函数值就结束",
+                      "feedback": "题目要求的是使不等式成立的全部输入；先算比较值，再逐段判断。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o0"
+                  ]
+                },
+                "feedback": {
+                  "answer": "题目要求的是使不等式成立的全部输入；先算比较值，再逐段判断。"
+                },
+                "candidateNodes": [
+                  "piecewise-function",
+                  "type-piecewise-function",
+                  "type-function-evaluation",
+                  "type-function-range"
+                ],
+                "effects": {
+                  "nodes": [
+                    "piecewise-function"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "找出满足题中不等式的全部 $x$，每个解都要符合所在段的范围。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 3 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-piecewise-function",
+                      "label": "分段函数常规问题",
+                      "note": "对应规则随输入所在区间变化，需要选段并核对分界点"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-piecewise-function"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-piecewise-function"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-piecewise-function"
+                  ],
+                  "edges": [
+                    "type-piecewise-function|involves|piecewise-function"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+                  ],
+                  "log": "作答判断：选择主要题型「分段函数常规问题」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "piecewise-function",
+                  "kind": "knowledge",
+                  "label": "分段函数",
+                  "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-piecewise-function",
+                  "kind": "problem_type",
+                  "label": "分段函数常规问题",
+                  "summary": "分段求值、方程、不等式、值域求参及阶梯建模：保留各段范围，按题目要求直接使用对应方法。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-piecewise-equation",
+                  "kind": "method",
+                  "label": "分段解方程法",
+                  "summary": "每段列方程、检查该段范围，再合并保留的解。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "solve",
+                      "title": "逐段列方程并求解",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "filter",
+                      "title": "检查范围并合并",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原条件",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-inequality",
+                  "kind": "method",
+                  "label": "分段解不等式法",
+                  "summary": "先判断比较形态：常数阈值则求值后逐段求解；两个复合输入则按左右分支分类求解，最后合并。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "route",
+                      "title": "判断比较形态",
+                      "calls": []
+                    },
+                    {
+                      "id": "level",
+                      "title": "求出比较值",
+                      "calls": [
+                        "skill-simplify"
+                      ]
+                    },
+                    {
+                      "id": "roots",
+                      "title": "求各段不等式的零点",
+                      "calls": [
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "signs",
+                      "title": "确定每段不等式的解集",
+                      "calls": [
+                        "skill-quadratic-sign"
+                      ]
+                    },
+                    {
+                      "id": "filter",
+                      "title": "检查本段范围并合并",
+                      "calls": []
+                    },
+                    {
+                      "id": "two-inputs",
+                      "title": "按左右输入分支分类求解",
+                      "calls": []
+                    },
+                    {
+                      "id": "finalize",
+                      "title": "汇总解集",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原条件",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-modeling",
+                  "kind": "method",
+                  "label": "分段建模法",
+                  "summary": "按规则分档，每档累计前档费用与本档新增费用，再写成分段函数。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "build",
+                      "title": "逐档累计费用",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "汇总并核对边界",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-piecewise-range-parameter",
+                  "kind": "method",
+                  "label": "分段值域求参法",
+                  "summary": "先求不含参段值域，再判断含参段要不越界还是补齐，最后求参数范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "fixed",
+                      "title": "先求不含参段值域",
+                      "calls": []
+                    },
+                    {
+                      "id": "decide",
+                      "title": "比较已有值域与目标值域",
+                      "calls": [],
+                      "rule": "rule-piecewise-range-parameter"
+                    },
+                    {
+                      "id": "solve",
+                      "title": "求含参段的条件",
+                      "calls": [
+                        "method-separation"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验原分段式",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-evaluation|involves|piecewise-function",
+                  "from": "type-function-evaluation",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|piecewise-function",
+                  "from": "type-function-range",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-equation",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-equation",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-inequality",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-modeling",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-modeling",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|candidate|method-piecewise-range-parameter",
+                  "from": "type-piecewise-function",
+                  "to": "method-piecewise-range-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-piecewise-function|involves|piecewise-function",
+                  "from": "type-piecewise-function",
+                  "to": "piecewise-function",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "piecewise-function"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "ac6a6ae6b09b3fd940c04bfb66ff70f3048e9f29ab4229f9fd8e7ab4a5f06b78"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "89c7b3dd161a//root/goals/0",
+            "bundleVersion": "ac6a6ae6b09b3fd940c04bfb66ff70f3048e9f29ab4229f9fd8e7ab4a5f06b78",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o0",
+                "reason": "找出满足题中不等式的全部 $x$，每个解都要符合所在段的范围。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-piecewise-function",
+                "reason": "选「分段函数常规问题」：给出分段函数以及等式或不等式，要求全部输入；各段分别求解，再检查本段范围。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "e61b6082a7fe4a51a8f34effa00de2e4",
+      "lesson_version": "db42d1b301ff84fa3966e35df7178a1c97343c6f32312ea4f113d3a0f3cb5ebb",
+      "stream_id": "e61b6082a7fe4a51a8f34effa00de2e4",
+      "snapshot_url": "/api/search/problems/89c7b3dd161a/lesson/e61b6082a7fe4a51a8f34effa00de2e4/snapshot",
+      "events_url": "/api/search/problems/89c7b3dd161a/lesson/e61b6082a7fe4a51a8f34effa00de2e4/events",
+      "websocket_url": "/api/search/problems/89c7b3dd161a/lesson/e61b6082a7fe4a51a8f34effa00de2e4/ws"
+    }
+  }
+}

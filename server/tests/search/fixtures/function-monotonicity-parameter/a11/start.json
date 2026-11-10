@@ -1,0 +1,14 @@
+{
+  "status_code": 200,
+  "body": {
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "c144129d618b48a58796706e131821dc",
+      "lesson_version": "bf4d51a692ebb7d34e32812f3beb1b006ab6ff5fb29c78874723533878619e1e",
+      "stream_id": "c144129d618b48a58796706e131821dc",
+      "snapshot_url": "/api/search/problems/649dd67cac08/lesson/c144129d618b48a58796706e131821dc/snapshot",
+      "events_url": "/api/search/problems/649dd67cac08/lesson/c144129d618b48a58796706e131821dc/events",
+      "websocket_url": "/api/search/problems/649dd67cac08/lesson/c144129d618b48a58796706e131821dc/ws"
+    }
+  }
+}

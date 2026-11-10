@@ -1,0 +1,309 @@
+{
+  "search_id": "bd31bc2a6e12",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "bee6f0cd-7b75-4abc-8415-3f3a262c6bf6",
+  "statement": "已知函数 $f(x)$ 是定义在区间 $[0,+∞)$ 上的函数，且在该区间上单调递增，则满足 $f(2x-1)<f\\left(\\frac{1}{3}\\right)$ 的 $x$ 的取值范围是____。",
+  "recognition_status": "reviewed",
+  "lesson_status": "failed",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "db31540982f73f764fc6452bf26a9f60d6a07f00a82c75f771a8a94170604ab7",
+      "width": 1175,
+      "height": 183,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/bd31bc2a6e12/figures/original?version=efffedb4443d3843d1b3f2eb323d4a2ac35850f391e4bc71bd9291adde2bbad3"
+      }
+    ],
+    "content_id": "efffedb4443d3843d1b3f2eb323d4a2ac35850f391e4bc71bd9291adde2bbad3"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "6133b62ea0b5",
+    "box": [
+      0.0508209538702111,
+      0.45427901524032827,
+      0.9695074276778733,
+      0.5615474794841735
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1175,
+      183
+    ],
+    "bytes": 14965
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________",
+  "parts": [],
+  "root": {
+    "facts": [
+      "Dom(f)=[0,+∞)",
+      "f(2*x-1) < f(1/3)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "[0,+∞)",
+          "direction": "increasing",
+          "strict": true,
+          "function_domain": "[0,+∞)",
+          "basis": "given"
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "591412cdbb371140c7ea4652971ba6b145ea906ffc06759de29116117a54650b",
+    "sent_image_sha256": [
+      "591412cdbb371140c7ea4652971ba6b145ea906ffc06759de29116117a54650b"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 72.276,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-inequality",
+        "supported": [
+          "type-monotonicity-inequality"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.monotonicity_inequality_source_not_located",
+              "target_ref": "/root/goals/0"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-inequality",
+            "label": "利用单调性解不等式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知单调性，比较同一函数的两个输入所对应的函数值。"
+            ],
+            "choice_hint": "同一个函数的两个函数值比大小，先检查输入，再按增减性转化"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是解函数值不等式。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "d7580e6e58d74383b5c6ced24ddfe79d",
+      "lesson_version": "25a84d17567b4f51bb6e6dc4da13ae5bf8f3ddfdd20af6aa4e22f21905b42439",
+      "stream_id": "d7580e6e58d74383b5c6ced24ddfe79d",
+      "snapshot_url": "/api/search/problems/bd31bc2a6e12/lesson/d7580e6e58d74383b5c6ced24ddfe79d/snapshot",
+      "events_url": "/api/search/problems/bd31bc2a6e12/lesson/d7580e6e58d74383b5c6ced24ddfe79d/events",
+      "websocket_url": "/api/search/problems/bd31bc2a6e12/lesson/d7580e6e58d74383b5c6ced24ddfe79d/ws"
+    }
+  }
+}

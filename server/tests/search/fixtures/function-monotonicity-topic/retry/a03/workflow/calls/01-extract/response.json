@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"root\":{\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"restriction\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 788,
+      "prompt_tokens": 24250,
+      "total_tokens": 25038,
+      "prompt_cache_hit_tokens": 640,
+      "prompt_cache_miss_tokens": 23610
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 628,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-04e0941e-ad03-493f-b2a0-8c0b8687b9ed",
+        "sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6499,
+        "expires_at": 1794369261,
+        "uploaded_at": 1794282861.245376
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+        "api_calls": 1,
+        "file_id": "file-api-04e0941e-ad03-493f-b2a0-8c0b8687b9ed",
+        "expires_at": 1794369261,
+        "elapsed_ms": 522
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 4751,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 788,
+          "prompt_tokens": 24250,
+          "total_tokens": 25038,
+          "completion_tokens_details": {
+            "reasoning_tokens": 563
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 640
+          },
+          "prompt_cache_hit_tokens": 640,
+          "prompt_cache_miss_tokens": 23610
+        },
+        "raw_payload": {
+          "id": "98cba3a9-6796-4d00-9e35-aeca23c8c7f9",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 788,
+            "prompt_tokens": 24250,
+            "total_tokens": 25038,
+            "completion_tokens_details": {
+              "reasoning_tokens": 563
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 640
+            },
+            "prompt_cache_hit_tokens": 640,
+            "prompt_cache_miss_tokens": 23610
+          },
+          "created": 1794282861,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"root\":{\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"restriction\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题目：函数 y=-x^2+4x+3，x∈[0,3]的单调递增区间是____。\n\n手写答案 [0,2] 不转录，填空处用横线。\n\n目标：求单调递增区间。使用 find_monotonic_intervals，expression=-x^2+4*x+3，variable=x，direction=increasing，input_domain=[0,3]，domain_role=restriction。\n\n题号 3. 是来源题号，但 original_text 可以保留。root.label 不写？题号属于来源，可以不放 label 或放 label 并标 source。原图开头 \"3.\" 是题号。我可以不设置 label，只在 original_text 里写 \"3. \"。但 original_text 保留题号可以。public_content.statement 不能含题号。\n\n无配图。\n\npublic_content：completeness=complete，privacy=separated（没有手写答案？手写答案在图片中，但不属于题目内容，且可以分离），figure=not_required。\n\nscopes: root，statement 为 \"函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是____\"，choices 为该 goal status none。\n\nroot: definitions: [\"f(x)=-x^2+4*x+3\"]。题面写 y=...，可以用内部别名 f(x)。或者 targets 用 expression 直接，不需要定义函数名？FunctionMonotonicityGoal 需要 expression，function 可选。definitions 可省略，但题面有函数关系。规则说函数定义优先放 definitions。用 f(x) 别名。但原题 y=-x^2...变量 x。定义 f(x)=-x^2+4*x+3 即可，不公开别名。\n\nfacts: 题面中的 x∈[0,3] 属于 input_domain 字段，不必放 facts。domain_role=restriction。\n\ngoals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"restriction\"}]\n\n注意 expression 用受控数学字符串，不用 $。\n\noriginal_text 用 LaTeX：函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是____。题号 3. 保留。\n\nuncertainties 无。\n\nfigure_detection: none, regions []。\n\npublic_content scopes statement 用 $...$。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5304
+  },
+  "raw_payload": {
+    "id": "98cba3a9-6796-4d00-9e35-aeca23c8c7f9",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"root\":{\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"restriction\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x \\\\in [0,3]$ 的单调递增区间是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题目：函数 y=-x^2+4x+3，x∈[0,3]的单调递增区间是____。\n\n手写答案 [0,2] 不转录，填空处用横线。\n\n目标：求单调递增区间。使用 find_monotonic_intervals，expression=-x^2+4*x+3，variable=x，direction=increasing，input_domain=[0,3]，domain_role=restriction。\n\n题号 3. 是来源题号，但 original_text 可以保留。root.label 不写？题号属于来源，可以不放 label 或放 label 并标 source。原图开头 \"3.\" 是题号。我可以不设置 label，只在 original_text 里写 \"3. \"。但 original_text 保留题号可以。public_content.statement 不能含题号。\n\n无配图。\n\npublic_content：completeness=complete，privacy=separated（没有手写答案？手写答案在图片中，但不属于题目内容，且可以分离），figure=not_required。\n\nscopes: root，statement 为 \"函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是____\"，choices 为该 goal status none。\n\nroot: definitions: [\"f(x)=-x^2+4*x+3\"]。题面写 y=...，可以用内部别名 f(x)。或者 targets 用 expression 直接，不需要定义函数名？FunctionMonotonicityGoal 需要 expression，function 可选。definitions 可省略，但题面有函数关系。规则说函数定义优先放 definitions。用 f(x) 别名。但原题 y=-x^2...变量 x。定义 f(x)=-x^2+4*x+3 即可，不公开别名。\n\nfacts: 题面中的 x∈[0,3] 属于 input_domain 字段，不必放 facts。domain_role=restriction。\n\ngoals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"restriction\"}]\n\n注意 expression 用受控数学字符串，不用 $。\n\noriginal_text 用 LaTeX：函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是____。题号 3. 保留。\n\nuncertainties 无。\n\nfigure_detection: none, regions []。\n\npublic_content scopes statement 用 $...$。"
+        }
+      }
+    ],
+    "created": 1794282861,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 788,
+      "prompt_tokens": 24250,
+      "total_tokens": 25038,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 563,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 640
+      },
+      "prompt_cache_hit_tokens": 640,
+      "prompt_cache_miss_tokens": 23610
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.306
+}

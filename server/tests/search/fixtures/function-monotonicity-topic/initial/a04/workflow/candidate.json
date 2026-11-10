@@ -1,0 +1,42 @@
+{
+  "original_text": "4. 函数 $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。",
+  "root": {
+    "definitions": [
+      "f(x)=1/sqrt(x^2-5*x-6)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "1/sqrt(x^2-5*x-6)",
+        "variable": "x",
+        "function": "f",
+        "direction": "increasing"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=\\frac{1}{\\sqrt{x^2-5x-6}}$ 的单调递增区间是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

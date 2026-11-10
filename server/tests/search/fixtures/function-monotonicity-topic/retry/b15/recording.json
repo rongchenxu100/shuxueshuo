@@ -1,0 +1,72 @@
+{
+  "recorded_at": "2026-11-10",
+  "usage": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "pipeline": "real_upload_ocr_manual_crop_extract_review_lesson_api",
+  "status": "workflow.oscillation",
+  "call_stages": [
+    "extract",
+    "review",
+    "repair"
+  ],
+  "historical_semantic_calls": 3,
+  "historical_network_attempts": 3,
+  "response_text_sha256": {
+    "workflow/calls/01-extract/response.json": "f9705326f8bf9ae76d7c4a7f8b6a55fe71661a688ce1c1b2a0a781da0774d1b7",
+    "workflow/calls/02-review/response.json": "0ad8ed1ea4b0cbde070ddba72b1ef8e1c52aa60c3e671da369b92815ab36abb0",
+    "workflow/calls/03-repair/response.json": "f9705326f8bf9ae76d7c4a7f8b6a55fe71661a688ce1c1b2a0a781da0774d1b7"
+  },
+  "api_acceptance": {
+    "case": "b15",
+    "search_id": "e0c21de9a90d",
+    "recognition_status": "failed",
+    "lesson_status": "not_started",
+    "elapsed_seconds": 96.82,
+    "calls": [
+      {
+        "stage": "extract",
+        "status": "completed"
+      },
+      {
+        "stage": "review",
+        "status": "completed"
+      },
+      {
+        "stage": "repair",
+        "status": "completed"
+      }
+    ],
+    "status": "workflow.oscillation",
+    "recognition_seconds": 96.599
+  },
+  "files": {
+    "api-final.json": "7d20b5cfc880107b42b64f269dc5c7038e6c9b380aaf1b028e6adf1b63d8d6c5",
+    "created.json": "5494005d10205e99d4718715fe619a8295d95d9f11982e4b671e2b780a9fc6bf",
+    "crop.json": "c653f641681911a08ec6c2dbdda86583c22637ded9a7cc871ae5bca62306c5e4",
+    "original.png": "4cfc3dea64fd8cb9e4b9cfa1560bbf62a885904fe819d05b403124bfc0bafc38",
+    "question.png": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+    "result.json": "c72e725e7f1001482d9c163946a8b54722c6431f5e32b4f6a00bb7a237f408a9",
+    "source.json": "9e3b6fcfa7383ee79707da659909e9dc68aaba7d28fba695302d0c691bee57a2",
+    "workflow/artifacts/a3/a36b0ee82ecb79b1e01ec2a5d8ccf9a4bba0fb1dbb84f3e4ad971081078f08cb.json": "a36b0ee82ecb79b1e01ec2a5d8ccf9a4bba0fb1dbb84f3e4ad971081078f08cb",
+    "workflow/artifacts/f9/f9705326f8bf9ae76d7c4a7f8b6a55fe71661a688ce1c1b2a0a781da0774d1b7.txt": "f9705326f8bf9ae76d7c4a7f8b6a55fe71661a688ce1c1b2a0a781da0774d1b7",
+    "workflow/calls/01-extract/file-operations.json": "f1e9bf82ba986999b9bda743cf4059b48da245494a339e1bb512182a10443405",
+    "workflow/calls/01-extract/provider-attempts/01-request.json": "fdc595b5e0e82e5bfe8784435cc3c7ad03512ab51ec96327694bc47cf5688a59",
+    "workflow/calls/01-extract/request.json": "0350ae119581afc834bad74e9e80f40b4b8ff191e4b35d594393423a519cc488",
+    "workflow/calls/01-extract/response.json": "9aa1cc58893e6d279a6f7d2865a6b8b83209d3a25d1066ad38b6503f96025b0a",
+    "workflow/calls/02-review/file-operations.json": "94ec2c877ac9f8d12e4ed7ac6b2f14e749a87a03e3e6d2ed8de633ea29916ec3",
+    "workflow/calls/02-review/provider-attempts/01-request.json": "a8fa2869e377b70e9f7eed1fb442b99fbbdda30425300439e72b735acc260221",
+    "workflow/calls/02-review/request.json": "1c30dec3f852f210dc922be0d48e585258ec08aaff774e9fd07d63a4e28992c3",
+    "workflow/calls/02-review/response.json": "818b1d7e62bf4290da931e06d14ef2da5befcba79d5537f134ee4ef4b6a346a5",
+    "workflow/calls/03-repair/file-operations.json": "94ec2c877ac9f8d12e4ed7ac6b2f14e749a87a03e3e6d2ed8de633ea29916ec3",
+    "workflow/calls/03-repair/provider-attempts/01-request.json": "acf73843c051bed228df8a3d83c1bdfa1de2fdcd06ec1666244a629b3da6f124",
+    "workflow/calls/03-repair/request.json": "9cf079c7b11f17c35fac3ac333b661094103e18861f3c8da488df7cec6ccbbe7",
+    "workflow/calls/03-repair/response.json": "a4255b2c151f10b73a634da3507c9649ae4668eb1db8039f0a45cb00dc4fcc1d",
+    "workflow/candidate.json": "4d9e613ddfb10f88f83049dadb7c1f2cbe538073dd953a52d168a34c232ef1ed",
+    "workflow/first-parsed.json": "26398796f092a92ea7f0499250e5ded0e24fcb5691534dd0530843ab3da103c0",
+    "workflow/first-response.json": "9aa1cc58893e6d279a6f7d2865a6b8b83209d3a25d1066ad38b6503f96025b0a",
+    "workflow/latest-review.json": "ff06c8dad63b9890c367ad0835b136652f6c080a79840bde6c42defcfead67ae",
+    "workflow/ledger.json": "f2c5a07014a1ff8ba094904946b1c96e1f6ff46b1f56119bd46f8d2d66db57f2",
+    "workflow/parsed.json": "26398796f092a92ea7f0499250e5ded0e24fcb5691534dd0530843ab3da103c0",
+    "workflow/workflow-result.json": "9fe09b0a5a2fab0958a82839c98582ffa6ab6f18c7b526fda0d0b341d5a4fed2",
+    "workflow/workflow.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

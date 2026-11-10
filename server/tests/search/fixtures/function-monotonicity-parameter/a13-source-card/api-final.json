@@ -1,0 +1,309 @@
+{
+  "search_id": "f4a8eb452dce",
+  "user_id": "104b67f2-9667-4b12-b172-2a1c07ba357c",
+  "problem_id": "cb19d4ba-628d-4029-bd14-80c8dd85aacf",
+  "statement": "已知函数 $f(x)=\\sqrt{a x^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1$，$x_2∈(-∞,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+  "recognition_status": "reviewed",
+  "lesson_status": "failed",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "fe18188bec2fcae1bcd8a9afa9ae386cb5872d9845164536a4b6b83c67121b38",
+      "width": 1045,
+      "height": 135,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/f4a8eb452dce/figures/original?version=f9fda8e1bc35894f7ed76dbd0e3f7ad99f148234e4d862b54b4ec853bb167cd9"
+      }
+    ],
+    "content_id": "f9fda8e1bc35894f7ed76dbd0e3f7ad99f148234e4d862b54b4ec853bb167cd9"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "7df4145803c0",
+    "box": [
+      0.09773260359655982,
+      0.3018757327080891,
+      0.9147771696637998,
+      0.3810082063305979
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1045,
+      135
+    ],
+    "bytes": 18328
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "13. 已知函数 $f(x)=\\sqrt{a x^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1$，$x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a",
+        "required_monotonicity": {
+          "expression": "sqrt(a*x^2+2*x-5*a+5)",
+          "variable": "x",
+          "function": "f",
+          "direction": "decreasing",
+          "strict": true,
+          "input_domain": "(-∞,-2]",
+          "basis": {
+            "kind": "difference_quotient",
+            "statement": "∀x1,x2∈(-∞,-2], x1≠x2: (f(x2)-f(x1))/(x2-x1)<0"
+          }
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113",
+    "sent_image_sha256": [
+      "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 44.69,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-monotonicity-parameter",
+        "supported": [
+          "type-monotonicity-parameter"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": "",
+          "diagnostics": [
+            {
+              "code": "d1.monotonicity_parameter_source_not_located",
+              "target_ref": "/root/goals/0"
+            }
+          ]
+        },
+        "d2": [
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是求参数。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          },
+          {
+            "type_id": "type-monotonicity-parameter",
+            "label": "已知函数的单调性求参",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "原目标是使函数在指定区间内增减的参数范围。"
+            ],
+            "choice_hint": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合要求"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": null
+      }
+    ],
+    "execution_status": "failed",
+    "stream": {
+      "run_id": "7779ae1f72fe47d8b157ff57b18fb7a4",
+      "lesson_version": "4e6719039218bf34f47716ceda50ef4943db8d267baeaf63e4489ea2fbd84f40",
+      "stream_id": "7779ae1f72fe47d8b157ff57b18fb7a4",
+      "snapshot_url": "/api/search/problems/f4a8eb452dce/lesson/7779ae1f72fe47d8b157ff57b18fb7a4/snapshot",
+      "events_url": "/api/search/problems/f4a8eb452dce/lesson/7779ae1f72fe47d8b157ff57b18fb7a4/events",
+      "websocket_url": "/api/search/problems/f4a8eb452dce/lesson/7779ae1f72fe47d8b157ff57b18fb7a4/ws"
+    }
+  }
+}

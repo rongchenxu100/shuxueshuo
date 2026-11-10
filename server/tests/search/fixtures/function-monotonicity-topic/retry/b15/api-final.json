@@ -1,0 +1,255 @@
+{
+  "search_id": "e0c21de9a90d",
+  "user_id": "01c8c467-aff4-49ce-ae6a-10e5129003fe",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "4cfc3dea64fd8cb9e4b9cfa1560bbf62a885904fe819d05b403124bfc0bafc38",
+      "width": 1175,
+      "height": 180,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/e0c21de9a90d/figures/original?version=f4ebf25fbaf220abb33604bcd5141cf9225ad5ff649cffed597aa4b8ef657079"
+      }
+    ],
+    "content_id": "f4ebf25fbaf220abb33604bcd5141cf9225ad5ff649cffed597aa4b8ef657079"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "37b966b1cca5",
+    "box": [
+      0.06254886630179828,
+      0.7033997655334114,
+      0.9812353401094606,
+      0.8089097303634232
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1175,
+      180
+    ],
+    "bytes": 15068
+  },
+  "state": "done",
+  "status": "workflow.oscillation",
+  "outcome": "error",
+  "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$. 若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+  "parts": [],
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "∀x∈ℝ: f(x+2)=2*f(x)",
+      "∀x∈(0,2]: f(x)=x*(x-2)",
+      "∀x∈(-∞,m]: f(x)≥-3"
+    ],
+    "goals": [
+      {
+        "kind": "find_maximum",
+        "expression": "m",
+        "variables": [
+          "m"
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "wrong_goal",
+      "source_excerpt": "则 $m$ 的最大值为____。",
+      "message": "候选将所求表示为未在目标约定中定义的 kind=\"find_maximum\"，且 expression 只写了 m，未按目录保留“求最大值”的 extremum 语义。原题要求的是在给定全称不等式条件下参数 m 的最大值；应改用目录支持的参数最值/范围目标表示并记录 maximum，不得自造目标类型。"
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+    "sent_image_sha256": [
+      "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 96.599
+}

@@ -124,6 +124,27 @@ def _formula_parts(body, start):
             for begin, end in boundaries if body[begin:end].strip()]
 
 
+def source_formulas(text, ranges):
+    """Read delimited and plain math, retaining exact source offsets.
+
+    Plain runs are read only outside $...$, never extracted from the inside of
+    another expression. Both paths still require exact structural matching.
+    """
+    from .surface_math import formula_spans
+    result = []
+    for begin, end in ranges:
+        cursor = begin
+        for match in re.finditer(r'\$([^$\n]+)\$', text[begin:end]):
+            start, finish = begin+match.start(), begin+match.end()
+            result.extend((cursor+a, cursor+b, text[cursor+a:cursor+b])
+                          for a, b in formula_spans(text[cursor:start]))
+            result.extend(_formula_parts(match[1], begin+match.start(1)))
+            cursor = finish
+        result.extend((cursor+a, cursor+b, text[cursor+a:cursor+b])
+                      for a, b in formula_spans(text[cursor:end]))
+    return result
+
+
 def _source_notation(ast):
     if ast[0] in ('name', 'number'):
         return ast[1]
@@ -166,13 +187,14 @@ def _piecewise_source_matches(body, source, matches):
 def range_goal_span(text, formulas, variable, relation, matches):
     """Bind a variable range ask, or 'this inequality's solution set'."""
     for a, b, body in formulas:
+        after = b + (text[b:b+1] == '$')
         if matches(body, variable) and re.match(
-                r'\s*(?:值?的(?:取值(?:范围|集合)|范围|解集(?:合)?)|取值(?:范围|集合)是)', text[b+1:]):
+                r'\s*(?:值?的(?:取值(?:范围|集合)|范围|解集(?:合)?)|取值(?:范围|集合)是)', text[after:]):
             return a, b
         if relation and matches(body, relation):
-            ask = re.match(r'\s*的解集(?:合)?', text[b+1:])
+            ask = re.match(r'\s*的解集(?:合)?', text[after:])
             if ask:
-                return b+1, b+1+ask.end()
+                return after, after+ask.end()
     return None
 
 

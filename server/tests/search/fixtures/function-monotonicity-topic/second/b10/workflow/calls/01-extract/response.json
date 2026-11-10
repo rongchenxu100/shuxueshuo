@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"0.已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"root\":{\"label\":\"0.\",\"definitions\":[\"f(x) = -1/x + x\",\"g(x) = x^2 - 4*x - 3\"],\"facts\":[\"∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2831,
+      "prompt_tokens": 24265,
+      "total_tokens": 27096,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 457
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 780,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-c78e9dae-7391-47f6-891c-6c71c2cb7ac1",
+        "sha256": "d01d6e1febfc599260b7b1b8749eca908ce110805d593445c2c3b9eee7bb390c",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 13968,
+        "expires_at": 1794368202,
+        "uploaded_at": 1794281802.444448
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d01d6e1febfc599260b7b1b8749eca908ce110805d593445c2c3b9eee7bb390c",
+        "api_calls": 1,
+        "file_id": "file-api-c78e9dae-7391-47f6-891c-6c71c2cb7ac1",
+        "expires_at": 1794368202,
+        "elapsed_ms": 265
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 18598,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2831,
+          "prompt_tokens": 24265,
+          "total_tokens": 27096,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2494
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 457
+        },
+        "raw_payload": {
+          "id": "bc159ae9-79e3-4fb9-84c2-8450940dafde",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2831,
+            "prompt_tokens": 24265,
+            "total_tokens": 27096,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2494
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 457
+          },
+          "created": 1794281802,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"0.已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"root\":{\"label\":\"0.\",\"definitions\":[\"f(x) = -1/x + x\",\"g(x) = x^2 - 4*x - 3\"],\"facts\":[\"∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意。图片显示：\n\"已知 f(x) = -1/x + x, g(x) = x^2 - 4x - 3，若 ∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1) < g(x2) 成立，则实数 a 的取值范围是 ______\"\n手写答案和计算不算。注意有题号0? 图片开头 \"0.已知...\" 可能是题号10? 但显示0.，保留? original_text 可以包含来源题号，但公开字段不应放题号。用户说题号不是题目内容不要放公开，但original可以保留。题号 \"0.\" 似乎在开头，可能是试卷题号，role source. 但标签是root.label? 题号可以放 label \"0.\"? 分类 source. 但公开字段不包含题号。需要判断。题干开头 \"0.已知...\" 可能是题号 10 被截掉1? 图像显示 \"0.已知\" 左侧可能截断。我们转录 original_text 是否保留 \"0.\"? 它属于题号，可以保留在 original_text。root.label 可以放 \"0.\"，root_label_role=source。公开 statement 不放题号，只写 \"已知...\"。或者如果不确定题号完整，不填 label? 但题面可见 \"0.\"。可以 label \"0.\" role source。但来源题号不能乱删题干数字。这里 \"0.\" 明显是题号。OK。\n\n需要确定字段：\ndefinitions: f(x) = -1/x + x, g(x) = x^2 - 4*x - 3。\nfacts: ∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)。注意量词顺序：∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1) < g(x2) 成立。受控字符串可写 \"∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)\"。目标 find_range symbol \"a\"。\n没有小问。original_text 包含公式。手写答案不抄。填空处横线照印刷原样：填空题通常 \"______\"，手写答案覆盖了。题干 \"则实数a的取值范围是______\" 手写答案不转录，填空处 \"______\" 或横线。图片中横线处有手写 [0,+∞)，不转录答案，保留填空横线。原文可能是 \"______\" 。用户要求填空处照印刷原样写横线。我们写 \"______\" 即可。\n原题中出现 \"成立\" 两字可能排版在下一行，完整：若 ∀x1∈[-2,-1], ∃x2∈[1,a], f(x1)<g(x2) 成立，则实数a的取值范围是______。\n注意 x1, x2 是下标。LaTeX: $x_1$, $x_2$。\nf(x) = -\\frac{1}{x} + x。g(x)=x^2-4x-3。\n量词符号。\n\npublic_content: completeness complete? 题干和条件所求完整，虽然有手写答案，但印刷题完整。figure none：无配图。privacy：题号要分离? 姓名等无。手写答案已分离? 公开 statement 不包含手写答案。题号可从公开移除。privacy=separated 因为可以明确分离题号和手写答案。但是\"题号\"在original中可见，也算来源。public scopes statement 不含题号。root.label role source. 需要 root.label? 如果填 label \"0.\"，在 public_content.root_label_role=source，且 public statement 不包含题号。这符合。但题号 \"0.\" 是否明确是来源或试卷题号？开头 \"0.\" 紧接题目，通常题号。可以认为明确。不过 \"0.\" 可能只是 \"10.\" 截断？图像确实只显示 \"0.\"。仍作为label? 如果标记 source 删除题号是允许。但题号不完整可能影响？可以保留在original_text，不设label？不过 root label 字段可选。如果设 label，就必须提供 root_label_role。这没有大碍。但是题号不完整，root.label \"0.\" 作为来源。公开不写。不确定题号完整是否需要 uncertainty? 题号不是题意，不影响。无需。\n\n数学 root:\ndefinitions: [\"f(x) = -1/x + x\", \"g(x) = x^2 - 4*x - 3\"]\nfacts: [\"∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)\"]\ngoals: [{\"kind\":\"find_range\",\"symbol\":\"a\"}]\n注意 x1 x2 不是单字母变量? 受控字符串允许 x_1? 目录记法变量可用 x_1? 数学字符串中写 x_1 和 x_2 比较合适。量词变量可以写 x_1, x_2。受控目录 quantifier 语法：∀变量∈定义域: 关系。变量可能 x_1。字符串可以 \"∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)\"。facts 中可以用 x_1。没有要求变量单字母，可以。图片是 x1, x2 下标。用 x_1。\n\n需要检查目标：题中“实数a的取值范围”是 find_range symbol a。条件中 a 也出现在 x2∈[1,a]，所以 a 是参数。没有其他目标。好。\n\noriginal_text 应在 $...$ 内集合花括号。没有集合花括号。量词符号和不等式。保留所有符号。\n我们写：\n\"0.已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\"\n注意 \"成立\" 完整。图片中 \"成\" 后下一行 \"立\"。OK。\n\npublic_content.scope root statement 不放题号，不放手写答案。statement:\n\"已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\"\nchoices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\nfigure_detection status none, regions [].\ncompleteness complete, privacy separated, figure not_required, root_label_role source? 如果 root.label 存在。要设 root.label \"0.\" 吗？设了的话，public scopes 中 statement 不应有 \"0.\"。我们已经在 statement 不含。root_label_role=source。但是题号 \"0.\" 可能不是完整来源题号，但角色分类 source。可以。\nuncertainties? 无。可能手写答案覆盖填空，但题意完整。题号是否被截断不是题意。无需 uncertainty。但是 original_text 中 \"0.已知\" 可能有题号，没问题。\n\n需输出 JSON 只包含 required? 可以包含 uncertainties? root 可省略 uncertainties。不输出额外字段，只 schema 字段。root 定义里 label可选，definitions, facts, goals。children 可选。uncertainties 可选。public_content 字段完整。\n需要 figure_detection 必须。隐私等。\n\n检查 public_content scopes 与 root 作用域一一对应。只有 root。target_ref 与 goals 对应。好。\n\n需要注意 original_text 中的 LaTeX 反斜杠在 JSON 字符串必须双写。例如 \"\\\\frac\", \"\\\\forall\", \"\\\\in\", \"\\\\exists\"。root 中的数学字符串不写反斜杠，但我们可以写 Unicode 或普通。facts 中使用 Unicode ∀ ∃ ∈。definitions 中写 \"-1/x\"。好。public_content statement 中 $...$ 的 LaTeX 反斜杠双写。\n\n问题：root.definitions 中 f(x) = -1/x + x 需要保留分数结构吗？受控数学字符串可写 \"-1/x + x\" 等价。原题是 -\\frac{1}{x}+x。不写 LaTeX。好。g(x) 保留 x^2 - 4*x - 3。\nfacts 条件量词中 f(x_1) < g(x_2)。是否需要在 facts 写成立? 不写自然语言。量词字符串足够。\n目标 find_range symbol a。函数单调性之类不添加，虽然条件可转为最值，不求解。好。\n\npublic_content.statement 中公式使用 LaTeX 排版。注意量词和逗号。原文 \"∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1)<g(x2)成立\" 我们保留逗号或中文逗号？公开可以和原文一致，但 LaTeX。写 \"若 $\\forall x_1 \\in [-2,-1]$，$\\exists x_2 \\in [1,a]$，$f(x_1)<g(x_2)$ 成立\"。\noriginal_text 也类似。注意 original_text 应完整题干变量、量词措辞。包含 \"若\" 和 \"成立\"。\n\n是否手写答案 \"[0,+∞)\" 不应出现在 original_text。我们写空格横线。图片中填空处被手写覆盖，可能原印刷有下划线。写 \"______\" 可以。用户要求填空处照印刷原样写横线。可以用 \"______\" 而不是 \"$\\underline{\\quad}$\"。可以。\n\n现在思考题号：图片开头 \"0.已知\" 是否保留一个 \"0.\"? original_text 题目第一行左边缘显示 \"0.已知...\"，前面可能被截掉的 \"1\" 不在图里。为完整转录可见字符，保留 \"0.\"。root.label 可以 \"0.\"。如果 label 是 source，公开 statement 删除。这符合“不能泛化删除题干开头的数字、括号或数学条件”，但题号明确。OK。\n\nroot 中 label \"0.\" 存在，label 作为对象ID? 不。root_label_role 在 public_content 设置。好。\n\n有没有小问？无。\nuncertainties：也许题号不完整，可报 ambiguous? 但不需要。学生手写答案可见，不报告。\nfigure_detection none: 无图。\n\n最终 JSON。需要符合 JSON 对象。\n\n注意 schema root 的 definitions 是 array string, facts array string, goals array. additionalProperties false. root 可以包含 label, definitions, facts, goals, children, uncertainties。我们只用 label, definitions, facts, goals。不输出 children。uncertainties 可省略。不输出额外字段。\npublic_content scopes 的 statement 不能包含小问编号和选项。我们不含题号。好。\nchoices target_ref /root/goals/0 status none selection_mode none options [].\ncompleteness complete, privacy separated, figure not_required, root_label_role source, scopes.\nfigure_detection status none regions [].\n\n需要不要输出 family_id等。只输出 JSON。\n\n让我们生成。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 18897
+  },
+  "raw_payload": {
+    "id": "bc159ae9-79e3-4fb9-84c2-8450940dafde",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"0.已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"root\":{\"label\":\"0.\",\"definitions\":[\"f(x) = -1/x + x\",\"g(x) = x^2 - 4*x - 3\"],\"facts\":[\"∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)=-\\\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\\\forall x_1\\\\in[-2,-1]$，$\\\\exists x_2\\\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意。图片显示：\n\"已知 f(x) = -1/x + x, g(x) = x^2 - 4x - 3，若 ∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1) < g(x2) 成立，则实数 a 的取值范围是 ______\"\n手写答案和计算不算。注意有题号0? 图片开头 \"0.已知...\" 可能是题号10? 但显示0.，保留? original_text 可以包含来源题号，但公开字段不应放题号。用户说题号不是题目内容不要放公开，但original可以保留。题号 \"0.\" 似乎在开头，可能是试卷题号，role source. 但标签是root.label? 题号可以放 label \"0.\"? 分类 source. 但公开字段不包含题号。需要判断。题干开头 \"0.已知...\" 可能是题号 10 被截掉1? 图像显示 \"0.已知\" 左侧可能截断。我们转录 original_text 是否保留 \"0.\"? 它属于题号，可以保留在 original_text。root.label 可以放 \"0.\"，root_label_role=source。公开 statement 不放题号，只写 \"已知...\"。或者如果不确定题号完整，不填 label? 但题面可见 \"0.\"。可以 label \"0.\" role source。但来源题号不能乱删题干数字。这里 \"0.\" 明显是题号。OK。\n\n需要确定字段：\ndefinitions: f(x) = -1/x + x, g(x) = x^2 - 4*x - 3。\nfacts: ∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)。注意量词顺序：∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1) < g(x2) 成立。受控字符串可写 \"∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)\"。目标 find_range symbol \"a\"。\n没有小问。original_text 包含公式。手写答案不抄。填空处横线照印刷原样：填空题通常 \"______\"，手写答案覆盖了。题干 \"则实数a的取值范围是______\" 手写答案不转录，填空处 \"______\" 或横线。图片中横线处有手写 [0,+∞)，不转录答案，保留填空横线。原文可能是 \"______\" 。用户要求填空处照印刷原样写横线。我们写 \"______\" 即可。\n原题中出现 \"成立\" 两字可能排版在下一行，完整：若 ∀x1∈[-2,-1], ∃x2∈[1,a], f(x1)<g(x2) 成立，则实数a的取值范围是______。\n注意 x1, x2 是下标。LaTeX: $x_1$, $x_2$。\nf(x) = -\\frac{1}{x} + x。g(x)=x^2-4x-3。\n量词符号。\n\npublic_content: completeness complete? 题干和条件所求完整，虽然有手写答案，但印刷题完整。figure none：无配图。privacy：题号要分离? 姓名等无。手写答案已分离? 公开 statement 不包含手写答案。题号可从公开移除。privacy=separated 因为可以明确分离题号和手写答案。但是\"题号\"在original中可见，也算来源。public scopes statement 不含题号。root.label role source. 需要 root.label? 如果填 label \"0.\"，在 public_content.root_label_role=source，且 public statement 不包含题号。这符合。但题号 \"0.\" 是否明确是来源或试卷题号？开头 \"0.\" 紧接题目，通常题号。可以认为明确。不过 \"0.\" 可能只是 \"10.\" 截断？图像确实只显示 \"0.\"。仍作为label? 如果标记 source 删除题号是允许。但题号不完整可能影响？可以保留在original_text，不设label？不过 root label 字段可选。如果设 label，就必须提供 root_label_role。这没有大碍。但是题号不完整，root.label \"0.\" 作为来源。公开不写。不确定题号完整是否需要 uncertainty? 题号不是题意，不影响。无需。\n\n数学 root:\ndefinitions: [\"f(x) = -1/x + x\", \"g(x) = x^2 - 4*x - 3\"]\nfacts: [\"∀x1∈[-2,-1]: ∃x2∈[1,a]: f(x1) < g(x2)\"]\ngoals: [{\"kind\":\"find_range\",\"symbol\":\"a\"}]\n注意 x1 x2 不是单字母变量? 受控字符串允许 x_1? 目录记法变量可用 x_1? 数学字符串中写 x_1 和 x_2 比较合适。量词变量可以写 x_1, x_2。受控目录 quantifier 语法：∀变量∈定义域: 关系。变量可能 x_1。字符串可以 \"∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)\"。facts 中可以用 x_1。没有要求变量单字母，可以。图片是 x1, x2 下标。用 x_1。\n\n需要检查目标：题中“实数a的取值范围”是 find_range symbol a。条件中 a 也出现在 x2∈[1,a]，所以 a 是参数。没有其他目标。好。\n\noriginal_text 应在 $...$ 内集合花括号。没有集合花括号。量词符号和不等式。保留所有符号。\n我们写：\n\"0.已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\"\n注意 \"成立\" 完整。图片中 \"成\" 后下一行 \"立\"。OK。\n\npublic_content.scope root statement 不放题号，不放手写答案。statement:\n\"已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______\"\nchoices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\nfigure_detection status none, regions [].\ncompleteness complete, privacy separated, figure not_required, root_label_role source? 如果 root.label 存在。要设 root.label \"0.\" 吗？设了的话，public scopes 中 statement 不应有 \"0.\"。我们已经在 statement 不含。root_label_role=source。但是题号 \"0.\" 可能不是完整来源题号，但角色分类 source。可以。\nuncertainties? 无。可能手写答案覆盖填空，但题意完整。题号是否被截断不是题意。无需 uncertainty。但是 original_text 中 \"0.已知\" 可能有题号，没问题。\n\n需输出 JSON 只包含 required? 可以包含 uncertainties? root 可省略 uncertainties。不输出额外字段，只 schema 字段。root 定义里 label可选，definitions, facts, goals。children 可选。uncertainties 可选。public_content 字段完整。\n需要 figure_detection 必须。隐私等。\n\n检查 public_content scopes 与 root 作用域一一对应。只有 root。target_ref 与 goals 对应。好。\n\n需要注意 original_text 中的 LaTeX 反斜杠在 JSON 字符串必须双写。例如 \"\\\\frac\", \"\\\\forall\", \"\\\\in\", \"\\\\exists\"。root 中的数学字符串不写反斜杠，但我们可以写 Unicode 或普通。facts 中使用 Unicode ∀ ∃ ∈。definitions 中写 \"-1/x\"。好。public_content statement 中 $...$ 的 LaTeX 反斜杠双写。\n\n问题：root.definitions 中 f(x) = -1/x + x 需要保留分数结构吗？受控数学字符串可写 \"-1/x + x\" 等价。原题是 -\\frac{1}{x}+x。不写 LaTeX。好。g(x) 保留 x^2 - 4*x - 3。\nfacts 条件量词中 f(x_1) < g(x_2)。是否需要在 facts 写成立? 不写自然语言。量词字符串足够。\n目标 find_range symbol a。函数单调性之类不添加，虽然条件可转为最值，不求解。好。\n\npublic_content.statement 中公式使用 LaTeX 排版。注意量词和逗号。原文 \"∀x1 ∈ [-2,-1], ∃x2 ∈ [1,a], f(x1)<g(x2)成立\" 我们保留逗号或中文逗号？公开可以和原文一致，但 LaTeX。写 \"若 $\\forall x_1 \\in [-2,-1]$，$\\exists x_2 \\in [1,a]$，$f(x_1)<g(x_2)$ 成立\"。\noriginal_text 也类似。注意 original_text 应完整题干变量、量词措辞。包含 \"若\" 和 \"成立\"。\n\n是否手写答案 \"[0,+∞)\" 不应出现在 original_text。我们写空格横线。图片中填空处被手写覆盖，可能原印刷有下划线。写 \"______\" 可以。用户要求填空处照印刷原样写横线。可以用 \"______\" 而不是 \"$\\underline{\\quad}$\"。可以。\n\n现在思考题号：图片开头 \"0.已知\" 是否保留一个 \"0.\"? original_text 题目第一行左边缘显示 \"0.已知...\"，前面可能被截掉的 \"1\" 不在图里。为完整转录可见字符，保留 \"0.\"。root.label 可以 \"0.\"。如果 label 是 source，公开 statement 删除。这符合“不能泛化删除题干开头的数字、括号或数学条件”，但题号明确。OK。\n\nroot 中 label \"0.\" 存在，label 作为对象ID? 不。root_label_role 在 public_content 设置。好。\n\n有没有小问？无。\nuncertainties：也许题号不完整，可报 ambiguous? 但不需要。学生手写答案可见，不报告。\nfigure_detection none: 无图。\n\n最终 JSON。需要符合 JSON 对象。\n\n注意 schema root 的 definitions 是 array string, facts array string, goals array. additionalProperties false. root 可以包含 label, definitions, facts, goals, children, uncertainties。我们只用 label, definitions, facts, goals。不输出 children。uncertainties 可省略。不输出额外字段。\npublic_content scopes 的 statement 不能包含小问编号和选项。我们不含题号。好。\nchoices target_ref /root/goals/0 status none selection_mode none options [].\ncompleteness complete, privacy separated, figure not_required, root_label_role source, scopes.\nfigure_detection status none regions [].\n\n需要不要输出 family_id等。只输出 JSON。\n\n让我们生成。"
+        }
+      }
+    ],
+    "created": 1794281802,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2831,
+      "prompt_tokens": 24265,
+      "total_tokens": 27096,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2494,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 457
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 18.899
+}

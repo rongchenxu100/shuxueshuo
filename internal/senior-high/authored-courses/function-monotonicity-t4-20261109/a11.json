@@ -1,0 +1,38 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a11-v1",
+  "reviewer": "Codex：依据用户原图与 T4 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-02.jpg",
+      "sha256": "d3198e25da822f6aec75cd1eb688510dec28cda309aef6b21ff7debb8c200c2f",
+      "location": "FM-A11，图 2"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $y=ax^{2}-2x+3$ 在区间 $[2,+\\infty)$ 上单调递减，求实数 $a$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "y=a*x^2-2*x+3"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "a*x^2-2*x+3",
+            "variable": "x",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "[2,+∞)"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-∞,0]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

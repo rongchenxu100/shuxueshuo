@@ -1,0 +1,39 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a05-v1",
+  "reviewer": "Codex：依据用户原图与 T4 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+      "location": "FM-A05，图 1"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=x^{2}-mx+5$，若 $f(x)$ 在区间 $[1,2]$ 上单调递增，求实数 $m$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=x^2-m*x+5"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "m",
+          "required_monotonicity": {
+            "expression": "x^2-m*x+5",
+            "variable": "x",
+            "direction": "increasing",
+            "strict": true,
+            "input_domain": "[1,2]",
+            "function": "f"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(-∞,2]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

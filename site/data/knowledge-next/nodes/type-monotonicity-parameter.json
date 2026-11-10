@@ -2,19 +2,48 @@
   "id": "type-monotonicity-parameter",
   "kind": "problem_type",
   "label": "已知函数的单调性求参",
-  "status": "planned",
-  "summary": "已知函数的单调性求参；后续题型建设。",
+  "status": "active",
+  "summary": "已知含参函数在指定区间上的严格增减性，求使该性质成立的完整参数范围。",
   "source": "函数单调性专题计划",
+  "choice_hint": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合要求",
   "features": [
     {
       "cue": "原目标是使函数在指定区间内增减的参数范围。"
     }
   ],
-  "confuse": [],
+  "confuse": [
+    {
+      "text": "原目标是求完整单调区间或证明增减，不是求参数。",
+      "ref": "type-function-monotonicity"
+    },
+    {
+      "text": "原目标是借助单调性解函数值不等式，参数在输入表达式里。",
+      "ref": "type-monotonicity-inequality"
+    },
+    {
+      "text": "原目标是指定最值或量词比较求参，不是区间单调性条件。",
+      "ref": "type-monotonicity-extremum"
+    }
+  ],
   "knowledge": [
     "function-monotonicity"
   ],
-  "methods": [],
-  "rules": [],
-  "examples": []
+  "methods": [
+    "method-monotonicity-parameter"
+  ],
+  "rules": [
+    "rule-monotonicity-parameter-method"
+  ],
+  "examples": [
+    {
+      "title": "二次函数区间递增求参",
+      "prompt": "已知 $f(x)=x^{2}-mx+5$ 在 $[1,2]$ 上单调递增，求 $m$。",
+      "solution": [
+        "开口向上，对称轴 $x=\\dfrac{m}{2}$。",
+        "区间在轴的右侧（含端点）要求 $\\dfrac{m}{2}\\le1$。",
+        "得 $m\\in(-\\infty,2]$。"
+      ],
+      "source": "函数单调性 FM-T4"
+    }
+  ]
 }

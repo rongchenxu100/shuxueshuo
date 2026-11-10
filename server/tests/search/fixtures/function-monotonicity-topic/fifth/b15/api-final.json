@@ -1,0 +1,638 @@
+{
+  "search_id": "667efe212ee5",
+  "user_id": "6c979347-b6d6-4bae-8aaa-6bd5690b3a72",
+  "problem_id": "83e66169-4b5d-4f42-a63a-51c3b4a0860b",
+  "statement": "设函数 $f(x)$ 的定义域为 $R$，满足 $f(x+2)=2f(x)$，且当 $x∈(0,2]$ 时，$f(x)=x(x-2)$．若对任意 $x∈(-∞,m]$，都有 $f(x)≥-3$，则 $m$ 的最大值为 $\\underline{\\qquad}$．",
+  "recognition_status": "reviewed",
+  "lesson_status": "failed",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "4cfc3dea64fd8cb9e4b9cfa1560bbf62a885904fe819d05b403124bfc0bafc38",
+      "width": 1175,
+      "height": 180,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/667efe212ee5/figures/original?version=f4ebf25fbaf220abb33604bcd5141cf9225ad5ff649cffed597aa4b8ef657079"
+      }
+    ],
+    "content_id": "f4ebf25fbaf220abb33604bcd5141cf9225ad5ff649cffed597aa4b8ef657079"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "c09f43e25cf5",
+    "box": [
+      0.06254886630179828,
+      0.7033997655334114,
+      0.9812353401094606,
+      0.8089097303634232
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1175,
+      180
+    ],
+    "bytes": 15068
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "15. 设函数 $f(x)$ 的定义域为 $R$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$．若\n对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为 $\\underline{\\qquad}$．",
+  "parts": [],
+  "root": {
+    "label": "15.",
+    "facts": [
+      "Dom(f)=ℝ",
+      "∀x∈ℝ: f(x+2)=2*f(x)",
+      "∀x∈(0,2]: f(x)=x*(x-2)",
+      "∀x∈(-∞,m]: f(x) ≥ -3"
+    ],
+    "goals": [
+      {
+        "kind": "find_maximum",
+        "expression": "m"
+      }
+    ],
+    "uncertainties": []
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c",
+    "sent_image_sha256": [
+      "9782f8c6917254fdbedd75a29a44f929baf0f292c21c223db55411ccbd6f935c"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 82.565,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "15.",
+        "status": "resolved",
+        "primary": "type-monotonicity-extremum",
+        "supported": [
+          "type-monotonicity-extremum"
+        ],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "d2": [
+          {
+            "type_id": "type-monotonicity-extremum",
+            "label": "利用单调性求最值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+            ],
+            "choice_hint": "直接求最值，或把量词比较／指定点最值条件转化成参数范围"
+          },
+          {
+            "type_id": "type-function-monotonicity",
+            "label": "判断函数的单调性",
+            "role": "conflict",
+            "feedback": "原目标是求完整单调区间或证明增减，不是求最值或转化成参数范围。",
+            "reasons": [],
+            "choice_hint": "原目标是判断增减或求完整单调区间"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "667efe212ee5//root/goals/0",
+            "graphVersion": "23ed20a6e70d83607e08fce4b4db53646141457756abb27f3e969cfd13d24adb",
+            "problem": {
+              "text": "设函数 $f(x)$ 的定义域为 $R$，满足 $f(x+2)=2f(x)$，且当 $x∈(0,2]$ 时，$f(x)=x(x-2)$．若对任意 $x∈(-∞,m]$，都有 $f(x)≥-3$，则 $m$ 的最大值为 $\\underline{\\qquad}$．"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-monotonicity-extremum",
+                      "label": "利用单调性求最值",
+                      "note": "直接求最值，或把量词比较／指定点最值条件转化成参数范围"
+                    },
+                    {
+                      "value": "type-function-monotonicity",
+                      "label": "判断函数的单调性",
+                      "note": "原目标是判断增减或求完整单调区间",
+                      "feedback": "原目标是求完整单调区间或证明增减，不是求最值或转化成参数范围。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-monotonicity-extremum"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-monotonicity-extremum",
+                  "type-function-monotonicity"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-monotonicity-extremum"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用单调性求最值」；另外 1 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "type-monotonicity-extremum",
+                  "kind": "problem_type",
+                  "label": "利用单调性求最值",
+                  "summary": "先确认有效区间和取得性，再求最值；量词比较与指定点最值条件转化为参数约束。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-monotonicity",
+                  "kind": "problem_type",
+                  "label": "判断函数的单调性",
+                  "summary": "确定具体函数的单调区间，或证明在给定区间上的增减性。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method",
+                  "kind": "judgment_rule",
+                  "subtype": "method_selection",
+                  "label": "最值题的选法判断",
+                  "summary": "按直接最值、量词比较与指定最值条件选择路线。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-extremum-condition-parameter",
+                  "kind": "method",
+                  "label": "指定最值求参法",
+                  "summary": "求指定点的实际值，再检查全域界，合并每段的参数要求。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "确定原目标和条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "piece-inputs",
+                      "title": "按原分段绑定子问题",
+                      "calls": []
+                    },
+                    {
+                      "id": "borrowed",
+                      "title": "分别解决恒成立子问题",
+                      "calls": [
+                        "method-interval-extremum",
+                        "method-separation"
+                      ]
+                    },
+                    {
+                      "id": "ranges",
+                      "title": "核对各段的分类与取得性",
+                      "calls": []
+                    },
+                    {
+                      "id": "conditions",
+                      "title": "收回各段参数条件",
+                      "calls": [
+                        "skill-quantified-range"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "回到原目标收束",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验原题",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-monotonicity-extremum",
+                  "kind": "method",
+                  "label": "单调性求最值法",
+                  "summary": "根据同一区间的增减确定位置，检查取得性，再回代原式。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "确定原目标和条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "inputs",
+                      "title": "绑定各项的共同范围",
+                      "calls": []
+                    },
+                    {
+                      "id": "children",
+                      "title": "判断各项的单调性",
+                      "calls": [
+                        "method-monotonicity-structure"
+                      ]
+                    },
+                    {
+                      "id": "operations",
+                      "title": "判断运算后的方向",
+                      "calls": [
+                        "skill-monotonicity-operations"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "回到原目标收束",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "独立核验原题",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-quantified-range-comparison",
+                  "kind": "method",
+                  "label": "量词比较求参法",
+                  "summary": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "分清量词角色",
+                      "calls": []
+                    },
+                    {
+                      "id": "ranges",
+                      "title": "求需要的像集或最值",
+                      "calls": []
+                    },
+                    {
+                      "id": "conditions",
+                      "title": "按量词转换参数条件",
+                      "calls": [
+                        "skill-quantified-range"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "合并各分类的参数",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "回验原量词",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-extremum-condition-parameter",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-extremum-condition-parameter",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "specified",
+                      "condition": "求指定点的实际值，再检查全域界，合并每段的参数要求。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-monotonicity-extremum",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-monotonicity-extremum",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "direct",
+                      "condition": "根据同一区间的增减确定位置，检查取得性，再回代原式。"
+                    }
+                  ]
+                },
+                {
+                  "id": "rule-monotonicity-extremum-method|selects|method-quantified-range-comparison",
+                  "from": "rule-monotonicity-extremum-method",
+                  "to": "method-quantified-range-comparison",
+                  "type": "selects",
+                  "occurrences": [
+                    {
+                      "branch": "quantified",
+                      "condition": "保留任意与存在的次序，比较完整像集或已取得的最值，再解参数条件。"
+                    }
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-extremum-condition-parameter",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-extremum-condition-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-monotonicity-extremum",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-monotonicity-extremum",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|candidate|method-quantified-range-comparison",
+                  "from": "type-monotonicity-extremum",
+                  "to": "method-quantified-range-comparison",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-monotonicity-extremum|method_rule|rule-monotonicity-extremum-method",
+                  "from": "type-monotonicity-extremum",
+                  "to": "rule-monotonicity-extremum-method",
+                  "type": "method_rule",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": []
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "68148390beccba8a8af7a58b5ecc688d8c0ed3e0b66fd9ca5918bf1f78da491c"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "667efe212ee5//root/goals/0",
+            "bundleVersion": "68148390beccba8a8af7a58b5ecc688d8c0ed3e0b66fd9ca5918bf1f78da491c",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D2",
+                "answer": "type-monotonicity-extremum",
+                "reason": "选「利用单调性求最值」：借助函数在指定区间上的单调性，确定最大值或最小值及能否取到。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "cd44c80dc13142729e0d3c95f9765b11",
+      "lesson_version": "d031db246d1666e02e5922959f8e9f5388b316996a2d0cdde6addbdd61a83baa",
+      "stream_id": "cd44c80dc13142729e0d3c95f9765b11",
+      "snapshot_url": "/api/search/problems/667efe212ee5/lesson/cd44c80dc13142729e0d3c95f9765b11/snapshot",
+      "events_url": "/api/search/problems/667efe212ee5/lesson/cd44c80dc13142729e0d3c95f9765b11/events",
+      "websocket_url": "/api/search/problems/667efe212ee5/lesson/cd44c80dc13142729e0d3c95f9765b11/ws"
+    }
+  }
+}

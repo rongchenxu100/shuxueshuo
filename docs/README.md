@@ -45,9 +45,12 @@
 - [FM-T1：实现范围、原图与专题验收](function-monotonicity-t1-acceptance.md)
 - [FM-T2 利用单调性求最值：题型开发设计](function-monotonicity-extremum-problem-type-design.md)
 - [FM-T2：实现范围、拍题与专题验收](function-monotonicity-t2-acceptance.md)
+- [函数单调性：四张原照片逐题集成验收](function-monotonicity-full-photo-acceptance.md)
 - [FM-T3 利用单调性解不等式：题型开发设计](function-monotonicity-inequality-problem-type-design.md)
 - [FM-T3：R0 实现范围与专题验收](function-monotonicity-t3-acceptance.md)
 - [FM-T4 已知函数的单调性求参：题型开发设计](function-monotonicity-parameter-problem-type-design.md)
+- [FM-T4：真实照片 OCR 与课程集成验收](function-monotonicity-t4-acceptance.md)
+- [FM-T5 证明抽象函数的单调性：题型开发设计](function-monotonicity-abstract-proof-problem-type-design.md)
 
 ## 拍题与交互课程
 

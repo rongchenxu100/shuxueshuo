@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"function_domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2197,
+      "prompt_tokens": 24246,
+      "total_tokens": 26443,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 438
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 668,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-fbd14fe8-15f6-4000-bb32-26a12378906e",
+        "sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 13562,
+        "expires_at": 1794367782,
+        "uploaded_at": 1794281382.396231
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "41a8c146adfefc8c3e7f90bea81b7b63fea7473b1800756f269c03ccbe989925",
+        "api_calls": 1,
+        "file_id": "file-api-fbd14fe8-15f6-4000-bb32-26a12378906e",
+        "expires_at": 1794367782,
+        "elapsed_ms": 308
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 15569,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2197,
+          "prompt_tokens": 24246,
+          "total_tokens": 26443,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1954
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 438
+        },
+        "raw_payload": {
+          "id": "843b97b9-e5fe-47fe-956e-1fa04d104140",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2197,
+            "prompt_tokens": 24246,
+            "total_tokens": 26443,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1954
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 438
+          },
+          "created": 1794281382,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"function_domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意。题目是：\n\"4. 设函数 f(x) 是 R 上的减函数，若 f(m^2+2) > f(2m+5)，则实数 m 的取值范围是____\"\n手写答案 {m | -1 < m < 3} 不转录，手写推导 m^2+2<2m+5 不转录。填空处横线保留。\n\n需要判断配图：没有图。figure none.\n\nRoot:\ndefinitions: f(x) 是 R 上的减函数? 这算已知单调性事实，应该放 facts 或 function_monotonicity 目标字段？题目条件 \"f(x) 是 R 上的减函数\" 是已知函数单调性。根中 facts 可写 ∀x1,x2? 但受控记法没有直接表达\"减函数\"除了 function_monotonicity 字段仅在 find_range 目标中。这是求 m 范围目标，且题面给定函数单调性可用于推导。根据规则，find_range.function_monotonicity 表示原题给定的已知单调事实：function、domain、direction、strict；basis=given。可以用在目标中。同时 facts 中是否还需写 f(x) 是 R 上的减函数？目标字段可以承载。root facts 可留空或定义 f? 只给\"设函数 f(x) 是 R 上的减函数\"，没有解析式。definitions 不放函数体因为没有解析式。条件\"f(x)是R上的减函数\"通过 function_monotonicity 字段记录在目标里。另一个条件 f(m^2+2) > f(2m+5) 是题设关系，放 facts。目标 find_range symbol \"m\"，function_monotonicity 记录函数 f 在 ℝ 上严格递减？中文\"减函数\"通常严格递减，但题面没有\"严格\"二字；数学上\"减函数\"常指非严格递减，但高中教材\"减函数\"定义是任意 x1<x2 有 f(x1)>f(x2)，是严格递减。这里 strict 字段须按原题保留。原题\"减函数\"通常严格递减，但不确定。规则说 strict true 表示严格单调，false 表示非严格；按原题保留。原题只写\"减函数\"没有\"严格\"，但中文教材中减函数定义是严格递减。应该 strict=true? 需要谨慎。许多提取任务把\"减函数\"视为严格递减。但字段要求\"按原题保留\"，原题未写严格。不过\"减函数\"本身在高中定义就是严格减函数？高中数学教材一般：如果对于定义域I内某个区间D上的任意两个自变量x1,x2，当x1<x2时，都有f(x1)>f(x2)，那么就说f(x)在区间D上是减函数。所以是严格。但题面用\"减函数\"不是\"单调递减\"，仍严格。可以 strict=true。但是否要报告 ambiguous? 可能不必。\n\n注意题目：f(m^2+2) > f(2m+5)。由于 f 是 R 上的减函数，所以 m^2+2 < 2m+5。求 m 范围。我们不求解，只提取。\n\nRoot facts: [\"f(m^2+2) > f(2m+5)\"]。definitions 空或? \"设函数f(x)是R上的减函数\" 不是函数解析式，是性质，目标字段 function_monotonicity 记录。也可以 facts 里写\"f 在 ℝ 上严格递减\"？受控目录没有直接单调谓词，只有目标字段。因此放目标字段。\n\n目标：{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。symbol m。\n\n但 function_monotonicity 是 find_range 的字段。函数完整定义域明确给出 R，所以可加 function_domain:\"ℝ\"？字段允许 function_domain 仅当原题明确给出函数 f 的完整定义域。这里\"R 上的减函数\"是否明确完整定义域？\"函数 f(x) 是 R 上的减函数\"意味着定义域为 R 且递减。可填 function_domain:\"ℝ\"。但需谨慎：这明确给出定义域 R。可以填。\n\n公开内容：\noriginal_text 完整转录:\n\"4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\n注意原图 R 是手写圈？印刷 R 带空心? 看起来是 R，可能表示实数集。转录用 \\mathbb{R} 或 R。保留题号 4. 可以。填空横线。\n\npublic_content.scopes: 一个 root。statement 不含题号，保留题干:\n\"设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\nchoices: target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\ncompleteness complete, privacy separated? 图片有手写答案和推导，但公开字段不包含，可以 separated? 需要姓名班级等没有。手写答案分离了。可以 separated。figure not_required. figure_detection status none, regions [].\n\nroot.label? 原题有编号 4. 是否 root.label \"4\"？题干有题号 4. 但 public_content.scope statement 不含题号。root.label 可放题号？root_label_role source 仅当原图明确来源或试卷题号。这里 \"4.\" 是题号，可以 label=\"4\"，root_label_role=\"source\"。但规则说不要从 root 或答案推断选项；题号可保留。如果 root.label 存在需 role。可选。为了简单，可以不放 label? 但 original_text 有 4.。root.label 可不填。没有小问。不需要。\n\nuncertainties: 手写答案不报告。没有不确定。但 \"减函数\" strict 是否有歧义？可能不用报告。题目完整。\n\n需要注意 public_content statement 与 root 数学式一致，且不要包含手写答案。\n\nRoot facts 里的数学式不能出现 f 表达式？f 调用可以，因为 f 是函数名，未定义解析式，已知性质。facts [\"f(m^2+2) > f(2m+5)\"]。definitions 可以写 \"f(x) 是 R 上的减函数\" 吗？definitions 只放曲线/函数定义，不放性质。不放。\n\n目标内 function_monotonicity 的 domain \"ℝ\" 与 direction decreasing，strict true。function_domain \"ℝ\". basis \"given\"。\n\n注意字段要求 function_monotonicity 中 function、domain、direction、strict 必填；basis 可选? 列表中 basis 是枚举，required 没有列出 basis? 在 schema 中 function_monotonicity required [\"function\",\"domain\",\"direction\",\"strict\"]，basis 可选。但说明\"basis 只填 given\"。可填 \"given\"。function_domain 可选。\n\n也许原题说\"R上的减函数\"没有\"严格\"，strict=true 可能引起争议。我觉得可以。如果 strict=false 则后续会推出非严格不等式 ≤ 而非 <，但题目原式 f(a)>f(b) 和减函数严格性才能推出 a<b。高中语境下减函数是严格递减。所以 true。\n\n目标 find_range 与 function_monotonicity 合法。\n\noutput JSON. Ensure JSON escaped LaTeX backslashes. original_text 中 $...$ 内反斜杠需写成 \\\\。例如 $\\\\mathbb{R}$。JSON字符串需要双重转义：在 JSON 文本中写作 \"\\\\mathbb{R}\"？我们输出的是 JSON 对象，内部字符串需要包含反斜杠。要写 \"\\\\mathbb{R}\" 在 JSON 中表示实际 \\mathbb{R}。最终响应是 JSON。可以。\n\nOriginal_text: \"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\nNote in JSON source, \"\\mathbb\" needs backslash escaping as \"\\\\mathbb\". Good.\n\npublic statement 同样。\n\nRoot facts 中使用 m^2+2 等。\n\nPotential issue: root facts 中的 f(m^2+2)>f(2m+5) 与 function_monotonicity 同义。可以。\n\nNo definitions. Could root empty definitions omitted.\n\nGoal's symbol \"m\" lowercase.\n\nShould we include condition f is decreasing in facts? The target field only. The schema allows. If root facts only has inequality, public statement includes decreasing. Fine.\n\nUncertainties none.\n\nFigure_detection status none.\n\nLet's produce.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 15912
+  },
+  "raw_payload": {
+    "id": "843b97b9-e5fe-47fe-956e-1fa04d104140",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"root\":{\"facts\":[\"f(m^2+2) > f(2m+5)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"function_domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。题目是：\n\"4. 设函数 f(x) 是 R 上的减函数，若 f(m^2+2) > f(2m+5)，则实数 m 的取值范围是____\"\n手写答案 {m | -1 < m < 3} 不转录，手写推导 m^2+2<2m+5 不转录。填空处横线保留。\n\n需要判断配图：没有图。figure none.\n\nRoot:\ndefinitions: f(x) 是 R 上的减函数? 这算已知单调性事实，应该放 facts 或 function_monotonicity 目标字段？题目条件 \"f(x) 是 R 上的减函数\" 是已知函数单调性。根中 facts 可写 ∀x1,x2? 但受控记法没有直接表达\"减函数\"除了 function_monotonicity 字段仅在 find_range 目标中。这是求 m 范围目标，且题面给定函数单调性可用于推导。根据规则，find_range.function_monotonicity 表示原题给定的已知单调事实：function、domain、direction、strict；basis=given。可以用在目标中。同时 facts 中是否还需写 f(x) 是 R 上的减函数？目标字段可以承载。root facts 可留空或定义 f? 只给\"设函数 f(x) 是 R 上的减函数\"，没有解析式。definitions 不放函数体因为没有解析式。条件\"f(x)是R上的减函数\"通过 function_monotonicity 字段记录在目标里。另一个条件 f(m^2+2) > f(2m+5) 是题设关系，放 facts。目标 find_range symbol \"m\"，function_monotonicity 记录函数 f 在 ℝ 上严格递减？中文\"减函数\"通常严格递减，但题面没有\"严格\"二字；数学上\"减函数\"常指非严格递减，但高中教材\"减函数\"定义是任意 x1<x2 有 f(x1)>f(x2)，是严格递减。这里 strict 字段须按原题保留。原题\"减函数\"通常严格递减，但不确定。规则说 strict true 表示严格单调，false 表示非严格；按原题保留。原题只写\"减函数\"没有\"严格\"，但中文教材中减函数定义是严格递减。应该 strict=true? 需要谨慎。许多提取任务把\"减函数\"视为严格递减。但字段要求\"按原题保留\"，原题未写严格。不过\"减函数\"本身在高中定义就是严格减函数？高中数学教材一般：如果对于定义域I内某个区间D上的任意两个自变量x1,x2，当x1<x2时，都有f(x1)>f(x2)，那么就说f(x)在区间D上是减函数。所以是严格。但题面用\"减函数\"不是\"单调递减\"，仍严格。可以 strict=true。但是否要报告 ambiguous? 可能不必。\n\n注意题目：f(m^2+2) > f(2m+5)。由于 f 是 R 上的减函数，所以 m^2+2 < 2m+5。求 m 范围。我们不求解，只提取。\n\nRoot facts: [\"f(m^2+2) > f(2m+5)\"]。definitions 空或? \"设函数f(x)是R上的减函数\" 不是函数解析式，是性质，目标字段 function_monotonicity 记录。也可以 facts 里写\"f 在 ℝ 上严格递减\"？受控目录没有直接单调谓词，只有目标字段。因此放目标字段。\n\n目标：{\"kind\":\"find_range\",\"symbol\":\"m\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"ℝ\",\"direction\":\"decreasing\",\"strict\":true,\"basis\":\"given\"}}。symbol m。\n\n但 function_monotonicity 是 find_range 的字段。函数完整定义域明确给出 R，所以可加 function_domain:\"ℝ\"？字段允许 function_domain 仅当原题明确给出函数 f 的完整定义域。这里\"R 上的减函数\"是否明确完整定义域？\"函数 f(x) 是 R 上的减函数\"意味着定义域为 R 且递减。可填 function_domain:\"ℝ\"。但需谨慎：这明确给出定义域 R。可以填。\n\n公开内容：\noriginal_text 完整转录:\n\"4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\n注意原图 R 是手写圈？印刷 R 带空心? 看起来是 R，可能表示实数集。转录用 \\mathbb{R} 或 R。保留题号 4. 可以。填空横线。\n\npublic_content.scopes: 一个 root。statement 不含题号，保留题干:\n\"设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\nchoices: target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\ncompleteness complete, privacy separated? 图片有手写答案和推导，但公开字段不包含，可以 separated? 需要姓名班级等没有。手写答案分离了。可以 separated。figure not_required. figure_detection status none, regions [].\n\nroot.label? 原题有编号 4. 是否 root.label \"4\"？题干有题号 4. 但 public_content.scope statement 不含题号。root.label 可放题号？root_label_role source 仅当原图明确来源或试卷题号。这里 \"4.\" 是题号，可以 label=\"4\"，root_label_role=\"source\"。但规则说不要从 root 或答案推断选项；题号可保留。如果 root.label 存在需 role。可选。为了简单，可以不放 label? 但 original_text 有 4.。root.label 可不填。没有小问。不需要。\n\nuncertainties: 手写答案不报告。没有不确定。但 \"减函数\" strict 是否有歧义？可能不用报告。题目完整。\n\n需要注意 public_content statement 与 root 数学式一致，且不要包含手写答案。\n\nRoot facts 里的数学式不能出现 f 表达式？f 调用可以，因为 f 是函数名，未定义解析式，已知性质。facts [\"f(m^2+2) > f(2m+5)\"]。definitions 可以写 \"f(x) 是 R 上的减函数\" 吗？definitions 只放曲线/函数定义，不放性质。不放。\n\n目标内 function_monotonicity 的 domain \"ℝ\" 与 direction decreasing，strict true。function_domain \"ℝ\". basis \"given\"。\n\n注意字段要求 function_monotonicity 中 function、domain、direction、strict 必填；basis 可选? 列表中 basis 是枚举，required 没有列出 basis? 在 schema 中 function_monotonicity required [\"function\",\"domain\",\"direction\",\"strict\"]，basis 可选。但说明\"basis 只填 given\"。可填 \"given\"。function_domain 可选。\n\n也许原题说\"R上的减函数\"没有\"严格\"，strict=true 可能引起争议。我觉得可以。如果 strict=false 则后续会推出非严格不等式 ≤ 而非 <，但题目原式 f(a)>f(b) 和减函数严格性才能推出 a<b。高中语境下减函数是严格递减。所以 true。\n\n目标 find_range 与 function_monotonicity 合法。\n\noutput JSON. Ensure JSON escaped LaTeX backslashes. original_text 中 $...$ 内反斜杠需写成 \\\\。例如 $\\\\mathbb{R}$。JSON字符串需要双重转义：在 JSON 文本中写作 \"\\\\mathbb{R}\"？我们输出的是 JSON 对象，内部字符串需要包含反斜杠。要写 \"\\\\mathbb{R}\" 在 JSON 中表示实际 \\mathbb{R}。最终响应是 JSON。可以。\n\nOriginal_text: \"4. 设函数 $f(x)$ 是 $\\\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____\"\nNote in JSON source, \"\\mathbb\" needs backslash escaping as \"\\\\mathbb\". Good.\n\npublic statement 同样。\n\nRoot facts 中使用 m^2+2 等。\n\nPotential issue: root facts 中的 f(m^2+2)>f(2m+5) 与 function_monotonicity 同义。可以。\n\nNo definitions. Could root empty definitions omitted.\n\nGoal's symbol \"m\" lowercase.\n\nShould we include condition f is decreasing in facts? The target field only. The schema allows. If root facts only has inequality, public statement includes decreasing. Fine.\n\nUncertainties none.\n\nFigure_detection status none.\n\nLet's produce."
+        }
+      }
+    ],
+    "created": 1794281382,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2197,
+      "prompt_tokens": 24246,
+      "total_tokens": 26443,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1954,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 438
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 15.913
+}

@@ -1,0 +1,72 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a09-v1",
+  "label": "二次函数区间递减求参 · A09",
+  "path": "/topics/function-monotonicity/q09a/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a09-v1.json",
+  "types": [
+    "type-monotonicity-parameter"
+  ],
+  "statement": "已知函数 $f(x)=x^{2}-2(a-1)x+2$ 在 $(-\\infty,4]$ 上单调递减，求实数 $a$ 的取值范围。",
+  "routes": {
+    "monotonicity-parameter": {
+      "label": "单调性条件求参法",
+      "methods": [
+        "method-monotonicity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "3575633044f8570b590e7b48#1": {
+          "title": "读清单调性要求",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "16c6094e14f88a8986c58277#1": {
+          "title": "对称轴与指定区间",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "6ccd3ddf586205973325bbde#1": {
+          "title": "回到原目标",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-parameter#conclude",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "7fbddf5c2a837108434e1fbb7611f196063339a485f23bdb9a276e9d98c22de7",
+  "practice_version": "11183d2183f3a0f042caf0305249afd9188e5e3c10f231e7f28bc484fd24232a"
+}

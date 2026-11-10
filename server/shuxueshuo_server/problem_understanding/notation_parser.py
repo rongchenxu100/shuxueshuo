@@ -20,10 +20,11 @@ def node(kind, *args):
 
 
 TOKEN = re.compile(
-    r"\s*(?:(\d+(?:\.\d+)?)|([A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*)|(<=|>=|!=|\*\*|[+*/^=<>−\-(),{}\[\]:|∈∉∩∪∖⊆⊊⊇⊋∅∧∨∀∃ℝ∞∠△°⟂∥√]))"
+    r"\s*(?:(\d+(?:\.\d+)?)|([A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*)|(<=|>=|!=|\*\*|[+*/^=<>−\-(),{}\[\]:|∈∉∩∪∖⊆⊊⊇⊋∅∧∨→∀∃ℝ∞∠△°⟂∥√]))"
 )
 SUBSET_RELATIONS = {"⊆", "⊊", "⊇", "⊋"}
 PREC = {
+    "→": 1,
     "∨": 5,
     "∧": 10,
     "=": 20,
@@ -109,6 +110,7 @@ def clean(text):
         "⫌": "⊋",
         "Ø": "∅",
         "**": "^",
+        "⇒": "→",
     }.items():
         text = text.replace(a, b)
     # A distinct set operator avoids interpreting arithmetic subtraction as a
@@ -261,13 +263,30 @@ class Parser:
             left = self.make("call", "abs", self.expr())
             self.take("|")
         elif token in ("∀", "∃"):
-            var = self.take()
-            if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", var):
+            variables = [self.take()]
+            while self.peek() == ',':
+                self.take()
+                variables.append(self.take())
+            if (any(not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", var) for var in variables)
+                    or len(set(variables)) != len(variables)):
                 raise NotationError("notation.quantifier_variable")
             self.take("∈")
             domain = self.expr(21)
+            def captures(tree):
+                return (tree[0] == 'name' and tree[1] in variables
+                        or any(captures(child) for child in tree[1:] if isinstance(child, list)))
+            if len(variables) > 1 and captures(domain):
+                raise NotationError('notation.quantifier_domain_dependency')
+            guard = None
+            if self.peek() == ',':
+                self.take()
+                guard = self.expr()
             self.take(":")
-            left = self.make("quantifier", token, var, domain, self.expr())
+            left = self.expr()
+            if guard is not None:
+                left = self.make('implies' if token == '∀' else 'and', guard, left)
+            for var in reversed(variables):
+                left = self.make("quantifier", token, var, domain, left)
         elif token in ("∠", "△"):
             points = self.take()
             if not re.fullmatch("[A-Z]{3}", points):
@@ -358,12 +377,12 @@ class Parser:
             left = self.make("degrees", left)
         while PREC.get(self.peek(), -1) >= minimum:
             op = self.take()
-            right = self.expr(PREC[op] + (0 if op == "^" else 1))
+            right = self.expr(PREC[op] + (0 if op in ("^", "→") else 1))
             if op in RELATIONS and left[0] in RELATIONS:
                 previous = left
                 left = self.make("and", previous, self.make(op, previous[2], right))
             else:
-                left = self.make({"∧": "and", "∨": "or", "∖": "set_difference"}.get(op, op), left, right)
+                left = self.make({"∧": "and", "∨": "or", "→": "implies", "∖": "set_difference"}.get(op, op), left, right)
         self.depth -= 1
         return left
 

@@ -359,6 +359,12 @@
       "method-monotonicity-inequality#inputs",
       "method-monotonicity-inequality#conclude"
     ],
+    "analyze_monotonicity_parameter": [
+      "method-monotonicity-parameter#prepare"
+    ],
+    "confirm_monotonicity_parameter": [
+      "method-monotonicity-parameter#conclude"
+    ],
     "prepare_extremum_children": [
       "method-monotonicity-extremum#prepare"
     ],

@@ -6,6 +6,7 @@ import sympy as sp
 
 from .absolute_graph_presentation import choice_card
 from .math_values import latex
+from .monotonicity_parameter_presentation import _lines
 from .trajectory import decode_value
 
 OPS = {'<': '<', '<=': r'\le', '>': '>', '>=': r'\ge'}
@@ -16,20 +17,13 @@ def _set_latex(value):
         return r'\mathbb{R}'
     if value == sp.S.EmptySet:
         return r'\varnothing'
-    return latex(value)
+    return latex(value).replace(r', \infty\right', r', +\infty\right')
 
 
 def _load(value, *keys):
     if isinstance(value, dict) and any(key in value for key in keys):
         return value
     return decode_value(value)
-
-
-def _lines(items):
-    items = [item for item in items if item]
-    if len(items) <= 1:
-        return items[0] if items else ''
-    return r'\begin{gathered}' + r'\\'.join(items) + r'\end{gathered}'
 
 
 def _membership(var, value):
@@ -108,7 +102,7 @@ def phase_views(values):
             '原比较', original,
             '题给单调性', rf'{fn}\text{{ 在 }}{mono}\text{{ 上 }}{arrow}',
             wrong,
-            _lines([original, rf'{fn}\ {arrow}\text{{ on }}{mono}']),
+            _lines([original, rf'{fn}\ \text{{在}}\ {mono}\ \text{{上}}\ {arrow}']),
         )]
 
     if phase == 'inputs':
@@ -139,7 +133,7 @@ def phase_views(values):
             '已确认的条件', stem,
             '输入比较', converted,
             [rf'{latex(u)}\,{op}\,{latex(v)}' for op in _wrong_ops(OPS[model['converted_op']])],
-            _lines([stem, converted]),
+            _lines([stem, rf'\Rightarrow {converted}']),
         )]
 
     if phase == 'conclude':
@@ -179,7 +173,7 @@ def presentation(values):
     left, right = view['derivation']['items']
     return {
         'formula_title': view['title'],
-        'formula_explanation': view['question'],
+        'formula_explanation': '\n\n'.join('$$'+v['proof']+'$$' for v in views),
         'derivation_caption': view['title'],
         'derivation_left_label': left['label'],
         'derivation_left_math': left['math'],

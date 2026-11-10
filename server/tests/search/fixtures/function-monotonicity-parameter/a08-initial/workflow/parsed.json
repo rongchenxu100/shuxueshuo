@@ -1,0 +1,183 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": false,
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.facts[0]",
+          "source": "∀x_1,x_2∈ℝ: x_1≠x_2 → (f(x_1)-f(x_2))/(x_1-x_2)<0",
+          "code": "notation.parse",
+          "reason_code": "notation.unrecognized_token",
+          "message": "notation.unrecognized_token: at 20:  → (f(x_1)-f"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {}
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "2af7da5c805d188efd1eab9279e8acf04fcc867001936986c9298996e60e3bea",
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_definition",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          [
+            "call",
+            "piecewise",
+            [
+              "-",
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ]
+              ],
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ]
+            ],
+            [
+              ">",
+              [
+                "bound",
+                "function_argument"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ],
+            [
+              "-",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "*",
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ],
+                [
+                  "bound",
+                  "function_argument"
+                ]
+              ]
+            ],
+            [
+              "<=",
+              [
+                "bound",
+                "function_argument"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:scalar:a",
+            "scalar"
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      },
+      {
+        "ref": "r:scalar:a",
+        "name": "a",
+        "kind": "scalar",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"-\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"ref\",\"r:scalar:a\",\"scalar\"]],[\">\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]],[\"-\",[\"number\",\"1\"],[\"*\",[\"ref\",\"r:scalar:a\",\"scalar\"],[\"bound\",\"function_argument\"]]],[\"<=\",[\"bound\",\"function_argument\"],[\"number\",\"2\"]]]]": {
+        "path": "r.definitions[0]",
+        "source": "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      }
+    },
+    "normalization_report": {}
+  },
+  "binding": {
+    "problem_id": "c430c4f752f1",
+    "source_sha256": "2e02f081f11a1c63e90acd544895274002fd33f05231a4850cf75155c1e5c1ad"
+  }
+}

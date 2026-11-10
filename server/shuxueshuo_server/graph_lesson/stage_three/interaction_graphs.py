@@ -448,7 +448,7 @@ def _axis_extrema(expression, axis, low, high):
 
 
 def axis_explorer(function, variable, parameter, domain, *, breakpoints, start, target, allowed=sp.S.Reals,
-                  within=None, title, description, caption=None):
+                  within=None, title, description, caption=None, min_span=0.5):
     """Move ``a x^2 + b(p) x + c(p)`` by its axis, with fixed ``a`` and affine ``b``.
 
     The inverse parameter map and quadratic-or-lower constant are expressed in ``h=-b/(2a)``,
@@ -484,7 +484,7 @@ def axis_explorer(function, variable, parameter, domain, *, breakpoints, start, 
     turns = [sp.simplify(axis.subs(parameter, point)) for point in breakpoints]
     anchors = [_float(value) for value in (*ends, *turns)] or [0.0]
     low, high = min(anchors), max(anchors)
-    span = max(high - low, 0.5)
+    span = max(high - low, min_span)
     step = _step(span) / 25
     track = [low - span * 0.6, high + span * 0.6]
     reach = _axis_reach(axis, parameter, allowed, step)
@@ -519,6 +519,13 @@ def axis_explorer(function, variable, parameter, domain, *, breakpoints, start, 
     values.extend(_axis_extrema(constant_by_axis.as_expr() - leading * h**2, h,
                                 max(axis_low, domain.start), min(axis_high, domain.end)))
     ys = list(map(_float, values))
+    if target in ("increasing", "decreasing"):
+        # Monotonicity depends only on the axis, so the vertex height is held
+        # fixed; otherwise its vertical travel flattens the interval part.
+        sample = [_float(end) for end in ends] + [x for x in xs if domain.contains(sp.Float(x)) is sp.true]
+        lift = abs(a) * max((x - t) ** 2 for x in sample for t in window_track)
+        c, c1, c2 = (0.35 if a > 0 else 1.35) * lift, 0.0, a
+        ys = [0.0, c, c + (lift if a > 0 else -lift)]
     y_span = max(max(ys) - min(ys), 1.0)
     bounds = [xs[0], xs[1], min(ys) - y_span * 0.15, max(ys) + y_span * 0.15]
     marks = [{"x": _float(turn), "label": short_label(turn)} for turn in turns
@@ -536,6 +543,72 @@ def axis_explorer(function, variable, parameter, domain, *, breakpoints, start, 
     if c1 != 0 or c2 != 0:
         params["constant_by_axis"] = {"linear": c1, "quadratic": c2}
     graph = {"kind": "axis_explorer", "params": params}
+    if caption:
+        graph["caption"] = caption
+    return graph
+
+
+def coefficient_explorer(function, variable, parameter, domain, *, within, start, target, title, description,
+                         caption=None, reach=2):
+    """Slide the parameter of ``c2(p) x^2 + c1(p) x + c0(p) + r(p)/x`` over one case ``within`` of it.
+
+    ``within`` is an interval of parameters (open ends are stepped inside, an unbounded side is cut at
+    ``reach`` from the finite one). The page colours the interval part by trend under ``target``.
+    A ``1/x`` term needs an interval on one side of 0 and no ``x^2`` term.
+    """
+    if not isinstance(domain, sp.Interval) or not isinstance(within, sp.Interval):
+        raise GraphUnavailable("domain_unsupported")
+    expression = sp.expand(function)
+    scaled = sp.expand(sp.cancel(expression * variable))
+    if not scaled.is_polynomial(variable) or sp.degree(scaled, variable) > 3:
+        raise GraphUnavailable("family_unsupported")
+    poly = sp.Poly(scaled, variable)
+    reciprocal = poly.nth(0)
+    if reciprocal != 0 and (poly.nth(3) != 0 or not (domain.inf >= 0 or domain.sup <= 0)):
+        raise GraphUnavailable("family_unsupported")
+    rows = []
+    for degree in (3, 2, 1, 0) if reciprocal != 0 else (3, 2, 1):
+        coefficient = poly.nth(degree)
+        if coefficient.free_symbols - {parameter} or not coefficient.is_polynomial(parameter):
+            raise GraphUnavailable("coefficient_unsupported")
+        rows.append([_float(value) for value in sp.Poly(coefficient, parameter).all_coeffs()])
+    step = 0.05
+    low = within.start if _finite(within.start) else (within.end - reach if _finite(within.end) else -reach)
+    high = within.end if _finite(within.end) else low + reach
+    low, high = _float(low) + (step if within.left_open else 0), _float(high) - (step if within.right_open else 0)
+    if low >= high:
+        raise GraphUnavailable("parameter_track_empty")
+    value = min(high, max(low, round(_float(start) / step) * step))
+    ends = [point for point in (domain.start, domain.end) if _finite(point)]
+    anchors = [_float(point) for point in ends] + [0.0]
+    x_low, x_high = min(anchors) - 1.5, max(anchors) + 1.5
+    if not _finite(domain.end):
+        x_high += 4
+    if not _finite(domain.start):
+        x_low -= 4
+    at = sp.lambdify(variable, expression.subs(parameter, sp.Float(value)))
+    samples = [x_low + (x_high - x_low) * k / 40 for k in range(41)]
+    ys = [0.0]
+    if reciprocal != 0:
+        # Near the asymptote x=0 the values blow up; size the window by the piece itself, and
+        # by both slider ends, since the sign of c/x flips with the parameter.
+        samples = [x for x in samples if abs(x) >= 0.3 and domain.contains(sp.Float(x)) is sp.true]
+        for end in (low, high):
+            other = sp.lambdify(variable, expression.subs(parameter, sp.Float(end)))
+            ys += [float(other(x)) for x in samples]
+    ys += [float(at(x)) for x in samples]
+    y_span = max(max(ys) - min(ys), 1.0)
+    bounds = [x_low, x_high, min(ys) - y_span * 0.12, max(ys) + y_span * 0.12]
+    graph = {"kind": "coefficient_explorer", "params": {
+        "bounds": bounds, "xTicks": ticks(ends, x_low, x_high), "variable": str(variable),
+        "interval": [_float(domain.start) if _finite(domain.start) else None,
+                     _float(domain.end) if _finite(domain.end) else None],
+        "interval_closed": [not domain.left_open and _finite(domain.start), not domain.right_open and _finite(domain.end)],
+        "points": [], "title": title, "description": description, "coefficients": rows,
+        "parameter": {"name": str(parameter), "min": round(low, 6), "max": round(high, 6), "step": step,
+                      "value": round(value, 6)},
+        "target": target,
+    }}
     if caption:
         graph["caption"] = caption
     return graph

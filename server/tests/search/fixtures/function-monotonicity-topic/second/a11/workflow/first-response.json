@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2444,
+      "prompt_tokens": 24265,
+      "total_tokens": 26709,
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 201
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 702,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-5deb97b9-74e9-4831-a351-5908331a2b1a",
+        "sha256": "7c7adc1bdba5e33f92f60bee44a72f4010c480c702839eda6ae17e5044224484",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8689,
+        "expires_at": 1794367176,
+        "uploaded_at": 1794280776.022474
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "7c7adc1bdba5e33f92f60bee44a72f4010c480c702839eda6ae17e5044224484",
+        "api_calls": 1,
+        "file_id": "file-api-5deb97b9-74e9-4831-a351-5908331a2b1a",
+        "expires_at": 1794367176,
+        "elapsed_ms": 136
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 16448,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2444,
+          "prompt_tokens": 24265,
+          "total_tokens": 26709,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2192
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 24064
+          },
+          "prompt_cache_hit_tokens": 24064,
+          "prompt_cache_miss_tokens": 201
+        },
+        "raw_payload": {
+          "id": "d2ad8a0a-5602-42b7-921e-231ec2125a28",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2444,
+            "prompt_tokens": 24265,
+            "total_tokens": 26709,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2192
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 24064
+            },
+            "prompt_cache_hit_tokens": 24064,
+            "prompt_cache_miss_tokens": 201
+          },
+          "created": 1794280776,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要回答 JSON。需要从图片提取题目。图片显示题号11，文字：已知函数 y=ax^2-2x+3 在[2,+∞)上是减函数，则实数a的取值范围是____。手写答案和批注不转录。需要输出 original_text, root, public_content, figure_detection? response schema includes figure_detection under public_content? Actually public_content has figure_detection property, and top-level required original_text root public_content. figure_detection is inside public_content according schema. But user says标记配图是否存在及其位置; likely public_content.figure_detection. Need produce JSON only.\n\nNeed root math expression. Scope. Problem single no subquestions. label? 原图题号 11。root.label? Could include \"11\" but if root label exists need root_label_role, and public_content root_label_role. Is题号 a source label? 原图明确是题号 11 -> source. But do we need include root.label? Could omit label to avoid classification? Schema permits label optional. Original_text should preserve题号? \"完整题干原文\" maybe include \"11.\"? They said original_text保留原题转录; public statement remove来源题号. Root label optional. We can omit root.label. But original_text can include \"11. 已知...\"? It says保留原有中文叙述...不抄手写答案；题号 maybe source. Original_text can preserve题号? They said original_text保留完整题干原文; and 来源只能在明确分离时排除. Public statement no题号. Hmm. Need decide. In original_text likely include \"11. 已知函数...\" because readable. But \"完整题干\" could include题号. We'll include \"11. 已知函数 ...\". root doesn't need label.\n\nNeed express math. Definition: y = a*x^2 - 2*x + 3. Fact: \"在[2,+∞)上是减函数\" = function y ... decreasing on interval. Need represent monotonic fact? Could use facts string perhaps \"decreasing(y, [2,∞))\"? Catalog doesn't have decreasing except function_monotonicity in goal, not facts. For find_range required_monotonicity maybe goal for parameter a with required monotonicity. This is a parameter range problem: \"则实数a的取值范围是\". We can use goal find_range symbol a with required_monotonicity: expression \"a*x^2-2*x+3\", variable x, direction decreasing, strict? \"减函数\" often非严格? In Chinese \"减函数\" sometimes means decreasing (could strict? textbook: 减函数 means for x1<x2, f(x1)>f(x2) strict? Actually \"减函数\" often decreasing strictly? In high school, 增函数/减函数定义 often strict: if x1<x2 then f(x1)<f(x2). But \"减函数\" likely strict decreasing. Catalog required_monotonicity strict const true only! It requires strict true. So okay strict true. function maybe f? Not named. expression. input_domain \"[2,+∞)\"? Need use interval notation with +∞. Since title says \"在[2,+∞)上是减函数\". Use \"[2,+∞)\". Required monotonicity expression should be original function expression \"a*x^2-2*x+3\"; variable \"x\"; direction \"decreasing\"; strict true; input_domain \"[2,+∞)\". basis stated, statement empty string. Could use function? no. Goal: {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}. Is this allowed? find_range schema oneOf symbol with required_monotonicity okay. Facts? Maybe root definitions: \"y=a*x^2-2*x+3\" or \"f(x)=a*x^2-2*x+3\"? Catalog: function definition uses f(t)=...; original uses y=... . For required monotonicity expression is enough; but public content should retain y=... Could root.definitions include \"f(x)=a*x^2-2*x+3\"? But original says y. Better root.definitions: [\"y=a*x^2-2*x+3\"]? Catalog definitions can be curve/function definitions, \"f(t) = ...\"; curve_definition \"Γ: y=...\" not appropriate. They say y=原式需要函数引用时，可用不冲突 f(x)=原式作为内部别名，原变量和原式不变；题面已有函数名则沿用. Here no function name; could use f(x)=... internal alias. But public statement keep y. Root.definitions can include \"f(x)=a*x^2-2*x+3\" internal alias. However facts not need. Goal required_monotonicity expression includes \"a*x^2-2*x+3\" and variable x. Alternatively define \"y=a*x^2-2*x+3\" and goal expression same; but expression field expects含参数原函数表达式. That's fine. Yet root definitions maybe not necessary; but \"已知函数 y=...\" should be in root. Use definitions [\"f(x)=a*x^2-2*x+3\"]? Could confuse because original y not f. But internal alias allowed. Public statement preserves y.\n\nNeed facts? The monotonicity condition is included in required_monotonicity within goal; no fact needed. But root facts maybe []? The target object is symbol a with required monotonicity. No other condition.\n\nNeed public_content scopes: one for /root. statement should be own题干 conditions and所求, no题号. \"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\" Need use LaTeX. In JSON string need escape backslashes. Use $y=ax^2-2x+3$; $[2,+\\infty)$; $a$. Need blanks underscores? \"____\" maybe. Use \"____\". Should include \"则实数 $a$ 的取值范围是____。\" Good.\n\nChoices: goal target_ref \"/root/goals/0\". status none, selection_mode none, options [].\n\npublic_content.completeness complete, privacy separated? There is handwritten answer and annotations. Since we exclude them;题号 source not in statement. Is privacy separated? The handwritten answer is present in image; public_content removed. Yes separated? It says privacy covers root content definitions etc; only all suitable public. We don't include handwritten. So separated. figure not_required because no figure. figure_detection status none regions [].\n\nRoot uncertainties? There is handwritten answer and scribbles; not relevant. Could note unreadable? No need. But image contains handwritten answer \"(-∞,0]\" and scribbles under; we exclude. Are there uncertainties? Maybe \"减函数\" strictness? Catalog only strict true; but Chinese \"减函数\" may mean strictly decreasing in common high school. No uncertainty. Could include? not necessary.\n\nNeed root.label? If omit, no root_label_role. But public_content root_label_role optional only if root.label exists. Fine. But original_text starts \"11.\" Is that okay.\n\nNeed ensure JSON string backslashes. We need valid JSON. Use double quotes, escape backslashes in LaTeX: \"$y=ax^2-2x+3$\" no backslash. \"$[2,+\\\\infty)$\" within original_text/public statement need backslash for \\infty. JSON string must be \"\\\\infty\". \"$a$\". In original_text, \"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\" Need maybe \"取值范围是\" with blank. That's fine.\n\nRoot JSON:\n{\n \"definitions\": [\"f(x)=a*x^2-2*x+3\"],\n \"facts\": [],\n \"goals\": [\n   {\n     \"kind\": \"find_range\",\n     \"symbol\": \"a\",\n     \"required_monotonicity\": {\n       \"expression\": \"a*x^2-2*x+3\",\n       \"variable\": \"x\",\n       \"direction\": \"decreasing\",\n       \"strict\": true,\n       \"input_domain\": \"[2,∞)\"? Need catalog notation: [2,+∞) allowed? It says [a,∞). Use \"[2,∞)\"? examples \"u∈[3,∞)\". For interval inf, use [2,∞). Could use \"[2,+∞)\"? Catalog syntax \"[a,∞)\". Use \"[2,∞)\". In JSON Unicode ∞ directly okay. \n       \"basis\": {\"kind\":\"stated\",\"statement\":\"\"}\n     }\n   }\n ],\n children []? optional. no need. uncertainties []? optional. But maybe omit.\n}\n\nNeed check required_monotonicity schema input_domain maxLength 512. \"[2,∞)\" fine. expression \"a*x^2-2*x+3\". variable \"x\". direction decreasing. strict true. basis object kind stated statement \"\".\nCould include function? Not necessary.\n\nBut root.definitions uses f alias; required expression uses original expression. Fine. Public statement has y original. There is no fact \"decreasing\" outside goal; target's required_monotonicity includes. Good.\n\nQuestion: \"则实数a的取值范围是\" find_range symbol a. required_monotonicity is the condition. This is exactly.\n\nCould there be issue: required_monotonicity expression \"a*x^2-2*x+3\" but original function y; if a=0 linear decreasing on [2,∞)? yes. This field okay.\n\nNeed public_content.scopes statement: include all definitions/conditions/goal. It says scope own statement, formula $…$. Use \"$y=ax^2-2x+3$\". Need not include root definitions f alias; statement must use original y. Good.\n\nOriginal_text full. Should include \"11.\"? Hmm if original_text includes题号 and public statement excludes, privacy separated. Fine.\n\nNeed figure_detection: status none, regions [].\n\nNeed output only JSON. Ensure no markdown. \nNeed \"original_text\" string no newline? Fine. \nMaybe \"original_text\" must be max 32768, okay.\n\nNeed maybe \"public_content.root_label_role\" omitted because root.label omitted. Good.\n\nLet's produce.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 16610
+  },
+  "raw_payload": {
+    "id": "d2ad8a0a-5602-42b7-921e-231ec2125a28",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"root\":{\"definitions\":[\"f(x)=a*x^2-2*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"a*x^2-2*x+3\",\"variable\":\"x\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"[2,∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON。需要从图片提取题目。图片显示题号11，文字：已知函数 y=ax^2-2x+3 在[2,+∞)上是减函数，则实数a的取值范围是____。手写答案和批注不转录。需要输出 original_text, root, public_content, figure_detection? response schema includes figure_detection under public_content? Actually public_content has figure_detection property, and top-level required original_text root public_content. figure_detection is inside public_content according schema. But user says标记配图是否存在及其位置; likely public_content.figure_detection. Need produce JSON only.\n\nNeed root math expression. Scope. Problem single no subquestions. label? 原图题号 11。root.label? Could include \"11\" but if root label exists need root_label_role, and public_content root_label_role. Is题号 a source label? 原图明确是题号 11 -> source. But do we need include root.label? Could omit label to avoid classification? Schema permits label optional. Original_text should preserve题号? \"完整题干原文\" maybe include \"11.\"? They said original_text保留原题转录; public statement remove来源题号. Root label optional. We can omit root.label. But original_text can include \"11. 已知...\"? It says保留原有中文叙述...不抄手写答案；题号 maybe source. Original_text can preserve题号? They said original_text保留完整题干原文; and 来源只能在明确分离时排除. Public statement no题号. Hmm. Need decide. In original_text likely include \"11. 已知函数...\" because readable. But \"完整题干\" could include题号. We'll include \"11. 已知函数 ...\". root doesn't need label.\n\nNeed express math. Definition: y = a*x^2 - 2*x + 3. Fact: \"在[2,+∞)上是减函数\" = function y ... decreasing on interval. Need represent monotonic fact? Could use facts string perhaps \"decreasing(y, [2,∞))\"? Catalog doesn't have decreasing except function_monotonicity in goal, not facts. For find_range required_monotonicity maybe goal for parameter a with required monotonicity. This is a parameter range problem: \"则实数a的取值范围是\". We can use goal find_range symbol a with required_monotonicity: expression \"a*x^2-2*x+3\", variable x, direction decreasing, strict? \"减函数\" often非严格? In Chinese \"减函数\" sometimes means decreasing (could strict? textbook: 减函数 means for x1<x2, f(x1)>f(x2) strict? Actually \"减函数\" often decreasing strictly? In high school, 增函数/减函数定义 often strict: if x1<x2 then f(x1)<f(x2). But \"减函数\" likely strict decreasing. Catalog required_monotonicity strict const true only! It requires strict true. So okay strict true. function maybe f? Not named. expression. input_domain \"[2,+∞)\"? Need use interval notation with +∞. Since title says \"在[2,+∞)上是减函数\". Use \"[2,+∞)\". Required monotonicity expression should be original function expression \"a*x^2-2*x+3\"; variable \"x\"; direction \"decreasing\"; strict true; input_domain \"[2,+∞)\". basis stated, statement empty string. Could use function? no. Goal: {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}. Is this allowed? find_range schema oneOf symbol with required_monotonicity okay. Facts? Maybe root definitions: \"y=a*x^2-2*x+3\" or \"f(x)=a*x^2-2*x+3\"? Catalog: function definition uses f(t)=...; original uses y=... . For required monotonicity expression is enough; but public content should retain y=... Could root.definitions include \"f(x)=a*x^2-2*x+3\"? But original says y. Better root.definitions: [\"y=a*x^2-2*x+3\"]? Catalog definitions can be curve/function definitions, \"f(t) = ...\"; curve_definition \"Γ: y=...\" not appropriate. They say y=原式需要函数引用时，可用不冲突 f(x)=原式作为内部别名，原变量和原式不变；题面已有函数名则沿用. Here no function name; could use f(x)=... internal alias. But public statement keep y. Root.definitions can include \"f(x)=a*x^2-2*x+3\" internal alias. However facts not need. Goal required_monotonicity expression includes \"a*x^2-2*x+3\" and variable x. Alternatively define \"y=a*x^2-2*x+3\" and goal expression same; but expression field expects含参数原函数表达式. That's fine. Yet root definitions maybe not necessary; but \"已知函数 y=...\" should be in root. Use definitions [\"f(x)=a*x^2-2*x+3\"]? Could confuse because original y not f. But internal alias allowed. Public statement preserves y.\n\nNeed facts? The monotonicity condition is included in required_monotonicity within goal; no fact needed. But root facts maybe []? The target object is symbol a with required monotonicity. No other condition.\n\nNeed public_content scopes: one for /root. statement should be own题干 conditions and所求, no题号. \"已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\" Need use LaTeX. In JSON string need escape backslashes. Use $y=ax^2-2x+3$; $[2,+\\infty)$; $a$. Need blanks underscores? \"____\" maybe. Use \"____\". Should include \"则实数 $a$ 的取值范围是____。\" Good.\n\nChoices: goal target_ref \"/root/goals/0\". status none, selection_mode none, options [].\n\npublic_content.completeness complete, privacy separated? There is handwritten answer and annotations. Since we exclude them;题号 source not in statement. Is privacy separated? The handwritten answer is present in image; public_content removed. Yes separated? It says privacy covers root content definitions etc; only all suitable public. We don't include handwritten. So separated. figure not_required because no figure. figure_detection status none regions [].\n\nRoot uncertainties? There is handwritten answer and scribbles; not relevant. Could note unreadable? No need. But image contains handwritten answer \"(-∞,0]\" and scribbles under; we exclude. Are there uncertainties? Maybe \"减函数\" strictness? Catalog only strict true; but Chinese \"减函数\" may mean strictly decreasing in common high school. No uncertainty. Could include? not necessary.\n\nNeed root.label? If omit, no root_label_role. But public_content root_label_role optional only if root.label exists. Fine. But original_text starts \"11.\" Is that okay.\n\nNeed ensure JSON string backslashes. We need valid JSON. Use double quotes, escape backslashes in LaTeX: \"$y=ax^2-2x+3$\" no backslash. \"$[2,+\\\\infty)$\" within original_text/public statement need backslash for \\infty. JSON string must be \"\\\\infty\". \"$a$\". In original_text, \"11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。\" Need maybe \"取值范围是\" with blank. That's fine.\n\nRoot JSON:\n{\n \"definitions\": [\"f(x)=a*x^2-2*x+3\"],\n \"facts\": [],\n \"goals\": [\n   {\n     \"kind\": \"find_range\",\n     \"symbol\": \"a\",\n     \"required_monotonicity\": {\n       \"expression\": \"a*x^2-2*x+3\",\n       \"variable\": \"x\",\n       \"direction\": \"decreasing\",\n       \"strict\": true,\n       \"input_domain\": \"[2,∞)\"? Need catalog notation: [2,+∞) allowed? It says [a,∞). Use \"[2,∞)\"? examples \"u∈[3,∞)\". For interval inf, use [2,∞). Could use \"[2,+∞)\"? Catalog syntax \"[a,∞)\". Use \"[2,∞)\". In JSON Unicode ∞ directly okay. \n       \"basis\": {\"kind\":\"stated\",\"statement\":\"\"}\n     }\n   }\n ],\n children []? optional. no need. uncertainties []? optional. But maybe omit.\n}\n\nNeed check required_monotonicity schema input_domain maxLength 512. \"[2,∞)\" fine. expression \"a*x^2-2*x+3\". variable \"x\". direction decreasing. strict true. basis object kind stated statement \"\".\nCould include function? Not necessary.\n\nBut root.definitions uses f alias; required expression uses original expression. Fine. Public statement has y original. There is no fact \"decreasing\" outside goal; target's required_monotonicity includes. Good.\n\nQuestion: \"则实数a的取值范围是\" find_range symbol a. required_monotonicity is the condition. This is exactly.\n\nCould there be issue: required_monotonicity expression \"a*x^2-2*x+3\" but original function y; if a=0 linear decreasing on [2,∞)? yes. This field okay.\n\nNeed public_content.scopes statement: include all definitions/conditions/goal. It says scope own statement, formula $…$. Use \"$y=ax^2-2x+3$\". Need not include root definitions f alias; statement must use original y. Good.\n\nOriginal_text full. Should include \"11.\"? Hmm if original_text includes题号 and public statement excludes, privacy separated. Fine.\n\nNeed figure_detection: status none, regions [].\n\nNeed output only JSON. Ensure no markdown. \nNeed \"original_text\" string no newline? Fine. \nMaybe \"original_text\" must be max 32768, okay.\n\nNeed maybe \"public_content.root_label_role\" omitted because root.label omitted. Good.\n\nLet's produce."
+        }
+      }
+    ],
+    "created": 1794280776,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2444,
+      "prompt_tokens": 24265,
+      "total_tokens": 26709,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2192,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 24064
+      },
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 201
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 16.612
+}

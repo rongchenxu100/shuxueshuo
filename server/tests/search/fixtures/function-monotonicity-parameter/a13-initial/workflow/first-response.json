@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(a*x^2+2*x-5*a+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"sqrt(a*x^2+2*x-5*a+5)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,-2]\",\"basis\":{\"kind\":\"difference_quotient\",\"statement\":\"(f(x_2)-f(x_1))/(x_2-x_1)<0\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 4091,
+      "prompt_tokens": 24251,
+      "total_tokens": 28342,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 443
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 939,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-9417a705-da84-4a2a-9da4-e65a8fb13b01",
+        "sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 18328,
+        "expires_at": 1794364442,
+        "uploaded_at": 1794278042.817607
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "923dd0fabd2f66f2789f49ac945209c6f5bcae27ee1cf56d087e7086f1c34113",
+        "api_calls": 1,
+        "file_id": "file-api-9417a705-da84-4a2a-9da4-e65a8fb13b01",
+        "expires_at": 1794364442,
+        "elapsed_ms": 188
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 27938,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 4091,
+          "prompt_tokens": 24251,
+          "total_tokens": 28342,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3716
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 443
+        },
+        "raw_payload": {
+          "id": "d1c673e3-380a-4832-8390-60757297d404",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 4091,
+            "prompt_tokens": 24251,
+            "total_tokens": 28342,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3716
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 443
+          },
+          "created": 1794278043,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(a*x^2+2*x-5*a+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"sqrt(a*x^2+2*x-5*a+5)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,-2]\",\"basis\":{\"kind\":\"difference_quotient\",\"statement\":\"(f(x_2)-f(x_1))/(x_2-x_1)<0\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片中提取题目。题目：\n\n\"13. 已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 \\_\\_\\_\\_\\_\\_\\_。\"\n\n手写批注“单调递减”和答案不是题目内容，不转录。\n\n需要注意：题面写“对任意两个不相等的实数 x1, x2 ∈ (-∞,-2]，都有不等式 ... <0 成立”。这表示函数在该区间上单调递减? 差商为负，x2-x1 分母，若 x2>x1 则 f(x2)-f(x1)<0，递减。但题面没有明确说单调，保留差商条件即可。\n\n所求是实数 a 的取值范围。因此目标 find_range symbol \"a\"。根式函数定义域要求 ax^2+2x-5a+5 ≥ 0 对所有 x? 但题面没有直接给定义域；函数 f(x) 表达式，差商在区间上成立，必然要求在该区间函数有意义（根号下非负）。这是隐含条件吗？提取时不能补隐含条件？但函数解析式包含根号，f(x) 有意义的自然定义域是隐含的。按照目录，函数定义本身。题面说“已知函数 f(x)=sqrt(...) 对任意... 都有...”表示在该区间差商有意义，因此根号下在区间内非负是使 f(x1),f(x2) 有定义的隐含前提。但提取规则不补充隐含非零条件，但这是函数定义表达式，保留原式。后续求解可能要考虑定义域。在 facts 中保留差商条件即可，不额外写 ax^2+2x-5a+5≥0 在区间上成立，因为题面未直接写。不过“已知函数”通常意义下要求表达式有意义。这里提取以原题字面为准，不补。\n\n需要表示差商：∀x1,x2∈(-∞,-2], x1≠x2: (f(x2)-f(x1))/(x2-x1) < 0。注意题面顺序是 f(x2)-f(x1) / (x2-x1)。保留。\n\n定义：f(x)=sqrt(a*x^2+2*x-5*a+5)。变量 a 是参数。\n\n目标：find_range symbol \"a\"。可以 optionally required_monotonicity? 因为题面给出差商负的条件，可以表示 required_monotonicity? 但 required_monotonicity 是用于“使含参函数在指定区间上严格单调的求参目标”，其 basis 可以是 difference_quotient，statement。这与本题匹配：求 a 使 f 在 (-∞,-2] 上严格递减（差商 <0）。但注意差商形式是 (f(x2)-f(x1))/(x2-x1)<0 对任意 x1≠x2，这是严格递减的等价差商条件。可以使用 required_monotonicity 字段更精确。但同时目标 find_range symbol a。根据规则，required_monotonicity 表示待求参数必须满足的单调要求：expression, variable, direction, strict, input_domain, function 可填。basis 保留原始来源 kind= difference_quotient 和 statement 原式。这里 expression 应该是含参数的原函数表达式 x^2? expression 要求“含参数的原函数表达式，如 x^2-m*x+5”；这里 f(x) 是根号。可以填 sqrt(a*x^2+2*x-5*a+5)。direction decreasing, strict true, input_domain \"(-∞,-2]\"。basis kind difference_quotient, statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\" 但 x_1/x_2 变量？字段 statement 最大512，保留原式。variable x。function f。这样在 find_range 中加 required_monotonicity。但 schema 说 required_monotonicity 用于“使含参函数在指定区间上严格单调的求参目标”；本题原题不是直接说“求 a 使 f 单调递减”，而是给出差商条件，求 a 范围；等价。可以使用。\n\n但是注意目标 find_range symbol a 不需要 object。facts 里是否需要放差商条件？如果 required_monotonicity 已经包含原始来源 basis 和 statement，条件是否要重复放 facts？规则：“条件放 facts”；required_monotonicity 是目标内字段，表示待求参数必须满足的单调要求，可选 basis 保留要求的原始来源。目标内字段已经承载条件，不需要重复 facts 吧？但为完整题意，facts 可以放差商条件。但 required_monotonicity 的 basis statement 已经记录。查看示例 find_range+required_monotonicity 的预期：一般 facts 可能为空或保留其他条件。这里题面只有这个条件。如果放 facts 也合法，但可能重复。不重复更简洁。不过如果不使用 required_monotonicity，则 facts 放差商条件，目标是 find_range symbol a。两者都可。考虑到目录明确支持差商条件，使用 required_monotonicity 更准确地保留运算条件且避免解析根号单调性？但目标仍是求 a 范围。使用 required_monotonicity 时，所需条件：expression, variable, direction, strict, input_domain, function, basis。expression 可写 sqrt(a*x^2+2*x-5*a+5)，variable x。input_domain \"(-∞,-2]\"。basis statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\" 是原式但不含 ∀。可以。但 statement 里的 f 是函数名；可保留。题面原不等式是 \\frac{f(x2)-f(x1)}{x2-x1}<0。statement 可以写 (f(x_2)-f(x_1))/(x_2-x_1)<0。不过目录表达式里下标写成 x_1？可以。\n\n还可以在 facts 放 \"∀x_1∈(-∞,-2], ∀x_2∈(-∞,-2], x_1≠x_2: (f(x2)-f(x1))/(x2-x1)<0\" 吗？受控记法支持 ∀变量∈定义域: 关系，但多个量词可以连写。但 x1≠x2 条件，可以写 ∀x1∈(-∞,-2], ∀x2∈(-∞,-2], x1≠x2: ...。这是合法的。这更完整。如果 facts 有这个，目标只需要 find_range symbol a 不加 required_monotonicity。但是“x1≠x2”放在量词冒号前是否支持？目录 quantifier syntax：∀变量∈定义域: 关系；没有说可以加限制条件。可以写 ∀x1,x2∈(-∞,-2], x1≠x2: ...？目录 finite set syntax 允许。不确定。也许写 facts: ∀x1∈(-∞,-2]: ∀x2∈(-∞,-2]: x1≠x2 ⇒ (f(x2)-f(x1))/(x2-x1)<0。但受控逻辑没有蕴含？可以。不过为稳妥，使用 required_monotonicity 专门字段，facts 不重复。但 required_monotonicity 的 statement 只是原式，没有量词；其语义由字段本身表达“在 input_domain 上严格递减”，等于差商条件对任意不同两点。这已经足够。题面原文差异（题面直接给差商）由 basis 体现。好。\n\n但 required_monotonicity 的 expression 是“含参数的原函数表达式”，指函数表达式；不是 f(x)=...。可以填根号式。variable \"x\"。\n\n目标 find_range 的 symbol \"a\"；required_monotonicity 同时有 function \"f\"。这符合 schema。\n\n题面原文：函数 f(x)=√(a x^2+2x-5a+5)。注意根号覆盖范围：$\\sqrt{ax^2+2x-5a+5}$，全部在根号内。\n\n题号 13 是来源题号，不是题意。root.label 不需要？可以不放 label，因为题号不是小问标签。public_content 中不包含题号。original_text 可以保留题号开头？original_text 是完整题干原文转录，可以保留“13.”吗？规则：original_text 保留完整题干原文，题号属于来源？来源题号不应放入 public_content，但 original_text 可保留来源题号。可以保留。root.label 不要放来源题号，否则需 root_label_role=source 且 public_content 中排除。直接不放 label 即可。\n\npublic_content.scopes 只有一个 root，statement 为去掉题号的题干。choices 每个目标对应 status none, selection_mode none, options []。\n\nfigure_detection：无配图。但题面没有图。图片中有一些手写解题，不是配图。status none, regions []。\n\nuncertainties：手写“单调递减”和答案不是题目，不转录，看不清也不报告 unreadable。没有无法辨认的印刷内容。可能“x1, x2 ∈ (-∞,-2]”手写圈？但印刷清楚。无不确定。\n\noriginal_text 使用 LaTeX。注意 JSON 字符串反斜杠双写。例如 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$。\\frac 写 \\\\frac。区间 (-∞,-2] 用 (-\\infty,-2]。要保留“任意两个不相等的实数”。原文“对任意两个不相等的实数x1，x2∈(-∞,-2]”。转录：\n\"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\"\n\n注意原文中 x1，x2 可能逗号中文。没问题。\n\nroot.definitions：[\"f(x)=sqrt(a*x^2+2*x-5*a+5)\"]。这里变量 a 是参数。注意 sqrt 里面 a*x^2 乘号显式；2*x；-5*a；+5。\n\nfacts：可选不写，因为条件在目标 required_monotonicity。但题面“对任意两个不相等的实数 x1,x2∈(-∞,-2]，都有不等式 ... 成立”是条件。如果放在目标 required_monotonicity.basis.statement 已经包含原式但缺少量词。目标字段的语义已表明该要求。我认为可以 facts 留空，或放完整量词条件？规则说“题目直接说增减用 stated；以任意两点差商或差积恒正／恒负给出时用对应类型”。所以使用 required_monotonicity 是正确表示。facts 不需要重复。但为了完整的数学条件，可以放 facts 写明：\n\"∀x_1∈(-∞,-2], ∀x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n这个字符串是否在受控目录支持？量词多个连写，条件 x1≠x2 放冒号前尚不确定。目录示例只有 ∀x∈ℝ: ...。我们可以写：\n\"∀x_1∈(-∞,-2]: ∀x_2∈(-∞,-2]: x_1≠x_2 ⇒ (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n但蕴含符号目录没有列出 ⇒，只有逻辑 ∧ ∨。不能自造。可以写：\n\"∀x_1∈(-∞,-2]: ∀x_2∈(-∞,-2]: (x_1≠x_2 ∧ (f(x_2)-f(x_1))/(x_2-x_1)<0)\"? 意思是所有 x1,x2 满足 (x1≠x2 且 差商<0)，这过强：包括 x1=x2 时也要求 x1≠x2 为真，矛盾。所以不对。\n也可以写两个量词且限制 x1≠x2 在变量声明中：∀x1≠x2∈(-∞,-2]? 不支持。\n所以 facts 放差商条件有量词表示困难。使用 required_monotonicity 的 basis 语义正好避免。好，不放 facts 完整的。但 original_text 保留自然语言。\n\nrequired_monotonicity 的 basis.statement 原式可以含 f(x_1) 等；该字段只是原件，不用量词。正确。\n\n目标 find_range.symbol a。required_monotonicity.expression 根号式。input_domain \"(-∞,-2]\"。direction decreasing，strict true，basis kind difference_quotient，statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\"。\n\n注意 variable 字段 pattern ^[a-z]$，x 可以。function 可以填 \"f\"。\n\n目标 find_range 的 symbol a；required_monotonicity 是同一目标内。Schema 中 find_range 的 required_monotonicity 的 expression 要求含参数原函数表达式；input_domain 指定区间。好。\n\n但是有一个问题：题面中 f(x) 的根号内系数 a 可能使定义域；题面没有明确完整定义域。required_monotonicity 的 expression 就是函数表达式。可以。\n\npublic_content.statement 应与 root 原式一致。可以写：\n\"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\"\n不含题号 13。\n\nchoices: target_ref \"/root/goals/0\" status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\n现在检查 root 是否需要 uncertainties？无。\n\noriginal_text 中公式用 $…$；集合花括号没有。JSON 转义：$f(x)=\\\\sqrt{ax^2+2x-5a+5}$；$\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$。区间 $(-\\\\infty,-2]$。注意 \\infty 反斜杠双写。\n\nroot 数学字符串不用 $ 和反斜杠：sqrt(a*x^2+2*x-5*a+5)。required_monotonicity expression 同样。basis statement 用 (f(x_2)-f(x_1))/(x_2-x_1)<0；x_2 下划线可以。目录 arithmetic 支持 x_1 等。\n\n是否需要 definitions 或 facts 里说明 a 为实数？没有明确“实数 a”在题面“则实数a的取值范围”。参数 a 默认实数。不需要。\n\n题面“已知函数 f(x)=... 对任意两个不相等的实数...都有不等式...”可解析为 f 定义在整个区间？实际上 f 作为函数需要根号内非负；但保留原定义即可。目标 required_monotonicity 的区间是 (-∞,-2]；expression 的根号自然定义域可能限制。程序后续处理。\n\n是否有隐藏“函数定义域为R”之类？没有。\n\n现在输出 JSON。需要仅输出 JSON 对象，不解释。\n\n注意 response_schema 要求 root 的 properties 不包含 required？但可空。root 需要至少 goals，definitions。我们输出 label 不填。uncertainties 空可省略。children 无省略。\n\npublic_content 的 scopes 长度1。\n\n检查 public_content 的 completeness：题目完整，没有小问；条件齐全。complete。\nprivacy：图片包含手写答案和批注，但公开字段只包含题干，已分离。是否“手写答案、批注”在图片中但未放入公开字段；可以 separated。但 public_content 中不包含手写。好。\nfigure：not_required。\n\nroot_label_role 不填因为没有 label。\n\n目标 required_monotonicity 的 basis kind difference_quotient，statement 用原式。input_domain \"(-∞,-2]\"，使用 Unicode 无穷。expression 使用 *。function \"f\"。variable \"x\"。\n\nfind_range 没有 input_domain 字段（那是函数值域目标的额外输入范围；这里 symbol 求参数）。OK。\n\nrequired_monotonicity 是 find_range 的可选字段。Schema allOf 要求如果 required_monotonicity 存在，则 symbol 存在且 not function_monotonicity。满足。\n\n现在最终 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 28148
+  },
+  "raw_payload": {
+    "id": "d1c673e3-380a-4832-8390-60757297d404",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(a*x^2+2*x-5*a+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"sqrt(a*x^2+2*x-5*a+5)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"decreasing\",\"strict\":true,\"input_domain\":\"(-∞,-2]\",\"basis\":{\"kind\":\"difference_quotient\",\"statement\":\"(f(x_2)-f(x_1))/(x_2-x_1)<0\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片中提取题目。题目：\n\n\"13. 已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\in (-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 \\_\\_\\_\\_\\_\\_\\_。\"\n\n手写批注“单调递减”和答案不是题目内容，不转录。\n\n需要注意：题面写“对任意两个不相等的实数 x1, x2 ∈ (-∞,-2]，都有不等式 ... <0 成立”。这表示函数在该区间上单调递减? 差商为负，x2-x1 分母，若 x2>x1 则 f(x2)-f(x1)<0，递减。但题面没有明确说单调，保留差商条件即可。\n\n所求是实数 a 的取值范围。因此目标 find_range symbol \"a\"。根式函数定义域要求 ax^2+2x-5a+5 ≥ 0 对所有 x? 但题面没有直接给定义域；函数 f(x) 表达式，差商在区间上成立，必然要求在该区间函数有意义（根号下非负）。这是隐含条件吗？提取时不能补隐含条件？但函数解析式包含根号，f(x) 有意义的自然定义域是隐含的。按照目录，函数定义本身。题面说“已知函数 f(x)=sqrt(...) 对任意... 都有...”表示在该区间差商有意义，因此根号下在区间内非负是使 f(x1),f(x2) 有定义的隐含前提。但提取规则不补充隐含非零条件，但这是函数定义表达式，保留原式。后续求解可能要考虑定义域。在 facts 中保留差商条件即可，不额外写 ax^2+2x-5a+5≥0 在区间上成立，因为题面未直接写。不过“已知函数”通常意义下要求表达式有意义。这里提取以原题字面为准，不补。\n\n需要表示差商：∀x1,x2∈(-∞,-2], x1≠x2: (f(x2)-f(x1))/(x2-x1) < 0。注意题面顺序是 f(x2)-f(x1) / (x2-x1)。保留。\n\n定义：f(x)=sqrt(a*x^2+2*x-5*a+5)。变量 a 是参数。\n\n目标：find_range symbol \"a\"。可以 optionally required_monotonicity? 因为题面给出差商负的条件，可以表示 required_monotonicity? 但 required_monotonicity 是用于“使含参函数在指定区间上严格单调的求参目标”，其 basis 可以是 difference_quotient，statement。这与本题匹配：求 a 使 f 在 (-∞,-2] 上严格递减（差商 <0）。但注意差商形式是 (f(x2)-f(x1))/(x2-x1)<0 对任意 x1≠x2，这是严格递减的等价差商条件。可以使用 required_monotonicity 字段更精确。但同时目标 find_range symbol a。根据规则，required_monotonicity 表示待求参数必须满足的单调要求：expression, variable, direction, strict, input_domain, function 可填。basis 保留原始来源 kind= difference_quotient 和 statement 原式。这里 expression 应该是含参数的原函数表达式 x^2? expression 要求“含参数的原函数表达式，如 x^2-m*x+5”；这里 f(x) 是根号。可以填 sqrt(a*x^2+2*x-5*a+5)。direction decreasing, strict true, input_domain \"(-∞,-2]\"。basis kind difference_quotient, statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\" 但 x_1/x_2 变量？字段 statement 最大512，保留原式。variable x。function f。这样在 find_range 中加 required_monotonicity。但 schema 说 required_monotonicity 用于“使含参函数在指定区间上严格单调的求参目标”；本题原题不是直接说“求 a 使 f 单调递减”，而是给出差商条件，求 a 范围；等价。可以使用。\n\n但是注意目标 find_range symbol a 不需要 object。facts 里是否需要放差商条件？如果 required_monotonicity 已经包含原始来源 basis 和 statement，条件是否要重复放 facts？规则：“条件放 facts”；required_monotonicity 是目标内字段，表示待求参数必须满足的单调要求，可选 basis 保留要求的原始来源。目标内字段已经承载条件，不需要重复 facts 吧？但为完整题意，facts 可以放差商条件。但 required_monotonicity 的 basis statement 已经记录。查看示例 find_range+required_monotonicity 的预期：一般 facts 可能为空或保留其他条件。这里题面只有这个条件。如果放 facts 也合法，但可能重复。不重复更简洁。不过如果不使用 required_monotonicity，则 facts 放差商条件，目标是 find_range symbol a。两者都可。考虑到目录明确支持差商条件，使用 required_monotonicity 更准确地保留运算条件且避免解析根号单调性？但目标仍是求 a 范围。使用 required_monotonicity 时，所需条件：expression, variable, direction, strict, input_domain, function, basis。expression 可写 sqrt(a*x^2+2*x-5*a+5)，variable x。input_domain \"(-∞,-2]\"。basis statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\" 是原式但不含 ∀。可以。但 statement 里的 f 是函数名；可保留。题面原不等式是 \\frac{f(x2)-f(x1)}{x2-x1}<0。statement 可以写 (f(x_2)-f(x_1))/(x_2-x_1)<0。不过目录表达式里下标写成 x_1？可以。\n\n还可以在 facts 放 \"∀x_1∈(-∞,-2], ∀x_2∈(-∞,-2], x_1≠x_2: (f(x2)-f(x1))/(x2-x1)<0\" 吗？受控记法支持 ∀变量∈定义域: 关系，但多个量词可以连写。但 x1≠x2 条件，可以写 ∀x1∈(-∞,-2], ∀x2∈(-∞,-2], x1≠x2: ...。这是合法的。这更完整。如果 facts 有这个，目标只需要 find_range symbol a 不加 required_monotonicity。但是“x1≠x2”放在量词冒号前是否支持？目录 quantifier syntax：∀变量∈定义域: 关系；没有说可以加限制条件。可以写 ∀x1,x2∈(-∞,-2], x1≠x2: ...？目录 finite set syntax 允许。不确定。也许写 facts: ∀x1∈(-∞,-2]: ∀x2∈(-∞,-2]: x1≠x2 ⇒ (f(x2)-f(x1))/(x2-x1)<0。但受控逻辑没有蕴含？可以。不过为稳妥，使用 required_monotonicity 专门字段，facts 不重复。但 required_monotonicity 的 statement 只是原式，没有量词；其语义由字段本身表达“在 input_domain 上严格递减”，等于差商条件对任意不同两点。这已经足够。题面原文差异（题面直接给差商）由 basis 体现。好。\n\n但 required_monotonicity 的 expression 是“含参数的原函数表达式”，指函数表达式；不是 f(x)=...。可以填根号式。variable \"x\"。\n\n目标 find_range 的 symbol \"a\"；required_monotonicity 同时有 function \"f\"。这符合 schema。\n\n题面原文：函数 f(x)=√(a x^2+2x-5a+5)。注意根号覆盖范围：$\\sqrt{ax^2+2x-5a+5}$，全部在根号内。\n\n题号 13 是来源题号，不是题意。root.label 不需要？可以不放 label，因为题号不是小问标签。public_content 中不包含题号。original_text 可以保留题号开头？original_text 是完整题干原文转录，可以保留“13.”吗？规则：original_text 保留完整题干原文，题号属于来源？来源题号不应放入 public_content，但 original_text 可保留来源题号。可以保留。root.label 不要放来源题号，否则需 root_label_role=source 且 public_content 中排除。直接不放 label 即可。\n\npublic_content.scopes 只有一个 root，statement 为去掉题号的题干。choices 每个目标对应 status none, selection_mode none, options []。\n\nfigure_detection：无配图。但题面没有图。图片中有一些手写解题，不是配图。status none, regions []。\n\nuncertainties：手写“单调递减”和答案不是题目，不转录，看不清也不报告 unreadable。没有无法辨认的印刷内容。可能“x1, x2 ∈ (-∞,-2]”手写圈？但印刷清楚。无不确定。\n\noriginal_text 使用 LaTeX。注意 JSON 字符串反斜杠双写。例如 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$。\\frac 写 \\\\frac。区间 (-∞,-2] 用 (-\\infty,-2]。要保留“任意两个不相等的实数”。原文“对任意两个不相等的实数x1，x2∈(-∞,-2]”。转录：\n\"13. 已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\"\n\n注意原文中 x1，x2 可能逗号中文。没问题。\n\nroot.definitions：[\"f(x)=sqrt(a*x^2+2*x-5*a+5)\"]。这里变量 a 是参数。注意 sqrt 里面 a*x^2 乘号显式；2*x；-5*a；+5。\n\nfacts：可选不写，因为条件在目标 required_monotonicity。但题面“对任意两个不相等的实数 x1,x2∈(-∞,-2]，都有不等式 ... 成立”是条件。如果放在目标 required_monotonicity.basis.statement 已经包含原式但缺少量词。目标字段的语义已表明该要求。我认为可以 facts 留空，或放完整量词条件？规则说“题目直接说增减用 stated；以任意两点差商或差积恒正／恒负给出时用对应类型”。所以使用 required_monotonicity 是正确表示。facts 不需要重复。但为了完整的数学条件，可以放 facts 写明：\n\"∀x_1∈(-∞,-2], ∀x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n这个字符串是否在受控目录支持？量词多个连写，条件 x1≠x2 放冒号前尚不确定。目录示例只有 ∀x∈ℝ: ...。我们可以写：\n\"∀x_1∈(-∞,-2]: ∀x_2∈(-∞,-2]: x_1≠x_2 ⇒ (f(x_2)-f(x_1))/(x_2-x_1)<0\"\n但蕴含符号目录没有列出 ⇒，只有逻辑 ∧ ∨。不能自造。可以写：\n\"∀x_1∈(-∞,-2]: ∀x_2∈(-∞,-2]: (x_1≠x_2 ∧ (f(x_2)-f(x_1))/(x_2-x_1)<0)\"? 意思是所有 x1,x2 满足 (x1≠x2 且 差商<0)，这过强：包括 x1=x2 时也要求 x1≠x2 为真，矛盾。所以不对。\n也可以写两个量词且限制 x1≠x2 在变量声明中：∀x1≠x2∈(-∞,-2]? 不支持。\n所以 facts 放差商条件有量词表示困难。使用 required_monotonicity 的 basis 语义正好避免。好，不放 facts 完整的。但 original_text 保留自然语言。\n\nrequired_monotonicity 的 basis.statement 原式可以含 f(x_1) 等；该字段只是原件，不用量词。正确。\n\n目标 find_range.symbol a。required_monotonicity.expression 根号式。input_domain \"(-∞,-2]\"。direction decreasing，strict true，basis kind difference_quotient，statement \"(f(x_2)-f(x_1))/(x_2-x_1)<0\"。\n\n注意 variable 字段 pattern ^[a-z]$，x 可以。function 可以填 \"f\"。\n\n目标 find_range 的 symbol a；required_monotonicity 是同一目标内。Schema 中 find_range 的 required_monotonicity 的 expression 要求含参数原函数表达式；input_domain 指定区间。好。\n\n但是有一个问题：题面中 f(x) 的根号内系数 a 可能使定义域；题面没有明确完整定义域。required_monotonicity 的 expression 就是函数表达式。可以。\n\npublic_content.statement 应与 root 原式一致。可以写：\n\"已知函数 $f(x)=\\\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1, x_2 \\\\in (-\\\\infty,-2]$，都有不等式 $\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ______。\"\n不含题号 13。\n\nchoices: target_ref \"/root/goals/0\" status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\n现在检查 root 是否需要 uncertainties？无。\n\noriginal_text 中公式用 $…$；集合花括号没有。JSON 转义：$f(x)=\\\\sqrt{ax^2+2x-5a+5}$；$\\\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$。区间 $(-\\\\infty,-2]$。注意 \\infty 反斜杠双写。\n\nroot 数学字符串不用 $ 和反斜杠：sqrt(a*x^2+2*x-5*a+5)。required_monotonicity expression 同样。basis statement 用 (f(x_2)-f(x_1))/(x_2-x_1)<0；x_2 下划线可以。目录 arithmetic 支持 x_1 等。\n\n是否需要 definitions 或 facts 里说明 a 为实数？没有明确“实数 a”在题面“则实数a的取值范围”。参数 a 默认实数。不需要。\n\n题面“已知函数 f(x)=... 对任意两个不相等的实数...都有不等式...”可解析为 f 定义在整个区间？实际上 f 作为函数需要根号内非负；但保留原定义即可。目标 required_monotonicity 的区间是 (-∞,-2]；expression 的根号自然定义域可能限制。程序后续处理。\n\n是否有隐藏“函数定义域为R”之类？没有。\n\n现在输出 JSON。需要仅输出 JSON 对象，不解释。\n\n注意 response_schema 要求 root 的 properties 不包含 required？但可空。root 需要至少 goals，definitions。我们输出 label 不填。uncertainties 空可省略。children 无省略。\n\npublic_content 的 scopes 长度1。\n\n检查 public_content 的 completeness：题目完整，没有小问；条件齐全。complete。\nprivacy：图片包含手写答案和批注，但公开字段只包含题干，已分离。是否“手写答案、批注”在图片中但未放入公开字段；可以 separated。但 public_content 中不包含手写。好。\nfigure：not_required。\n\nroot_label_role 不填因为没有 label。\n\n目标 required_monotonicity 的 basis kind difference_quotient，statement 用原式。input_domain \"(-∞,-2]\"，使用 Unicode 无穷。expression 使用 *。function \"f\"。variable \"x\"。\n\nfind_range 没有 input_domain 字段（那是函数值域目标的额外输入范围；这里 symbol 求参数）。OK。\n\nrequired_monotonicity 是 find_range 的可选字段。Schema allOf 要求如果 required_monotonicity 存在，则 symbol 存在且 not function_monotonicity。满足。\n\n现在最终 JSON。"
+        }
+      }
+    ],
+    "created": 1794278043,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 4091,
+      "prompt_tokens": 24251,
+      "total_tokens": 28342,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3716,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 443
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 28.151
+}

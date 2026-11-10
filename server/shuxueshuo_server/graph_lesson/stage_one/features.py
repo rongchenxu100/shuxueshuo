@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('monotonicity_parameter', ('goal',), 'monotonicity_parameter',
+                ('function-monotonicity#definition',), '已知指定区间上的严格增减性求函数参数',
+                version='monotonicity-parameter/v6', supported_structures=('quadratic_parameter', 'piecewise_parameter', 'radical_parameter', 'reciprocal_parameter'),
+                computation_boundary='parametric degree-≤2 expression, its square root, c/x+d, s*x+c/x+d, or explicit piecewise including singleton branches; fixed interval, strict direction and one real parameter'),
     FeatureSpec('monotonicity_inequality', ('goal',), 'monotonicity_inequality',
                 ('function-monotonicity#definition',), '利用严格单调性把函数值比较转为输入比较',
                 version='monotonicity-inequality/v1', supported_structures=('known_strict_order',),
@@ -531,10 +535,22 @@ def _scope_features(report, candidate, scope, ancestors, features):
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_range_parameter'}, source_refs=[target_ref])
             continue
-        from ..monotonicity_inequality_math import routed_description as mono_inequality_description
         from ..extremum_math import routed_description as extremum_description
+        from ..monotonicity_inequality_math import (
+            routed_description as mono_inequality_description,
+        )
+        from ..monotonicity_parameter_math import (
+            routed_description as mono_parameter_description,
+        )
         original = pointer(candidate, target_ref)
         sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
+        if desc := mono_parameter_description(original, target_ref, sources):
+            add('goal', {'kind': goal['kind'], 'symbol': original['symbol']}, source_refs=[target_ref])
+            add('monotonicity_parameter', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_mono_parameter_goal'}, source_refs=[target_ref])
+            continue
         if desc := mono_inequality_description(original, target_ref, sources):
             add('goal', {'kind': goal['kind'], 'symbol': original['symbol']}, source_refs=[target_ref])
             add('monotonicity_inequality', desc, source_refs=desc['source_refs'])
@@ -543,7 +559,9 @@ def _scope_features(report, candidate, scope, ancestors, features):
                     add(spec.feature_id, diagnostic={'code': 'feature.not_mono_inequality_goal'}, source_refs=[target_ref])
             continue
         if desc := extremum_description(original, target_ref, sources):
-            add('goal', {'kind': goal['kind'], **({'symbol': original['symbol']} if 'symbol' in original else {'object': original['object']})}, source_refs=[target_ref])
+            identity = ({'object': original['object']} if 'object' in original else
+                        {'symbol': original.get('symbol', original.get('expression'))})
+            add('goal', {'kind': goal['kind'], **identity}, source_refs=[target_ref])
             add('function_extremum', desc, source_refs=desc['source_refs'])
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:

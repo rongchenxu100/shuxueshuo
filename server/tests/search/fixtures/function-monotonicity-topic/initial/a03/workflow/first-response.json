@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"root\":{\"label\":\"3.\",\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"declared\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2479,
+      "prompt_tokens": 24237,
+      "total_tokens": 26716,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 665,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-0407ec3f-d2a7-4f39-9ea2-3823491bcd3e",
+        "sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6499,
+        "expires_at": 1794366551,
+        "uploaded_at": 1794280151.591708
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+        "api_calls": 1,
+        "file_id": "file-api-0407ec3f-d2a7-4f39-9ea2-3823491bcd3e",
+        "expires_at": 1794366551,
+        "elapsed_ms": 187
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 17949,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2479,
+          "prompt_tokens": 24237,
+          "total_tokens": 26716,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2243
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 429
+        },
+        "raw_payload": {
+          "id": "c6c409da-6320-4b37-9f2e-3b005c0b4e89",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2479,
+            "prompt_tokens": 24237,
+            "total_tokens": 26716,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2243
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 429
+          },
+          "created": 1794280151,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"root\":{\"label\":\"3.\",\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"declared\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片显示：\"3. 函数 y=-x^2+4x+3, x∈[0,3]的单调递增区间是____\"，有手写答案 [0,2]，不应转录。需要输出 original_text 保留题号？可以保留题号。root label 可能是 \"3.\" 角色 source? 图片明确是题号3.，可 root.label \"3.\"? 但题号通常是来源题号，可以放 label \"3.\"，root_label_role source。或者省略 label 保留题号在 original_text 中。public_content statement 不包含题号。需要根数学定义函数和条件，目标单调区间。注意函数定义 y=-x^2+4*x+3，x∈[0,3]，求单调递增区间。root 放定义 f(x) 或 y 表达式？题面写 y=...，求单调递增区间。数学字符串使用 `f(x)=-x^2+4*x+3` 作为别名？题面没有函数名，仅 y。可使用 definitions: [\"f(x)=-x^2+4*x+3\"] 但公开题面保留 y。facts: [\"x∈[0,3]\"] 或 input_domain 在目标？单调性目标包含 expression、variable、direction，input_domain [0,3]，domain_role restriction? 这里 x∈[0,3] 是函数输入限制，不是完整定义域？题面写函数 y=..., x∈[0,3]，通常这是该函数的定义域/给定区间。目标求单调递增区间，input_domain 可填 [0,3]，domain_role=restriction（因为这是限制区间，函数可能定义在实数，但题给只在[0,3]考虑）。或者函数定义域明确是 [0,3]? 题面 \"函数 y=..., x∈[0,3]\" 表明自变量范围，是给定区间，可以视为限制。单调区间目标是 find_monotonic_intervals，direction increasing，expression 原式，variable x，input_domain [0,3]。function 可填 f? 题面没有 f，不填；或内部别名 f 可以。目标 expression: \"-x^2+4*x+3\" 或 \"y=-x^2+4*x+3\"？字段 expression 是受控数学式，使用 \"-x^2+4*x+3\"。variable x。direction increasing。input_domain \"[0,3]\"，domain_role restriction。definitions 可以放 \"f(x)=-x^2+4*x+3\" 作为内部别名？但目标 expression 已用原式，不需要 f。题面中 y 对应函数，或许 definitions: [\"y=-x^2+4*x+3\"] 不是函数定义？定义原文可以是 \"y=-x^2+4*x+3\" 但对象识别可能不认识 y 为函数。使用 f(x) 内部别名规则。definitions: [\"f(x)=-x^2+4*x+3\"]。facts: [\"x∈[0,3]\"]? 但目标已有 input_domain，facts 重复? 按规则题给输入范围可以放目标 input_domain；也可放 facts。单调函数目标保留 expression、variable、direction、input_domain。为避免重复，definitions 放 f 定义，facts 不放 x 范围，只在目标 input_domain。但题面条件 x∈[0,3] 是题设，目标字段本身可以承载。似乎可以。\n\n目标 kind find_monotonic_intervals。是否存在多个所求？只有一个。无小问。\n\noriginal_text: \"3. 函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是____\" 需要保留手写吗？不。注意使用 LaTeX \\in 需要双反斜杠在 JSON 字符串中。可以写 Unicode \"∈\" 更简单，但公式内。原题变量符号。用 `$y=-x^2+4x+3$`。public_content scopes statement: \"函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是____\" 不包含题号。choices status none selection none options [].\n\nfigure_detection status none.\n\ncompleteness complete privacy separated? 题号可以分离，手写答案不转录，可以 separated。root_label_role source if label \"3.\"; 但 public_content 没有 root_label_role required? 可选。root label 可以设 \"3.\"? 如果 label 是 source，则 privacy 可 separated。但 \"3.\" 是否原图明确试卷题号？图片开头 \"3.\" 是题号，明确是来源/题号。可以 label \"3.\" root_label_role source。original_text 保留 \"3.\"。public_content statement 不包含题号。这样分类合理。\n\nroot 的 definitions 数学字符串没有 LaTeX $。definitions: [\"f(x)=-x^2+4*x+3\"]。目标 expression 原式 \"-x^2+4*x+3\"。可能需要保留 y 而不是 f? 提取函数关系 y=...，使用 f 内部别名可以。题面没有 f，但如果目标只求单调区间，可直接用 expression 原式，不定义函数，facts 包含 \"x∈[0,3]\"? 目标 input_domain [0,3]。definitions 可选。如果定义 f，公开题面中不出现 f，但内部别名允许。目标 expression 原式即可，definitions 放 f 定义使函数明确。也可以不放 definition，因为目标 expression 是原式。不过题面是“函数 y=...”，需要对象 y。目标 find_monotonic_intervals 没有 object 字段，只有 expression。可以用 expression \"-x^2+4*x+3\" 并可定义 f。为准确，definitions: [\"f(x)=-x^2+4*x+3\"] 内部别名。facts 不放 x 范围，因为目标 input_domain 使用。但 input_domain 是题给范围 [0,3]，domain_role restriction。目标 direction increasing。返回 JSON。\n\n需要确保 `function` 字段可填 \"f\" 吗？FunctionMonotonicityGoal 有 function 可选；但题面没有给函数名，内部别名 f 可用。是否填写？如果填写 f，目标引用 f，定义在 definitions。可以填 \"f\"。但原题不是 f，内部别名不写回公开题面。可以。expression 原式 \"-x^2+4*x+3\"。variable \"x\"。direction \"increasing\"。input_domain \"[0,3]\"。domain_role \"restriction\"。kind \"find_monotonic_intervals\"。\n\n如果 domain_role declared? 题面 \"x∈[0,3]\" 可以理解为定义域为该区间，但求单调递增区间是在区间 [0,3] 上还是完整定义域？题目“函数 y=..., x∈[0,3] 的单调递增区间是____”通常表示该函数定义域为 [0,3]（题给范围），求单调递增区间。domain_role 可以是 declared，因为明确给出函数定义域 x∈[0,3]。而 input_domain 仍是 [0,3]。规则: domain_role 区分 declared 与 restriction。完整定义域明确给出时 declared。这里 x∈[0,3] 紧跟函数，明确给出完整定义域。应选 declared。但目标 input_domain 用于查找区间，声明完整定义域也是 input。使用 declared 更贴切。目标没有单独 Dom 定义；input_domain 可同时作为定义域？对单调性目标 input_domain 是区间。domain_role=declared 表示完整定义域。可以。\n\nfacts 可能不需要。definitions 可以放 f(x)=-x^2+4*x+3。但题面用 y，不是 f。内部别名规则允许。公开题面保留 y。没问题。\n\n不确定手写答案 [0,2] 是否要报告 unreadable? 不需要，手写不是题目内容，不报告。图片中手写 [0,2] 清晰。原题填空照印刷原样写横线；original_text 中用 \"____\" 或 \"______\"? 图中下划线较长。写 \"______\" 可。public_content 同样 \"______\"。题面中的手写答案覆盖了横线，但仍应提取原题空格。用 \"______\"。\n\noriginal_text 保留题号 \"3.\" 和完整。注意公式 LaTeX 中 x\\in[0,3] 双反斜杠。JSON 字符串：`\"3. 函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\"`。在 JSON 中 `\\\\in` 表示 \\in。需要 double backslash。没有反斜杠也可使用 Unicode ∈：`$x∈[0,3]$` 更安全。公式用 `$...$`。使用 `$x\\\\in[0,3]$` 正确。public statement 同样。\n\nroot definitions: no $, no backslash? `f(x)=-x^2+4*x+3`. facts maybe `x∈[0,3]`? 如果目标 input_domain 有，facts 不重复。但目标 input_domain 同时表达题设范围，可以。definitions 放 f。但题面 y 未定义为 f，内部别名规则说可用不冲突 f(x)=原式作为内部别名，原变量和原式不变。可以。\n\n是否需要 facts 放 \"x∈[0,3]\" 以确保条件？目标 input_domain 承载，没问题。\n\npublic_content.scopes 只有 root 作用域 statement。choices: [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\nfigure_detection: {\"status\":\"none\",\"regions\":[]}. public figure \"not_required\", completeness complete, privacy separated, root_label_role \"source\".\n\nroot label \"3.\"? 题号包括 \"3.\"。如果 root.label \"3.\"，public statement 不含。original_text 保留。root_label_role source。privacy separated，因为题号分离、无手写。好。\n\noutput no extra fields. Ensure JSON valid, no markdown.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 18164
+  },
+  "raw_payload": {
+    "id": "c6c409da-6320-4b37-9f2e-3b005c0b4e89",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"3. 函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"root\":{\"label\":\"3.\",\"definitions\":[\"f(x)=-x^2+4*x+3\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"-x^2+4*x+3\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"input_domain\":\"[0,3]\",\"domain_role\":\"declared\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片显示：\"3. 函数 y=-x^2+4x+3, x∈[0,3]的单调递增区间是____\"，有手写答案 [0,2]，不应转录。需要输出 original_text 保留题号？可以保留题号。root label 可能是 \"3.\" 角色 source? 图片明确是题号3.，可 root.label \"3.\"? 但题号通常是来源题号，可以放 label \"3.\"，root_label_role source。或者省略 label 保留题号在 original_text 中。public_content statement 不包含题号。需要根数学定义函数和条件，目标单调区间。注意函数定义 y=-x^2+4*x+3，x∈[0,3]，求单调递增区间。root 放定义 f(x) 或 y 表达式？题面写 y=...，求单调递增区间。数学字符串使用 `f(x)=-x^2+4*x+3` 作为别名？题面没有函数名，仅 y。可使用 definitions: [\"f(x)=-x^2+4*x+3\"] 但公开题面保留 y。facts: [\"x∈[0,3]\"] 或 input_domain 在目标？单调性目标包含 expression、variable、direction，input_domain [0,3]，domain_role restriction? 这里 x∈[0,3] 是函数输入限制，不是完整定义域？题面写函数 y=..., x∈[0,3]，通常这是该函数的定义域/给定区间。目标求单调递增区间，input_domain 可填 [0,3]，domain_role=restriction（因为这是限制区间，函数可能定义在实数，但题给只在[0,3]考虑）。或者函数定义域明确是 [0,3]? 题面 \"函数 y=..., x∈[0,3]\" 表明自变量范围，是给定区间，可以视为限制。单调区间目标是 find_monotonic_intervals，direction increasing，expression 原式，variable x，input_domain [0,3]。function 可填 f? 题面没有 f，不填；或内部别名 f 可以。目标 expression: \"-x^2+4*x+3\" 或 \"y=-x^2+4*x+3\"？字段 expression 是受控数学式，使用 \"-x^2+4*x+3\"。variable x。direction increasing。input_domain \"[0,3]\"，domain_role restriction。definitions 可以放 \"f(x)=-x^2+4*x+3\" 作为内部别名？但目标 expression 已用原式，不需要 f。题面中 y 对应函数，或许 definitions: [\"y=-x^2+4*x+3\"] 不是函数定义？定义原文可以是 \"y=-x^2+4*x+3\" 但对象识别可能不认识 y 为函数。使用 f(x) 内部别名规则。definitions: [\"f(x)=-x^2+4*x+3\"]。facts: [\"x∈[0,3]\"]? 但目标已有 input_domain，facts 重复? 按规则题给输入范围可以放目标 input_domain；也可放 facts。单调函数目标保留 expression、variable、direction、input_domain。为避免重复，definitions 放 f 定义，facts 不放 x 范围，只在目标 input_domain。但题面条件 x∈[0,3] 是题设，目标字段本身可以承载。似乎可以。\n\n目标 kind find_monotonic_intervals。是否存在多个所求？只有一个。无小问。\n\noriginal_text: \"3. 函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是____\" 需要保留手写吗？不。注意使用 LaTeX \\in 需要双反斜杠在 JSON 字符串中。可以写 Unicode \"∈\" 更简单，但公式内。原题变量符号。用 `$y=-x^2+4x+3$`。public_content scopes statement: \"函数 $y=-x^2+4x+3$，$x\\in[0,3]$ 的单调递增区间是____\" 不包含题号。choices status none selection none options [].\n\nfigure_detection status none.\n\ncompleteness complete privacy separated? 题号可以分离，手写答案不转录，可以 separated。root_label_role source if label \"3.\"; 但 public_content 没有 root_label_role required? 可选。root label 可以设 \"3.\"? 如果 label 是 source，则 privacy 可 separated。但 \"3.\" 是否原图明确试卷题号？图片开头 \"3.\" 是题号，明确是来源/题号。可以 label \"3.\" root_label_role source。original_text 保留 \"3.\"。public_content statement 不包含题号。这样分类合理。\n\nroot 的 definitions 数学字符串没有 LaTeX $。definitions: [\"f(x)=-x^2+4*x+3\"]。目标 expression 原式 \"-x^2+4*x+3\"。可能需要保留 y 而不是 f? 提取函数关系 y=...，使用 f 内部别名可以。题面没有 f，但如果目标只求单调区间，可直接用 expression 原式，不定义函数，facts 包含 \"x∈[0,3]\"? 目标 input_domain [0,3]。definitions 可选。如果定义 f，公开题面中不出现 f，但内部别名允许。目标 expression 原式即可，definitions 放 f 定义使函数明确。也可以不放 definition，因为目标 expression 是原式。不过题面是“函数 y=...”，需要对象 y。目标 find_monotonic_intervals 没有 object 字段，只有 expression。可以用 expression \"-x^2+4*x+3\" 并可定义 f。为准确，definitions: [\"f(x)=-x^2+4*x+3\"] 内部别名。facts 不放 x 范围，因为目标 input_domain 使用。但 input_domain 是题给范围 [0,3]，domain_role restriction。目标 direction increasing。返回 JSON。\n\n需要确保 `function` 字段可填 \"f\" 吗？FunctionMonotonicityGoal 有 function 可选；但题面没有给函数名，内部别名 f 可用。是否填写？如果填写 f，目标引用 f，定义在 definitions。可以填 \"f\"。但原题不是 f，内部别名不写回公开题面。可以。expression 原式 \"-x^2+4*x+3\"。variable \"x\"。direction \"increasing\"。input_domain \"[0,3]\"。domain_role \"restriction\"。kind \"find_monotonic_intervals\"。\n\n如果 domain_role declared? 题面 \"x∈[0,3]\" 可以理解为定义域为该区间，但求单调递增区间是在区间 [0,3] 上还是完整定义域？题目“函数 y=..., x∈[0,3] 的单调递增区间是____”通常表示该函数定义域为 [0,3]（题给范围），求单调递增区间。domain_role 可以是 declared，因为明确给出函数定义域 x∈[0,3]。而 input_domain 仍是 [0,3]。规则: domain_role 区分 declared 与 restriction。完整定义域明确给出时 declared。这里 x∈[0,3] 紧跟函数，明确给出完整定义域。应选 declared。但目标 input_domain 用于查找区间，声明完整定义域也是 input。使用 declared 更贴切。目标没有单独 Dom 定义；input_domain 可同时作为定义域？对单调性目标 input_domain 是区间。domain_role=declared 表示完整定义域。可以。\n\nfacts 可能不需要。definitions 可以放 f(x)=-x^2+4*x+3。但题面用 y，不是 f。内部别名规则允许。公开题面保留 y。没问题。\n\n不确定手写答案 [0,2] 是否要报告 unreadable? 不需要，手写不是题目内容，不报告。图片中手写 [0,2] 清晰。原题填空照印刷原样写横线；original_text 中用 \"____\" 或 \"______\"? 图中下划线较长。写 \"______\" 可。public_content 同样 \"______\"。题面中的手写答案覆盖了横线，但仍应提取原题空格。用 \"______\"。\n\noriginal_text 保留题号 \"3.\" 和完整。注意公式 LaTeX 中 x\\in[0,3] 双反斜杠。JSON 字符串：`\"3. 函数 $y=-x^2+4x+3$，$x\\\\in[0,3]$ 的单调递增区间是______\"`。在 JSON 中 `\\\\in` 表示 \\in。需要 double backslash。没有反斜杠也可使用 Unicode ∈：`$x∈[0,3]$` 更安全。公式用 `$...$`。使用 `$x\\\\in[0,3]$` 正确。public statement 同样。\n\nroot definitions: no $, no backslash? `f(x)=-x^2+4*x+3`. facts maybe `x∈[0,3]`? 如果目标 input_domain 有，facts 不重复。但目标 input_domain 同时表达题设范围，可以。definitions 放 f。但题面 y 未定义为 f，内部别名规则说可用不冲突 f(x)=原式作为内部别名，原变量和原式不变。可以。\n\n是否需要 facts 放 \"x∈[0,3]\" 以确保条件？目标 input_domain 承载，没问题。\n\npublic_content.scopes 只有 root 作用域 statement。choices: [{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}].\n\nfigure_detection: {\"status\":\"none\",\"regions\":[]}. public figure \"not_required\", completeness complete, privacy separated, root_label_role \"source\".\n\nroot label \"3.\"? 题号包括 \"3.\"。如果 root.label \"3.\"，public statement 不含。original_text 保留。root_label_role source。privacy separated，因为题号分离、无手写。好。\n\noutput no extra fields. Ensure JSON valid, no markdown."
+        }
+      }
+    ],
+    "created": 1794280151,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2479,
+      "prompt_tokens": 24237,
+      "total_tokens": 26716,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2243,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 18.165
+}

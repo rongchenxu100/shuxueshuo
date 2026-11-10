@@ -146,7 +146,8 @@ def _goal(goal, features, text, candidate=None):
             or source_goal.get("kind") == "find_range" and "object" in source_goal
             or known.get('piecewise_equation', {}).get('structure_supported')
             or known.get('piecewise_inequality', {}).get('structure_supported')
-            or known.get('monotonicity_inequality', {}).get('structure_supported')):
+            or known.get('monotonicity_inequality', {}).get('structure_supported')
+            or known.get('monotonicity_parameter', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
         if diagnostics:
             section["d1"]["diagnostics"] = diagnostics
@@ -415,6 +416,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         return _piecewise_inequality_d1_rows(target, fragments, known, text)
     if known.get('monotonicity_inequality', {}).get('structure_supported'):
         return _monotonicity_inequality_d1_rows(target, fragments, known, text)
+    if known.get('monotonicity_parameter', {}).get('structure_supported'):
+        return _monotonicity_parameter_d1_rows(target, fragments, known, text)
     if known.get('piecewise_equation', {}).get('structure_supported'):
         return _piecewise_equation_d1_rows(target, fragments, known, text)
     if known.get('function_extremum', {}).get('structure_supported'):
@@ -513,7 +516,13 @@ def _extremum_d1_rows(target, fragments, known, text):
     task = desc['task']
     row_id = f'{target}:goal'
     spans = [_spans([row], text) for row in selected]
-    if task == 'direct':
+    if task == 'recurrence':
+        parameter = desc['parameter']
+        correct = f'求整个左侧区间都满足下界时，右端点 ${parameter}$ 的最大值'
+        wrong = '只求基准段上函数的最小值'
+        feedback = '需要先保证所有更早区间满足条件，再找右端点能取到的最远位置。'
+        question = '这一问最终要求什么？'
+    elif task == 'direct':
         quantity = '最大值' if desc.get('quantity') == 'maximum' else '最小值'
         correct = f'求函数在给定区间上的{quantity}'
         wrong = '求函数的单调区间'
@@ -717,6 +726,56 @@ def _monotonicity_inequality_d1_rows(target, fragments, known, text):
     return {'rows': [row], 'givens': [], 'interaction': 'choice',
             'question': '这一问比较了同一个函数的两个函数值，需要求什么？',
             'feedback': feedback, 'summary': correct + '。'}
+
+
+def _monotonicity_parameter_d1_rows(target, fragments, known, text):
+    description = known['monotonicity_parameter']
+    goals = [fragment for fragment in fragments if fragment['fragment_kind'] == 'goal']
+    if not goals:
+        return {'rows': [], 'summary': ''}
+    selected = [fragment for fragment in fragments if fragment['fragment_kind'] in ('condition', 'goal')]
+    parameter = description['parameter']
+    function = description.get('function')
+    subject = f' ${function}({description["variable"]})$ ' if function else '函数'
+    domain = (description['input_domain'].replace('ℝ', r'\mathbb{R}')
+              .replace('+∞', r'+\infty').replace('∞', r'\infty'))
+    word = {'increasing': '递增', 'decreasing': '递减'}
+    direction = description['direction']
+    other = 'decreasing' if direction == 'increasing' else 'increasing'
+    correct = f'求使{subject}在 ${domain}$ 上严格{word[direction]}的全部 ${parameter}$'
+    wrong = f'求使{subject}在 ${domain}$ 上严格{word[other]}的全部 ${parameter}$'
+    basis = description.get('basis_kind', 'stated')
+    stated = None
+    if basis != 'stated':
+        from ..graph_lesson.stage_three.monotonicity_parameter_presentation import (
+            _basis_input_tex,
+            _basis_tex,
+        )
+        stated = _basis_tex({'basis': description['requirement']['basis']})
+    if basis == 'difference_quotient':
+        feedback = (f'差商的符号就是函数值与输入变化同向或反向；'
+                    f'题中 ${stated}$，说明函数严格{word[direction]}。')
+    elif basis == 'difference_product':
+        feedback = (f'差积的符号表示函数值与输入变化同向或反向；'
+                    f'题中 ${stated}$，说明函数严格{word[direction]}。')
+    else:
+        feedback = f'题目要求{subject}在 ${domain}$ 上严格{word[direction]}，再求满足要求的全部 ${parameter}$。'
+    row_id = f'{target}:goal'
+    spans = [_spans([fragment], text) for fragment in selected]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [fragment['id'] for fragment in selected],
+           'knowledge_refs': ['function-monotonicity#definition'], 'source_refs': [target],
+           'options': _shuffle(row_id, [_option(correct), _option(wrong, 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, description], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    if stated is not None:
+        name = '差商' if basis == 'difference_quotient' else '差积'
+        u, v = _basis_input_tex(description['requirement']['basis'])
+        question = (f'题中对任意不相等的 ${u},{v}\\in {domain}$，都有 ${stated}$。'
+                    f'这个{name}条件说明了什么，这一问要求什么？')
+    else:
+        question = '这一问对参数提出了什么要求？'
+    return {'rows': [row], 'givens': [], 'interaction': 'choice',
+            'question': question, 'feedback': feedback, 'summary': correct + '。'}
 
 
 def _piecewise_modeling_d1_rows(target, fragments, known, text):

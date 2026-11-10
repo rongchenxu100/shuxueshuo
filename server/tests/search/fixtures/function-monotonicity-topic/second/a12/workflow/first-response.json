@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1728,
+      "prompt_tokens": 24269,
+      "total_tokens": 25997,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 461
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 584,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-1d42ab7b-4096-4d82-ae2e-1d0ee8b29a75",
+        "sha256": "894fddfc5cbcd87dbf62162de091c773b534d0c495738b086b41e98dfc0bc612",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 6278,
+        "expires_at": 1794367228,
+        "uploaded_at": 1794280828.230029
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "894fddfc5cbcd87dbf62162de091c773b534d0c495738b086b41e98dfc0bc612",
+        "api_calls": 1,
+        "file_id": "file-api-1d42ab7b-4096-4d82-ae2e-1d0ee8b29a75",
+        "expires_at": 1794367228,
+        "elapsed_ms": 284
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 12647,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1728,
+          "prompt_tokens": 24269,
+          "total_tokens": 25997,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1529
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 461
+        },
+        "raw_payload": {
+          "id": "8829b9dc-016c-4047-9731-1cf162e37c70",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1728,
+            "prompt_tokens": 24269,
+            "total_tokens": 25997,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1529
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 461
+          },
+          "created": 1794280828,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片显示：12. 函数 f(x)=√(x^2-2x-3) 的单调减区间是 ______。手写答案/批注忽略。需要输出 JSON。\n\n需要确定 original_text：保留题号和公式，填空横线。手写答案不转录。题号12可以保留在 original_text（来源题号）。public_content 不保留题号。root.label 可以是 \"12\"？原图明确是题号？题号12，明确来源试卷题号。root_label_role=source。但 public_content statement 不含题号。root 中 label 可选，若放 \"12\" 则 role source。需要输出 root label? 题面有题号 12，可以放 root.label=\"12\", public_content.root_label_role=\"source\"。但 public_content scopes statement 只保留公式。需要 check schema: root.label 存在时 root_label_role 可选。我们可省略 label，避免。但 original_text 保留 \"12. \"。public_content statement 不含题号。不确定题号是否为来源？明确是题目编号；可以省略 root.label 更安全。original_text 仍可包含题号（允许保留来源题号）。public_content statement 不含。\n\n题目：函数 f(x)=sqrt(x^2-2x-3) 的单调减区间是 ______。求单调减区间。需要 goals 使用 find_monotonic_intervals，expression 原式 sqrt(x^2-2*x-3)，variable x，direction decreasing，input_domain? 题面没有给定义域，但函数定义有自然定义域。是否放 domain_role? 对求单调区间不需要输入范围。只记录原函数表达式和所求。definitions 放 f(x)=sqrt(x^2-2*x-3)。facts为空。目标 kind find_monotonic_intervals, expression \"sqrt(x^2-2*x-3)\"，variable \"x\"，direction \"decreasing\"；是否需要 function \"f\"? 可选。expression 是原式。不要求解区间。注意根号覆盖 x^2-2x-3。LaTeX original_text: $f(x)=\\sqrt{x^{2}-2x-3}$ 的单调减区间是 ______。图片中 \"单调减区间\" 有圈，不是题目内容？只是标注，不转录圈。原文字：12. 函数 f(x)=√(x²-2x-3) 的单调减区间是 ______。有手写答案/批注，不抄。\n\npublic_content completeness: complete? 题目完整（有函数和所求）。没有小问。figure none? 没有图。figure_detection status none regions []. privacy separated? 无个人信息，题干与手写批注分离，可 separated。figure not_required。\n\npublic_content.scopes 对应 root 一个 scope，scope_ref \"/root\"，statement \"$f(x)=\\\\sqrt{x^{2}-2x-3}$ 的单调减区间是 ______。\" 不包含题号。choices: target /root/goals/0 status none selection_mode none options [].\n\noriginal_text 中公式：$f(x)=\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。题号 \"12. \"。需要 JSON 字符串反斜杠转义。original_text 可以写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 注意 LaTeX 中 \\sqrt 要 \\\\sqrt in JSON。公式内 ^ 没问题。题面变量符号 x。原始图片显示 x^2 - 2x - 3 在根号内。横线为填空。手写有 (-∞, -1]? 不转录。\n\nroot definitions [\"f(x)=sqrt(x^2-2*x-3)\"]。facts []。goals [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\",\"function\":\"f\"}]。function 可选 pattern ^[a-z](?:_[0-9]+)?$ okay. expression 使用目录算术：sqrt(x^2-2*x-3) 是受控。但根号覆盖需明确：目录 sqrt(表达式) 支持。应写 \"sqrt(x^2-2*x-3)\"。定义 string 用 \"f(x)=sqrt(x^2-2*x-3)\"。注意根号内 x^2-2*x-3。目标 expression 是否应该完整原函数调用 f(x)？FindMonotonicIntervals expression \"含参数的原函数表达式，如 x^2-m*x+5\" 字段说 expression 原函数表达式。可以写 \"sqrt(x^2-2*x-3)\"。function f。direction decreasing。input_domain 没有。domain_role 可选，不填。不需要 required_monotonicity。没有参数。\n\n但函数 f 的定义域自然限制，表达式根号有意义。我们不应补自然定义域。题面求单调减区间，通常需要在其定义域内，但题面没有明确给范围；不要加 input_domain。目标提取不推导。\n\n根号字符串中乘法 2*x，没问题。变量 x^2-2x-3 中 -2x 写成 -2*x。定义 \"f(x)=sqrt(x^2-2*x-3)\" 使用受控 math_expression_catalog 的 sqrt。注意目录说首选 sqrt(x-1)。public_content statement 用 LaTeX \\sqrt{x^2-2x-3}，反斜杠转义。\n\n是否需要 uncertainties? 没有。手写答案不报告。图片清晰。\n\nfigure_detection: none. status none regions [].\n\npublic_content scopes statement：题目自身题干，不含小问编号。公式 \"\\\\(f(x)=\\\\sqrt{x^2-2x-3}\\\\)\" 的单调减区间是 ______。但 schema 说明用 $…$，不能 \\( )。所以要 \"$f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" JSON 中 backslash: \"\\\\(...\"? 直接字符串： \"$f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 输出时 JSON 转义为 \\\\sqrt。\n\noriginal_text 中集合花括号无。使用 $…$。需要保留题面变量、量词措辞；横线原样。题号 12 可。图片中 \"12.\" 前有空格。可写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 题目有“的”在公式后。\n\nroot 目标中有 expression 等。不输出答案。不能填写区间。\n\npublic_content.completeness complete。privacy separated。figure not_required。root_label_role 可不填或 source? root.label 未提供，不填。scopes 一个。choices target_ref \"/root/goals/0\" status none, selection_mode none, options [].\n\n需要只返回 JSON。确保 JSON 有效。不要输出其他。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 12959
+  },
+  "raw_payload": {
+    "id": "8829b9dc-016c-4047-9731-1cf162e37c70",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(x^2-2*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片显示：12. 函数 f(x)=√(x^2-2x-3) 的单调减区间是 ______。手写答案/批注忽略。需要输出 JSON。\n\n需要确定 original_text：保留题号和公式，填空横线。手写答案不转录。题号12可以保留在 original_text（来源题号）。public_content 不保留题号。root.label 可以是 \"12\"？原图明确是题号？题号12，明确来源试卷题号。root_label_role=source。但 public_content statement 不含题号。root 中 label 可选，若放 \"12\" 则 role source。需要输出 root label? 题面有题号 12，可以放 root.label=\"12\", public_content.root_label_role=\"source\"。但 public_content scopes statement 只保留公式。需要 check schema: root.label 存在时 root_label_role 可选。我们可省略 label，避免。但 original_text 保留 \"12. \"。public_content statement 不含题号。不确定题号是否为来源？明确是题目编号；可以省略 root.label 更安全。original_text 仍可包含题号（允许保留来源题号）。public_content statement 不含。\n\n题目：函数 f(x)=sqrt(x^2-2x-3) 的单调减区间是 ______。求单调减区间。需要 goals 使用 find_monotonic_intervals，expression 原式 sqrt(x^2-2*x-3)，variable x，direction decreasing，input_domain? 题面没有给定义域，但函数定义有自然定义域。是否放 domain_role? 对求单调区间不需要输入范围。只记录原函数表达式和所求。definitions 放 f(x)=sqrt(x^2-2*x-3)。facts为空。目标 kind find_monotonic_intervals, expression \"sqrt(x^2-2*x-3)\"，variable \"x\"，direction \"decreasing\"；是否需要 function \"f\"? 可选。expression 是原式。不要求解区间。注意根号覆盖 x^2-2x-3。LaTeX original_text: $f(x)=\\sqrt{x^{2}-2x-3}$ 的单调减区间是 ______。图片中 \"单调减区间\" 有圈，不是题目内容？只是标注，不转录圈。原文字：12. 函数 f(x)=√(x²-2x-3) 的单调减区间是 ______。有手写答案/批注，不抄。\n\npublic_content completeness: complete? 题目完整（有函数和所求）。没有小问。figure none? 没有图。figure_detection status none regions []. privacy separated? 无个人信息，题干与手写批注分离，可 separated。figure not_required。\n\npublic_content.scopes 对应 root 一个 scope，scope_ref \"/root\"，statement \"$f(x)=\\\\sqrt{x^{2}-2x-3}$ 的单调减区间是 ______。\" 不包含题号。choices: target /root/goals/0 status none selection_mode none options [].\n\noriginal_text 中公式：$f(x)=\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。题号 \"12. \"。需要 JSON 字符串反斜杠转义。original_text 可以写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 注意 LaTeX 中 \\sqrt 要 \\\\sqrt in JSON。公式内 ^ 没问题。题面变量符号 x。原始图片显示 x^2 - 2x - 3 在根号内。横线为填空。手写有 (-∞, -1]? 不转录。\n\nroot definitions [\"f(x)=sqrt(x^2-2*x-3)\"]。facts []。goals [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(x^2-2*x-3)\",\"variable\":\"x\",\"direction\":\"decreasing\",\"function\":\"f\"}]。function 可选 pattern ^[a-z](?:_[0-9]+)?$ okay. expression 使用目录算术：sqrt(x^2-2*x-3) 是受控。但根号覆盖需明确：目录 sqrt(表达式) 支持。应写 \"sqrt(x^2-2*x-3)\"。定义 string 用 \"f(x)=sqrt(x^2-2*x-3)\"。注意根号内 x^2-2*x-3。目标 expression 是否应该完整原函数调用 f(x)？FindMonotonicIntervals expression \"含参数的原函数表达式，如 x^2-m*x+5\" 字段说 expression 原函数表达式。可以写 \"sqrt(x^2-2*x-3)\"。function f。direction decreasing。input_domain 没有。domain_role 可选，不填。不需要 required_monotonicity。没有参数。\n\n但函数 f 的定义域自然限制，表达式根号有意义。我们不应补自然定义域。题面求单调减区间，通常需要在其定义域内，但题面没有明确给范围；不要加 input_domain。目标提取不推导。\n\n根号字符串中乘法 2*x，没问题。变量 x^2-2x-3 中 -2x 写成 -2*x。定义 \"f(x)=sqrt(x^2-2*x-3)\" 使用受控 math_expression_catalog 的 sqrt。注意目录说首选 sqrt(x-1)。public_content statement 用 LaTeX \\sqrt{x^2-2x-3}，反斜杠转义。\n\n是否需要 uncertainties? 没有。手写答案不报告。图片清晰。\n\nfigure_detection: none. status none regions [].\n\npublic_content scopes statement：题目自身题干，不含小问编号。公式 \"\\\\(f(x)=\\\\sqrt{x^2-2x-3}\\\\)\" 的单调减区间是 ______。但 schema 说明用 $…$，不能 \\( )。所以要 \"$f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" JSON 中 backslash: \"\\\\(...\"? 直接字符串： \"$f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 输出时 JSON 转义为 \\\\sqrt。\n\noriginal_text 中集合花括号无。使用 $…$。需要保留题面变量、量词措辞；横线原样。题号 12 可。图片中 \"12.\" 前有空格。可写 \"12. 函数 $f(x)=\\\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。\" 题目有“的”在公式后。\n\nroot 目标中有 expression 等。不输出答案。不能填写区间。\n\npublic_content.completeness complete。privacy separated。figure not_required。root_label_role 可不填或 source? root.label 未提供，不填。scopes 一个。choices target_ref \"/root/goals/0\" status none, selection_mode none, options [].\n\n需要只返回 JSON。确保 JSON 有效。不要输出其他。"
+        }
+      }
+    ],
+    "created": 1794280828,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1728,
+      "prompt_tokens": 24269,
+      "total_tokens": 25997,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1529,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 461
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 12.96
+}

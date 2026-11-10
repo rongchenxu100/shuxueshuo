@@ -1,0 +1,272 @@
+{
+  "search_id": "2640aacb05b4",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "2192e557-e8ac-4eee-90b0-51305d5e1c92",
+  "statement": "函数 $y=-x^2+4x+3$，$x∈[0,3]$ 的单调递增区间是 ______",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "b65e267226636c7b9f9ef2df238e53ed84163f5236ecfeb085bee29151790004",
+      "width": 950,
+      "height": 90,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/2640aacb05b4/figures/original?version=abd49909bd12f7ec15699af79c2daeb560ef6629d3db61eda0e749d8b44f878b"
+      }
+    ],
+    "content_id": "abd49909bd12f7ec15699af79c2daeb560ef6629d3db61eda0e749d8b44f878b"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "7b47b0224568",
+    "box": [
+      0.14464425332290853,
+      0.2989449003516999,
+      0.887412040656763,
+      0.3516998827667057
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      950,
+      90
+    ],
+    "bytes": 6499
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "3. 函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是 ______",
+  "parts": [],
+  "root": {
+    "label": "3.",
+    "definitions": [
+      "y=-x^2+4*x+3"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_monotonic_intervals",
+        "expression": "-x^2+4*x+3",
+        "variable": "x",
+        "direction": "increasing",
+        "input_domain": "[0,3]",
+        "domain_role": "declared"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf",
+    "sent_image_sha256": [
+      "33303f617e6f18e2dbe5ae479a3cfc7072d27df0af7e753a54d464b5b5b533cf"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 33.277,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "3.",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "e7c73a219fe84062beefc867129d2313",
+      "lesson_version": "d2d79f8efa85011829ec6b3506e9314218ec8127af07fb56c4596106d104f969",
+      "stream_id": "e7c73a219fe84062beefc867129d2313",
+      "snapshot_url": "/api/search/problems/2640aacb05b4/lesson/e7c73a219fe84062beefc867129d2313/snapshot",
+      "events_url": "/api/search/problems/2640aacb05b4/lesson/e7c73a219fe84062beefc867129d2313/events",
+      "websocket_url": "/api/search/problems/2640aacb05b4/lesson/e7c73a219fe84062beefc867129d2313/ws"
+    }
+  }
+}

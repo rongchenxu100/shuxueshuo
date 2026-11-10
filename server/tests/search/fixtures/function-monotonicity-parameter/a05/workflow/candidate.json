@@ -1,0 +1,46 @@
+{
+  "original_text": "5. 若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是____。",
+  "root": {
+    "definitions": [
+      "f(x)=x^2-m*x+5"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "m",
+        "required_monotonicity": {
+          "expression": "x^2-m*x+5",
+          "variable": "x",
+          "function": "f",
+          "direction": "increasing",
+          "strict": true,
+          "input_domain": "[1,2]"
+        }
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "若函数 $f(x)=x^2-mx+5$ 在区间 $[1,2]$ 上单调递增，则实数 $m$ 的取值范围是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

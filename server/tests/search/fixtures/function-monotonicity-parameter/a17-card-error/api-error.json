@@ -1,0 +1,8 @@
+{
+  "endpoint": "GET /api/search/problems/64bf1d6eeed3",
+  "transport": "FastAPI TestClient raise_server_exceptions=True",
+  "exception_type": "KeyError",
+  "message": "required_monotonicity",
+  "location": "search/lesson.py:_monotonicity_parameter_d1_rows",
+  "observation": "Actual poll raised before an HTTP response was returned; no api-final body was recorded."
+}

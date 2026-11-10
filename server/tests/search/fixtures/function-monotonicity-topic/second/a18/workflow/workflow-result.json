@@ -1,0 +1,2595 @@
+{
+  "schema_version": "problem-math-workflow/v1",
+  "candidate_only": true,
+  "solver_ready": false,
+  "status": "reviewed_candidate",
+  "source_status": "confirmed",
+  "source_reviewed": true,
+  "parse_status": "valid",
+  "output_contract": "search-problem-extraction/v1",
+  "continuation": {
+    "blocked": false,
+    "reason": "reviewed_candidate"
+  },
+  "diagnostics": [],
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "semantic_calls": 2,
+  "content_calls": 1,
+  "review_calls": 1,
+  "network_attempts": 2,
+  "network_reserved": 2,
+  "file_api_calls": 1,
+  "first_candidate": {
+    "original_text": "18. 已知函数 $f(x)=\\begin{cases} -x^3+2, & x<0 \\\\ -x+3, & x\\ge 0 \\end{cases}$， $g(x)=kx+5-2k(k>0)$，若对任意的 $x_1\\in[-1,1]$，总存在 $x_2\\in[-1,1]$ 使得 $f(x_1)\\le g(x_2)$ 成立，则实数 $k$ 的取值范围为______。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^3+2,x<0,-x+3,x≥0)",
+        "g(x)=k*x+5-2*k"
+      ],
+      "facts": [
+        "k > 0",
+        "∀x_1∈[-1,1]: ∃x_2∈[-1,1]: f(x_1) ≤ g(x_2)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "k"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\begin{cases} -x^3+2, & x<0 \\\\ -x+3, & x\\ge 0 \\end{cases}$， $g(x)=kx+5-2k(k>0)$，若对任意的 $x_1\\in[-1,1]$，总存在 $x_2\\in[-1,1]$ 使得 $f(x_1)\\le g(x_2)$ 成立，则实数 $k$ 的取值范围为______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "18. 已知函数 $f(x)=\\begin{cases} -x^3+2, & x<0 \\\\ -x+3, & x\\ge 0 \\end{cases}$， $g(x)=kx+5-2k(k>0)$，若对任意的 $x_1\\in[-1,1]$，总存在 $x_2\\in[-1,1]$ 使得 $f(x_1)\\le g(x_2)$ 成立，则实数 $k$ 的取值范围为______。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^3+2,x<0,-x+3,x≥0)",
+        "g(x)=k*x+5-2*k"
+      ],
+      "facts": [
+        "k > 0",
+        "∀x_1∈[-1,1]: ∃x_2∈[-1,1]: f(x_1) ≤ g(x_2)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "k"
+        }
+      ]
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知函数 $f(x)=\\begin{cases} -x^3+2, & x<0 \\\\ -x+3, & x\\ge 0 \\end{cases}$， $g(x)=kx+5-2k(k>0)$，若对任意的 $x_1\\in[-1,1]$，总存在 $x_2\\in[-1,1]$ 使得 $f(x_1)\\le g(x_2)$ 成立，则实数 $k$ 的取值范围为______。",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "parsed": {
+    "contract": "search-problem-extraction/v1",
+    "contract_valid": true,
+    "reports": {
+      "ir": {
+        "ok": true,
+        "issues": [],
+        "defaults": [
+          {
+            "ref": "r:scalar:k",
+            "domain": "real",
+            "origin": "code_default"
+          }
+        ],
+        "objects": [
+          {
+            "ref": "r:function:f",
+            "name": "f",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:function:g",
+            "name": "g",
+            "kind": "function",
+            "scope": "r"
+          },
+          {
+            "ref": "r:scalar:k",
+            "name": "k",
+            "kind": "scalar",
+            "scope": "r"
+          }
+        ],
+        "well_definedness_obligations": [],
+        "coordinate_bindings": [],
+        "object_bindings": [],
+        "normalization_proofs": [],
+        "normalization_report": {
+          "version": "semantic-equivalence/v1",
+          "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+          "initial_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "piecewise",
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "<",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ],
+                  [
+                    ">=",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:k",
+                        "scalar"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                ">",
+                [
+                  "ref",
+                  "r:scalar:k",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "0"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 3,
+              "fact": [
+                "quantifier",
+                "∀",
+                "quantified_0",
+                [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "quantifier",
+                  "∃",
+                  "quantified_1",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "<=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_0"
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:g",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_1"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "canonical_facts": [
+            {
+              "scope": "r",
+              "index": 0,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "piecewise",
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "<",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ],
+                  [
+                    ">=",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 1,
+              "fact": [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:k",
+                        "scalar"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 2,
+              "fact": [
+                ">",
+                [
+                  "ref",
+                  "r:scalar:k",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "0"
+                ]
+              ]
+            },
+            {
+              "scope": "r",
+              "index": 3,
+              "fact": [
+                "quantifier",
+                "∀",
+                "quantified_0",
+                [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "quantifier",
+                  "∃",
+                  "quantified_1",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "<=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_0"
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:g",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_1"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            }
+          ],
+          "derived_facts": [],
+          "proofs": [],
+          "blocked": []
+        }
+      },
+      "scope_policy": {
+        "ok": true,
+        "diagnostics": []
+      }
+    },
+    "revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe",
+    "canonical": {
+      "root": {
+        "facts": [
+          [
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "Symbol('n_60e1481dd8be3cef935e96be54e4c3acf143dc60c0d4ec29e228595d126744b4', real=True)"
+            ],
+            [
+              "function_definition",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "Add(Mul(Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Mul(Integer(-1), Integer(2), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)), Integer(5))"
+            ],
+            [
+              "quantifier",
+              "∀",
+              [
+                "interval",
+                true,
+                true,
+                "Integer(-1)",
+                "Integer(1)"
+              ],
+              [
+                [
+                  [
+                    "quantifier",
+                    "∃",
+                    [
+                      "interval",
+                      true,
+                      true,
+                      "Integer(-1)",
+                      "Integer(1)"
+                    ],
+                    [
+                      [
+                        [
+                          "relation",
+                          "<=",
+                          "Add(Mul(Integer(-1), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True), Symbol('n_e2a969c7f6126c6c9b0a28b73f5396f8691fa22ff2298caf6ab4ea68d6eb0c8a', real=True)), Mul(Integer(2), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)), Symbol('n_755c355066019c75698731d3b54ac34229551905a18ffce028a6968ec811c73a', real=True), Integer(-5))"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "relation",
+              "<",
+              "Mul(Integer(-1), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True))"
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": "Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)"
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "well_definedness": []
+    },
+    "compiled": {
+      "root": {
+        "scope": "r",
+        "facts": [
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "call",
+              "piecewise",
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ]
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "<",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "0"
+                ]
+              ],
+              [
+                "+",
+                [
+                  "neg",
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "3"
+                ]
+              ],
+              [
+                ">=",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "0"
+                ]
+              ]
+            ]
+          ],
+          [
+            "function_definition",
+            [
+              "ref",
+              "r:function:g",
+              "function"
+            ],
+            [
+              "-",
+              [
+                "+",
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:k",
+                    "scalar"
+                  ],
+                  [
+                    "bound",
+                    "function_argument"
+                  ]
+                ],
+                [
+                  "number",
+                  "5"
+                ]
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "r:scalar:k",
+                  "scalar"
+                ]
+              ]
+            ]
+          ],
+          [
+            ">",
+            [
+              "ref",
+              "r:scalar:k",
+              "scalar"
+            ],
+            [
+              "number",
+              "0"
+            ]
+          ],
+          [
+            "quantifier",
+            "∀",
+            "quantified_0",
+            [
+              "interval",
+              true,
+              true,
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ],
+            [
+              "quantifier",
+              "∃",
+              "quantified_1",
+              [
+                "interval",
+                true,
+                true,
+                [
+                  "neg",
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "<=",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_1"
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "target": [
+              "ref",
+              "r:scalar:k",
+              "scalar"
+            ]
+          }
+        ],
+        "uncertainties": [],
+        "children": []
+      },
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "source_locations": {
+        "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"3\"]]],[\"number\",\"2\"]],[\"<\",[\"bound\",\"function_argument\"],[\"number\",\"0\"]],[\"+\",[\"neg\",[\"bound\",\"function_argument\"]],[\"number\",\"3\"]],[\">=\",[\"bound\",\"function_argument\"],[\"number\",\"0\"]]]]": {
+          "path": "r.definitions[0]",
+          "source": "f(x)=piecewise(-x^3+2,x<0,-x+3,x≥0)"
+        },
+        "[\"function_definition\",[\"ref\",\"r:function:g\",\"function\"],[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:k\",\"scalar\"],[\"bound\",\"function_argument\"]],[\"number\",\"5\"]],[\"*\",[\"number\",\"2\"],[\"ref\",\"r:scalar:k\",\"scalar\"]]]]": {
+          "path": "r.definitions[1]",
+          "source": "g(x)=k*x+5-2*k"
+        },
+        "[\">\",[\"ref\",\"r:scalar:k\",\"scalar\"],[\"number\",\"0\"]]": {
+          "path": "r.facts[0]",
+          "source": "k > 0"
+        },
+        "[\"quantifier\",\"∀\",\"quantified_0\",[\"interval\",true,true,[\"neg\",[\"number\",\"1\"]],[\"number\",\"1\"]],[\"quantifier\",\"∃\",\"quantified_1\",[\"interval\",true,true,[\"neg\",[\"number\",\"1\"]],[\"number\",\"1\"]],[\"<=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"bound\",\"quantified_0\"]],[\"function_call\",[\"ref\",\"r:function:g\",\"function\"],[\"bound\",\"quantified_1\"]]]]]": {
+          "path": "r.facts[1]",
+          "source": "∀x_1∈[-1,1]: ∃x_2∈[-1,1]: f(x_1) ≤ g(x_2)"
+        }
+      },
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "piecewise",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:k",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 3,
+            "fact": [
+              "quantifier",
+              "∀",
+              "quantified_0",
+              [
+                "interval",
+                true,
+                true,
+                [
+                  "neg",
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "quantifier",
+                "∃",
+                "quantified_1",
+                [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "<=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_1"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              [
+                "call",
+                "piecewise",
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ]
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "neg",
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "3"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_definition",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "bound",
+                      "function_argument"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "5"
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:k",
+                    "scalar"
+                  ]
+                ]
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:k",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 3,
+            "fact": [
+              "quantifier",
+              "∀",
+              "quantified_0",
+              [
+                "interval",
+                true,
+                true,
+                [
+                  "neg",
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "quantifier",
+                "∃",
+                "quantified_1",
+                [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "<=",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_1"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "binding": {
+      "problem_id": "4bc82c12348f",
+      "source_sha256": "5e306bca67c3a1395f71a10cdaa205ab2947d8424d4edb5e52eb2ddcf84a9b98"
+    }
+  },
+  "first_finish_reason": "stop",
+  "review": {
+    "revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe",
+    "status": "confirmed",
+    "findings": []
+  },
+  "events": [
+    {
+      "call": 1,
+      "stage": "extract",
+      "base_revision": null,
+      "diagnostics": [],
+      "adopted": true,
+      "parse": {
+        "contract": "search-problem-extraction/v1",
+        "contract_valid": true,
+        "reports": {
+          "ir": {
+            "ok": true,
+            "issues": [],
+            "defaults": [
+              {
+                "ref": "r:scalar:k",
+                "domain": "real",
+                "origin": "code_default"
+              }
+            ],
+            "objects": [
+              {
+                "ref": "r:function:f",
+                "name": "f",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:function:g",
+                "name": "g",
+                "kind": "function",
+                "scope": "r"
+              },
+              {
+                "ref": "r:scalar:k",
+                "name": "k",
+                "kind": "scalar",
+                "scope": "r"
+              }
+            ],
+            "well_definedness_obligations": [],
+            "coordinate_bindings": [],
+            "object_bindings": [],
+            "normalization_proofs": [],
+            "normalization_report": {
+              "version": "semantic-equivalence/v1",
+              "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+              "initial_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "piecewise",
+                      [
+                        "+",
+                        [
+                          "neg",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "<",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "0"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "neg",
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ],
+                      [
+                        ">=",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "0"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:k",
+                            "scalar"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:k",
+                          "scalar"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    ">",
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 3,
+                  "fact": [
+                    "quantifier",
+                    "∀",
+                    "quantified_0",
+                    [
+                      "interval",
+                      true,
+                      true,
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "quantifier",
+                      "∃",
+                      "quantified_1",
+                      [
+                        "interval",
+                        true,
+                        true,
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "<=",
+                        [
+                          "function_call",
+                          [
+                            "ref",
+                            "r:function:f",
+                            "function"
+                          ],
+                          [
+                            "bound",
+                            "quantified_0"
+                          ]
+                        ],
+                        [
+                          "function_call",
+                          [
+                            "ref",
+                            "r:function:g",
+                            "function"
+                          ],
+                          [
+                            "bound",
+                            "quantified_1"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "canonical_facts": [
+                {
+                  "scope": "r",
+                  "index": 0,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "call",
+                      "piecewise",
+                      [
+                        "+",
+                        [
+                          "neg",
+                          [
+                            "^",
+                            [
+                              "bound",
+                              "function_argument"
+                            ],
+                            [
+                              "number",
+                              "3"
+                            ]
+                          ]
+                        ],
+                        [
+                          "number",
+                          "2"
+                        ]
+                      ],
+                      [
+                        "<",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "0"
+                        ]
+                      ],
+                      [
+                        "+",
+                        [
+                          "neg",
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ],
+                      [
+                        ">=",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "0"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 1,
+                  "fact": [
+                    "function_definition",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "-",
+                      [
+                        "+",
+                        [
+                          "*",
+                          [
+                            "ref",
+                            "r:scalar:k",
+                            "scalar"
+                          ],
+                          [
+                            "bound",
+                            "function_argument"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "5"
+                        ]
+                      ],
+                      [
+                        "*",
+                        [
+                          "number",
+                          "2"
+                        ],
+                        [
+                          "ref",
+                          "r:scalar:k",
+                          "scalar"
+                        ]
+                      ]
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 2,
+                  "fact": [
+                    ">",
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                },
+                {
+                  "scope": "r",
+                  "index": 3,
+                  "fact": [
+                    "quantifier",
+                    "∀",
+                    "quantified_0",
+                    [
+                      "interval",
+                      true,
+                      true,
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "quantifier",
+                      "∃",
+                      "quantified_1",
+                      [
+                        "interval",
+                        true,
+                        true,
+                        [
+                          "neg",
+                          [
+                            "number",
+                            "1"
+                          ]
+                        ],
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "<=",
+                        [
+                          "function_call",
+                          [
+                            "ref",
+                            "r:function:f",
+                            "function"
+                          ],
+                          [
+                            "bound",
+                            "quantified_0"
+                          ]
+                        ],
+                        [
+                          "function_call",
+                          [
+                            "ref",
+                            "r:function:g",
+                            "function"
+                          ],
+                          [
+                            "bound",
+                            "quantified_1"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                }
+              ],
+              "derived_facts": [],
+              "proofs": [],
+              "blocked": []
+            }
+          },
+          "scope_policy": {
+            "ok": true,
+            "diagnostics": []
+          }
+        },
+        "revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe",
+        "canonical": {
+          "root": {
+            "facts": [
+              [
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  "Symbol('n_60e1481dd8be3cef935e96be54e4c3acf143dc60c0d4ec29e228595d126744b4', real=True)"
+                ],
+                [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  "Add(Mul(Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True), Symbol('n_8717024b9b8e43a5faade8e71b793cab14aff976769f46a6b639f475c2784431', real=True)), Mul(Integer(-1), Integer(2), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)), Integer(5))"
+                ],
+                [
+                  "quantifier",
+                  "∀",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    "Integer(-1)",
+                    "Integer(1)"
+                  ],
+                  [
+                    [
+                      [
+                        "quantifier",
+                        "∃",
+                        [
+                          "interval",
+                          true,
+                          true,
+                          "Integer(-1)",
+                          "Integer(1)"
+                        ],
+                        [
+                          [
+                            [
+                              "relation",
+                              "<=",
+                              "Add(Mul(Integer(-1), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True), Symbol('n_e2a969c7f6126c6c9b0a28b73f5396f8691fa22ff2298caf6ab4ea68d6eb0c8a', real=True)), Mul(Integer(2), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)), Symbol('n_755c355066019c75698731d3b54ac34229551905a18ffce028a6968ec811c73a', real=True), Integer(-5))"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "relation",
+                  "<",
+                  "Mul(Integer(-1), Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True))"
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": "Symbol('n_63b271fc1791a1c263a0c633329c67eda5507121879b4e01d9fdfead99a8502b', real=True)"
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "well_definedness": []
+        },
+        "compiled": {
+          "root": {
+            "scope": "r",
+            "facts": [
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "call",
+                  "piecewise",
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "^",
+                        [
+                          "bound",
+                          "function_argument"
+                        ],
+                        [
+                          "number",
+                          "3"
+                        ]
+                      ]
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "<",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ],
+                  [
+                    "+",
+                    [
+                      "neg",
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "3"
+                    ]
+                  ],
+                  [
+                    ">=",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "function_definition",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                [
+                  "-",
+                  [
+                    "+",
+                    [
+                      "*",
+                      [
+                        "ref",
+                        "r:scalar:k",
+                        "scalar"
+                      ],
+                      [
+                        "bound",
+                        "function_argument"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "5"
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "number",
+                      "2"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:k",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                ">",
+                [
+                  "ref",
+                  "r:scalar:k",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "0"
+                ]
+              ],
+              [
+                "quantifier",
+                "∀",
+                "quantified_0",
+                [
+                  "interval",
+                  true,
+                  true,
+                  [
+                    "neg",
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ],
+                [
+                  "quantifier",
+                  "∃",
+                  "quantified_1",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "<=",
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:f",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_0"
+                      ]
+                    ],
+                    [
+                      "function_call",
+                      [
+                        "ref",
+                        "r:function:g",
+                        "function"
+                      ],
+                      [
+                        "bound",
+                        "quantified_1"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "target": [
+                  "ref",
+                  "r:scalar:k",
+                  "scalar"
+                ]
+              }
+            ],
+            "uncertainties": [],
+            "children": []
+          },
+          "objects": [
+            {
+              "ref": "r:function:f",
+              "name": "f",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:function:g",
+              "name": "g",
+              "kind": "function",
+              "scope": "r"
+            },
+            {
+              "ref": "r:scalar:k",
+              "name": "k",
+              "kind": "scalar",
+              "scope": "r"
+            }
+          ],
+          "source_locations": {
+            "[\"function_definition\",[\"ref\",\"r:function:f\",\"function\"],[\"call\",\"piecewise\",[\"+\",[\"neg\",[\"^\",[\"bound\",\"function_argument\"],[\"number\",\"3\"]]],[\"number\",\"2\"]],[\"<\",[\"bound\",\"function_argument\"],[\"number\",\"0\"]],[\"+\",[\"neg\",[\"bound\",\"function_argument\"]],[\"number\",\"3\"]],[\">=\",[\"bound\",\"function_argument\"],[\"number\",\"0\"]]]]": {
+              "path": "r.definitions[0]",
+              "source": "f(x)=piecewise(-x^3+2,x<0,-x+3,x≥0)"
+            },
+            "[\"function_definition\",[\"ref\",\"r:function:g\",\"function\"],[\"-\",[\"+\",[\"*\",[\"ref\",\"r:scalar:k\",\"scalar\"],[\"bound\",\"function_argument\"]],[\"number\",\"5\"]],[\"*\",[\"number\",\"2\"],[\"ref\",\"r:scalar:k\",\"scalar\"]]]]": {
+              "path": "r.definitions[1]",
+              "source": "g(x)=k*x+5-2*k"
+            },
+            "[\">\",[\"ref\",\"r:scalar:k\",\"scalar\"],[\"number\",\"0\"]]": {
+              "path": "r.facts[0]",
+              "source": "k > 0"
+            },
+            "[\"quantifier\",\"∀\",\"quantified_0\",[\"interval\",true,true,[\"neg\",[\"number\",\"1\"]],[\"number\",\"1\"]],[\"quantifier\",\"∃\",\"quantified_1\",[\"interval\",true,true,[\"neg\",[\"number\",\"1\"]],[\"number\",\"1\"]],[\"<=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"bound\",\"quantified_0\"]],[\"function_call\",[\"ref\",\"r:function:g\",\"function\"],[\"bound\",\"quantified_1\"]]]]]": {
+              "path": "r.facts[1]",
+              "source": "∀x_1∈[-1,1]: ∃x_2∈[-1,1]: f(x_1) ≤ g(x_2)"
+            }
+          },
+          "normalization_report": {
+            "version": "semantic-equivalence/v1",
+            "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+            "initial_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "piecewise",
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "3"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "<",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ],
+                    [
+                      ">=",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:k",
+                          "scalar"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  ">",
+                  [
+                    "ref",
+                    "r:scalar:k",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 3,
+                "fact": [
+                  "quantifier",
+                  "∀",
+                  "quantified_0",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "quantifier",
+                    "∃",
+                    "quantified_1",
+                    [
+                      "interval",
+                      true,
+                      true,
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "<=",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:f",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "quantified_0"
+                        ]
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:g",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "quantified_1"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "canonical_facts": [
+              {
+                "scope": "r",
+                "index": 0,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "call",
+                    "piecewise",
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "^",
+                          [
+                            "bound",
+                            "function_argument"
+                          ],
+                          [
+                            "number",
+                            "3"
+                          ]
+                        ]
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "<",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "neg",
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "3"
+                      ]
+                    ],
+                    [
+                      ">=",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "0"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 1,
+                "fact": [
+                  "function_definition",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "-",
+                    [
+                      "+",
+                      [
+                        "*",
+                        [
+                          "ref",
+                          "r:scalar:k",
+                          "scalar"
+                        ],
+                        [
+                          "bound",
+                          "function_argument"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "5"
+                      ]
+                    ],
+                    [
+                      "*",
+                      [
+                        "number",
+                        "2"
+                      ],
+                      [
+                        "ref",
+                        "r:scalar:k",
+                        "scalar"
+                      ]
+                    ]
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 2,
+                "fact": [
+                  ">",
+                  [
+                    "ref",
+                    "r:scalar:k",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ]
+              },
+              {
+                "scope": "r",
+                "index": 3,
+                "fact": [
+                  "quantifier",
+                  "∀",
+                  "quantified_0",
+                  [
+                    "interval",
+                    true,
+                    true,
+                    [
+                      "neg",
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ],
+                  [
+                    "quantifier",
+                    "∃",
+                    "quantified_1",
+                    [
+                      "interval",
+                      true,
+                      true,
+                      [
+                        "neg",
+                        [
+                          "number",
+                          "1"
+                        ]
+                      ],
+                      [
+                        "number",
+                        "1"
+                      ]
+                    ],
+                    [
+                      "<=",
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:f",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "quantified_0"
+                        ]
+                      ],
+                      [
+                        "function_call",
+                        [
+                          "ref",
+                          "r:function:g",
+                          "function"
+                        ],
+                        [
+                          "bound",
+                          "quantified_1"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              }
+            ],
+            "derived_facts": [],
+            "proofs": [],
+            "blocked": []
+          }
+        },
+        "binding": {
+          "problem_id": "4bc82c12348f",
+          "source_sha256": "5e306bca67c3a1395f71a10cdaa205ab2947d8424d4edb5e52eb2ddcf84a9b98"
+        }
+      },
+      "revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe"
+    },
+    {
+      "call": 2,
+      "stage": "review",
+      "base_revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe",
+      "diagnostics": [],
+      "adopted": false,
+      "review": {
+        "revision": "cf6ab97a65b37dc9dc258d2c51107e4cf7c831d4f1e4cbbe11201b721161ddbe",
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

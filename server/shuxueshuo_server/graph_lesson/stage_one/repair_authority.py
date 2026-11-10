@@ -10,6 +10,8 @@ kind permits it at that place:
   their scope's facts/definitions or goals;
 * a goal-level ``missing_condition`` may add one absent typed input condition,
   without rewriting the target, existing conditions, or sibling goals;
+* a field-level missing condition may wrap an existing basis statement in
+  universal quantifiers and a guard, preserving the original relation exactly;
 * other review findings correct what they point to (a goal's field edits
   stay inside that field); only ``unsupported_addition`` may delete;
 * compiler, schema and scope-policy diagnostics may edit, delete or insert at
@@ -98,6 +100,23 @@ def edits(before, after, path=""):
 
 def changed_paths(before, after, path=""):
     return [p for p, _ in edits(before, after, path)]
+
+
+def _adds_quantified_guard(before, after):
+    """Only complete binders/guards; never authorize a change to the old relation."""
+    from shuxueshuo_server.problem_understanding.notation_parser import parse
+
+    if not isinstance(before, str) or not isinstance(after, str):
+        return False
+    try:
+        old, new = parse(before), parse(after)
+        if old[0] not in ('=', '!=', '<', '<=', '>', '>=') or new[:2] != ['quantifier', '∀']:
+            return False
+        while new[:2] == ['quantifier', '∀']:
+            new = new[4]
+        return new == old or (new[0] == 'implies' and new[2] == old)
+    except (ValueError, IndexError, TypeError):
+        return False
 
 
 @dataclass(frozen=True)
@@ -388,6 +407,14 @@ class _Authority:
 
     def unexplained(self, old, value):
         changes = edits(old.value, value, old.path)
+        if len(changes) == 1:
+            path, operation = changes[0]
+            relative = path.removeprefix(old.path)
+            if (operation == 'replace' and path.endswith('/basis/statement')
+                    and any(g.code == 'missing_condition' and g.path == path
+                            and g not in self.used for g in self.grants)
+                    and _adds_quantified_guard(pointer(old.value, relative), pointer(value, relative))):
+                return []
         if (len(changes) == 1 and isinstance(old.value, dict)
                 and old.value.get('kind') in ('find_abstract_domain', 'find_abstract_range',
                                                'find_abstract_domain_parameter')):

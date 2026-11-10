@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"6. 若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"ℝ\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3011,
+      "prompt_tokens": 24237,
+      "total_tokens": 27248,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 902,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-de8f386c-a871-49a0-b10d-abf9e6f4e02a",
+        "sha256": "0a432e1f14ed93261a382c77c8427df6f54da55a39e39600f8b939328c1d6de7",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 9507,
+        "expires_at": 1794364199,
+        "uploaded_at": 1794277799.171711
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "0a432e1f14ed93261a382c77c8427df6f54da55a39e39600f8b939328c1d6de7",
+        "api_calls": 1,
+        "file_id": "file-api-de8f386c-a871-49a0-b10d-abf9e6f4e02a",
+        "expires_at": 1794364199,
+        "elapsed_ms": 136
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 22328,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3011,
+          "prompt_tokens": 24237,
+          "total_tokens": 27248,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2670
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 429
+        },
+        "raw_payload": {
+          "id": "54e41272-8476-4780-8148-46b247117533",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3011,
+            "prompt_tokens": 24237,
+            "total_tokens": 27248,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2670
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 429
+          },
+          "created": 1794277799,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"6. 若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"ℝ\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意。图片显示题目：\n6. 若函数 \\(f(x)=\\begin{cases}x^2-ax+\\frac a2, x\\ge1,\\\\ (2a+4)x-5, x<1\\end{cases}\\) 在 \\(\\mathbb R\\) 上单调递增，则实数 \\(a\\) 的取值范围为____。\n手写答案 [-2,4/5] 不应转录。题干有部分空白横线。需要输出original_text、root、public_content。\n\n需要解析分段函数定义，定义放definitions：f(x)=piecewise(x^2-a*x+a/2, x>=1, (2*a+4)*x-5, x<1)。事实：f在ℝ上单调递增。目标：求a范围，find_range symbol a。required_monotonicity? 题面给定函数含参且要求在R上单调递增，这属于待求参数必须满足的单调要求。可以用 find_range + required_monotonicity 表达？根据约定：required_monotonicity 表示待求参数必须满足的单调要求。expression 含参原函数表达式，variable x，direction increasing，strict true，input_domain ℝ，basis kind stated statement \"\"。函数名 f 可填。注意分段表达式可能 expression 用 piecewise(...)，variable x。目标 kind find_range, symbol a, required_monotonicity。不能同时 function_monotonicity。可以不加事实单调，因为目标字段包含要求。但题意是“在R上单调递增”条件，可以作为 required_monotonicity。也可以 facts 加 ∀? 不。定义本身 f(x)=piecewise。required_monotonicity.expression 填 piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1) 或 x^2-a*x+a/2? 应该完整。\n\n目标是 a 的取值范围，原题有填空。选项无。public_content scopes root statement 完整题干。original_text 使用 LaTeX。图片有手写批注，不转录。有下划线填空处。题干“若函数 f(x)= { ... } 在 ℝ 上单调递增，则实数 a 的取值范围为____。” 手写答案在横线处，不包含。识别分段公式：第一段 \\(x^2-ax+\\frac{a}{2}, x\\ge1\\)，第二段 \\((2a+4)x-5, x<1\\)。原图中“在 R 上单调递增”有圈注，“R”看起来是实数符号。题干前题号6。是否需要保留题号？original_text 转录完整题干可以保留“6.”，但public_content statement 不含题号。label? root.label 可省略。source? 6是题号，如果放 root.label=6 会是source。但通常题干包含题号？原始文本可含6，public去除。root label 可省略以避免。original_text 可以以“6. ”开头。public statement 不含题号。\n\n需要 JSON schema 字段：original_text, root, public_content。root Scope 属性可包含 definitions, facts, goals, children, uncertainties, label。public_content 包含 completeness, privacy, figure, scopes, figure_detection, root_label_role optional。figure_detection status none/present/uncertain, regions. 图片中无配图。status none. regions [].\n\nprivacy: 手写答案、批注属于非题目内容，但已分离；题号是来源可分离，privacy separated? 需要看“来源只能在能够明确分离时排除”。有题号6、手写答案圈注和横线。可以 separated，因为手写答案不转录，来源题号排除。但 public_content statement 不包含题号。root label 未设，无来源。可以 separated。completeness complete，因为题干完整（虽然答案手写但题目完整）。figure not_required。scopes 一个 root statement。choices 对应 goals，无选项 status none selection_mode none options []。target_ref “/root/goals/0”。\n\nroot facts 是否可以放“f在R上单调递增”而不是 only target required monotonicity? 如果 required_monotonicity 字段已表示条件，facts 不必重复。但 root 中 goal 包含 required_monotonicity。definitions 放函数定义。facts [] 可以。但题意条件也需在 roots facts? 该目标字段的 required_monotonicity 就是条件，不是独立事实。可以接受。问题：required_monotonicity.expression 可以是 piecewise(...), variable x, direction increasing, strict true, input_domain ℝ, basis stated. 函数已命名可填 function f。好。\n\n但是 required_monotonicity.expression 要求“含参数的原函数表达式，如 x^2-m*x+5；不写答案参数集。” 分段函数完整表达式可以用 piecewise。也可以定义 f(x) 后在 expression 填“f(x)”吗？字段描述“含参数的原函数表达式”，函数已命名可填 function。如果 expression \"f(x)\" 就不含参数。可能表达式中需原函数表达式。填 piecewise(...)。function 可以填 f。这样条件与定义一致。\n\ndefinitions: \"f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"。注意分段第一段条件 x>=1，没有空格。保持开闭严格：x>=1, x<1。原题第一段 \\(x\\ge1\\) 第二段 \\(x<1\\)。好。\n\nRoot label 可选。不要题号。没有 uncertainties。\n\nPublic statement 需要完整题干，公式用 $...$，分段用 LaTeX cases，包含填空横线。可以写：若函数 \\(f(x)=\\begin{cases}x^2-ax+\\frac{a}{2},&x\\ge1,\\\\(2a+4)x-5,&x<1\\end{cases}\\) 在 \\(\\mathbb R\\) 上单调递增，则实数 \\(a\\) 的取值范围为____。 注意 public_content 的 statement 不得夹入小问编号和选项，题号6去除。可保留“若函数...”。选择“____”。\n\noriginal_text: \"6. 若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\" 注意 JSON 字符串反斜杠转义：\\\\begin, \\\\frac, \\\\ge, \\\\mathbb, \\\\end, 以及换行 cases 的 \\\\\\\\? 在 JSON 中每个反斜杠都要双写。为了简化 original_text 的公式可以不用 LaTeX cases? 可以使用 cases 环境。需要写 $…$ 包围。在 JSON 字符串中 \\begin 写成 \\\\begin，\\\\ 换行 cases 写成 \\\\\\\\? 实际上 LaTeX 中 cases 换行是 \\\\。在 JSON 字符串中要表示两个反斜杠，写作 \"\\\\\\\\\"。原字符串内容 \\( ... \\begin{cases}...\\\\...\\end{cases} \\) 中每个 LaTeX命令反斜杠需 double。具体：$f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$。这里 \\\\\\\\ 在 JSON 解析后变成两个反斜杠，即 LaTeX 换行 \\\\，OK。注意 \"\\\\ge\" 解析为 \\ge，好。 \"\\\\frac\" -> \\frac. 文本中 $ 和不带反斜杠。可以。\n\n但 original_text 公式中需要用 $…$，集合花括号写 \\{ \\}（规则）。但 cases 的花括号不是集合，显示需要反斜杠? 该规则针对 $…$ 内集合花括号写成 \\{ \\}。cases 环境自身会生成花括号，不需要写 \\{。这是环境花括号。安全。\n\nroot 数学字符串不用 $ 和反斜杠，使用 Unicode 记法。definitions 用受控数学目录字符串。允许 \"f(x)=piecewise(...)\"。expression piecewise。root.facts []。\n\n是否 root 的 definitions 中分段使用 piecewise 参数条件。好。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}。也可 answer_request? 不需要。函数是分段函数，求参数范围。required_monotonicity 字段 optional 但有严格结构。basis.statement 空串。input_domain 用 \"ℝ\" (Unicode)。direction increasing，strict true。expression 用完整 piecewise。variable x。function f。注意 input_domain 约束字段最大512，ℝ可以。\n\n需要检查 schema 中 find_range required_monotonicity 的 expression 是 string，variable pattern ^[a-z]$，direction enum，strict true, input_domain. basis optional object kind enum and statement max. Good.\n\npublic_content choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nroot.uncertainties 可省略。无。\n\nfigure_detection status none regions []. 图片本身有文本，无图。状态 none。\n\nPrivacy separated：手写答案、圈注被排除，题号排除。public_content root_label_role 可省略，因为无label。是否需要 privacy \"separated\" 引用的手写“答案”不算题目。是的。original_text 不包含手写答案。完整。\n\n可能 root label 题号6? 不设。\n\n需要考虑是否题目学生拍题，含有手写答案 [-2,4/5] 和平线涂画，不属于题目。original_text 应只转录题目，不抄手写答案。横线处照原样写“____”。对。\n\n检查分段公式第一段分数：图片显示 \\(\\frac{a}{2}\\) 在 \\(x^2-ax+\\) 后。可以。第二段是 \\((2a+4)x-5\\)。末尾逗号。原文是“若函数 f(x)={ ... 在R上单调递增，则实数a的取值范围为____”。题目中有“在 R 上”圈出，R用的是实数集符号。转录 \\(\\mathbb R\\) 或 $R$？图片中看起来是 \\mathbf R 或 ℝ。用 \\mathbb R。\n\n现在输出 JSON 只包含 schema 字段。不要输出额外。需要确保 original_text 中“\\\\begin{cases}...” 在最终 JSON 字符串正确。由于最终是 JSON，我会写一个符合格式的对象。思考中不能直接包含太多? 输出。\n\n还要 root definitions 字符串：f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)。注意 piecewise 参数中的条件包含 >=,<，directory ok。表达式 a/2 ok。第二段乘法用 *：(2*a+4)*x-5。好。root required_monotonicity.expression 使用相同字符串 \"piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"。这算是原式吗？可以。function \"f\"。\n\nRoot facts 可空。但是单调性条件不在 facts 中，而 goal 内 included. 没问题。是否有目标字段的 required_monotonicity 是“必须满足的单调要求”，符合。\n\nPublic_content statement 可写 \"若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\" 在 JSON 中双反斜杠。注意在 \"cases\" 中换行是 `\\\\` 在 LaTeX 内容，JSON 需要 `\\\\\\\\`。可以。statement 中 `&` 是否要转义? JSON 不需要。`$` 不需要。可以。\n\npublic_content completeness complete。privacy separated。figure not_required。scopes one.\n\nFigure detection status none regions [].\n\n需注意 `original_text` 中“6.”是不是来源，可以保留，public不保留。privacy separated because source explicitly题号与题干可分离。没问题。\n\n现在输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 22488
+  },
+  "raw_payload": {
+    "id": "54e41272-8476-4780-8148-46b247117533",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"6. 若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"ℝ\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意。图片显示题目：\n6. 若函数 \\(f(x)=\\begin{cases}x^2-ax+\\frac a2, x\\ge1,\\\\ (2a+4)x-5, x<1\\end{cases}\\) 在 \\(\\mathbb R\\) 上单调递增，则实数 \\(a\\) 的取值范围为____。\n手写答案 [-2,4/5] 不应转录。题干有部分空白横线。需要输出original_text、root、public_content。\n\n需要解析分段函数定义，定义放definitions：f(x)=piecewise(x^2-a*x+a/2, x>=1, (2*a+4)*x-5, x<1)。事实：f在ℝ上单调递增。目标：求a范围，find_range symbol a。required_monotonicity? 题面给定函数含参且要求在R上单调递增，这属于待求参数必须满足的单调要求。可以用 find_range + required_monotonicity 表达？根据约定：required_monotonicity 表示待求参数必须满足的单调要求。expression 含参原函数表达式，variable x，direction increasing，strict true，input_domain ℝ，basis kind stated statement \"\"。函数名 f 可填。注意分段表达式可能 expression 用 piecewise(...)，variable x。目标 kind find_range, symbol a, required_monotonicity。不能同时 function_monotonicity。可以不加事实单调，因为目标字段包含要求。但题意是“在R上单调递增”条件，可以作为 required_monotonicity。也可以 facts 加 ∀? 不。定义本身 f(x)=piecewise。required_monotonicity.expression 填 piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1) 或 x^2-a*x+a/2? 应该完整。\n\n目标是 a 的取值范围，原题有填空。选项无。public_content scopes root statement 完整题干。original_text 使用 LaTeX。图片有手写批注，不转录。有下划线填空处。题干“若函数 f(x)= { ... } 在 ℝ 上单调递增，则实数 a 的取值范围为____。” 手写答案在横线处，不包含。识别分段公式：第一段 \\(x^2-ax+\\frac{a}{2}, x\\ge1\\)，第二段 \\((2a+4)x-5, x<1\\)。原图中“在 R 上单调递增”有圈注，“R”看起来是实数符号。题干前题号6。是否需要保留题号？original_text 转录完整题干可以保留“6.”，但public_content statement 不含题号。label? root.label 可省略。source? 6是题号，如果放 root.label=6 会是source。但通常题干包含题号？原始文本可含6，public去除。root label 可省略以避免。original_text 可以以“6. ”开头。public statement 不含题号。\n\n需要 JSON schema 字段：original_text, root, public_content。root Scope 属性可包含 definitions, facts, goals, children, uncertainties, label。public_content 包含 completeness, privacy, figure, scopes, figure_detection, root_label_role optional。figure_detection status none/present/uncertain, regions. 图片中无配图。status none. regions [].\n\nprivacy: 手写答案、批注属于非题目内容，但已分离；题号是来源可分离，privacy separated? 需要看“来源只能在能够明确分离时排除”。有题号6、手写答案圈注和横线。可以 separated，因为手写答案不转录，来源题号排除。但 public_content statement 不包含题号。root label 未设，无来源。可以 separated。completeness complete，因为题干完整（虽然答案手写但题目完整）。figure not_required。scopes 一个 root statement。choices 对应 goals，无选项 status none selection_mode none options []。target_ref “/root/goals/0”。\n\nroot facts 是否可以放“f在R上单调递增”而不是 only target required monotonicity? 如果 required_monotonicity 字段已表示条件，facts 不必重复。但 root 中 goal 包含 required_monotonicity。definitions 放函数定义。facts [] 可以。但题意条件也需在 roots facts? 该目标字段的 required_monotonicity 就是条件，不是独立事实。可以接受。问题：required_monotonicity.expression 可以是 piecewise(...), variable x, direction increasing, strict true, input_domain ℝ, basis stated. 函数已命名可填 function f。好。\n\n但是 required_monotonicity.expression 要求“含参数的原函数表达式，如 x^2-m*x+5；不写答案参数集。” 分段函数完整表达式可以用 piecewise。也可以定义 f(x) 后在 expression 填“f(x)”吗？字段描述“含参数的原函数表达式”，函数已命名可填 function。如果 expression \"f(x)\" 就不含参数。可能表达式中需原函数表达式。填 piecewise(...)。function 可以填 f。这样条件与定义一致。\n\ndefinitions: \"f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"。注意分段第一段条件 x>=1，没有空格。保持开闭严格：x>=1, x<1。原题第一段 \\(x\\ge1\\) 第二段 \\(x<1\\)。好。\n\nRoot label 可选。不要题号。没有 uncertainties。\n\nPublic statement 需要完整题干，公式用 $...$，分段用 LaTeX cases，包含填空横线。可以写：若函数 \\(f(x)=\\begin{cases}x^2-ax+\\frac{a}{2},&x\\ge1,\\\\(2a+4)x-5,&x<1\\end{cases}\\) 在 \\(\\mathbb R\\) 上单调递增，则实数 \\(a\\) 的取值范围为____。 注意 public_content 的 statement 不得夹入小问编号和选项，题号6去除。可保留“若函数...”。选择“____”。\n\noriginal_text: \"6. 若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\" 注意 JSON 字符串反斜杠转义：\\\\begin, \\\\frac, \\\\ge, \\\\mathbb, \\\\end, 以及换行 cases 的 \\\\\\\\? 在 JSON 中每个反斜杠都要双写。为了简化 original_text 的公式可以不用 LaTeX cases? 可以使用 cases 环境。需要写 $…$ 包围。在 JSON 字符串中 \\begin 写成 \\\\begin，\\\\ 换行 cases 写成 \\\\\\\\? 实际上 LaTeX 中 cases 换行是 \\\\。在 JSON 字符串中要表示两个反斜杠，写作 \"\\\\\\\\\"。原字符串内容 \\( ... \\begin{cases}...\\\\...\\end{cases} \\) 中每个 LaTeX命令反斜杠需 double。具体：$f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$。这里 \\\\\\\\ 在 JSON 解析后变成两个反斜杠，即 LaTeX 换行 \\\\，OK。注意 \"\\\\ge\" 解析为 \\ge，好。 \"\\\\frac\" -> \\frac. 文本中 $ 和不带反斜杠。可以。\n\n但 original_text 公式中需要用 $…$，集合花括号写 \\{ \\}（规则）。但 cases 的花括号不是集合，显示需要反斜杠? 该规则针对 $…$ 内集合花括号写成 \\{ \\}。cases 环境自身会生成花括号，不需要写 \\{。这是环境花括号。安全。\n\nroot 数学字符串不用 $ 和反斜杠，使用 Unicode 记法。definitions 用受控数学目录字符串。允许 \"f(x)=piecewise(...)\"。expression piecewise。root.facts []。\n\n是否 root 的 definitions 中分段使用 piecewise 参数条件。好。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{...}}。也可 answer_request? 不需要。函数是分段函数，求参数范围。required_monotonicity 字段 optional 但有严格结构。basis.statement 空串。input_domain 用 \"ℝ\" (Unicode)。direction increasing，strict true。expression 用完整 piecewise。variable x。function f。注意 input_domain 约束字段最大512，ℝ可以。\n\n需要检查 schema 中 find_range required_monotonicity 的 expression 是 string，variable pattern ^[a-z]$，direction enum，strict true, input_domain. basis optional object kind enum and statement max. Good.\n\npublic_content choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nroot.uncertainties 可省略。无。\n\nfigure_detection status none regions []. 图片本身有文本，无图。状态 none。\n\nPrivacy separated：手写答案、圈注被排除，题号排除。public_content root_label_role 可省略，因为无label。是否需要 privacy \"separated\" 引用的手写“答案”不算题目。是的。original_text 不包含手写答案。完整。\n\n可能 root label 题号6? 不设。\n\n需要考虑是否题目学生拍题，含有手写答案 [-2,4/5] 和平线涂画，不属于题目。original_text 应只转录题目，不抄手写答案。横线处照原样写“____”。对。\n\n检查分段公式第一段分数：图片显示 \\(\\frac{a}{2}\\) 在 \\(x^2-ax+\\) 后。可以。第二段是 \\((2a+4)x-5\\)。末尾逗号。原文是“若函数 f(x)={ ... 在R上单调递增，则实数a的取值范围为____”。题目中有“在 R 上”圈出，R用的是实数集符号。转录 \\(\\mathbb R\\) 或 $R$？图片中看起来是 \\mathbf R 或 ℝ。用 \\mathbb R。\n\n现在输出 JSON 只包含 schema 字段。不要输出额外。需要确保 original_text 中“\\\\begin{cases}...” 在最终 JSON 字符串正确。由于最终是 JSON，我会写一个符合格式的对象。思考中不能直接包含太多? 输出。\n\n还要 root definitions 字符串：f(x)=piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)。注意 piecewise 参数中的条件包含 >=,<，directory ok。表达式 a/2 ok。第二段乘法用 *：(2*a+4)*x-5。好。root required_monotonicity.expression 使用相同字符串 \"piecewise(x^2-a*x+a/2,x>=1,(2*a+4)*x-5,x<1)\"。这算是原式吗？可以。function \"f\"。\n\nRoot facts 可空。但是单调性条件不在 facts 中，而 goal 内 included. 没问题。是否有目标字段的 required_monotonicity 是“必须满足的单调要求”，符合。\n\nPublic_content statement 可写 \"若函数 $f(x)=\\\\begin{cases}x^2-ax+\\\\frac{a}{2},&x\\\\ge1,\\\\\\\\(2a+4)x-5,&x<1\\\\end{cases}$ 在 $\\\\mathbb R$ 上单调递增，则实数 $a$ 的取值范围为____。\" 在 JSON 中双反斜杠。注意在 \"cases\" 中换行是 `\\\\` 在 LaTeX 内容，JSON 需要 `\\\\\\\\`。可以。statement 中 `&` 是否要转义? JSON 不需要。`$` 不需要。可以。\n\npublic_content completeness complete。privacy separated。figure not_required。scopes one.\n\nFigure detection status none regions [].\n\n需注意 `original_text` 中“6.”是不是来源，可以保留，public不保留。privacy separated because source explicitly题号与题干可分离。没问题。\n\n现在输出。"
+        }
+      }
+    ],
+    "created": 1794277799,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3011,
+      "prompt_tokens": 24237,
+      "total_tokens": 27248,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2670,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 22.49
+}

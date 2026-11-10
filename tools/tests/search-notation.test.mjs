@@ -77,6 +77,33 @@ test('photographed function-range goals render without assuming a scalar symbol'
   assert.match(parameter, /求 \$a\$ 的取值范围/);
 });
 
+for (const [folder, question, subject, interval, direction] of [
+  ['initial', 'a05', 'f(x)', '[1,2]', '严格递增'],
+  ['initial', 'a09', 'f(x)', '(-∞,4]', '严格递减'],
+  ['second', 'a11', 'a*x^2-2*x+3', '[2,∞)', '严格递减'],
+]) {
+  test(`monotonicity parameter meaning retains the photographed condition: ${question}`, () => {
+    const candidate = JSON.parse(fs.readFileSync(new URL(
+      `server/tests/search/fixtures/function-monotonicity-topic/${folder}/${question}/workflow/candidate.json`, base), 'utf8'));
+    const text = context.meaningBlocks(candidate.root, '', []).join('');
+    assert.ok(text.includes(`求使 $${tex(subject)}$ 在 $${tex(interval)}$ 上${direction}的`), text);
+    assert.ok(text.includes(`$${candidate.root.goals[0].symbol}$ 的取值范围`));
+    assert.doesNotMatch(text, /undefined|m\\le 2|a\\ge 5|a\\le 0/);
+    for (const [, formula] of text.matchAll(/\$([^$]+)\$/g)) {
+      assert.doesNotThrow(() => katex.renderToString(formula, {throwOnError: true}));
+    }
+  });
+}
+
+test('difference quotient meaning keeps the original condition instead of declaring its conclusion given', () => {
+  const candidate = JSON.parse(fs.readFileSync(new URL(
+    'server/tests/search/fixtures/function-monotonicity-topic/second/a13/workflow/candidate.json', base), 'utf8'));
+  const text = context.meaningBlocks(candidate.root, '', []).join('');
+  assert.ok(text.includes(`$${tex(candidate.root.facts[0]).replaceAll('<', '&lt;')}$`));
+  assert.match(text, /求 \$a\$ 的取值范围/);
+  assert.doesNotMatch(text, /严格递减|undefined/);
+});
+
 test('abstract-domain meaning preserves the given call and requested outer expression', () => {
   const goal = {kind: 'find_abstract_domain', known_call: 'f(t)', known_domain: '[-3,2]',
     strength: 'exact', target_call: 'f(2*x-1)'};

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-monotonicity-a11-v1",
+  "title": "含退化的二次递减求参 · A11",
+  "page": "/topics/function-monotonicity/q11/",
+  "topicHref": "/topics/function-monotonicity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $y=ax^{2}-2x+3$ 在区间 $[2,+\\infty)$ 上单调递减，求实数 $a$ 的取值范围。",
+  "evidence": "site/data/graph-walk/function-monotonicity-a11-v1.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-monotonicity-t4-20261109/a11.json"
+}

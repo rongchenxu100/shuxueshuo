@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"root\":{\"label\":\"14\",\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2104,
+      "prompt_tokens": 24289,
+      "total_tokens": 26393,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 481
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 555,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-3a4e61d8-a20b-4b3d-afc4-72b1bdf9301f",
+        "sha256": "6173bc02a41e57075cce5a9c78a2debe3446c85497215c434f710683a25d7218",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 4473,
+        "expires_at": 1794369681,
+        "uploaded_at": 1794283281.018763
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "6173bc02a41e57075cce5a9c78a2debe3446c85497215c434f710683a25d7218",
+        "api_calls": 1,
+        "file_id": "file-api-3a4e61d8-a20b-4b3d-afc4-72b1bdf9301f",
+        "expires_at": 1794369681,
+        "elapsed_ms": 468
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 15542,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2104,
+          "prompt_tokens": 24289,
+          "total_tokens": 26393,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1906
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 481
+        },
+        "raw_payload": {
+          "id": "1ca63e94-ae08-462d-9782-1eec5afecf42",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2104,
+            "prompt_tokens": 24289,
+            "total_tokens": 26393,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1906
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 481
+          },
+          "created": 1794283281,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"root\":{\"label\":\"14\",\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片显示：\"14. 已知函数 f(x)=√(1-2x+2x^2)-5x+5 的最小值为 ___.\" 需要仔细看根号覆盖范围。图片：f(x)=√(1-2x+2x²)-5x+5？ 根号横线覆盖 1-2x+2x²，然后 -5x+5 在根号外。看图片：√ 上方横线延伸到 2x² 后结束？ 文字： `f(x)=√1-2x+2x² -5x+5`。仔细观察：根号符号的横线覆盖 \"1-2x+2x²\"，-5x+5 似乎与根号平级，且根号线没有覆盖 -5x+5。图片中 \"√\" 横线在 2x² 上方结束，后面 \"-5x+5\" 明显在根号外。原函数 f(x)=sqrt(1-2*x+2*x^2)-5*x+5。\n\n求最小值。题目是填空题，横线。手写\"6\"是答案，不能转录。题号14是来源题号，original_text可以保留？原题开头有\"14.\"，这是题号。public statement不包含题号。original_text 可以保留题号吗？要求 original_text 完整题干原文，保留阅读顺序；题号可保留。public_content 不包含题号。\n\n需要输出 root：函数定义 definitions: f(x)=sqrt(1-2*x+2*x^2)-5*x+5。goals: find_minimum expression f(x) 或表达式？求最小值，原题\"函数 f(x) ... 的最小值\"，目标应为 find_minimum expression=f(x)? 目录 find_minimum 的 expression 是所求数学表达式，如 UV+VW；不写\"求…的值\"。这里函数的最小值，应 expression f(x) 或完整表达式？ 目标通常是求 f(x) 的最小值，可以用 expression: f(x)。或者 expression 原式。用 f(x) 引用定义。goals [{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]。不需要 variables。\n\nroot.label 可能\"14\"作为题号，role=source，因为明确是题号。但 root.label 存在时，用 root_label_role 区分来源题号与有题意的标签。原图 \"14.\" 是来源/试卷题号，所以 label=\"14\"，root_label_role=\"source\"。但在 original_text 保留。\n\npublic_content.statement 只保留该作用域自己的题干、条件和所求，不含题号：\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\" 需要公式 LaTeX 根号覆盖。填写横线。\n\n注意根号转录：\\sqrt{1-2x+2x^2}。不是 \\sqrt{1-2x+2x^2-5x+5}。看原图，根号横线覆盖到哪里？ 让我们再仔细分析图片像素：函数 f(x)=√1-2x+2x²-5x+5。根号横线从\"√\"上方延伸到 2x² 的右上。之后有一个短横线? 在2x²后是 \"-5x+5\"，\"-\"在根号横线下方，明显根号结束。所以正确。\n\n目标最小值：find_minimum expression 是 \"f(x)\"？ 原题没有给 f(x) 表达式之外，这样 okay。root definitions 中有 f(x)。find_minimum 的 expression 也可填完整原式 \"sqrt(1-2*x+2*x^2)-5*x+5\" 或 \"f(x)\"。目录说 expression 填写原表达式，不套min。用 f(x) 更简洁，但要引用函数。对函数的最小值，可能 expression: \"f(x)\"。这没有解析式，后续知道定义。可以。\n\n无配图。figure_detection status none regions []。\n\nuncertainties: 手写答案不报告。根号覆盖范围可能需确认，但看起来清楚，无需 uncertainty。题号来源可保留。\n\npublic_content.completeness complete；privacy separated? 图片只有题号和题干手写答案6，手写答案不是公开内容，需分离。姓名班级等没有。题号在original_text中，statement 不含。手写答案存在但不属于题目内容，已在转录中排除？ 要求 privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。图片中有手写作答\"6\"，我们需要在输出中不包含。可以 declared separated 如果明确排除。题号也是来源，root label source。所以 privacy=separated。figure not_required。\n\npublic_content.scopes 需对应 root 作用域：scope_ref \"/root\"，statement 如上，choices 因为 goal 无选项 status none, selection_mode none, options []。\n\nroot.facts 无额外条件。definitions 定义函数。goals find_minimum。root.label \"14\"? 但 root.label 会被用于作用域标签？ label可省略，但既然原图有题号，是否放入 root.label? 规范：root.label 存在时，用 root_label_role 区分来源题号与有题意的标签。仅原图明确是来源或试卷题号时为 source。这里明确是题号，所以可以设置 label \"14\", root_label_role source。但注意 root 数学内容不应有题号字符串？ label 可以作为 Scope 字段。public_content statement 不含。\n\noriginal_text 应包含完整题干原文，保留题号： \"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\" 手写6不写。注意图片中横线较长，填空处照印刷原样写横线。我们写 \"______\" 或 \"________\"。可以。\n\nJSON 字符串里反斜杠需转义。original_text 使用 \"\\\\sqrt\" 和 \"\\\\\"? 在 JSON 输出中应写 \"\\\\sqrt{...}\"。实际生成 JSON 文本时，一个反斜杠要写成两个。在最终回答中要确保合法 JSON。比如 `\"original_text\": \"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\"` 即 JSON 解析后是 `\\sqrt`。public_content statement 同样。\n\nroot definitions 字符串 \"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\" 无 LaTeX 反斜杠。goal expression \"f(x)\"。\n\n需要 root.label? 可能放在 root 中 \"label\":\"14\"。public_content scopes statement 不含。\n\n注意题目\"已知函数 ... 的最小值为 ____.\" 可以有 find_minimum 的 expression \"f(x)\"，不添加 variables。\n\n数学表达式目录中 min 是求最小值，find_minimum 是目标。expression 可写 \"f(x)\"。\n\n无不确定性。\n\nfigure_detection status none。\n\n现在构造 JSON。确保没有额外字段。public_content 需要 root_label_role：仅 root.label 存在时填，填 \"source\"。\n\npublic_content.figure: not_required；completeness complete；privacy separated。\n\nroot.uncertainties 可省略或 []。没有小问。\n\nchoices 每个 goal 一个：target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。\n\nroot facts? 无。definitions [\"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\"]。\n\noriginal_text 保留题号。公式用 $...$，在 JSON 中。\n\n需要检查根号：图片中根号内为 1-2x+2x²。在 LaTeX 中 `\\sqrt{1-2x+2x^2}`。由于 `-5x+5` 在根号外，写作 `\\sqrt{1-2x+2x^2}-5x+5`。对。\n\n题号 \"14.\" 可作为 root.label \"14\"，或 root.label \"14.\"? 原图 \"14.\"。label 可以 \"14\"。public_content root_label_role source。original_text 保留 \"14.\"。\n\n注意 root.label 若是 \"14\"，source。无 issue。\n\n是否需要 root.facts 空数组可以省略。definitions 和 goals 足够。schemas 允许省略 facts。root 必须有？ additionalProperties false，无 required fields in Scope (except none), so can omit facts。\n\npublic_content.statement 包含题干和所求，但不含题号。公式用 LaTeX。填空处 \"______\"。\n\nfinal JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 16034
+  },
+  "raw_payload": {
+    "id": "1ca63e94-ae08-462d-9782-1eec5afecf42",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"root\":{\"label\":\"14\",\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片显示：\"14. 已知函数 f(x)=√(1-2x+2x^2)-5x+5 的最小值为 ___.\" 需要仔细看根号覆盖范围。图片：f(x)=√(1-2x+2x²)-5x+5？ 根号横线覆盖 1-2x+2x²，然后 -5x+5 在根号外。看图片：√ 上方横线延伸到 2x² 后结束？ 文字： `f(x)=√1-2x+2x² -5x+5`。仔细观察：根号符号的横线覆盖 \"1-2x+2x²\"，-5x+5 似乎与根号平级，且根号线没有覆盖 -5x+5。图片中 \"√\" 横线在 2x² 上方结束，后面 \"-5x+5\" 明显在根号外。原函数 f(x)=sqrt(1-2*x+2*x^2)-5*x+5。\n\n求最小值。题目是填空题，横线。手写\"6\"是答案，不能转录。题号14是来源题号，original_text可以保留？原题开头有\"14.\"，这是题号。public statement不包含题号。original_text 可以保留题号吗？要求 original_text 完整题干原文，保留阅读顺序；题号可保留。public_content 不包含题号。\n\n需要输出 root：函数定义 definitions: f(x)=sqrt(1-2*x+2*x^2)-5*x+5。goals: find_minimum expression f(x) 或表达式？求最小值，原题\"函数 f(x) ... 的最小值\"，目标应为 find_minimum expression=f(x)? 目录 find_minimum 的 expression 是所求数学表达式，如 UV+VW；不写\"求…的值\"。这里函数的最小值，应 expression f(x) 或完整表达式？ 目标通常是求 f(x) 的最小值，可以用 expression: f(x)。或者 expression 原式。用 f(x) 引用定义。goals [{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]。不需要 variables。\n\nroot.label 可能\"14\"作为题号，role=source，因为明确是题号。但 root.label 存在时，用 root_label_role 区分来源题号与有题意的标签。原图 \"14.\" 是来源/试卷题号，所以 label=\"14\"，root_label_role=\"source\"。但在 original_text 保留。\n\npublic_content.statement 只保留该作用域自己的题干、条件和所求，不含题号：\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\" 需要公式 LaTeX 根号覆盖。填写横线。\n\n注意根号转录：\\sqrt{1-2x+2x^2}。不是 \\sqrt{1-2x+2x^2-5x+5}。看原图，根号横线覆盖到哪里？ 让我们再仔细分析图片像素：函数 f(x)=√1-2x+2x²-5x+5。根号横线从\"√\"上方延伸到 2x² 的右上。之后有一个短横线? 在2x²后是 \"-5x+5\"，\"-\"在根号横线下方，明显根号结束。所以正确。\n\n目标最小值：find_minimum expression 是 \"f(x)\"？ 原题没有给 f(x) 表达式之外，这样 okay。root definitions 中有 f(x)。find_minimum 的 expression 也可填完整原式 \"sqrt(1-2*x+2*x^2)-5*x+5\" 或 \"f(x)\"。目录说 expression 填写原表达式，不套min。用 f(x) 更简洁，但要引用函数。对函数的最小值，可能 expression: \"f(x)\"。这没有解析式，后续知道定义。可以。\n\n无配图。figure_detection status none regions []。\n\nuncertainties: 手写答案不报告。根号覆盖范围可能需确认，但看起来清楚，无需 uncertainty。题号来源可保留。\n\npublic_content.completeness complete；privacy separated? 图片只有题号和题干手写答案6，手写答案不是公开内容，需分离。姓名班级等没有。题号在original_text中，statement 不含。手写答案存在但不属于题目内容，已在转录中排除？ 要求 privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。图片中有手写作答\"6\"，我们需要在输出中不包含。可以 declared separated 如果明确排除。题号也是来源，root label source。所以 privacy=separated。figure not_required。\n\npublic_content.scopes 需对应 root 作用域：scope_ref \"/root\"，statement 如上，choices 因为 goal 无选项 status none, selection_mode none, options []。\n\nroot.facts 无额外条件。definitions 定义函数。goals find_minimum。root.label \"14\"? 但 root.label 会被用于作用域标签？ label可省略，但既然原图有题号，是否放入 root.label? 规范：root.label 存在时，用 root_label_role 区分来源题号与有题意的标签。仅原图明确是来源或试卷题号时为 source。这里明确是题号，所以可以设置 label \"14\", root_label_role source。但注意 root 数学内容不应有题号字符串？ label 可以作为 Scope 字段。public_content statement 不含。\n\noriginal_text 应包含完整题干原文，保留题号： \"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\" 手写6不写。注意图片中横线较长，填空处照印刷原样写横线。我们写 \"______\" 或 \"________\"。可以。\n\nJSON 字符串里反斜杠需转义。original_text 使用 \"\\\\sqrt\" 和 \"\\\\\"? 在 JSON 输出中应写 \"\\\\sqrt{...}\"。实际生成 JSON 文本时，一个反斜杠要写成两个。在最终回答中要确保合法 JSON。比如 `\"original_text\": \"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2}-5x+5$ 的最小值为 ______.\"` 即 JSON 解析后是 `\\sqrt`。public_content statement 同样。\n\nroot definitions 字符串 \"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\" 无 LaTeX 反斜杠。goal expression \"f(x)\"。\n\n需要 root.label? 可能放在 root 中 \"label\":\"14\"。public_content scopes statement 不含。\n\n注意题目\"已知函数 ... 的最小值为 ____.\" 可以有 find_minimum 的 expression \"f(x)\"，不添加 variables。\n\n数学表达式目录中 min 是求最小值，find_minimum 是目标。expression 可写 \"f(x)\"。\n\n无不确定性。\n\nfigure_detection status none。\n\n现在构造 JSON。确保没有额外字段。public_content 需要 root_label_role：仅 root.label 存在时填，填 \"source\"。\n\npublic_content.figure: not_required；completeness complete；privacy separated。\n\nroot.uncertainties 可省略或 []。没有小问。\n\nchoices 每个 goal 一个：target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []。\n\nroot facts? 无。definitions [\"f(x)=sqrt(1-2*x+2*x^2)-5*x+5\"]。\n\noriginal_text 保留题号。公式用 $...$，在 JSON 中。\n\n需要检查根号：图片中根号内为 1-2x+2x²。在 LaTeX 中 `\\sqrt{1-2x+2x^2}`。由于 `-5x+5` 在根号外，写作 `\\sqrt{1-2x+2x^2}-5x+5`。对。\n\n题号 \"14.\" 可作为 root.label \"14\"，或 root.label \"14.\"? 原图 \"14.\"。label 可以 \"14\"。public_content root_label_role source。original_text 保留 \"14.\"。\n\n注意 root.label 若是 \"14\"，source。无 issue。\n\n是否需要 root.facts 空数组可以省略。definitions 和 goals 足够。schemas 允许省略 facts。root 必须有？ additionalProperties false，无 required fields in Scope (except none), so can omit facts。\n\npublic_content.statement 包含题干和所求，但不含题号。公式用 LaTeX。填空处 \"______\"。\n\nfinal JSON."
+        }
+      }
+    ],
+    "created": 1794283281,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2104,
+      "prompt_tokens": 24289,
+      "total_tokens": 26393,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1906,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 481
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 16.036
+}

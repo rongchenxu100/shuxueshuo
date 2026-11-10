@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1807,
+      "prompt_tokens": 24237,
+      "total_tokens": 26044,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 584,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-7a8d833b-8937-4b93-8a12-70bb6ddaceaa",
+        "sha256": "293d5a3a607593e5c2a3bc121fee843c1f9ddebcde05fec5a2b78ebafc883f57",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 5398,
+        "expires_at": 1794367418,
+        "uploaded_at": 1794281018.150056
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "293d5a3a607593e5c2a3bc121fee843c1f9ddebcde05fec5a2b78ebafc883f57",
+        "api_calls": 1,
+        "file_id": "file-api-7a8d833b-8937-4b93-8a12-70bb6ddaceaa",
+        "expires_at": 1794367418,
+        "elapsed_ms": 198
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 12464,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1807,
+          "prompt_tokens": 24237,
+          "total_tokens": 26044,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1606
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 429
+        },
+        "raw_payload": {
+          "id": "d3a6528a-4f42-4bce-bb89-3fd392f56e27",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1807,
+            "prompt_tokens": 24237,
+            "total_tokens": 26044,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1606
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 429
+          },
+          "created": 1794281018,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片显示：“15. 函数 f(x)=√(-x^2+4x-3) 的单调增区间为____”，手写答案 [1,2] 是学生答案，不应转录。需要输出 original_text 保留题号，公式。root提取函数定义和目标：单调增区间。这是具体函数的单调区间，目标 kind find_monotonic_intervals，expression sqrt(-x^2+4*x-3)，variable x，direction increasing。题目说“单调增区间”，没说“严格”？中文“单调增区间”通常可包含非严格？目标字段 direction=increasing。input_domain? 题面没有额外输入范围。函数定义放 definitions: f(x)=sqrt(-x^2+4*x-3)。目标 expression 可以是原函数表达式，或者用 f(x)？根据函数单调性目标字段 expression 应含原函数表达式，如 sqrt... variable x direction increasing。不需要 domain_role。也可以加 function f。目标没有选项。public_content statement root：“函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____”。注意填空题横线。completeness complete? 题目完整，有填空，没有选项。figure none. 没有 uncertainties。题号是 15. 属于来源/试卷题号，original_text 可保留，public_content 不含题号。root.label? 不需要放 label 吗？题号不是有题意标签，不输出 root.label 即可。public_content root_label_role 不需要。privacy separated? 手写答案需要分离，题干与手写答案可以分离，privacy=separated。completeness complete。\n\n需要小心 original_text 中公式 LaTeX：$f(x)=\\sqrt{-x^2+4x-3}$。题号“15.”保留。手写答案不转录，也不报告。original_text：“15. 函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____” 也许横线。图片显示为空白横线，手写 [1,2] 是答案，横线处印刷原样：____。可以写“______”。需要确保 LaTeX 反斜杠转义。JSON 字符串中 \\sqrt 要写成 \\\\sqrt，\\ 前面的。original_text 里 `$f(x)=\\\\sqrt{-x^2+4x-3}$` 在 JSON 实际文本中显示 f(x)=\\sqrt...。好。\n\nroot definitions: \"f(x)=sqrt(-x^2+4*x-3)\" 受控数学字符串。注意平方：-x^2+4*x-3。facts: 无。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\",\"function\":\"f\"}] 可以包含 function? Schema FunctionMonotonicityGoal有 function 可选，pattern ^[a-z](?:_[0-9]+)?$，f 可。expression 原函数表达式；已命名可填 function。input_domain 未给省略。domain_role 可选省略。目标类型 find_monotonic_intervals 是所求单调增区间。注意题面“单调增区间” direction increasing。\n\npublic_content:\ncompleteness complete\nprivacy separated\nfigure not_required\nscopes: [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\nfigure_detection: {\"status\":\"none\",\"regions\":[]}\n\n需要检查 public_content schema required root_label_role? 不是必需。figure_detection 在 public_content 内？response schema public_content properties includes figure_detection? 看 schema: public_content required includes [\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"] yes, and properties includes figure_detection? In top-level response_schema has public_content $ref? Actually public_content schema includes properties completeness, privacy, figure, root_label_role, scopes, figure_detection? Wait the printed public_content properties in response_schema: after scopes, has figure_detection? It shows `\"figure_detection\": {...}` after `\"scopes\"`? Let me inspect: public_content properties: completeness, privacy, figure, root_label_role, scopes, figure_detection? In the text near end of public_content schema:\n```\n\"properties\": {\n  \"completeness\":...\n  \"privacy\":...\n  \"figure\":...\n  \"root_label_role\":...\n  \"scopes\":...\n  \"figure_detection\": {...}\n}\n```\nYes, required includes figure_detection. Also top-level root maybe figure_detection is inside public_content only, not top-level. The prompt says \"并标记配图是否存在及其位置\" likely in public_content. Required top-level: original_text, root, public_content. No top-level figure_detection. Wait the response format at bottom includes `$defs` and ends with `\"figure_detection\": { ...` as part of public_content? Actually in the schema, there is a top-level `\"properties\"` containing original_text, root, public_content, and inside public_content includes figure_detection? Let me re-evaluate the schema text:\n\nTop-level: `{\"type\":\"object\",\"required\":[\"original_text\",\"root\",\"public_content\"],\"properties\":{\"original_text\":..., \"root\":..., \"public_content\":{\"$schema\":...,\"type\":\"object\",...,\"required\":[\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"],\"properties\":{... \"figure_detection\": {...}}}}}, \"$defs\":...}`\nSo figure_detection is under public_content. Good.\n\nNeed no extra fields.\n\nCheck original_text max. Good.\n\nOne concern: root definitions should include f(x)=sqrt(-x^2+4*x-3) perhaps `sqrt(-x^2+4*x-3)` accepted. In original_text LaTeX negative sign. Good.\n\nNo need to mention OCR. No uncertainty.\n\nPotential issue: “单调增区间” might be not strictly increasing. direction increasing does not encode strict; target schema does not have strict for monotonic intervals. fine.\n\nDo we need facts: domain? No, don't derive natural domain. Goal expression's domain implicit. Good.\n\nCould root facts include nothing.\n\nNeed ensure public_content.statement does not include blank underline? It should keep blank as underline. At statement formula use LaTeX: `函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______` In JSON string, use double backslash for LaTeX. Good.\n\nOriginal_text: `15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______` This is okay. But JSON backslashes: any `$` no issue. `\\\\sqrt` outputs \\sqrt. Good.\n\nNeed mention figure_detection status none, regions [].\n\nNo choices, status none selection_mode none options []. target_ref actual pointer /root/goals/0. Good.\n\nWe should ensure root goals target has all required for FunctionMonotonicityGoal: required kind, expression, variable, direction. We can include function optional. Good.\n\nNo children.\n\nResponse with JSON object only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 12690
+  },
+  "raw_payload": {
+    "id": "d3a6528a-4f42-4bce-bb89-3fd392f56e27",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"root\":{\"definitions\":[\"f(x)=sqrt(-x^2+4*x-3)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\",\"function\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片显示：“15. 函数 f(x)=√(-x^2+4x-3) 的单调增区间为____”，手写答案 [1,2] 是学生答案，不应转录。需要输出 original_text 保留题号，公式。root提取函数定义和目标：单调增区间。这是具体函数的单调区间，目标 kind find_monotonic_intervals，expression sqrt(-x^2+4*x-3)，variable x，direction increasing。题目说“单调增区间”，没说“严格”？中文“单调增区间”通常可包含非严格？目标字段 direction=increasing。input_domain? 题面没有额外输入范围。函数定义放 definitions: f(x)=sqrt(-x^2+4*x-3)。目标 expression 可以是原函数表达式，或者用 f(x)？根据函数单调性目标字段 expression 应含原函数表达式，如 sqrt... variable x direction increasing。不需要 domain_role。也可以加 function f。目标没有选项。public_content statement root：“函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____”。注意填空题横线。completeness complete? 题目完整，有填空，没有选项。figure none. 没有 uncertainties。题号是 15. 属于来源/试卷题号，original_text 可保留，public_content 不含题号。root.label? 不需要放 label 吗？题号不是有题意标签，不输出 root.label 即可。public_content root_label_role 不需要。privacy separated? 手写答案需要分离，题干与手写答案可以分离，privacy=separated。completeness complete。\n\n需要小心 original_text 中公式 LaTeX：$f(x)=\\sqrt{-x^2+4x-3}$。题号“15.”保留。手写答案不转录，也不报告。original_text：“15. 函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为____” 也许横线。图片显示为空白横线，手写 [1,2] 是答案，横线处印刷原样：____。可以写“______”。需要确保 LaTeX 反斜杠转义。JSON 字符串中 \\sqrt 要写成 \\\\sqrt，\\ 前面的。original_text 里 `$f(x)=\\\\sqrt{-x^2+4x-3}$` 在 JSON 实际文本中显示 f(x)=\\sqrt...。好。\n\nroot definitions: \"f(x)=sqrt(-x^2+4*x-3)\" 受控数学字符串。注意平方：-x^2+4*x-3。facts: 无。goals: [{\"kind\":\"find_monotonic_intervals\",\"expression\":\"sqrt(-x^2+4*x-3)\",\"variable\":\"x\",\"direction\":\"increasing\",\"function\":\"f\"}] 可以包含 function? Schema FunctionMonotonicityGoal有 function 可选，pattern ^[a-z](?:_[0-9]+)?$，f 可。expression 原函数表达式；已命名可填 function。input_domain 未给省略。domain_role 可选省略。目标类型 find_monotonic_intervals 是所求单调增区间。注意题面“单调增区间” direction increasing。\n\npublic_content:\ncompleteness complete\nprivacy separated\nfigure not_required\nscopes: [{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\nfigure_detection: {\"status\":\"none\",\"regions\":[]}\n\n需要检查 public_content schema required root_label_role? 不是必需。figure_detection 在 public_content 内？response schema public_content properties includes figure_detection? 看 schema: public_content required includes [\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"] yes, and properties includes figure_detection? In top-level response_schema has public_content $ref? Actually public_content schema includes properties completeness, privacy, figure, root_label_role, scopes, figure_detection? Wait the printed public_content properties in response_schema: after scopes, has figure_detection? It shows `\"figure_detection\": {...}` after `\"scopes\"`? Let me inspect: public_content properties: completeness, privacy, figure, root_label_role, scopes, figure_detection? In the text near end of public_content schema:\n```\n\"properties\": {\n  \"completeness\":...\n  \"privacy\":...\n  \"figure\":...\n  \"root_label_role\":...\n  \"scopes\":...\n  \"figure_detection\": {...}\n}\n```\nYes, required includes figure_detection. Also top-level root maybe figure_detection is inside public_content only, not top-level. The prompt says \"并标记配图是否存在及其位置\" likely in public_content. Required top-level: original_text, root, public_content. No top-level figure_detection. Wait the response format at bottom includes `$defs` and ends with `\"figure_detection\": { ...` as part of public_content? Actually in the schema, there is a top-level `\"properties\"` containing original_text, root, public_content, and inside public_content includes figure_detection? Let me re-evaluate the schema text:\n\nTop-level: `{\"type\":\"object\",\"required\":[\"original_text\",\"root\",\"public_content\"],\"properties\":{\"original_text\":..., \"root\":..., \"public_content\":{\"$schema\":...,\"type\":\"object\",...,\"required\":[\"completeness\",\"privacy\",\"figure\",\"scopes\",\"figure_detection\"],\"properties\":{... \"figure_detection\": {...}}}}}, \"$defs\":...}`\nSo figure_detection is under public_content. Good.\n\nNeed no extra fields.\n\nCheck original_text max. Good.\n\nOne concern: root definitions should include f(x)=sqrt(-x^2+4*x-3) perhaps `sqrt(-x^2+4*x-3)` accepted. In original_text LaTeX negative sign. Good.\n\nNo need to mention OCR. No uncertainty.\n\nPotential issue: “单调增区间” might be not strictly increasing. direction increasing does not encode strict; target schema does not have strict for monotonic intervals. fine.\n\nDo we need facts: domain? No, don't derive natural domain. Goal expression's domain implicit. Good.\n\nCould root facts include nothing.\n\nNeed ensure public_content.statement does not include blank underline? It should keep blank as underline. At statement formula use LaTeX: `函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______` In JSON string, use double backslash for LaTeX. Good.\n\nOriginal_text: `15. 函数 $f(x)=\\\\sqrt{-x^2+4x-3}$ 的单调增区间为______` This is okay. But JSON backslashes: any `$` no issue. `\\\\sqrt` outputs \\sqrt. Good.\n\nNeed mention figure_detection status none, regions [].\n\nNo choices, status none selection_mode none options []. target_ref actual pointer /root/goals/0. Good.\n\nWe should ensure root goals target has all required for FunctionMonotonicityGoal: required kind, expression, variable, direction. We can include function optional. Good.\n\nNo children.\n\nResponse with JSON object only."
+        }
+      }
+    ],
+    "created": 1794281018,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1807,
+      "prompt_tokens": 24237,
+      "total_tokens": 26044,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1606,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 429
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 12.692
+}

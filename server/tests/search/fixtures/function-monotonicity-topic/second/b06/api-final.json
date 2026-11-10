@@ -1,0 +1,272 @@
+{
+  "search_id": "2fed8296e386",
+  "user_id": "771606bb-f628-4eb2-aa73-e17eaa1043e0",
+  "problem_id": "7bf6c7f1-a8ff-410c-9e63-922f8a175ccf",
+  "statement": "若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为________。",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "0929e40f0b1bceb77abb336647e4e6951327ff36d8295e640711d57f9230c12e",
+      "width": 1155,
+      "height": 130,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/2fed8296e386/figures/original?version=efc560f267a62d8058c3075a48ce3b44a8cde44fdd781963fa34a1945b5162a4"
+      }
+    ],
+    "content_id": "efc560f267a62d8058c3075a48ce3b44a8cde44fdd781963fa34a1945b5162a4"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f71a6b5e75b0",
+    "box": [
+      0.0508209538702111,
+      0.6037514654161782,
+      0.9538702111024238,
+      0.6799531066822978
+    ],
+    "page_size": [
+      1279,
+      1706
+    ],
+    "crop_size": [
+      1155,
+      130
+    ],
+    "bytes": 12437
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为________。",
+  "parts": [],
+  "root": {
+    "facts": [
+      "f(2*a-1) < f(3*a-1)"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "(-1,1)",
+          "direction": "increasing",
+          "strict": true
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071",
+    "sent_image_sha256": [
+      "cb963daa2d6d78355bcf27435ce77f16596b02ff011b78767e6dcb3afb0d5071"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 87.108,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "1d529f01ab2e4690b0db13b4c1162efa",
+      "lesson_version": "d3f10c0f06c2f7c76ef740ad9d29b1bfb74d43f74f5037eca7ed922142f91345",
+      "stream_id": "1d529f01ab2e4690b0db13b4c1162efa",
+      "snapshot_url": "/api/search/problems/2fed8296e386/lesson/1d529f01ab2e4690b0db13b4c1162efa/snapshot",
+      "events_url": "/api/search/problems/2fed8296e386/lesson/1d529f01ab2e4690b0db13b4c1162efa/events",
+      "websocket_url": "/api/search/problems/2fed8296e386/lesson/1d529f01ab2e4690b0db13b4c1162efa/ws"
+    }
+  }
+}

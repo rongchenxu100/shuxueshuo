@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"10. 已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(a/x,0<x<=1,x-a/x-2,x>1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"(0,+∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3451,
+      "prompt_tokens": 24276,
+      "total_tokens": 27727,
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 212
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 908,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-4329bd40-69d5-472b-a496-670fc822585e",
+        "sha256": "f88a690daa1e0fa2f098d36a464bc98f0917637131e9a3687d2c159575257060",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10571,
+        "expires_at": 1794366985,
+        "uploaded_at": 1794280585.483341
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "f88a690daa1e0fa2f098d36a464bc98f0917637131e9a3687d2c159575257060",
+        "api_calls": 1,
+        "file_id": "file-api-4329bd40-69d5-472b-a496-670fc822585e",
+        "expires_at": 1794366985,
+        "elapsed_ms": 187
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 25169,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3451,
+          "prompt_tokens": 24276,
+          "total_tokens": 27727,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3126
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 24064
+          },
+          "prompt_cache_hit_tokens": 24064,
+          "prompt_cache_miss_tokens": 212
+        },
+        "raw_payload": {
+          "id": "e587d39c-d8e2-4ac6-a274-67d7fdd4b16e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3451,
+            "prompt_tokens": 24276,
+            "total_tokens": 27727,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3126
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 24064
+            },
+            "prompt_cache_hit_tokens": 24064,
+            "prompt_cache_miss_tokens": 212
+          },
+          "created": 1794280585,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"10. 已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(a/x,0<x<=1,x-a/x-2,x>1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"(0,+∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要回答用户。需要从图片提取题意。图片含题目10：已知函数 f(x)= { a/x, 0<x≤1; x - a/x - 2, x>1 } 在区间 (0,+∞) 上单调递增，则实数 a 的取值范围是 ____. 手写答案圈出 (-∞,-1/2] 属学生答案，不转录。需要输出 JSON 符合 schema。只输出 JSON 对象。\n\n需要确定 original_text 转录完整题干，保留分段、区间开闭。题面有函数分段。需要写 LaTeX，\\(...\\) 不允许，用 $...$，JSON 反斜杠转义。集合花括号在 $…$ 内写 \\{ \\}。分段公式标准 LaTeX cases。original_text 可以：10. 已知函数 $f(x)=\\begin{cases} \\frac{a}{x},&0<x\\le 1\\\\ x-\\frac{a}{x}-2,&x>1 \\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。这里 \\begin{cases} 反斜杠双写：\\\\begin{cases}? JSON 字符串中每个反斜杠必须转义。需要输出 JSON 时字符串包含 \\begin => \"\\\\begin\". 所有 \\frac -> \"\\\\frac\"; \\le -> \"\\\\le\"; \\infty -> \"\\\\infty\"; \\\\ 分行 -> \"\\\\\\\\\". 注意 cases 内行分隔需要 \\\\ 在 LaTeX，JSON 需 \"\\\\\\\\\"（四个？实际文本中 LaTeX `\\\\` 两个反斜杠字符，JSON 中每个反斜杠转义为 `\\\\`，所以四个反斜杠字符 `\\\\\\\\` 在 JSON 表示两个反斜杠）。花括号 cases 命令的 { 是 LaTeX 命令参数，不是集合？在 original_text 中规则说 $…$ 内集合花括号写成 \\{ \\}，裸花括号只是分组、显示时会消失。cases 需要裸 `{`? 但 cases 环境花括号是 LaTeX 命令参数，不是集合，通常可以保留 `\\begin{cases}`。会不会被误认为集合？规则说只针对 original_text，集合花括号写 \\{ \\}，裸花括号只是分组、显示时会消失。这里 `\\begin{cases}` 有花括号，是命令语法，应该可以保留? 可能显示时不会消失因为是环境参数语法。为安全可以用 `\\begin{cases} ... \\end{cases}`。在 JSON 字符串中 `\\begin` -> `\\\\begin`。`cases` 后 `{` 无需转义。`\\end{cases}` 同样。注意 `\\\\` 行分隔在 JSON 写 `\\\\\\\\`。完整 original_text 字符串需要包含 $...$。\n\nroot: definitions 放函数定义 f(x)=piecewise(a/x,x>0 ∧ x<=1,x-a/x-2,x>1) 或控制数学字符串。定义用稳定符号。需要保留原分段条件。definitions: [\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"]? Catalog piecewise syntax: f(t)=piecewise(表达式1,条件1,表达式2,条件2)。条件可以 `0<x<=1` 和 `x>1`。好。是否使用 `a/x` 和 `x-a/x-2`。定义放 definitions。facts：单调递增条件 `∀x∈(0,+∞): ...`? 题面说函数在区间 (0,+∞) 上单调递增。这不是恒等关系，而是一个性质。Root facts 应放 `f(x) 在 (0,+∞) 上单调递增`? 受控数学字符串不允许自然语言除了点角色等。可以用目标字段 required_monotonicity? 但 root 自身条件包含单调性，目标求 a 范围。find_range 有 required_monotonicity 字段，表示待求参数必须满足的单调要求。所以 goal 为 find_range symbol a, required_monotonicity { expression: f? expression 含参数原函数表达式，如 x^2-m*x+5；但这里 f(x) piecewise。还是 expression 可写 piecewise(a/x,0<x<=1,x-a/x-2,x>1), variable: x, direction increasing, strict true, input_domain \"(0,+∞)\", function \"f\", basis {kind:\"stated\", statement:\"\"} }. 题面说“单调递增”是否严格？中文“单调递增”通常可能非严格，但高中题中“单调递增”常指严格递增？需要保留原措辞严格性。题面没有“严格”，所以 strict 应 false? Schema required_monotonicity strict: const true? 看字段：strict const true, description \"true 表示严格单调，false 表示非严格；按原题保留。\" 但 schema 写死 const true，无法 false。可能系统认为 required_monotonicity 只用于严格递增? 但题面“单调递增”未明确严格。在数学中“单调递增”可以非严格。但 catalog 默认？需要按原题。如果 schema 限制 strict const true，则只能 true? 但字段定义说按原题保留，矛盾。可能输出 true 因为需要严格单调？但题面“单调递增”在高中数学通常指严格递增? 然而“单调递增” vs “严格单调递增”：教材定义“增函数”可能严格。我们需要考虑不要 overcomplicate。可把单调性条件放 facts 用中文? 不允许。用 required_monotonicity，strict true? 如果按 schema 必须 true。也可能不用 required_monotonicity，而把条件放 facts 为 `∀x1,x2∈(0,+∞): (x1<x2 -> f(x1)<=f(x2))` 但单调递增非严格。然而题面“单调递增”在高中常指任意 x1<x2 有 f(x1)<f(x2)，即严格增。目标求 a 范围，手写答案 (-∞,-1/2] 说明可能是严格? 不知道。提取不求解。Schema 的 required_monotonicity strict const true，只能填 true。但描述允许 false yet schema错。我们按 schema 填 true。是否方向 increasing。expression 用 piecewise 还是 f? 字段 expression 描述含参数原函数表达式，如 x^2-m*x+5；function 可填 f。如果 expression 用 piecewise 完整。input_domain \"(0,+∞)\"。basis stated statement \"\".\n\nRoot facts 可能还需要 `Dom?`? 题面函数分段定义域是 (0,1]∪(1,+∞)=(0,+∞)。不需要补。Goal find_range symbol a. Could also include required_monotonicity. Good.\n\nNo children.\n\nUncertainties: none? 图片清晰。Need root.label? 原图有题号10. 这是题目来源/试卷题号。original_text 保留 10. Root.label 可以 \"10\"? label 可选。若提供 label，需 public_content.root_label_role = source. 但 public_content scopes 中 statement 不应含题号。是否需要 root.label? 可以省略 label，但 original_text 保留题号。Root label optional. If no label, don't need root_label_role? Public_content.root_label_role optional only if root.label exists. Simpler omit label. But original_text \"10.\"保留。Public statement 不含题号。ok.\n\nPublic_content: completeness complete, privacy? 学生拍题有手写答案圈画。题目正文可分离手写答案，公开字段没有。隐私包括题号? Since privacy separated if题号来源明确分离。我们只在 original_text 保留10，public statement 不含。手写答案排除。可以 separated? 有学生手写答案但不在公开字段。privacy separated 要求题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字明确分离。我们已分离，可 separated. 但题号在 original_text? privacy 也涵盖 root 所有内容，root 无题号。original_text 可以有题号? privacy says source only if明确分离。Original_text 保留题号不算公开? original_text maybe display? Public_content is for dedup. privacy separated if all适合公开. Root no label. okay separated.\n\nPublic_content.figure: no figure. not_required. figure_detection status none, regions [].\n\npublic_content.scopes: one scope_ref \"/root\"; statement 该作用域自身纯题干和所求，不含小问编号和选项；数学公式用 $…$。需要保留函数定义和条件。statement: \"已知函数 $f(x)=\\begin{cases} \\frac{a}{x},&0<x\\le 1\\\\ x-\\frac{a}{x}-2,&x>1 \\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\" 这个 statement 含整题题干（root 作用域）。题号去掉。分段公式用标准 LaTeX cases。JSON escaping. choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []. Need each goal choices exactly once. Good.\n\nRoot definitions/facts/goals. Need \"root\" schema: definitions, facts, goals, maybe uncertainties. We include uncertainties []? root uncertainties optional. We can omit. But question no uncertainties. Public content no choices options. figure_detection.\n\nNeed ensure root mathematical expressions no LaTeX $ and no backslashes? \"root 中的数学式不写 $ 和反斜杠，仍用目录的 Unicode 记法\". For piecewise syntax in root, it's allowed; no LaTeX backslash. Use `f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)`. This has `<=` not Unicode ≤? Catalog examples use <=. Good. For input_domain use \"(0,+∞)\" Unicode infinity +. Fine.\n\nCould facts be empty? The monotonic condition in goal required_monotonicity captures. Root definitions contains function. Good.\n\nGoal find_range:\n{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(a/x,0<x<=1,x-a/x-2,x>1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"(0,+∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}\nCheck required_monotonicity required fields expression variable direction strict input_domain. function optional. basis optional. Strict const true. Good. expression not f(x)? Field says 含参数原函数表达式，如... not function name. Use piecewise. Fine.\n\nBut direction \"increasing\" for \"单调递增\". Good.\n\nDo we need root facts specifying \"a is real\"? no.\n\nPublic statement has `\\le` and `\\infty`. JSON escaping. Need produce valid JSON. Need not include code fences. Final only JSON. Must ensure all backslashes escaped.\n\nLet's craft JSON with original_text string. Need decide original_text formula. Could use:\n\"10. 已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\"\n\nCheck in JSON: `\\\\begin{cases}` yields characters \\begin{cases}; `\\\\frac` yields \\frac; `\\\\le` yields \\le; `\\\\\\\\` yields two backslashes line break; `\\\\end{cases}`. Good. Note `\\begin{cases}` includes `{cases}` with bare braces; rule says集合花括号写 \\{ \\} for original_text inside $...$. But cases braces are not集合? Yet maybe parser may treat. Could avoid cases environment by using `$f(x)=\\left\\{\\begin{array}{ll}...\\end{array}\\right.$` still braces. Hmm. Standard LaTeX cases is okay. But the instruction specifically \"original_text 的 $…$ 内集合花括号写成 \\{ \\}（如 $\\{a\\} \\subseteq M$），裸花括号只是分组、显示时会消失。\" This is about set braces. In `\\begin{cases}` braces are part of command, not grouping? They may be preserved because command parser. Fine.\n\nCould use `$f(x)=\\left\\{\\begin{aligned}...` but more braces. Simpler.\n\nPublic statement same.\n\nNeed original_text include full 题干 variable and quantifier? \"在区间 (0,+∞) 上单调递增\" good. The image has hand-written underline and circle; not include. The blank \"____\". Use \"______\" or \"____\". Fine.\n\nPotential issue: image shows f(x)= { a/x, 0<x≤1; x - a/x - 2, x>1 }. The second branch maybe \"x - a/x - 2, x>1\". Good.\n\nCould there be \"函数的概念与性质小题（10）\" header not part. Exclude.\n\nNeed JSON escaping for `\\begin{cases}`: in a JSON string we write `\\\\begin{cases}`. For line break `\\\\` inside LaTeX, JSON needs `\\\\\\\\` (four chars in source? Actually string source: \"\\\\\\\\\" is two escaped backslashes -> two backslash chars). We'll write `...1\\\\\\\\x-...`. Then `\\end{cases}` -> `\\\\end{cases}`. In output final, ensure.\nChinese fullwidth punctuation fine.\n\nNeed public_content statement no \"10.\" no options. Good.\n\nCould include root.label? no.\n\nNeed \"uncertainties\" maybe []? Not required. We can omit. But root schema allows. Good.\n\nNeed \"definitions\" in root and \"facts\" maybe empty. Root $defs Scope additionalProperties false and properties definitions facts goals children uncertainties. definitions array string. facts array string. Use definitions [\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"]. facts [] maybe facts omitted? It's not required? Scope schema properties no required! It doesn't list required in defs? We need at least? Hmm. We include goals. definitions. Should we include facts: []? It's allowed. Include facts [] to be explicit. goals [..].\n\nPublic_content scopes statement. choices. Need target_ref \"/root/goals/0\".\n\nNeed figure_detection status none regions [].\n\nNow final. Ensure JSON object only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 25382
+  },
+  "raw_payload": {
+    "id": "e587d39c-d8e2-4ac6-a274-67d7fdd4b16e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"10. 已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"root\":{\"definitions\":[\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(a/x,0<x<=1,x-a/x-2,x>1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"(0,+∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答用户。需要从图片提取题意。图片含题目10：已知函数 f(x)= { a/x, 0<x≤1; x - a/x - 2, x>1 } 在区间 (0,+∞) 上单调递增，则实数 a 的取值范围是 ____. 手写答案圈出 (-∞,-1/2] 属学生答案，不转录。需要输出 JSON 符合 schema。只输出 JSON 对象。\n\n需要确定 original_text 转录完整题干，保留分段、区间开闭。题面有函数分段。需要写 LaTeX，\\(...\\) 不允许，用 $...$，JSON 反斜杠转义。集合花括号在 $…$ 内写 \\{ \\}。分段公式标准 LaTeX cases。original_text 可以：10. 已知函数 $f(x)=\\begin{cases} \\frac{a}{x},&0<x\\le 1\\\\ x-\\frac{a}{x}-2,&x>1 \\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。这里 \\begin{cases} 反斜杠双写：\\\\begin{cases}? JSON 字符串中每个反斜杠必须转义。需要输出 JSON 时字符串包含 \\begin => \"\\\\begin\". 所有 \\frac -> \"\\\\frac\"; \\le -> \"\\\\le\"; \\infty -> \"\\\\infty\"; \\\\ 分行 -> \"\\\\\\\\\". 注意 cases 内行分隔需要 \\\\ 在 LaTeX，JSON 需 \"\\\\\\\\\"（四个？实际文本中 LaTeX `\\\\` 两个反斜杠字符，JSON 中每个反斜杠转义为 `\\\\`，所以四个反斜杠字符 `\\\\\\\\` 在 JSON 表示两个反斜杠）。花括号 cases 命令的 { 是 LaTeX 命令参数，不是集合？在 original_text 中规则说 $…$ 内集合花括号写成 \\{ \\}，裸花括号只是分组、显示时会消失。cases 需要裸 `{`? 但 cases 环境花括号是 LaTeX 命令参数，不是集合，通常可以保留 `\\begin{cases}`。会不会被误认为集合？规则说只针对 original_text，集合花括号写 \\{ \\}，裸花括号只是分组、显示时会消失。这里 `\\begin{cases}` 有花括号，是命令语法，应该可以保留? 可能显示时不会消失因为是环境参数语法。为安全可以用 `\\begin{cases} ... \\end{cases}`。在 JSON 字符串中 `\\begin` -> `\\\\begin`。`cases` 后 `{` 无需转义。`\\end{cases}` 同样。注意 `\\\\` 行分隔在 JSON 写 `\\\\\\\\`。完整 original_text 字符串需要包含 $...$。\n\nroot: definitions 放函数定义 f(x)=piecewise(a/x,x>0 ∧ x<=1,x-a/x-2,x>1) 或控制数学字符串。定义用稳定符号。需要保留原分段条件。definitions: [\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"]? Catalog piecewise syntax: f(t)=piecewise(表达式1,条件1,表达式2,条件2)。条件可以 `0<x<=1` 和 `x>1`。好。是否使用 `a/x` 和 `x-a/x-2`。定义放 definitions。facts：单调递增条件 `∀x∈(0,+∞): ...`? 题面说函数在区间 (0,+∞) 上单调递增。这不是恒等关系，而是一个性质。Root facts 应放 `f(x) 在 (0,+∞) 上单调递增`? 受控数学字符串不允许自然语言除了点角色等。可以用目标字段 required_monotonicity? 但 root 自身条件包含单调性，目标求 a 范围。find_range 有 required_monotonicity 字段，表示待求参数必须满足的单调要求。所以 goal 为 find_range symbol a, required_monotonicity { expression: f? expression 含参数原函数表达式，如 x^2-m*x+5；但这里 f(x) piecewise。还是 expression 可写 piecewise(a/x,0<x<=1,x-a/x-2,x>1), variable: x, direction increasing, strict true, input_domain \"(0,+∞)\", function \"f\", basis {kind:\"stated\", statement:\"\"} }. 题面说“单调递增”是否严格？中文“单调递增”通常可能非严格，但高中题中“单调递增”常指严格递增？需要保留原措辞严格性。题面没有“严格”，所以 strict 应 false? Schema required_monotonicity strict: const true? 看字段：strict const true, description \"true 表示严格单调，false 表示非严格；按原题保留。\" 但 schema 写死 const true，无法 false。可能系统认为 required_monotonicity 只用于严格递增? 但题面“单调递增”未明确严格。在数学中“单调递增”可以非严格。但 catalog 默认？需要按原题。如果 schema 限制 strict const true，则只能 true? 但字段定义说按原题保留，矛盾。可能输出 true 因为需要严格单调？但题面“单调递增”在高中数学通常指严格递增? 然而“单调递增” vs “严格单调递增”：教材定义“增函数”可能严格。我们需要考虑不要 overcomplicate。可把单调性条件放 facts 用中文? 不允许。用 required_monotonicity，strict true? 如果按 schema 必须 true。也可能不用 required_monotonicity，而把条件放 facts 为 `∀x1,x2∈(0,+∞): (x1<x2 -> f(x1)<=f(x2))` 但单调递增非严格。然而题面“单调递增”在高中常指任意 x1<x2 有 f(x1)<f(x2)，即严格增。目标求 a 范围，手写答案 (-∞,-1/2] 说明可能是严格? 不知道。提取不求解。Schema 的 required_monotonicity strict const true，只能填 true。但描述允许 false yet schema错。我们按 schema 填 true。是否方向 increasing。expression 用 piecewise 还是 f? 字段 expression 描述含参数原函数表达式，如 x^2-m*x+5；function 可填 f。如果 expression 用 piecewise 完整。input_domain \"(0,+∞)\"。basis stated statement \"\".\n\nRoot facts 可能还需要 `Dom?`? 题面函数分段定义域是 (0,1]∪(1,+∞)=(0,+∞)。不需要补。Goal find_range symbol a. Could also include required_monotonicity. Good.\n\nNo children.\n\nUncertainties: none? 图片清晰。Need root.label? 原图有题号10. 这是题目来源/试卷题号。original_text 保留 10. Root.label 可以 \"10\"? label 可选。若提供 label，需 public_content.root_label_role = source. 但 public_content scopes 中 statement 不应含题号。是否需要 root.label? 可以省略 label，但 original_text 保留题号。Root label optional. If no label, don't need root_label_role? Public_content.root_label_role optional only if root.label exists. Simpler omit label. But original_text \"10.\"保留。Public statement 不含题号。ok.\n\nPublic_content: completeness complete, privacy? 学生拍题有手写答案圈画。题目正文可分离手写答案，公开字段没有。隐私包括题号? Since privacy separated if题号来源明确分离。我们只在 original_text 保留10，public statement 不含。手写答案排除。可以 separated? 有学生手写答案但不在公开字段。privacy separated 要求题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字明确分离。我们已分离，可 separated. 但题号在 original_text? privacy 也涵盖 root 所有内容，root 无题号。original_text 可以有题号? privacy says source only if明确分离。Original_text 保留题号不算公开? original_text maybe display? Public_content is for dedup. privacy separated if all适合公开. Root no label. okay separated.\n\nPublic_content.figure: no figure. not_required. figure_detection status none, regions [].\n\npublic_content.scopes: one scope_ref \"/root\"; statement 该作用域自身纯题干和所求，不含小问编号和选项；数学公式用 $…$。需要保留函数定义和条件。statement: \"已知函数 $f(x)=\\begin{cases} \\frac{a}{x},&0<x\\le 1\\\\ x-\\frac{a}{x}-2,&x>1 \\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\" 这个 statement 含整题题干（root 作用域）。题号去掉。分段公式用标准 LaTeX cases。JSON escaping. choices: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []. Need each goal choices exactly once. Good.\n\nRoot definitions/facts/goals. Need \"root\" schema: definitions, facts, goals, maybe uncertainties. We include uncertainties []? root uncertainties optional. We can omit. But question no uncertainties. Public content no choices options. figure_detection.\n\nNeed ensure root mathematical expressions no LaTeX $ and no backslashes? \"root 中的数学式不写 $ 和反斜杠，仍用目录的 Unicode 记法\". For piecewise syntax in root, it's allowed; no LaTeX backslash. Use `f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)`. This has `<=` not Unicode ≤? Catalog examples use <=. Good. For input_domain use \"(0,+∞)\" Unicode infinity +. Fine.\n\nCould facts be empty? The monotonic condition in goal required_monotonicity captures. Root definitions contains function. Good.\n\nGoal find_range:\n{\"kind\":\"find_range\",\"symbol\":\"a\",\"required_monotonicity\":{\"expression\":\"piecewise(a/x,0<x<=1,x-a/x-2,x>1)\",\"variable\":\"x\",\"function\":\"f\",\"direction\":\"increasing\",\"strict\":true,\"input_domain\":\"(0,+∞)\",\"basis\":{\"kind\":\"stated\",\"statement\":\"\"}}}\nCheck required_monotonicity required fields expression variable direction strict input_domain. function optional. basis optional. Strict const true. Good. expression not f(x)? Field says 含参数原函数表达式，如... not function name. Use piecewise. Fine.\n\nBut direction \"increasing\" for \"单调递增\". Good.\n\nDo we need root facts specifying \"a is real\"? no.\n\nPublic statement has `\\le` and `\\infty`. JSON escaping. Need produce valid JSON. Need not include code fences. Final only JSON. Must ensure all backslashes escaped.\n\nLet's craft JSON with original_text string. Need decide original_text formula. Could use:\n\"10. 已知函数 $f(x)=\\\\begin{cases}\\\\frac{a}{x},&0<x\\\\le 1\\\\\\\\x-\\\\frac{a}{x}-2,&x>1\\\\end{cases}$ 在区间 $(0,+\\\\infty)$ 上单调递增，则实数 $a$ 的取值范围是 ______。\"\n\nCheck in JSON: `\\\\begin{cases}` yields characters \\begin{cases}; `\\\\frac` yields \\frac; `\\\\le` yields \\le; `\\\\\\\\` yields two backslashes line break; `\\\\end{cases}`. Good. Note `\\begin{cases}` includes `{cases}` with bare braces; rule says集合花括号写 \\{ \\} for original_text inside $...$. But cases braces are not集合? Yet maybe parser may treat. Could avoid cases environment by using `$f(x)=\\left\\{\\begin{array}{ll}...\\end{array}\\right.$` still braces. Hmm. Standard LaTeX cases is okay. But the instruction specifically \"original_text 的 $…$ 内集合花括号写成 \\{ \\}（如 $\\{a\\} \\subseteq M$），裸花括号只是分组、显示时会消失。\" This is about set braces. In `\\begin{cases}` braces are part of command, not grouping? They may be preserved because command parser. Fine.\n\nCould use `$f(x)=\\left\\{\\begin{aligned}...` but more braces. Simpler.\n\nPublic statement same.\n\nNeed original_text include full 题干 variable and quantifier? \"在区间 (0,+∞) 上单调递增\" good. The image has hand-written underline and circle; not include. The blank \"____\". Use \"______\" or \"____\". Fine.\n\nPotential issue: image shows f(x)= { a/x, 0<x≤1; x - a/x - 2, x>1 }. The second branch maybe \"x - a/x - 2, x>1\". Good.\n\nCould there be \"函数的概念与性质小题（10）\" header not part. Exclude.\n\nNeed JSON escaping for `\\begin{cases}`: in a JSON string we write `\\\\begin{cases}`. For line break `\\\\` inside LaTeX, JSON needs `\\\\\\\\` (four chars in source? Actually string source: \"\\\\\\\\\" is two escaped backslashes -> two backslash chars). We'll write `...1\\\\\\\\x-...`. Then `\\end{cases}` -> `\\\\end{cases}`. In output final, ensure.\nChinese fullwidth punctuation fine.\n\nNeed public_content statement no \"10.\" no options. Good.\n\nCould include root.label? no.\n\nNeed \"uncertainties\" maybe []? Not required. We can omit. But root schema allows. Good.\n\nNeed \"definitions\" in root and \"facts\" maybe empty. Root $defs Scope additionalProperties false and properties definitions facts goals children uncertainties. definitions array string. facts array string. Use definitions [\"f(x)=piecewise(a/x,0<x<=1,x-a/x-2,x>1)\"]. facts [] maybe facts omitted? It's not required? Scope schema properties no required! It doesn't list required in defs? We need at least? Hmm. We include goals. definitions. Should we include facts: []? It's allowed. Include facts [] to be explicit. goals [..].\n\nPublic_content scopes statement. choices. Need target_ref \"/root/goals/0\".\n\nNeed figure_detection status none regions [].\n\nNow final. Ensure JSON object only."
+        }
+      }
+    ],
+    "created": 1794280585,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3451,
+      "prompt_tokens": 24276,
+      "total_tokens": 27727,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3126,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 24064
+      },
+      "prompt_cache_hit_tokens": 24064,
+      "prompt_cache_miss_tokens": 212
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 25.384
+}

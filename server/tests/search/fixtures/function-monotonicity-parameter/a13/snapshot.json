@@ -1,0 +1,1470 @@
+{
+  "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+  "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+  "input_sha256": "10df168264dd759cc5c4a6927f0f80894efa945a5b3c665eee1c8255b1930d28",
+  "stream_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+  "last_seq": 20,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "$$\\begin{gathered}f\\!\\left(x\\right)=\\sqrt{ax^{2}+2x- 5 a + 5}\\\\\\text{任意 }x_{2},x_{1}\\in \\left(-\\infty, -2\\right],\\ x_{2}\\ne x_{1}:\\ \\dfrac{f(x_{2})-f(x_{1})}{x_{2}-x_{1}}<0\\\\\\Rightarrow f\\!\\left(x\\right)\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减}\\end{gathered}$$",
+      "highlight": {
+        "caption": "读清单调性要求",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "题设",
+            "math": "\\begin{gathered}f\\!\\left(x\\right)=\\sqrt{ax^{2}+2x- 5 a + 5}\\\\\\text{任意 }x_{2},x_{1}\\in \\left(-\\infty, -2\\right],\\ x_{2}\\ne x_{1}:\\ \\dfrac{f(x_{2})-f(x_{1})}{x_{2}-x_{1}}<0\\end{gathered}"
+          },
+          {
+            "label": "要求",
+            "math": "f\\!\\left(x\\right)\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "local_check": "passed",
+      "math_step_sha256": "a6dea05f97c285bec40b7ffb69d994d4757c6a7d3e557fa2d5b327b4a41dfbe5",
+      "method_ref": "method-monotonicity-parameter#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-parameter-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "读清单调性要求",
+      "used_basis": [
+        "function-monotonicity#common-functions",
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "outer",
+      "explanation": "$$\\begin{gathered}f(x)=\\sqrt{g(x)}\\\\g(x)=ax^{2}+2x- 5 a + 5\\\\\\sqrt{u}\\ \\text{在}\\ [0,+\\infty)\\ \\text{上严格递增}\\\\\\Rightarrow g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减，且}\\ g(x)\\ge 0\\end{gathered}$$",
+      "highlight": {
+        "caption": "转化为内层条件",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "内外两层",
+            "math": "\\begin{gathered}f(x)=\\sqrt{g(x)}\\\\g(x)=ax^{2}+2x- 5 a + 5\\end{gathered}"
+          },
+          {
+            "label": "内层要求",
+            "math": "g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减，且}\\ g(x)\\ge 0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "local_check": "passed",
+      "math_step_sha256": "c945c9446a344a4c02c12a5c694c9305f7e0d2b8d298e7b34fe4b71ad214506e",
+      "method_ref": "method-monotonicity-parameter#prepare",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-parameter-002-outer",
+      "target_ref": "/root/goals/0",
+      "title": "转化为内层条件",
+      "used_basis": [
+        "function-monotonicity#common-functions",
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "inner",
+      "explanation": "$$\\begin{gathered}a=0\\\\g\\!\\left(x\\right)=2x+5\\\\\\text{斜率}\\ 2>0,\\ \\text{严格递增}\\Rightarrow a=0\\ \\text{舍去}\\end{gathered}$$\n\n$$\\begin{gathered}a>0:\\ \\text{开口向上，对称轴}\\ x=- \\frac{1}{a}\\\\\\text{严格递减的部分}:\\ x\\le - \\frac{1}{a}\\\\- \\frac{1}{a}\\ge -2\\Rightarrow a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}$$\n\n$$\\begin{gathered}a<0:\\ \\text{开口向下，对称轴}\\ x=- \\frac{1}{a}\\\\\\text{严格递减的部分}:\\ x\\ge - \\frac{1}{a}\\\\\\left(-\\infty, -2\\right]\\not\\subseteq \\left\\{x\\mid x\\ge - \\frac{1}{a}\\right\\}\\Rightarrow a<0\\ \\text{舍去}\\end{gathered}$$\n\n$$\\begin{gathered}a=0:\\ \\text{舍去}\\\\a>0:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\a<0:\\ \\text{舍去}\\\\\\text{各类合并}:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\end{gathered}$$",
+      "highlight": {
+        "caption": "内层按二次项系数分类",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "代入后的函数",
+            "math": "\\begin{gathered}a=0\\\\g\\!\\left(x\\right)=2x+5\\end{gathered}"
+          },
+          {
+            "label": "本类结论",
+            "math": "\\text{斜率}\\ 2>0,\\ \\text{严格递增}\\Rightarrow a=0\\ \\text{舍去}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "local_check": "passed",
+      "math_step_sha256": "b0437c4710d1e39cfa93e778f59106fe109b1f1f1c2489aa5ff98566233cdbdc",
+      "method_ref": "method-monotonicity-parameter#prepare",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-parameter-003-inner",
+      "target_ref": "/root/goals/0",
+      "title": "内层按二次项系数分类",
+      "used_basis": [
+        "function-monotonicity#common-functions",
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "domain",
+      "explanation": "$$\\begin{gathered}g(x)=ax^{2}+2x- 5 a + 5\\\\a\\in \\left[\\frac{1}{2}, +\\infty\\right):\\ g\\ \\text{严格递减}\\\\\\min g=g(-2)=1 - a\\\\1 - a\\ge 0\\Rightarrow a\\in \\left(-\\infty, 1\\right]\\end{gathered}$$",
+      "highlight": {
+        "caption": "整段能开方",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "最小的函数值",
+            "math": "\\begin{gathered}g(x)=ax^{2}+2x- 5 a + 5\\\\a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\g(-2)=1 - a\\end{gathered}"
+          },
+          {
+            "label": "定义条件",
+            "math": "1 - a\\ge 0\\Rightarrow a\\in \\left(-\\infty, 1\\right]"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "local_check": "passed",
+      "math_step_sha256": "b9ee1c455c9a5987d4f1eaa467e0dcc54c3aada6734549e713e8de87d47d02ab",
+      "method_ref": "method-monotonicity-parameter#prepare",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-parameter-004-domain",
+      "target_ref": "/root/goals/0",
+      "title": "整段能开方",
+      "used_basis": [
+        "function-monotonicity#common-functions",
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$$\\begin{gathered}\\text{内层严格递减}:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\\\text{整段}\\ g(x)\\ge 0:\\ a\\in \\left(-\\infty, 1\\right]\\\\\\text{取交集}:\\ a\\in \\left[\\frac{1}{2}, 1\\right]\\end{gathered}$$",
+      "highlight": {
+        "caption": "合并全部条件",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已确认条件",
+            "math": "\\begin{gathered}\\text{内层严格递减}:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\\\text{整段}\\ g(x)\\ge 0:\\ a\\in \\left(-\\infty, 1\\right]\\end{gathered}"
+          },
+          {
+            "label": "参数范围",
+            "math": "a\\in \\left[\\frac{1}{2}, 1\\right]"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "local_check": "passed",
+      "math_step_sha256": "b910dd2c95ce785f1dc917fd0f4d644a4d231ca8ec0172a171860c437c99e16c",
+      "method_ref": "method-monotonicity-parameter#conclude",
+      "ordinal": 5,
+      "premise_refs": [],
+      "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-monotonicity-parameter-005-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "合并全部条件",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval(1/2, 1)",
+          "latex": "\\left[\\frac{1}{2}, 1\\right]"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "2"
+            },
+            {
+              "$math": "Integer",
+              "value": "1"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanFalse"
+            }
+          ]
+        },
+        "expression": "Interval(1/2, 1)",
+        "latex": "\\left[\\frac{1}{2}, 1\\right]"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval(1/2, 1)",
+          "latex": "\\left[\\frac{1}{2}, 1\\right]"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "2"
+            },
+            {
+              "$math": "Integer",
+              "value": "1"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanFalse"
+            }
+          ]
+        },
+        "expression": "Interval(1/2, 1)",
+        "latex": "\\left[\\frac{1}{2}, 1\\right]"
+      },
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "math_steps": [
+        {
+          "math_step_sha256": "a6dea05f97c285bec40b7ffb69d994d4757c6a7d3e557fa2d5b327b4a41dfbe5",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-monotonicity-parameter-001-prepare"
+        },
+        {
+          "math_step_sha256": "c945c9446a344a4c02c12a5c694c9305f7e0d2b8d298e7b34fe4b71ad214506e",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-monotonicity-parameter-002-outer"
+        },
+        {
+          "math_step_sha256": "b0437c4710d1e39cfa93e778f59106fe109b1f1f1c2489aa5ff98566233cdbdc",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-monotonicity-parameter-003-inner"
+        },
+        {
+          "math_step_sha256": "b9ee1c455c9a5987d4f1eaa467e0dcc54c3aada6734549e713e8de87d47d02ab",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-monotonicity-parameter-004-domain"
+        },
+        {
+          "math_step_sha256": "b910dd2c95ce785f1dc917fd0f4d644a4d231ca8ec0172a171860c437c99e16c",
+          "ordinal": 5,
+          "step_id": "39e5646dcb-monotonicity-parameter-005-conclude"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "d70bfbdcc6d0ae37df43adbc2171c9022292259421af5d27d89fcde5faa645b3",
+      "verified_route_sha256": "46e766d643bb2ecfd7b1f5d60ff810690dfa42ef4b5bbe470fab544be4091327"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "parameter"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合增减要求。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "已知指定区间上的增减性，求函数参数",
+                  "note": "如 $f(x)=x^{2}-mx+5$ 在 $[1,2]$ 上递增，求 $m$。",
+                  "value": "parameter"
+                },
+                {
+                  "label": "求函数本身的单调区间",
+                  "note": "原目标是写出增减区间，不是求使某性质成立的参数。",
+                  "value": "intervals"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "单调性条件求参法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "parameter",
+              "method": "parameter"
+            },
+            {
+              "cue": "intervals",
+              "method": "intervals"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性条件求参法",
+              "value": "parameter"
+            },
+            {
+              "label": "基本函数与复合法",
+              "value": "intervals"
+            }
+          ],
+          "method_notes": {
+            "intervals": "本题不是求单调区间，而是求使给定单调性成立的参数。"
+          },
+          "source_refs": [
+            "/root/goals/0",
+            "/root/definitions/0",
+            "/root/facts/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-parameter",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "intervals": {
+            "message": "本题要求参数使指定区间上的单调性成立，不是求单调区间。",
+            "value": "unfit"
+          },
+          "parameter": {
+            "message": "先看参数怎样改变斜率、开口或对称轴，再保证整个指定区间都符合增减要求。",
+            "value": "fit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "parameter",
+            "message": "开始解题",
+            "method": "method-monotonicity-parameter",
+            "recommendation": "preferred",
+            "route_id": "monotonicity-parameter",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "step_id": "39e5646dcb-monotonicity-parameter-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "a6dea05f97c285bec40b7ffb69d994d4757c6a7d3e557fa2d5b327b4a41dfbe5",
+      "status": "interactive",
+      "interaction_id": "bd2f6130b67814f32a5efc7f"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "step_id": "39e5646dcb-monotonicity-parameter-002-outer",
+      "ordinal": 2,
+      "math_step_sha256": "c945c9446a344a4c02c12a5c694c9305f7e0d2b8d298e7b34fe4b71ad214506e",
+      "status": "interactive",
+      "interaction_id": "ac76817fc1fb326dcd739989"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "step_id": "39e5646dcb-monotonicity-parameter-003-inner",
+      "ordinal": 3,
+      "math_step_sha256": "b0437c4710d1e39cfa93e778f59106fe109b1f1f1c2489aa5ff98566233cdbdc",
+      "status": "interactive",
+      "interaction_id": "e78139ef73764a39c3966f55"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "step_id": "39e5646dcb-monotonicity-parameter-004-domain",
+      "ordinal": 4,
+      "math_step_sha256": "b9ee1c455c9a5987d4f1eaa467e0dcc54c3aada6734549e713e8de87d47d02ab",
+      "status": "interactive",
+      "interaction_id": "e72fcf4692909863ee08437a"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "step_id": "39e5646dcb-monotonicity-parameter-005-conclude",
+      "ordinal": 5,
+      "math_step_sha256": "b910dd2c95ce785f1dc917fd0f4d644a4d231ca8ec0172a171860c437c99e16c",
+      "status": "interactive",
+      "interaction_id": "530496d58a3bea3ade4091be"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "814f33eaff7bb044620bd35e12e333e03589e8464dae6e88d606fa4151860ed2",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:monotonicity-parameter:complete",
+      "last_seq": 19
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "monotonicity-parameter",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-monotonicity-parameter",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-monotonicity-parameter",
+          "step": "classify",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-monotonicity-parameter",
+          "step": "axis",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-monotonicity-parameter",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-monotonicity-parameter",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "bd2f6130b67814f32a5efc7f",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "cd1af1d77946df0249e57185ba788881cc8e0e555e667df4d4975cd2354d7f82",
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "读清单调性要求",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题设",
+                "math": "\\begin{gathered}f\\!\\left(x\\right)=\\sqrt{ax^{2}+2x- 5 a + 5}\\\\\\text{任意 }x_{2},x_{1}\\in \\left(-\\infty, -2\\right],\\ x_{2}\\ne x_{1}:\\ \\dfrac{f(x_{2})-f(x_{1})}{x_{2}-x_{1}}<0\\end{gathered}"
+              },
+              {
+                "label": "要求",
+                "math": "f\\!\\left(x\\right)\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "bd2f6130b67814f32a5efc7f#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f\\!\\left(x\\right)\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递增}$",
+                "value": "o2"
+              },
+              {
+                "label": "$f\\!\\left(x\\right)\\ \\text{的单调区间恰为}\\ \\left(-\\infty, -2\\right]$",
+                "value": "o3"
+              },
+              {
+                "label": "$f\\!\\left(x\\right)\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "原题给出差式恒负。这说明函数在指定区间上怎样变化？参数 $a$ 尚未求出。",
+          "stem_board": {
+            "caption": "读清单调性要求",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "题设",
+                "math": "\\begin{gathered}f\\!\\left(x\\right)=\\sqrt{ax^{2}+2x- 5 a + 5}\\\\\\text{任意 }x_{2},x_{1}\\in \\left(-\\infty, -2\\right],\\ x_{2}\\ne x_{1}:\\ \\dfrac{f(x_{2})-f(x_{1})}{x_{2}-x_{1}}<0\\end{gathered}"
+              },
+              {
+                "label": "要求",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "读清单调性要求"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "a6dea05f97c285bec40b7ffb69d994d4757c6a7d3e557fa2d5b327b4a41dfbe5",
+          "step_id": "39e5646dcb-monotonicity-parameter-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "ac76817fc1fb326dcd739989",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "b259e209e0bd8a72312c1088768c3a30dfc44cc2cef358b7276b9a337a06510c",
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "转化为内层条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "内外两层",
+                "math": "\\begin{gathered}f(x)=\\sqrt{g(x)}\\\\g(x)=ax^{2}+2x- 5 a + 5\\end{gathered}"
+              },
+              {
+                "label": "内层要求",
+                "math": "g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减，且}\\ g(x)\\ge 0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "ac76817fc1fb326dcd739989#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递增，且}\\ g(x)\\ge 0$",
+                "value": "o2"
+              },
+              {
+                "label": "$g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减即可}$",
+                "value": "o3"
+              },
+              {
+                "label": "$g\\ \\text{在}\\ \\left(-\\infty, -2\\right]\\ \\text{上严格递减，且}\\ g(x)\\ge 0$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\text{只需区间端点处}\\ g(x)\\ge 0$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "$\\sqrt{u}$ 在 $[0,+\\infty)$ 上严格递增，而且区间内每个数都要能代入。要使 $f(x)$ 在 $\\left(-\\infty, -2\\right]$ 上严格递减，内层 $g(x)$ 应满足什么？参数 $a$ 尚未求出。",
+          "stem_board": {
+            "caption": "转化为内层条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "内外两层",
+                "math": "\\begin{gathered}f(x)=\\sqrt{g(x)}\\\\g(x)=ax^{2}+2x- 5 a + 5\\end{gathered}"
+              },
+              {
+                "label": "内层要求",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "转化为内层条件"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "c945c9446a344a4c02c12a5c694c9305f7e0d2b8d298e7b34fe4b71ad214506e",
+          "step_id": "39e5646dcb-monotonicity-parameter-002-outer"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "e78139ef73764a39c3966f55",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "d576067ea216911b8d3f762d2bad4a0649ba821a908f7c3dd1efa4cb02ffaa35",
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "$a=0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入后的函数",
+                "math": "\\begin{gathered}a=0\\\\g\\!\\left(x\\right)=2x+5\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": "\\text{斜率}\\ 2>0,\\ \\text{严格递增}\\Rightarrow a=0\\ \\text{舍去}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -12.16,
+                10.16
+              ],
+              "description": "a=0 时的函数图像，区间部分加粗",
+              "intercept": 5.0,
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [],
+              "slope": 2.0,
+              "title": "a=0 时的函数图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "kind": "linear",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -12.16,
+                10.16
+              ],
+              "description": "a=0 时的函数图像，区间部分加粗",
+              "intercept": 5.0,
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "points": [],
+              "slope": 2.0,
+              "title": "a=0 时的函数图像",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "id": "e78139ef73764a39c3966f55#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "一次函数斜率为正时严格递增。",
+                "label": "$\\text{斜率}\\ 2>0,\\ \\text{严格递减}\\Rightarrow a=0\\ \\text{成立}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\text{斜率}\\ 2>0,\\ \\text{严格递增}\\Rightarrow a=0\\ \\text{舍去}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a=0$ 时二次项消失，$g\\!\\left(x\\right)=2x+5$。它在 $\\left(-\\infty, -2\\right]$ 上是否严格递减？",
+          "stem_board": {
+            "caption": "$a=0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "代入后的函数",
+                "math": "\\begin{gathered}a=0\\\\g\\!\\left(x\\right)=2x+5\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "$a=0$"
+        },
+        {
+          "completion_board": {
+            "caption": "$a>0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一类",
+                "math": "\\begin{gathered}a>0:\\ \\text{开口向上}\\\\\\text{严格递减的部分}:\\ x\\le - \\frac{1}{a}\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": "- \\frac{1}{a}\\ge -2\\Rightarrow a\\in \\left[\\frac{1}{2}, +\\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "拖动 $a$（只在 $a>0$ 内），观察 $\\left(-\\infty, -2\\right]$ 上的曲线是否整段严格递减",
+            "kind": "coefficient_explorer",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -1.1547,
+                8.2197
+              ],
+              "coefficients": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  2.0
+                ],
+                [
+                  -5.0,
+                  5.0
+                ]
+              ],
+              "description": "只在 a>0 内拖动 a，观察区间上的曲线是否整段严格递减",
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "parameter": {
+                "max": 1.95,
+                "min": 0.05,
+                "name": "a",
+                "step": 0.05,
+                "value": 0.25
+              },
+              "points": [],
+              "target": "decreasing",
+              "title": "a>0 时拖动 a",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "拖动 $a$（只在 $a>0$ 内），观察 $\\left(-\\infty, -2\\right]$ 上的曲线是否整段严格递减",
+            "kind": "coefficient_explorer",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -1.1547,
+                8.2197
+              ],
+              "coefficients": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  2.0
+                ],
+                [
+                  -5.0,
+                  5.0
+                ]
+              ],
+              "description": "只在 a>0 内拖动 a，观察区间上的曲线是否整段严格递减",
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "parameter": {
+                "max": 1.95,
+                "min": 0.05,
+                "name": "a",
+                "step": 0.05,
+                "value": 0.25
+              },
+              "points": [],
+              "target": "decreasing",
+              "title": "a>0 时拖动 a",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "id": "e78139ef73764a39c3966f55#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "feedback": "开口向上时，函数在 $x\\le - \\frac{1}{a}$ 这部分严格递减，整个区间要落在这部分里。",
+                "label": "$- \\frac{1}{a}\\le -2\\Rightarrow a\\in \\left(0, \\frac{1}{2}\\right]$",
+                "value": "o2"
+              },
+              {
+                "label": "$- \\frac{1}{a}\\ge -2\\Rightarrow a\\in \\left[\\frac{1}{2}, +\\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "这一类里并非每个值都满足要求，拖动滑块找一个反例。",
+                "label": "$a>0\\ \\text{全部成立}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a>0$ 时开口向上，对称轴 $x=- \\frac{1}{a}$，函数在 $x\\le - \\frac{1}{a}$ 这部分严格递减。要使它在 $\\left(-\\infty, -2\\right]$ 上严格递减，$a$ 的取值是？",
+          "stem_board": {
+            "caption": "$a>0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一类",
+                "math": "\\begin{gathered}a>0:\\ \\text{开口向上}\\\\\\text{严格递减的部分}:\\ x\\le - \\frac{1}{a}\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "$a>0$"
+        },
+        {
+          "completion_board": {
+            "caption": "$a<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一类",
+                "math": "\\begin{gathered}a<0:\\ \\text{开口向下}\\\\\\text{严格递减的部分}:\\ x\\ge - \\frac{1}{a}\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": "\\text{区间无下界，越过}\\ x=- \\frac{1}{a}\\ \\text{后严格递增}\\Rightarrow a<0\\ \\text{全部舍去}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "caption": "拖动 $a$（只在 $a<0$ 内），观察 $\\left(-\\infty, -2\\right]$ 上的曲线是否整段严格递减",
+            "kind": "coefficient_explorer",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -69.9197,
+                19.6672
+              ],
+              "coefficients": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  2.0
+                ],
+                [
+                  -5.0,
+                  5.0
+                ]
+              ],
+              "description": "只在 a<0 内拖动 a，观察区间上的曲线是否整段严格递减",
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "parameter": {
+                "max": -0.05,
+                "min": -1.95,
+                "name": "a",
+                "step": 0.05,
+                "value": -1.0
+              },
+              "points": [],
+              "target": "decreasing",
+              "title": "a<0 时拖动 a",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "graph": {
+            "caption": "拖动 $a$（只在 $a<0$ 内），观察 $\\left(-\\infty, -2\\right]$ 上的曲线是否整段严格递减",
+            "kind": "coefficient_explorer",
+            "params": {
+              "bounds": [
+                -7.5,
+                1.5,
+                -69.9197,
+                19.6672
+              ],
+              "coefficients": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  2.0
+                ],
+                [
+                  -5.0,
+                  5.0
+                ]
+              ],
+              "description": "只在 a<0 内拖动 a，观察区间上的曲线是否整段严格递减",
+              "interval": [
+                null,
+                -2.0
+              ],
+              "interval_closed": [
+                false,
+                true
+              ],
+              "parameter": {
+                "max": -0.05,
+                "min": -1.95,
+                "name": "a",
+                "step": 0.05,
+                "value": -1.0
+              },
+              "points": [],
+              "target": "decreasing",
+              "title": "a<0 时拖动 a",
+              "variable": "x",
+              "xTicks": [
+                [
+                  -2.0,
+                  "-2"
+                ]
+              ]
+            }
+          },
+          "id": "e78139ef73764a39c3966f55#3",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\text{区间无下界，越过}\\ x=- \\frac{1}{a}\\ \\text{后严格递增}\\Rightarrow a<0\\ \\text{全部舍去}$",
+                "value": "o1"
+              },
+              {
+                "feedback": "这一类里并非每个值都满足要求，拖动滑块找一个反例。",
+                "label": "$a<0\\ \\text{全部成立}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a<0$ 时开口向下，对称轴 $x=- \\frac{1}{a}$，函数在 $x\\ge - \\frac{1}{a}$ 这部分严格递减。要使它在 $\\left(-\\infty, -2\\right]$ 上严格递减，$a$ 的取值是？",
+          "stem_board": {
+            "caption": "$a<0$",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "这一类",
+                "math": "\\begin{gathered}a<0:\\ \\text{开口向下}\\\\\\text{严格递减的部分}:\\ x\\ge - \\frac{1}{a}\\end{gathered}"
+              },
+              {
+                "label": "本类结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "$a<0$"
+        },
+        {
+          "completion_board": {
+            "caption": "汇总三类",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分类结论",
+                "math": "\\begin{gathered}a=0:\\ \\text{舍去}\\\\a>0:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\a<0:\\ \\text{舍去}\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": "a\\in \\left[\\frac{1}{2}, +\\infty\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_graph": {
+            "kind": "number_line",
+            "params": {
+              "bounds": [
+                -0.25,
+                1.25
+              ],
+              "description": "a 的取值集合：[1/2, +∞)",
+              "pieces": [
+                {
+                  "from": 0.5,
+                  "left_closed": true,
+                  "right_closed": false,
+                  "to": null
+                }
+              ],
+              "points": [],
+              "ticks": [
+                [
+                  0.5,
+                  "1/2"
+                ]
+              ],
+              "title": "a 的取值范围",
+              "variable": "a"
+            }
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "e78139ef73764a39c3966f55#4",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a\\in \\left[\\frac{1}{2}, +\\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "$a>0$ 这一类的结论不对，回到那张卡再看看。",
+                "label": "$a\\in \\left(0, \\frac{1}{2}\\right]$",
+                "value": "o3"
+              },
+              {
+                "feedback": "漏掉了 $a>0$ 这一类。",
+                "label": "$a\\in \\varnothing$",
+                "value": "o2"
+              },
+              {
+                "label": "$a\\in \\mathbb{R}$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "三类情况各自的结论如下。合并后，使内层 $g$ 在 $\\left(-\\infty, -2\\right]$ 上严格递减的$a$ 的取值范围是？",
+          "stem_board": {
+            "caption": "汇总三类",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "分类结论",
+                "math": "\\begin{gathered}a=0:\\ \\text{舍去}\\\\a>0:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\a<0:\\ \\text{舍去}\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "汇总三类"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b0437c4710d1e39cfa93e778f59106fe109b1f1f1c2489aa5ff98566233cdbdc",
+          "step_id": "39e5646dcb-monotonicity-parameter-003-inner"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "e72fcf4692909863ee08437a",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "1a4b717c3ff3c9f4df6a46100a2c0812fa2bfd5b6cbbb58a5610bc4420c65301",
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "整段能开方",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "最小的函数值",
+                "math": "\\begin{gathered}g(x)=ax^{2}+2x- 5 a + 5\\\\a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\g(-2)=1 - a\\end{gathered}"
+              },
+              {
+                "label": "定义条件",
+                "math": "1 - a\\ge 0\\Rightarrow a\\in \\left(-\\infty, 1\\right]"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "e72fcf4692909863ee08437a#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$1 - a>0\\Rightarrow a\\in \\left(-\\infty, 1\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$1 - a\\ge 0\\Rightarrow a\\in \\left(-\\infty, 1\\right]$",
+                "value": "o1"
+              },
+              {
+                "label": "$1 - a\\le 0\\Rightarrow a\\in \\left[1, +\\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$1 - a<0\\Rightarrow a\\in \\left(1, +\\infty\\right)$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a\\in \\left[\\frac{1}{2}, +\\infty\\right)$ 时，$g$ 在 $\\left(-\\infty, -2\\right]$ 上严格递减，最小值在 $x=-2$ 处取得。要使整段 $g(x)\\ge 0$，$a$ 应满足什么？",
+          "stem_board": {
+            "caption": "整段能开方",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "最小的函数值",
+                "math": "\\begin{gathered}g(x)=ax^{2}+2x- 5 a + 5\\\\a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\g(-2)=1 - a\\end{gathered}"
+              },
+              {
+                "label": "定义条件",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "整段能开方"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b9ee1c455c9a5987d4f1eaa467e0dcc54c3aada6734549e713e8de87d47d02ab",
+          "step_id": "39e5646dcb-monotonicity-parameter-004-domain"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "530496d58a3bea3ade4091be",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "331cb03c1c670e7f507e7acfee26baa88a5ac74d6e8dccb22f0fde7135573623",
+      "lesson_version": "4cb260e4bb116c3607382618a9715f07ade9e9a99fb0055dea3eaff8e6e3291e",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "合并全部条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认条件",
+                "math": "\\begin{gathered}\\text{内层严格递减}:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\\\text{整段}\\ g(x)\\ge 0:\\ a\\in \\left(-\\infty, 1\\right]\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": "a\\in \\left[\\frac{1}{2}, 1\\right]"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "530496d58a3bea3ade4091be#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a\\in \\left[\\frac{1}{2}, +\\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$a\\in \\varnothing$",
+                "value": "o4"
+              },
+              {
+                "label": "$a\\in \\left(-\\infty, 1\\right]$",
+                "value": "o3"
+              },
+              {
+                "label": "$a\\in \\left[\\frac{1}{2}, 1\\right]$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "这些条件要同时成立，才能保证 $f$ 在 $\\left(-\\infty, -2\\right]$ 上严格递减。$a$ 的取值范围是？",
+          "stem_board": {
+            "caption": "合并全部条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已确认条件",
+                "math": "\\begin{gathered}\\text{内层严格递减}:\\ a\\in \\left[\\frac{1}{2}, +\\infty\\right)\\\\\\text{整段}\\ g(x)\\ge 0:\\ a\\in \\left(-\\infty, 1\\right]\\end{gathered}"
+              },
+              {
+                "label": "参数范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "合并全部条件"
+        }
+      ],
+      "route_id": "monotonicity-parameter",
+      "run_id": "0df33c11e30a42919f6bdaf3c7ee6a3d",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b910dd2c95ce785f1dc917fd0f4d644a4d231ca8ec0172a171860c437c99e16c",
+          "step_id": "39e5646dcb-monotonicity-parameter-005-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

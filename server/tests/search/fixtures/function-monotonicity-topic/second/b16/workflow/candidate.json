@@ -1,0 +1,40 @@
+{
+  "original_text": "16. 已知 $A=\\{x\\mid 1\\le x\\le 3\\}$，对于任意的 $x_1\\in A$，都存在 $x_2\\in A$，使得 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，则 $m$ 的范围是 $\\underline{\\qquad}$。",
+  "root": {
+    "facts": [
+      "A = {x∈ℝ | 1 ≤ x ≤ 3}",
+      "∀x_1∈A: ∃x_2∈A: x_2^2-3*x_2 > m*x_1+1",
+      "m < 0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "m"
+      }
+    ],
+    "children": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $A=\\{x\\mid 1\\le x\\le 3\\}$，对于任意的 $x_1\\in A$，都存在 $x_2\\in A$，使得 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，则 $m$ 的范围是 $\\underline{\\qquad}$。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

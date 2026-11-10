@@ -1,0 +1,92 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a08-v1",
+  "label": "差商恒负的分段求参 · A08",
+  "path": "/topics/function-monotonicity/q08a/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a08-v1.json",
+  "types": [
+    "type-monotonicity-parameter"
+  ],
+  "statement": "若函数 $f(x)=\\begin{cases}-x^{2}+ax-a,&x>2,\\\\1-ax,&x\\le2\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-parameter": {
+      "label": "单调性条件求参法",
+      "methods": [
+        "method-monotonicity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "55d7c563560042cc5b86d3ca#1": {
+          "title": "读清单调性要求",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "4f04363539375d7f6c6e1f2f#1": {
+          "title": "$x \\leq 2$ 段",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "4f04363539375d7f6c6e1f2f#2": {
+          "title": "$x > 2$ 段",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "04e6f44f8ae778ba628a14f7#1": {
+          "title": "分界点 $x=2$",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "b884d6546b92e4644cff9857#1": {
+          "title": "合并全部条件",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-parameter#conclude",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "ddfd08a9732d010197c0432feaf52c9293840a5d8f421e9104b0c4f8a7dd9b48",
+  "practice_version": "435eafea20c7c4796429530a8166bc2607c2112c584228c80431ed0c1e435263"
+}

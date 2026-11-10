@@ -1,0 +1,44 @@
+{
+  "original_text": "16. 函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是 ____。",
+  "root": {
+    "definitions": [
+      "f(x)=(2*x+1)/(x+3)"
+    ],
+    "facts": [],
+    "goals": [
+      {
+        "kind": "find_range",
+        "object": "f",
+        "input_domain": "[-2,2]",
+        "answer_request": {
+          "kind": "extremum",
+          "quantity": "maximum"
+        }
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是 ____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

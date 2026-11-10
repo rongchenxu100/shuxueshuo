@@ -169,7 +169,7 @@ def test_shared_rules_repair_only_the_reported_call_then_recheck_public_identity
         assert contracts.SOURCE_RULES in request.prompt.system
         assert '没有解析式是这类题的正常题设' in request.prompt.system
         assert 'known_call 与 known_domain 必须对应同一句已知条件' in request.prompt.system
-        assert '抽象函数定义域题的 public_content.statement' in request.prompt.system
+        assert 'public_content.statement 保留全部原定义、条件和所求' in request.prompt.system
     repair = json.loads(provider.requests[2].prompt.user_prefix)
     assert {item['path'] for item in repair['diagnostics']} == {TARGET + '/target_call'}
     assert json.loads(provider.requests[-1].prompt.user_prefix)['candidate'] == corrected

@@ -1,0 +1,3000 @@
+{
+  "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+  "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+  "input_sha256": "92b97d546d6814c05e43f0037316983052685ae188737aad680ef454bba27122",
+  "stream_id": "b4e3d5e0eec3400181f876613a77e1fd",
+  "last_seq": 61,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "prepare",
+      "explanation": "$\\because\\ 1\\in [1,\\infty)$\n$\\therefore\\ f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)$\n$\\therefore\\ f(1)=- \\frac{1}{2}+1=\\frac{1}{2}$\n$\\text{又 }f(1)\\text{ 是函数的最大值}$\n$\\therefore\\ \\forall x\\in D_{f},\\ f(x)\\leq f(1)=\\frac{1}{2}$",
+      "highlight": {
+        "caption": "把指定最值写成全域条件",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "f(1)=\\frac{1}{2}"
+          },
+          {
+            "label": "本步结论",
+            "math": "\\forall x\\in D_{f},\\quad f(x)\\leq \\frac{1}{2}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "46e2780dbb99dd08b2a4ee31bb1c60bf88089347cddec911f295f997805c2adf",
+      "method_ref": "method-extremum-condition-parameter#prepare",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/0/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare",
+      "target_ref": "/root/goals/0",
+      "title": "把指定最值写成全域条件",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 5/2 <= 1/2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+        }
+      ],
+      "before": [],
+      "case_path": [
+        "piece-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "subproblem_recognize_polynomial",
+      "explanation": "求使 $\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$ 成立的 $a$。",
+      "highlight": {
+        "caption": "转化后的不等式",
+        "items": [
+          {
+            "label": "当前子问题",
+            "math": "\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "6f30145bdc0a0722c82d5adf8b832091849166a79f636da07cf0afdf322552c1",
+      "method_ref": "method-extremum-condition-parameter#piece-inputs",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/2/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial",
+      "target_ref": "/root/goals/0",
+      "title": "判断转化后的问题",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 5/2 <= 1/2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+        }
+      ],
+      "before": [],
+      "case_path": [
+        "piece-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "subproblem_select_polynomial",
+      "explanation": "求使 $\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$ 成立的 $a$。",
+      "highlight": {
+        "caption": "转化后的不等式",
+        "items": [
+          {
+            "label": "当前子问题",
+            "math": "\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "22536f0a025f4086c0d41199d44da56b1ec8a053893bfee4aa52b73a0c23de70",
+      "method_ref": "method-extremum-condition-parameter#piece-inputs",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/2/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial",
+      "target_ref": "/root/goals/0",
+      "title": "选择恒成立问题的解题方法",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    },
+    {
+      "after": [],
+      "before": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + 2"
+        }
+      ],
+      "case_path": [
+        "piece-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "policy",
+      "explanation": "记 $h(x)=- x^{2} + 2 a x - a^{2} + a + 2$，对所有 $x \\in \\left(-\\infty, 1\\right)$，$h(x) \\leq 0$ $\\iff h(x)_{\\text{上端}} \\leq 0$。这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+      "highlight": {
+        "caption": "恒成立转化为最值条件",
+        "connector": "⇔",
+        "items": [
+          {
+            "label": "对所有 $x \\in \\left(-\\infty, 1\\right)$ 都成立",
+            "math": "h(x) \\leq 0"
+          },
+          {
+            "label": "只需看值域上端",
+            "math": "h(x)_{\\text{上端}} \\leq 0"
+          }
+        ],
+        "result": "$h(x)=- x^{2} + 2 a x - a^{2} + a + 2$，$h(x)_{\\text{上端}} \\leq 0$"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "4fb6c74a9c55cb37af7fe60d3b4f8c3738414fc32829826b29bc1b044e697309",
+      "method_ref": "method-interval-extremum#quantifier",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/4/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-004-policy",
+      "target_ref": "/root/goals/0",
+      "title": "转化为最值条件",
+      "used_basis": [
+        "function-range-extrema#quantified",
+        "quantifiers#universal"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "a < 1",
+          "latex": "a < 1"
+        },
+        {
+          "expression": "1 <= a",
+          "latex": "a \\geq 1"
+        }
+      ],
+      "before": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + 2"
+        }
+      ],
+      "case_path": [
+        "piece-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "derivation": true,
+      "display_unit": "interval_cases",
+      "explanation": "$h(x)$ 的图像开口向下，对称轴为 $x=a$，\n① 当 $a < 1$，即 $a < 1$ 时，$h(x)_{\\max}=h\\left(a\\right)=a + 2$；\n② 当 $a \\geq 1$，即 $a \\geq 1$ 时，$h(x) < h\\left(1\\right)=- a^{2} + 3 a + 1$，最大值不存在，只能趋近上述值。",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "8ee289c57d1b7b0d2641b0efec58a7aca45818e49e3ffa2a64997e7c45fec9c5",
+      "method_ref": "method-interval-extremum#select",
+      "ordinal": 5,
+      "premise_refs": [
+        "/steps/5/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/5/judgments/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases",
+      "target_ref": "/root/goals/0",
+      "title": "分类讨论最值",
+      "used_basis": []
+    },
+    {
+      "after": [
+        {
+          "expression": "a + 2",
+          "latex": "a + 2"
+        }
+      ],
+      "before": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + 2"
+        }
+      ],
+      "case_condition": {
+        "expression": "a < 1",
+        "latex": "a < 1"
+      },
+      "case_path": [
+        "piece-1",
+        "interval-case-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "classified_range",
+      "explanation": "$\\because\\ a < 1$，$\\therefore\\ a < 1$，\n顶点在区间内，\n$\\therefore\\ h(x)_{\\max}=h\\left(a\\right)=a + 2$。",
+      "highlight": {
+        "caption": "本情况的最大值",
+        "items": [
+          {
+            "label": "当 $a < 1$ 时",
+            "math": "h(x)_{\\max}=h\\left(a\\right)=a + 2"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "d44befcd20c0e9808223146af5b3cb94d25f4a3dfce0b0f766995109e72a14cd",
+      "method_ref": "method-interval-extremum#select",
+      "ordinal": 6,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/6/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/6/calls/0",
+        "/steps/6/skipped_calls/0",
+        "/steps/6/skipped_calls/1",
+        "/steps/6/skipped_calls/2",
+        "/steps/6/skipped_calls/3",
+        "/steps/6/judgments/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range",
+      "target_ref": "/root/goals/0",
+      "title": "求本情况的最值",
+      "used_basis": [
+        "quadratic-interval-extremum"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "Interval(-oo, -2)",
+          "latex": "\\left(-\\infty, -2\\right]"
+        },
+        {
+          "expression": "Interval(-oo, -2)",
+          "latex": "\\left(-\\infty, -2\\right]"
+        }
+      ],
+      "before": [
+        {
+          "expression": "0 >= a + 2",
+          "latex": "a + 2 \\leq 0"
+        }
+      ],
+      "case_condition": {
+        "expression": "a < 1",
+        "latex": "a < 1"
+      },
+      "case_path": [
+        "piece-1",
+        "interval-case-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conditions",
+      "explanation": "由 $\\begin{cases}a < 1,\\\\ a + 2 \\leq 0\\end{cases}$ 得 $a \\leq -2$。",
+      "highlight": {
+        "caption": "本情况的参数范围",
+        "items": [
+          {
+            "label": "当 $a < 1$ 时",
+            "math": "a \\leq -2"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "cc4d712197305187bddb172d03bc99ab92f54844c3fec7fd47937ce786d6e4f9",
+      "method_ref": "method-interval-extremum#conditions",
+      "ordinal": 7,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/6/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/7/calls/0",
+        "/steps/7/calls/1"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions",
+      "target_ref": "/root/goals/0",
+      "title": "求本情况的参数范围",
+      "used_basis": [
+        "function-range-extrema#quantified",
+        "method-interval-extremum#conditions"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "-a**2 + 3*a + 1",
+          "latex": "- a^{2} + 3 a + 1"
+        }
+      ],
+      "before": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + 2"
+        }
+      ],
+      "case_condition": {
+        "expression": "1 <= a",
+        "latex": "a \\geq 1"
+      },
+      "case_path": [
+        "piece-1",
+        "interval-case-2"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "classified_range",
+      "explanation": "$\\because\\ a \\geq 1$，$\\therefore\\ a \\geq 1$，\n$h(x)$ 在 $\\left(-\\infty, 1\\right)$ 上单调递增，\n$\\therefore\\ h(x) < h\\left(1\\right)=- a^{2} + 3 a + 1$，最大值不存在，只能趋近上述值。",
+      "highlight": {
+        "caption": "本情况的最大值",
+        "items": [
+          {
+            "label": "当 $a \\geq 1$ 时",
+            "math": "h(x) < h\\left(1\\right)=- a^{2} + 3 a + 1",
+            "note": "最大值取不到"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "9b64282e51a37ba7d3fc32745cbcb3310b0bee6c2174996896923986453a0f60",
+      "method_ref": "method-interval-extremum#select",
+      "ordinal": 8,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/8/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/8/calls/0",
+        "/steps/8/skipped_calls/0",
+        "/steps/8/skipped_calls/1",
+        "/steps/8/skipped_calls/2",
+        "/steps/8/skipped_calls/3",
+        "/steps/8/judgments/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range",
+      "target_ref": "/root/goals/0",
+      "title": "求本情况的最值",
+      "used_basis": [
+        "quadratic-interval-extremum"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "Union(Interval(-oo, 3/2 - sqrt(13)/2), Interval(3/2 + sqrt(13)/2, oo))",
+          "latex": "\\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        },
+        {
+          "expression": "Interval(3/2 + sqrt(13)/2, oo)",
+          "latex": "\\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        }
+      ],
+      "before": [
+        {
+          "expression": "0 >= -a**2 + 3*a + 1",
+          "latex": "- a^{2} + 3 a + 1 \\leq 0"
+        }
+      ],
+      "case_condition": {
+        "expression": "1 <= a",
+        "latex": "a \\geq 1"
+      },
+      "case_path": [
+        "piece-1",
+        "interval-case-2"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conditions",
+      "explanation": "由 $\\begin{cases}a \\geq 1,\\\\ - a^{2} + 3 a + 1 \\leq 0\\end{cases}$ 得 $a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$。",
+      "highlight": {
+        "caption": "本情况的参数范围",
+        "items": [
+          {
+            "label": "当 $a \\geq 1$ 时",
+            "math": "a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}"
+          }
+        ]
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "88079ee55c97e6b5d1242da0e8f29bc5c6c25576b911c11f97654b454bab4165",
+      "method_ref": "method-interval-extremum#conditions",
+      "ordinal": 9,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/8/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/9/calls/0",
+        "/steps/9/calls/1"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions",
+      "target_ref": "/root/goals/0",
+      "title": "求本情况的参数范围",
+      "used_basis": [
+        "function-range-extrema#quantified",
+        "method-interval-extremum#conditions"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "Interval(-oo, -2)",
+          "latex": "\\left(-\\infty, -2\\right]"
+        },
+        {
+          "expression": "Interval(3/2 + sqrt(13)/2, oo)",
+          "latex": "\\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        },
+        {
+          "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+          "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        }
+      ],
+      "before": [
+        {
+          "expression": "-a**2 + 2*a*x + a - x**2 + 2",
+          "latex": "- x^{2} + 2 a x - a^{2} + a + 2"
+        },
+        {
+          "expression": "0 >= a + 2",
+          "latex": "a + 2 \\leq 0"
+        },
+        {
+          "expression": "0 >= -a**2 + 3*a + 1",
+          "latex": "- a^{2} + 3 a + 1 \\leq 0"
+        }
+      ],
+      "case_path": [
+        "piece-1"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "interval_merge",
+      "explanation": "① 由 $\\begin{cases}a < 1,\\\\ a + 2 \\leq 0\\end{cases}$ 得 $a \\leq -2$；\n② 由 $\\begin{cases}a \\geq 1,\\\\ - a^{2} + 3 a + 1 \\leq 0\\end{cases}$ 得 $a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$。\n综上，取并集得 $a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$。",
+      "highlight": {
+        "caption": "取并集",
+        "items": [
+          {
+            "label": "情况①（$a < 1$）",
+            "math": "a \\leq -2"
+          },
+          {
+            "label": "情况②（$a \\geq 1$）",
+            "math": "a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}"
+          }
+        ],
+        "layout": "merge",
+        "result": "$a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "b7a8b927daee755dd0b51cff44400de02e22cb8083f7c066e227fb67eff036a2",
+      "method_ref": "method-interval-extremum#verify",
+      "ordinal": 10,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/6/judgments/0",
+        "/steps/8/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/10/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge",
+      "target_ref": "/root/goals/0",
+      "title": "求参数范围",
+      "used_basis": [
+        "method-interval-extremum#conditions"
+      ]
+    },
+    {
+      "after": [
+        {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        }
+      ],
+      "before": [
+        {
+          "expression": "1 - x/2 <= 1/2",
+          "latex": "- \\frac{x}{2} + 1 \\leq \\frac{1}{2}"
+        }
+      ],
+      "case_path": [
+        "piece-2"
+      ],
+      "contract": "graph-math-step/v2",
+      "display_unit": "independent_conclude",
+      "explanation": "$x\\in \\left[1, \\infty\\right):\\ f(x)=- \\frac{x}{2} + 1$\n$\\because\\ \\text{一次项系数 }- \\frac{1}{2}<0,\\ f(x)\\text{ 在 }\\left[1, \\infty\\right)\\text{ 上递减}$\n$\\therefore\\ f(x)\\le f(1)=\\frac{1}{2}$\n$\\text{又需 }f(x)\\leq\\frac{1}{2},\\ \\text{该段恒成立}$\n$\\therefore\\ \\text{对 }a\\text{ 无额外限制}$",
+      "highlight": {
+        "caption": "本段结论",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "本段条件",
+            "math": "f(x)=- \\frac{x}{2} + 1\\ (x\\in \\left[1, \\infty\\right))"
+          },
+          {
+            "label": "本段结论",
+            "math": "\\text{对 }a\\text{ 无额外限制}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "b5fb2703bc9f3e0078cfab28be1815fba220c3ab6fa5ca20897e37e66a0a85a6",
+      "method_ref": "method-extremum-condition-parameter#borrowed",
+      "ordinal": 11,
+      "premise_refs": [],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/12/calls/0",
+        "/steps/12/skipped_calls/0",
+        "/steps/12/skipped_calls/1"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "快速验证本段",
+      "used_basis": [
+        "linear-interval-extremum#interval",
+        "skill-linear-range"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "conclude",
+      "explanation": "$x\\in \\left(-\\infty, 1\\right):\\ f(x)=-\\left(x - a\\right)^2+a + \\frac{5}{2}$\n$\\therefore\\ a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$\n$x\\in \\left[1, \\infty\\right):\\ f(x)=- \\frac{x}{2} + 1$\n$\\therefore\\ \\text{对 }a\\text{ 无额外限制}$\n$\\text{各段结果取交集}$\n$\\therefore\\ a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$",
+      "highlight": {
+        "caption": "回到原题，汇总参数范围",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与当前范围",
+            "math": "\\begin{gathered}x\\in \\left(-\\infty, 1\\right):\\ - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}\\Rightarrow a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}\\\\x\\in \\left[1, \\infty\\right):\\ - \\frac{x}{2} + 1\\Rightarrow a\\in \\mathbb R\\end{gathered}"
+          },
+          {
+            "label": "$a$ 的取值范围",
+            "math": "a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "local_check": "passed",
+      "math_step_sha256": "a7f44c0a764b19de255d0c8d90881422558b58df49870777ee3fb9e5bd8b3c52",
+      "method_ref": "method-extremum-condition-parameter#conclude",
+      "ordinal": 12,
+      "premise_refs": [
+        "/steps/5/judgments/0",
+        "/steps/6/judgments/0",
+        "/steps/8/judgments/0"
+      ],
+      "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "source_refs": [
+        "/steps/15/calls/0"
+      ],
+      "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude",
+      "target_ref": "/root/goals/0",
+      "title": "合并参数范围",
+      "used_basis": [
+        "function-range-extrema#attainability",
+        "function-range-extrema#extrema"
+      ]
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+          "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Union",
+          "args": [
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "NegativeInfinity"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "-2"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Rational",
+                      "p": "3",
+                      "q": "2"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Rational",
+                          "p": "1",
+                          "q": "2"
+                        },
+                        {
+                          "$math": "Pow",
+                          "args": [
+                            {
+                              "$math": "Integer",
+                              "value": "13"
+                            },
+                            {
+                              "$math": "Rational",
+                              "p": "1",
+                              "q": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            }
+          ]
+        },
+        "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+        "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+          "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Union",
+          "args": [
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "NegativeInfinity"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "-2"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Rational",
+                      "p": "3",
+                      "q": "2"
+                    },
+                    {
+                      "$math": "Mul",
+                      "args": [
+                        {
+                          "$math": "Rational",
+                          "p": "1",
+                          "q": "2"
+                        },
+                        {
+                          "$math": "Pow",
+                          "args": [
+                            {
+                              "$math": "Integer",
+                              "value": "13"
+                            },
+                            {
+                              "$math": "Rational",
+                              "p": "1",
+                              "q": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            }
+          ]
+        },
+        "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+        "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+      },
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "math_steps": [
+        {
+          "math_step_sha256": "46e2780dbb99dd08b2a4ee31bb1c60bf88089347cddec911f295f997805c2adf",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare"
+        },
+        {
+          "math_step_sha256": "6f30145bdc0a0722c82d5adf8b832091849166a79f636da07cf0afdf322552c1",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial"
+        },
+        {
+          "math_step_sha256": "22536f0a025f4086c0d41199d44da56b1ec8a053893bfee4aa52b73a0c23de70",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial"
+        },
+        {
+          "math_step_sha256": "4fb6c74a9c55cb37af7fe60d3b4f8c3738414fc32829826b29bc1b044e697309",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-extremum-condition-parameter-004-policy"
+        },
+        {
+          "math_step_sha256": "8ee289c57d1b7b0d2641b0efec58a7aca45818e49e3ffa2a64997e7c45fec9c5",
+          "ordinal": 5,
+          "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases"
+        },
+        {
+          "math_step_sha256": "d44befcd20c0e9808223146af5b3cb94d25f4a3dfce0b0f766995109e72a14cd",
+          "ordinal": 6,
+          "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range"
+        },
+        {
+          "math_step_sha256": "cc4d712197305187bddb172d03bc99ab92f54844c3fec7fd47937ce786d6e4f9",
+          "ordinal": 7,
+          "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions"
+        },
+        {
+          "math_step_sha256": "9b64282e51a37ba7d3fc32745cbcb3310b0bee6c2174996896923986453a0f60",
+          "ordinal": 8,
+          "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range"
+        },
+        {
+          "math_step_sha256": "88079ee55c97e6b5d1242da0e8f29bc5c6c25576b911c11f97654b454bab4165",
+          "ordinal": 9,
+          "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions"
+        },
+        {
+          "math_step_sha256": "b7a8b927daee755dd0b51cff44400de02e22cb8083f7c066e227fb67eff036a2",
+          "ordinal": 10,
+          "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge"
+        },
+        {
+          "math_step_sha256": "b5fb2703bc9f3e0078cfab28be1815fba220c3ab6fa5ca20897e37e66a0a85a6",
+          "ordinal": 11,
+          "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude"
+        },
+        {
+          "math_step_sha256": "a7f44c0a764b19de255d0c8d90881422558b58df49870777ee3fb9e5bd8b3c52",
+          "ordinal": 12,
+          "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "f939c73fa5de24b0eee74da22016d981e3c9951934859378f8ab49b1484d93a3",
+      "verified_route_sha256": "5cbfdc9a8c04a618a52dca07381188027ff0d5ec6457a640e9285309031ead27"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {
+          "checks": {
+            "goal": "specified"
+          }
+        },
+        "id": "D3",
+        "interaction": {
+          "checks": [
+            {
+              "feedback": "先算出指定点的函数值，再检查定义域里其他点都不越过它。",
+              "id": "goal",
+              "options": [
+                {
+                  "label": "给出函数，求最大值或最小值",
+                  "note": "根据同一区间内的增减，选择最值位置，再检查能否取到。",
+                  "value": "direct"
+                },
+                {
+                  "label": "一边随便取，另一边都能配上",
+                  "note": "题面常见「对任意 $x_1$，存在 $x_2$，使 $f(x_1)\\le g(x_2)$」：左边每一个函数值，右边都能找到配合。先分清谁随便取、谁负责配合，再比较两边的取值范围（或最值），求出使条件成立的参数。",
+                  "value": "quantified"
+                },
+                {
+                  "label": "指定某一点已经是最大或最小",
+                  "note": "例如已知 $f(0)$ 是最小值：先算出这个值，再要求定义域里其他点都不比它更小；若是最大值，则其他点都不比它更大。不必要求只在这一点取到。",
+                  "value": "specified"
+                }
+              ],
+              "question": "这道题需要完成什么？",
+              "resolved": "指定最值求参法"
+            }
+          ],
+          "connections": [
+            {
+              "cue": "direct",
+              "method": "direct"
+            },
+            {
+              "cue": "quantified",
+              "method": "quantified"
+            },
+            {
+              "cue": "specified",
+              "method": "specified"
+            }
+          ],
+          "facts": [],
+          "layout": "connections",
+          "method_choices": [
+            {
+              "label": "单调性求最值法",
+              "value": "direct"
+            },
+            {
+              "label": "量词比较求参法",
+              "value": "quantified"
+            },
+            {
+              "label": "指定最值求参法",
+              "value": "specified"
+            }
+          ],
+          "method_notes": {},
+          "source_refs": [
+            "/root/goals/0",
+            "/root/definitions/0",
+            "/root/facts/0"
+          ],
+          "type": "method_cards"
+        },
+        "query": {
+          "from": "type-monotonicity-extremum",
+          "op": "methods"
+        },
+        "question": "结合本题的目标，选择解题方法。",
+        "submit_label": "确认选法",
+        "title": "选择解题方法",
+        "verdicts": {
+          "direct": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          },
+          "quantified": {
+            "message": "请先核对题目所求的目标。",
+            "value": "unfit"
+          },
+          "specified": {
+            "message": "先算出指定点的函数值，再检查定义域里其他点都不越过它。",
+            "value": "fit"
+          }
+        }
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "specified",
+            "message": "开始解题",
+            "method": "method-extremum-condition-parameter",
+            "recommendation": "preferred",
+            "route_id": "extremum-condition-parameter",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "按所选方法解题"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare",
+      "ordinal": 1,
+      "math_step_sha256": "46e2780dbb99dd08b2a4ee31bb1c60bf88089347cddec911f295f997805c2adf",
+      "status": "interactive",
+      "interaction_id": "6dda71cf3d504569015d48d8"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial",
+      "ordinal": 2,
+      "math_step_sha256": "6f30145bdc0a0722c82d5adf8b832091849166a79f636da07cf0afdf322552c1",
+      "status": "interactive",
+      "interaction_id": "9c194ad453d690a269141273"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial",
+      "ordinal": 3,
+      "math_step_sha256": "22536f0a025f4086c0d41199d44da56b1ec8a053893bfee4aa52b73a0c23de70",
+      "status": "interactive",
+      "interaction_id": "0910910b2672b6ec43fad084"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-004-policy",
+      "ordinal": 4,
+      "math_step_sha256": "4fb6c74a9c55cb37af7fe60d3b4f8c3738414fc32829826b29bc1b044e697309",
+      "status": "interactive",
+      "interaction_id": "28faa1fb877dd53b9180071c"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases",
+      "ordinal": 5,
+      "math_step_sha256": "8ee289c57d1b7b0d2641b0efec58a7aca45818e49e3ffa2a64997e7c45fec9c5",
+      "status": "interactive",
+      "interaction_id": "b5bda0a4a0f1b68fdca20704"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range",
+      "ordinal": 6,
+      "math_step_sha256": "d44befcd20c0e9808223146af5b3cb94d25f4a3dfce0b0f766995109e72a14cd",
+      "status": "interactive",
+      "interaction_id": "b043e7409c73ae638f7e98b5"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions",
+      "ordinal": 7,
+      "math_step_sha256": "cc4d712197305187bddb172d03bc99ab92f54844c3fec7fd47937ce786d6e4f9",
+      "status": "interactive",
+      "interaction_id": "660aa9cbc01bcdc532b2c3f4"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range",
+      "ordinal": 8,
+      "math_step_sha256": "9b64282e51a37ba7d3fc32745cbcb3310b0bee6c2174996896923986453a0f60",
+      "status": "interactive",
+      "interaction_id": "82853f483755ba3ad76729a2"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions",
+      "ordinal": 9,
+      "math_step_sha256": "88079ee55c97e6b5d1242da0e8f29bc5c6c25576b911c11f97654b454bab4165",
+      "status": "interactive",
+      "interaction_id": "6797d9798911668300e35ed4"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge",
+      "ordinal": 10,
+      "math_step_sha256": "b7a8b927daee755dd0b51cff44400de02e22cb8083f7c066e227fb67eff036a2",
+      "status": "interactive",
+      "interaction_id": "c224c1d3394e187d2c20978d"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude",
+      "ordinal": 11,
+      "math_step_sha256": "b5fb2703bc9f3e0078cfab28be1815fba220c3ab6fa5ca20897e37e66a0a85a6",
+      "status": "interactive",
+      "interaction_id": "a5dcf8de6111b12d891f127d"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude",
+      "ordinal": 12,
+      "math_step_sha256": "a7f44c0a764b19de255d0c8d90881422558b58df49870777ee3fb9e5bd8b3c52",
+      "status": "interactive",
+      "interaction_id": "1cbb91f2011f0abfcd027aa9"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "c59e5f207ea0e0fd3006e87ecb70b084149c76176e4b75db217df0b6b4007b01",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:extremum-condition-parameter:complete",
+      "last_seq": 61
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "extremum-condition-parameter",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-extremum-condition-parameter",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-extremum-condition-parameter",
+          "step": "piece-inputs",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-extremum-condition-parameter",
+          "step": "piece-inputs",
+          "case_path": [
+            "piece-1"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [
+                "piece-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-extremum-condition-parameter",
+          "step": "borrowed",
+          "case_path": [
+            "piece-1"
+          ],
+          "calls": [
+            {
+              "public_ref": "method-interval-extremum",
+              "used_basis": [],
+              "case_path": [
+                "piece-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-interval-extremum",
+          "step": "quantifier",
+          "case_path": [
+            "piece-1"
+          ],
+          "calls": [
+            {
+              "public_ref": "skill-quantified-range",
+              "used_basis": [
+                "function-range-extrema#quantified",
+                "quantifiers#universal"
+              ],
+              "case_path": [
+                "piece-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-interval-extremum",
+          "step": "select",
+          "case_path": [
+            "piece-1"
+          ],
+          "calls": []
+        },
+        {
+          "seq": 7,
+          "method": "method-interval-extremum",
+          "step": "select",
+          "case_path": [
+            "piece-1",
+            "interval-case-1"
+          ],
+          "calls": [
+            {
+              "public_ref": "quadratic-interval-extremum",
+              "rule_ref": "rule-interval-skill",
+              "branch": "quadratic",
+              "used_basis": [
+                "quadratic-interval-extremum"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 8,
+          "method": "method-interval-extremum",
+          "step": "conditions",
+          "case_path": [
+            "piece-1",
+            "interval-case-1"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#quantified"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": "skill-inequality-transform",
+              "used_basis": [
+                "method-interval-extremum#conditions"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 9,
+          "method": "method-interval-extremum",
+          "step": "select",
+          "case_path": [
+            "piece-1",
+            "interval-case-2"
+          ],
+          "calls": [
+            {
+              "public_ref": "quadratic-interval-extremum",
+              "rule_ref": "rule-interval-skill",
+              "branch": "quadratic",
+              "used_basis": [
+                "quadratic-interval-extremum"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-2"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 10,
+          "method": "method-interval-extremum",
+          "step": "conditions",
+          "case_path": [
+            "piece-1",
+            "interval-case-2"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#quantified"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-2"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            },
+            {
+              "public_ref": "skill-inequality-transform",
+              "used_basis": [
+                "method-interval-extremum#conditions"
+              ],
+              "case_path": [
+                "piece-1",
+                "interval-case-2"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 11,
+          "method": "method-interval-extremum",
+          "step": "verify",
+          "case_path": [
+            "piece-1"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "method-interval-extremum#conditions"
+              ],
+              "case_path": [
+                "piece-1"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 12,
+          "method": "method-extremum-condition-parameter",
+          "step": "piece-inputs",
+          "case_path": [
+            "piece-2"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [
+                "piece-2"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 13,
+          "method": "method-extremum-condition-parameter",
+          "step": "borrowed",
+          "case_path": [
+            "piece-2"
+          ],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "linear-interval-extremum#interval",
+                "skill-linear-range"
+              ],
+              "case_path": [
+                "piece-2"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 14,
+          "method": "method-extremum-condition-parameter",
+          "step": "ranges",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 15,
+          "method": "method-extremum-condition-parameter",
+          "step": "conditions",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-quantified-range",
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 16,
+          "method": "method-extremum-condition-parameter",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [
+                "function-range-extrema#attainability",
+                "function-range-extrema#extrema"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "method": "method-extremum-condition-parameter",
+          "step": "verify",
+          "case_path": [],
+          "calls": []
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "6dda71cf3d504569015d48d8",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "d996fc35f20e9161e5a6adbf3daa8c6ef8f1dc20be5e581bf58a344ff00bef5a",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "card_group": "prepare",
+          "card_group_title": "确定指定最值",
+          "completion_board": {
+            "caption": "求指定点的函数值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=\\begin{cases}-\\left(x - a\\right)^2+a + \\frac{5}{2},&x\\in(-\\infty,1)\\\\- \\frac{x}{2} + 1,&x\\in[1,\\infty)\\end{cases}\\\\f(1)=?\\end{gathered}"
+              },
+              {
+                "label": "选用的表达式与取值",
+                "math": "\\begin{gathered}f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)\\\\f(1)=- \\frac{1}{2}+1=\\frac{1}{2}\\end{gathered}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "6dda71cf3d504569015d48d8#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\begin{gathered}f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)\\\\f(1)=- \\frac{1}{2}+1=\\frac{1}{2}\\end{gathered}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\begin{gathered}f(x)=-\\left(x - a\\right)^2+a + \\frac{5}{2},\\ x\\in(-\\infty,1)\\\\f(1)=-\\left(1-a\\right)^2+a + \\frac{5}{2}=- a^{2} + 3 a + \\frac{3}{2}\\end{gathered}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\begin{gathered}f(x)=- \\frac{x}{2} + 1,\\ x\\in[1,\\infty)\\\\f(1)=- \\frac{1}{2}+1=\\frac{3}{2}\\end{gathered}$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先确定指定最值点落在哪一段，再代入该段表达式；保留原分段端点。",
+          "stem_board": {
+            "caption": "求指定点的函数值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}f(x)=\\begin{cases}-\\left(x - a\\right)^2+a + \\frac{5}{2},&x\\in(-\\infty,1)\\\\- \\frac{x}{2} + 1,&x\\in[1,\\infty)\\end{cases}\\\\f(1)=?\\end{gathered}"
+              },
+              {
+                "label": "选用的表达式与取值",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求指定点的函数值"
+        },
+        {
+          "card_group": "prepare",
+          "card_group_title": "确定指定最值",
+          "completion_board": {
+            "caption": "把指定最值写成全域条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "f(1)=\\frac{1}{2}"
+              },
+              {
+                "label": "本步结论",
+                "math": "\\forall x\\in D_{f},\\quad f(x)\\leq \\frac{1}{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "6dda71cf3d504569015d48d8#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\exists x\\in D_{f},\\quad f(x)\\leq \\frac{1}{2}$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\forall x\\in D_{f},\\quad f(x)\\leq \\frac{1}{2}$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "指定最值等价于定义域上的恒成立：每一点都不比它更大。后面按段分别求解，再取交集；不必要求只在这一点取到。",
+          "stem_board": {
+            "caption": "把指定最值写成全域条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "f(1)=\\frac{1}{2}"
+              },
+              {
+                "label": "本步结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把指定最值写成全域条件"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "46e2780dbb99dd08b2a4ee31bb1c60bf88089347cddec911f295f997805c2adf",
+          "step_id": "39e5646dcb-extremum-condition-parameter-001-prepare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "9c194ad453d690a269141273",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "e95b4bea0e236f064b91bdc2f0b200db4956ab503a259482c5cd5078dc317ebe",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "转化后的不等式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "刚得到的条件",
+                "math": "\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+              },
+              {
+                "label": "现在要解决的问题",
+                "math": "\\text{一元二次不等式恒成立问题}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "effects": {
+            "log": "识别恒成立子问题。",
+            "nodes": [
+              "type-quantified-quadratic"
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "universal"
+            ]
+          },
+          "feedback": {
+            "answer": "条件要求每个满足 $x < 1$ 的 $x$ 都成立，因此求的是恒成立时的参数范围。"
+          },
+          "id": "9c194ad453d690a269141273#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "求使不等式对所有 $x < 1$ 都成立的 $a$（一元二次不等式恒成立问题）",
+                "value": "universal"
+              },
+              {
+                "label": "求使不等式至少对一个满足 $x < 1$ 的 $x$ 成立的 $a$（一元二次不等式存在问题）",
+                "value": "existential"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本步条件来自分段式 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$。\n\n注意“对所有”这一条件：现在要解决的是哪一种问题？",
+          "source_context": "本步条件来自分段式 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}$（$x\\in \\left(-\\infty, 1\\right)$）：要求 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$。",
+          "stem_board": {
+            "caption": "转化后的不等式",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "刚得到的条件",
+                "math": "\\forall x\\in\\left(-\\infty, 1\\right),\\quad - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}"
+              },
+              {
+                "label": "现在要解决的问题",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认问题类型",
+          "title": "判断转化后的问题"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "6f30145bdc0a0722c82d5adf8b832091849166a79f636da07cf0afdf322552c1",
+          "step_id": "39e5646dcb-extremum-condition-parameter-002-subproblem_recognize_polynomial"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "0910910b2672b6ec43fad084",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "1a47586b3e43e2c1eb643110214c0693f4ab8b808da21b9a665124d56c241bc5",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "alternatives": {},
+          "effects": {
+            "log": "借用已学方法：区间最值法。",
+            "nodes": [
+              "rule-quadratic-method",
+              "method-interval-extremum"
+            ]
+          },
+          "expected_answer": {
+            "cell": [
+              "interval",
+              "free"
+            ],
+            "method": "interval"
+          },
+          "feedback": {
+            "method": "这种方法不在这一格里，请从这一格列出的方法中选一种。",
+            "method_choice": "当前恒成立子问题使用区间最值法；其它适用方法不在本路线展开。",
+            "x": "再看横轴：$x$ 的给定范围不是全体实数。",
+            "y": "再看纵轴：$a$ 是所求参数。"
+          },
+          "id": "0910910b2672b6ec43fad084#1",
+          "interaction": {
+            "methods": [
+              {
+                "cells": [
+                  [
+                    "real",
+                    "free"
+                  ]
+                ],
+                "label": "判别式法",
+                "target": "method-discriminant",
+                "value": "discriminant"
+              },
+              {
+                "cells": [
+                  [
+                    "interval",
+                    "free"
+                  ]
+                ],
+                "label": "区间最值法",
+                "route": "extremum-condition-parameter",
+                "route_plan": "planned",
+                "target": "method-interval-extremum",
+                "value": "interval"
+              },
+              {
+                "cells": [
+                  [
+                    "real",
+                    "free"
+                  ]
+                ],
+                "label": "分离参数法",
+                "target": "method-separation",
+                "value": "separation"
+              },
+              {
+                "cells": [
+                  [
+                    "interval",
+                    "given"
+                  ],
+                  [
+                    "real",
+                    "given"
+                  ]
+                ],
+                "label": "更换主元法",
+                "target": "method-variable-swap",
+                "value": "swap"
+              }
+            ],
+            "title": "方法坐标图",
+            "type": "plane",
+            "x": {
+              "label": "$x$ 取全体实数吗？",
+              "options": [
+                {
+                  "label": "否",
+                  "note": "$x$ 在给定范围内",
+                  "value": "interval"
+                },
+                {
+                  "label": "是",
+                  "note": "$x\\in\\mathbb R$",
+                  "value": "real"
+                }
+              ]
+            },
+            "y": {
+              "label": "参数 $a$ 有给定范围吗？",
+              "options": [
+                {
+                  "label": "有",
+                  "note": "给定 $a$ 的范围，求 $x$ 的范围",
+                  "value": "given"
+                },
+                {
+                  "label": "没有",
+                  "note": "要求的就是参数 $a$",
+                  "value": "free"
+                }
+              ]
+            }
+          },
+          "question": "当前子问题是：对所有 $x\\in \\left(-\\infty, 1\\right)$，都有 $- x^{2} + 2 a x - a^{2} + a + \\frac{5}{2} \\leq \\frac{1}{2}$。本题落在选法坐标的哪一格？应借用哪一种已学方法？",
+          "submit_label": "用这种方法解题",
+          "title": "选择恒成立问题的解题方法"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "22536f0a025f4086c0d41199d44da56b1ec8a053893bfee4aa52b73a0c23de70",
+          "step_id": "39e5646dcb-extremum-condition-parameter-003-subproblem_select_polynomial"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "28faa1fb877dd53b9180071c",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "ff8adeef87988f52ca5f2ae3b1568e4e7b28dd09d663007258fee21f41e4dfee",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "把“对所有 $x$ 都成立”转化为比较函数在区间上的值域上端。"
+          },
+          "id": "28faa1fb877dd53b9180071c#1",
+          "interaction": {
+            "field": "28faa1fb877dd53b9180071c#1",
+            "options": [
+              {
+                "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{上端}} \\leq 0$",
+                "value": "o1"
+              },
+              {
+                "feedback": "最值可能取不到（例如开区间端点处只能无限接近），这时没有最大值，但每个函数值仍可能都满足条件。",
+                "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\max}$ 存在且 $\\leq 0$",
+                "value": "o2"
+              },
+              {
+                "feedback": "要让每个函数值都满足 $h(x) \\leq 0$，最该担心的是值域上端附近的那些值。",
+                "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{下端}} \\leq 0$",
+                "value": "o3"
+              },
+              {
+                "feedback": "注意原题是否允许等号。",
+                "label": "$x \\in \\left(-\\infty, 1\\right)$ 时，$h(x)_{\\text{上端}} < 0$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "记 $h(x)=- x^{2} + 2 a x - a^{2} + a + 2$，对所有 $x \\in \\left(-\\infty, 1\\right)$，$h(x) \\leq 0$ 成立，等价于什么？这里“下端/上端”指函数值范围的两端：能取到时就是最小值/最大值；取不到时，是函数值向下/向上无限接近的值；向下/向上无界时记为 $-\\infty/+\\infty$。",
+          "submit_label": "确认判断",
+          "title": "转化为最值条件"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "4fb6c74a9c55cb37af7fe60d3b4f8c3738414fc32829826b29bc1b044e697309",
+          "step_id": "39e5646dcb-extremum-condition-parameter-004-policy"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "b5bda0a4a0f1b68fdca20704",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "1ace4f64b1f11e6aadfec145efa9ca59edcd609c99385011fca727e3a4dd5ad0",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "值域上端在哪里取到或趋近，要看对称轴相对区间端点的位置。"
+          },
+          "graph": {
+            "caption": "拖动对称轴 $x=a$，观察区间上的最高点在哪里",
+            "kind": "axis_explorer",
+            "params": {
+              "axis": {
+                "max": 1.3,
+                "min": 0.7,
+                "step": 0.01,
+                "value": 0.7
+              },
+              "bounds": [
+                -0.15,
+                1.45,
+                -0.4815,
+                3.6915
+              ],
+              "coefficient": -1.0,
+              "constant": 2.0,
+              "constant_by_axis": {
+                "linear": 1.0,
+                "quadratic": -1.0
+              },
+              "description": "拖动对称轴 x=a，观察区间上的最高点",
+              "interval": [
+                null,
+                1.0
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "marks": [],
+              "parameter": {
+                "name": "a",
+                "offset": 0.0,
+                "scale": 1.0
+              },
+              "points": [],
+              "target": "max",
+              "title": "y=-a² + 2ax + a - x² + 2 的对称轴与区间 (-∞, 1)",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1.0,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "b5bda0a4a0f1b68fdca20704#1",
+          "interaction": {
+            "field": "b5bda0a4a0f1b68fdca20704#1",
+            "options": [
+              {
+                "label": "对称轴 $x=a$ 与区间端点的位置",
+                "value": "o1"
+              },
+              {
+                "feedback": "按 $a$ 的正负分类只能分出 任何分界点，还缺 $1$：这个分界来自对称轴到达区间端点。例如 $a=\\frac{1}{2}$ 与 $a=\\frac{3}{2}$ 属于同一类，但前者值域上端在顶点，后者在右端点。",
+                "label": "参数 $a$ 的正负",
+                "value": "o2"
+              },
+              {
+                "feedback": "判别式决定的是方程有没有实根，不决定值域上端在区间的哪个位置取得。例如 $a=\\frac{1}{2}$ 与 $a=\\frac{3}{2}$ 属于同一类，但前者值域上端在顶点，后者在右端点。",
+                "label": "判别式 $\\Delta=4 a + 8$ 的正负",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "求 $h(x)$ 在 $\\left(-\\infty, 1\\right)$ 上的值域上端时，按什么分类，才能确定它在哪个位置取到或趋近？",
+          "submit_label": "确认依据",
+          "title": "选择分类依据"
+        },
+        {
+          "completion_graphs": [
+            {
+              "caption": "情况①：$a < 1$，最大值在顶点 $x=a$ 处取到",
+              "kind": "axis_explorer",
+              "params": {
+                "axis": {
+                  "max": 0.99,
+                  "min": 0.7,
+                  "step": 0.01,
+                  "value": 0.84
+                },
+                "bounds": [
+                  -0.15,
+                  1.45,
+                  -0.4815,
+                  3.6915
+                ],
+                "coefficient": -1.0,
+                "constant": 2.0,
+                "constant_by_axis": {
+                  "linear": 1.0,
+                  "quadratic": -1.0
+                },
+                "description": "对称轴 x=a 只在本情况内拖动；最大值在顶点 $x=a$ 处取到",
+                "interval": [
+                  null,
+                  1.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "marks": [],
+                "parameter": {
+                  "name": "a",
+                  "offset": 0.0,
+                  "scale": 1.0
+                },
+                "points": [],
+                "target": "max",
+                "title": "情况①：a 在 (-∞, 1) 内",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            },
+            {
+              "caption": "情况②：$a \\geq 1$，当 $x\\to 1^{-}$ 时趋近，最大值不存在",
+              "kind": "axis_explorer",
+              "params": {
+                "axis": {
+                  "max": 1.3,
+                  "min": 1.0,
+                  "step": 0.01,
+                  "value": 1.15
+                },
+                "bounds": [
+                  -0.15,
+                  1.45,
+                  -0.4815,
+                  3.6915
+                ],
+                "coefficient": -1.0,
+                "constant": 2.0,
+                "constant_by_axis": {
+                  "linear": 1.0,
+                  "quadratic": -1.0
+                },
+                "description": "对称轴 x=a 只在本情况内拖动；当 $x\\to 1^{-}$ 时趋近，最大值不存在",
+                "interval": [
+                  null,
+                  1.0
+                ],
+                "interval_closed": [
+                  false,
+                  false
+                ],
+                "marks": [],
+                "parameter": {
+                  "name": "a",
+                  "offset": 0.0,
+                  "scale": 1.0
+                },
+                "points": [],
+                "target": "max",
+                "title": "情况②：a 在 [1, +∞) 内",
+                "variable": "x",
+                "xTicks": [
+                  [
+                    1.0,
+                    "1"
+                  ]
+                ]
+              }
+            }
+          ],
+          "expected_answer": {
+            "terms": [
+              "s1o1",
+              "s2o2"
+            ]
+          },
+          "feedback": {
+            "terms": "对称轴在区间外时，函数在区间上单调，值域上端在端点；对称轴在区间内时，再看顶点。区间不含的端点处取不到，只能趋近。"
+          },
+          "graph": {
+            "caption": "拖动对称轴 $x=a$，观察区间上的最高点在哪里",
+            "kind": "axis_explorer",
+            "params": {
+              "axis": {
+                "max": 1.3,
+                "min": 0.7,
+                "step": 0.01,
+                "value": 0.7
+              },
+              "bounds": [
+                -0.15,
+                1.45,
+                -0.4815,
+                3.6915
+              ],
+              "coefficient": -1.0,
+              "constant": 2.0,
+              "constant_by_axis": {
+                "linear": 1.0,
+                "quadratic": -1.0
+              },
+              "description": "拖动对称轴 x=a，观察区间上的最高点",
+              "interval": [
+                null,
+                1.0
+              ],
+              "interval_closed": [
+                false,
+                false
+              ],
+              "marks": [],
+              "parameter": {
+                "name": "a",
+                "offset": 0.0,
+                "scale": 1.0
+              },
+              "points": [],
+              "target": "max",
+              "title": "y=-a² + 2ax + a - x² + 2 的对称轴与区间 (-∞, 1)",
+              "variable": "x",
+              "xTicks": [
+                [
+                  1.0,
+                  "1"
+                ]
+              ]
+            }
+          },
+          "id": "b5bda0a4a0f1b68fdca20704#2",
+          "interaction": {
+            "slots": [
+              {
+                "label": "对称轴在区间内（$a < 1$）时，最大值",
+                "options": [
+                  {
+                    "label": "在顶点 $x=a$ 处取到",
+                    "value": "s1o1"
+                  },
+                  {
+                    "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                    "value": "s1o2"
+                  },
+                  {
+                    "label": "当 $x\\to -\\infty$ 时趋近，取不到",
+                    "value": "s1o3"
+                  }
+                ]
+              },
+              {
+                "label": "对称轴在区间右侧（$a \\geq 1$）时，值域上端",
+                "options": [
+                  {
+                    "label": "在右端点 $x=1$ 处取到",
+                    "value": "s2o1"
+                  },
+                  {
+                    "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                    "value": "s2o2"
+                  },
+                  {
+                    "label": "当 $x\\to -\\infty$ 时趋近，取不到",
+                    "value": "s2o3"
+                  }
+                ]
+              }
+            ],
+            "title": "判断各情况的最值位置",
+            "type": "checklist"
+          },
+          "question": "拖动对称轴观察：每种情况下，$h(x)$ 在 $\\left(-\\infty, 1\\right)$ 上的值域上端在哪里取到或趋近？",
+          "submit_label": "确认最值位置",
+          "title": "判断各情况的最值位置"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "8ee289c57d1b7b0d2641b0efec58a7aca45818e49e3ffa2a64997e7c45fec9c5",
+          "step_id": "39e5646dcb-extremum-condition-parameter-005-interval_cases"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "b043e7409c73ae638f7e98b5",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "3630ae6ec0bb417ecb726b655cb6dfcfe3d67321ec299fe939546717bd412215",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o3"
+            ]
+          },
+          "feedback": {
+            "answer": "对称轴在区间外，函数在区间上单调，最大值在端点；对称轴在区间内，再比较顶点与两端。"
+          },
+          "id": "b043e7409c73ae638f7e98b5#1",
+          "interaction": {
+            "field": "b043e7409c73ae638f7e98b5#1",
+            "options": [
+              {
+                "feedback": "例如 $a=\\frac{1}{2}$ 时左端点处函数趋近 $-\\infty$，而值域上端为 $\\frac{5}{2}$。",
+                "label": "当 $x\\to -\\infty$ 时趋近，取不到",
+                "value": "o1"
+              },
+              {
+                "feedback": "例如 $a=\\frac{1}{2}$ 时右端点处函数趋近 $\\frac{9}{4}$，而值域上端为 $\\frac{5}{2}$。",
+                "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                "value": "o2"
+              },
+              {
+                "label": "在顶点 $x=a$ 处取到",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a < 1$ 时，$h(x)$ 在 $\\left(-\\infty, 1\\right)$ 上的最大值在哪里取到或趋近？",
+          "submit_label": "确认位置",
+          "title": "判断最值的位置"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "d44befcd20c0e9808223146af5b3cb94d25f4a3dfce0b0f766995109e72a14cd",
+          "step_id": "39e5646dcb-extremum-condition-parameter-006-classified_range"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "660aa9cbc01bcdc532b2c3f4",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "f99181da681e392a527aad1a3d40f5b245529e9fbde4dfa718fe5b0e90ff0753",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o2"
+            ]
+          },
+          "feedback": {
+            "answer": "解出条件后，与本情况的范围取交集。"
+          },
+          "id": "660aa9cbc01bcdc532b2c3f4#1",
+          "interaction": {
+            "field": "660aa9cbc01bcdc532b2c3f4#1",
+            "options": [
+              {
+                "feedback": "再检查端点处能否取等号。",
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -2.75,
+                      1.75
+                    ],
+                    "description": "a 的取值集合：(-∞, -2)",
+                    "pieces": [
+                      {
+                        "from": null,
+                        "left_closed": false,
+                        "right_closed": false,
+                        "to": -2.0
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -2.0,
+                        "-2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left(-\\infty, -2\\right)$",
+                "value": "o1"
+              },
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -2.75,
+                      1.75
+                    ],
+                    "description": "a 的取值集合：(-∞, -2]",
+                    "pieces": [
+                      {
+                        "from": null,
+                        "left_closed": false,
+                        "right_closed": true,
+                        "to": -2.0
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -2.0,
+                        "-2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left(-\\infty, -2\\right]$",
+                "value": "o2"
+              },
+              {
+                "feedback": "本情况的范围只是前提，还要满足由最值得到的条件。",
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -2.75,
+                      1.75
+                    ],
+                    "description": "a 的取值集合：(-∞, 1)",
+                    "pieces": [
+                      {
+                        "from": null,
+                        "left_closed": false,
+                        "right_closed": false,
+                        "to": 1.0
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -2.0,
+                        "-2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left(-\\infty, 1\\right)$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a < 1$ 时，由 $a + 2 \\leq 0$ 得到的 $a$ 的范围是？",
+          "submit_label": "确认范围",
+          "title": "求本情况的参数范围"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "cc4d712197305187bddb172d03bc99ab92f54844c3fec7fd47937ce786d6e4f9",
+          "step_id": "39e5646dcb-extremum-condition-parameter-007-conditions"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "82853f483755ba3ad76729a2",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "9f666e3f0c9a0cc0f1c7676f1bc68826c6f52147da34b5005f5b16b4c7a29812",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o4"
+            ]
+          },
+          "feedback": {
+            "answer": "对称轴在区间外，函数在区间上单调，值域上端在端点；对称轴在区间内，再比较顶点与两端。"
+          },
+          "id": "82853f483755ba3ad76729a2#1",
+          "interaction": {
+            "field": "82853f483755ba3ad76729a2#1",
+            "options": [
+              {
+                "feedback": "例如 $a=\\frac{3}{2}$ 时顶点不在区间内。",
+                "label": "在顶点 $x=a$ 处取到",
+                "value": "o1"
+              },
+              {
+                "feedback": "$x=1$ 不在区间内，函数在这里只能无限接近值域上端，取不到。",
+                "label": "在右端点 $x=1$ 处取到",
+                "value": "o2"
+              },
+              {
+                "feedback": "例如 $a=\\frac{3}{2}$ 时左端点处函数趋近 $-\\infty$，而值域上端为 $\\frac{13}{4}$。",
+                "label": "当 $x\\to -\\infty$ 时趋近，取不到",
+                "value": "o3"
+              },
+              {
+                "label": "当 $x\\to 1^{-}$ 时趋近，取不到",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a \\geq 1$ 时，$h(x)$ 在 $\\left(-\\infty, 1\\right)$ 上的值域上端在哪里取到或趋近？",
+          "submit_label": "确认位置",
+          "title": "判断最值的位置"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "9b64282e51a37ba7d3fc32745cbcb3310b0bee6c2174996896923986453a0f60",
+          "step_id": "39e5646dcb-extremum-condition-parameter-008-classified_range"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "6797d9798911668300e35ed4",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "ab10b16b78c2ee6261540ef9d619f740e77556b0c5e828126358fd3a33bd60b1",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o4"
+            ]
+          },
+          "feedback": {
+            "answer": "解出条件后，与本情况的范围取交集。"
+          },
+          "id": "6797d9798911668300e35ed4#1",
+          "interaction": {
+            "field": "6797d9798911668300e35ed4#1",
+            "options": [
+              {
+                "feedback": "本情况的范围只是前提，还要满足由最值得到的条件。",
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -1.2041634565979922,
+                      4.204163456597993
+                    ],
+                    "description": "a 的取值集合：[1, +∞)",
+                    "pieces": [
+                      {
+                        "from": 1.0,
+                        "left_closed": true,
+                        "right_closed": false,
+                        "to": null
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -0.3027756377319947,
+                        "3/2 - √(13)/2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ],
+                      [
+                        3.302775637731995,
+                        "3/2 + √(13)/2"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left[1, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "再检查端点处能否取等号。",
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -1.2041634565979922,
+                      4.204163456597993
+                    ],
+                    "description": "a 的取值集合：(3/2 + √(13)/2, +∞)",
+                    "pieces": [
+                      {
+                        "from": 3.302775637731995,
+                        "left_closed": false,
+                        "right_closed": false,
+                        "to": null
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -0.3027756377319947,
+                        "3/2 - √(13)/2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ],
+                      [
+                        3.302775637731995,
+                        "3/2 + √(13)/2"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left(\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "feedback": "解出的集合还要与本情况的范围 $a \\geq 1$ 取交集。",
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -1.2041634565979922,
+                      4.204163456597993
+                    ],
+                    "description": "a 的取值集合：(-∞, 3/2 - √(13)/2] ∪ [3/2 + √(13)/2, +∞)",
+                    "pieces": [
+                      {
+                        "from": null,
+                        "left_closed": false,
+                        "right_closed": true,
+                        "to": -0.3027756377319947
+                      },
+                      {
+                        "from": 3.302775637731995,
+                        "left_closed": true,
+                        "right_closed": false,
+                        "to": null
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -0.3027756377319947,
+                        "3/2 - √(13)/2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ],
+                      [
+                        3.302775637731995,
+                        "3/2 + √(13)/2"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "graph": {
+                  "kind": "number_line",
+                  "params": {
+                    "bounds": [
+                      -1.2041634565979922,
+                      4.204163456597993
+                    ],
+                    "description": "a 的取值集合：[3/2 + √(13)/2, +∞)",
+                    "pieces": [
+                      {
+                        "from": 3.302775637731995,
+                        "left_closed": true,
+                        "right_closed": false,
+                        "to": null
+                      }
+                    ],
+                    "points": [],
+                    "ticks": [
+                      [
+                        -0.3027756377319947,
+                        "3/2 - √(13)/2"
+                      ],
+                      [
+                        1.0,
+                        "1"
+                      ],
+                      [
+                        3.302775637731995,
+                        "3/2 + √(13)/2"
+                      ]
+                    ],
+                    "title": "a 的取值范围",
+                    "variable": "a"
+                  }
+                },
+                "label": "$\\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "当 $a \\geq 1$ 时，由 $- a^{2} + 3 a + 1 \\leq 0$ 得到的 $a$ 的范围是？",
+          "submit_label": "确认范围",
+          "title": "求本情况的参数范围"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "88079ee55c97e6b5d1242da0e8f29bc5c6c25576b911c11f97654b454bab4165",
+          "step_id": "39e5646dcb-extremum-condition-parameter-009-conditions"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "c224c1d3394e187d2c20978d",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "179c2cd31b2ece14b0566eb04bcfadbfa1cc54c11adb6005c9d78f85215df4a1",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "每种情况内解出条件并与本情况取交集，各情况互不重叠，最后把结果取并集。"
+          },
+          "id": "c224c1d3394e187d2c20978d#1",
+          "interaction": {
+            "field": "c224c1d3394e187d2c20978d#1",
+            "options": [
+              {
+                "label": "$a \\in \\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "feedback": "每种情况解出的范围，要先与这种情况本身的范围取交集，再合并。",
+                "label": "$a \\in \\left(-\\infty, \\frac{3}{2} - \\frac{\\sqrt{13}}{2}\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "feedback": "再检查端点：它属于哪种情况，在那种情况下条件是否成立。",
+                "label": "$a \\in \\left(-\\infty, -2\\right) \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)$",
+                "value": "o3"
+              },
+              {
+                "feedback": "合并时漏掉了某一种情况的结果。",
+                "label": "$a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "两种情况下，都要求区间上的值域上端不大于 $0$。$a$ 的取值范围是什么？",
+          "stem_board": {
+            "caption": "各情况各自要满足",
+            "lines": [
+              "① $a < 1$：$h(x)_{\\max}=h\\left(a\\right)=a + 2 \\leq 0$",
+              "② $a \\geq 1$：$h(x) < h\\left(1\\right)=- a^{2} + 3 a + 1 \\leq 0$"
+            ]
+          },
+          "submit_label": "确认范围",
+          "title": "求参数范围"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b7a8b927daee755dd0b51cff44400de02e22cb8083f7c066e227fb67eff036a2",
+          "step_id": "39e5646dcb-extremum-condition-parameter-010-interval_merge"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "a5dcf8de6111b12d891f127d",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "89c756e52cbb68342b78a45a301b0fdcb593a17618ea3548734eb2d3d62633b9",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "card_group": "independent",
+          "card_group_title": "无参段快速验证",
+          "completion_board": {
+            "caption": "本段结论",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段条件",
+                "math": "f(x)=- \\frac{x}{2} + 1\\ (x\\in \\left[1, \\infty\\right))"
+              },
+              {
+                "label": "本段结论",
+                "math": "\\text{对 }a\\text{ 无额外限制}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a5dcf8de6111b12d891f127d#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\text{对 }a\\text{ 无额外限制}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\varnothing$",
+                "value": "o4"
+              },
+              {
+                "label": "$\\text{仍需求 }a\\text{ 的范围}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\text{整题无解}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "本段不含 $a$，验证不等式是否恒成立即可。",
+          "stem_board": {
+            "caption": "快速验证本段",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "本段条件",
+                "math": "\\begin{gathered}x\\in \\left[1, \\infty\\right):\\ f(x)=- \\frac{x}{2} + 1\\\\\\text{需 }f(x)\\leq\\frac{1}{2}\\end{gathered}"
+              },
+              {
+                "label": "本段结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "快速验证本段"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b5fb2703bc9f3e0078cfab28be1815fba220c3ab6fa5ca20897e37e66a0a85a6",
+          "step_id": "39e5646dcb-extremum-condition-parameter-011-independent_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "1cbb91f2011f0abfcd027aa9",
+      "interaction_revision": "4a52f673954aa5a9d2c1cb0bfcc3d46a599b255dc8ab3612b7ef337adfebea60",
+      "interaction_sha256": "b6478e0db42b560e347ea91fa1865b7d18b8b59e77fbc44dc323cb273811a47f",
+      "lesson_version": "b71e23b2039881f669221fa0ee6b8802d7878fae491ba507a42491151385cbee",
+      "parts": [
+        {
+          "card_group": "solve",
+          "card_group_title": "求参数",
+          "completion_board": {
+            "caption": "回到原题，汇总参数范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left(-\\infty, 1\\right):\\ - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}\\Rightarrow a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}\\\\x\\in \\left[1, \\infty\\right):\\ - \\frac{x}{2} + 1\\Rightarrow a\\in \\mathbb R\\end{gathered}"
+              },
+              {
+                "label": "$a$ 的取值范围",
+                "math": "a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1cbb91f2011f0abfcd027aa9#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\varnothing$",
+                "value": "o3"
+              },
+              {
+                "label": "$a\\in \\mathbb R$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "各段恒成立求出的参数集合取交集；不要求最值点唯一。",
+          "stem_board": {
+            "caption": "回到原题，汇总参数范围",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与当前范围",
+                "math": "\\begin{gathered}x\\in \\left(-\\infty, 1\\right):\\ - x^{2} + 2 a x - a^{2} + a + \\frac{5}{2}\\Rightarrow a \\leq -2 \\quad\\text{或}\\quad a \\geq \\frac{3}{2} + \\frac{\\sqrt{13}}{2}\\\\x\\in \\left[1, \\infty\\right):\\ - \\frac{x}{2} + 1\\Rightarrow a\\in \\mathbb R\\end{gathered}"
+              },
+              {
+                "label": "$a$ 的取值范围",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "回到原题，汇总参数范围"
+        }
+      ],
+      "route_id": "extremum-condition-parameter",
+      "run_id": "b4e3d5e0eec3400181f876613a77e1fd",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "a7f44c0a764b19de255d0c8d90881422558b58df49870777ee3fb9e5bd8b3c52",
+          "step_id": "39e5646dcb-extremum-condition-parameter-012-conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

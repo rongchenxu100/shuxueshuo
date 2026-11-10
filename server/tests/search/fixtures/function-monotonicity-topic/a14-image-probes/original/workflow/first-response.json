@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2-5*x+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 944,
+      "prompt_tokens": 24289,
+      "total_tokens": 25233,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 481
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 526,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-9729663f-f5e1-47ac-bde4-c986fe83d8a6",
+        "sha256": "f272d78561b97b19588c14f70d7011e537119fd0159e54e2a8f3206007d2fd65",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 32736,
+        "expires_at": 1794369976,
+        "uploaded_at": 1794283576.131702
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "f272d78561b97b19588c14f70d7011e537119fd0159e54e2a8f3206007d2fd65",
+        "api_calls": 1,
+        "file_id": "file-api-9729663f-f5e1-47ac-bde4-c986fe83d8a6",
+        "expires_at": 1794369976,
+        "elapsed_ms": 467
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 5483,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 944,
+          "prompt_tokens": 24289,
+          "total_tokens": 25233,
+          "completion_tokens_details": {
+            "reasoning_tokens": 752
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 481
+        },
+        "raw_payload": {
+          "id": "28ce1bf4-d7cb-4958-8b4e-29143ddb1211",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 944,
+            "prompt_tokens": 24289,
+            "total_tokens": 25233,
+            "completion_tokens_details": {
+              "reasoning_tokens": 752
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 481
+          },
+          "created": 1794283576,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2-5*x+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题目是已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为横线。但根号覆盖范围需要仔细看。图片中根号似乎覆盖 1-2x+2x²-5x+5？让我仔细看：f(x)=√1-2x+2x²-5x+5。根号横线从1延伸到...看起来可能只覆盖 1-2x+2x²-5x+5？实际上看起来横线覆盖了 \"1-2x+2x²-5x+5\" 全部？或者是 √(1-2x)+2x²-5x+5？看横线：根号符号上方横线向右延伸，经过 1-2x+2x²-5x+5，看起来覆盖整个表达式。转录为 f(x)=√(1-2x+2x²-5x+5)。最小值为横线，手写6不是题目内容。\n\n题目：已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为____。求最小值。目标 find_minimum, expression f(x)? 该题是求最小值，应该用 find_minimum，expression 可能是 f(x)。但 schema 中 find_minimum.expression 填写原表达式如 UV+VW；这里是函数的最小值，可用 expression \"f(x)\"？catalog 有 extremum 语法 min(表达式)。但目标字段中“求函数最小值”可用 find_minimum.expression 填 f(x)。或者 find_range object f 加 answer_request extremum minimum。这里明确问函数最小值，最贴 find_range object f answer_request {\"kind\":\"extremum\",\"quantity\":\"minimum\"}。但 catalog 中 find_range answer_request extremum 用于值域提问。题目直接求最小值，也可以用 find_minimum。选择 find_minimum expression=f(x)，variables? 不填。题目没给函数类型。定义 f(x)=sqrt(1-2*x+2*x^2-5*x+5)。注意不要化简。根号覆盖范围不确定？再仔细看：根号横线覆盖 \"1-2x+2x²-5x+5\" 是整段。可能原题根号只覆盖前部分？图片横线长度似乎到 5+5 结束。转录 original_text 用 LaTeX $\\sqrt{1-2x+2x^2-5x+5}$。\n\n题目有题号14，属于来源题号，original_text 保留，public_content 不放。\n\n无配图。figure_detection status none, regions [].\n\npublic_content scopes: root statement \"已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\" choices status none.\n\nroot definitions [\"f(x)=sqrt(1-2*x+2*x^2-5*x+5)\"]，facts []，goals [find_minimum expression f(x)]。或者 find_range object f answer_request extremum minimum。题目“最小值为____”是求最小值，不是求值域。find_minimum 最合适。\n\ncompleteness complete. privacy separated? 图片有手写6，属于作答，已被排除，可 separated。但题号14是来源题号，已在 original_text 保留，public 不包含，可以 separated。\n\nuncertainties 无。但根号覆盖范围可能有歧义？看起来清楚。不确定手写6是答案，不报告。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5953
+  },
+  "raw_payload": {
+    "id": "28ce1bf4-d7cb-4958-8b4e-29143ddb1211",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"14. 已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"root\":{\"definitions\":[\"f(x)=sqrt(1-2*x+2*x^2-5*x+5)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"f(x)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=\\\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题目是已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为横线。但根号覆盖范围需要仔细看。图片中根号似乎覆盖 1-2x+2x²-5x+5？让我仔细看：f(x)=√1-2x+2x²-5x+5。根号横线从1延伸到...看起来可能只覆盖 1-2x+2x²-5x+5？实际上看起来横线覆盖了 \"1-2x+2x²-5x+5\" 全部？或者是 √(1-2x)+2x²-5x+5？看横线：根号符号上方横线向右延伸，经过 1-2x+2x²-5x+5，看起来覆盖整个表达式。转录为 f(x)=√(1-2x+2x²-5x+5)。最小值为横线，手写6不是题目内容。\n\n题目：已知函数 f(x)=√(1-2x+2x²-5x+5) 的最小值为____。求最小值。目标 find_minimum, expression f(x)? 该题是求最小值，应该用 find_minimum，expression 可能是 f(x)。但 schema 中 find_minimum.expression 填写原表达式如 UV+VW；这里是函数的最小值，可用 expression \"f(x)\"？catalog 有 extremum 语法 min(表达式)。但目标字段中“求函数最小值”可用 find_minimum.expression 填 f(x)。或者 find_range object f 加 answer_request extremum minimum。这里明确问函数最小值，最贴 find_range object f answer_request {\"kind\":\"extremum\",\"quantity\":\"minimum\"}。但 catalog 中 find_range answer_request extremum 用于值域提问。题目直接求最小值，也可以用 find_minimum。选择 find_minimum expression=f(x)，variables? 不填。题目没给函数类型。定义 f(x)=sqrt(1-2*x+2*x^2-5*x+5)。注意不要化简。根号覆盖范围不确定？再仔细看：根号横线覆盖 \"1-2x+2x²-5x+5\" 是整段。可能原题根号只覆盖前部分？图片横线长度似乎到 5+5 结束。转录 original_text 用 LaTeX $\\sqrt{1-2x+2x^2-5x+5}$。\n\n题目有题号14，属于来源题号，original_text 保留，public_content 不放。\n\n无配图。figure_detection status none, regions [].\n\npublic_content scopes: root statement \"已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 ______。\" choices status none.\n\nroot definitions [\"f(x)=sqrt(1-2*x+2*x^2-5*x+5)\"]，facts []，goals [find_minimum expression f(x)]。或者 find_range object f answer_request extremum minimum。题目“最小值为____”是求最小值，不是求值域。find_minimum 最合适。\n\ncompleteness complete. privacy separated? 图片有手写6，属于作答，已被排除，可 separated。但题号14是来源题号，已在 original_text 保留，public 不包含，可以 separated。\n\nuncertainties 无。但根号覆盖范围可能有歧义？看起来清楚。不确定手写6是答案，不报告。"
+        }
+      }
+    ],
+    "created": 1794283576,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 944,
+      "prompt_tokens": 24289,
+      "total_tokens": 25233,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 752,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 481
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.956
+}

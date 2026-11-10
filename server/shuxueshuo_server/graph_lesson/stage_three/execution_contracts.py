@@ -469,8 +469,10 @@ def revisions():
     result['function_monotonicity'] = hashlib.sha256((folder.parent / 'function_monotonicity.py').read_bytes()).hexdigest()
     result['extremum_math'] = hashlib.sha256((folder.parent / 'extremum_math.py').read_bytes()).hexdigest()
     result['monotonicity_inequality_math'] = hashlib.sha256((folder.parent / 'monotonicity_inequality_math.py').read_bytes()).hexdigest()
+    result['monotonicity_parameter_math'] = hashlib.sha256((folder.parent / 'monotonicity_parameter_math.py').read_bytes()).hexdigest()
     for name in ('extremum_runtime', 'extremum_presentation', 'extremum_graphs', 'monotonicity_runtime', 'monotonicity_presentation',
-                 'monotonicity_inequality_runtime', 'monotonicity_inequality_presentation'):
+                 'monotonicity_inequality_runtime', 'monotonicity_inequality_presentation',
+                 'monotonicity_parameter_runtime', 'monotonicity_parameter_presentation'):
         result[name] = hashlib.sha256((folder / f'{name}.py').read_bytes()).hexdigest()
     result['function_graph'] = hashlib.sha256((folder.parent / 'function_graph.py').read_bytes()).hexdigest()
     result['function_formula'] = hashlib.sha256((folder.parent / 'function_formula.py').read_bytes()).hexdigest()

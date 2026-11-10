@@ -1,0 +1,43 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-monotonicity-a08-v1",
+  "reviewer": "Codex：依据用户原图与 T4 设计核对印刷题意，独立计算；不是照片自动识别。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-monotonicity-planning-20261104/source-image-01.jpg",
+      "sha256": "ecd2797f372a925547d0f57d7d858511c09e9aa479267b1c325c6ffde18454b5",
+      "location": "FM-A08，图 1"
+    }
+  ],
+  "candidate": {
+    "original_text": "若函数 $f(x)=\\begin{cases}-x^{2}+ax-a,&x>2,\\\\1-ax,&x\\le2\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)"
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "required_monotonicity": {
+            "expression": "piecewise(-x^2+a*x-a,x>2,1-a*x,x<=2)",
+            "variable": "x",
+            "direction": "decreasing",
+            "strict": true,
+            "input_domain": "ℝ",
+            "function": "f",
+            "basis": {
+              "kind": "difference_quotient",
+              "statement": "(f(x_1)-f(x_2))/(x_1-x_2)<0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": "(0,5/3]"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

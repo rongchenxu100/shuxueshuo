@@ -750,6 +750,18 @@ for _name, _function in {'analyze_monotonicity_inequality': 'analyze',
     REGISTRY[_name] = _mono_inequality_capability(_function)
 
 
+def _mono_parameter_capability(name):
+    def call(**inputs):
+        from .. import monotonicity_parameter_runtime
+        return getattr(monotonicity_parameter_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'analyze_monotonicity_parameter': 'analyze',
+                         'confirm_monotonicity_parameter': 'confirm'}.items():
+    REGISTRY[_name] = _mono_parameter_capability(_function)
+
+
 def _monotonicity_capability(name):
     def call(**inputs):
         from .. import monotonicity_runtime

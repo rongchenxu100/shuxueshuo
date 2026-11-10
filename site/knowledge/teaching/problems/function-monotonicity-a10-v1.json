@@ -1,0 +1,92 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a10-v1",
+  "label": "分段含对勾的递增求参 · A10",
+  "path": "/topics/function-monotonicity/q10/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a10-v1.json",
+  "types": [
+    "type-monotonicity-parameter"
+  ],
+  "statement": "已知函数 $f(x)=\\begin{cases}\\frac{a}{x},&0<x\\le1,\\\\x-\\frac{a}{x}-2,&x>1\\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是______。",
+  "routes": {
+    "monotonicity-parameter": {
+      "label": "单调性条件求参法",
+      "methods": [
+        "method-monotonicity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "65ffca3d475accd344847366#1": {
+          "title": "读清单调性要求",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "11f872020ecc940110be541d#1": {
+          "title": "$0 < x \\leq 1$ 段",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "11f872020ecc940110be541d#2": {
+          "title": "$x > 1$ 段",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "ed6ae3a781ce4b93fe0a78f7#1": {
+          "title": "分界点 $x=1$",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "d00c60e85c03f5891a50da63#1": {
+          "title": "合并全部条件",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-parameter#conclude",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "f5bb345a472336b292b765e122b368b7dfd1bb24b382d9138edccdb9c3523eea",
+  "practice_version": "ee7bb84f2b2982acef95b9d99fbd3a64e5a97f372376261f225197f8866436ce"
+}

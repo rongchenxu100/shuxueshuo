@@ -57,8 +57,17 @@
       "label": "已知函数的单调性求参",
       "type": "type-monotonicity-parameter",
       "groupBy": "method",
-      "description": "后续建设。",
-      "problems": []
+      "description": "已知函数在指定区间上严格递增或递减，反求参数：从二次函数的对称轴位置、二次项系数含参的分类讨论，到分段函数的逐段判断与分界点衔接，以及根式函数的内层同向与整段可开方。",
+      "problems": [
+        "function-monotonicity-a05-v1",
+        "function-monotonicity-a09-v1",
+        "function-monotonicity-a11-v1",
+        "function-monotonicity-a06-v1",
+        "function-monotonicity-a08-v1",
+        "function-monotonicity-a17-v1",
+        "function-monotonicity-a10-v1",
+        "function-monotonicity-a13-v1"
+      ]
     },
     {
       "id": "abstract-proof",
@@ -1981,7 +1990,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "36840d5bad653aec3e19e71e#1": {
+            "066994cd9a055f3789db6d3d#1": {
               "title": "核对比较对象与单调性",
               "position": 4,
               "refs": [
@@ -1990,7 +1999,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "bf4efddd9c60d1ee624b46ce#1": {
+            "f20d6b65d8c6f1aa2c25db59#1": {
               "title": "两个输入的合法条件",
               "position": 5,
               "refs": [
@@ -1998,7 +2007,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "6bb022fd0fe1208cd8ed0475#1": {
+            "7ac47da5295373b9d984237f#1": {
               "title": "利用单调性转化比较",
               "position": 6,
               "refs": [
@@ -2008,7 +2017,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "08f7915bcb7ac8463d0f04c5#1": {
+            "85b777cd055b39665c1820a7#1": {
               "title": "回到原目标",
               "position": 7,
               "refs": [
@@ -2564,7 +2573,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "c3b1a7cbaa10d9342578998f#1": {
+            "272f3fb3c71e5922d7a93099#1": {
               "title": "核对比较对象与单调性",
               "position": 4,
               "refs": [
@@ -2573,7 +2582,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "2dcaae56bcb07ca75cfe7ca7#1": {
+            "5c04f82fd9ddcff978d3e31a#1": {
               "title": "两个输入的合法条件",
               "position": 5,
               "refs": [
@@ -2581,7 +2590,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "f909139bf324235b07249055#1": {
+            "8034d02ef5ad1dee323d3c1a#1": {
               "title": "利用单调性转化比较",
               "position": 6,
               "refs": [
@@ -2591,7 +2600,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "eec10cc178820954ce74f0f6#1": {
+            "5e783c1584e9541b48686dfc#1": {
               "title": "回到原目标",
               "position": 7,
               "refs": [
@@ -2712,7 +2721,7 @@
               "refs": [],
               "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
             },
-            "a02ba77a623d87475f8acfb3#1": {
+            "f114ab42b8b7d9a9a1c44d5d#1": {
               "title": "核对比较对象与单调性",
               "position": 4,
               "refs": [
@@ -2721,7 +2730,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "90dcc3a5d521b7e45a250962#1": {
+            "f1eb43f6f983aa845acdd907#1": {
               "title": "两个输入的合法条件",
               "position": 5,
               "refs": [
@@ -2729,7 +2738,7 @@
                 "function-monotonicity#interval"
               ]
             },
-            "c42053dd6500d69651e9c28d#1": {
+            "253a1d5a093cc87f12766f15#1": {
               "title": "利用单调性转化比较",
               "position": 6,
               "refs": [
@@ -2739,11 +2748,705 @@
                 "function-monotonicity#interval"
               ]
             },
-            "2e01a5bd84ba15f6b97160da#1": {
+            "aef7c7e95103df6023c0909a#1": {
               "title": "回到原目标",
               "position": 7,
               "refs": [
                 "method-monotonicity-inequality#conclude",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a05-v1": {
+      "label": "二次函数区间递增求参 · A05",
+      "path": "/topics/function-monotonicity/q05a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a05-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=x^{2}-mx+5$，若 $f(x)$ 在区间 $[1,2]$ 上单调递增，求实数 $m$ 的取值范围。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "4c1255804e205d21e3667633#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "c917898ccee21867f196661a#1": {
+              "title": "对称轴与指定区间",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "8575463f1f07c5c25e052722#1": {
+              "title": "回到原目标",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a09-v1": {
+      "label": "二次函数区间递减求参 · A09",
+      "path": "/topics/function-monotonicity/q09a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a09-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=x^{2}-2(a-1)x+2$ 在 $(-\\infty,4]$ 上单调递减，求实数 $a$ 的取值范围。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "3575633044f8570b590e7b48#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "16c6094e14f88a8986c58277#1": {
+              "title": "对称轴与指定区间",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "6ccd3ddf586205973325bbde#1": {
+              "title": "回到原目标",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a11-v1": {
+      "label": "含退化的二次递减求参 · A11",
+      "path": "/topics/function-monotonicity/q11/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a11-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $y=ax^{2}-2x+3$ 在区间 $[2,+\\infty)$ 上单调递减，求实数 $a$ 的取值范围。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "92289494fe9c92d66563bc9f#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "860a7d59b77d677b57c9f88e#1": {
+              "title": "$a=0$",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "860a7d59b77d677b57c9f88e#2": {
+              "title": "$a>0$",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "860a7d59b77d677b57c9f88e#3": {
+              "title": "$a<0$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "98e97d8e4674ff70f3cef762#1": {
+              "title": "汇总三类",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a06-v1": {
+      "label": "分段函数整体递增求参 · A06",
+      "path": "/topics/function-monotonicity/q06a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a06-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "若函数 $f(x)=\\begin{cases}x^{2}-ax+\\frac{a}{2},&x\\ge1,\\\\(2a+4)x-5,&x<1\\end{cases}$ 在 $\\mathbb{R}$ 上单调递增，则实数 $a$ 的取值范围为______。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "31508ed884c708f8975cbd23#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "7880ba20a9b3b5d91c2b8aa1#1": {
+              "title": "$x < 1$ 段",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "7880ba20a9b3b5d91c2b8aa1#2": {
+              "title": "$x \\geq 1$ 段",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "173f473944e56373e37703e7#1": {
+              "title": "分界点 $x=1$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "779da2bc869b126aa9f15508#1": {
+              "title": "合并全部条件",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a08-v1": {
+      "label": "差商恒负的分段求参 · A08",
+      "path": "/topics/function-monotonicity/q08a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a08-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "若函数 $f(x)=\\begin{cases}-x^{2}+ax-a,&x>2,\\\\1-ax,&x\\le2\\end{cases}$ 满足对任意的 $x_1\\ne x_2$，都有 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$ 成立，则实数 $a$ 的取值范围是______。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "55d7c563560042cc5b86d3ca#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "4f04363539375d7f6c6e1f2f#1": {
+              "title": "$x \\leq 2$ 段",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "4f04363539375d7f6c6e1f2f#2": {
+              "title": "$x > 2$ 段",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "04e6f44f8ae778ba628a14f7#1": {
+              "title": "分界点 $x=2$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "b884d6546b92e4644cff9857#1": {
+              "title": "合并全部条件",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a17-v1": {
+      "label": "差积恒负的分段求参 · A17",
+      "path": "/topics/function-monotonicity/q17/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a17-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1,\\\\\\frac{a}{x},&x\\ge1\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1\\ne x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是______。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "2219b7f3940dc12677a6dd80#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "1bbc48b350ce44c03b5ccab0#1": {
+              "title": "$x < 1$ 段",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "1bbc48b350ce44c03b5ccab0#2": {
+              "title": "$x \\geq 1$ 段",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "c038464c12748acbf478612c#1": {
+              "title": "分界点 $x=1$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "d62ad5c7584211c0cc9f87ce#1": {
+              "title": "合并全部条件",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a10-v1": {
+      "label": "分段含对勾的递增求参 · A10",
+      "path": "/topics/function-monotonicity/q10/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a10-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\begin{cases}\\frac{a}{x},&0<x\\le1,\\\\x-\\frac{a}{x}-2,&x>1\\end{cases}$ 在区间 $(0,+\\infty)$ 上单调递增，则实数 $a$ 的取值范围是______。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "65ffca3d475accd344847366#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "11f872020ecc940110be541d#1": {
+              "title": "$0 < x \\leq 1$ 段",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "11f872020ecc940110be541d#2": {
+              "title": "$x > 1$ 段",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "ed6ae3a781ce4b93fe0a78f7#1": {
+              "title": "分界点 $x=1$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "d00c60e85c03f5891a50da63#1": {
+              "title": "合并全部条件",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "function-monotonicity-a13-v1": {
+      "label": "根式函数递减求参 · A13",
+      "path": "/topics/function-monotonicity/q13a/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-monotonicity-a13-v1.json",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "statement": "已知函数 $f(x)=\\sqrt{ax^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1,x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是______。",
+      "routes": {
+        "monotonicity-parameter": {
+          "label": "单调性条件求参法",
+          "methods": [
+            "method-monotonicity-parameter"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-monotonicity"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "6a8e38f64732e25258e38316#1": {
+              "title": "读清单调性要求",
+              "position": 4,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "9adf4a64bf901ef5d4bdca64#1": {
+              "title": "转化为内层条件",
+              "position": 5,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "638bfe0b44039af52f5e898a#1": {
+              "title": "$a=0$",
+              "position": 6,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "638bfe0b44039af52f5e898a#2": {
+              "title": "$a>0$",
+              "position": 7,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "638bfe0b44039af52f5e898a#3": {
+              "title": "$a<0$",
+              "position": 8,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "638bfe0b44039af52f5e898a#4": {
+              "title": "汇总三类",
+              "position": 9,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "d621c63fca889dd22473ee3f#1": {
+              "title": "整段能开方",
+              "position": 10,
+              "refs": [
+                "method-monotonicity-parameter#prepare",
+                "function-monotonicity#common-functions",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ]
+            },
+            "c968a7936ab248db97e0d0c3#1": {
+              "title": "合并全部条件",
+              "position": 11,
+              "refs": [
+                "method-monotonicity-parameter#conclude",
+                "function-monotonicity#definition",
                 "function-monotonicity#interval"
               ]
             }

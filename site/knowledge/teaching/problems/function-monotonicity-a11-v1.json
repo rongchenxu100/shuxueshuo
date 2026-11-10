@@ -1,0 +1,92 @@
+{
+  "topic": "function-monotonicity",
+  "id": "function-monotonicity-a11-v1",
+  "label": "含退化的二次递减求参 · A11",
+  "path": "/topics/function-monotonicity/q11/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-monotonicity-a11-v1.json",
+  "types": [
+    "type-monotonicity-parameter"
+  ],
+  "statement": "已知函数 $y=ax^{2}-2x+3$ 在区间 $[2,+\\infty)$ 上单调递减，求实数 $a$ 的取值范围。",
+  "routes": {
+    "monotonicity-parameter": {
+      "label": "单调性条件求参法",
+      "methods": [
+        "method-monotonicity-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-monotonicity"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "92289494fe9c92d66563bc9f#1": {
+          "title": "读清单调性要求",
+          "position": 4,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "860a7d59b77d677b57c9f88e#1": {
+          "title": "$a=0$",
+          "position": 5,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "860a7d59b77d677b57c9f88e#2": {
+          "title": "$a>0$",
+          "position": 6,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "860a7d59b77d677b57c9f88e#3": {
+          "title": "$a<0$",
+          "position": 7,
+          "refs": [
+            "method-monotonicity-parameter#prepare",
+            "function-monotonicity#common-functions",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        },
+        "98e97d8e4674ff70f3cef762#1": {
+          "title": "汇总三类",
+          "position": 8,
+          "refs": [
+            "method-monotonicity-parameter#conclude",
+            "function-monotonicity#definition",
+            "function-monotonicity#interval"
+          ]
+        }
+      }
+    }
+  },
+  "page_contract_hash": "07ac799e9d9290bf55e60ddc99eb5d4f9455bce61ab331b7e8391bd74d80e2d3",
+  "practice_version": "e833ab2039f3f37b9cd34e73d0dcedc16b9b60f37b1ee0a3019d4932a51608dd"
+}

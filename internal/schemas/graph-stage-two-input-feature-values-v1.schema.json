@@ -3252,7 +3252,8 @@
             "",
             "direct",
             "quantified",
-            "specified"
+            "specified",
+            "recurrence"
           ]
         },
         "function": {
@@ -3350,6 +3351,103 @@
             ">",
             ">="
           ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "monotonicity_parameter": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_definitions",
+        "structure_supported",
+        "reason",
+        "version"
+      ],
+      "properties": {
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_definitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_ref",
+              "expression"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "expression": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string"
+        },
+        "parameter": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "increasing",
+            "decreasing",
+            ""
+          ]
+        },
+        "strict": {
+          "type": "boolean"
+        },
+        "function": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "input_domain": {
+          "type": "string"
+        },
+        "needs_leading_split": {
+          "type": "boolean"
+        },
+        "basis_kind": {
+          "enum": [
+            "stated",
+            "difference_quotient",
+            "difference_product"
+          ]
+        },
+        "piece_count": {
+          "type": "integer",
+          "minimum": 0
         }
       },
       "additionalProperties": true

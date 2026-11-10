@@ -1,0 +1,15 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-monotonicity-parameter",
+  "admission": "monotonicity_parameter",
+  "rule": "rule-monotonicity-parameter-method",
+  "display": "method_cards",
+  "routes": [
+    {
+      "method": "method-monotonicity-parameter",
+      "route_id": "monotonicity-parameter",
+      "admission": "monotonicity_parameter",
+      "label": "单调性条件求参法"
+    }
+  ]
+}

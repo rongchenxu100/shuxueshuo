@@ -485,6 +485,25 @@
               "type": "object"
             }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mono_parameter_result",
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "mono_parameter_result": {
+              "type": "object"
+            }
+          }
         }
       ]
     },

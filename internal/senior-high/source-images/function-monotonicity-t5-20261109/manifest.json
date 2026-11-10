@@ -1,0 +1,60 @@
+{
+  "source": "User attachments, 2026-11-09, Asia/Shanghai",
+  "purpose": "FM-T5 证明抽象函数的单调性：题型开发设计",
+  "status": "planning_sources_not_extraction_gold",
+  "processing": "Original bytes copied without rotation, cropping, redraw, or annotation changes. Printed solutions are reference material, not source assumptions. Attachment names ended in .png; archive extensions reflect verified JPEG encoding without changing bytes.",
+  "design": "../../../../docs/function-monotonicity-abstract-proof-problem-type-design.md",
+  "source_question_count": 2,
+  "source_target_count": 2,
+  "images": [
+    {
+      "image_number": 1,
+      "file": "source-image-01.jpg",
+      "original_filename": "codex-clipboard-4a48be53-de45-4829-8197-0053b3e0872d.png",
+      "sha256": "66c5320a4a3187b57d85ff4448a49a244d8b9a098b06133ca3451f0bc21d6900",
+      "bytes": 186373,
+      "contents": "Page 118: FM-C01 example 15 statement; preceding radical parameter problem is outside T5.",
+      "media_type": "image/jpeg",
+      "width": 1279,
+      "height": 1706
+    },
+    {
+      "image_number": 2,
+      "file": "source-image-02.jpg",
+      "original_filename": "codex-clipboard-6862f876-bcf8-40d6-92c2-7e2fbe58b92e.png",
+      "sha256": "4c6bbb87e62f0a7d27faa90175baae106f4f211c793737fd8ce132e3dbc6310b",
+      "bytes": 159611,
+      "contents": "FM-C01 solution continuation; FM-C02 variant statement and printed solution.",
+      "media_type": "image/jpeg",
+      "width": 1279,
+      "height": 1706
+    }
+  ],
+  "questions": [
+    {
+      "planning_id": "FM-C01",
+      "source_label": "例15",
+      "statement_images": [
+        1
+      ],
+      "solution_images": [
+        1,
+        2
+      ],
+      "role": "development_representative",
+      "prior_plan_example": "P01 (previously a proposed synthetic example; replaced by this real source)"
+    },
+    {
+      "planning_id": "FM-C02",
+      "source_label": "变式",
+      "statement_images": [
+        2
+      ],
+      "solution_images": [
+        2
+      ],
+      "role": "development_extension",
+      "prior_plan_example": "P02 (previously a proposed synthetic example; replaced by this real source)"
+    }
+  ]
+}

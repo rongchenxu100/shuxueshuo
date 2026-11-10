@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"root\":{\"label\":\"2.\",\"facts\":[\"Dom(f)=[-1,1]\",\"f(x-1)>f(1-3*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-1,1]\",\"function_domain\":\"[-1,1]\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2951,
+      "prompt_tokens": 24271,
+      "total_tokens": 27222,
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 463
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 709,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-c0e8fa20-ad74-4166-8d73-484a15dbe8b8",
+        "sha256": "464e88acce74e33057ca942890b6070b544a07c5fd9ec1e8d61ffbbabb660968",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10507,
+        "expires_at": 1794367687,
+        "uploaded_at": 1794281287.759222
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "464e88acce74e33057ca942890b6070b544a07c5fd9ec1e8d61ffbbabb660968",
+        "api_calls": 1,
+        "file_id": "file-api-c0e8fa20-ad74-4166-8d73-484a15dbe8b8",
+        "expires_at": 1794367687,
+        "elapsed_ms": 232
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 22376,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2951,
+          "prompt_tokens": 24271,
+          "total_tokens": 27222,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2691
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 23808
+          },
+          "prompt_cache_hit_tokens": 23808,
+          "prompt_cache_miss_tokens": 463
+        },
+        "raw_payload": {
+          "id": "ab30f918-9dcc-4381-9480-c0c4eae28c20",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2951,
+            "prompt_tokens": 24271,
+            "total_tokens": 27222,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2691
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 23808
+            },
+            "prompt_cache_hit_tokens": 23808,
+            "prompt_cache_miss_tokens": 463
+          },
+          "created": 1794281287,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"root\":{\"label\":\"2.\",\"facts\":[\"Dom(f)=[-1,1]\",\"f(x-1)>f(1-3*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-1,1]\",\"function_domain\":\"[-1,1]\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意。图片显示：第2题。题干：“已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是____”。手写有圈出“增函数”和答案，不转录手写答案，填空处横线。需要注意题干中“增函数”被圈是手写批注？圈是手写批注，但字是印刷的。保留“增函数”。右端手写答案不转录，填空照原样横线。原题有题号“2.”。original_text保留题号吗？可以保留原题干，包括题号，但不要手写答案。题号“2.”属于来源或试卷题号；root.label可以填“2.”且root_label_role为source？题干明确题号。但是root.label通常放置题号；需要谨慎：public_content.scopes statement 不包含题号。可以root.label=\"2.\"，role=source。不过题干没有小问。original_text要完整题干原文，包括题号也可；公开statement不含题号。\n\n题目：已知 f(x) 是定义在 [-1,1] 上的增函数，且 f(x-1)>f(1-3x)，则 x 的取值范围是 ____。\n注意“增函数”暗示严格递增？中文“增函数”有时指单调递增，不一定严格？但题干 f(x-1)>f(1-3x) 到自变量比较需严格递增。不过题面只写“增函数”，可能是增函数（严格增）。数学表示时，function_monotonicity direction increasing, strict? “增函数”在高中数学里通常指严格增函数？但目录要求严格性按原题保留；原文没有“严格”，但“增函数”可能默认严格递增？数学上“增函数”有时非严格，但结合不等式严格，需要可能严格。提取事实可以用 ∀? 题给已知单调性事实：function f, domain [-1,1], direction increasing, strict=true? 但原文只写增函数，不写严格；字段 strict required const true? 看 schema function_monotonicity strict const true 描述说 true严格，false非严格按原题保留；但定义里 type boolean? 在 required 且 strict const true? 实际上 function_monotonicity strict 是 const true，只能 true。说明增函数在这个题型里视为严格？但是提取不应添加“严格”。如果只能 true，使用 true 可能可接受，因为“增函数”通常表示严格递增。不过需要准确。我们可能使用 required_monotonicity? 这是求参数范围，不是。这里是求x范围，题给已知单调性来源。目标 find_range.symbol=x，条件 facts 包含? 题面条件：f定义在[-1,1]上的增函数，且 f(x-1)>f(1-3x)。如何表示？可以 root.definitions: f(x) 是定义在 [-1,1] 上的增函数？不，函数定义不是曲线定义；题面没有给出解析式，只给性质。定义未知函数 f 吗？没有解析式。可以 facts 包括：f 的定义域为 [-1,1]? 使用 Dom(f)=[-1,1]? 题面“定义在[-1,1]上的增函数”给出完整定义域 [-1,1]。语法目录有 Dom(f)=集合。需要定义 f 吗？对象 f 可引用。definitions 可以放“f(x)”? 不能放未知函数定义。可能 facts: Dom(f)=[-1,1]; function_monotonicity? function_monotonicity 是目标字段中的 find_range 可选，不是facts。题给单调性事实可以写事实：∀x1,x2∈[-1,1]: x1<x2 ⇒ f(x1)<f(x2)？但提取规则说题给某点最值事实等；单调性来源字段 function_monotonicity 表示原题给定的已知单调事实，放在目标 find_range.function_monotonicity。这里目标是求x范围，因此可使用 find_range.symbol=x，function_monotonicity={function:f,domain:[-1,1],direction:increasing,strict:true,basis:given}? 但 schema function_monotonicity 只在 find_range 下，用于函数值比较转输入比较。题面确实是利用单调性。是否必须同时 facts 写 Dom(f)=[-1,1] 和 f(x-1)>f(1-3x)。需要保留 f 的定义域完整。题面“定义在[-1,1]上”是完整定义域，放 facts Dom(f)=[-1,1]。如果目标find_range带有function_monotonicity domain [-1,1]，则重复？字段function_monotonicity.function_domain可放完整定义域，domain放单调性成立的区间。本题单调性在定义域[-1,1]上成立。可填 function_monotonicity {function:\"f\", domain:\"[-1,1]\", function_domain:\"[-1,1]\", direction:\"increasing\", strict:true, basis:\"given\"}。但 facts 中还需 Dom(f)=[-1,1]? 根据“对象命名放definitions，条件放facts”；完整定义域声明写 Dom(f)=D。题面“定义在[-1,1]上”同时是定义域和单调性区间，应在facts记录Dom(f)=[-1,1]。可能也通过function_monotonicity记录单调性。可以都保留，不算重复？一条是完整定义域，一条是单调性事实。可行。\n\n条件 f(x-1)>f(1-3x) 放 facts。目标 x 的范围：find_range.symbol=\"x\"。题面不等式本身不是直接在x上的？需要找 x 满足。目标 symbol=x。但 find_range字段的symbol表示求范围的参数符号。这没问题。条件在facts。是否需要把不等式作为目标？不是，目标范围。\n\n还需定义 f 吗？definitions 可以放 \"f(x)\"? 不行。facts 中可引用 f。没有函数定义。可不用definitions。\n\noriginal_text: “2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。” 注意“增函数”被手写圈但字是印刷。填空处横线长度任意。手写答案不转录。本题没有选项。public_content.completeness complete。privacy separated? 图片包含手写答案和圈注；公开字段不能含手写答案。我们只提取题干；可以声明separated？需要确保姓名班级等无。有手写答案，但已被排除。privacy separated 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号可以放在original_text但公开statement排除。作答手写答案被排除。应该可以separated。不过图片中手写答案和圈注可能属于批注，但已分离。是，题干可分离。root.label=\"2.\" role source? public_content中无题号。需要提供root_label_role。如果填source，意味着标签作为题号可不放入公开。如果填content，则需要在公开中出现？不，public statement不重复label；role只是分类。题号“2.”明确是来源题号，所以root_label_role=source。root.label可放\"2.\"。如果不想保留label可以省略？schema可选。但题号存在，可以填。public_content.scopes的statement不包含题号。root的不确定性无。\n\nfigure_detection: 无配图，status none, regions []。题干无图。不是公式排版图。\n\n现在构造 root：\n{\n  \"label\":\"2.\",\n  \"facts\":[\"Dom(f)=[-1,1]\",\"f(x-1) > f(1-3*x)\"],\n  \"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-1,1]\",\"function_domain\":\"[-1,1]\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]\n}\n需要定义 f 吗？没有。facts 中 f 定义域。target choose find_range symbol x. facts中f(x-1)和f(1-3x)调用输入必须在定义域内？这是隐含条件，不添加。题目本身只给 f(x-1)>f(1-3x)，自然要求 f(x-1) 和 f(1-3x) 有意义，但不应补充隐含定义域条件？提取规则不添加派生条件。只在 facts 保留原式。完整定义域 Dom(f)=[-1,1]。可以。\n\n注意在math_expression_catalog中函数定义与引用：facts可以用f(x-1)>f(1-3*x)。乘法独立项中1-3*x要写*。可以。\n\nfunction_monotonicity.strict: schema const true, good. domain \"[-1,1]\" is interval containing monotonicity. function_domain maybe \"[-1,1]\". basis \"given\". Good.\n\npublic_content:\n{\n \"completeness\":\"complete\",\n \"privacy\":\"separated\",\n \"figure\":\"not_required\",\n \"root_label_role\":\"source\",\n \"scopes\":[\n   {\"scope_ref\":\"/root\",\"statement\":\"已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}\n ],\n \"figure_detection\":{\"status\":\"none\",\"regions\":[]}\n}\nstatement没有题号。公式用$...$。填空处用横线。手写答案不录。\n\n需要 verify if \"增函数\" strictly? original_text中“增函数”完整。public statement也保留。目标function_monotonicity strict true might be okay but is this adding strict? Could be considered as internal typed representation; \"增函数\" in high school is strictly increasing, so yes.\n\nPotential issue: For find_range, function_monotonicity property used only when \"已知单调事实\" and target symbol is parameter? Here target is x range, not parameter? It's still find_range symbol x. Fine.\n\nNeed uncertainties? Maybe strictness ambiguity? But schema const true. No. The hand-drawn circle doesn't affect. No uncertainty. Do we need report handwritten answer as privacy? We don't. privacy separated.\n\nRoot original_text includes \"2.\" and blank. We need not include hand-written answer. In original_text, \"2. 已知f(x)是定义在[-1,1]上的增函数，且f(x-1)>f(1-3x)，则x的取值范围是____。\" Use LaTeX. In original_text, formula in $...$. \"增函数\" maybe not formula. Should \"定义在 [-1,1] 上\" use $[-1,1]$. Good.\n\nNeed ensure JSON string backslashes? No backslashes in Chinese. For original_text using $f(x)$ no backslash. Good.\n\nRoot facts \"Dom(f)=[-1,1]\" uses Unicode minus? No.\n\nShould definitions include \"f(x)\"? Unknown function f no definition; facts can reference. Fine.\n\nPotential issue in root: \"增函数\" maybe should be represented in facts as \"∀x1,x2∈[-1,1]: x1<x2 ⇒ f(x1)<f(x2)\" instead of function_monotonicity? The schema specifically has function_monotonicity for original known monotonic fact in find_range. We used that. But function_monotonicity is only for \"函数值比较转输入比较\"; this target is not compare f values? It does have f(x-1)>f(1-3x), which is exactly function value comparison. Good. However our target is find_range symbol x, and function_monotonicity may be used to transform. Good.\n\nNeed include condition f(x-1)>f(1-3x) in facts. Yes.\n\nCould target be find_range.symbol \"x\", but the condition contains f; okay. Maybe root label role source; original_text includes题号. public scope no题号. Good.\n\nNeed output exactly schema no extra fields. The final answer should be JSON only.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 22635
+  },
+  "raw_payload": {
+    "id": "ab30f918-9dcc-4381-9480-c0c4eae28c20",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"root\":{\"label\":\"2.\",\"facts\":[\"Dom(f)=[-1,1]\",\"f(x-1)>f(1-3*x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-1,1]\",\"function_domain\":\"[-1,1]\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。图片显示：第2题。题干：“已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是____”。手写有圈出“增函数”和答案，不转录手写答案，填空处横线。需要注意题干中“增函数”被圈是手写批注？圈是手写批注，但字是印刷的。保留“增函数”。右端手写答案不转录，填空照原样横线。原题有题号“2.”。original_text保留题号吗？可以保留原题干，包括题号，但不要手写答案。题号“2.”属于来源或试卷题号；root.label可以填“2.”且root_label_role为source？题干明确题号。但是root.label通常放置题号；需要谨慎：public_content.scopes statement 不包含题号。可以root.label=\"2.\"，role=source。不过题干没有小问。original_text要完整题干原文，包括题号也可；公开statement不含题号。\n\n题目：已知 f(x) 是定义在 [-1,1] 上的增函数，且 f(x-1)>f(1-3x)，则 x 的取值范围是 ____。\n注意“增函数”暗示严格递增？中文“增函数”有时指单调递增，不一定严格？但题干 f(x-1)>f(1-3x) 到自变量比较需严格递增。不过题面只写“增函数”，可能是增函数（严格增）。数学表示时，function_monotonicity direction increasing, strict? “增函数”在高中数学里通常指严格增函数？但目录要求严格性按原题保留；原文没有“严格”，但“增函数”可能默认严格递增？数学上“增函数”有时非严格，但结合不等式严格，需要可能严格。提取事实可以用 ∀? 题给已知单调性事实：function f, domain [-1,1], direction increasing, strict=true? 但原文只写增函数，不写严格；字段 strict required const true? 看 schema function_monotonicity strict const true 描述说 true严格，false非严格按原题保留；但定义里 type boolean? 在 required 且 strict const true? 实际上 function_monotonicity strict 是 const true，只能 true。说明增函数在这个题型里视为严格？但是提取不应添加“严格”。如果只能 true，使用 true 可能可接受，因为“增函数”通常表示严格递增。不过需要准确。我们可能使用 required_monotonicity? 这是求参数范围，不是。这里是求x范围，题给已知单调性来源。目标 find_range.symbol=x，条件 facts 包含? 题面条件：f定义在[-1,1]上的增函数，且 f(x-1)>f(1-3x)。如何表示？可以 root.definitions: f(x) 是定义在 [-1,1] 上的增函数？不，函数定义不是曲线定义；题面没有给出解析式，只给性质。定义未知函数 f 吗？没有解析式。可以 facts 包括：f 的定义域为 [-1,1]? 使用 Dom(f)=[-1,1]? 题面“定义在[-1,1]上的增函数”给出完整定义域 [-1,1]。语法目录有 Dom(f)=集合。需要定义 f 吗？对象 f 可引用。definitions 可以放“f(x)”? 不能放未知函数定义。可能 facts: Dom(f)=[-1,1]; function_monotonicity? function_monotonicity 是目标字段中的 find_range 可选，不是facts。题给单调性事实可以写事实：∀x1,x2∈[-1,1]: x1<x2 ⇒ f(x1)<f(x2)？但提取规则说题给某点最值事实等；单调性来源字段 function_monotonicity 表示原题给定的已知单调事实，放在目标 find_range.function_monotonicity。这里目标是求x范围，因此可使用 find_range.symbol=x，function_monotonicity={function:f,domain:[-1,1],direction:increasing,strict:true,basis:given}? 但 schema function_monotonicity 只在 find_range 下，用于函数值比较转输入比较。题面确实是利用单调性。是否必须同时 facts 写 Dom(f)=[-1,1] 和 f(x-1)>f(1-3x)。需要保留 f 的定义域完整。题面“定义在[-1,1]上”是完整定义域，放 facts Dom(f)=[-1,1]。如果目标find_range带有function_monotonicity domain [-1,1]，则重复？字段function_monotonicity.function_domain可放完整定义域，domain放单调性成立的区间。本题单调性在定义域[-1,1]上成立。可填 function_monotonicity {function:\"f\", domain:\"[-1,1]\", function_domain:\"[-1,1]\", direction:\"increasing\", strict:true, basis:\"given\"}。但 facts 中还需 Dom(f)=[-1,1]? 根据“对象命名放definitions，条件放facts”；完整定义域声明写 Dom(f)=D。题面“定义在[-1,1]上”同时是定义域和单调性区间，应在facts记录Dom(f)=[-1,1]。可能也通过function_monotonicity记录单调性。可以都保留，不算重复？一条是完整定义域，一条是单调性事实。可行。\n\n条件 f(x-1)>f(1-3x) 放 facts。目标 x 的范围：find_range.symbol=\"x\"。题面不等式本身不是直接在x上的？需要找 x 满足。目标 symbol=x。但 find_range字段的symbol表示求范围的参数符号。这没问题。条件在facts。是否需要把不等式作为目标？不是，目标范围。\n\n还需定义 f 吗？definitions 可以放 \"f(x)\"? 不行。facts 中可引用 f。没有函数定义。可不用definitions。\n\noriginal_text: “2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。” 注意“增函数”被手写圈但字是印刷。填空处横线长度任意。手写答案不转录。本题没有选项。public_content.completeness complete。privacy separated? 图片包含手写答案和圈注；公开字段不能含手写答案。我们只提取题干；可以声明separated？需要确保姓名班级等无。有手写答案，但已被排除。privacy separated 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号可以放在original_text但公开statement排除。作答手写答案被排除。应该可以separated。不过图片中手写答案和圈注可能属于批注，但已分离。是，题干可分离。root.label=\"2.\" role source? public_content中无题号。需要提供root_label_role。如果填source，意味着标签作为题号可不放入公开。如果填content，则需要在公开中出现？不，public statement不重复label；role只是分类。题号“2.”明确是来源题号，所以root_label_role=source。root.label可放\"2.\"。如果不想保留label可以省略？schema可选。但题号存在，可以填。public_content.scopes的statement不包含题号。root的不确定性无。\n\nfigure_detection: 无配图，status none, regions []。题干无图。不是公式排版图。\n\n现在构造 root：\n{\n  \"label\":\"2.\",\n  \"facts\":[\"Dom(f)=[-1,1]\",\"f(x-1) > f(1-3*x)\"],\n  \"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-1,1]\",\"function_domain\":\"[-1,1]\",\"direction\":\"increasing\",\"strict\":true,\"basis\":\"given\"}}]\n}\n需要定义 f 吗？没有。facts 中 f 定义域。target choose find_range symbol x. facts中f(x-1)和f(1-3x)调用输入必须在定义域内？这是隐含条件，不添加。题目本身只给 f(x-1)>f(1-3x)，自然要求 f(x-1) 和 f(1-3x) 有意义，但不应补充隐含定义域条件？提取规则不添加派生条件。只在 facts 保留原式。完整定义域 Dom(f)=[-1,1]。可以。\n\n注意在math_expression_catalog中函数定义与引用：facts可以用f(x-1)>f(1-3*x)。乘法独立项中1-3*x要写*。可以。\n\nfunction_monotonicity.strict: schema const true, good. domain \"[-1,1]\" is interval containing monotonicity. function_domain maybe \"[-1,1]\". basis \"given\". Good.\n\npublic_content:\n{\n \"completeness\":\"complete\",\n \"privacy\":\"separated\",\n \"figure\":\"not_required\",\n \"root_label_role\":\"source\",\n \"scopes\":[\n   {\"scope_ref\":\"/root\",\"statement\":\"已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}\n ],\n \"figure_detection\":{\"status\":\"none\",\"regions\":[]}\n}\nstatement没有题号。公式用$...$。填空处用横线。手写答案不录。\n\n需要 verify if \"增函数\" strictly? original_text中“增函数”完整。public statement也保留。目标function_monotonicity strict true might be okay but is this adding strict? Could be considered as internal typed representation; \"增函数\" in high school is strictly increasing, so yes.\n\nPotential issue: For find_range, function_monotonicity property used only when \"已知单调事实\" and target symbol is parameter? Here target is x range, not parameter? It's still find_range symbol x. Fine.\n\nNeed uncertainties? Maybe strictness ambiguity? But schema const true. No. The hand-drawn circle doesn't affect. No uncertainty. Do we need report handwritten answer as privacy? We don't. privacy separated.\n\nRoot original_text includes \"2.\" and blank. We need not include hand-written answer. In original_text, \"2. 已知f(x)是定义在[-1,1]上的增函数，且f(x-1)>f(1-3x)，则x的取值范围是____。\" Use LaTeX. In original_text, formula in $...$. \"增函数\" maybe not formula. Should \"定义在 [-1,1] 上\" use $[-1,1]$. Good.\n\nNeed ensure JSON string backslashes? No backslashes in Chinese. For original_text using $f(x)$ no backslash. Good.\n\nRoot facts \"Dom(f)=[-1,1]\" uses Unicode minus? No.\n\nShould definitions include \"f(x)\"? Unknown function f no definition; facts can reference. Fine.\n\nPotential issue in root: \"增函数\" maybe should be represented in facts as \"∀x1,x2∈[-1,1]: x1<x2 ⇒ f(x1)<f(x2)\" instead of function_monotonicity? The schema specifically has function_monotonicity for original known monotonic fact in find_range. We used that. But function_monotonicity is only for \"函数值比较转输入比较\"; this target is not compare f values? It does have f(x-1)>f(1-3x), which is exactly function value comparison. Good. However our target is find_range symbol x, and function_monotonicity may be used to transform. Good.\n\nNeed include condition f(x-1)>f(1-3x) in facts. Yes.\n\nCould target be find_range.symbol \"x\", but the condition contains f; okay. Maybe root label role source; original_text includes题号. public scope no题号. Good.\n\nNeed output exactly schema no extra fields. The final answer should be JSON only."
+        }
+      }
+    ],
+    "created": 1794281287,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2951,
+      "prompt_tokens": 24271,
+      "total_tokens": 27222,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2691,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 23808
+      },
+      "prompt_cache_hit_tokens": 23808,
+      "prompt_cache_miss_tokens": 463
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 22.637
+}

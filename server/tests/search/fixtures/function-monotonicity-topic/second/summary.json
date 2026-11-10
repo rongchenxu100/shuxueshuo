@@ -1,0 +1,1841 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a03",
+      "search_id": "2640aacb05b4",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 36.11,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 33.277,
+      "original_text": "3. 函数 $y=-x^2+4x+3$，$x \\in [0,3]$ 的单调递增区间是 ______",
+      "root": {
+        "label": "3.",
+        "definitions": [
+          "y=-x^2+4*x+3"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_monotonic_intervals",
+            "expression": "-x^2+4*x+3",
+            "variable": "x",
+            "direction": "increasing",
+            "input_domain": "[0,3]",
+            "domain_role": "declared"
+          }
+        ]
+      }
+    },
+    {
+      "case": "a11",
+      "search_id": "cfb7b953f3cc",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 51.878,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 43.793,
+      "original_text": "11. 已知函数 $y=ax^2-2x+3$ 在 $[2,+\\infty)$ 上是减函数，则实数 $a$ 的取值范围是____。",
+      "root": {
+        "definitions": [
+          "f(x)=a*x^2-2*x+3"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a",
+            "required_monotonicity": {
+              "expression": "a*x^2-2*x+3",
+              "variable": "x",
+              "direction": "decreasing",
+              "strict": true,
+              "input_domain": "[2,∞)",
+              "basis": {
+                "kind": "stated",
+                "statement": ""
+              }
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right]"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "NegativeInfinity"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            "expression": "Interval(-oo, 0)",
+            "latex": "\\left(-\\infty, 0\\right]"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a12",
+      "search_id": "58a24a5c613d",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 37.675,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 26.924,
+      "original_text": "12. 函数 $f(x)=\\sqrt{x^2-2x-3}$ 的单调减区间是 ______。",
+      "root": {
+        "definitions": [
+          "f(x)=sqrt(x^2-2*x-3)"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_monotonic_intervals",
+            "expression": "sqrt(x^2-2*x-3)",
+            "variable": "x",
+            "direction": "decreasing",
+            "function": "f"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "direction": "decreasing",
+            "interval_families": {
+              "decreasing": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-1"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                }
+              ]
+            },
+            "kind": "find_monotonic_intervals",
+            "latex": "\\downarrow\\;\\left(-\\infty, -1\\right]",
+            "status": "complete"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 7,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a13",
+      "search_id": "b22bce8db0c8",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 69.358,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 60.223,
+      "original_text": "13. 已知函数 $f(x)=\\sqrt{a x^2+2x-5a+5}$ 对任意两个不相等的实数 $x_1$，$x_2\\in(-\\infty,-2]$，都有不等式 $\\frac{f(x_2)-f(x_1)}{x_2-x_1}<0$ 成立，则实数 $a$ 的取值范围是 ____。",
+      "root": {
+        "definitions": [
+          "f(x)=sqrt(a*x^2+2*x-5*a+5)"
+        ],
+        "facts": [
+          "∀x_1,x_2∈(-∞,-2], x_1≠x_2: (f(x_2)-f(x_1))/(x_2-x_1) < 0"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a",
+            "required_monotonicity": {
+              "expression": "sqrt(a*x^2+2*x-5*a+5)",
+              "variable": "x",
+              "function": "f",
+              "direction": "decreasing",
+              "strict": true,
+              "input_domain": "(-∞,-2]",
+              "basis": {
+                "kind": "difference_quotient",
+                "statement": "(f(x_2)-f(x_1))/(x_2-x_1)<0"
+              }
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval(1/2, 1)",
+              "latex": "\\left[\\frac{1}{2}, 1\\right]"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "2"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            "expression": "Interval(1/2, 1)",
+            "latex": "\\left[\\frac{1}{2}, 1\\right]"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 5,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a14",
+      "search_id": "745920ab116d",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 82.451,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 72.109,
+      "original_text": "14. 已知函数 $f(x)=\\sqrt{1-2x+2x^2-5x+5}$ 的最小值为 $\\underline{\\quad\\quad}$。",
+      "root": {
+        "definitions": [
+          "f(x)=sqrt(1-2*x+2*x^2-5*x+5)"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_range",
+            "object": "f",
+            "answer_request": {
+              "kind": "extremum",
+              "quantity": "minimum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "a15",
+      "search_id": "d722bff9c1f0",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 31.399,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 22.153,
+      "original_text": "15. 函数 $f(x)=\\sqrt{-x^2+4x-3}$ 的单调增区间为______",
+      "root": {
+        "definitions": [
+          "f(x)=sqrt(-x^2+4*x-3)"
+        ],
+        "facts": [],
+        "goals": [
+          {
+            "kind": "find_monotonic_intervals",
+            "expression": "sqrt(-x^2+4*x-3)",
+            "variable": "x",
+            "direction": "increasing",
+            "function": "f"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-monotonicity"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "direction": "increasing",
+            "interval_families": {
+              "increasing": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                }
+              ]
+            },
+            "kind": "find_monotonic_intervals",
+            "latex": "\\uparrow\\;\\left[1, 2\\right]",
+            "status": "complete"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 7,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a16",
+      "search_id": "1c774cb24eaf",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 63.828,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 53.955,
+      "original_text": "16. 函数 $f(x)=\\frac{2x+1}{x+3}$ 在区间 $[-2,2]$ 的最大值是 ______．",
+      "root": {
+        "definitions": [
+          "f(x)=(2*x+1)/(x+3)"
+        ],
+        "facts": [
+          "x∈[-2,2]"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "object": "f",
+            "input_domain": "[-2,2]",
+            "answer_request": {
+              "kind": "extremum",
+              "quantity": "maximum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "a17",
+      "search_id": "aa1064e127e8",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 62.437,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 53.254,
+      "original_text": "17. 已知函数 $f(x)=\\begin{cases}(3a-1)x+4a,&x<1,\\\\ \\frac{a}{x},&x\\ge 1,\\end{cases}$，满足对任意的实数 $x_1,x_2$ 且 $x_1\\ne x_2$，都有 $[f(x_1)-f(x_2)](x_1-x_2)<0$，则实数 $a$ 的取值范围是______。",
+      "root": {
+        "definitions": [
+          "f(x)=piecewise((3*a-1)*x+4*a,x<1,a/x,x>=1)"
+        ],
+        "facts": [
+          "∀x_1∈ℝ: ∀x_2∈ℝ: (x_1≠x_2 → (f(x_1)-f(x_2))*(x_1-x_2)<0)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a"
+          }
+        ],
+        "uncertainties": []
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-parameter"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.Ropen(1/6, 1/3)",
+              "latex": "\\left[\\frac{1}{6}, \\frac{1}{3}\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "6"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "3"
+                },
+                {
+                  "$math": "BooleanFalse"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.Ropen(1/6, 1/3)",
+            "latex": "\\left[\\frac{1}{6}, \\frac{1}{3}\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 4,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a18",
+      "search_id": "4bc82c12348f",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 39.553,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 31.374,
+      "original_text": "18. 已知函数 $f(x)=\\begin{cases} -x^3+2, & x<0 \\\\ -x+3, & x\\ge 0 \\end{cases}$， $g(x)=kx+5-2k(k>0)$，若对任意的 $x_1\\in[-1,1]$，总存在 $x_2\\in[-1,1]$ 使得 $f(x_1)\\le g(x_2)$ 成立，则实数 $k$ 的取值范围为______。",
+      "root": {
+        "definitions": [
+          "f(x)=piecewise(-x^3+2,x<0,-x+3,x≥0)",
+          "g(x)=k*x+5-2*k"
+        ],
+        "facts": [
+          "k > 0",
+          "∀x_1∈[-1,1]: ∃x_2∈[-1,1]: f(x_1) ≤ g(x_2)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "k"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.Lopen(0, 2)",
+              "latex": "\\left(0, 2\\right]"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            "expression": "Interval.Lopen(0, 2)",
+            "latex": "\\left(0, 2\\right]"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b01",
+      "search_id": "5f76046c38e0",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 69.81,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 61.474,
+      "original_text": "1. 已知函数 $f(x)$ 的定义域为 $(0,+\\infty)$，且在定义域内单调递增，则使得不等式 $f(2x)<f(x+1)$ 成立的 $x$ 的取值集合为______。",
+      "root": {
+        "facts": [
+          "Dom(f)=(0,+∞)",
+          "f(2*x) < f(x+1)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "(0,+∞)",
+              "function_domain": "(0,+∞)",
+              "direction": "increasing",
+              "strict": true,
+              "basis": "given"
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(0, 1)",
+              "latex": "\\left(0, 1\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(0, 1)",
+            "latex": "\\left(0, 1\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 4,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b02",
+      "search_id": "b9ee7664373c",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 53.617,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 44.528,
+      "original_text": "2. 已知$f(x)$是定义在$[-1,1]$上的增函数，且$f(x-1)>f(1-3x)$，则$x$的取值范围是______。",
+      "root": {
+        "label": "2.",
+        "facts": [
+          "Dom(f)=[-1,1]",
+          "f(x-1)>f(1-3*x)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "[-1,1]",
+              "function_domain": "[-1,1]",
+              "direction": "increasing",
+              "strict": true,
+              "basis": "given"
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.Lopen(1/2, 2/3)",
+              "latex": "\\left(\\frac{1}{2}, \\frac{2}{3}\\right]"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "2"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "2",
+                  "q": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanFalse"
+                }
+              ]
+            },
+            "expression": "Interval.Lopen(1/2, 2/3)",
+            "latex": "\\left(\\frac{1}{2}, \\frac{2}{3}\\right]"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 4,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b03",
+      "search_id": "85c9758917d6",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 40.494,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 27.591,
+      "original_text": "3. 已知函数 $f(x)=\\begin{cases}2x-1,&x<1\\\\x^2,&x\\ge 1\\end{cases}$，则不等式 $f(x^2+x+3)>f(3x^2-3)$ 的 $x$ 的解集是______",
+      "root": {
+        "definitions": [
+          "f(x)=piecewise(2*x-1,x<1,x^2,x>=1)"
+        ],
+        "facts": [
+          "f(x^2+x+3) > f(3*x^2-3)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(-3/2, 2)",
+              "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Rational",
+                  "p": "-3",
+                  "q": "2"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(-3/2, 2)",
+            "latex": "\\left(- \\frac{3}{2}, 2\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 5,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b04",
+      "search_id": "d0965c2c0bec",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 92.15,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 82.387,
+      "original_text": "4. 设函数 $f(x)$ 是 $\\mathbb{R}$ 上的减函数，若 $f(m^2+2)>f(2m+5)$，则实数 $m$ 的取值范围是____",
+      "root": {
+        "facts": [
+          "f(m^2+2) > f(2*m+5)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "m",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "ℝ",
+              "function_domain": "ℝ",
+              "direction": "decreasing",
+              "strict": true,
+              "basis": "given"
+            }
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(-1, 3)",
+              "latex": "\\left(-1, 3\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(-1, 3)",
+            "latex": "\\left(-1, 3\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b05",
+      "search_id": "580eafe384d1",
+      "recognition_status": "needs_confirmation",
+      "lesson_status": "not_started",
+      "elapsed_seconds": 34.543,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        }
+      ],
+      "status": "needs_confirmation",
+      "recognition_seconds": 34.218,
+      "original_text": "5. 函数 $f(x)$ 是定义在 $[0,+\\infty)$ 上的减函数，则满足 $f(2x-1)>f\\left(\\frac{1}{3}\\right)$ 的 $x$ 值的取值范围 ______。",
+      "root": {
+        "label": "5",
+        "facts": [
+          "f(2*x-1) > f(1/3)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "[0,+∞)",
+              "function_domain": "[0,+∞)",
+              "direction": "decreasing",
+              "strict": true,
+              "basis": "given"
+            }
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "ambiguous_symbol",
+            "text": "定义域右端点符号在图中形似方括号 ]，此处按通常开区间 [0,+∞) 转录。"
+          }
+        ]
+      }
+    },
+    {
+      "case": "b06",
+      "search_id": "2fed8296e386",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 89.624,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 87.108,
+      "original_text": "若函数 $y=f(x)$ 在 $(-1,1)$ 单调递增，且满足 $f(2a-1)<f(3a-1)$，则实数 $a$ 的取值范围为________。",
+      "root": {
+        "facts": [
+          "f(2*a-1) < f(3*a-1)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "(-1,1)",
+              "direction": "increasing",
+              "strict": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "b07",
+      "search_id": "d6c350aacdaa",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 32.555,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 19.325,
+      "original_text": "7. 已知函数 $f(x)=\\begin{cases}3x, & x \\ge 3 \\\\ -x^2+6x, & x<3\\end{cases}$，则不等式 $f(x^2-2x)<f(3x-4)$ 的解集是________.",
+      "root": {
+        "label": "7",
+        "definitions": [
+          "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+        ],
+        "facts": [
+          "f(x^2-2*x) < f(3*x-4)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(1, 4)",
+              "latex": "\\left(1, 4\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "4"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(1, 4)",
+            "latex": "\\left(1, 4\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 5,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b08",
+      "search_id": "3b8fbbe1d58d",
+      "recognition_status": "failed",
+      "lesson_status": "not_started",
+      "elapsed_seconds": 26.413,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "failed"
+    },
+    {
+      "case": "b09",
+      "search_id": "4b7b94448b1b",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 142.18,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 122.598,
+      "original_text": "9.已知函数 $f(x)=\\begin{cases}3x,&x\\ge 3\\\\-x^2+6x,&x<3\\end{cases}$，则 $f(f(1))=\\underline{\\quad}$；不等式 $f(x^2-2x)<f(3x-4)$ 的解集是 $\\underline{\\quad}$。",
+      "root": {
+        "label": "9",
+        "definitions": [
+          "f(x)=piecewise(3*x,x>=3,-x^2+6*x,x<3)"
+        ],
+        "facts": [
+          "f(x^2-2*x) < f(3*x-4)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(f(1))"
+          },
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-evaluation",
+        "type-monotonicity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": {
+              "expression": "15",
+              "latex": "15"
+            },
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "15",
+              "latex": "15"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(1, 4)",
+              "latex": "\\left(1, 4\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "4"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(1, 4)",
+            "latex": "\\left(1, 4\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 9,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b10",
+      "search_id": "7c5c58b21dc4",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 40.492,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 31.5,
+      "original_text": "0.已知 $f(x)=-\\frac{1}{x}+x$，$g(x)=x^2-4x-3$，若 $\\forall x_1\\in[-2,-1]$，$\\exists x_2\\in[1,a]$，$f(x_1)<g(x_2)$ 成立，则实数 $a$ 的取值范围是 ______",
+      "root": {
+        "label": "0.",
+        "definitions": [
+          "f(x) = -1/x + x",
+          "g(x) = x^2 - 4*x - 3"
+        ],
+        "facts": [
+          "∀x_1∈[-2,-1]: ∃x_2∈[1,a]: f(x_1) < g(x_2)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(2 + sqrt(7), oo)",
+              "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Add",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "Pow",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "7"
+                        },
+                        {
+                          "$math": "Rational",
+                          "p": "1",
+                          "q": "2"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$math": "Infinity"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(2 + sqrt(7), oo)",
+            "latex": "\\left(2 + \\sqrt{7}, \\infty\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b11",
+      "search_id": "ec9ce9e3d6b8",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 26.978,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 18.749,
+      "original_text": "11.函数 $f(x)=x^2-2x$，$g(x)=ax-1$，若 $\\forall x_1\\in[-1,2]$，$\\exists x_2\\in[-1,2]$，使得 $f(x_1)=g(x_2)$，则 $a$ 的取值范围是____。",
+      "root": {
+        "label": "11",
+        "definitions": [
+          "f(x)=x^2-2*x",
+          "g(x)=a*x-1"
+        ],
+        "facts": [
+          "∀x_1∈[-1,2]: ∃x_2∈[-1,2]: f(x_1)=g(x_2)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a"
+          }
+        ],
+        "uncertainties": []
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+              "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "2"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
+            "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b12",
+      "search_id": "89c7b3dd161a",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 31.37,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 21.272,
+      "original_text": "12. 若函数 $f(x)=\\begin{cases}x^2+1,x\\ge 0\\\\1,x<0\\end{cases}$，则不等式 $f(1-x^2)>f(2x)$ 的解集合是______。",
+      "root": {
+        "label": "12",
+        "definitions": [
+          "f(x)=piecewise(x^2+1,x>=0,1,x<0)"
+        ],
+        "facts": [
+          "f(1-x^2)>f(2*x)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-piecewise-function"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(-1, -1 + sqrt(2))",
+              "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "expression": "Interval.open(-1, -1 + sqrt(2))",
+            "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b13",
+      "search_id": "bd31bc2a6e12",
+      "recognition_status": "reviewed",
+      "lesson_status": "failed",
+      "elapsed_seconds": 82.483,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 72.276,
+      "original_text": "13. 已知函数 f(x) 是定义在区间 [0,+∞) 上的函数，且在该区间上单调递增，则满足 f(2x-1) < f(1/3) 的 x 的取值范围是________",
+      "root": {
+        "facts": [
+          "Dom(f)=[0,+∞)",
+          "f(2*x-1) < f(1/3)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x",
+            "function_monotonicity": {
+              "function": "f",
+              "domain": "[0,+∞)",
+              "direction": "increasing",
+              "strict": true,
+              "function_domain": "[0,+∞)",
+              "basis": "given"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "b14",
+      "search_id": "27727af2b995",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 68.111,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 31.816,
+      "original_text": "14. 设函数 $f(x)=\\begin{cases}-(x-a)^2+a+\\frac{5}{2},&x<1\\\\-\\frac{1}{2}x+1,&x\\ge 1\\end{cases}$，若 $f(1)$ 是函数 $f(x)$ 的最大值，则实数 $a$ 的取值范围为______。",
+      "root": {
+        "definitions": [
+          "f(x)=piecewise(-(x-a)^2+a+5/2,x<1,-1/2*x+1,x≥1)"
+        ],
+        "facts": [
+          "max_{x}(f(x))=f(1)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+              "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Union",
+              "args": [
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "NegativeInfinity"
+                    },
+                    {
+                      "$math": "Integer",
+                      "value": "-2"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    }
+                  ]
+                },
+                {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Add",
+                      "args": [
+                        {
+                          "$math": "Rational",
+                          "p": "3",
+                          "q": "2"
+                        },
+                        {
+                          "$math": "Mul",
+                          "args": [
+                            {
+                              "$math": "Rational",
+                              "p": "1",
+                              "q": "2"
+                            },
+                            {
+                              "$math": "Pow",
+                              "args": [
+                                {
+                                  "$math": "Integer",
+                                  "value": "13"
+                                },
+                                {
+                                  "$math": "Rational",
+                                  "p": "1",
+                                  "q": "2"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expression": "Union(Interval(-oo, -2), Interval(3/2 + sqrt(13)/2, oo))",
+            "latex": "\\left(-\\infty, -2\\right] \\cup \\left[\\frac{3}{2} + \\frac{\\sqrt{13}}{2}, \\infty\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 12,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "b15",
+      "search_id": "98bdfbd1b1c1",
+      "recognition_status": "failed",
+      "lesson_status": "not_started",
+      "elapsed_seconds": 14.64,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        }
+      ],
+      "status": "code_gap",
+      "recognition_seconds": 14.437,
+      "original_text": "15. 设函数 $f(x)$ 的定义域为 $\\mathbb{R}$，满足 $f(x+2)=2f(x)$，且当 $x\\in(0,2]$ 时，$f(x)=x(x-2)$。若对任意 $x\\in(-\\infty,m]$，都有 $f(x)\\ge -3$，则 $m$ 的最大值为____。",
+      "root": {
+        "label": "15",
+        "definitions": [],
+        "facts": [
+          "Dom(f)=ℝ",
+          "∀x∈ℝ: f(x+2)=2*f(x)",
+          "∀x∈(0,2]: f(x)=x*(x-2)",
+          "∀x∈(-∞,m]: f(x) ≥ -3"
+        ],
+        "goals": [
+          {
+            "kind": "find_maximum",
+            "expression": "m"
+          }
+        ]
+      }
+    },
+    {
+      "case": "b16",
+      "search_id": "db7b77eb6066",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 70.033,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 59.691,
+      "original_text": "16. 已知 $A=\\{x\\mid 1\\le x\\le 3\\}$，对于任意的 $x_1\\in A$，都存在 $x_2\\in A$，使得 $x_2^2-3x_2>mx_1+1$ 成立，其中 $m<0$，则 $m$ 的范围是 $\\underline{\\qquad}$。",
+      "root": {
+        "facts": [
+          "A = {x∈ℝ | 1 ≤ x ≤ 3}",
+          "∀x_1∈A: ∃x_2∈A: x_2^2-3*x_2 > m*x_1+1",
+          "m < 0"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "m"
+          }
+        ],
+        "children": []
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-monotonicity-extremum"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(-oo, -1)",
+              "latex": "\\left(-\\infty, -1\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "NegativeInfinity"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(-oo, -1)",
+            "latex": "\\left(-\\infty, -1\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 3,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}
