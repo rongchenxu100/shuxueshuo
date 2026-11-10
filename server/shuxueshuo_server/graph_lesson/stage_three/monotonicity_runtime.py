@@ -236,12 +236,13 @@ def select(context, contract, primary):
                 and (name != 'definition' or context['goal']['kind'] == 'prove_monotonicity_on_interval')}
     piecewise_note = (
         '例如 $|x|$：$x<0$ 时写成 $-x$，$x\\geq0$ 时写成 $x$；分别判断，再检查分界处。'
-        if family == 'absolute' else
+        if family != 'explicit_piecewise' else
         '按原定义的各段分别判断增减，再检查跨段像的次序；同向箭头不能直接拼成整体结论。')
     cues = [
         {'value': 'structure', 'label': '一次、二次、反比例等常见函数及其复合函数',
          'note': '先用已知的增减规律；复合函数逐层判断。例如先看 $u=x^2$，再看 $y=\\sqrt{u}$。'},
-        {'value': 'piecewise', 'label': '分段给出或含绝对值，需要分段判断',
+        {'value': 'piecewise', 'label': ('分段给出或含绝对值，需要分段判断' if family == 'explicit_piecewise'
+                                        else '含绝对值，需要按符号分段'),
          'note': piecewise_note},
         {'value': 'definition', 'label': '题目要求用定义证明单调性',
          'note': '任取 $x_1<x_2$，判断 $f(x_2)-f(x_1)$ 的正负。例如对 $f(x)=2x+1$，差为 $2(x_2-x_1)>0$。'},

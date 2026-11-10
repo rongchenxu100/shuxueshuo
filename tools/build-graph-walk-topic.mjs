@@ -14,7 +14,7 @@ import {domainNumberLineGraph, endpointChecksHTML} from '../site/assets/graph-wa
 import {replayAnswer} from '../site/assets/graph-walk/walk-replay.mjs';
 import {projectFigures} from '../site/assets/practice/question-figures.mjs';
 import {choiceFigures} from '../site/assets/practice/figure-choices.mjs';
-import {preserveCourseIdentity} from './lib/graph-walk-course-identity.mjs';
+import {requireCourseIdentity} from './lib/graph-walk-course-identity.mjs';
 
 const assert = (ok, message) => { if (!ok) throw Error(message); };
 const json = async file => JSON.parse(await fs.readFile(file, 'utf8'));
@@ -181,7 +181,7 @@ export function compileCourse(source, evidence, graph, nodes, previous = null) {
     bundle.bundleVersion = digest(bundle);
     projectGraphWalkTeaching(bundle, nodes);
   }
-  bundle = preserveCourseIdentity(bundle, previous);
+  bundle = requireCourseIdentity(bundle, previous);
   projectGraphWalkTeaching(bundle, nodes);
   const routeIds = Object.keys(bundle.routes);
   assert(routeIds.length > 0, 'Static course requires a verified route');

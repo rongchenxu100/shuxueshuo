@@ -115,6 +115,10 @@ set -euo pipefail
 
 主站 Nginx 与本地网站对全部静态文件设置 `Cache-Control: no-cache`，浏览器每次凭 ETag / Last-Modified 协商，未变化时得到 304。因此改共享脚本或样式只改它本身，不需要改引用它的页面。API 保留自身的缓存策略。Nginx 配置变化时复制到 `/etc/nginx/conf.d/` 后 `nginx -t` 并 reload。
 
+共享教学流程变化后，应先在配置好独立测试数据库的环境重建 `build-graph-walk-topic.mjs`，再运行 `build-public-knowledge-graph.mjs` 和 `build-topic-overviews.mjs`，提交生成产物。只重建知识索引不能更新课程的教学证据；发布检查会拒绝陈旧证据。
+
+课包重新验证产生的运行编号、选项排列，以及说明文字或辅助图的增减标记，不应改变原题的步骤编号和练习兼容版本。构建器先核对题目、步骤、作答规则和图形条件，再沿用原有公开编号，同时保留本次验证的真实运行证据。真正改变条件、选项含义、答案或步骤时，构建器会要求新的课程 ID；不能删除旧课包来绕过检查，也不能用手工统一修改 JSON version 的方式解决。发布后仍须完成上述 `verify-release`，保证站点、应用和学习库来自同一次发布。
+
 `/knowledge-next/` 的服务器重定向保留查询参数，不依赖 JavaScript。生成的跳转页另有 `noscript` 下的 `meta refresh`；正常启用 JavaScript 时继续保留查询参数、锚点及图谱上下文。纯静态托管或直接访问旧节点别名页且禁用 JavaScript 时，HTML 只能跳到预设目标（含预设条目），不能动态转发任意当前查询参数。
 
 `publish-learning` 在服务器仅允许当前版本的幂等重发，版本升级统一走 `deploy`。

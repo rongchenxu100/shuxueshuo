@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "problemId": "function-monotonicity-a04-v4",
-  "bundleVersion": "[\"stream\",\"48ca6ad3c96ea57c702ddebbd110af99c8babe1e04a9b26bd36f7de85e222dda\",\"a34e9f4eb946703d0a3b9c0cef8eccb3bba405da169bb0ad5506916d285f087c\",\"5d5e3fd0fe3448d6bb700904b509e5c4\",\"/root/goals/0\"]",
+  "bundleVersion": "[\"stream\",\"ece0a41c227d00b0c1395c41990344a015dd0c77d8f88b4773c9f701ca2c3fdb\",\"ac2212b8b223b36a2d71f60738824941113477463e000b68a986ba55b6b6b780\",\"2496cfe78cb94ffc87c4f502c842053d\",\"/root/goals/0\"]",
   "status": "completed",
   "routes": [
     "monotonicity-structure"
@@ -26,56 +26,56 @@
       }
     },
     {
-      "decision": "91df35c8754e4a57f2665feb#1",
+      "decision": "43c22779ada1fe795e41b5b0#1",
       "answer": [
         "o1",
         "o2"
       ]
     },
     {
-      "decision": "e27b3305e7a0e5bab6ea2435#1",
+      "decision": "038d7f05b666b4dc4c28f8cc#1",
       "answer": [
         "s1o1",
         "s2o1"
       ]
     },
     {
-      "decision": "835706b2504f2e005ad90922#1",
+      "decision": "b209eafc281dede2600170fc#1",
       "answer": [
         "s1o1",
         "s2o1"
       ]
     },
     {
-      "decision": "7aa408589e679e0d8de7a582#1",
+      "decision": "0d9ea3c401411b4fc2c2757e#1",
       "answer": "o1"
     },
     {
-      "decision": "0c886b6078b60b5a3ff2fe3e#1",
+      "decision": "87fd527fc2042a039ba7d7a5#1",
       "answer": "o1"
     },
     {
-      "decision": "0c886b6078b60b5a3ff2fe3e#2",
+      "decision": "87fd527fc2042a039ba7d7a5#2",
       "answer": "o1"
     },
     {
-      "decision": "c034ae5e4b8b2787b77856f5#1",
+      "decision": "b01abaade2ce4f0475d7d828#1",
       "answer": "o1"
     },
     {
-      "decision": "c034ae5e4b8b2787b77856f5#2",
+      "decision": "b01abaade2ce4f0475d7d828#2",
       "answer": "o1"
     },
     {
-      "decision": "c034ae5e4b8b2787b77856f5#3",
+      "decision": "b01abaade2ce4f0475d7d828#3",
       "answer": "o1"
     },
     {
-      "decision": "c034ae5e4b8b2787b77856f5#4",
+      "decision": "b01abaade2ce4f0475d7d828#4",
       "answer": "o1"
     },
     {
-      "decision": "d6ee364c7471261de52a30be#1",
+      "decision": "59bb943190e6fe55cd7ab523#1",
       "answer": "o1"
     }
   ]

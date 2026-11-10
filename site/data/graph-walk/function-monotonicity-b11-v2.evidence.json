@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
-    "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
-    "input_sha256": "264f9b5a679a5c4c9c7f9235fb8db80007e1fc4f45a837cc3e4b5519deadd567",
-    "checkpoint_sha256": "45aaff7e884a455153ea0a743b15b2b1c06f934ff1ceca77db87678eb0985d62",
-    "result_sha256": "2bff2d4956e2567920e927477d0aae97f4653ea12db626adf27b032d1227105e",
-    "stage_one_sha256": "c309204cc7a43652f4c3627e4222ee23c8f210f3a0f699a8597c9a436071f3dc",
-    "stage_two_sha256": "136ea19f8e5d40e71465ed0dfde57bd30a2e872711d7fa6cd97b38c79033f90b",
+    "run_id": "893bdbffe81241eb899e30d66d8447b7",
+    "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
+    "input_sha256": "77e6feb164da958cab15c024eab7eee866659143d3037b8a685a08328925d206",
+    "checkpoint_sha256": "29d3320dc7a652991ed83491dadf387941ae9df3f04f3e1a861c5b585c54c184",
+    "result_sha256": "eb5f8b420878c5eb51d7cce11c4250611ee49313663b28df87ba3f9689915fba",
+    "stage_one_sha256": "b51a2dd407c61140f67325818eec62c669ac5f495b8847809e19922f81bc737d",
+    "stage_two_sha256": "f7bc15b50f027c6ba086959177d538ee977c6407ec38f8e8475e18582812c48c",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "aa5689596ca677353231e4d23d0ee67baa8a3c6682f75b41f585de5b6686c2d5",
-    "teaching_revision": "d46ace7fcccae71f0fcc0c755e79f634592c7a0dc8022730b5b2735e66bc3e6a"
+    "teaching_revision": "51175e9e1c22eb782bb17b94d7222945aeda3585516d0385d006aed67665dcf1"
   },
   "lesson": {
     "status": "completed",
@@ -96,7 +96,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-monotonicity-b11-v2//root/goals/0",
-            "graphVersion": "9bd862c9f67533c9c5bd2364642b39ac97053e13f06942802bddf329d404542c",
+            "graphVersion": "b6fc7e9ead06dfc524577dbf7e9ccdc693b0af6e5fa35f9618fba5d1a80b9474",
             "problem": {
               "text": "已知 $f(x)=x^2-2x$，$g(x)=ax-1$。若 $\\forall x1\\in[-1,2]:\\exists x2\\in[-1,2]:f(x1)=g(x2)$，求实数 $a$ 的取值范围。"
             },
@@ -541,12 +541,12 @@
                 }
               ]
             },
-            "bundleVersion": "e59b58b04c6eab983476cf02e4f6a4961f581cb8d39c4a1acab31e5634bf7f38"
+            "bundleVersion": "73156535708451f18f1d9a941dd26c19cd76704ffbe405a5211810912550db82"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-monotonicity-b11-v2//root/goals/0",
-            "bundleVersion": "e59b58b04c6eab983476cf02e4f6a4961f581cb8d39c4a1acab31e5634bf7f38",
+            "bundleVersion": "73156535708451f18f1d9a941dd26c19cd76704ffbe405a5211810912550db82",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -567,10 +567,10 @@
     ]
   },
   "stream": {
-    "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
-    "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
-    "input_sha256": "264f9b5a679a5c4c9c7f9235fb8db80007e1fc4f45a837cc3e4b5519deadd567",
-    "stream_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+    "run_id": "893bdbffe81241eb899e30d66d8447b7",
+    "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
+    "input_sha256": "77e6feb164da958cab15c024eab7eee866659143d3037b8a685a08328925d206",
+    "stream_id": "893bdbffe81241eb899e30d66d8447b7",
     "last_seq": 18,
     "minimum_seq": 1,
     "math_steps": [
@@ -596,15 +596,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "local_check": "passed",
-        "math_step_sha256": "af11463086da8fdc213c713aaee23d33f768863c1a382fec6896a12a93af7c55",
+        "math_step_sha256": "ca66f313b3d3ee77e78213fcff1d29f8fbd16dbdf1570acc84daca7a5c69682f",
         "method_ref": "method-quantified-range-comparison#ranges",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "2c86f449751f16614164ce35559524e07045a9917870de6961a61517f211e83a",
+        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "source_refs": [
           "/steps/1/calls/0"
         ],
@@ -637,15 +637,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "local_check": "passed",
-        "math_step_sha256": "b1a657ee67ef6040dbb1b0bb0f1524e1b336f45c8e849f9d4c916625b4753729",
+        "math_step_sha256": "233bb3608383cfbb95a4462c1b8b1759d5a435ae473c7dbec827b224b211ec56",
         "method_ref": "method-quantified-range-comparison#conditions",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "2c86f449751f16614164ce35559524e07045a9917870de6961a61517f211e83a",
+        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "source_refs": [
           "/steps/2/calls/0"
         ],
@@ -679,15 +679,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "local_check": "passed",
-        "math_step_sha256": "7b473b91e10ef5e1844186fb4753b2091e3c93a653d0c50a8aed61c170f788cb",
+        "math_step_sha256": "92cadee9568d42f29de90dfd92848820e825e4b7487ed5384ed5c680e3700efa",
         "method_ref": "method-quantified-range-comparison#conclude",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "2c86f449751f16614164ce35559524e07045a9917870de6961a61517f211e83a",
+        "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "source_refs": [
           "/steps/3/calls/0"
         ],
@@ -816,30 +816,30 @@
           "expression": "Union(Interval(-oo, -4), Interval(2, oo))",
           "latex": "\\left(-\\infty, -4\\right] \\cup \\left[2, \\infty\\right)"
         },
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "math_steps": [
           {
-            "math_step_sha256": "af11463086da8fdc213c713aaee23d33f768863c1a382fec6896a12a93af7c55",
+            "math_step_sha256": "ca66f313b3d3ee77e78213fcff1d29f8fbd16dbdf1570acc84daca7a5c69682f",
             "ordinal": 1,
             "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
           },
           {
-            "math_step_sha256": "b1a657ee67ef6040dbb1b0bb0f1524e1b336f45c8e849f9d4c916625b4753729",
+            "math_step_sha256": "233bb3608383cfbb95a4462c1b8b1759d5a435ae473c7dbec827b224b211ec56",
             "ordinal": 2,
             "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
           },
           {
-            "math_step_sha256": "7b473b91e10ef5e1844186fb4753b2091e3c93a653d0c50a8aed61c170f788cb",
+            "math_step_sha256": "92cadee9568d42f29de90dfd92848820e825e4b7487ed5384ed5c680e3700efa",
             "ordinal": 3,
             "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
           }
         ],
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "4fdb971190635ab8c24deb01c9ad9c5b43a0d7c8bd1d56c5f7a469cab7fbfdaf",
-        "verified_route_sha256": "9c9f9d4c01c66683144d7e3cfa96a46a048a133527485db04d2ce52ad9cd820f"
+        "task_id": "7fd66abb56a1a5ac6ed4a0fe317d1e4a5f9e614dcfa61613a1641df8ca4334ee",
+        "verified_route_sha256": "a04f49ff5b79ce5cfcf1e31b983605f13a2c11c90c8bba789623fe76689d77ed"
       }
     ],
     "qa": [],
@@ -968,31 +968,31 @@
         "route_id": "quantified-range-comparison",
         "step_id": "39e5646dcb-quantified-range-comparison-001-ranges",
         "ordinal": 1,
-        "math_step_sha256": "af11463086da8fdc213c713aaee23d33f768863c1a382fec6896a12a93af7c55",
+        "math_step_sha256": "ca66f313b3d3ee77e78213fcff1d29f8fbd16dbdf1570acc84daca7a5c69682f",
         "status": "interactive",
-        "interaction_id": "8c1d20bc26bc469daa1a7bbf"
+        "interaction_id": "c4f2361c936146b20243d17c"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "quantified-range-comparison",
         "step_id": "39e5646dcb-quantified-range-comparison-002-conditions",
         "ordinal": 2,
-        "math_step_sha256": "b1a657ee67ef6040dbb1b0bb0f1524e1b336f45c8e849f9d4c916625b4753729",
+        "math_step_sha256": "233bb3608383cfbb95a4462c1b8b1759d5a435ae473c7dbec827b224b211ec56",
         "status": "interactive",
-        "interaction_id": "5605d222a4209f0ea13b8a14"
+        "interaction_id": "c9612cbe2e77a3b4856f4bd6"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "quantified-range-comparison",
         "step_id": "39e5646dcb-quantified-range-comparison-003-conclude",
         "ordinal": 3,
-        "math_step_sha256": "7b473b91e10ef5e1844186fb4753b2091e3c93a653d0c50a8aed61c170f788cb",
+        "math_step_sha256": "92cadee9568d42f29de90dfd92848820e825e4b7487ed5384ed5c680e3700efa",
         "status": "interactive",
-        "interaction_id": "a6435ec3c173f84564854519"
+        "interaction_id": "0267aba4141696bb1e6ec677"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "2c86f449751f16614164ce35559524e07045a9917870de6961a61517f211e83a",
+    "revisions_ref": "868811de19bf4954a14f259ea328ebaf10a54976bf83f05bd54775fa79e23810",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -1159,10 +1159,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "8c1d20bc26bc469daa1a7bbf",
-        "interaction_revision": "89484b52623831dfba1d977d5543b2aca0535528e86e876bb5ed9e08d8caa764",
-        "interaction_sha256": "a8acea5084705c510c7d305b2301a0375244cd4cfa272982d86ef0dc2abcf4f9",
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "interaction_id": "c4f2361c936146b20243d17c",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "104ec3836ab97cec333e6632c64569308cf013f688564280f9dcdf713c3fc19f",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "parts": [
           {
             "card_group": "side_f",
@@ -1190,14 +1190,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#1",
+            "id": "c4f2361c936146b20243d17c#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$f(x)=\\left(x - 1\\right)^2-1$",
-                  "value": "o1"
-                },
                 {
                   "label": "$f(x)=\\left(x + 1\\right)^2+1$",
                   "value": "o2"
@@ -1205,6 +1201,10 @@
                 {
                   "label": "$f(x)=x^{2} - 2 x + 1$",
                   "value": "o3"
+                },
+                {
+                  "label": "$f(x)=\\left(x - 1\\right)^2-1$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1366,17 +1366,17 @@
                 ]
               }
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#2",
+            "id": "c4f2361c936146b20243d17c#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\{-1\\}$",
-                  "value": "o3"
-                },
-                {
                   "label": "$[3,-1]$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\{-1\\}$",
+                  "value": "o3"
                 },
                 {
                   "label": "$[-1,3]$",
@@ -1430,29 +1430,29 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#3",
+            "id": "c4f2361c936146b20243d17c#3",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$a=0$",
-                  "value": "o2"
+                  "label": "$\\varnothing$",
+                  "value": "o5"
                 },
                 {
                   "label": "$a\\in \\mathbb R$",
                   "value": "o4"
                 },
                 {
-                  "label": "$a > 0$",
-                  "value": "o1"
-                },
-                {
-                  "label": "$\\varnothing$",
-                  "value": "o5"
+                  "label": "$a=0$",
+                  "value": "o2"
                 },
                 {
                   "label": "$a < 0$",
                   "value": "o3"
+                },
+                {
+                  "label": "$a > 0$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1632,7 +1632,7 @@
                 ]
               }
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#4",
+            "id": "c4f2361c936146b20243d17c#4",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1696,7 +1696,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#5",
+            "id": "c4f2361c936146b20243d17c#5",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1705,20 +1705,20 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$a\\in \\mathbb R$",
-                  "value": "o4"
-                },
-                {
-                  "label": "$\\varnothing$",
-                  "value": "o5"
-                },
-                {
                   "label": "$a=0$",
                   "value": "o1"
                 },
                 {
                   "label": "$a > 0$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\varnothing$",
+                  "value": "o5"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o4"
                 }
               ],
               "type": "choice"
@@ -1768,7 +1768,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#6",
+            "id": "c4f2361c936146b20243d17c#6",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1828,7 +1828,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#7",
+            "id": "c4f2361c936146b20243d17c#7",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1837,12 +1837,12 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$a\\in \\mathbb R$",
-                  "value": "o4"
-                },
-                {
                   "label": "$\\varnothing$",
                   "value": "o5"
+                },
+                {
+                  "label": "$a\\in \\mathbb R$",
+                  "value": "o4"
                 },
                 {
                   "label": "$a > 0$",
@@ -2030,21 +2030,21 @@
                 ]
               }
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#8",
+            "id": "c4f2361c936146b20243d17c#8",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$[- a - 1,2 a - 1]$",
-                  "value": "o2"
+                  "label": "$[2 a - 1,- a - 1]$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\{2 a - 1\\}$",
                   "value": "o3"
                 },
                 {
-                  "label": "$[2 a - 1,- a - 1]$",
-                  "value": "o1"
+                  "label": "$[- a - 1,2 a - 1]$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -2094,25 +2094,25 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "8c1d20bc26bc469daa1a7bbf#9",
+            "id": "c4f2361c936146b20243d17c#9",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\end{cases}$",
-                  "value": "o2"
+                  "label": "$\\begin{cases}{[2 a - 1,- a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[- a - 1,2 a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
+                  "value": "o3"
                 },
                 {
-                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
-                  "value": "o1"
+                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\end{cases}$",
+                  "value": "o2"
                 },
                 {
                   "label": "$\\begin{cases}\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
                   "value": "o4"
                 },
                 {
-                  "label": "$\\begin{cases}{[2 a - 1,- a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[- a - 1,2 a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
-                  "value": "o3"
+                  "label": "$\\begin{cases}{[- a - 1,2 a - 1]},& a\\in \\left(0, \\infty\\right)\\\\\\{-1\\},& a=0\\\\{[2 a - 1,- a - 1]},& a\\in \\left(-\\infty, 0\\right)\\end{cases}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2138,11 +2138,11 @@
           }
         ],
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "af11463086da8fdc213c713aaee23d33f768863c1a382fec6896a12a93af7c55",
+            "math_step_sha256": "ca66f313b3d3ee77e78213fcff1d29f8fbd16dbdf1570acc84daca7a5c69682f",
             "step_id": "39e5646dcb-quantified-range-comparison-001-ranges"
           }
         ],
@@ -2150,10 +2150,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "5605d222a4209f0ea13b8a14",
-        "interaction_revision": "89484b52623831dfba1d977d5543b2aca0535528e86e876bb5ed9e08d8caa764",
-        "interaction_sha256": "67cf06d61ec9f38d3230e0634f0dc84db7c21572efe78911bad5efef13cf8729",
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "interaction_id": "c9612cbe2e77a3b4856f4bd6",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "04625c6ab1faade3e2eb3234ef60f26acbec686ad04666de9c8855fac94a90f9",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "parts": [
           {
             "card_group": "solve",
@@ -2181,7 +2181,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5605d222a4209f0ea13b8a14#1",
+            "id": "c9612cbe2e77a3b4856f4bd6#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2190,12 +2190,12 @@
                   "value": "o3"
                 },
                 {
-                  "label": "$f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }$",
-                  "value": "o1"
-                },
-                {
                   "label": "$g\\text{ 的值域 }\\subseteq f\\text{ 的值域 }$",
                   "value": "o2"
+                },
+                {
+                  "label": "$f\\text{ 的值域 }\\subseteq g\\text{ 的值域 }$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2245,7 +2245,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5605d222a4209f0ea13b8a14#2",
+            "id": "c9612cbe2e77a3b4856f4bd6#2",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2254,12 +2254,12 @@
                   "value": "o2"
                 },
                 {
-                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow a \\geq 2$",
-                  "value": "o3"
-                },
-                {
                   "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
                   "value": "o1"
+                },
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow a \\geq 2$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2309,21 +2309,21 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5605d222a4209f0ea13b8a14#3",
+            "id": "c9612cbe2e77a3b4856f4bd6#3",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow a \\geq 2$",
-                  "value": "o1"
+                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow \\varnothing$",
+                  "value": "o3"
                 },
                 {
                   "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
                   "value": "o2"
                 },
                 {
-                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow \\varnothing$",
-                  "value": "o3"
+                  "label": "$- a - 1 \\leq -1 \\wedge 2 a - 1 \\geq 3\\Rightarrow a \\geq 2$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -2373,17 +2373,17 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "5605d222a4209f0ea13b8a14#4",
+            "id": "c9612cbe2e77a3b4856f4bd6#4",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
-                  "value": "o2"
-                },
-                {
                   "label": "$2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow a \\leq -4$",
                   "value": "o1"
+                },
+                {
+                  "label": "$\\text{本支覆盖条件不成立}\\Rightarrow \\varnothing$",
+                  "value": "o2"
                 },
                 {
                   "label": "$2 a - 1 \\leq -1 \\wedge - a - 1 \\geq 3\\Rightarrow \\varnothing$",
@@ -2413,11 +2413,11 @@
           }
         ],
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "b1a657ee67ef6040dbb1b0bb0f1524e1b336f45c8e849f9d4c916625b4753729",
+            "math_step_sha256": "233bb3608383cfbb95a4462c1b8b1759d5a435ae473c7dbec827b224b211ec56",
             "step_id": "39e5646dcb-quantified-range-comparison-002-conditions"
           }
         ],
@@ -2425,10 +2425,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "a6435ec3c173f84564854519",
-        "interaction_revision": "89484b52623831dfba1d977d5543b2aca0535528e86e876bb5ed9e08d8caa764",
-        "interaction_sha256": "f646119e58d3d019c0fe43928893d6a9683c8046a6d1eac5283e2e2bd6db32c0",
-        "lesson_version": "6088cf709429b69ca76fba492c82e3a2da373f2cb9a801df867d9a9095ee271b",
+        "interaction_id": "0267aba4141696bb1e6ec677",
+        "interaction_revision": "7db52c96f7ab22052df0893f4103937505a4a2fc6eac942fc2792a5590538e7f",
+        "interaction_sha256": "174e4fb31e476c84160db5a928fdb6b6e03c26e20fc15ab13c3c9ef1f776660a",
+        "lesson_version": "734a35fd2eef70f77af57157656b6ce9775945dfdbd618b5c92a4bb0e10375df",
         "parts": [
           {
             "card_group": "solve",
@@ -2456,7 +2456,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "a6435ec3c173f84564854519#1",
+            "id": "0267aba4141696bb1e6ec677#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2496,11 +2496,11 @@
           }
         ],
         "route_id": "quantified-range-comparison",
-        "run_id": "6f91c031bdd3406ba4cbc1baf0c17178",
+        "run_id": "893bdbffe81241eb899e30d66d8447b7",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "7b473b91e10ef5e1844186fb4753b2091e3c93a653d0c50a8aed61c170f788cb",
+            "math_step_sha256": "92cadee9568d42f29de90dfd92848820e825e4b7487ed5384ed5c680e3700efa",
             "step_id": "39e5646dcb-quantified-range-comparison-003-conclude"
           }
         ],

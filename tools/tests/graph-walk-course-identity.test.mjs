@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {preserveCourseIdentity} from '../lib/graph-walk-course-identity.mjs';
+import {preserveCourseIdentity, requireCourseIdentity} from '../lib/graph-walk-course-identity.mjs';
 import {pageContract} from '../../site/assets/learning/practice-compatibility.mjs';
 import {createState, currentDecision, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 import {replayAnswer} from '../../site/assets/graph-walk/walk-replay.mjs';
@@ -38,7 +38,8 @@ function rerun(previous) {
   return current;
 }
 
-for (const pid of ['function-concepts-q23b-v2', 'function-representations-b11-v1', 'function-representations-b11-v2']) {
+for (const pid of ['function-concepts-q23b-v2', 'function-representations-b11-v1', 'function-representations-b11-v2',
+  'function-monotonicity-a03-v2', 'function-monotonicity-a08-v1', 'function-monotonicity-c01-v1']) {
   test(`${pid}: re-verification preserves all saved answers without rewriting proof identity`, () => {
     const previous = read(pid), fresh = rerun(previous), original = structuredClone(fresh);
     const result = preserveCourseIdentity(fresh, previous);
@@ -92,9 +93,57 @@ for (const [name, change] of Object.entries({
 })) test(`a genuine ${name} change does not reuse the published identity`, () => {
   const current = rerun(base); change(current);
   assert.equal(preserveCourseIdentity(current, base), current);
+  if (name !== 'identity') assert.throws(() => requireCourseIdentity(current, base), /allocate a new course ID/);
+});
+
+test('choice explanation changes preserve answers and keep the new explanation', () => {
+  const current = rerun(base);
+  const step = decisions(current).find(s => s.source === 'stream' && s.interaction.type === 'choice');
+  step.interaction.options.forEach(option => { option.note = '更清楚的说明，不改变选项含义。'; });
+  const updated = requireCourseIdentity(current, base);
+  assert.deepEqual(pageContract(updated), pageContract(base));
+  assert.ok(decisions(updated).some(step => step.interaction.options?.some(option => option.note === '更清楚的说明，不改变选项含义。')));
 });
 
 test('a new course builds without a previous publication', () => {
   const current = rerun(base);
   assert.equal(preserveCourseIdentity(current, null), current);
+});
+
+test('graph title exponent typography preserves answers, but changed conditions do not', () => {
+  const previous = read('function-concepts-q23b-v2');
+  for (const step of decisions(previous)) {
+    if (step.graph?.params?.title) step.graph.params.title = step.graph.params.title.replace('x²', 'x^2');
+  }
+  const current = rerun(previous);
+  const step = decisions(current).find(step => step.graph?.params?.title?.includes('x^2'));
+  assert.ok(step);
+  step.graph.params.title = step.graph.params.title.replace('x^2', 'x²');
+  const updated = requireCourseIdentity(current, previous);
+  assert.deepEqual(pageContract(updated), pageContract(previous));
+  assert.ok(decisions(updated).some(step => step.graph?.params?.title?.includes('x²')));
+  step.graph.params.title = step.graph.params.title.replace('x²', 'x³');
+  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
+});
+
+test('helper-plot trend annotations preserve answers without ignoring changed plot geometry', () => {
+  const previous = read('function-monotonicity-a01-v2'), current = rerun(previous);
+  const step = decisions(current).find(step => step.graph?.params);
+  assert.ok(step);
+  step.graph.caption = '图中箭头表示前面已确认的增减方向。';
+  step.graph.params.description = '增加区间标记。';
+  step.graph.params.interval_marks = [{from: 0, to: 1, trend: 'increasing'}];
+  const updated = requireCourseIdentity(current, previous);
+  assert.deepEqual(pageContract(updated), pageContract(previous));
+  step.graph.params.xMin = -100;
+  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
+});
+
+test('other diagram captions may contain conditions and must not be ignored', () => {
+  const previous = read('function-monotonicity-a01-v2');
+  const step = decisions(previous).find(step => step.source === 'stream');
+  step.graph = {kind: 'number_line', caption: 'x > 0', params: {points: [0]}};
+  const current = rerun(previous);
+  decisions(current).find(step => step.graph?.kind === 'number_line').graph.caption = 'x < 0';
+  assert.throws(() => requireCourseIdentity(current, previous), /allocate a new course ID/);
 });

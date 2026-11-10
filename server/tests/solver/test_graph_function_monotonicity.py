@@ -231,6 +231,9 @@ def test_six_source_questions_and_every_native_interaction():
         assert '不展开' in selection['d3']['verdicts']['definition']['message']
         assert all(b['target'] != 'method-monotonicity-definition' for b in selection['selection']['branches'])
         assert all(cue['note'] for cue in selection['d3']['interaction']['checks'][0]['options'])
+        piecewise_cue = next(cue for cue in selection['d3']['interaction']['checks'][0]['options']
+                             if cue['value'] == 'piecewise')
+        assert piecewise_cue['label'] == '含绝对值，需要按符号分段'
         phases = ['inner', 'answer']
         if m['family'] == 'polynomial': phases += ['difference']
         if m['family'] in ('sqrt', 'reciprocal_sqrt'): phases += ['composition']

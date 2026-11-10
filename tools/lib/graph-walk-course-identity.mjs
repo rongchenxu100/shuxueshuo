@@ -1,7 +1,32 @@
 import {pageContract, stableJson} from '../../site/assets/learning/practice-compatibility.mjs';
 
 const same = (left, right) => stableJson(left) === stableJson(right);
-const optionContent = ({value, ...content}) => content;
+// SVG titles may use Unicode exponents instead of caret notation. Normalize
+// only that typography for comparison; keep conditions and geometry strict.
+function visualContent(value) {
+  if (Array.isArray(value)) return value.map(visualContent);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key,
+    key === 'title' && typeof item === 'string'
+      ? item.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]+/g, exponent => '^' + [...exponent]
+        .map(char => '0123456789+-'['⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻'.indexOf(char)]).join(''))
+      : visualContent(item)]));
+  return value;
+}
+// Notes help explain a choice but do not change its value or grading. Match
+// them with the same tolerance as pageContract, retaining the fresh wording.
+const optionContent = ({value, note, hint, description, ...content}) => visualContent(content);
+
+function instructionalGraph(graph) {
+  if (graph?.kind !== 'piecewise_curve' || !Array.isArray(graph.params?.segments)) return visualContent(graph);
+  // Trend markers repeat earlier confirmed answers on the helper plot. Adding
+  // that guidance does not change the plotted function or the current answer.
+  const {caption, ...result} = graph;
+  if (graph.params) {
+    const {description, interval_marks, ...params} = graph.params;
+    result.params = params;
+  }
+  return visualContent(result);
+}
 
 // A fresh verified execution has new proof/interaction identities and shuffles
 // its choices. Neither is a reason to invalidate a published student's answers.
@@ -10,6 +35,7 @@ const optionContent = ({value, ...content}) => content;
 function alignOptions(current, previous, answers) {
   if (!Array.isArray(current) || !Array.isArray(previous) || current.length !== previous.length) return null;
   if ([current, previous].some(options => new Set(options.map(option => option.value)).size !== options.length)) return null;
+  if (same(current, previous)) return current;
   const remaining = [...current], result = [];
   for (const old of previous) {
     const matches = remaining.filter(option => same(optionContent(option), optionContent(old)));
@@ -26,9 +52,10 @@ function alignOptions(current, previous, answers) {
 function alignDecision(current, previous) {
   // A graph or source diagram can supply conditions that are absent from the
   // question string. Keep those just as strict as the text/answer comparison.
-  for (const key of ['graph', 'stem_board', 'question_note', 'source_regions', 'figure_choices',
+  if (!same(instructionalGraph(current.graph), instructionalGraph(previous.graph))) return null;
+  for (const key of ['stem_board', 'question_note', 'source_regions', 'figure_choices',
     'condition_number_lines', 'completion_number_line', 'endpoint_checks']) {
-    if (!same(current[key], previous[key])) return null;
+    if (!same(visualContent(current[key]), visualContent(previous[key]))) return null;
   }
   const next = structuredClone(current), answers = new Map();
   const component = next.interaction, old = previous.interaction;
@@ -82,4 +109,12 @@ export function preserveCourseIdentity(current, previous) {
   }
   candidate.bundleVersion = previous.bundleVersion;
   return candidate;
+}
+
+export function requireCourseIdentity(current, previous) {
+  const aligned = preserveCourseIdentity(current, previous);
+  if (previous?.problemId === current.problemId && aligned === current) {
+    throw Error(`${current.problemId}: teaching contract changed; allocate a new course ID before rebuilding`);
+  }
+  return aligned;
 }

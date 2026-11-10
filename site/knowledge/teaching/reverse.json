@@ -4379,28 +4379,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     },
     {
@@ -4885,28 +4885,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     },
     {
@@ -9599,56 +9599,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "501185cbda4284f5dfa302a4#1",
+      "step": "2a02e9ff44a2c523e1050a4c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "11a4d94ef7d1e021046a19d3#1",
+      "step": "adde48515103155bb87aa564#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a4d4ae71f44bee4097f36245#1",
+      "step": "1f966b7c8745cbdb1285414a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "37e3c82ccb7b74e47bcc8d78#1",
+      "step": "15d3346eedf6a4d9cc09301c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "6c8d60d2af4445c3bcba08e0#1",
+      "step": "a264de23ac5d66b891cc7757#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "baf52123972647394588ec35#1",
+      "step": "01d012dbc61ee3f812d7227f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "91df35c8754e4a57f2665feb#1",
+      "step": "43c22779ada1fe795e41b5b0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "e27b3305e7a0e5bab6ea2435#1",
+      "step": "038d7f05b666b4dc4c28f8cc#1",
       "conditions": {}
     }
   ],
@@ -9986,56 +9986,56 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "501185cbda4284f5dfa302a4#1",
+      "step": "2a02e9ff44a2c523e1050a4c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "11a4d94ef7d1e021046a19d3#1",
+      "step": "adde48515103155bb87aa564#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a4d4ae71f44bee4097f36245#1",
+      "step": "1f966b7c8745cbdb1285414a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "37e3c82ccb7b74e47bcc8d78#1",
+      "step": "15d3346eedf6a4d9cc09301c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "6c8d60d2af4445c3bcba08e0#1",
+      "step": "a264de23ac5d66b891cc7757#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "baf52123972647394588ec35#1",
+      "step": "01d012dbc61ee3f812d7227f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "91df35c8754e4a57f2665feb#1",
+      "step": "43c22779ada1fe795e41b5b0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "e27b3305e7a0e5bab6ea2435#1",
+      "step": "038d7f05b666b4dc4c28f8cc#1",
       "conditions": {}
     },
     {
@@ -10786,21 +10786,21 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "91df35c8754e4a57f2665feb#1",
+      "step": "43c22779ada1fe795e41b5b0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "e27b3305e7a0e5bab6ea2435#1",
+      "step": "038d7f05b666b4dc4c28f8cc#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     }
   ],
@@ -11005,63 +11005,63 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "501185cbda4284f5dfa302a4#1",
+      "step": "2a02e9ff44a2c523e1050a4c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "11a4d94ef7d1e021046a19d3#1",
+      "step": "adde48515103155bb87aa564#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "a4d4ae71f44bee4097f36245#1",
+      "step": "1f966b7c8745cbdb1285414a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "37e3c82ccb7b74e47bcc8d78#1",
+      "step": "15d3346eedf6a4d9cc09301c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "6c8d60d2af4445c3bcba08e0#1",
+      "step": "a264de23ac5d66b891cc7757#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "baf52123972647394588ec35#1",
+      "step": "01d012dbc61ee3f812d7227f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "91df35c8754e4a57f2665feb#1",
+      "step": "43c22779ada1fe795e41b5b0#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "e27b3305e7a0e5bab6ea2435#1",
+      "step": "038d7f05b666b4dc4c28f8cc#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     }
   ],
@@ -11084,28 +11084,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     }
   ],
@@ -11415,28 +11415,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     },
     {
@@ -11893,28 +11893,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     },
     {
@@ -16923,28 +16923,28 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "b7ed27e7dd4cfb0528d8bcb8#1",
+      "step": "9dd75bc406494ff56fd2fb8a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "f3f3d55aed55c00b9e73b4ae#1",
+      "step": "a14d08a55d651dd99d2dffcb#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "617ed7831b8f72727a5af252#1",
+      "step": "0101f7456b3f614ecd272e0f#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "835706b2504f2e005ad90922#1",
+      "step": "b209eafc281dede2600170fc#1",
       "conditions": {}
     },
     {
@@ -20668,168 +20668,168 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "485de4cc05c472bcbea07246#1",
+      "step": "5be736429f5e10e35ba5e019#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "bb2f7431e91b0488ab6bf96c#1",
+      "step": "675653da84ebdefc96057428#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#1",
+      "step": "02a3c8a5eb2167a560dfd957#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#2",
+      "step": "02a3c8a5eb2167a560dfd957#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "f8ef35c0dcd31ae55f14606c#1",
+      "step": "3747b5c92bde1865c91bf81b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#1",
+      "step": "5b9264694df0240a742c9779#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#2",
+      "step": "5b9264694df0240a742c9779#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1ed69245016c267028a369b9#1",
+      "step": "62d02cf6aaac379a0ecd4e10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#1",
+      "step": "c7cbc96fede19b951d6d717a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#2",
+      "step": "c7cbc96fede19b951d6d717a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "9d019525bf761ffc1d1f03b5#1",
+      "step": "0a50d99ec794f243b12d7810#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#1",
+      "step": "4f310f8df6633256e139c621#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#2",
+      "step": "4f310f8df6633256e139c621#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "7aa408589e679e0d8de7a582#1",
+      "step": "0d9ea3c401411b4fc2c2757e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#1",
+      "step": "87fd527fc2042a039ba7d7a5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#2",
+      "step": "87fd527fc2042a039ba7d7a5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f9e366abccea118eae8a697d#1",
+      "step": "a6af69dbcf0c113481dd7373#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "b199032cbab92f36b264d24d#1",
+      "step": "f4b22d9f7f3bfcce8e97e210#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#1",
+      "step": "7682fc9ff8f165295de99b6a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#2",
+      "step": "7682fc9ff8f165295de99b6a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c58622e8db8dfbc22116a80#1",
+      "step": "8b6cd2088385067be2ef2663#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ec32318c73d2d42145d1ba10#1",
+      "step": "06a8d65aed3a1da96af99fff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
+      "step": "fb281be1c368ecb9e09ca2b8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
+      "step": "fb281be1c368ecb9e09ca2b8#2",
       "conditions": {}
     },
     {
@@ -20866,308 +20866,308 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "485de4cc05c472bcbea07246#1",
+      "step": "5be736429f5e10e35ba5e019#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "bb2f7431e91b0488ab6bf96c#1",
+      "step": "675653da84ebdefc96057428#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#1",
+      "step": "02a3c8a5eb2167a560dfd957#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#2",
+      "step": "02a3c8a5eb2167a560dfd957#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "9a74dd172855ff7bf291c33c#1",
+      "step": "26ee667abc6e3038d02ee4c7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "f8ef35c0dcd31ae55f14606c#1",
+      "step": "3747b5c92bde1865c91bf81b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#1",
+      "step": "5b9264694df0240a742c9779#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#2",
+      "step": "5b9264694df0240a742c9779#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#1",
+      "step": "da52415c2f8041ad33a672f4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#2",
+      "step": "da52415c2f8041ad33a672f4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "7767ad2d0595e46527920f3b#1",
+      "step": "575b8615504b278382de173c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1ed69245016c267028a369b9#1",
+      "step": "62d02cf6aaac379a0ecd4e10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#1",
+      "step": "c7cbc96fede19b951d6d717a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#2",
+      "step": "c7cbc96fede19b951d6d717a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#1",
+      "step": "640a8fafad1272728fbb7212#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#2",
+      "step": "640a8fafad1272728fbb7212#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "ad788c83481c56e82073eba2#1",
+      "step": "fb375242f1e206fade6502b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "9d019525bf761ffc1d1f03b5#1",
+      "step": "0a50d99ec794f243b12d7810#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#1",
+      "step": "4f310f8df6633256e139c621#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#2",
+      "step": "4f310f8df6633256e139c621#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#1",
+      "step": "f4f7f5c55234299a1b568da3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#2",
+      "step": "f4f7f5c55234299a1b568da3#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "e4aa9a81dba4e6f605980c25#1",
+      "step": "81b17493b7d08a302e39a414#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "7aa408589e679e0d8de7a582#1",
+      "step": "0d9ea3c401411b4fc2c2757e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#1",
+      "step": "87fd527fc2042a039ba7d7a5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#2",
+      "step": "87fd527fc2042a039ba7d7a5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#1",
+      "step": "b01abaade2ce4f0475d7d828#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#2",
+      "step": "b01abaade2ce4f0475d7d828#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#3",
+      "step": "b01abaade2ce4f0475d7d828#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#4",
+      "step": "b01abaade2ce4f0475d7d828#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "d6ee364c7471261de52a30be#1",
+      "step": "59bb943190e6fe55cd7ab523#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f9e366abccea118eae8a697d#1",
+      "step": "a6af69dbcf0c113481dd7373#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "b199032cbab92f36b264d24d#1",
+      "step": "f4b22d9f7f3bfcce8e97e210#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#1",
+      "step": "7682fc9ff8f165295de99b6a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#2",
+      "step": "7682fc9ff8f165295de99b6a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#1",
+      "step": "ddf62e718b7af87ccf33499e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#2",
+      "step": "ddf62e718b7af87ccf33499e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c58622e8db8dfbc22116a80#1",
+      "step": "8b6cd2088385067be2ef2663#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ec32318c73d2d42145d1ba10#1",
+      "step": "06a8d65aed3a1da96af99fff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
+      "step": "fb281be1c368ecb9e09ca2b8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
+      "step": "fb281be1c368ecb9e09ca2b8#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#1",
+      "step": "646cac1c8d010d435d33dad7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#2",
+      "step": "646cac1c8d010d435d33dad7#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "3d8caaf77570ea9e4593f875#1",
+      "step": "9c1ca38e1d3120175971c432#1",
       "conditions": {}
     },
     {
@@ -21204,308 +21204,308 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "485de4cc05c472bcbea07246#1",
+      "step": "5be736429f5e10e35ba5e019#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "bb2f7431e91b0488ab6bf96c#1",
+      "step": "675653da84ebdefc96057428#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#1",
+      "step": "02a3c8a5eb2167a560dfd957#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "4a6b66987f83b25f919ecc11#2",
+      "step": "02a3c8a5eb2167a560dfd957#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "9a74dd172855ff7bf291c33c#1",
+      "step": "26ee667abc6e3038d02ee4c7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "f8ef35c0dcd31ae55f14606c#1",
+      "step": "3747b5c92bde1865c91bf81b#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#1",
+      "step": "5b9264694df0240a742c9779#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "e7de287295501652f9a3b145#2",
+      "step": "5b9264694df0240a742c9779#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#1",
+      "step": "da52415c2f8041ad33a672f4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#2",
+      "step": "da52415c2f8041ad33a672f4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "7767ad2d0595e46527920f3b#1",
+      "step": "575b8615504b278382de173c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "1ed69245016c267028a369b9#1",
+      "step": "62d02cf6aaac379a0ecd4e10#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#1",
+      "step": "c7cbc96fede19b951d6d717a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "92d7419c4368a925b39d1eb0#2",
+      "step": "c7cbc96fede19b951d6d717a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#1",
+      "step": "640a8fafad1272728fbb7212#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#2",
+      "step": "640a8fafad1272728fbb7212#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "ad788c83481c56e82073eba2#1",
+      "step": "fb375242f1e206fade6502b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "9d019525bf761ffc1d1f03b5#1",
+      "step": "0a50d99ec794f243b12d7810#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#1",
+      "step": "4f310f8df6633256e139c621#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "218af5f2e5a5e2fb7b8c5e52#2",
+      "step": "4f310f8df6633256e139c621#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#1",
+      "step": "f4f7f5c55234299a1b568da3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#2",
+      "step": "f4f7f5c55234299a1b568da3#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "e4aa9a81dba4e6f605980c25#1",
+      "step": "81b17493b7d08a302e39a414#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "7aa408589e679e0d8de7a582#1",
+      "step": "0d9ea3c401411b4fc2c2757e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#1",
+      "step": "87fd527fc2042a039ba7d7a5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "0c886b6078b60b5a3ff2fe3e#2",
+      "step": "87fd527fc2042a039ba7d7a5#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#1",
+      "step": "b01abaade2ce4f0475d7d828#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#2",
+      "step": "b01abaade2ce4f0475d7d828#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#3",
+      "step": "b01abaade2ce4f0475d7d828#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#4",
+      "step": "b01abaade2ce4f0475d7d828#4",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "d6ee364c7471261de52a30be#1",
+      "step": "59bb943190e6fe55cd7ab523#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f9e366abccea118eae8a697d#1",
+      "step": "a6af69dbcf0c113481dd7373#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "b199032cbab92f36b264d24d#1",
+      "step": "f4b22d9f7f3bfcce8e97e210#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#1",
+      "step": "7682fc9ff8f165295de99b6a#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "99dddc8b17d0359b542babb5#2",
+      "step": "7682fc9ff8f165295de99b6a#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#1",
+      "step": "ddf62e718b7af87ccf33499e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#2",
+      "step": "ddf62e718b7af87ccf33499e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "9c58622e8db8dfbc22116a80#1",
+      "step": "8b6cd2088385067be2ef2663#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "ec32318c73d2d42145d1ba10#1",
+      "step": "06a8d65aed3a1da96af99fff#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#1",
+      "step": "fb281be1c368ecb9e09ca2b8#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "0dfbed9a6cd1c98a2d2d8aa4#2",
+      "step": "fb281be1c368ecb9e09ca2b8#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#1",
+      "step": "646cac1c8d010d435d33dad7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#2",
+      "step": "646cac1c8d010d435d33dad7#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "3d8caaf77570ea9e4593f875#1",
+      "step": "9c1ca38e1d3120175971c432#1",
       "conditions": {}
     },
     {
@@ -21542,63 +21542,63 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a03-v2",
       "route": "monotonicity-structure",
-      "step": "9a74dd172855ff7bf291c33c#1",
+      "step": "26ee667abc6e3038d02ee4c7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "7767ad2d0595e46527920f3b#1",
+      "step": "575b8615504b278382de173c#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "ad788c83481c56e82073eba2#1",
+      "step": "fb375242f1e206fade6502b5#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "e4aa9a81dba4e6f605980c25#1",
+      "step": "81b17493b7d08a302e39a414#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "d6ee364c7471261de52a30be#1",
+      "step": "59bb943190e6fe55cd7ab523#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#1",
+      "step": "ddf62e718b7af87ccf33499e#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "087e0717d0b08d49d9ba3f60#2",
+      "step": "ddf62e718b7af87ccf33499e#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#1",
+      "step": "646cac1c8d010d435d33dad7#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "f90daa17779b7a2bf4c0eb8b#2",
+      "step": "646cac1c8d010d435d33dad7#2",
       "conditions": {}
     }
   ],
@@ -21607,70 +21607,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#1",
+      "step": "da52415c2f8041ad33a672f4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#2",
+      "step": "da52415c2f8041ad33a672f4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#1",
+      "step": "640a8fafad1272728fbb7212#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#2",
+      "step": "640a8fafad1272728fbb7212#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#1",
+      "step": "f4f7f5c55234299a1b568da3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#2",
+      "step": "f4f7f5c55234299a1b568da3#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#1",
+      "step": "b01abaade2ce4f0475d7d828#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#2",
+      "step": "b01abaade2ce4f0475d7d828#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#3",
+      "step": "b01abaade2ce4f0475d7d828#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#4",
+      "step": "b01abaade2ce4f0475d7d828#4",
       "conditions": {}
     }
   ],
@@ -21679,70 +21679,70 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#1",
+      "step": "da52415c2f8041ad33a672f4#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a02-v4",
       "route": "monotonicity-structure",
-      "step": "1eed320a10b2eb58ce0dfcff#2",
+      "step": "da52415c2f8041ad33a672f4#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#1",
+      "step": "640a8fafad1272728fbb7212#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a15-v4",
       "route": "monotonicity-structure",
-      "step": "bc3501917b0a8b2f83d02184#2",
+      "step": "640a8fafad1272728fbb7212#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#1",
+      "step": "f4f7f5c55234299a1b568da3#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a12-v4",
       "route": "monotonicity-structure",
-      "step": "129682dcfeea3518f8ffe383#2",
+      "step": "f4f7f5c55234299a1b568da3#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#1",
+      "step": "b01abaade2ce4f0475d7d828#1",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#2",
+      "step": "b01abaade2ce4f0475d7d828#2",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#3",
+      "step": "b01abaade2ce4f0475d7d828#3",
       "conditions": {}
     },
     {
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a04-v4",
       "route": "monotonicity-structure",
-      "step": "c034ae5e4b8b2787b77856f5#4",
+      "step": "b01abaade2ce4f0475d7d828#4",
       "conditions": {}
     }
   ],
@@ -21751,7 +21751,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "1ab90bafaf9e3a39d98d4d00#1",
+      "step": "a728a0ce4aa9ec240052e93f#1",
       "conditions": {}
     },
     {
@@ -21774,7 +21774,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "1ab90bafaf9e3a39d98d4d00#1",
+      "step": "a728a0ce4aa9ec240052e93f#1",
       "conditions": {}
     },
     {
@@ -21797,7 +21797,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "1ab90bafaf9e3a39d98d4d00#1",
+      "step": "a728a0ce4aa9ec240052e93f#1",
       "conditions": {}
     },
     {
@@ -22282,7 +22282,7 @@
       "topic": "function-monotonicity",
       "problem": "function-monotonicity-a01-v2",
       "route": "piecewise-monotonicity",
-      "step": "3d8caaf77570ea9e4593f875#1",
+      "step": "9c1ca38e1d3120175971c432#1",
       "conditions": {}
     }
   ],
