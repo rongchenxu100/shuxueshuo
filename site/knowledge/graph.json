@@ -1122,6 +1122,39 @@
       ]
     },
     {
+      "id": "method-function-symmetry",
+      "kind": "method",
+      "label": "对称关系法",
+      "summary": "利用奇偶性把函数值的输入换成相反数，找出与已知规则或已知组合的关系，直接求出所求函数值或其组合。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "读清已知与所求",
+          "calls": []
+        },
+        {
+          "id": "rewrite",
+          "title": "把输入换成相反数",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "evaluate",
+          "title": "代入已知解析式",
+          "calls": [
+            "method-function-evaluation"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "组合得到所求的值",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-homogeneous",
       "kind": "skill",
       "label": "配齐次式",
@@ -1483,6 +1516,46 @@
         {
           "id": "verify",
           "title": "核验奇偶性结论",
+          "calls": []
+        }
+      ]
+    },
+    {
+      "id": "method-parity-extension",
+      "kind": "method",
+      "label": "对称补全法",
+      "summary": "把目标范围内的输入换成相反数，代入已知一侧的解析式，再用奇偶性换回原输入。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "读清已知与所求范围",
+          "calls": []
+        },
+        {
+          "id": "map",
+          "title": "把输入换到已知一侧",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "substitute",
+          "title": "代入相反输入",
+          "calls": [
+            "method-function-evaluation"
+          ]
+        },
+        {
+          "id": "write-back",
+          "title": "用奇偶性换回原输入",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "写出带范围的结论",
           "calls": []
         }
       ]
@@ -2586,6 +2659,13 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "skill-function-symmetry-transform",
+      "kind": "skill",
+      "label": "利用对称关系变换输入与函数值",
+      "summary": "按题给的奇偶关系，把输入换成相反数，并相应地变换函数值。",
+      "aliases": []
+    },
+    {
       "id": "skill-graph-coordinate-transform",
       "kind": "skill",
       "label": "点坐标与范围变换",
@@ -2872,6 +2952,15 @@
       "summary": "二次不等式的系数里有参数，按参数的不同情况分别写出 x 的解集。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "type-parity-formula",
+      "kind": "problem_type",
+      "label": "根据奇偶性求解析式",
+      "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+      "aliases": [],
+      "status": "active",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "type-parity-parameter",
@@ -4103,6 +4192,30 @@
       ]
     },
     {
+      "id": "method-function-symmetry|calls|method-function-evaluation",
+      "from": "method-function-symmetry",
+      "to": "method-function-evaluation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "evaluate",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-function-symmetry|calls|skill-function-symmetry-transform",
+      "from": "method-function-symmetry",
+      "to": "skill-function-symmetry-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "rewrite",
+          "when": ""
+        }
+      ]
+    },
+    {
       "id": "method-homogeneous|uses|equality-properties",
       "from": "method-homogeneous",
       "to": "equality-properties",
@@ -4385,6 +4498,34 @@
       "occurrences": [
         {
           "step": "compare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-extension|calls|method-function-evaluation",
+      "from": "method-parity-extension",
+      "to": "method-function-evaluation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "substitute",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-extension|calls|skill-function-symmetry-transform",
+      "from": "method-parity-extension",
+      "to": "skill-function-symmetry-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "map",
+          "when": ""
+        },
+        {
+          "step": "write-back",
           "when": ""
         }
       ]
@@ -6498,6 +6639,15 @@
       ]
     },
     {
+      "id": "section-3-2|extends|type-parity-formula",
+      "from": "section-3-2",
+      "to": "type-parity-formula",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-2|extends|type-parity-parameter",
       "from": "section-3-2",
       "to": "type-parity-parameter",
@@ -6661,6 +6811,17 @@
       "occurrences": [
         {
           "entry": "vieta"
+        }
+      ]
+    },
+    {
+      "id": "skill-function-symmetry-transform|uses|function-parity",
+      "from": "skill-function-symmetry-transform",
+      "to": "function-parity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "definition"
         }
       ]
     },
@@ -7286,6 +7447,15 @@
       "id": "type-function-evaluation|candidate|method-function-evaluation",
       "from": "type-function-evaluation",
       "to": "method-function-evaluation",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-evaluation|candidate|method-function-symmetry",
+      "from": "type-function-evaluation",
+      "to": "method-function-symmetry",
       "type": "candidate",
       "occurrences": [
         {}
@@ -7952,6 +8122,24 @@
       "id": "type-parameter-quadratic-solve|involves|quadratic-inequality",
       "from": "type-parameter-quadratic-solve",
       "to": "quadratic-inequality",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-formula|candidate|method-parity-extension",
+      "from": "type-parity-formula",
+      "to": "method-parity-extension",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-formula|involves|function-parity",
+      "from": "type-parity-formula",
+      "to": "function-parity",
       "type": "involves",
       "occurrences": [
         {}

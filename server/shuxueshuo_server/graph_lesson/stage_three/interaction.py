@@ -1709,6 +1709,12 @@ def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'parity_parameter':
         from .parity_parameter_presentation import compile_cards
         return compile_cards(seeds, interaction_id)
+    if rule.get('compiler') == 'parity_extension':
+        from .parity_extension_presentation import compile_cards
+        return compile_cards(seeds, interaction_id)
+    if rule.get('compiler') == 'function_symmetry':
+        from .symmetry_presentation import compile_cards
+        return compile_cards(seeds, interaction_id)
     if rule.get('compiler') == 'monotonicity_parameter':
         from .monotonicity_parameter_presentation import compile_mono_parameter
         return compile_mono_parameter(seeds, interaction_id)

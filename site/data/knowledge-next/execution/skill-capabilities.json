@@ -125,7 +125,9 @@
     "method-function-evaluation": [
       "submethod",
       "reflect_function_input",
-      "form_parity_parameter_identities"
+      "form_parity_parameter_identities",
+      "substitute_parity_extension_rule",
+      "evaluate_symmetric_rule_values"
     ],
     "skill-polynomial-coefficient-comparison": [
       "compare_polynomial_coefficients",
@@ -174,6 +176,11 @@
     "skill-domain-symmetry": [
       "check_domain_symmetry",
       "solve_domain_symmetry_conditions"
+    ],
+    "skill-function-symmetry-transform": [
+      "map_parity_extension_input",
+      "apply_parity_extension_relation",
+      "rewrite_symmetric_inputs"
     ]
   },
   "internal": {
@@ -440,6 +447,18 @@
     ],
     "compare_joint_parity": [
       "method-parity-parameter#compare"
+    ],
+    "prepare_parity_extension": [
+      "method-parity-extension#prepare"
+    ],
+    "confirm_parity_extension": [
+      "method-parity-extension#conclude"
+    ],
+    "prepare_function_symmetry": [
+      "method-function-symmetry#prepare"
+    ],
+    "confirm_function_symmetry": [
+      "method-function-symmetry#conclude"
     ]
   }
 }

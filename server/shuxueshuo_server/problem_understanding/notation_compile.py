@@ -953,8 +953,9 @@ class NotationValidator:
                     pass
             if len(report.objects) == known:
                 break
-        # An explicit Dom(f) declaration introduces an abstract function even
-        # without a globally given formula. Do not infer one from an arbitrary call.
+        # An explicit Dom(f) declaration or parity(f, ...) fact introduces an
+        # abstract function even without a globally given formula. Do not infer
+        # one from an arbitrary call.
         for ast in set_sources:
             if ast[0] == '=':
                 for side in ast[1:]:
@@ -962,6 +963,10 @@ class NotationValidator:
                         name = side[2][1]
                         env.declare(name, 'function')
                         env.abstract_functions.add(name)
+            elif (len(ast) == 4 and ast[:2] == ['call', 'parity'] and ast[2][0] == 'name'
+                  and env.lookup(ast[2][1]) is None and ast[2][1] not in env.functions):
+                env.declare(ast[2][1], 'function')
+                env.abstract_functions.add(ast[2][1])
         # Known-monotonicity inequalities introduce an abstract function before
         # facts bind f(u)□f(v); the body is never a concrete definition.
         for goal in source.get("goals", []):

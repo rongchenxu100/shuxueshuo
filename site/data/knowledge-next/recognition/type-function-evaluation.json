@@ -47,6 +47,20 @@
           "student_cue": 1
         }
       ]
+    },
+    {
+      "branch_id": "parity-symmetry-evaluation",
+      "checks": [
+        {
+          "id": "supported-symmetry-evaluation",
+          "feature_id": "symmetry_evaluation",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 4
+        }
+      ]
     }
   ]
 }

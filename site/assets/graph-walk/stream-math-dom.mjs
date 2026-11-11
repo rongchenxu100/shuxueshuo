@@ -202,6 +202,10 @@ export function routeAnswerSummary(answer = {}, {routeId} = {}) {
       ['find_value', 'find_range'].includes(answer.kind)) {
     return {label: answer.kind === 'find_value' ? '所求函数值不能唯一确定。' : '所求解集不能唯一确定。', formula: ''};
   }
+  if (answer.kind === 'find_value' && answer.result_type === 'scalar_value' &&
+      answer.status === 'insufficient_information' && answer.defined === true && answer.value === null) {
+    return {label: '所求函数值不能唯一确定。', formula: ''};
+  }
   if (Array.isArray(answer.candidates) && answer.kind === 'find_value' && answer.status === 'complete') {
     const formula = expressionText(answer.value);
     return formula ? {label: '函数值：', formula} : null;
@@ -214,7 +218,11 @@ export function routeAnswerSummary(answer = {}, {routeId} = {}) {
     if (!['determined_on_domain', 'insufficient_information'].includes(answer.status) ||
         !/^[A-Za-z][A-Za-z0-9_]*$/.test(answer.function || '') ||
         !/^[A-Za-z][A-Za-z0-9_]*$/.test(answer.variable || '')) return null;
-    const domain = expressionText(answer.determined_domain);
+    // An abstract symmetric domain D is kept as D; a printed range is read inside it.
+    const requested = answer.requested_domain ? expressionText(answer.requested_domain) : '';
+    const domain = answer.domain_identity === 'declared_symmetric_domain'
+      ? (answer.requested_domain ? (requested ? `D\\cap ${requested}` : '') : 'D')
+      : expressionText(answer.determined_domain);
     if (Array.isArray(answer.candidates) && answer.candidates.length) {
       const expressions = answer.candidates.map(expressionText);
       if (!domain || expressions.some(value => !value)) return null;
@@ -224,8 +232,12 @@ export function routeAnswerSummary(answer = {}, {routeId} = {}) {
     }
     const expression = expressionText(answer.expression);
     if (!expression || !domain) return null;
+    const free = answer.free_domain ? expressionText(answer.free_domain) : '';
+    if (answer.free_domain && !free) return null;
+    const known = free && answer.domain_identity ? `${domain}\\setminus ${free}` : domain;
     return {label: answer.status === 'insufficient_information' ? '全域规则信息不足；已确定：' : '已确定的函数规则：',
-      formula: `${answer.function}(${answer.variable})=${expression},\\quad ${answer.variable}\\in ${domain}`};
+      formula: `${answer.function}(${answer.variable})=${expression},\\quad ${answer.variable}\\in ${known}` +
+        (free ? `；\\quad ${answer.variable}\\in ${free}\\ \\text{时不能唯一确定}` : '')};
   }
   if (answer.kind === 'derived_answer') {
     if (answer.status === 'boolean' && typeof answer.value === 'boolean') {

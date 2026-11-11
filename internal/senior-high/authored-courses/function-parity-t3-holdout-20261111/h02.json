@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h02",
+  "reviewer": "Codex：T3 独立留出（有限组合求值）。偶函数、带系数的两项组合，所求组合与已知组合相差一个整体负号：2f(1)-f(-3)=-(f(3)-2f(-1))=-4；f(1)、f(3) 单独均不唯一。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/holdout-source.md",
+      "sha256": "c702fc27f056f83fbf2c635323cf9f89962452cc1251b6af1216749758ff9fc1",
+      "location": "留出题源表 H02"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知偶函数 $f(x)$ 的定义域为 $\\mathbf R$，且 $f(3)-2f(-1)=4$，则 $2f(1)-f(-3)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,even)",
+        "f(3)-2*f(-1)=4"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "2*f(1)-f(-3)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-4"
+  },
+  "usage": "holdout_independent_authored_not_from_planning_images"
+}

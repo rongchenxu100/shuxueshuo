@@ -394,6 +394,16 @@ def parse(text):
     return Parser(text).parse()
 
 
+def _one_group(text):
+    """f(-1)+f(2)=3 is an equation of two calls, not one call with argument "-1)+f(2"."""
+    depth = 0
+    for char in text:
+        depth += {"(": 1, ")": -1}.get(char, 0)
+        if depth < 0:
+            return False
+    return depth == 0
+
+
 def definition(text, known_functions=()):
     text = clean(text)
     curve = re.fullmatch(r"([A-Za-z\u0370-\u03ff][\w]*)\s*:\s*y\s*=\s*(.+)", text)
@@ -409,7 +419,8 @@ def definition(text, known_functions=()):
     # A relation defining f through a nontrivial input keeps that input intact.
     # Its single displayed variable binds both sides over the real numbers.
     relation = re.fullmatch(r"([A-Za-z][\w]*)\((.+)\)\s*=\s*(.+)", text)
-    if relation and relation[1] not in BUILTINS and relation[1] not in known_functions:
+    if (relation and relation[1] not in BUILTINS and relation[1] not in known_functions
+            and _one_group(relation[2])):
         argument, body = parse(relation[2]), parse(relation[3])
         def names(ast):
             if ast[0] == 'name':

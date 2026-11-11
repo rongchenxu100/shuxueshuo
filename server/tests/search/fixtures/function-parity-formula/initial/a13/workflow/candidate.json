@@ -1,0 +1,39 @@
+{
+  "original_text": "13. 已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。",
+  "root": {
+    "facts": [
+      "parity(f,odd)",
+      "Dom(f)=ℝ",
+      "f(-1)+f(2)=3"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(1)+f(-2)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

@@ -21,7 +21,7 @@ def load_contract(primary):
         Draft202012Validator(schema).validate(contract)
         methods = nodes[primary].get('methods', [])
         rules = nodes[primary].get('rules', [])
-        if contract.get('admission') in ('function_domain_routes', 'function_range_routes', 'piecewise_routes') or contract.get('display') == 'method_cards':
+        if contract.get('admission') in ('function_domain_routes', 'function_evaluation_routes', 'function_range_routes', 'piecewise_routes') or contract.get('display') == 'method_cards':
             route_methods = [row['method'] for row in contract['routes']] if 'routes' in contract else [contract['method']]
             card_rule = contract.get('display') == 'method_cards' and contract.get('rule') in rules
             if (contract['type'] != primary or (rules and not card_rule)
@@ -118,8 +118,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
-                             'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
+        if admission not in ('parity_extension', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
+                             'abstract_function_domain', 'function_evaluation', 'function_evaluation_routes', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from ..piecewise_equation import admitted as admitted_piecewise
         from ..piecewise_inequality import admitted as admitted_piecewise_inequality
@@ -133,6 +133,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
         from .equality_runtime import admitted as admitted_equality
         from .parity_runtime import admitted as admitted_parity
         from .parity_parameter_runtime import admitted as admitted_parity_parameter
+        from .parity_extension_runtime import admitted as admitted_parity_extension
+        from .symmetry_runtime import admitted as admitted_symmetry
         from .evaluation_runtime import admitted as admitted_evaluation
         from .formula_runtime import admitted as admitted_formula
         from .function_domain import admitted, admitted_parameter
@@ -184,6 +186,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_equality': admitted_equality,
             'function_parity': admitted_parity,
             'parity_parameter': admitted_parity_parameter,
+            'parity_extension': admitted_parity_extension,
+            'function_symmetry': admitted_symmetry,
             'function_evaluation': admitted_evaluation,
             'function_range': admitted_range,
             'function_range_direct': lambda context: admitted_range(context, 'method-direct-range'),
@@ -216,6 +220,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         elif admission == 'parity_parameter':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '奇偶性条件求参法'}]
+        elif admission == 'parity_extension':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '对称补全法'}]
         elif admission == 'function_domain':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': 'function_domain', 'label': '列条件求交集法'}]
@@ -294,6 +301,12 @@ def evaluate_goal(candidate, target_ref, features, primary):
             if chosen['admission'] == 'function_parity' else
             '先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。'
             if chosen['admission'] == 'parity_parameter' else
+            '只知道一侧的解析式：把要研究的输入 $x$ 换成相反数 $-x$，让它落进已知范围，'
+            '代入已知解析式，再用奇偶性换回 $f(x)$。'
+            if chosen['admission'] == 'parity_extension' else
+            '只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；'
+            '能直接得到所求组合，就不用补出整个函数。'
+            if chosen['admission'] == 'function_symmetry' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
             if chosen['admission'] == 'function_domain_parameter' else
             ('让每个完整输入落在题设给定范围内，要求存在共同合法的自变量，再求参数范围。'

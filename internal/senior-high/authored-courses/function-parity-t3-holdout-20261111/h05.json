@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h05",
+  "reviewer": "Codex：T3 独立留出（双函数关系，替补 H04）。性质写在函数名前、右边含分数系数、所求为偶函数在负输入处的值：x=4 得 f(4)-g(4)=14，x=-4 得 -f(4)-g(4)=18，相加得 g(4)=-16，故 g(-4)=-16。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/holdout-source.md",
+      "sha256": "c702fc27f056f83fbf2c635323cf9f89962452cc1251b6af1216749758ff9fc1",
+      "location": "留出题源表 H05"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知奇函数 $f(x)$ 与偶函数 $g(x)$ 的定义域均为 $\\mathbf R$，且 $f(x)-g(x)=x^2-\\frac{1}{2}x$，则 $g(-4)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "Dom(g)=ℝ",
+        "parity(f,odd)",
+        "parity(g,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)-g(x)=x^2-1/2*x",
+          "expression": "g(-4)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-16"
+  },
+  "usage": "holdout_independent_authored_not_from_planning_images"
+}

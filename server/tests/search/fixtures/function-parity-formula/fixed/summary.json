@@ -1,0 +1,543 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a03",
+      "search_id": "ac1f034c1f81",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 28.054,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 19.582,
+      "original_text": "3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____",
+      "root": {
+        "facts": [
+          "parity(f,odd)",
+          "parity(g,even)",
+          "∀x∈ℝ: f(x)+g(x)=x^2-x+1"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(2)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-2",
+              "latex": "-2"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a04",
+      "search_id": "bc53c1717528",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 44.144,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 35.935,
+      "original_text": "4. 已知 $f(x)$ 为偶函数，若当 $x\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。",
+      "root": {
+        "facts": [
+          "parity(f,even)",
+          "∀x∈[0,∞): f(x)=x^2+4*x"
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x)=x^2+4*x",
+            "relation_domain": "[0,∞)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-parity-formula"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "declared_domain": null,
+            "determined_domain": null,
+            "domain_identity": "declared_symmetric_domain",
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Pow",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "4"
+                      },
+                      {
+                        "$math": "Abs",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "x**2 + 4*Abs(x)",
+              "latex": "x^{2} + 4 \\left|{x}\\right|"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": null,
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval(0, oo)",
+              "latex": "\\left[0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 4,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a06",
+      "search_id": "12a8102fdbe7",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 43.934,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 34.861,
+      "original_text": "6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\n$f(2)+g(2)=$______",
+      "root": {
+        "label": "6.",
+        "facts": [
+          "Dom(f)=ℝ",
+          "Dom(g)=ℝ",
+          "parity(f,odd)",
+          "parity(g,even)",
+          "∀x∈ℝ: f(x)-g(x)=x^3+x^2-1"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(2)+g(2)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "5",
+              "latex": "5"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a09",
+      "search_id": "76796fb2de4f",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 97.447,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 75.563,
+      "original_text": "9. 设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\le 0$ 时，$f(x)=$ ______。",
+      "root": {
+        "label": "9",
+        "facts": [
+          "Dom(f)=(-∞,+∞)",
+          "parity(f,odd)",
+          "∀x∈(0,∞): f(x)=2*x^2-x"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(-3)"
+          },
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x)=2*x^2-x",
+            "relation_domain": "(0,∞)",
+            "requested_domain": "(-∞,0]"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-evaluation",
+        "type-parity-formula"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-15",
+              "latex": "-15"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "declared_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, oo)",
+              "latex": "\\left(-\\infty, \\infty\\right)"
+            },
+            "determined_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right]"
+            },
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-2*x**2 - x",
+              "latex": "- 2 x^{2} - x"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right]"
+            },
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(0, oo)",
+              "latex": "\\left(0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 6,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a15",
+      "search_id": "757351aee2cc",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 61.662,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 22.101,
+      "original_text": "15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\ge0$时，$f(x)=x^2-2x$，则$f(m)$的值为______．",
+      "root": {
+        "facts": [
+          "Dom(f)=[m-5,1-2m]",
+          "parity(f,odd)",
+          "∀x∈[0,∞): f(x)=x^2-2*x"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "f(m)"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-function-evaluation"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-8",
+              "latex": "-8"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 2,
+      "interactions_ready": false,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}

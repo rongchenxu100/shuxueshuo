@@ -137,7 +137,13 @@ def build_context(candidate, target_ref):
     source_entries = [{k: r[k] for k in ('source_ref', 'expression')} for r in entries]
     from ..abstract_monotonicity_math import routed_description as abstract_mono_description
     from ..parity_parameter_math import describe as parity_parameter_description
-    if desc := parity_parameter_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+    from ..parity_extension_math import describe as parity_extension_description
+    from ..symmetry_value_math import describe as symmetry_value_description
+    if desc := parity_extension_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+        context['parity_extension_goal'] = desc
+    elif desc := symmetry_value_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+        context['symmetry_value_goal'] = desc
+    elif desc := parity_parameter_description(goal, goal_ast, target_ref, entries, candidate=candidate):
         context['parity_parameter_goal'] = desc
     elif desc := abstract_mono_description(goal, target_ref, source_entries):
         context['abstract_monotonicity_goal'] = desc

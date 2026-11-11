@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"9. 设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"root\":{\"label\":\"9\",\"facts\":[\"Dom(f)=(-∞,+∞)\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=2*x^2-x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-3)\"},{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=2*x^2-x\",\"relation_domain\":\"(0,∞)\",\"requested_domain\":\"(-∞,0]\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]},{\"target_ref\":\"/root/goals/1\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2991,
+      "prompt_tokens": 25466,
+      "total_tokens": 28457,
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 250
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 930,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-c4af0b27-afe0-48d6-b86b-ace9315d6bb7",
+        "sha256": "634b5da5d85183cd1fd19ae2570cea50a01ce83e6646d8211a092083b60e1162",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10648,
+        "expires_at": 1794486663,
+        "uploaded_at": 1794400263.137344
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "634b5da5d85183cd1fd19ae2570cea50a01ce83e6646d8211a092083b60e1162",
+        "api_calls": 1,
+        "file_id": "file-api-c4af0b27-afe0-48d6-b86b-ace9315d6bb7",
+        "expires_at": 1794486663,
+        "elapsed_ms": 1145
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 18443,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2991,
+          "prompt_tokens": 25466,
+          "total_tokens": 28457,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2631
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25216
+          },
+          "prompt_cache_hit_tokens": 25216,
+          "prompt_cache_miss_tokens": 250
+        },
+        "raw_payload": {
+          "id": "1a33a798-20de-4eb7-abc6-39e983165749",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2991,
+            "prompt_tokens": 25466,
+            "total_tokens": 28457,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2631
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25216
+            },
+            "prompt_cache_hit_tokens": 25216,
+            "prompt_cache_miss_tokens": 250
+          },
+          "created": 1794400263,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"9. 设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"root\":{\"label\":\"9\",\"facts\":[\"Dom(f)=(-∞,+∞)\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=2*x^2-x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-3)\"},{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=2*x^2-x\",\"relation_domain\":\"(0,∞)\",\"requested_domain\":\"(-∞,0]\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]},{\"target_ref\":\"/root/goals/1\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目文字，不求解。图片只有一题，有手写答案和涂改，不能转录。题干：9. 设f(x)是定义在(-∞,+∞)上的奇函数，且x>0时，f(x)=2x^2-x，则f(-3)=______；当x≤0时，f(x)=______. 图片中有手写-15, -16等，填空处有手写答案，不转录。题干包含两个填空：求f(-3)的值，以及当x≤0时f(x)的解析式。需要作为root? 题干一句话两个所求，没有小问编号（虽是两个空），按同问多个所求保留平级 goals。root 定义：f(x)为定义在(-∞,+∞)上的奇函数，且x>0时 f(x)=2*x^2-x。 facts: parity(f,odd)? 定义域all real, x>0时表达式。注意函数定义应放 definitions? 题给f在x>0的分段一部分，以及奇函数性质。definitions可以含 f(x)=2*x^2-x? 但仅x>0。用 piecewise? 完整函数还未给出，仅x>0段。可以把条件 \"x>0时，f(x)=2*x^2-x\" 放 facts，或定义分段？定义函数定义放definitions，但这里只给部分区间。可以写 facts: \"∀x∈(0,∞): f(x)=2*x^2-x\" 和 \"parity(f,odd)\" 以及 Dom(f)=ℝ。但 catalog 中 function_property parity; domain. 定义域明确。也可 definitions: \"f(x)=piecewise(2*x^2-x,x>0,待求,x<=0)\" 不行，不能补未知。所以放facts: \"∀x∈(0,∞): f(x)=2*x^2-x\" 和 \"Dom(f)=ℝ\" 和 \"parity(f,odd)\"。注意 ∀符号要求量词。题面 x>0 时，f(x)=...，可写 ∀x∈(0,∞): f(x)=2*x^2-x。奇函数：parity(f,odd)。定义域：Dom(f)=ℝ 或 (-∞,+∞)。目标1：find_value expression f(-3)。目标2：求当x≤0时 f(x)解析式？ 目标是 find_function_formula？ 原题问当x≤0时，f(x)=______，这是求函数在区间上的解析式。应该用 find_function_formula：function f, variable x, relation? 但题给的是分段/条件，relation没有恒等式。find_function_formula 需要 relation 题给恒等式原文，如 f(...)=...。这里不是恢复未知函数整个解析式，而是求 x≤0 时的表达式。是否可用 find_function_formula 并 relation？可能 relation 可写 \"x≤0时，f(x)=?\" 不行。或者 find_function_formula 的 requested_domain=\"(-∞,0]\"，relation 可填 \"f(x)=2*x^2-x (x>0)\"? 这个字段是题给恒等式原文。但解析式未知部分。目标要求 \"当x≤0时，f(x)=______\" 即求f在x≤0上的表达式。也许用 find_function_formula with function=f, variable=x, requested_domain=(-∞,0]，relation 填题给的条件？ 但 relation 字段必备。可以使用 relation=\"f(x)=2*x^2-x\" 加 relation_domain=\"(0,∞)\"？不过该关系不是全域恒等，仅x>0。find_function_formula 可保留 requested_domain。定义域已给 ℝ。需要表达奇函数。但目标只是求x≤0区间表达式，不是整个函数，但find_function_formula支持requested_domain。relation 可以写 \"f(x)=2*x^2-x\" 并 relation_domain=\"(0,∞)\"，这正好题给恒等关系限制在x>0。另外 facts 里也可以不放该关系避免重复。不过目标 relation 字段应保留原关系。definitions/facts 可以仍需奇函数和定义域。但如果 relation 放在goal中，作为所求依据，题面共用条件是否需要在facts? 该题所有目标共用的题设应放root facts，包括 x>0 表达式、奇函数、定义域。目标字段里的relation是目标所需原关系，也放在goal中？规范说函数定义放definitions；题给某区间表达式放facts；find_function_formula relation保留题给关系。为避免重复，definitions/facts放共用条件，goal relation描述该目标求解的题给关系也是必要的。但题目两个目标都依赖x>0表达式和奇函数，这些应在root facts。目标2的relation可放f(x)=2*x^2-x，relation_domain=(0,+∞)。目标1 find_value expression f(-3)。是否 root definitions 放f? 可以 \"f(x)=piecewise(...)\" 不能补。不放定义也可以，用facts量词条件。但题目命名函数f，目标引用。可由facts识别。\n\noriginal_text 保留题号？ 题目开头9. 是题号，original_text可以保留题号，因为完整题干。public_content statement不能含题号。需要题号 role source? root.label 可以设 \"9\"并 role source？ 但题号是来源试卷题号，可设root.label=\"9\", root_label_role=\"source\"，但公开statement不写。也可以在original_text保留9.，root.label不设。规范说root.label存在时区分来源题号。若设标签，public_content root_label_role source。但 root.label 是题面分问或图景标签；题号9可以。可以在root.label填\"9\" role source。但根作用域没有小问，题号是来源。原图明确是题号。这样 public_content statement 不含9.。original_text 保留9.。可以。\n\n配图检测：无配图，none。\n\ncompleteness complete. privacy separated? 图片有手写答案，但我们不转录公开，题干和手写分离。privacy separated可以，因为题目正文与手写答案明确分离。不过手写答案覆盖填空附近，但能确认。公共内容不含手写。figure not_required.\n\nroot:\nlabel \"9\"\ndefinitions? \"f(x)\" not concrete. 可以定义 \"f\"? 不需要。facts:\n- \"Dom(f)=ℝ\" or \"Dom(f)=(-∞,+∞)\"? Catalog domain uses ℝ. 题目写定义在(-∞,+∞)上，转录 equivalent? facts 受控可写 \"Dom(f)=ℝ\" 保留实数。原题明确 (-∞,+∞), 但 Unicode 可用 (-∞,+∞)。用 \"Dom(f)=(-∞,+∞)\" 也 okay。\n- \"parity(f,odd)\"\n- \"∀x∈(0,∞): f(x)=2*x^2-x\"\ngoals:\n1 {\"kind\":\"find_value\",\"expression\":\"f(-3)\"}\n2 {\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=2*x^2-x\",\"relation_domain\":\"(0,∞)\",\"declared_domain\":\"(-∞,+∞)\",\"requested_domain\":\"(-∞,0]\"}? 但 declared_domain 已在facts; 目标字段可重复? 可省略 declared_domain。requested_domain明确要求x≤0时解析式。 relation 是题给恒等式，但该关系不是用于恢复整个函数吗? 有一点：find_function_formula 是从relation恢复未知函数解析式；这里关系仅在x>0，求x≤0段。但是整个函数借助奇函数确定，relation和奇函数都是条件。find_function_formula relation只能一条。也可以把奇函数作为 additional_relations? additional_relations 是其他等式，奇函数不是等式。可以在 facts 中。目标 relation 是 x>0表达式。requested_domain x≤0. 好的。\n\n但目标2 \"当x≤0时，f(x)=______\"是求解析式，目标类型 find_function_formula 合适。目标1 find_value.\n\npublic_content statements:\nroot statement 只保留该作用域自己的题干： \"设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\le 0$ 时，$f(x)=$ ______。\" 不包含题号9.。包含两个所求在同一句。 choices none for both goals, status none selection_mode none.\n\nroot goals has two. choices array with two entries target_ref /root/goals/0 and /root/goals/1.\n\nNeed original_text: \"9. 设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\" 注意 JSON反斜杠转义。填空手写不转录。图片中手写-15/-16覆盖f(-3)填空，填空处照印刷原样横线。第二空手写 -2x^2-x 有勾，不转录。原题第一个填空处有手写涂改，不是题目内容，保留横线。第二空横线后被手写。都照印刷横线。 公式中变量x>0; x≤0。原題x≤0印的是x≤0。 \n\nUncertainties: 图片有手写涂改覆盖第一空，但可辨认题意完整。无需报告? 可空。手写不是题目，不报告。可能题号等。 \n\nfigure_detection status none regions [].\n\nNeed ensure root facts expression uses 2*x^2-x (catalog multiplication?). Yes.\nparity(f,odd).\nDom(f)=(-∞,+∞). Is \"Dom(f)=(-∞,+∞)\" valid? catalog uses Dom(f)=D. yes. Alternatively \"Dom(f)=ℝ\". 题面明确(-∞,+∞)，保留。 \nFor goal relation, declared_domain omitted because facts has. requested_domain \"(-∞,0]\".\nfind_function_formula requires relation variable etc. relation_domain = \"(0,∞)\". Should relation field maybe \"x>0时，f(x)=2*x^2-x\"? Controlled math string only, no Chinese. Use \"f(x)=2*x^2-x\" with relation_domain. Good.\nGoal find_value expression f(-3). input_domain optional not needed.\npublic_content completeness complete; privacy separated; figure not_required; root_label_role source.\n\nDoes statement need include \"则f(-3)=______；当x≤0时，f(x)=______\" yes.\n\nNeed maybe root.facts \"x>0时，f(x)=2*x^2-x\" and goal relation same repeated, okay. Could move 函数定义到definitions? The function is not fully defined; but题给性质/部分定义可以放facts. Good.\n\nPotential issue: The first goal f(-3) can be asked, though -3≤0, relies奇函数. second asks x≤0时解析式. Root facts parity and x>0 expression. Fine.\n\nLet's craft JSON only. Ensure escaping backslash in original_text: $(-\\\\infty,+\\\\infty)$ etc. In JSON, backslash must escaped. Since output as JSON string, write \"\\\\infty\". In public_content statement also use LaTeX commands with backslashes; must double escape in JSON. All \"$...$\". For <= use \"\\\\le\". Multiplication in original_text can use 2x^2-x plain. In public_content fine. root math strings no $.\nCheck root label \"9\" maybe original_text includes \"9.\"; root_label_role source. Good.\n\nNeed no extra fields beyond schema. root has label, facts, goals no children. uncertainties omitted? Can omit? Schema optional. Public content required.\n\nLet's final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 19619
+  },
+  "raw_payload": {
+    "id": "1a33a798-20de-4eb7-abc6-39e983165749",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"9. 设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"root\":{\"label\":\"9\",\"facts\":[\"Dom(f)=(-∞,+∞)\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=2*x^2-x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(-3)\"},{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=2*x^2-x\",\"relation_domain\":\"(0,∞)\",\"requested_domain\":\"(-∞,0]\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]},{\"target_ref\":\"/root/goals/1\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目文字，不求解。图片只有一题，有手写答案和涂改，不能转录。题干：9. 设f(x)是定义在(-∞,+∞)上的奇函数，且x>0时，f(x)=2x^2-x，则f(-3)=______；当x≤0时，f(x)=______. 图片中有手写-15, -16等，填空处有手写答案，不转录。题干包含两个填空：求f(-3)的值，以及当x≤0时f(x)的解析式。需要作为root? 题干一句话两个所求，没有小问编号（虽是两个空），按同问多个所求保留平级 goals。root 定义：f(x)为定义在(-∞,+∞)上的奇函数，且x>0时 f(x)=2*x^2-x。 facts: parity(f,odd)? 定义域all real, x>0时表达式。注意函数定义应放 definitions? 题给f在x>0的分段一部分，以及奇函数性质。definitions可以含 f(x)=2*x^2-x? 但仅x>0。用 piecewise? 完整函数还未给出，仅x>0段。可以把条件 \"x>0时，f(x)=2*x^2-x\" 放 facts，或定义分段？定义函数定义放definitions，但这里只给部分区间。可以写 facts: \"∀x∈(0,∞): f(x)=2*x^2-x\" 和 \"parity(f,odd)\" 以及 Dom(f)=ℝ。但 catalog 中 function_property parity; domain. 定义域明确。也可 definitions: \"f(x)=piecewise(2*x^2-x,x>0,待求,x<=0)\" 不行，不能补未知。所以放facts: \"∀x∈(0,∞): f(x)=2*x^2-x\" 和 \"Dom(f)=ℝ\" 和 \"parity(f,odd)\"。注意 ∀符号要求量词。题面 x>0 时，f(x)=...，可写 ∀x∈(0,∞): f(x)=2*x^2-x。奇函数：parity(f,odd)。定义域：Dom(f)=ℝ 或 (-∞,+∞)。目标1：find_value expression f(-3)。目标2：求当x≤0时 f(x)解析式？ 目标是 find_function_formula？ 原题问当x≤0时，f(x)=______，这是求函数在区间上的解析式。应该用 find_function_formula：function f, variable x, relation? 但题给的是分段/条件，relation没有恒等式。find_function_formula 需要 relation 题给恒等式原文，如 f(...)=...。这里不是恢复未知函数整个解析式，而是求 x≤0 时的表达式。是否可用 find_function_formula 并 relation？可能 relation 可写 \"x≤0时，f(x)=?\" 不行。或者 find_function_formula 的 requested_domain=\"(-∞,0]\"，relation 可填 \"f(x)=2*x^2-x (x>0)\"? 这个字段是题给恒等式原文。但解析式未知部分。目标要求 \"当x≤0时，f(x)=______\" 即求f在x≤0上的表达式。也许用 find_function_formula with function=f, variable=x, requested_domain=(-∞,0]，relation 填题给的条件？ 但 relation 字段必备。可以使用 relation=\"f(x)=2*x^2-x\" 加 relation_domain=\"(0,∞)\"？不过该关系不是全域恒等，仅x>0。find_function_formula 可保留 requested_domain。定义域已给 ℝ。需要表达奇函数。但目标只是求x≤0区间表达式，不是整个函数，但find_function_formula支持requested_domain。relation 可以写 \"f(x)=2*x^2-x\" 并 relation_domain=\"(0,∞)\"，这正好题给恒等关系限制在x>0。另外 facts 里也可以不放该关系避免重复。不过目标 relation 字段应保留原关系。definitions/facts 可以仍需奇函数和定义域。但如果 relation 放在goal中，作为所求依据，题面共用条件是否需要在facts? 该题所有目标共用的题设应放root facts，包括 x>0 表达式、奇函数、定义域。目标字段里的relation是目标所需原关系，也放在goal中？规范说函数定义放definitions；题给某区间表达式放facts；find_function_formula relation保留题给关系。为避免重复，definitions/facts放共用条件，goal relation描述该目标求解的题给关系也是必要的。但题目两个目标都依赖x>0表达式和奇函数，这些应在root facts。目标2的relation可放f(x)=2*x^2-x，relation_domain=(0,+∞)。目标1 find_value expression f(-3)。是否 root definitions 放f? 可以 \"f(x)=piecewise(...)\" 不能补。不放定义也可以，用facts量词条件。但题目命名函数f，目标引用。可由facts识别。\n\noriginal_text 保留题号？ 题目开头9. 是题号，original_text可以保留题号，因为完整题干。public_content statement不能含题号。需要题号 role source? root.label 可以设 \"9\"并 role source？ 但题号是来源试卷题号，可设root.label=\"9\", root_label_role=\"source\"，但公开statement不写。也可以在original_text保留9.，root.label不设。规范说root.label存在时区分来源题号。若设标签，public_content root_label_role source。但 root.label 是题面分问或图景标签；题号9可以。可以在root.label填\"9\" role source。但根作用域没有小问，题号是来源。原图明确是题号。这样 public_content statement 不含9.。original_text 保留9.。可以。\n\n配图检测：无配图，none。\n\ncompleteness complete. privacy separated? 图片有手写答案，但我们不转录公开，题干和手写分离。privacy separated可以，因为题目正文与手写答案明确分离。不过手写答案覆盖填空附近，但能确认。公共内容不含手写。figure not_required.\n\nroot:\nlabel \"9\"\ndefinitions? \"f(x)\" not concrete. 可以定义 \"f\"? 不需要。facts:\n- \"Dom(f)=ℝ\" or \"Dom(f)=(-∞,+∞)\"? Catalog domain uses ℝ. 题目写定义在(-∞,+∞)上，转录 equivalent? facts 受控可写 \"Dom(f)=ℝ\" 保留实数。原题明确 (-∞,+∞), 但 Unicode 可用 (-∞,+∞)。用 \"Dom(f)=(-∞,+∞)\" 也 okay。\n- \"parity(f,odd)\"\n- \"∀x∈(0,∞): f(x)=2*x^2-x\"\ngoals:\n1 {\"kind\":\"find_value\",\"expression\":\"f(-3)\"}\n2 {\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=2*x^2-x\",\"relation_domain\":\"(0,∞)\",\"declared_domain\":\"(-∞,+∞)\",\"requested_domain\":\"(-∞,0]\"}? 但 declared_domain 已在facts; 目标字段可重复? 可省略 declared_domain。requested_domain明确要求x≤0时解析式。 relation 是题给恒等式，但该关系不是用于恢复整个函数吗? 有一点：find_function_formula 是从relation恢复未知函数解析式；这里关系仅在x>0，求x≤0段。但是整个函数借助奇函数确定，relation和奇函数都是条件。find_function_formula relation只能一条。也可以把奇函数作为 additional_relations? additional_relations 是其他等式，奇函数不是等式。可以在 facts 中。目标 relation 是 x>0表达式。requested_domain x≤0. 好的。\n\n但目标2 \"当x≤0时，f(x)=______\"是求解析式，目标类型 find_function_formula 合适。目标1 find_value.\n\npublic_content statements:\nroot statement 只保留该作用域自己的题干： \"设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\le 0$ 时，$f(x)=$ ______。\" 不包含题号9.。包含两个所求在同一句。 choices none for both goals, status none selection_mode none.\n\nroot goals has two. choices array with two entries target_ref /root/goals/0 and /root/goals/1.\n\nNeed original_text: \"9. 设 $f(x)$ 是定义在 $(-\\\\infty,+\\\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$ ______；当 $x\\\\le 0$ 时，$f(x)=$ ______。\" 注意 JSON反斜杠转义。填空手写不转录。图片中手写-15/-16覆盖f(-3)填空，填空处照印刷原样横线。第二空手写 -2x^2-x 有勾，不转录。原题第一个填空处有手写涂改，不是题目内容，保留横线。第二空横线后被手写。都照印刷横线。 公式中变量x>0; x≤0。原題x≤0印的是x≤0。 \n\nUncertainties: 图片有手写涂改覆盖第一空，但可辨认题意完整。无需报告? 可空。手写不是题目，不报告。可能题号等。 \n\nfigure_detection status none regions [].\n\nNeed ensure root facts expression uses 2*x^2-x (catalog multiplication?). Yes.\nparity(f,odd).\nDom(f)=(-∞,+∞). Is \"Dom(f)=(-∞,+∞)\" valid? catalog uses Dom(f)=D. yes. Alternatively \"Dom(f)=ℝ\". 题面明确(-∞,+∞)，保留。 \nFor goal relation, declared_domain omitted because facts has. requested_domain \"(-∞,0]\".\nfind_function_formula requires relation variable etc. relation_domain = \"(0,∞)\". Should relation field maybe \"x>0时，f(x)=2*x^2-x\"? Controlled math string only, no Chinese. Use \"f(x)=2*x^2-x\" with relation_domain. Good.\nGoal find_value expression f(-3). input_domain optional not needed.\npublic_content completeness complete; privacy separated; figure not_required; root_label_role source.\n\nDoes statement need include \"则f(-3)=______；当x≤0时，f(x)=______\" yes.\n\nNeed maybe root.facts \"x>0时，f(x)=2*x^2-x\" and goal relation same repeated, okay. Could move 函数定义到definitions? The function is not fully defined; but题给性质/部分定义可以放facts. Good.\n\nPotential issue: The first goal f(-3) can be asked, though -3≤0, relies奇函数. second asks x≤0时解析式. Root facts parity and x>0 expression. Fine.\n\nLet's craft JSON only. Ensure escaping backslash in original_text: $(-\\\\infty,+\\\\infty)$ etc. In JSON, backslash must escaped. Since output as JSON string, write \"\\\\infty\". In public_content statement also use LaTeX commands with backslashes; must double escape in JSON. All \"$...$\". For <= use \"\\\\le\". Multiplication in original_text can use 2x^2-x plain. In public_content fine. root math strings no $.\nCheck root label \"9\" maybe original_text includes \"9.\"; root_label_role source. Good.\n\nNeed no extra fields beyond schema. root has label, facts, goals no children. uncertainties omitted? Can omit? Schema optional. Public content required.\n\nLet's final."
+        }
+      }
+    ],
+    "created": 1794400263,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2991,
+      "prompt_tokens": 25466,
+      "total_tokens": 28457,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2631,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25216
+      },
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 250
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 19.62
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"root\":{\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"f(x)+g(x)=x^2-x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1550,
+      "prompt_tokens": 25461,
+      "total_tokens": 27011,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 373
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 568,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-ed9c1e30-ab3a-4e8a-9d0e-fbbfc6cbdf61",
+        "sha256": "2020442757b50337f67c21be35974f90596b70a53c59af7174a995efe882474f",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 11866,
+        "expires_at": 1794485897,
+        "uploaded_at": 1794399497.166483
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "2020442757b50337f67c21be35974f90596b70a53c59af7174a995efe882474f",
+        "api_calls": 1,
+        "file_id": "file-api-ed9c1e30-ab3a-4e8a-9d0e-fbbfc6cbdf61",
+        "expires_at": 1794485897,
+        "elapsed_ms": 480
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9039,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1550,
+          "prompt_tokens": 25461,
+          "total_tokens": 27011,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1324
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 373
+        },
+        "raw_payload": {
+          "id": "3f83b924-f079-48f6-9962-294c6a94f0cf",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1550,
+            "prompt_tokens": 25461,
+            "total_tokens": 27011,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1324
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 373
+          },
+          "created": 1794399497,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"root\":{\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"f(x)+g(x)=x^2-x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片：第3题，已知函数 f(x) 是奇函数，函数 g(x) 为偶函数，若 f(x)+g(x)=x^2-x+1，则 f(2)=____。手写答案不转录。\n\n需要输出 original_text，root，public_content。需要判断有无配图：无配图 none。题目没有小问，root 直接。需要定义 f,g? 题面给函数 f(x) 是奇函数，g(x) 是偶函数，以及关系 f(x)+g(x)=x^2-x+1。求 f(2)。\n\nroot.definitions 可以放函数定义？题面没有具体解析式，只有性质。是否 definitions 放 parity? 根据目录，function_property 可放 facts 或 definitions? 目录说 function_property 是题给全域奇偶性，普通记录性质，定义域另写。definitions 是函数定义和题内新概念。f,g没有解析式，只是“已知函数 f(x) 是奇函数，函数 g(x) 为偶函数”应放 facts，如 parity(f,odd), parity(g,even)。关系放 facts: f(x)+g(x)=x^2-x+1。目标：find_value expression f(2)。root.facts 包含 parity(f,odd)，parity(g,even)，∀x? 关系 f(x)+g(x)=x^2-x+1。题面没写 ∀x，但恒等关系通常对定义域内 x。可以直接写 f(x)+g(x)=x^2-x+1。需要用受控字符串。乘法？x^2-x+1。good。\n\n目标 find_value.expression \"f(2)\"。\n\npublic_content scopes 对应 root；statement 是题干自身，无选项；choices target_ref /root/goals/0, status none, selection_mode none, options [].\n\ncompleteness complete。privacy separated? 图片中有手写答案，但已说明不转录。题干本身没有姓名班级等。题目开头有题号“3.”，original_text 保留，public_content statement 题目来源题号？题号可能属于来源/试卷题号，但 public_content statement 是否保留题号？规则：不能把手写答案、题目来源、试卷题号放进公开字段。题干开头数字“3.”是题号，应不放进 statement。public_content.statement 只写“已知函数 $f(x)$ 是奇函数...”。root label? 不放 label 或 label 存题号？ root.label存在时需判断角色。题号“3.”是来源题号，如果放 root.label 则 root_label_role=source，但也可不放 label。为简化可不放 root.label。original_text 保留“3. ...”。\n\n注意手写答案和涂改在图片右侧，不要转录。original_text 填空处照印刷原样写横线：“则 $f(2)=$ ____”。手写部分不写。\n\n需要 original_text 完整题干： \"3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\" 其中 x^2 用 $x^2$；用 $…$。注意 JSON 反斜杠？没有。\n\nroot定义/事实：\ndefinitions: 不放，因为无具体解析式。facts:\n\"parity(f,odd)\"\n\"parity(g,even)\"\n\"f(x)+g(x)=x^2-x+1\"\ngoals: [{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]\n\npublic_content statement 只写该作用域自身题干，不含小问编号和选项： \"已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\" 保留填空横线。 choices none。\n\nfigure_detection none regions [].\n\nuncertainties 不需要。\n\n需要复核完整性：题目完整，没有小问。\n\nfigure 无配图：none.\n\npublic_content privacy separated? 已排除题号和手写答案，如题号未进入 statement，privacy可 separated。但是手写涂改只在 original_text? 我们没转录手写。original_text 是完整题干原文，说“不抄手写答案”。所以 privacy separated 可以。root 中 facts 没有个人信息。\n\n需要注意“函数 g(x) 为偶函数”原文有“函数”两字。转录准确。\n\n关于 original_text 中的 LaTeX 花括号：$f(x)$ 等。没有集合花括号。\n\nJSON 字符串里不出现反斜杠。公式 $x^2$ 可以。\n\n现在要输出 JSON 对象。确保 public_content.scopes 格式： [{\"scope_ref\":\"/root\",\"statement\":\"...\", \"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\n\npublic_content 还 required figure_detection, privacy, completeness, figure, scopes.\n\nroot 的 fields: facts, goals, maybe definitions omitted。root 对象只需要这些。不要输出 uncertainties 空？ schema 允许省略。不要额外字段。root 没有 label。\n\n是否需要在 facts 中写“∀x∈ℝ: f(x)+g(x)=x^2-x+1”？题面没有明确“对任意 x”，但函数关系式通常恒成立。根据规则，题面只说“恒成立”而未写出量词变量范围时补。这里不是“恒成立”文字，但关系式 f(x)+g(x)=... 含有自由 x，可按定义域内恒等。严格保留原式，可不加量词。fact \"f(x)+g(x)=x^2-x+1\" is fine. \"parity(f,odd)\" and \"parity(g,even)\" use catalog syntax. Good.\n\n目标 f(2) 用 find_value。in_terms_of 不填。\n\n题目图片只有文本，无图形。figure_detection status none.\n\n现在构建最终 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9548
+  },
+  "raw_payload": {
+    "id": "3f83b924-f079-48f6-9962-294c6a94f0cf",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"root\":{\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"f(x)+g(x)=x^2-x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片：第3题，已知函数 f(x) 是奇函数，函数 g(x) 为偶函数，若 f(x)+g(x)=x^2-x+1，则 f(2)=____。手写答案不转录。\n\n需要输出 original_text，root，public_content。需要判断有无配图：无配图 none。题目没有小问，root 直接。需要定义 f,g? 题面给函数 f(x) 是奇函数，g(x) 是偶函数，以及关系 f(x)+g(x)=x^2-x+1。求 f(2)。\n\nroot.definitions 可以放函数定义？题面没有具体解析式，只有性质。是否 definitions 放 parity? 根据目录，function_property 可放 facts 或 definitions? 目录说 function_property 是题给全域奇偶性，普通记录性质，定义域另写。definitions 是函数定义和题内新概念。f,g没有解析式，只是“已知函数 f(x) 是奇函数，函数 g(x) 为偶函数”应放 facts，如 parity(f,odd), parity(g,even)。关系放 facts: f(x)+g(x)=x^2-x+1。目标：find_value expression f(2)。root.facts 包含 parity(f,odd)，parity(g,even)，∀x? 关系 f(x)+g(x)=x^2-x+1。题面没写 ∀x，但恒等关系通常对定义域内 x。可以直接写 f(x)+g(x)=x^2-x+1。需要用受控字符串。乘法？x^2-x+1。good。\n\n目标 find_value.expression \"f(2)\"。\n\npublic_content scopes 对应 root；statement 是题干自身，无选项；choices target_ref /root/goals/0, status none, selection_mode none, options [].\n\ncompleteness complete。privacy separated? 图片中有手写答案，但已说明不转录。题干本身没有姓名班级等。题目开头有题号“3.”，original_text 保留，public_content statement 题目来源题号？题号可能属于来源/试卷题号，但 public_content statement 是否保留题号？规则：不能把手写答案、题目来源、试卷题号放进公开字段。题干开头数字“3.”是题号，应不放进 statement。public_content.statement 只写“已知函数 $f(x)$ 是奇函数...”。root label? 不放 label 或 label 存题号？ root.label存在时需判断角色。题号“3.”是来源题号，如果放 root.label 则 root_label_role=source，但也可不放 label。为简化可不放 root.label。original_text 保留“3. ...”。\n\n注意手写答案和涂改在图片右侧，不要转录。original_text 填空处照印刷原样写横线：“则 $f(2)=$ ____”。手写部分不写。\n\n需要 original_text 完整题干： \"3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\" 其中 x^2 用 $x^2$；用 $…$。注意 JSON 反斜杠？没有。\n\nroot定义/事实：\ndefinitions: 不放，因为无具体解析式。facts:\n\"parity(f,odd)\"\n\"parity(g,even)\"\n\"f(x)+g(x)=x^2-x+1\"\ngoals: [{\"kind\":\"find_value\",\"expression\":\"f(2)\"}]\n\npublic_content statement 只写该作用域自身题干，不含小问编号和选项： \"已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$ ____\" 保留填空横线。 choices none。\n\nfigure_detection none regions [].\n\nuncertainties 不需要。\n\n需要复核完整性：题目完整，没有小问。\n\nfigure 无配图：none.\n\npublic_content privacy separated? 已排除题号和手写答案，如题号未进入 statement，privacy可 separated。但是手写涂改只在 original_text? 我们没转录手写。original_text 是完整题干原文，说“不抄手写答案”。所以 privacy separated 可以。root 中 facts 没有个人信息。\n\n需要注意“函数 g(x) 为偶函数”原文有“函数”两字。转录准确。\n\n关于 original_text 中的 LaTeX 花括号：$f(x)$ 等。没有集合花括号。\n\nJSON 字符串里不出现反斜杠。公式 $x^2$ 可以。\n\n现在要输出 JSON 对象。确保 public_content.scopes 格式： [{\"scope_ref\":\"/root\",\"statement\":\"...\", \"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\n\npublic_content 还 required figure_detection, privacy, completeness, figure, scopes.\n\nroot 的 fields: facts, goals, maybe definitions omitted。root 对象只需要这些。不要输出 uncertainties 空？ schema 允许省略。不要额外字段。root 没有 label。\n\n是否需要在 facts 中写“∀x∈ℝ: f(x)+g(x)=x^2-x+1”？题面没有明确“对任意 x”，但函数关系式通常恒成立。根据规则，题面只说“恒成立”而未写出量词变量范围时补。这里不是“恒成立”文字，但关系式 f(x)+g(x)=... 含有自由 x，可按定义域内恒等。严格保留原式，可不加量词。fact \"f(x)+g(x)=x^2-x+1\" is fine. \"parity(f,odd)\" and \"parity(g,even)\" use catalog syntax. Good.\n\n目标 f(2) 用 find_value。in_terms_of 不填。\n\n题目图片只有文本，无图形。figure_detection status none.\n\n现在构建最终 JSON。"
+        }
+      }
+    ],
+    "created": 1794399497,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1550,
+      "prompt_tokens": 25461,
+      "total_tokens": 27011,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1324,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 373
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.55
+}

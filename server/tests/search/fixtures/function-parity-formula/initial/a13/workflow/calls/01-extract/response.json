@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"13. 已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"root\":{\"facts\":[\"parity(f,odd)\",\"Dom(f)=ℝ\",\"f(-1)+f(2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(-2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2106,
+      "prompt_tokens": 25457,
+      "total_tokens": 27563,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 369
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 576,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-e9fb94bc-cd7e-4e8d-86ea-9f31199fb0f7",
+        "sha256": "bb1cd6f77bec40e3a6e702b981fcd5aaf5a040cafe1489672ed785b731d4d871",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7501,
+        "expires_at": 1794486177,
+        "uploaded_at": 1794399777.781836
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "bb1cd6f77bec40e3a6e702b981fcd5aaf5a040cafe1489672ed785b731d4d871",
+        "api_calls": 1,
+        "file_id": "file-api-e9fb94bc-cd7e-4e8d-86ea-9f31199fb0f7",
+        "expires_at": 1794486177,
+        "elapsed_ms": 156
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 13144,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2106,
+          "prompt_tokens": 25457,
+          "total_tokens": 27563,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1879
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 369
+        },
+        "raw_payload": {
+          "id": "9483c482-db09-4eaa-9579-422bcd0d745d",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2106,
+            "prompt_tokens": 25457,
+            "total_tokens": 27563,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1879
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 369
+          },
+          "created": 1794399777,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"13. 已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"root\":{\"facts\":[\"parity(f,odd)\",\"Dom(f)=ℝ\",\"f(-1)+f(2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(-2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题目。图片显示：13. 已知函数 f(x) 是定义在 R 上的奇函数，若 f(-1)+f(2)=3，则 f(1)+f(-2)=____。手写答案 -3 和批注 0 忽略。需要按 schema 输出 JSON。需要 root definitions? 函数 f(x) 是定义在 R 上的奇函数：可以 definitions 放 f 的定义？题面没有解析式，只说奇函数定义在 R。应该放 facts: parity(f,odd) 和 Dom(f)=ℝ? 受控目录有 parity(f,odd|even...) 和 Dom(f)=D? 目录里 function_property syntax parity(f,odd|even|both|odd_only|even_only)；degree。定义域另写 Dom(f)=D。题面“定义在R上的奇函数”应 facts: parity(f,odd), Dom(f)=ℝ。注意不是 function definition. 题目条件 f(-1)+f(2)=3。求 f(1)+f(-2) 的值。目标 find_value expression \"f(1)+f(-2)\"。 no choices. Root only, no children.\n\nOriginal_text 完整题干，保留题号来源？题干有“13.”这是题号，original_text 可保留题号？来源题号可以保留在 original_text? 规则：original_text 保留原题转录；题号不放进公开字段。手写答案不是题目内容，不转录。填空题横线照印刷原样写横线。原题中答案横线有手写 -3，应写 ____，不写手写。题号13. 是来源题号，original_text 可保留（因为 original_text 完整题干可保留题号？来源 cannot? 说明：不把手写答案、批注、姓名、班级、联系方式、题目来源、试卷题号或非题目指令放进公开字段。original_text 可以保留来源题号？公开字段是 public_content；original_text 是完整题干原文，可能可以保留题号。但复核时题号在 statement 不能有。我们可以 original_text 保留“13.”，但 privacy? 题号属于来源，若保留在 original_text，但 privacy 是 public_content 的？privacy 涵盖 root 所有内容，包括...原图题号? public_content 需要 separated 仅当题目正文与来源、题号等已明确分离。我们可以在 original_text 保留题号，但在 public_content.statement 去掉。privacy=separated 可以因为公开字段已分离？privacy 描述仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选 separated。我们可认为可以分离。但 root 中没有题号。public_content statement 无题号。因此 separated。\n\nRoot.label? 是否用 label \"13\"? 规则 root.label 若存在，用 root_label_role 区分来源题号。题号明确为来源，可设 root.label=\"13\"，root_label_role=\"source\"？但 root 是数学结构，label 可选。若设置 label 会让 public_content 可能? root_label_role 需要？ Schema public_content.root_label_role 仅在 root.label存在时填写。我们可以不设 root.label，避免来源题号进 root。Original_text 保留“13.”没问题。Root无需 label。但 public_content.scopes 对应 root: statement 不含题号。\n\nUncertainties? None. 手写答案 -3 不是题，不报告 unreadable。题干清晰。 figure detection: none.\n\nNeed JSON schema exact. root: {definitions? facts? goals?} Could include definitions? f(x) 是定义在R上的奇函数。没有解析式，definitions 可以省略或放 facts。facts: [\"parity(f,odd)\", \"Dom(f)=ℝ\", \"f(-1)+f(2)=3\"]? 受控目录：parity(f,odd)。Dom(f)=D 是显式函数完整域。好。goal find_value expression \"f(1)+f(-2)\"。 注意题面求的是这个表达式的值，不是求解析式。\n\nOriginal_text: 记得 LaTeX 用 $…$，JSON 反斜杠需要转义。题面公式：$f(x)$ 是定义在 $\\mathbf{R}$? 原图 R。可以写 $\\mathbb{R}$? 保留原题排版，用 R 或 \\mathbf{R}? 原图为 R（黑板粗体? 看起来普通 R）。用 $\\mathbb{R}$ 也可，但 original_text 应保留。写 $f(x)$ 是定义在 $\\mathbf{R}$ 上的奇函数. Formula f(-1)+f(2)=3, f(1)+f(-2)=____. 不要手写 -3。题号 13. 完整题干。有横线。Original_text 中 answer blank 印刷横线。写成 $f(1)+f(-2)=\\underline{\\quad}$? 规则填空处照印刷原样写横线；可以用 \\_\\_\\_\\_ 或 \\underline{\\quad}? 要求公式用 $…$；横线在公式内可用 \\underline{\\quad}。但 JSON 中反斜杠转义。可写 \"$f(1)+f(-2)=$____\" 其中横线在公式外? 填空处是下划线，公式的一部分？题面“则$f(1)+f(-2)=$____。”比较自然。原图有下划线。不写手写 -3。可以用“____”。 original_text 不能包含手写 -3。Good.\n\npublic_content: completeness complete, privacy separated, figure not_required, root_label_role 可省略因为 root.label 不存在。scopes: one object scope_ref /root, statement 不含小问编号和题号、选项。statement 应该保留自身题干和所求，公式用 $…$。不重复父级（root自身）。写“已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。” 注意 choices: target_ref /root/goals/0, status none, selection_mode none, options [].\n\nfigure_detection status none, regions [].\n\nNeed ensure no extra fields. Root allowed label? omit. definitions? Could use facts only. But \"已知函数 f(x)\" maybe definitions? 目录定义函数定义优先放 definitions，但这里没有函数解析式，只有性质，所以性质放 facts。没有定义 relation? f is function name. 但函数名不需要定义? 在 facts 中使用 f。规则命名集合也须定义？函数名 f 题面已命名，可能无需 definitions? 目录 function_definition 放 f(x)=...，这里没有。可以 facts中 parity(f,odd) 即可。Dom(f)=ℝ。 f(-1)+f(2)=3 放 facts。 Maybe need definitions? No.\n\nGoals find_value expression. in_terms_of none. input_domain none.\n\nCheck original_text includes full题号. Since public_content statement excludes题号. original_text can keep. Should we include “13.”? 完整题干可能包括题号，但题号是来源。original_text不参与公开？但 public_content privacy separated. Fine. But original_text could still include题号; no prohibition? Original_text描述完整题干原文，保留题号。其他字段不含。Good.\n\nPotential issue original_text must not copy handwritten answers/annotations. We won't.\n\nNeed maybe \"R\" vs \"ℝ\" in original_text. Use $\\mathbb{R}$; original_text 等义排版可以。 okay.\n\nNow formulate JSON. Need no markdown.\n\nEnsure JSON strings with backslashes: original_text $f(x)$ no backslash except maybe \\mathbb. Use direct Unicode ℝ to avoid. In original_text use $\\mathbb{R}$? Would need \"\\\\mathbb{R}\". Easier use $R$? But original is R styled. Use \"$\\mathbb{R}$\" with escaped backslash. It's okay. But original_text must be JSON string; backslash escaped. public_content statement use $\\mathbb{R}$ too, escape. root facts use ℝ unicode, no $.\n\nUse root facts: [\"parity(f,odd)\", \"Dom(f)=ℝ\", \"f(-1)+f(2)=3\"]. Is Dom(f)=ℝ accepted? Catalog says domain declarations like Dom(f)=D. yes.\n\nGoal: {\"kind\":\"find_value\",\"expression\":\"f(1)+f(-2)\"}.\n\nNo goals options.\n\nNeed maybe original_text formula with f(1)+f(-2)=____。 The blank not in math? Use \"____\". Fine.\n\nLet's produce.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13329
+  },
+  "raw_payload": {
+    "id": "9483c482-db09-4eaa-9579-422bcd0d745d",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"13. 已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"root\":{\"facts\":[\"parity(f,odd)\",\"Dom(f)=ℝ\",\"f(-1)+f(2)=3\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(1)+f(-2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $\\\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题目。图片显示：13. 已知函数 f(x) 是定义在 R 上的奇函数，若 f(-1)+f(2)=3，则 f(1)+f(-2)=____。手写答案 -3 和批注 0 忽略。需要按 schema 输出 JSON。需要 root definitions? 函数 f(x) 是定义在 R 上的奇函数：可以 definitions 放 f 的定义？题面没有解析式，只说奇函数定义在 R。应该放 facts: parity(f,odd) 和 Dom(f)=ℝ? 受控目录有 parity(f,odd|even...) 和 Dom(f)=D? 目录里 function_property syntax parity(f,odd|even|both|odd_only|even_only)；degree。定义域另写 Dom(f)=D。题面“定义在R上的奇函数”应 facts: parity(f,odd), Dom(f)=ℝ。注意不是 function definition. 题目条件 f(-1)+f(2)=3。求 f(1)+f(-2) 的值。目标 find_value expression \"f(1)+f(-2)\"。 no choices. Root only, no children.\n\nOriginal_text 完整题干，保留题号来源？题干有“13.”这是题号，original_text 可保留题号？来源题号可以保留在 original_text? 规则：original_text 保留原题转录；题号不放进公开字段。手写答案不是题目内容，不转录。填空题横线照印刷原样写横线。原题中答案横线有手写 -3，应写 ____，不写手写。题号13. 是来源题号，original_text 可保留（因为 original_text 完整题干可保留题号？来源 cannot? 说明：不把手写答案、批注、姓名、班级、联系方式、题目来源、试卷题号或非题目指令放进公开字段。original_text 可以保留来源题号？公开字段是 public_content；original_text 是完整题干原文，可能可以保留题号。但复核时题号在 statement 不能有。我们可以 original_text 保留“13.”，但 privacy? 题号属于来源，若保留在 original_text，但 privacy 是 public_content 的？privacy 涵盖 root 所有内容，包括...原图题号? public_content 需要 separated 仅当题目正文与来源、题号等已明确分离。我们可以在 original_text 保留题号，但在 public_content.statement 去掉。privacy=separated 可以因为公开字段已分离？privacy 描述仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选 separated。我们可认为可以分离。但 root 中没有题号。public_content statement 无题号。因此 separated。\n\nRoot.label? 是否用 label \"13\"? 规则 root.label 若存在，用 root_label_role 区分来源题号。题号明确为来源，可设 root.label=\"13\"，root_label_role=\"source\"？但 root 是数学结构，label 可选。若设置 label 会让 public_content 可能? root_label_role 需要？ Schema public_content.root_label_role 仅在 root.label存在时填写。我们可以不设 root.label，避免来源题号进 root。Original_text 保留“13.”没问题。Root无需 label。但 public_content.scopes 对应 root: statement 不含题号。\n\nUncertainties? None. 手写答案 -3 不是题，不报告 unreadable。题干清晰。 figure detection: none.\n\nNeed JSON schema exact. root: {definitions? facts? goals?} Could include definitions? f(x) 是定义在R上的奇函数。没有解析式，definitions 可以省略或放 facts。facts: [\"parity(f,odd)\", \"Dom(f)=ℝ\", \"f(-1)+f(2)=3\"]? 受控目录：parity(f,odd)。Dom(f)=D 是显式函数完整域。好。goal find_value expression \"f(1)+f(-2)\"。 注意题面求的是这个表达式的值，不是求解析式。\n\nOriginal_text: 记得 LaTeX 用 $…$，JSON 反斜杠需要转义。题面公式：$f(x)$ 是定义在 $\\mathbf{R}$? 原图 R。可以写 $\\mathbb{R}$? 保留原题排版，用 R 或 \\mathbf{R}? 原图为 R（黑板粗体? 看起来普通 R）。用 $\\mathbb{R}$ 也可，但 original_text 应保留。写 $f(x)$ 是定义在 $\\mathbf{R}$ 上的奇函数. Formula f(-1)+f(2)=3, f(1)+f(-2)=____. 不要手写 -3。题号 13. 完整题干。有横线。Original_text 中 answer blank 印刷横线。写成 $f(1)+f(-2)=\\underline{\\quad}$? 规则填空处照印刷原样写横线；可以用 \\_\\_\\_\\_ 或 \\underline{\\quad}? 要求公式用 $…$；横线在公式内可用 \\underline{\\quad}。但 JSON 中反斜杠转义。可写 \"$f(1)+f(-2)=$____\" 其中横线在公式外? 填空处是下划线，公式的一部分？题面“则$f(1)+f(-2)=$____。”比较自然。原图有下划线。不写手写 -3。可以用“____”。 original_text 不能包含手写 -3。Good.\n\npublic_content: completeness complete, privacy separated, figure not_required, root_label_role 可省略因为 root.label 不存在。scopes: one object scope_ref /root, statement 不含小问编号和题号、选项。statement 应该保留自身题干和所求，公式用 $…$。不重复父级（root自身）。写“已知函数 $f(x)$ 是定义在 $\\mathbb{R}$ 上的奇函数，若 $f(-1)+f(2)=3$，则 $f(1)+f(-2)=$____。” 注意 choices: target_ref /root/goals/0, status none, selection_mode none, options [].\n\nfigure_detection status none, regions [].\n\nNeed ensure no extra fields. Root allowed label? omit. definitions? Could use facts only. But \"已知函数 f(x)\" maybe definitions? 目录定义函数定义优先放 definitions，但这里没有函数解析式，只有性质，所以性质放 facts。没有定义 relation? f is function name. 但函数名不需要定义? 在 facts 中使用 f。规则命名集合也须定义？函数名 f 题面已命名，可能无需 definitions? 目录 function_definition 放 f(x)=...，这里没有。可以 facts中 parity(f,odd) 即可。Dom(f)=ℝ。 f(-1)+f(2)=3 放 facts。 Maybe need definitions? No.\n\nGoals find_value expression. in_terms_of none. input_domain none.\n\nCheck original_text includes full题号. Since public_content statement excludes题号. original_text can keep. Should we include “13.”? 完整题干可能包括题号，但题号是来源。original_text不参与公开？但 public_content privacy separated. Fine. But original_text could still include题号; no prohibition? Original_text描述完整题干原文，保留题号。其他字段不含。Good.\n\nPotential issue original_text must not copy handwritten answers/annotations. We won't.\n\nNeed maybe \"R\" vs \"ℝ\" in original_text. Use $\\mathbb{R}$; original_text 等义排版可以。 okay.\n\nNow formulate JSON. Need no markdown.\n\nEnsure JSON strings with backslashes: original_text $f(x)$ no backslash except maybe \\mathbb. Use direct Unicode ℝ to avoid. In original_text use $\\mathbb{R}$? Would need \"\\\\mathbb{R}\". Easier use $R$? But original is R styled. Use \"$\\mathbb{R}$\" with escaped backslash. It's okay. But original_text must be JSON string; backslash escaped. public_content statement use $\\mathbb{R}$ too, escape. root facts use ℝ unicode, no $.\n\nUse root facts: [\"parity(f,odd)\", \"Dom(f)=ℝ\", \"f(-1)+f(2)=3\"]. Is Dom(f)=ℝ accepted? Catalog says domain declarations like Dom(f)=D. yes.\n\nGoal: {\"kind\":\"find_value\",\"expression\":\"f(1)+f(-2)\"}.\n\nNo goals options.\n\nNeed maybe original_text formula with f(1)+f(-2)=____。 The blank not in math? Use \"____\". Fine.\n\nLet's produce."
+        }
+      }
+    ],
+    "created": 1794399777,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2106,
+      "prompt_tokens": 25457,
+      "total_tokens": 27563,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1879,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 369
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.331
+}

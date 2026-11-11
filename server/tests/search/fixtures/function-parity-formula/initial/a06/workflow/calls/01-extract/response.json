@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"root\":{\"label\":\"6.\",\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3686,
+      "prompt_tokens": 25486,
+      "total_tokens": 29172,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 398
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 683,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-df831584-3bdf-4b82-b226-8c4599d6f77d",
+        "sha256": "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 16007,
+        "expires_at": 1794485956,
+        "uploaded_at": 1794399556.5826108
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330",
+        "api_calls": 1,
+        "file_id": "file-api-df831584-3bdf-4b82-b226-8c4599d6f77d",
+        "expires_at": 1794485956,
+        "elapsed_ms": 182
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 22775,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3686,
+          "prompt_tokens": 25486,
+          "total_tokens": 29172,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3407
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 398
+        },
+        "raw_payload": {
+          "id": "51ac4a80-7cce-457c-bd15-91c0dce83ee8",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3686,
+            "prompt_tokens": 25486,
+            "total_tokens": 29172,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3407
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 398
+          },
+          "created": 1794399556,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"root\":{\"label\":\"6.\",\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要回答用户。需要从图片提取题意，输出 JSON 符合 schema。用户文本很长，给出规则。需要识别题目：图片显示第6题：已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____。图片有手写答案 5? 涂改圈，有些其他手写/可能其他题。需要只提取题干，不包含手写答案。需要标记配图是否存在：图片右侧似乎有曲线图？但可能属于相邻题或页面其他内容。我们需要判断题目本身是否需要配图。题目没有引用图，也没有图形说明。右侧有部分手绘/印刷曲线，但不在题目内容。配图检测：题干无配图，但图片中右侧有图形？figure_detection 应标记图片中的图形区域？ 规则说“同时填写 figure_detection：无配图为 none，有配图为 present，不能确定或题干引用的图未拍到为 uncertain。有图时只标出区域及其对应目标；role 区分题干图 statement、选项图 option、空白作图区 workspace。” 需要判断本题是否有配图。图片右侧确实有一小段曲线，可能是相邻题的图，且不属于本题。不确定所属关系时报告 uncertainty? 但 figure_detection 是否 present? 仅本题配图？如果右侧图形不是本题（没有题干引用），不应标为本题 figure? 但图像存在；可以 status uncertain? 或者 none? 需要谨慎。\n\n图片内容：上方有第6题，文本横跨。右侧有印刷曲线局部和手写坐标? 似乎可能是别的题的函数图，因为截图中右上角有曲线和手写数字，可能属于相邻题；题目本身未引用图。根据“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入... 无法确认所属关系时报告 uncertainty”。配图检测：如果图形不能确认属于本题，可能 status=uncertain，regions 可空? 但 schema 允许 regions empty. figure 在 public_content 应为 not_required 因为本题无需配图；figure_detection status=uncertain? 这矛盾？ figure_detection 临时配图清单，状态 present/uncertain。如果无法确认是否为本题配图，uncertain 合理。regions 空? 若标区域且 target_ref 必须指向目标，但图不属于任何目标，可不标。或者 status=none 因为题干无图；手写/邻题图形不是题给配图。需要看规则“提到图不代表图已提供... 只读本题题干及所属选项。相邻题目...不是题设”。本题题干没有图，右侧图形可能相邻题，不应报告 present。如果无法确认所属关系，报告 uncertainty。可以在 root.uncertainties 加 ambiguous? 类型 missing_figure? 不是缺图，是无关图形。不必要。figure_detection 可以 none，regions=[]，因为没有题干引用配图，右侧图形不可确认属于本题，但不是本题配图。不过如果图片右侧有图，figure_detection 可能应 present? 它说“有配图为 present，不能确定或题干引用的图未拍到为 uncertain”。判断“本题有配图”为否，所以 none。右侧曲线不是本题配图。也可以 uncertainty 记录“右侧有部分图形，疑似相邻题，无法确认所属”，kind=ambiguous_reuse? 或 unstructured? 没有合适？ kind=ambiguous_reuse for 同名对象指代不明，不适用。missing_figure 不适用。可能不加 uncertainties。只看题干完整。\n\n需要构建 root: Scope with definitions, facts, goals. 题目：已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____。\n\n数学表示：definitions 可放函数性质? 目录有 function_property: parity(f,odd), parity(g,even)。题面给 f,g 分别是定义在 R 上的奇函数和偶函数。定义域 R 也要表达：Dom(f)=ℝ, Dom(g)=ℝ? 可以放 facts 或 definitions? 函数性质及定义域。规则：固定放置规则：仅曲线定义、函数定义及题内新概念定义原文放 definitions；其他题设关系放 facts。函数性质 parity 不是函数定义? 目录 function_property 可放 definitions/facts? 说明“题给的全域奇偶性... 定义域另写 Dom(f)=D”。放置规则说仅曲线/函数定义及新概念原文优先放 definitions；其他题设关系优先放 facts。所以 parity 和 Dom 可能放 facts。但是 f(x), g(x) 没有解析式，需要对象定义? 可以用 facts: parity(f,odd), parity(g,even), Dom(f)=ℝ, Dom(g)=ℝ, f(x)-g(x)=x^3+x^2-1。目标 find_value expression f(2)+g(2)。根节点无 children。choices status none selection none options [].\n\noriginal_text: 完整题干，保留原题号? 可以包括“6.”? 规则 original_text 转录完整题干，保留题面变量；来源题号? 原图有“6.”，可能是题号。original_text 可以保留题号。但 public_content.statement 不包含题号/来源；root.label 可以写题号? 是否 root.label? 题面有题号6，可 root.label=\"6.\"? 但 label 存在时 root_label_role 区分 source/content。原图明确是试卷题号 -> source。但 root.label 是 Scope label；原题没有小问，可以设 label \"6.\"? 但目标/公开 statement 不含题号。如果设置 root.label=\"6.\"，public_content.root_label_role=\"source\" 并保留？root.label 存在，公开字段要求？可以。但 original_text 也可以保留“6. 已知...”。如果 root.label 存在，label 用于题面分问或图景标签，题号是来源。规则“root.label 存在时，用 root_label_role 区分来源题号与有题意的标签：仅原图明确是来源或试卷题号时为 source... 省略角色时仍保留标签。” 可以设 root.label=\"6.\"，root_label_role=\"source\"。但 public_content.statement 不应包含题号，只写已知。original_text 可保留题号。需检查 public_content.root_label_role enum source/content; 可选。若 root.label 存在，建议填 source。但 root 中 label 不是数学条件。目标无 label。\n\n题目有填空，original_text 中“f(2)+g(2)=____” 照印刷横线。图片中手写答案5圈，不转录；题干填空处写“____”或“______”。不要写答案。原图 f(2)+g(2)= 后手写“5”覆盖横线？ 不抄。\n\npublic_content.scopes: 一个 scope_ref \"/root\", statement 只保留该作用域自身题干，不含题号/选项。应该写：“已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。” 包括目标? 同一作用域 statement 保留题干和所求。不写“求” maybe original. 公式用 $...$。注意 LaTeX 中 R 用 \\mathbf{R}? 规则说公式用 $…$，JSON 字符串反斜杠必须双写。在 public_content statement 中可写 $\\\\mathbf{R}$? 需要 JSON 中 \"\\\\mathbf{R}\" 表示字符串 \\mathbf{R}? 输出 JSON 实际需要反斜杠转义为 \\\\。要小心。original_text 中也公式可用 LaTeX，需双反斜杠。可以少用 LaTeX 命令，用 Unicode ℝ? 规则 public_content math formulas $…$；可用 $\\mathbb{R}$? 需要反斜杠。可以写 “定义在 $\\mathbf{R}$ 上” 需要双写。或者用 “R” 不理想。original_text 使用 LaTeX 还是 Unicode 等义，均可。public_content 可用 $R$ 或 $\\mathbb{R}$。为了 JSON 正确，写 \"\\\\mathbb{R}\"。但 student output? 需要生成合法 JSON。最终会解析。我们可以写 \"$\\\\mathbb{R}$\" 字符串。但 `$…$` 内集合花括号写成 \\{ \\}? 这里没有集合。\n\nroot facts 中的数学字符串用目录记法，不写 $ 和反斜杠，使用 Unicode。可用 ℝ。facts:\n- \"parity(f,odd)\"\n- \"parity(g,even)\"\n- \"Dom(f)=ℝ\"\n- \"Dom(g)=ℝ\"\n- \"f(x)-g(x)=x^3+x^2-1\"\n是否要定义 f/g? 题面没有具体函数定义，只有性质。不需要 definitions。可以 definitions 空? schema root definitions optional. 不输出空数组? 可以省略。但 root requires? Scope properties optional except? root no required in def? The schema for Scope has no required fields. But our response should include goals. Include facts and goals. Could include definitions: []? Allowed? additionalProperties false, definitions array; optional. Use facts only. Need maybe “f,g are defined on R” as Dom(f)=ℝ etc. parity(f,odd) implies domain symmetric but not full; keep Dom. Good.\n\nGoal: find_value expression \"f(2)+g(2)\". No choices. Since f/g unknown but relation and parity provided, target expression. Good.\n\npublic_content: completeness complete; privacy separated? Need exclude hand-written answer, adjacent题, figure. The image contains handwritten answers/annotations; public_content statement doesn't include them. Privacy about personal info: none. So separated. figure not_required because no figure needed; figure_detection status none regions [] (or uncertain?). I think none. root_label_role source if root.label. Maybe set root.label \"6.\" and root_label_role \"source\". But if root.label exists, \"题面分问或图景标签，如（1）、②；可省略。不作为对象ID\". root label can be \"6.\"; source. public_content statement no题号. original_text can begin \"6. 已知...\" Yes.\n\nNeed original_text complete: \"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\" Need maybe include commas exact. The image text: “6. 已知f(x)，g(x)分别是定义在R上的奇函数和偶函数，且f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=___” Actually image shows \"则\" after -1? Let's read: \"且f(x)-g(x)=x^3+x^2-1则\" yes. Need original_text preserve \"则\". Use LaTeX. In original_text, need complete. There's handwritten 5 in circle between f(2)+g(2)= and ____? Actually answer written 5 above blank, no. Do not include.\n\nUncertainties? The right side has partial graph, but not referenced. Could omit. However ambiguous problem includes maybe “f(x)-g(x)=x^3+x^2-1则” no missing. Maybe the image has some handwritten formulas below not part. No uncertainty. But figure_detection status none. If no uncertainties, omit.\n\nNeed ensure public_content.scopes statement math formulas with $…$, selection etc. choices for root goal. public_content.scopes requires choices array item per goal exactly. For root one goal, choices one object: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []. Good.\n\nNeed output JSON only. No extra. Let's craft valid JSON.\n\nNeed consider `original_text` pattern \\S, max. Fine.\n\nNeed not include `public_content.figure_detection`? yes required. Need include `figure` in public_content. `figure_detection` separate top-level. We must include both. Top-level required original_text, root, public_content. `figure_detection` is inside public_content per schema? Wait schema: public_content properties include figure_detection. But user also says \"同时填写 figure_detection\" and response_schema top-level required [\"original_text\",\"root\",\"public_content\"]; figure_detection is inside public_content. So include public_content.figure_detection.\n\nCheck schema: public_content required: completeness, privacy, figure, scopes, figure_detection. So yes.\n\nTop-level no figure_detection separate. Only inside public_content. Good.\n\nNeed root `label`: optional. If include \"6.\", public_content.root_label_role \"source\". But `root.label` is string; in public_content scopes statement no label. Good.\n\nPotential issue public_content `root_label_role` only if root.label exists; include.\n\nNeed maybe root.facts includes parity(f,odd) and parity(g,even). Are those \"function_property\" strings. Good. Another fact \"Dom(f)=ℝ\" and \"Dom(g)=ℝ\". Does \"定义在R上\" maybe facts \"f: ℝ→ℝ; g: ℝ→ℝ\"? Catalog only domain. Use Dom.\n\nCould combine facts? Multiple strings okay. Need no in definitions? Fine.\n\nPotential issue target `find_value` expression with blank? no.\n\nRoot label \"6.\" but `root_label_role` source; but `original_text` includes \"6.\" It's okay.\n\nNeed public_content.completeness complete: yes. privacy separated: no personal info; hand-written answer not in public. figure not_required: The题目 doesn't require a figure. figure_detection.status none; regions [].\n\nNeed maybe if right side graph is present but not part, status none? Hmm \"figure_detection\" status none means no配图. Right side has a printed curve likely from some other content; if included in image, but not题目. Since \"相邻题目...不是题设\" and figure detection for this题, none. Good.\n\nNeed public_content.statement formula with `$f(x)$`, `$g(x)$`, `$\\\\mathbb{R}$`, `$f(x)-g(x)=x^3+x^2-1$`, `$f(2)+g(2)=$____`. Ensure backslashes doubled in JSON. Also `\\mathbf{R}`? Let's use `\\\\mathbb{R}`. In JSON string, to represent `\\mathbb{R}` need `\\\\mathbb{R}`. We'll write in final. Need if in original_text also `$\\\\mathbb{R}$`. Good.\n\nNeed no “求” maybe \"则 ... =____\". Good.\n\nCheck original_text \"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\" Note original has no period maybe. Add Chinese period? Can. \"则\" from image.\n\nNeed no handwritten answer. Good.\n\nPotential root facts use `x^3+x^2-1` and `f(x)-g(x)=...`. Need all variables. Good.\n\nNeed maybe goal expression `f(2)+g(2)` with no blank. Good.\n\nNeed JSON valid. Let's write.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 22992
+  },
+  "raw_payload": {
+    "id": "51ac4a80-7cce-457c-bd15-91c0dce83ee8",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"root\":{\"label\":\"6.\",\"facts\":[\"parity(f,odd)\",\"parity(g,even)\",\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答用户。需要从图片提取题意，输出 JSON 符合 schema。用户文本很长，给出规则。需要识别题目：图片显示第6题：已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____。图片有手写答案 5? 涂改圈，有些其他手写/可能其他题。需要只提取题干，不包含手写答案。需要标记配图是否存在：图片右侧似乎有曲线图？但可能属于相邻题或页面其他内容。我们需要判断题目本身是否需要配图。题目没有引用图，也没有图形说明。右侧有部分手绘/印刷曲线，但不在题目内容。配图检测：题干无配图，但图片中右侧有图形？figure_detection 应标记图片中的图形区域？ 规则说“同时填写 figure_detection：无配图为 none，有配图为 present，不能确定或题干引用的图未拍到为 uncertain。有图时只标出区域及其对应目标；role 区分题干图 statement、选项图 option、空白作图区 workspace。” 需要判断本题是否有配图。图片右侧确实有一小段曲线，可能是相邻题的图，且不属于本题。不确定所属关系时报告 uncertainty? 但 figure_detection 是否 present? 仅本题配图？如果右侧图形不是本题（没有题干引用），不应标为本题 figure? 但图像存在；可以 status uncertain? 或者 none? 需要谨慎。\n\n图片内容：上方有第6题，文本横跨。右侧有印刷曲线局部和手写坐标? 似乎可能是别的题的函数图，因为截图中右上角有曲线和手写数字，可能属于相邻题；题目本身未引用图。根据“只读本题题干及所属选项。相邻题目、印刷解析、答案、手写批注和勾选不是题设，不写入... 无法确认所属关系时报告 uncertainty”。配图检测：如果图形不能确认属于本题，可能 status=uncertain，regions 可空? 但 schema 允许 regions empty. figure 在 public_content 应为 not_required 因为本题无需配图；figure_detection status=uncertain? 这矛盾？ figure_detection 临时配图清单，状态 present/uncertain。如果无法确认是否为本题配图，uncertain 合理。regions 空? 若标区域且 target_ref 必须指向目标，但图不属于任何目标，可不标。或者 status=none 因为题干无图；手写/邻题图形不是题给配图。需要看规则“提到图不代表图已提供... 只读本题题干及所属选项。相邻题目...不是题设”。本题题干没有图，右侧图形可能相邻题，不应报告 present。如果无法确认所属关系，报告 uncertainty。可以在 root.uncertainties 加 ambiguous? 类型 missing_figure? 不是缺图，是无关图形。不必要。figure_detection 可以 none，regions=[]，因为没有题干引用配图，右侧图形不可确认属于本题，但不是本题配图。不过如果图片右侧有图，figure_detection 可能应 present? 它说“有配图为 present，不能确定或题干引用的图未拍到为 uncertain”。判断“本题有配图”为否，所以 none。右侧曲线不是本题配图。也可以 uncertainty 记录“右侧有部分图形，疑似相邻题，无法确认所属”，kind=ambiguous_reuse? 或 unstructured? 没有合适？ kind=ambiguous_reuse for 同名对象指代不明，不适用。missing_figure 不适用。可能不加 uncertainties。只看题干完整。\n\n需要构建 root: Scope with definitions, facts, goals. 题目：已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____。\n\n数学表示：definitions 可放函数性质? 目录有 function_property: parity(f,odd), parity(g,even)。题面给 f,g 分别是定义在 R 上的奇函数和偶函数。定义域 R 也要表达：Dom(f)=ℝ, Dom(g)=ℝ? 可以放 facts 或 definitions? 函数性质及定义域。规则：固定放置规则：仅曲线定义、函数定义及题内新概念定义原文放 definitions；其他题设关系放 facts。函数性质 parity 不是函数定义? 目录 function_property 可放 definitions/facts? 说明“题给的全域奇偶性... 定义域另写 Dom(f)=D”。放置规则说仅曲线/函数定义及新概念原文优先放 definitions；其他题设关系优先放 facts。所以 parity 和 Dom 可能放 facts。但是 f(x), g(x) 没有解析式，需要对象定义? 可以用 facts: parity(f,odd), parity(g,even), Dom(f)=ℝ, Dom(g)=ℝ, f(x)-g(x)=x^3+x^2-1。目标 find_value expression f(2)+g(2)。根节点无 children。choices status none selection none options [].\n\noriginal_text: 完整题干，保留原题号? 可以包括“6.”? 规则 original_text 转录完整题干，保留题面变量；来源题号? 原图有“6.”，可能是题号。original_text 可以保留题号。但 public_content.statement 不包含题号/来源；root.label 可以写题号? 是否 root.label? 题面有题号6，可 root.label=\"6.\"? 但 label 存在时 root_label_role 区分 source/content。原图明确是试卷题号 -> source。但 root.label 是 Scope label；原题没有小问，可以设 label \"6.\"? 但目标/公开 statement 不含题号。如果设置 root.label=\"6.\"，public_content.root_label_role=\"source\" 并保留？root.label 存在，公开字段要求？可以。但 original_text 也可以保留“6. 已知...”。如果 root.label 存在，label 用于题面分问或图景标签，题号是来源。规则“root.label 存在时，用 root_label_role 区分来源题号与有题意的标签：仅原图明确是来源或试卷题号时为 source... 省略角色时仍保留标签。” 可以设 root.label=\"6.\"，root_label_role=\"source\"。但 public_content.statement 不应包含题号，只写已知。original_text 可保留题号。需检查 public_content.root_label_role enum source/content; 可选。若 root.label 存在，建议填 source。但 root 中 label 不是数学条件。目标无 label。\n\n题目有填空，original_text 中“f(2)+g(2)=____” 照印刷横线。图片中手写答案5圈，不转录；题干填空处写“____”或“______”。不要写答案。原图 f(2)+g(2)= 后手写“5”覆盖横线？ 不抄。\n\npublic_content.scopes: 一个 scope_ref \"/root\", statement 只保留该作用域自身题干，不含题号/选项。应该写：“已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。” 包括目标? 同一作用域 statement 保留题干和所求。不写“求” maybe original. 公式用 $...$。注意 LaTeX 中 R 用 \\mathbf{R}? 规则说公式用 $…$，JSON 字符串反斜杠必须双写。在 public_content statement 中可写 $\\\\mathbf{R}$? 需要 JSON 中 \"\\\\mathbf{R}\" 表示字符串 \\mathbf{R}? 输出 JSON 实际需要反斜杠转义为 \\\\。要小心。original_text 中也公式可用 LaTeX，需双反斜杠。可以少用 LaTeX 命令，用 Unicode ℝ? 规则 public_content math formulas $…$；可用 $\\mathbb{R}$? 需要反斜杠。可以写 “定义在 $\\mathbf{R}$ 上” 需要双写。或者用 “R” 不理想。original_text 使用 LaTeX 还是 Unicode 等义，均可。public_content 可用 $R$ 或 $\\mathbb{R}$。为了 JSON 正确，写 \"\\\\mathbb{R}\"。但 student output? 需要生成合法 JSON。最终会解析。我们可以写 \"$\\\\mathbb{R}$\" 字符串。但 `$…$` 内集合花括号写成 \\{ \\}? 这里没有集合。\n\nroot facts 中的数学字符串用目录记法，不写 $ 和反斜杠，使用 Unicode。可用 ℝ。facts:\n- \"parity(f,odd)\"\n- \"parity(g,even)\"\n- \"Dom(f)=ℝ\"\n- \"Dom(g)=ℝ\"\n- \"f(x)-g(x)=x^3+x^2-1\"\n是否要定义 f/g? 题面没有具体函数定义，只有性质。不需要 definitions。可以 definitions 空? schema root definitions optional. 不输出空数组? 可以省略。但 root requires? Scope properties optional except? root no required in def? The schema for Scope has no required fields. But our response should include goals. Include facts and goals. Could include definitions: []? Allowed? additionalProperties false, definitions array; optional. Use facts only. Need maybe “f,g are defined on R” as Dom(f)=ℝ etc. parity(f,odd) implies domain symmetric but not full; keep Dom. Good.\n\nGoal: find_value expression \"f(2)+g(2)\". No choices. Since f/g unknown but relation and parity provided, target expression. Good.\n\npublic_content: completeness complete; privacy separated? Need exclude hand-written answer, adjacent题, figure. The image contains handwritten answers/annotations; public_content statement doesn't include them. Privacy about personal info: none. So separated. figure not_required because no figure needed; figure_detection status none regions [] (or uncertain?). I think none. root_label_role source if root.label. Maybe set root.label \"6.\" and root_label_role \"source\". But if root.label exists, \"题面分问或图景标签，如（1）、②；可省略。不作为对象ID\". root label can be \"6.\"; source. public_content statement no题号. original_text can begin \"6. 已知...\" Yes.\n\nNeed original_text complete: \"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\" Need maybe include commas exact. The image text: “6. 已知f(x)，g(x)分别是定义在R上的奇函数和偶函数，且f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=___” Actually image shows \"则\" after -1? Let's read: \"且f(x)-g(x)=x^3+x^2-1则\" yes. Need original_text preserve \"则\". Use LaTeX. In original_text, need complete. There's handwritten 5 in circle between f(2)+g(2)= and ____? Actually answer written 5 above blank, no. Do not include.\n\nUncertainties? The right side has partial graph, but not referenced. Could omit. However ambiguous problem includes maybe “f(x)-g(x)=x^3+x^2-1则” no missing. Maybe the image has some handwritten formulas below not part. No uncertainty. But figure_detection status none. If no uncertainties, omit.\n\nNeed ensure public_content.scopes statement math formulas with $…$, selection etc. choices for root goal. public_content.scopes requires choices array item per goal exactly. For root one goal, choices one object: target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []. Good.\n\nNeed output JSON only. No extra. Let's craft valid JSON.\n\nNeed consider `original_text` pattern \\S, max. Fine.\n\nNeed not include `public_content.figure_detection`? yes required. Need include `figure` in public_content. `figure_detection` separate top-level. We must include both. Top-level required original_text, root, public_content. `figure_detection` is inside public_content per schema? Wait schema: public_content properties include figure_detection. But user also says \"同时填写 figure_detection\" and response_schema top-level required [\"original_text\",\"root\",\"public_content\"]; figure_detection is inside public_content. So include public_content.figure_detection.\n\nCheck schema: public_content required: completeness, privacy, figure, scopes, figure_detection. So yes.\n\nTop-level no figure_detection separate. Only inside public_content. Good.\n\nNeed root `label`: optional. If include \"6.\", public_content.root_label_role \"source\". But `root.label` is string; in public_content scopes statement no label. Good.\n\nPotential issue public_content `root_label_role` only if root.label exists; include.\n\nNeed maybe root.facts includes parity(f,odd) and parity(g,even). Are those \"function_property\" strings. Good. Another fact \"Dom(f)=ℝ\" and \"Dom(g)=ℝ\". Does \"定义在R上\" maybe facts \"f: ℝ→ℝ; g: ℝ→ℝ\"? Catalog only domain. Use Dom.\n\nCould combine facts? Multiple strings okay. Need no in definitions? Fine.\n\nPotential issue target `find_value` expression with blank? no.\n\nRoot label \"6.\" but `root_label_role` source; but `original_text` includes \"6.\" It's okay.\n\nNeed public_content.completeness complete: yes. privacy separated: no personal info; hand-written answer not in public. figure not_required: The题目 doesn't require a figure. figure_detection.status none; regions [].\n\nNeed maybe if right side graph is present but not part, status none? Hmm \"figure_detection\" status none means no配图. Right side has a printed curve likely from some other content; if included in image, but not题目. Since \"相邻题目...不是题设\" and figure detection for this题, none. Good.\n\nNeed public_content.statement formula with `$f(x)$`, `$g(x)$`, `$\\\\mathbb{R}$`, `$f(x)-g(x)=x^3+x^2-1$`, `$f(2)+g(2)=$____`. Ensure backslashes doubled in JSON. Also `\\mathbf{R}`? Let's use `\\\\mathbb{R}`. In JSON string, to represent `\\mathbb{R}` need `\\\\mathbb{R}`. We'll write in final. Need if in original_text also `$\\\\mathbb{R}$`. Good.\n\nNeed no “求” maybe \"则 ... =____\". Good.\n\nCheck original_text \"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。\" Note original has no period maybe. Add Chinese period? Can. \"则\" from image.\n\nNeed no handwritten answer. Good.\n\nPotential root facts use `x^3+x^2-1` and `f(x)-g(x)=...`. Need all variables. Good.\n\nNeed maybe goal expression `f(2)+g(2)` with no blank. Good.\n\nNeed JSON valid. Let's write."
+        }
+      }
+    ],
+    "created": 1794399556,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3686,
+      "prompt_tokens": 25486,
+      "total_tokens": 29172,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3407,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 398
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 22.994
+}

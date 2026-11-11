@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2674,
+      "prompt_tokens": 25469,
+      "total_tokens": 28143,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 381
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 597,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-a549547b-de4a-4482-b0f6-944b8962d42e",
+        "sha256": "39d6fd6829c3205bb5c1f3bf6f21068c4b8d28d854491892019732f6be8e2e01",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7797,
+        "expires_at": 1794486204,
+        "uploaded_at": 1794399804.977773
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "39d6fd6829c3205bb5c1f3bf6f21068c4b8d28d854491892019732f6be8e2e01",
+        "api_calls": 1,
+        "file_id": "file-api-a549547b-de4a-4482-b0f6-944b8962d42e",
+        "expires_at": 1794486204,
+        "elapsed_ms": 271
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 16010,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2674,
+          "prompt_tokens": 25469,
+          "total_tokens": 28143,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2413
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 381
+        },
+        "raw_payload": {
+          "id": "de1c08a6-ca90-4981-812e-7c4beeb3b03f",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2674,
+            "prompt_tokens": 25469,
+            "total_tokens": 28143,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2413
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 381
+          },
+          "created": 1794399805,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意。需要输出 JSON 符合 schema。只提取，不求解。需要注意手写答案是 -8，不转录。题干：\"15. 已知定义在[m-5, 1-2m]上的奇函数f(x)，当x≥0时，f(x)=x^2-2x，则f(m)的值为____.\" 需要保留题号？original_text 可以保留题号 15. 但 public_content 不应含题号来源。root.label? 题号是来源题号吗？原图明确是题号 15，可放 root.label? 但 schema 的 root label 可省略。public_content.root_label_role: 如果 root.label 存在。我们可以不设置 root.label 以免来源题号进入 root/public_content。original_text 保留“15.”。题目没有小问。配图：无配图 none。需要数学表达。\n\n题干：已知定义在 [m-5, 1-2m] 上的奇函数 f(x)，当 x≥0 时，f(x)=x^2-2x，则 f(m) 的值为____。\n\n定义：f(x)=x^2-2*x， 对 x≥0? 这个是分段定义：当 x≥0 时 f(x)=...，且奇函数定义在区间。需要表示奇函数性质 parity(f,odd) 放定义还是facts？奇函数是函数性质，按 catalog 函数性质可能放facts（题给性质）？definitions 放函数定义 f(x)=piecewise(...?) 但题面只给了 x≥0 时的解析式，并且说明奇函数，定义域区间 [m-5, 1-2m]。我们应转录完整条件，不补 x<0 的表达式（可由奇函数推出，但不写结果）。函数定义：f(x)=x^2-2*x, x≥0 作为 piecewise? 题面中“当 x≥0 时，f(x)=x^2-2x”只是部分定义，不能写成完整 piecewise 只有一段？可以 definitions 写 f(x)=x^2-2*x, x≥0 但 catalog 定义函数用 f(t)=表达式; 条件可以放 facts。更合适：definitions: \"f(x) = x^2-2*x\"？但这只在 x≥0，不能误成全定义域。可 definitions \"f(x)=x^2-2*x（x≥0）\" 不是受控数学式？schema 要求数学字符串。我们可以 definitions 放 \"f(x)=piecewise(x^2-2*x,x>=0)\"? 但只给一个分支不是完整分段，可能不恰当但保留条件。或者 definitions 放 \"f(x)=x^2-2*x\"，facts 放 \"∀x∈[0,∞): f(x)=x^2-2*x\" 但定义重复。根据规则：函数定义优先放definitions，已有函数的取值条件放facts。题面是当x≥0时 f(x)=... 可放 fact \"∀x∈[0,∞): f(x)=x^2-2*x\"。同时函数 f 未给出完整解析，不需要 definitions？可是需要稳定符号 f；可以 facts 有 f 的关系。奇函数放 facts \"parity(f,odd)\"。定义域区间 [m-5,1-2m] 放 facts \"Dom(f)=[m-5,1-2m]\" 还是定义域区间是题给定义在... 上，应作为完整定义域声明，放 facts \"Dom(f)=[m-5,1-2m]\"? 规则：declared_domain 或 Dom(f)=D 是完整函数定义域，可以放 facts。奇函数定义域关于原点对称，区间有参数，不能求解但保留。目标：求 f(m) 的值 -> find_value expression \"f(m)\"。不需要求解。注意求的是函数值，f(m) 是 find_value。没有选项，choices status none selection none options [].\n\noriginal_text 需要 LaTeX 公式用 $...$，在 JSON 字符串里反斜杠要转义。避免复杂。转录：\n\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\"\n学生手写 -8 不转录。填空横线照原样写横线。原文可能下划线 \"____\" 保留。\n\nroot:\nfacts 可以包含：\n\"Dom(f)=[m-5,1-2m]\"\n\"parity(f,odd)\"\n\"∀x∈[0,∞): f(x)=x^2-2*x\"\n或者 interval [0,∞) 表示 x≥0。注意题面“当 x≥0 时” 是 x 属于 [0,+∞)。使用 catalog 量词。这么写准确保留。\ndefinitions 可以放 \"f(x)=x^2-2*x\"? 但只在 x≥0 时成立，不完整。不放 definitions? 但函数 f 无定义；facts 提到了 f。可以。不过按 \"函数定义（f(t)=t^2）优先放definitions\"；这里函数定义有条件，是否应该放 definitions 的 piecewise? 题面其实只定义了 x≥0 段和奇函数，完整定义可由奇函数性质补全，但提取不补。所以 definitions 放有条件片段可能会被代码当成全局定义。安全放 facts 当条件等式。可是 facts 中 \"∀x∈[0,∞): f(x)=x^2-2*x\" 完整条件。好。\n\n奇函数定义在区间上：parity(f,odd) 是全定义域奇偶性。Dom(f)=[m-5,1-2m] 完整定义域。题面“定义在[...]上的奇函数”确实给出完整定义域为区间。因此 Dom(f)=区间。另奇函数定义域应关于原点对称，但这是推导，不补。\n\ngoals: [{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]\n\npublic_content:\ncompleteness: complete? 题目完整，有填空。没有选项。尽管需要求值，条件齐全。complete。\nprivacy: 图片中有手写答案 -8 和涂改，不属于题目内容，已排除。题号是来源？original_text 保留，public_content 不含题号。privacy separated? 需要确保姓名等无。可以 separated 因为手写答案已排除，来源题号也分离。但题号 15 在图像上，属于来源，公开字段未包含。可 separated。\nfigure: not_required。无图。\nroot_label_role: 没有 root.label，不填。\nscopes: [{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\", \"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\n注意 public_content.statement 公式用 $…$，反斜杠转义。JSON 字符串需 \\\\ge。statement 不含题号“15.”，不含手写答案。填空横线保留。不要小问编号。\n\nfigure_detection: {\"status\":\"none\",\"regions\":[]}\n\nuncertainties: [] 或省略。root 可省略 uncertainties 或空数组。original_text 有手写不报告 unreadable。没有模糊。题目的下划线长度可能为 \"____\" 没问题。没有选项。\n\n需要确保 JSON 符合 schema。root 的 properties 包括 definitions, facts, goals, children 等，无 required? Scope 没有 required。可只给 facts/goals。没有 go 问题。但是 root 中数学式不写 $ 和反斜杠，用 Unicode 记法。facts \"∀x∈[0,∞): f(x)=x^2-2*x\"。这里用了 ∞ unicode，乘号 *。Dom(f)=[m-5,1-2m]。parity(f,odd)。目标 expression \"f(m)\"。\n\n是否把“定义在区间上的奇函数”拆 facts 为 Dom(f)=[m-5,1-2m] 和 parity(f,odd)。可以。也可以 combined \"f(x)是定义在[m-5,1-2m]上的奇函数\" 不是受控数学式？应拆分。\n\n注意 facts 中区间 [0,∞) 可以。量词变量 x 与函数变量 x 绑定，没问题。\n\npublic_content statement 保留\"奇函数\"等中文。数学公式用 LaTeX：$[m-5, 1-2m]$、$f(x)$、$x\\ge 0$、$f(x)=x^2-2x$、$f(m)$。JSON 中反斜杠需要 \\\\ge。使用 \"$x\\\\ge 0$\" 显示为 \\ge。schema 无禁止。original_text 中也类似。中文里的逗号、空格保留。\n\n题型：无 children。只有 root。无 label。没有选项，因此 choices none。\n\n需要注意 original_text 中“15.”是题号，但 public_content 不包含。original_text 中应包含完整题干，题号算题干原文？保留 yes。填空处照印刷原样写横线。手写 -8 不写。\n\n现在输出 JSON。不要额外字段。注意 schema 对 public_content 必须包含 root_label_role? 可选。不填。public_content 必须有 completeness,privacy,figure,scopes,figure_detection。figure_detection 的 regions 可有空。scope choices 必须 target_ref,status,selection_mode,options。\n\nroot 中可能 definitions 可以不放。但目标 expression f(m) 引用了 f；facts 中有定义和性质。好。\n\n检查 JSON 转义：original_text 字符串里包含 $[m-5, 1-2m]$、$f(x)$、$x\\ge 0$、$f(x)=x^2-2x$、$f(m)$。需要写成 \"x\\\\ge 0\" 在 JSON 中。最终实际渲染应该是 x\\ge 0。JSON 字符串里反斜杠需转义，所以写入 \"\\\\ge\"。整句：\n\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\"\n在 JSON text 中 \"\\\\\" 是一个反斜杠。正确。\n\npublic_content.statement 同样 \"x\\\\ge 0\"。\n\nJSON keys maybe order. 只需合法。\n\nuncertainties 可以省略在 root 中。没有要求。public_content choices status none.\n\nfigure_detection status none regions [].\n\n输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 16320
+  },
+  "raw_payload": {
+    "id": "de1c08a6-ca90-4981-812e-7c4beeb3b03f",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。需要输出 JSON 符合 schema。只提取，不求解。需要注意手写答案是 -8，不转录。题干：\"15. 已知定义在[m-5, 1-2m]上的奇函数f(x)，当x≥0时，f(x)=x^2-2x，则f(m)的值为____.\" 需要保留题号？original_text 可以保留题号 15. 但 public_content 不应含题号来源。root.label? 题号是来源题号吗？原图明确是题号 15，可放 root.label? 但 schema 的 root label 可省略。public_content.root_label_role: 如果 root.label 存在。我们可以不设置 root.label 以免来源题号进入 root/public_content。original_text 保留“15.”。题目没有小问。配图：无配图 none。需要数学表达。\n\n题干：已知定义在 [m-5, 1-2m] 上的奇函数 f(x)，当 x≥0 时，f(x)=x^2-2x，则 f(m) 的值为____。\n\n定义：f(x)=x^2-2*x， 对 x≥0? 这个是分段定义：当 x≥0 时 f(x)=...，且奇函数定义在区间。需要表示奇函数性质 parity(f,odd) 放定义还是facts？奇函数是函数性质，按 catalog 函数性质可能放facts（题给性质）？definitions 放函数定义 f(x)=piecewise(...?) 但题面只给了 x≥0 时的解析式，并且说明奇函数，定义域区间 [m-5, 1-2m]。我们应转录完整条件，不补 x<0 的表达式（可由奇函数推出，但不写结果）。函数定义：f(x)=x^2-2*x, x≥0 作为 piecewise? 题面中“当 x≥0 时，f(x)=x^2-2x”只是部分定义，不能写成完整 piecewise 只有一段？可以 definitions 写 f(x)=x^2-2*x, x≥0 但 catalog 定义函数用 f(t)=表达式; 条件可以放 facts。更合适：definitions: \"f(x) = x^2-2*x\"？但这只在 x≥0，不能误成全定义域。可 definitions \"f(x)=x^2-2*x（x≥0）\" 不是受控数学式？schema 要求数学字符串。我们可以 definitions 放 \"f(x)=piecewise(x^2-2*x,x>=0)\"? 但只给一个分支不是完整分段，可能不恰当但保留条件。或者 definitions 放 \"f(x)=x^2-2*x\"，facts 放 \"∀x∈[0,∞): f(x)=x^2-2*x\" 但定义重复。根据规则：函数定义优先放definitions，已有函数的取值条件放facts。题面是当x≥0时 f(x)=... 可放 fact \"∀x∈[0,∞): f(x)=x^2-2*x\"。同时函数 f 未给出完整解析，不需要 definitions？可是需要稳定符号 f；可以 facts 有 f 的关系。奇函数放 facts \"parity(f,odd)\"。定义域区间 [m-5,1-2m] 放 facts \"Dom(f)=[m-5,1-2m]\" 还是定义域区间是题给定义在... 上，应作为完整定义域声明，放 facts \"Dom(f)=[m-5,1-2m]\"? 规则：declared_domain 或 Dom(f)=D 是完整函数定义域，可以放 facts。奇函数定义域关于原点对称，区间有参数，不能求解但保留。目标：求 f(m) 的值 -> find_value expression \"f(m)\"。不需要求解。注意求的是函数值，f(m) 是 find_value。没有选项，choices status none selection none options [].\n\noriginal_text 需要 LaTeX 公式用 $...$，在 JSON 字符串里反斜杠要转义。避免复杂。转录：\n\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\"\n学生手写 -8 不转录。填空横线照原样写横线。原文可能下划线 \"____\" 保留。\n\nroot:\nfacts 可以包含：\n\"Dom(f)=[m-5,1-2m]\"\n\"parity(f,odd)\"\n\"∀x∈[0,∞): f(x)=x^2-2*x\"\n或者 interval [0,∞) 表示 x≥0。注意题面“当 x≥0 时” 是 x 属于 [0,+∞)。使用 catalog 量词。这么写准确保留。\ndefinitions 可以放 \"f(x)=x^2-2*x\"? 但只在 x≥0 时成立，不完整。不放 definitions? 但函数 f 无定义；facts 提到了 f。可以。不过按 \"函数定义（f(t)=t^2）优先放definitions\"；这里函数定义有条件，是否应该放 definitions 的 piecewise? 题面其实只定义了 x≥0 段和奇函数，完整定义可由奇函数性质补全，但提取不补。所以 definitions 放有条件片段可能会被代码当成全局定义。安全放 facts 当条件等式。可是 facts 中 \"∀x∈[0,∞): f(x)=x^2-2*x\" 完整条件。好。\n\n奇函数定义在区间上：parity(f,odd) 是全定义域奇偶性。Dom(f)=[m-5,1-2m] 完整定义域。题面“定义在[...]上的奇函数”确实给出完整定义域为区间。因此 Dom(f)=区间。另奇函数定义域应关于原点对称，但这是推导，不补。\n\ngoals: [{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]\n\npublic_content:\ncompleteness: complete? 题目完整，有填空。没有选项。尽管需要求值，条件齐全。complete。\nprivacy: 图片中有手写答案 -8 和涂改，不属于题目内容，已排除。题号是来源？original_text 保留，public_content 不含题号。privacy separated? 需要确保姓名等无。可以 separated 因为手写答案已排除，来源题号也分离。但题号 15 在图像上，属于来源，公开字段未包含。可 separated。\nfigure: not_required。无图。\nroot_label_role: 没有 root.label，不填。\nscopes: [{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\", \"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]\n注意 public_content.statement 公式用 $…$，反斜杠转义。JSON 字符串需 \\\\ge。statement 不含题号“15.”，不含手写答案。填空横线保留。不要小问编号。\n\nfigure_detection: {\"status\":\"none\",\"regions\":[]}\n\nuncertainties: [] 或省略。root 可省略 uncertainties 或空数组。original_text 有手写不报告 unreadable。没有模糊。题目的下划线长度可能为 \"____\" 没问题。没有选项。\n\n需要确保 JSON 符合 schema。root 的 properties 包括 definitions, facts, goals, children 等，无 required? Scope 没有 required。可只给 facts/goals。没有 go 问题。但是 root 中数学式不写 $ 和反斜杠，用 Unicode 记法。facts \"∀x∈[0,∞): f(x)=x^2-2*x\"。这里用了 ∞ unicode，乘号 *。Dom(f)=[m-5,1-2m]。parity(f,odd)。目标 expression \"f(m)\"。\n\n是否把“定义在区间上的奇函数”拆 facts 为 Dom(f)=[m-5,1-2m] 和 parity(f,odd)。可以。也可以 combined \"f(x)是定义在[m-5,1-2m]上的奇函数\" 不是受控数学式？应拆分。\n\n注意 facts 中区间 [0,∞) 可以。量词变量 x 与函数变量 x 绑定，没问题。\n\npublic_content statement 保留\"奇函数\"等中文。数学公式用 LaTeX：$[m-5, 1-2m]$、$f(x)$、$x\\ge 0$、$f(x)=x^2-2x$、$f(m)$。JSON 中反斜杠需要 \\\\ge。使用 \"$x\\\\ge 0$\" 显示为 \\ge。schema 无禁止。original_text 中也类似。中文里的逗号、空格保留。\n\n题型：无 children。只有 root。无 label。没有选项，因此 choices none。\n\n需要注意 original_text 中“15.”是题号，但 public_content 不包含。original_text 中应包含完整题干，题号算题干原文？保留 yes。填空处照印刷原样写横线。手写 -8 不写。\n\n现在输出 JSON。不要额外字段。注意 schema 对 public_content 必须包含 root_label_role? 可选。不填。public_content 必须有 completeness,privacy,figure,scopes,figure_detection。figure_detection 的 regions 可有空。scope choices 必须 target_ref,status,selection_mode,options。\n\nroot 中可能 definitions 可以不放。但目标 expression f(m) 引用了 f；facts 中有定义和性质。好。\n\n检查 JSON 转义：original_text 字符串里包含 $[m-5, 1-2m]$、$f(x)$、$x\\ge 0$、$f(x)=x^2-2x$、$f(m)$。需要写成 \"x\\\\ge 0\" 在 JSON 中。最终实际渲染应该是 x\\ge 0。JSON 字符串里反斜杠需转义，所以写入 \"\\\\ge\"。整句：\n\"15. 已知定义在 $[m-5, 1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____.\"\n在 JSON text 中 \"\\\\\" 是一个反斜杠。正确。\n\npublic_content.statement 同样 \"x\\\\ge 0\"。\n\nJSON keys maybe order. 只需合法。\n\nuncertainties 可以省略在 root 中。没有要求。public_content choices status none.\n\nfigure_detection status none regions [].\n\n输出。"
+        }
+      }
+    ],
+    "created": 1794399805,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2674,
+      "prompt_tokens": 25469,
+      "total_tokens": 28143,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2413,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 381
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 16.321
+}

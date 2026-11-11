@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"4. 已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"root\":{\"facts\":[\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2+4*x\"],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=x^2+4*x\",\"relation_domain\":\"[0,∞)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1620,
+      "prompt_tokens": 25481,
+      "total_tokens": 27101,
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 137
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 626,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-eadf3985-694a-4b5c-858d-db2fc083f7e4",
+        "sha256": "2c57fc9a882d90cc750b56bbe26ac8a7b30f7bf7d295495189da7cf897418248",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 13650,
+        "expires_at": 1794486573,
+        "uploaded_at": 1794400173.777656
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "2c57fc9a882d90cc750b56bbe26ac8a7b30f7bf7d295495189da7cf897418248",
+        "api_calls": 1,
+        "file_id": "file-api-eadf3985-694a-4b5c-858d-db2fc083f7e4",
+        "expires_at": 1794486573,
+        "elapsed_ms": 335
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 9454,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1620,
+          "prompt_tokens": 25481,
+          "total_tokens": 27101,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1369
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25344
+          },
+          "prompt_cache_hit_tokens": 25344,
+          "prompt_cache_miss_tokens": 137
+        },
+        "raw_payload": {
+          "id": "6365ec89-295a-4cbb-9233-42aae0bcb192",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1620,
+            "prompt_tokens": 25481,
+            "total_tokens": 27101,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1369
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25344
+            },
+            "prompt_cache_hit_tokens": 25344,
+            "prompt_cache_miss_tokens": 137
+          },
+          "created": 1794400173,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"4. 已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"root\":{\"facts\":[\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2+4*x\"],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=x^2+4*x\",\"relation_domain\":\"[0,∞)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片：题号4，已知 f(x) 为偶函数，若当 x≥0 时，f(x)=x^2+4x，则 f(x) 的解析式是 ______。手写答案分段函数不算题目内容。需要输出 original_text，root，public_content。\n\n需要注意 root 数学字符串无 $ 和反斜杠，受控数学表达。题干定义：f(x) 为偶函数，且当 x≥0 时 f(x)=x^2+4x。求 f(x) 的解析式。目标 find_function_formula：function f, variable x, relation? 这里没有给出恒等关系，而是分段条件。规则：求解析式用 find_function_formula，relation 保留原函数、变量及恒等式；但本题给的是 f(x)=x^2+4x 当 x≥0，以及偶函数。可以 definitions 放分段定义？原题条件：parity(f,even)；∀x≥0: f(x)=x^2+4*x? 但 f(x) 当 x≥0 时等于...；求解析式。relation字段是题给恒等式原文，可写 f(x)=x^2+4*x？但有限制 x≥0，需 relation_domain 填 [0,∞)。同时 parity(f,even)放facts。目标 find_function_formula function f, variable x, relation \"f(x)=x^2+4*x\", relation_domain \"[0,∞)\"? relation表示仅在x≥0成立，relation_domain正好。但求完整解析式。也可以 facts: ∀x∈[0,∞): f(x)=x^2+4*x; parity(f,even)。definitions 可放 f(x)=piecewise? 但原题没有给分段，不能补造；求解析式可用 relation。\n\n注意原题“已知 f(x) 为偶函数，若当 x≥0 时，f(x)=x^2+4x，则 f(x) 的解析式是____”。root facts: parity(f,even)；∀x∈[0,∞): f(x)=x^2+4*x。goals: find_function_formula function f variable x relation \"f(x)=x^2+4*x\" relation_domain \"[0,∞)\"。但 find_function_formula 的 relation 字段必须题给恒等式原文。条件“当 x≥0 时”是关系域。可以。不过 relation_domain 限定原关系变量，relation 在 [0,∞) 成立，符合。parity 放 facts。\n\npublic_content: scopes [/root] statement 转录。choices for goal: status none, selection_mode none, options []。\n\nfigure_detection: 无配图，status none regions[]。\n\noriginal_text：保留题号？可以保留 \"4. 已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\" 不要包含手写答案。需要 LaTeX 公式，反斜杠双写。原题干 x≥0。注意填空处照印刷原样横线。不要写手写分段答案。\n\nroot uncertainties 无。label? 题号不是 root.label? 不填 root.label 更好，因为题号不是题意标签。public_content root_label_role 不填？ schema 可选。不能把题号当 root.label。public_content privacy separated? 学生拍题，无个人信息，手写答案不属于题目，已排除。可以 separated。但图片有手写答案，已排除公开。privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号在原文？隐私定义包括题号? 来源和题号需分离？公开 statement 不写题号即可。completeness complete。figure not_required。scope statement \"已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\" 不含题号和小问编号。choices target_ref \"/root/goals/0\" status none selection_mode none options []。\n\nroot definitions 是否可以省略？可省略。facts [\"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2+4*x\"]。注意 math_expression_catalog 有 parity(f,even) 表示题给全域奇偶性。偶函数用 parity(f,even)。 关系 quantifier 用 ∀x∈[0,∞): f(x)=x^2+4*x。目标 find_function_formula relation \"f(x)=x^2+4*x\", relation_domain \"[0,∞)\"。变量 x。函数 f。是否需要 function_type? 没有明确二次函数类型，不填。requested_domain? 求解析式，未明确范围，不填。declared_domain? 无完整定义域。additional_relations? 无。\n\n但 find_function_formula 是“从题给关系恢复未知函数的解析式”，relation 的题给恒等式原文是 f(x)=x^2+4x。偶函数是 additional? facts 已有。可以。\n\noriginal_text 中使用 \\ge 写成 $x\\\\ge 0$? JSON original_text 里字符串：`$x\\\\ge 0$` 显示为 x\\ge 0 LaTeX。可以。`f(x)=x^2+4x`。填空 `______`。\n\npublic_content statement 也用 $x\\\\ge 0$。注意 JSON 字符串反斜杠双重。\n\n没有配图。\n\n需要输出 JSON 仅。确保 schema 中没有 root.uncertainties 时可省略或空数组。可以省略。public_content.scopes 必须数组。figure_detection 必须。\n\ncheck no extra fields. root allowed label, definitions, facts, goals, children, uncertainties. We'll include facts and goals only maybe definitions absent. goals one. root no children. public_content has required completeness privacy figure scopes figure_detection; root_label_role omitted okay.\n\nNeed maybe public_content scope statement formula uses `$f(x)$` etc. No choices? Yes choices array one.\n\nLet's craft final JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9828
+  },
+  "raw_payload": {
+    "id": "6365ec89-295a-4cbb-9233-42aae0bcb192",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"4. 已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"root\":{\"facts\":[\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2+4*x\"],\"goals\":[{\"kind\":\"find_function_formula\",\"function\":\"f\",\"variable\":\"x\",\"relation\":\"f(x)=x^2+4*x\",\"relation_domain\":\"[0,∞)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片：题号4，已知 f(x) 为偶函数，若当 x≥0 时，f(x)=x^2+4x，则 f(x) 的解析式是 ______。手写答案分段函数不算题目内容。需要输出 original_text，root，public_content。\n\n需要注意 root 数学字符串无 $ 和反斜杠，受控数学表达。题干定义：f(x) 为偶函数，且当 x≥0 时 f(x)=x^2+4x。求 f(x) 的解析式。目标 find_function_formula：function f, variable x, relation? 这里没有给出恒等关系，而是分段条件。规则：求解析式用 find_function_formula，relation 保留原函数、变量及恒等式；但本题给的是 f(x)=x^2+4x 当 x≥0，以及偶函数。可以 definitions 放分段定义？原题条件：parity(f,even)；∀x≥0: f(x)=x^2+4*x? 但 f(x) 当 x≥0 时等于...；求解析式。relation字段是题给恒等式原文，可写 f(x)=x^2+4*x？但有限制 x≥0，需 relation_domain 填 [0,∞)。同时 parity(f,even)放facts。目标 find_function_formula function f, variable x, relation \"f(x)=x^2+4*x\", relation_domain \"[0,∞)\"? relation表示仅在x≥0成立，relation_domain正好。但求完整解析式。也可以 facts: ∀x∈[0,∞): f(x)=x^2+4*x; parity(f,even)。definitions 可放 f(x)=piecewise? 但原题没有给分段，不能补造；求解析式可用 relation。\n\n注意原题“已知 f(x) 为偶函数，若当 x≥0 时，f(x)=x^2+4x，则 f(x) 的解析式是____”。root facts: parity(f,even)；∀x∈[0,∞): f(x)=x^2+4*x。goals: find_function_formula function f variable x relation \"f(x)=x^2+4*x\" relation_domain \"[0,∞)\"。但 find_function_formula 的 relation 字段必须题给恒等式原文。条件“当 x≥0 时”是关系域。可以。不过 relation_domain 限定原关系变量，relation 在 [0,∞) 成立，符合。parity 放 facts。\n\npublic_content: scopes [/root] statement 转录。choices for goal: status none, selection_mode none, options []。\n\nfigure_detection: 无配图，status none regions[]。\n\noriginal_text：保留题号？可以保留 \"4. 已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\" 不要包含手写答案。需要 LaTeX 公式，反斜杠双写。原题干 x≥0。注意填空处照印刷原样横线。不要写手写分段答案。\n\nroot uncertainties 无。label? 题号不是 root.label? 不填 root.label 更好，因为题号不是题意标签。public_content root_label_role 不填？ schema 可选。不能把题号当 root.label。public_content privacy separated? 学生拍题，无个人信息，手写答案不属于题目，已排除。可以 separated。但图片有手写答案，已排除公开。privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号在原文？隐私定义包括题号? 来源和题号需分离？公开 statement 不写题号即可。completeness complete。figure not_required。scope statement \"已知 $f(x)$ 为偶函数，若当 $x\\\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是 ______。\" 不含题号和小问编号。choices target_ref \"/root/goals/0\" status none selection_mode none options []。\n\nroot definitions 是否可以省略？可省略。facts [\"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2+4*x\"]。注意 math_expression_catalog 有 parity(f,even) 表示题给全域奇偶性。偶函数用 parity(f,even)。 关系 quantifier 用 ∀x∈[0,∞): f(x)=x^2+4*x。目标 find_function_formula relation \"f(x)=x^2+4*x\", relation_domain \"[0,∞)\"。变量 x。函数 f。是否需要 function_type? 没有明确二次函数类型，不填。requested_domain? 求解析式，未明确范围，不填。declared_domain? 无完整定义域。additional_relations? 无。\n\n但 find_function_formula 是“从题给关系恢复未知函数的解析式”，relation 的题给恒等式原文是 f(x)=x^2+4x。偶函数是 additional? facts 已有。可以。\n\noriginal_text 中使用 \\ge 写成 $x\\\\ge 0$? JSON original_text 里字符串：`$x\\\\ge 0$` 显示为 x\\ge 0 LaTeX。可以。`f(x)=x^2+4x`。填空 `______`。\n\npublic_content statement 也用 $x\\\\ge 0$。注意 JSON 字符串反斜杠双重。\n\n没有配图。\n\n需要输出 JSON 仅。确保 schema 中没有 root.uncertainties 时可省略或空数组。可以省略。public_content.scopes 必须数组。figure_detection 必须。\n\ncheck no extra fields. root allowed label, definitions, facts, goals, children, uncertainties. We'll include facts and goals only maybe definitions absent. goals one. root no children. public_content has required completeness privacy figure scopes figure_detection; root_label_role omitted okay.\n\nNeed maybe public_content scope statement formula uses `$f(x)$` etc. No choices? Yes choices array one.\n\nLet's craft final JSON."
+        }
+      }
+    ],
+    "created": 1794400173,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1620,
+      "prompt_tokens": 25481,
+      "total_tokens": 27101,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1369,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25344
+      },
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 137
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.83
+}

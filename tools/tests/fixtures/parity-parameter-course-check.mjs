@@ -37,14 +37,15 @@ for (const [index, action] of replay.actions.entries()) {
 }
 assert.equal(state.done, true);
 assert.equal(replayState(bundle, replay).done, true);
-const answer = bundle.routes['parity-parameter'].completion.answer;
+const answer = bundle.routes[process.argv[4] || 'parity-parameter'].completion.answer;
 const summary = routeAnswerSummary(answer);
 if (answer.result_type === 'parameter_family') {
   assert.equal(answer.parameters.length, 2);
   assert.equal(new Set(answer.parameters).size, 2);
   assert.equal(summary.label, '符合条件的联合参数：');
 }
-assert.ok(summary.formula);
+if (answer.kind === 'goal_group') assert.ok(summary.items.every(item => item.summary.formula));
+else assert.ok(summary.formula);
 const katex = createRequire(import.meta.url)('../../../site/assets/practice/vendor/katex-0.18.9/katex.min.js');
 let rendered = 0;
 const render = math => { katex.renderToString(math, {throwOnError: true, strict: 'ignore'}); rendered++; };
@@ -58,6 +59,6 @@ function visit(value) {
   }
 }
 visit(bundle);
-render(summary.formula);
+for (const formula of answer.kind === 'goal_group' ? summary.items.map(item => item.summary.formula) : [summary.formula]) render(formula);
 assert.ok(rendered > 8);
 console.log(JSON.stringify({decisions: replay.actions.length, formulas: rendered, summary}));

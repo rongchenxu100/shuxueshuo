@@ -9,6 +9,7 @@ import sympy as sp
 
 from ..problem_understanding.notation_parser import definition
 from . import parameter_domain as domains
+from . import parity_compatibility as compatibility
 from . import parity_parameter_math as base
 
 VERSION = 'parity-parameter/r1-domain-v1'
@@ -161,17 +162,15 @@ def _cell_relations(desc, proof, *, interpolate=False):
         atoms = [a for a in cell['input_atoms'] if a['member']]
         region, value = cell['parameter_cell'], cell['representative']
         if partial:
-            known = [a for a in atoms if mask.contains(domains.atom_point(a, p, value))]
-            overlap = [a for a in known if mask.contains(-domains.atom_point(a, p, value))]
-            # Zero is fixed by reflection; odd extensions must take value zero.
-            relation_atoms = known if len(signs) == 2 else overlap
-            residuals = ([expr] if len(signs) == 2 else [expr.subs(x, -x)-sign*expr for sign in signs]) if expr is not None else []
-            free_nonzero = len(signs) < 2 and any(
-                not mask.contains(domains.atom_point(a, p, value))
-                and not mask.contains(-domains.atom_point(a, p, value))
-                and (signs == [1] or a['kind'] == 'open' or domains.atom_point(a, p, value) != 0)
-                for a in atoms)
-            zero_atoms = known
+            roles = []
+            for a in atoms:
+                point = domains.atom_point(a, p, value)
+                roles.append((a, compatibility.atom_role(signs, bool(mask.contains(point)), bool(mask.contains(-point)),
+                                                         a['kind'] != 'open' and point == 0)))
+            relation_atoms = [a for a, role in roles if compatibility.constrained(signs, role)]
+            residuals = compatibility.residuals(expr, x, signs, 'overlap')
+            free_nonzero = any(role == 'free' for _, role in roles)
+            zero_atoms = [a for a, role in roles if role in ('overlap', 'known')]
         else:
             relation_atoms, zero_atoms, free_nonzero = atoms, atoms, False
             residuals = [expr.subs(x, -x)-sign*expr for sign in signs]

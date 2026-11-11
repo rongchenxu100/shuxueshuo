@@ -1,0 +1,36 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a15",
+  "reviewer": "Codex：对照用户原图第 15 题印刷题干转录，忽略手写答案；奇函数定义域关于原点对称，由 T2 借用子任务得 m=-4、定义域 [-9,9]，正侧解析式只在 [0,9] 上有效；父目标继续求 f(m)=f(-4)=-f(4)=-8。m=-4 是中间结果，不写入已知条件。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "第2张图，印刷第15题；规划编号 FP-A15"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\ge0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____．",
+    "root": {
+      "facts": [
+        "Dom(f)=[m-5,1-2*m]",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2-2*x",
+          "relation_domain": "[0,∞)",
+          "expression": "f(m)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-8"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

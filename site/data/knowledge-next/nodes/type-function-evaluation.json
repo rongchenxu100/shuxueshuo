@@ -19,6 +19,9 @@
       "cue": "分段函数求具体数值时，每次按当前输入选段；嵌套调用使用中间值重新选段。"
     },
     {
+      "cue": "题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+    },
+    {
       "cue": "本批执行正向代入、至多两层复合、定值判断及受限有限求和；逆向求输入仍为 planned。"
     }
   ],
@@ -33,7 +36,8 @@
     "piecewise-function"
   ],
   "methods": [
-    "method-function-evaluation"
+    "method-function-evaluation",
+    "method-function-symmetry"
   ],
   "rules": [],
   "examples": [

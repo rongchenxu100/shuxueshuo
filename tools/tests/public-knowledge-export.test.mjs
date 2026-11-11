@@ -28,7 +28,7 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 160);
+  assert.equal(data.knowledge_nodes.length, 164);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
   assert.equal(data.practice_problems.length, 137);

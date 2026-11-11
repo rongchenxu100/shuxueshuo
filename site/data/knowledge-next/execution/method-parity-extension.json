@@ -1,0 +1,208 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-parity-extension",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_parity_extension",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "map",
+      "calls": [
+        {
+          "id": "map",
+          "capability": "map_parity_extension_input",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "mapping": "mapping"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_extension_map",
+          "after": "map",
+          "template": "parity_extension_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$mapping",
+            "phase": "map",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mapping"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "substitute",
+      "calls": [
+        {
+          "id": "substitute",
+          "capability": "substitute_parity_extension_rule",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "description": "$description",
+            "mapping": "$mapping"
+          },
+          "outputs": {
+            "substitution": "substitution"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_extension_substitute",
+          "after": "substitute",
+          "template": "parity_extension_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$substitution",
+            "phase": "substitute",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "substitution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "write-back",
+      "calls": [
+        {
+          "id": "write_back",
+          "capability": "apply_parity_extension_relation",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description",
+            "substitution": "$substitution"
+          },
+          "outputs": {
+            "write_back": "write_back"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_extension_write_back",
+          "after": "write_back",
+          "template": "parity_extension_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$write_back",
+            "phase": "write_back",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "write_back"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "conclude",
+          "capability": "confirm_parity_extension",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "mapping": "$mapping",
+            "substitution": "$substitution",
+            "write_back": "$write_back"
+          },
+          "outputs": {
+            "parity_extension_result": "parity_extension_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_extension_conclude",
+          "after": "conclude",
+          "template": "parity_extension_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$parity_extension_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "parity_extension_result"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "parity_extension_result": "$parity_extension_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "parity_extension",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

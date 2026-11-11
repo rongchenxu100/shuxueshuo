@@ -1,0 +1,153 @@
+{
+  "text": "{\n  \"original_text\": \"8. 函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n  \"root\": {\n    \"facts\": [\n      \"Dom(f)=ℝ\",\n      \"parity(f,odd)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_function_formula\",\n        \"function\": \"f\",\n        \"variable\": \"x\",\n        \"relation\": \"f(x)=x^2-3*x-1\",\n        \"relation_domain\": \"(0,+∞)\",\n        \"declared_domain\": \"ℝ\",\n        \"requested_domain\": \"(-∞,0)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3239,
+      "prompt_tokens": 25473,
+      "total_tokens": 28712,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 385
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 1032,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-60c24bcd-e70f-4d96-b455-399d07a9cef0",
+        "sha256": "2ea37fea8502ed7687e94eaf28fb034795ee853ffe58aee2978a5eb6133e2fa0",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 8567,
+        "expires_at": 1794486041,
+        "uploaded_at": 1794399641.547947
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "2ea37fea8502ed7687e94eaf28fb034795ee853ffe58aee2978a5eb6133e2fa0",
+        "api_calls": 1,
+        "file_id": "file-api-60c24bcd-e70f-4d96-b455-399d07a9cef0",
+        "expires_at": 1794486041,
+        "elapsed_ms": 142
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 19006,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3239,
+          "prompt_tokens": 25473,
+          "total_tokens": 28712,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2865
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 385
+        },
+        "raw_payload": {
+          "id": "3c091798-61f2-4454-95b7-21c5ee612fc0",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3239,
+            "prompt_tokens": 25473,
+            "total_tokens": 28712,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2865
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 385
+          },
+          "created": 1794399642,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"original_text\": \"8. 函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n  \"root\": {\n    \"facts\": [\n      \"Dom(f)=ℝ\",\n      \"parity(f,odd)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_function_formula\",\n        \"function\": \"f\",\n        \"variable\": \"x\",\n        \"relation\": \"f(x)=x^2-3*x-1\",\n        \"relation_domain\": \"(0,+∞)\",\n        \"declared_domain\": \"ℝ\",\n        \"requested_domain\": \"(-∞,0)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+                "reasoning_content": "我们提取题目。原题：8. 函数 f(x) 是定义在 R 上的奇函数，当 x>0 时，f(x)=x^2-3x-1，则当 x<0 时，f(x)= ___。手写答案不转录。需要生成 original_text, root, public_content。无配图。root definitions: f(x) 是定义在 R 上的奇函数? 这算函数性质。但函数未给完整解析式，只给 x>0 时表达式。需要定义分段? 题面问 x<0 时 f(x)。这是求函数解析式（特定区间）。root 可定义 f(x) 为函数? 题面只说 f(x) 是定义在 R 上的奇函数，当 x>0 时 f(x)=x^2-3x-1。目标：当 x<0 时，f(x)=? 这可以视为 find_function_formula? 但完整函数由奇偶性和正半轴确定，求负半轴表达式。可用 find_function_formula，function f, variable x, relation? 关系是奇函数性质 parity(f,odd)，以及 f(x)=x^2-3*x-1 for x>0. 但 relation 字段要求恒等式原文。这里没有恒等关系，只有分段条件。或者用 find_value? expression f(x) with input_domain x<0? 求表达式。目标可以 find_value.expression f(x)，input_domain x<0? 但是求的是解析式，不是某点的值。也可用 find_function_formula：function f, variable x, relation 可写 f(x)=x^2-3*x-1? 但 relation_domain x>0。还需要奇函数性质放 facts。但 find_function_formula 的 relation 是题给恒等式原文，可以填 f(x)=x^2-3*x-1，relation_domain x>0。declared_domain R，function_type? 没有明确一次或二次。目标求完整解析式? 题问当 x<0 时 f(x)=? 其实求负半轴表达式，不是整个函数解析式（正半轴已知）。但 find_function_formula 适合求未知函数解析式，这里求完整规则可包含奇函数和正半轴。也可用 find_value.expression f(x) with input_domain x<0? 这不太对应“函数值或表达式的值”；它是求表达式，保留原调用。更接近 find_function_formula，但函数类型不明确，且 relation 有范围。题面没有说“求 f(x) 的解析式”，而是“则当 x<0 时，f(x)= ___”。可视为求该区间上的函数表达式。使用 find_function_formula? 其目标定义是“从题给关系恢复未知函数的解析式，并保留可确定范围”，可填 function f, variable x, relation f(x)=x^2-3*x-1, relation_domain x>0, declared_domain ℝ。父节点 facts parity(f,odd)。但 relation 字段的“原关系变量”是 x，符合。目标未指定 requested_domain? 可以填 requested_domain \"x<0\"? 题面要求当 x<0 时表达式，可填 requested_domain \"(-∞,0)\"。注意“当 x<0 时”是输入范围，不是完整定义域。find_function_formula 有 requested_domain。可以。\n\n不过也可能更合适用 find_value: expression f(x), input_domain x<0? 但求的是表达式不是值。find_value 的描述“函数值或表达式的值”，可以求表达式 f(x) 在 x<0? 但目标不是求值。find_function_formula 更贴切。\n\n需要填写 root definitions 或 facts。函数 f 的定义在题面：函数 f(x) 是定义在 R 上的奇函数。definitions 放函数定义？没有具体解析式，只是性质。可以用 facts: parity(f,odd), Dom(f)=ℝ? 奇函数性质在 catalog: parity(f,odd)。定义域 R 可 fact Dom(f)=ℝ。当 x>0 时 f(x)=x^2-3x-1 是条件，放 facts? 这是函数取值条件，不是定义？按规则：函数定义（f(t)=t^2）优先放 definitions。这里条件局部区间，放 facts 更合适。可用 facts: ∀x∈(0,+∞): f(x)=x^2-3*x-1。以及 parity(f,odd), Dom(f)=ℝ。目标 find_function_formula: function f, variable x, relation? 若都不在 relation 字段，不符合。find_function_formula 需要 relation 是题给恒等式原文。我们可以把“当 x>0 时 f(x)=x^2-3x-1”作为 relation（局部恒等式）并 relation_domain \"(0,+∞)\"。奇函数性质作为 additional? 但 additional_relations 可放 f(-x)=-f(x)? 题面只说奇函数，不写 relation。可以放 facts parity(f,odd)。目标 relation 填 f(x)=x^2-3*x-1，relation_domain x>0，declared_domain ℝ，requested_domain x<0。这表示由该关系及奇函数恢复负半轴规则。可以。\n\n但 find_function_formula 要求 function_type 可选，不猜。可以不加。\n\n原文有填空横线，不是手写答案。original_text 写 “8. 函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。” 需要保留题号8? 原题开头有“8.”。original_text 可以保留来源题号? 规则说 original_text 保留原题转录，可以保留题号；public_content 不能放题号，root.label 如果存在则? 题号作为 label 是否 source? 原图明确题号8，属于来源/试卷题号，可以 root.label=\"8\"，root_label_role=\"source\"。但 root.label 是题面分问或图景标签，不是对象ID。题号可以作为 label。public_content.scopes 的 statement 不能含题号。root.label_role source。\n\n但要注意“8.”是否是题号；是。可以 root.label \"8\"。也可以省略 label。若省略，无需 role。不过题目提取也许更完整保留题号在 original_text 即可。root 可选 label。为避免公开题号，我们可在 original_text 保留 8.，root 不设 label，public_content statement 不含题号。这样 root_label_role 不填。更安全。但 root.label 存在时需分类。这里不设。\n\npublic_content: completeness complete, privacy separated? 原图无姓名班级，只有手写答案和勾。手写答案不是题目内容，不转录；题目正文干净。可以 separated。figure none, figure_detection status none, regions []。public_content.scopes 一个 root scope_ref /root, statement: \"函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\" choices: 目标无选项。root 有一个 goal，对应 choices status none selection_mode none options []。\n\nroot facts: \"Dom(f)=ℝ\"? 题面“定义在 R 上”，可放 facts \"Dom(f)=ℝ\"。parity(f,odd)。还有 \"∀x∈(0,+∞): f(x)=x^2-3*x-1\" 若目标 relation 已包含局部关系，是否重复？find_function_formula 的 relation 本身是题给关系，不应重复 fact? 但父节点 facts 也可以有同一条件? 规则“已知调用与所求调用分别记录”，条件放 facts 或目标 relation? 关系式作为目标恢复来源应放 relation，不应在 facts 重复。但奇函数性质放 facts，定义域放 facts。目标 relation 填 f(x)=x^2-3*x-1，relation_domain \"(0,+∞)\"，requested_domain \"(-∞,0)\"。declared_domain \"ℝ\"。这样完整。\n\n目标 kind find_function_formula。function \"f\", variable \"x\", relation \"f(x)=x^2-3*x-1\", relation_domain \"(0,+∞)\", declared_domain \"ℝ\", requested_domain \"(-∞,0)\"。是否需要 additional_relations 放 f(-x)=-f(x)? 不，题面没有显式写奇函数等式，用 facts parity(f,odd)。但 find_function_formula 若没有 relation 指定奇函数，程序怎么知道? facts 有。可以。\n\n但 public_content.statement 中“R” 用 $\\\\mathbf{R}$ 还是 $\\\\mathbb{R}$? 原图 R 是黑体? 转录可用 $\\\\mathbf{R}$ 或 $\\\\mathbb{R}$。用 $\\\\mathbf{R}$ 更贴图? 题目印刷是 R 粗体? 看起来“R”是普通R? 可能是 \\mathbf{R} 或 \\mathbb{R}。用 $\\\\mathbf{R}$ 可以。original_text 用 $\\\\mathbf{R}$。\n\nroot facts \"Dom(f)=ℝ\"; 受控数学字符串使用 Unicode ℝ。题面定义在 R 上，写 Dom(f)=ℝ 可以。parity(f,odd)。注意 function_property 语法 parity(f,odd) 表示奇函数。好。\n\n是否也放 f 是定义在 R 上的奇函数? facts [\"Dom(f)=ℝ\",\"parity(f,odd)\"]。可以。\n\n目标 find_function_formula relation 里 x>0 的局部关系是否应该用 ∀x∈(0,+∞): f(x)=... 而不是 relation 字段？FindFunctionFormulaGoal 的 relation 描述：题给恒等式原文，如 f(sqrt(x)+1)=2*x+1；relation_domain 仅在题面明确限制原关系变量时填写。这里可以 relation=f(x)=x^2-3*x-1, relation_domain=(0,+∞)。这符合。\n\n不过 relation_domain 字段用 \"(0,+∞)\" 还是 \"x>0\"? catalog interval 推荐 (0,+∞)。题面写 x>0，等价区间 (0,+∞)。好。\n\nrequested_domain 题面明确要求当 x<0 时表达式，填 \"(-∞,0)\"。可以。\n\noriginal_text 中手写答案部分不转录，填空横线照原样写横线。可以写 \"______\"。\n\nuncertainties 无。不要报告手写答案。无配图。\n\nfigure_detection status none. figure public_content = not_required.\n\n检查：original_text 中 \"8.\" 是否保留? 可以。public_content statement 不含 8.。privacy separated 因为题号在 original_text 但 public statement 不含；手写答案忽略。可以。\n\nroot definitions 空? 可省略。facts 有。goals 一个。children 无。\n\npublic_content.scopes statement 应保留完整题干，不含题号。公式用 $…$。好。\n\n需要避免输出契约外字段。root 使用 definitions, facts, goals。可以不输出 definitions。输出 root {\"facts\":[...],\"goals\":[...]}。\n\npublic_content 需要 choices 数组，每个 goal 对应一个 choices 项。target_ref \"/root/goals/0\"。status none, selection_mode none, options [].\n\ncompleteness complete. figure not_required. privacy separated. root_label_role 不填因为 root.label 没设。scopes 一个。\n\noriginal_text 中数学表达式 $f(x)=x^2-3x-1$ 使用 ^ 和 - 没问题。JSON 字符串反斜杠：如果使用 \\mathbf 需要 \"\\\\mathbf\"。$\\\\mathbf{R}$。在 JSON 中写 \"$\\\\mathbf{R}$\" 才能显示 \\mathbf。我们输出 JSON 字符串时，反斜杠双写。可以。root facts 里 Unicode ℝ 不需要转义。relation_domain 用 \"(0,+∞)\"。requested_domain \"(-∞,0)\"。\n\n还要考虑根号? 无。\n\n目标 find_function_formula 的 relation 中 \"x^2-3*x-1\" 用 * 乘号。题面是 x^2−3x−1，转录为 x^2-3*x-1。可以。\n\noriginal_text 是否用 LaTeX 分式? 不用。\n\n手写答案中有一项 \"-x^2-3x+1\" 不转录。填空横线照印刷原样写横线；原图横线是填空下划线。可以写 \"______\"。\n\npublic_content.statement 是否应包含填空横线？可以。\n\n注意：public_content.statement 不含小问编号，没有小问。\n\nuncertainties 空数组可省略。root 无 uncertainties 可省略。\n\nfigure_detection regions []。\n\n现在生成 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 19174
+  },
+  "raw_payload": {
+    "id": "3c091798-61f2-4454-95b7-21c5ee612fc0",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"original_text\": \"8. 函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n  \"root\": {\n    \"facts\": [\n      \"Dom(f)=ℝ\",\n      \"parity(f,odd)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_function_formula\",\n        \"function\": \"f\",\n        \"variable\": \"x\",\n        \"relation\": \"f(x)=x^2-3*x-1\",\n        \"relation_domain\": \"(0,+∞)\",\n        \"declared_domain\": \"ℝ\",\n        \"requested_domain\": \"(-∞,0)\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ],\n    \"figure_detection\": {\n      \"status\": \"none\",\n      \"regions\": []\n    }\n  }\n}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们提取题目。原题：8. 函数 f(x) 是定义在 R 上的奇函数，当 x>0 时，f(x)=x^2-3x-1，则当 x<0 时，f(x)= ___。手写答案不转录。需要生成 original_text, root, public_content。无配图。root definitions: f(x) 是定义在 R 上的奇函数? 这算函数性质。但函数未给完整解析式，只给 x>0 时表达式。需要定义分段? 题面问 x<0 时 f(x)。这是求函数解析式（特定区间）。root 可定义 f(x) 为函数? 题面只说 f(x) 是定义在 R 上的奇函数，当 x>0 时 f(x)=x^2-3x-1。目标：当 x<0 时，f(x)=? 这可以视为 find_function_formula? 但完整函数由奇偶性和正半轴确定，求负半轴表达式。可用 find_function_formula，function f, variable x, relation? 关系是奇函数性质 parity(f,odd)，以及 f(x)=x^2-3*x-1 for x>0. 但 relation 字段要求恒等式原文。这里没有恒等关系，只有分段条件。或者用 find_value? expression f(x) with input_domain x<0? 求表达式。目标可以 find_value.expression f(x)，input_domain x<0? 但是求的是解析式，不是某点的值。也可用 find_function_formula：function f, variable x, relation 可写 f(x)=x^2-3*x-1? 但 relation_domain x>0。还需要奇函数性质放 facts。但 find_function_formula 的 relation 是题给恒等式原文，可以填 f(x)=x^2-3*x-1，relation_domain x>0。declared_domain R，function_type? 没有明确一次或二次。目标求完整解析式? 题问当 x<0 时 f(x)=? 其实求负半轴表达式，不是整个函数解析式（正半轴已知）。但 find_function_formula 适合求未知函数解析式，这里求完整规则可包含奇函数和正半轴。也可用 find_value.expression f(x) with input_domain x<0? 这不太对应“函数值或表达式的值”；它是求表达式，保留原调用。更接近 find_function_formula，但函数类型不明确，且 relation 有范围。题面没有说“求 f(x) 的解析式”，而是“则当 x<0 时，f(x)= ___”。可视为求该区间上的函数表达式。使用 find_function_formula? 其目标定义是“从题给关系恢复未知函数的解析式，并保留可确定范围”，可填 function f, variable x, relation f(x)=x^2-3*x-1, relation_domain x>0, declared_domain ℝ。父节点 facts parity(f,odd)。但 relation 字段的“原关系变量”是 x，符合。目标未指定 requested_domain? 可以填 requested_domain \"x<0\"? 题面要求当 x<0 时表达式，可填 requested_domain \"(-∞,0)\"。注意“当 x<0 时”是输入范围，不是完整定义域。find_function_formula 有 requested_domain。可以。\n\n不过也可能更合适用 find_value: expression f(x), input_domain x<0? 但求的是表达式不是值。find_value 的描述“函数值或表达式的值”，可以求表达式 f(x) 在 x<0? 但目标不是求值。find_function_formula 更贴切。\n\n需要填写 root definitions 或 facts。函数 f 的定义在题面：函数 f(x) 是定义在 R 上的奇函数。definitions 放函数定义？没有具体解析式，只是性质。可以用 facts: parity(f,odd), Dom(f)=ℝ? 奇函数性质在 catalog: parity(f,odd)。定义域 R 可 fact Dom(f)=ℝ。当 x>0 时 f(x)=x^2-3x-1 是条件，放 facts? 这是函数取值条件，不是定义？按规则：函数定义（f(t)=t^2）优先放 definitions。这里条件局部区间，放 facts 更合适。可用 facts: ∀x∈(0,+∞): f(x)=x^2-3*x-1。以及 parity(f,odd), Dom(f)=ℝ。目标 find_function_formula: function f, variable x, relation? 若都不在 relation 字段，不符合。find_function_formula 需要 relation 是题给恒等式原文。我们可以把“当 x>0 时 f(x)=x^2-3x-1”作为 relation（局部恒等式）并 relation_domain \"(0,+∞)\"。奇函数性质作为 additional? 但 additional_relations 可放 f(-x)=-f(x)? 题面只说奇函数，不写 relation。可以放 facts parity(f,odd)。目标 relation 填 f(x)=x^2-3*x-1，relation_domain x>0，declared_domain ℝ，requested_domain x<0。这表示由该关系及奇函数恢复负半轴规则。可以。\n\n但 find_function_formula 要求 function_type 可选，不猜。可以不加。\n\n原文有填空横线，不是手写答案。original_text 写 “8. 函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。” 需要保留题号8? 原题开头有“8.”。original_text 可以保留来源题号? 规则说 original_text 保留原题转录，可以保留题号；public_content 不能放题号，root.label 如果存在则? 题号作为 label 是否 source? 原图明确题号8，属于来源/试卷题号，可以 root.label=\"8\"，root_label_role=\"source\"。但 root.label 是题面分问或图景标签，不是对象ID。题号可以作为 label。public_content.scopes 的 statement 不能含题号。root.label_role source。\n\n但要注意“8.”是否是题号；是。可以 root.label \"8\"。也可以省略 label。若省略，无需 role。不过题目提取也许更完整保留题号在 original_text 即可。root 可选 label。为避免公开题号，我们可在 original_text 保留 8.，root 不设 label，public_content statement 不含题号。这样 root_label_role 不填。更安全。但 root.label 存在时需分类。这里不设。\n\npublic_content: completeness complete, privacy separated? 原图无姓名班级，只有手写答案和勾。手写答案不是题目内容，不转录；题目正文干净。可以 separated。figure none, figure_detection status none, regions []。public_content.scopes 一个 root scope_ref /root, statement: \"函数 $f(x)$ 是定义在 $\\\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。\" choices: 目标无选项。root 有一个 goal，对应 choices status none selection_mode none options []。\n\nroot facts: \"Dom(f)=ℝ\"? 题面“定义在 R 上”，可放 facts \"Dom(f)=ℝ\"。parity(f,odd)。还有 \"∀x∈(0,+∞): f(x)=x^2-3*x-1\" 若目标 relation 已包含局部关系，是否重复？find_function_formula 的 relation 本身是题给关系，不应重复 fact? 但父节点 facts 也可以有同一条件? 规则“已知调用与所求调用分别记录”，条件放 facts 或目标 relation? 关系式作为目标恢复来源应放 relation，不应在 facts 重复。但奇函数性质放 facts，定义域放 facts。目标 relation 填 f(x)=x^2-3*x-1，relation_domain \"(0,+∞)\"，requested_domain \"(-∞,0)\"。declared_domain \"ℝ\"。这样完整。\n\n目标 kind find_function_formula。function \"f\", variable \"x\", relation \"f(x)=x^2-3*x-1\", relation_domain \"(0,+∞)\", declared_domain \"ℝ\", requested_domain \"(-∞,0)\"。是否需要 additional_relations 放 f(-x)=-f(x)? 不，题面没有显式写奇函数等式，用 facts parity(f,odd)。但 find_function_formula 若没有 relation 指定奇函数，程序怎么知道? facts 有。可以。\n\n但 public_content.statement 中“R” 用 $\\\\mathbf{R}$ 还是 $\\\\mathbb{R}$? 原图 R 是黑体? 转录可用 $\\\\mathbf{R}$ 或 $\\\\mathbb{R}$。用 $\\\\mathbf{R}$ 更贴图? 题目印刷是 R 粗体? 看起来“R”是普通R? 可能是 \\mathbf{R} 或 \\mathbb{R}。用 $\\\\mathbf{R}$ 可以。original_text 用 $\\\\mathbf{R}$。\n\nroot facts \"Dom(f)=ℝ\"; 受控数学字符串使用 Unicode ℝ。题面定义在 R 上，写 Dom(f)=ℝ 可以。parity(f,odd)。注意 function_property 语法 parity(f,odd) 表示奇函数。好。\n\n是否也放 f 是定义在 R 上的奇函数? facts [\"Dom(f)=ℝ\",\"parity(f,odd)\"]。可以。\n\n目标 find_function_formula relation 里 x>0 的局部关系是否应该用 ∀x∈(0,+∞): f(x)=... 而不是 relation 字段？FindFunctionFormulaGoal 的 relation 描述：题给恒等式原文，如 f(sqrt(x)+1)=2*x+1；relation_domain 仅在题面明确限制原关系变量时填写。这里可以 relation=f(x)=x^2-3*x-1, relation_domain=(0,+∞)。这符合。\n\n不过 relation_domain 字段用 \"(0,+∞)\" 还是 \"x>0\"? catalog interval 推荐 (0,+∞)。题面写 x>0，等价区间 (0,+∞)。好。\n\nrequested_domain 题面明确要求当 x<0 时表达式，填 \"(-∞,0)\"。可以。\n\noriginal_text 中手写答案部分不转录，填空横线照原样写横线。可以写 \"______\"。\n\nuncertainties 无。不要报告手写答案。无配图。\n\nfigure_detection status none. figure public_content = not_required.\n\n检查：original_text 中 \"8.\" 是否保留? 可以。public_content statement 不含 8.。privacy separated 因为题号在 original_text 但 public statement 不含；手写答案忽略。可以。\n\nroot definitions 空? 可省略。facts 有。goals 一个。children 无。\n\npublic_content.scopes statement 应保留完整题干，不含题号。公式用 $…$。好。\n\n需要避免输出契约外字段。root 使用 definitions, facts, goals。可以不输出 definitions。输出 root {\"facts\":[...],\"goals\":[...]}。\n\npublic_content 需要 choices 数组，每个 goal 对应一个 choices 项。target_ref \"/root/goals/0\"。status none, selection_mode none, options [].\n\ncompleteness complete. figure not_required. privacy separated. root_label_role 不填因为 root.label 没设。scopes 一个。\n\noriginal_text 中数学表达式 $f(x)=x^2-3x-1$ 使用 ^ 和 - 没问题。JSON 字符串反斜杠：如果使用 \\mathbf 需要 \"\\\\mathbf\"。$\\\\mathbf{R}$。在 JSON 中写 \"$\\\\mathbf{R}$\" 才能显示 \\mathbf。我们输出 JSON 字符串时，反斜杠双写。可以。root facts 里 Unicode ℝ 不需要转义。relation_domain 用 \"(0,+∞)\"。requested_domain \"(-∞,0)\"。\n\n还要考虑根号? 无。\n\n目标 find_function_formula 的 relation 中 \"x^2-3*x-1\" 用 * 乘号。题面是 x^2−3x−1，转录为 x^2-3*x-1。可以。\n\noriginal_text 是否用 LaTeX 分式? 不用。\n\n手写答案中有一项 \"-x^2-3x+1\" 不转录。填空横线照印刷原样写横线；原图横线是填空下划线。可以写 \"______\"。\n\npublic_content.statement 是否应包含填空横线？可以。\n\n注意：public_content.statement 不含小问编号，没有小问。\n\nuncertainties 空数组可省略。root 无 uncertainties 可省略。\n\nfigure_detection regions []。\n\n现在生成 JSON。"
+        }
+      }
+    ],
+    "created": 1794399642,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3239,
+      "prompt_tokens": 25473,
+      "total_tokens": 28712,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2865,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 385
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 19.176
+}

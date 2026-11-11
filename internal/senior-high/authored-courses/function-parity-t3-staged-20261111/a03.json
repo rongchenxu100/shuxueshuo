@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a03",
+  "reviewer": "Codex：对照用户原图第 3 题印刷题干转录，忽略手写答案；原题未写完整定义域，不补成 ℝ，按教材语义只在所求输入 2 及其相反数 -2 处使用已知关系：f(2)+g(2)=3，-f(2)+g(2)=7，联立得 f(2)=-2。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第3题；规划编号 FP-A03"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____．",
+    "root": {
+      "facts": [
+        "parity(f,odd)",
+        "parity(g,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)+g(x)=x^2-x+1",
+          "expression": "f(2)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-2"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,0 +1,35 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a04",
+  "reviewer": "Codex：对照用户原图第 4 题印刷题干转录，忽略手写答案；题目未给完整定义域，保留关于原点对称的抽象定义域 D，不附加 D=ℝ。已知规则含零点，负半轴由偶性补出，原域内统一写作 x²+4|x|。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第4题；规划编号 FP-A04"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$ 为偶函数，若当 $x\\ge 0$ 时，$f(x)=x^2+4x$，则 $f(x)$ 的解析式是____．",
+    "root": {
+      "facts": [
+        "parity(f,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2+4*x",
+          "relation_domain": "[0,∞)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-formula",
+    "expression": "x**2 + 4*Abs(x)",
+    "domain_identity": "declared_symmetric_domain"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

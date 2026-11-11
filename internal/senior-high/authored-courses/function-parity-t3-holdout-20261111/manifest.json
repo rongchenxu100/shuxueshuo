@@ -1,0 +1,47 @@
+{
+  "contract": "authored-topic-holdout/v1",
+  "topic": "function-parity",
+  "batch": "T3-R4",
+  "note": "独立留出，只做隔离编译、作答、回放与课包检查；不进入专题发布清单，不登记 pending。首次运行即通过的题保留为留出；首次失败并修复的题转为回归，并另补新留出。",
+  "holdouts": [
+    {
+      "id": "function-parity-h01",
+      "class": "completion_and_zero",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/h01.json",
+      "route": "parity-extension",
+      "first_run": "passed"
+    },
+    {
+      "id": "function-parity-h02",
+      "class": "finite_combination_value",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/h02.json",
+      "route": "function-symmetry",
+      "first_run": "passed"
+    },
+    {
+      "id": "function-parity-h03",
+      "class": "two_function_relation",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/h03.json",
+      "route": "function-symmetry",
+      "first_run": "failed_source_not_bound",
+      "fix": "域表述“定义域都是”未被原文绑定识别；扩展为“定义域(都|均)?(为|是)”后通过，本题转为回归，需另补双函数留出",
+      "status": "regression"
+    },
+    {
+      "id": "function-parity-h04",
+      "class": "two_function_relation",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/h04.json",
+      "route": "function-symmetry",
+      "first_run": "failed_source_not_bound",
+      "fix": "“对任意实数 $x$ 都有”中的量词变量未被认领；改为绑定到该全称关系，并核对“实数”与关系范围一致后通过，本题转为回归",
+      "status": "regression"
+    },
+    {
+      "id": "function-parity-h05",
+      "class": "two_function_relation",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/h05.json",
+      "route": "function-symmetry",
+      "first_run": "passed"
+    }
+  ]
+}

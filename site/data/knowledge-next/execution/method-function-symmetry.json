@@ -1,0 +1,153 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-function-symmetry",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_function_symmetry",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "rewrite",
+      "calls": [
+        {
+          "id": "rewrite",
+          "capability": "rewrite_symmetric_inputs",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "rewrite": "rewrite"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "function_symmetry_rewrite",
+          "after": "rewrite",
+          "template": "function_symmetry_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$rewrite",
+            "phase": "rewrite",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "rewrite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "evaluate",
+      "calls": [
+        {
+          "id": "evaluate",
+          "capability": "evaluate_symmetric_rule_values",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite"
+          },
+          "outputs": {
+            "rule_values": "rule_values"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "conclude",
+          "capability": "confirm_function_symmetry",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite",
+            "rule_values": "$rule_values"
+          },
+          "outputs": {
+            "symmetry_result": "symmetry_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "function_symmetry_conclude",
+          "after": "conclude",
+          "template": "function_symmetry_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$symmetry_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "symmetry_result"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "symmetry_result": "$symmetry_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_symmetry",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "contract": "authored-topic-staging/v1",
+  "topic": "function-parity",
+  "group": "formula",
+  "publish_state": "awaiting_t2_t5_unified_rebuild",
+  "note": "这份内部登记不被公开构建自动读取；T3 开发期只做临时目录的隔离课程编译与作答核验。T2–T5 完成后统一重建时，再加入 topic.problems、group.problems 与 graph-walk source；不能提前添加未生成的公共链接。",
+  "group_entry": {
+    "id": "formula",
+    "label": "根据奇偶性求解析式",
+    "type": "type-parity-formula",
+    "groupBy": "method",
+    "description": "把所求范围的输入换成相反数，代入已知一侧的解析式，再用奇偶性换回。"
+  },
+  "pending": [
+    {
+      "id": "function-parity-a04",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a04.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a04",
+        "title": "偶函数在原定义域上的解析式 · A04",
+        "page": "/topics/function-parity/q04/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a04.json",
+        "evidence": "site/data/graph-walk/function-parity-a04.evidence.json"
+      },
+      "topic_entry": {
+        "label": "偶函数在原定义域上的解析式 · A04",
+        "path": "/topics/function-parity/q04/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a04.json",
+        "types": [
+          "type-parity-formula"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a07",
+      "batch": "R0",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a07.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a07",
+        "title": "偶函数补全负半轴 · A07",
+        "page": "/topics/function-parity/q07/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a07.json",
+        "evidence": "site/data/graph-walk/function-parity-a07.evidence.json"
+      },
+      "topic_entry": {
+        "label": "偶函数补全负半轴 · A07",
+        "path": "/topics/function-parity/q07/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a07.json",
+        "types": [
+          "type-parity-formula"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a08",
+      "batch": "R0",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a08.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a08",
+        "title": "奇函数补全负半轴 · A08",
+        "page": "/topics/function-parity/q08/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a08.json",
+        "evidence": "site/data/graph-walk/function-parity-a08.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数补全负半轴 · A08",
+        "path": "/topics/function-parity/q08/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a08.json",
+        "types": [
+          "type-parity-formula"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a09",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a09.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a09",
+        "title": "奇函数求值与补全负半轴 · A09",
+        "page": "/topics/function-parity/q09/",
+        "topicHref": "/topics/function-parity/",
+        "targetRefs": [
+          "/root/goals/0",
+          "/root/goals/1"
+        ],
+        "targetTitles": [
+          "第①空：求 $f(-3)$",
+          "第②空：求 $x\\le 0$ 时的解析式"
+        ],
+        "mainTargetRef": "/root/goals/1",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a09.json",
+        "evidence": "site/data/graph-walk/function-parity-a09.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数求值与补全负半轴 · A09",
+        "path": "/topics/function-parity/q09/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a09.json",
+        "types": [
+          "type-function-evaluation",
+          "type-parity-formula"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a12",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a12.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a12",
+        "title": "奇函数零点与相反输入求值 · A12",
+        "page": "/topics/function-parity/q12/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a12.json",
+        "evidence": "site/data/graph-walk/function-parity-a12.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数零点与相反输入求值 · A12",
+        "path": "/topics/function-parity/q12/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a12.json",
+        "types": [
+          "type-function-evaluation"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a13",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a13.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a13",
+        "title": "奇函数整组相反输入求值 · A13",
+        "page": "/topics/function-parity/q13/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a13.json",
+        "evidence": "site/data/graph-walk/function-parity-a13.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数整组相反输入求值 · A13",
+        "path": "/topics/function-parity/q13/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a13.json",
+        "types": [
+          "type-function-evaluation"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a03",
+      "batch": "R3",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a03.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a03",
+        "title": "奇函数与偶函数的和式求值 · A03",
+        "page": "/topics/function-parity/q03/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a03.json",
+        "evidence": "site/data/graph-walk/function-parity-a03.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数与偶函数的和式求值 · A03",
+        "path": "/topics/function-parity/q03/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a03.json",
+        "types": [
+          "type-function-evaluation"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a06",
+      "batch": "R3",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a06.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a06",
+        "title": "奇函数与偶函数的差式求值 · A06",
+        "page": "/topics/function-parity/q06/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a06.json",
+        "evidence": "site/data/graph-walk/function-parity-a06.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数与偶函数的差式求值 · A06",
+        "path": "/topics/function-parity/q06/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a06.json",
+        "types": [
+          "type-function-evaluation"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a15",
+      "batch": "R3",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a15.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a15",
+        "title": "含参定义域的奇函数求值 · A15",
+        "page": "/topics/function-parity/q15/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t3-staged-20261111/a15.json",
+        "evidence": "site/data/graph-walk/function-parity-a15.evidence.json"
+      },
+      "topic_entry": {
+        "label": "含参定义域的奇函数求值 · A15",
+        "path": "/topics/function-parity/q15/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a15.json",
+        "types": [
+          "type-function-evaluation"
+        ]
+      }
+    }
+  ],
+  "partial": [
+    {
+      "id": "function-parity-a05",
+      "batch": "R1",
+      "goals": {
+        "first": "math_contract_verified",
+        "second": "awaiting_t4_inequality_goal_notation"
+      },
+      "whole_problem": "no_authored_record_until_t4_notation"
+    },
+    {
+      "id": "function-parity-a11",
+      "batch": "R1",
+      "goals": {
+        "first": "math_contract_verified",
+        "second": "awaiting_t4_inequality_goal_notation"
+      },
+      "whole_problem": "no_authored_record_until_t4_notation"
+    }
+  ]
+}

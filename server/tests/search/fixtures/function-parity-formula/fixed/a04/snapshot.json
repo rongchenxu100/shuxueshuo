@@ -1,0 +1,1052 @@
+{
+  "run_id": "41d26fd2bccd47bf87123106358e2946",
+  "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+  "input_sha256": "c5215f07ac1ff10c9b22a7d4a067629c5de178fb0c75d9a5ccde109db8c556fb",
+  "stream_id": "41d26fd2bccd47bf87123106358e2946",
+  "last_seq": 21,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_extension_map",
+      "explanation": "$$\\begin{gathered}x<0\\Rightarrow -x>0\\\\\\left(0, \\infty\\right)\\subseteq \\left[0, \\infty\\right)\\end{gathered}$$",
+      "highlight": {
+        "caption": "把输入换到已知一侧",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与所求",
+            "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+          },
+          {
+            "label": "-x\\text{ 的范围}",
+            "math": "x<0\\text{ 时，}-x>0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "local_check": "passed",
+      "math_step_sha256": "8a9caa507459e16f0dc7c5f312fe994978cc76d9a0c7634a6a20068665459dde",
+      "method_ref": "method-parity-extension#map",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "source_refs": [
+        "/steps/1/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
+      "target_ref": "/root/goals/0",
+      "title": "把输入换到已知一侧",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_extension_substitute",
+      "explanation": "$$f(-x)=(-x)^{2}+4(-x)=x^{2} - 4 x$$",
+      "highlight": {
+        "caption": "代入相反输入",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知解析式",
+            "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
+          },
+          {
+            "label": "f(-x)",
+            "math": "x<0\\text{ 时，}f(-x)=x^{2} - 4 x"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "local_check": "passed",
+      "math_step_sha256": "fee169c9149e26fb6ed71a1580cf38d6f7fe760c9022447a76ea8a8022df062b",
+      "method_ref": "method-parity-extension#substitute",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "source_refs": [
+        "/steps/2/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
+      "target_ref": "/root/goals/0",
+      "title": "代入相反输入",
+      "used_basis": [
+        "skill-simplify"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_extension_write_back",
+      "explanation": "$$f(x)=f(-x)=x^{2} - 4 x$$",
+      "highlight": {
+        "caption": "用奇偶性换回 f(x)",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已求出的式子",
+            "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+          },
+          {
+            "label": "f(x)",
+            "math": "x<0\\text{ 时，}f(x)=x^{2} - 4 x"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "local_check": "passed",
+      "math_step_sha256": "7b6b7daf4ed266761352c0dab6a7c654848f23a4b174624790dfda8ab4ecd3fa",
+      "method_ref": "method-parity-extension#write-back",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
+      "target_ref": "/root/goals/0",
+      "title": "用奇偶性换回 f(x)",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_extension_conclude",
+      "explanation": "$$\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}f(x)=\\left((-x)^{2}+4(-x)\\right)\\\\f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}\\end{gathered}$$",
+      "highlight": {
+        "caption": "合并各段并写出结论",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知各段",
+            "math": "x\\ge 0\\text{ 时，}f(x)=x^{2}+4x"
+          },
+          {
+            "label": "结论",
+            "math": "f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "local_check": "passed",
+      "math_step_sha256": "7bfb28d4028f4650b51163cc2abd6c60984df6942eb103e7b66c0ab5e0cfde10",
+      "method_ref": "method-parity-extension#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "source_refs": [
+        "/steps/4/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "合并各段并写出结论",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "declared_domain": null,
+        "determined_domain": null,
+        "domain_identity": "declared_symmetric_domain",
+        "expression": {
+          "exact": {
+            "$math": "Add",
+            "args": [
+              {
+                "$math": "Pow",
+                "args": [
+                  {
+                    "$math": "Symbol",
+                    "name": "x"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "$math": "Mul",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "4"
+                  },
+                  {
+                    "$math": "Abs",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "expression": "x**2 + 4*Abs(x)",
+          "latex": "x^{2} + 4 \\left|{x}\\right|"
+        },
+        "function": "f",
+        "kind": "find_function_formula",
+        "requested_domain": null,
+        "source_domain": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Integer",
+                "value": "0"
+              },
+              {
+                "$math": "Infinity"
+              },
+              {
+                "$math": "BooleanFalse"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval(0, oo)",
+          "latex": "\\left[0, \\infty\\right)"
+        },
+        "status": "determined_on_domain",
+        "variable": "x"
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "declared_domain": null,
+        "determined_domain": null,
+        "domain_identity": "declared_symmetric_domain",
+        "expression": {
+          "exact": {
+            "$math": "Add",
+            "args": [
+              {
+                "$math": "Pow",
+                "args": [
+                  {
+                    "$math": "Symbol",
+                    "name": "x"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  }
+                ]
+              },
+              {
+                "$math": "Mul",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "4"
+                  },
+                  {
+                    "$math": "Abs",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "expression": "x**2 + 4*Abs(x)",
+          "latex": "x^{2} + 4 \\left|{x}\\right|"
+        },
+        "function": "f",
+        "kind": "find_function_formula",
+        "requested_domain": null,
+        "source_domain": {
+          "exact": {
+            "$math": "Interval",
+            "args": [
+              {
+                "$math": "Integer",
+                "value": "0"
+              },
+              {
+                "$math": "Infinity"
+              },
+              {
+                "$math": "BooleanFalse"
+              },
+              {
+                "$math": "BooleanTrue"
+              }
+            ]
+          },
+          "expression": "Interval(0, oo)",
+          "latex": "\\left[0, \\infty\\right)"
+        },
+        "status": "determined_on_domain",
+        "variable": "x"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "math_steps": [
+        {
+          "math_step_sha256": "8a9caa507459e16f0dc7c5f312fe994978cc76d9a0c7634a6a20068665459dde",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
+        },
+        {
+          "math_step_sha256": "fee169c9149e26fb6ed71a1580cf38d6f7fe760c9022447a76ea8a8022df062b",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
+        },
+        {
+          "math_step_sha256": "7b6b7daf4ed266761352c0dab6a7c654848f23a4b174624790dfda8ab4ecd3fa",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
+        },
+        {
+          "math_step_sha256": "7bfb28d4028f4650b51163cc2abd6c60984df6942eb103e7b66c0ab5e0cfde10",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
+        }
+      ],
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "568eaed488a70b0cea36ab2b397a0bc28978b47b991703cb4d208d77143be073",
+      "verified_route_sha256": "f9a1bcd847541878c03a5e65e3f8fc2dde7d589be2b99e39f32be7be7987700e"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-parity-formula",
+          "op": "methods"
+        },
+        "question": "只知道一侧的解析式：把要研究的输入 $x$ 换成相反数 $-x$，让它落进已知范围，代入已知解析式，再用奇偶性换回 $f(x)$。",
+        "submit_label": "用对称补全法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-parity-extension",
+            "recommendation": "preferred",
+            "route_id": "parity-extension",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "step_id": "39e5646dcb-parity-extension-001-parity_extension_map",
+      "ordinal": 1,
+      "math_step_sha256": "8a9caa507459e16f0dc7c5f312fe994978cc76d9a0c7634a6a20068665459dde",
+      "status": "interactive",
+      "interaction_id": "db0c72949fbcc0bb7441607d"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute",
+      "ordinal": 2,
+      "math_step_sha256": "fee169c9149e26fb6ed71a1580cf38d6f7fe760c9022447a76ea8a8022df062b",
+      "status": "interactive",
+      "interaction_id": "c02e8b960cec27ab0f922757"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back",
+      "ordinal": 3,
+      "math_step_sha256": "7b6b7daf4ed266761352c0dab6a7c654848f23a4b174624790dfda8ab4ecd3fa",
+      "status": "interactive",
+      "interaction_id": "dd3f45d52a647a77f8f46496"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude",
+      "ordinal": 4,
+      "math_step_sha256": "7bfb28d4028f4650b51163cc2abd6c60984df6942eb103e7b66c0ab5e0cfde10",
+      "status": "interactive",
+      "interaction_id": "8049a8cb42eaf3587b839001"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:parity-extension:complete",
+      "last_seq": 21
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-extension",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-parity-extension",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-parity-extension",
+          "step": "map",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 3,
+          "method": "method-parity-extension",
+          "step": "substitute",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-function-evaluation",
+              "used_basis": [
+                "skill-simplify"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-parity-extension",
+          "step": "write-back",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-parity-extension",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "db0c72949fbcc0bb7441607d",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "66014116b8454165809ec58a59f75fec931092b361adf8e3eeeb73a384348c0d",
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "把输入换到已知一侧",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与所求",
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "-x\\text{ 的范围}",
+                "math": "x<0\\text{ 时，}-x>0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_number_line": {
+            "bounds": [
+              -1.0,
+              1.0
+            ],
+            "exact_set": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(0, oo)",
+              "latex": "\\left(0, \\infty\\right)"
+            },
+            "intervals": [
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "0"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.open(0, oo)",
+                  "latex": "\\left(0, \\infty\\right)"
+                },
+                "left": 0.0,
+                "left_closed": false,
+                "right": null,
+                "right_closed": false
+              }
+            ],
+            "label": "-x\\text{ 的范围：}-x>0",
+            "points": [],
+            "ticks": [
+              {
+                "at": 0.0,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  "expression": "0",
+                  "latex": "0"
+                },
+                "label": "0"
+              }
+            ],
+            "variable": "x"
+          },
+          "condition_number_lines": [
+            {
+              "bounds": [
+                -1.0,
+                1.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Interval",
+                  "args": [
+                    {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    {
+                      "$math": "Infinity"
+                    },
+                    {
+                      "$math": "BooleanFalse"
+                    },
+                    {
+                      "$math": "BooleanTrue"
+                    }
+                  ]
+                },
+                "expression": "Interval(0, oo)",
+                "latex": "\\left[0, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "0"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanFalse"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval(0, oo)",
+                    "latex": "\\left[0, \\infty\\right)"
+                  },
+                  "left": 0.0,
+                  "left_closed": true,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\text{已知范围：}x\\ge 0",
+              "points": [],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            },
+            {
+              "bounds": [
+                -1.0,
+                1.0
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Reals"
+                },
+                "expression": "Reals",
+                "latex": "\\mathbb{R}"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Reals"
+                    },
+                    "expression": "Reals",
+                    "latex": "\\mathbb{R}"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "\\text{所求范围：}x\\in D",
+              "points": [],
+              "ticks": [
+                {
+                  "at": 0.0,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "0"
+                    },
+                    "expression": "0",
+                    "latex": "0"
+                  },
+                  "label": "0"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "db0c72949fbcc0bb7441607d#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x<0\\text{ 时，}-x\\le 0$",
+                "value": "o3"
+              },
+              {
+                "label": "$x<0\\text{ 时，}-x>0$",
+                "value": "o1"
+              },
+              {
+                "label": "$x<0\\text{ 时，}-x<0$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "要求 $x<0$ 时的 $f(x)$，先看相反数 $-x$ 的范围。这时 $-x$ 满足什么？",
+          "stem_board": {
+            "caption": "把输入换到已知一侧",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与所求",
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "-x\\text{ 的范围}",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把输入换到已知一侧"
+        }
+      ],
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "8a9caa507459e16f0dc7c5f312fe994978cc76d9a0c7634a6a20068665459dde",
+          "step_id": "39e5646dcb-parity-extension-001-parity_extension_map"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "c02e8b960cec27ab0f922757",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "38b6e90499ca4496f8eed02619b72a1493143c1786f96925e0137229cb3f9935",
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "代入相反输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知解析式",
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
+              },
+              {
+                "label": "f(-x)",
+                "math": "x<0\\text{ 时，}f(-x)=x^{2} - 4 x"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "c02e8b960cec27ab0f922757#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=x^{2} + 4 x$",
+                "value": "o2"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} + 4 x$",
+                "value": "o3"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=x^{2} - 4 x$",
+                "value": "o1"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(-x)=- x^{2} - 4 x$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "$-x$ 在已知范围内，把 $-x$ 作为整体代入已知解析式中每一个 $x$。$f(-x)$ 等于什么？",
+          "stem_board": {
+            "caption": "代入相反输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知解析式",
+                "math": "\\begin{gathered}x\\ge 0\\text{ 时，}f(x)=x^{2}+4x\\\\x<0\\text{ 时，}-x>0\\end{gathered}"
+              },
+              {
+                "label": "f(-x)",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "代入相反输入"
+        }
+      ],
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "fee169c9149e26fb6ed71a1580cf38d6f7fe760c9022447a76ea8a8022df062b",
+          "step_id": "39e5646dcb-parity-extension-002-parity_extension_substitute"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "dd3f45d52a647a77f8f46496",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "581c4e1e9711db0ae066b49c5d7aeed58f80ccb993794b06b6666eb6331038ad",
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "用奇偶性换回 f(x)",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求出的式子",
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "f(x)",
+                "math": "x<0\\text{ 时，}f(x)=x^{2} - 4 x"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "dd3f45d52a647a77f8f46496#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x<0\\text{ 时，}f(x)=x^{2} - 4 x$",
+                "value": "o1"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(x)=- x^{2} + 4 x$",
+                "value": "o2"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(x)=x^{2} + 4 x$",
+                "value": "o4"
+              },
+              {
+                "label": "$x<0\\text{ 时，}f(x)=- x^{2} - 4 x$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给 $f$ 是偶函数，奇偶性把 $f(x)$ 与 $f(-x)$ 联系起来。$x<0$ 时 $f(x)$ 等于什么？",
+          "stem_board": {
+            "caption": "用奇偶性换回 f(x)",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求出的式子",
+                "math": "\\begin{gathered}x<0\\text{ 时，}f(-x)=x^{2} - 4 x\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "f(x)",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "用奇偶性换回 f(x)"
+        }
+      ],
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "7b6b7daf4ed266761352c0dab6a7c654848f23a4b174624790dfda8ab4ecd3fa",
+          "step_id": "39e5646dcb-parity-extension-003-parity_extension_write_back"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "8049a8cb42eaf3587b839001",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "7345b4a182bb472a169b55771fe968f6c78ef08375be1ed3ae3d8ee3d75f0700",
+      "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "合并各段并写出结论",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知各段",
+                "math": "x\\ge 0\\text{ 时，}f(x)=x^{2}+4x"
+              },
+              {
+                "label": "结论",
+                "math": "f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "8049a8cb42eaf3587b839001#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "每条解析式都要注明适用范围，端点按原题条件处理。",
+          "stem_board": {
+            "caption": "合并各段并写出结论",
+            "lines": [
+              "$$x\\ge 0\\text{ 时，}f(x)=x^{2}+4x$$",
+              "$$x<0\\text{ 时，}f(x)=\\left((-x)^{2}+4(-x)\\right)$$",
+              "$$f(x)=\\begin{cases}x^{2} - 4 x,&x<0\\\\x^{2} + 4 x,&x\\ge 0\\end{cases}$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "合并各段并写出结论"
+        }
+      ],
+      "route_id": "parity-extension",
+      "run_id": "41d26fd2bccd47bf87123106358e2946",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "7bfb28d4028f4650b51163cc2abd6c60984df6942eb103e7b66c0ab5e0cfde10",
+          "step_id": "39e5646dcb-parity-extension-004-parity_extension_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

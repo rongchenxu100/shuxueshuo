@@ -3726,6 +3726,336 @@
           }
         }
       ]
+    },
+    "parity_extension": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "structure_version": {
+          "enum": [
+            "parity-extension/r1-v3"
+          ]
+        },
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "function_ref": {
+          "type": "string"
+        },
+        "function": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "property": {
+          "enum": [
+            "odd",
+            "even",
+            "both"
+          ]
+        },
+        "rule_ast": {},
+        "relation_ast": {},
+        "rule_domain_ast": {},
+        "requested_domain_ast": {},
+        "domain_ast": {},
+        "point_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "argument_ast",
+              "value_ast",
+              "source_ref"
+            ],
+            "properties": {
+              "argument_ast": {},
+              "value_ast": {},
+              "source_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "parity_source_ref": {
+          "type": "string"
+        },
+        "domain_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "local_rules": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": [
+              "rule_ast",
+              "domain_ast",
+              "source_ref"
+            ],
+            "properties": {
+              "rule_ast": {},
+              "domain_ast": {},
+              "source_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "structure_supported": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "function_ref",
+          "function",
+          "variable",
+          "property",
+          "rule_ast",
+          "relation_ast",
+          "rule_domain_ast",
+          "requested_domain_ast",
+          "domain_ast",
+          "point_rules",
+          "parity_source_ref",
+          "domain_source_refs"
+        ]
+      },
+      "additionalProperties": false
+    },
+    "symmetry_evaluation": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "structure_version": {
+          "enum": [
+            "function-symmetry/r3-v2"
+          ]
+        },
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "function_ref": {
+          "type": "string"
+        },
+        "function": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "property": {
+          "enum": [
+            "odd",
+            "even",
+            "both"
+          ]
+        },
+        "rule_ast": {},
+        "relation_ast": {},
+        "rule_domain_ast": {},
+        "domain_ast": {},
+        "target_ast": {},
+        "value_equations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_ref",
+              "ast"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "ast": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "parity_source_ref": {
+          "type": "string"
+        },
+        "domain_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "functions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "ref",
+              "property",
+              "parity_source_ref"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "ref": {
+                "type": "string"
+              },
+              "property": {
+                "enum": [
+                  "odd",
+                  "even",
+                  "both"
+                ]
+              },
+              "parity_source_ref": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "identities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source_ref",
+              "ast",
+              "domain_ast"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string"
+              },
+              "ast": {},
+              "domain_ast": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "parameter": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "ref",
+                "name",
+                "source_refs"
+              ],
+              "properties": {
+                "ref": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "source_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "if": {
+        "properties": {
+          "structure_supported": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "function_ref",
+          "function",
+          "variable",
+          "property",
+          "rule_ast",
+          "relation_ast",
+          "rule_domain_ast",
+          "domain_ast",
+          "target_ast",
+          "value_equations",
+          "parity_source_ref",
+          "domain_source_refs",
+          "functions",
+          "identities",
+          "parameter"
+        ]
+      },
+      "additionalProperties": false
     }
   }
 }

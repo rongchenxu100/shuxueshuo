@@ -50,6 +50,14 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('parity_extension', ('goal',), 'parity_extension',
+                ('function-parity#definition', 'function-parity#zero'), '已知奇偶性与一侧解析式求另一侧',
+                version='parity-extension/r0-v1', supported_structures=('half_axis_polynomial_extension',),
+                computation_boundary='bound parity fact, local rule, rule range and requested range; no reflection or substitution'),
+    FeatureSpec('symmetry_evaluation', ('goal',), 'symmetry_evaluation',
+                ('function-parity#definition', 'function-parity#zero'), '利用奇偶性求函数值或函数值的组合',
+                version='function-symmetry/r2-v1', supported_structures=('opposite_input_value_combination',),
+                computation_boundary='bound parity fact, optional local rule and range, given value equations and the value target; no rewriting or substitution'),
     FeatureSpec('parity_parameter', ('goal',), 'parity_parameter',
                 ('function-parity#definition', 'function-parity#zero'), '已知奇偶性求函数参数',
                 version='parity-parameter/r3-v1', supported_structures=('quadratic_parity_parameter', 'affine_parity_domain', 'original_parity_parameter', 'joint_affine_parity_parameter'),
@@ -558,6 +566,22 @@ def _scope_features(report, candidate, scope, ancestors, features):
         sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
         from ..parity_parameter_math import describe as parity_parameter_description
         parity_entries = [{**src, 'ast': row['value']} for src, row in zip(sources, records, strict=True)]
+        from ..parity_extension_math import describe as parity_extension_description
+        if desc := parity_extension_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('parity_extension', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_parity_extension_goal'}, source_refs=[target_ref])
+            continue
+        from ..symmetry_value_math import describe as symmetry_value_description
+        if desc := symmetry_value_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind']}, source_refs=[target_ref])
+            add('symmetry_evaluation', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_symmetry_evaluation_goal'}, source_refs=[target_ref])
+            continue
         if desc := parity_parameter_description(original, goal, target_ref, parity_entries, candidate=candidate):
             add('goal', {'kind': goal['kind'], **({'symbol': desc['parameter']} if goal['kind'] == 'find_range' else {})}, source_refs=[target_ref])
             add('parity_parameter', desc, source_refs=desc['source_refs'])

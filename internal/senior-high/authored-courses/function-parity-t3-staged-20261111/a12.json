@@ -1,0 +1,36 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a12",
+  "reviewer": "Codex：对照用户原图第 12 题印刷题干转录，忽略手写答案；奇函数在 0 处取 0，不把 0 代入只在 x>0 有效的解析式；f(-1)=-f(1)=-4，和为 -4。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "第2张图，印刷第12题；规划编号 FP-A12"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $y=f(x)$ 是定义域为 $\\mathbf R$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^3+2*x+1",
+          "relation_domain": "(0,∞)",
+          "expression": "f(0)+f(-1)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-4"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

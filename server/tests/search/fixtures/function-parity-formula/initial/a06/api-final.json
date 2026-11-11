@@ -1,0 +1,296 @@
+{
+  "search_id": "6978365f0646",
+  "user_id": "14e347a5-cad0-4ae6-b38c-682daaf1761a",
+  "problem_id": "7afdb16e-569d-43ce-98ad-1ca5f92e5e6f",
+  "statement": "已知 $f(x)$，$g(x)$ 分别是定义在 $ℝ$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "9fc48f908a28db5cb2e4fc3fb4b1c579bef256e03f641f6502a0bb93d435dd69",
+      "width": 1075,
+      "height": 114,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/6978365f0646/figures/original?version=7d11aae2e95d388631fcaca724865850e019b56bf3a011a5e2913a557509a45a"
+      }
+    ],
+    "content_id": "7d11aae2e95d388631fcaca724865850e019b56bf3a011a5e2913a557509a45a"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "7dcd1069bb4a",
+    "box": [
+      0.0859375,
+      0.369284876905041,
+      0.92578125,
+      0.4361078546307151
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      1075,
+      114
+    ],
+    "bytes": 16007
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbb{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____。",
+  "parts": [],
+  "root": {
+    "label": "6.",
+    "facts": [
+      "parity(f,odd)",
+      "parity(g,even)",
+      "Dom(f)=ℝ",
+      "Dom(g)=ℝ",
+      "f(x)-g(x)=x^3+x^2-1"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(2)+g(2)"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330",
+    "sent_image_sha256": [
+      "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 32.25,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "6.",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "de873167bb984c97a0cf09da5cc93aca",
+      "lesson_version": "75c432de3e4e1764da3e93a0ddfcb445395d8b9661938a67d764d64fa093a55e",
+      "stream_id": "de873167bb984c97a0cf09da5cc93aca",
+      "snapshot_url": "/api/search/problems/6978365f0646/lesson/de873167bb984c97a0cf09da5cc93aca/snapshot",
+      "events_url": "/api/search/problems/6978365f0646/lesson/de873167bb984c97a0cf09da5cc93aca/events",
+      "websocket_url": "/api/search/problems/6978365f0646/lesson/de873167bb984c97a0cf09da5cc93aca/ws"
+    }
+  }
+}

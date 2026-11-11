@@ -69,7 +69,9 @@
       "method-monotonicity-inequality",
       "method-monotonicity-parameter",
       "method-parity-definition",
-      "method-parity-parameter"
+      "method-parity-parameter",
+      "method-parity-extension",
+      "method-function-symmetry"
     ]
   }
 }

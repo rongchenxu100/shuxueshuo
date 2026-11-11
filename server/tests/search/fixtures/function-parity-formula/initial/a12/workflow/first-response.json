@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\",\"root\":{\"label\":\"12.\",\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=x^3+2*x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(0)+f(-1)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2344,
+      "prompt_tokens": 25457,
+      "total_tokens": 27801,
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 369
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 673,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-e0760611-30f5-4d86-984d-3dd9605fea4c",
+        "sha256": "27bd5eb73c2dd4ca0e8849cd74d8e854a7fc562fd9e567bc521f40054c0dd249",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 12016,
+        "expires_at": 1794486149,
+        "uploaded_at": 1794399749.3688908
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "27bd5eb73c2dd4ca0e8849cd74d8e854a7fc562fd9e567bc521f40054c0dd249",
+        "api_calls": 1,
+        "file_id": "file-api-e0760611-30f5-4d86-984d-3dd9605fea4c",
+        "expires_at": 1794486149,
+        "elapsed_ms": 197
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 13122,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2344,
+          "prompt_tokens": 25457,
+          "total_tokens": 27801,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2067
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25088
+          },
+          "prompt_cache_hit_tokens": 25088,
+          "prompt_cache_miss_tokens": 369
+        },
+        "raw_payload": {
+          "id": "3f4d46ed-1f51-41e1-b596-c386b8484ef4",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2344,
+            "prompt_tokens": 25457,
+            "total_tokens": 27801,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2067
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25088
+            },
+            "prompt_cache_hit_tokens": 25088,
+            "prompt_cache_miss_tokens": 369
+          },
+          "created": 1794399749,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\",\"root\":{\"label\":\"12.\",\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=x^3+2*x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(0)+f(-1)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要只输出JSON。需要提取题干。图片内容：12. 已知函数 y=f(x) 是定义域为 R 的奇函数，当 x>0 时，f(x)=x^3+2x+1，则 f(0)+f(-1)=____。注意手写答案-4等不是题目。original_text保留题号? 题干开头12.是题号，可以保留在original_text。public_content不包含题号来源。root label? 题号12明确是试卷题号，可以root.label \"12.\" role source? 但是root.label存在时填root_label_role。题干里有\"12.\"作为题号。可以 root.label=\"12.\"并 role source。不过题干中可以有下划线填空。original_text 包括 \"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\" 注意\"定义域为 R\"用 \\mathbb{R}。公式用$...$，反斜杠需双写。原始文本 JSON 字符串中 $\\\\mathbb{R}$ 等。\n\nroot facts:\n- \"f(x)是定义域为ℝ的奇函数\" 需要 definitions: f? 这道题给了抽象函数，条件当x>0时解析式。可以定义 \"f(x)=x^3+2*x+1\" 仅当x>0? 但函数整体分段未知，只是当x>0时。应该放 facts: \"∀x∈(0,∞): f(x)=x^3+2*x+1\" 或者 definitions? 函数定义部分只在x>0，不应作为全局定义。还要 \"parity(f,odd)\" 和 \"Dom(f)=ℝ\" 放 facts? 根据 catalog 函数性质放 expressions，definitions 放函数定义。但这里 f 没有完整解析式，因此无需 definitions，放 facts:\n\"Dom(f)=ℝ\"\n\"parity(f,odd)\" 或 \"parity(f,odd)\" 表示奇函数。 catalog 说 parity(f,odd|even|both|odd_only|even_only)，普通奇/偶允许零函数；奇函数用 parity(f,odd)。\n\"∀x∈(0,∞): f(x)=x^3+2*x+1\"\n目标 find_value expression \"f(0)+f(-1)\"。无选项 status none selection_mode none options [].\n\n小问无，只用root。\n\npublic_content: completeness complete, privacy? 图片包含手写答案（-3/-4涂改）以及顶部可能其他题。题干本身无个人信息，但手写答案需要排除；可以声明 separated? \"仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated.\" 我们已把题号放root.label并 role source，公开statement不含题号；手写答案排除。所以 privacy=separated 可以。figure: not_required 无图。figure_detection status none regions [].\n\npublic_content.scopes: one root scope with statement no题号, no答案： \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\" 这里题干中\"定义域为 R\" 用 $\\\\mathbb{R}$。choices [{target_ref:\"/root/goals/0\",status:\"none\",selection_mode:\"none\",options:[]}].\n可能需要 root.label=\"12.\" and root_label_role \"source\"。public_content root_label_role source。original_text包含题号12.和完整的填空。手写答案不转录。注意原图 \"f(0)+f(-1)=____\" 手写-3 -4 不抄。\n\n根 facts 中\"定义域为ℝ的奇函数\"可以拆: \"Dom(f)=ℝ\", \"parity(f,odd)\"。当x>0: \"∀x∈(0,∞): f(x)=x^3+2*x+1\"。题面变量 x>0。用 (0,∞)。math expression catalog允许∞。也可以 \"∀x>0: f(x)=...\" 但受控建议 ∀x∈(0,∞)。保留严格端点。好。\n\nGoals find_value expression \"f(0)+f(-1)\"。无需 in_terms_of。\n\nuncertainties: [] 因为可读。需要记录手写批注吗？不是题目，不报告unreadable。没有不确定。\n\noriginal_text 需要保留题干原文。LaTeX反斜杠：JSON中要写 \"\\\\mathbb{R}\"。公式用$...$包围。可能写成：\n\"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\"\n注意原图 f(0)+f(-1)= 后面横线，可能不是中文句号？原图没有明显句号，可能手写挡住。可以加句号？转录原文，有\"则 f(0)+f(-1)=____\" 没句号。不要补。不加句号。original_text 可以结尾 \"______\" 无句号。题号12. 是来源题号保留。\n\npublic_content statement 不包含题号： \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\" 可能公式后不需要句号。如果公开题面保持原样可以无句号。注意公式内 \\mathbb{R}需要双反斜杠。JSON字符串中 \"\\\\mathbb{R}\" 输出为 \\mathbb{R}。还有 x^3 中 ^ 无需转义。LaTeX \"x^3\"合法。 2x+1。\n\n是否把所有公式中的反斜杠双写？只有 \\mathbb。$\\\\mathbb{R}$。\n\nroot definitions 可以空数组省略? JSON Schema properties optional。可以不要definitions。但公开仅要求 scopes。root required only? Scope 没有 required，但通常给 facts goals。可以包含 \"label\",\"facts\",\"goals\",\"uncertainties\"。definitions可以省略。需要 root.label 存在，public_content.root_label_role source。label \"12.\"。label需要 minLength。好的。\n\nfacts 中 parity(f,odd) 是否足够表示\"奇函数\"且定义域R。还有 f(0)+f(-1) 目标是求值。条件当x>0。可以。注意 \"f(x)=x^3+2x+1\" 当x>0是函数解析式限制。放 facts 使用 ∀x∈(0,∞): f(x)=x^3+2*x+1。是否需要\"x^3+2*x+1\"乘法 2*x。是。\n\n会不会定义\"parity(f,odd)\"不够？ Catalog: parity(f,odd|even|both|odd_only|even_only) \"题给的全域奇偶性（奇、偶、既奇又偶、仅奇、仅偶）及明确声明的多项式次数。普通奇／偶允许零函数；仅按原文记录性质，定义域另写 Dom(f)=D。\" 所以 \"parity(f,odd)\" 表示奇。定义域为R写Dom(f)=ℝ。很好。\n\n题面要求 f(0) 存在因为他定义域R，但题目有。无需额外。\n\nfigure none 无配图。图片有很多手写涂鸦，但非配图。figure_detection status none。\n\n现在构建 JSON。必须只输出JSON。确保无多余字段。public_content.scopes statement only own题，root scope statement includes full because no child. choices one.\n\nroot facts:\n\"Dom(f)=ℝ\"\n\"parity(f,odd)\"\n\"∀x∈(0,∞): f(x)=x^3+2*x+1\"\n\n是否因题面\"定义域为R的奇函数\"可以写 \"Dom(f)=ℝ\" 和 \"parity(f,odd)\"。可以。\n\ngoals [{\"kind\":\"find_value\",\"expression\":\"f(0)+f(-1)\"}]\n\noriginal_text \"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\"\n\n这里\"f(0)+f(-1)=\" 不改变表达式。填空下划线六个。可以。\n\npublic_content.statement \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\" 可能不应有来源题号。可以。\n\ncompleteness complete. privacy separated. figure not_required. root_label_role source. scopes. figure_detection none regions [].\n\n注意 public_content.scopes choices options 中 target_ref \"/root/goals/0\"，status \"none\", selection_mode \"none\", options []. Good.\n\n最终。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13359
+  },
+  "raw_payload": {
+    "id": "3f4d46ed-1f51-41e1-b596-c386b8484ef4",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\",\"root\":{\"label\":\"12.\",\"facts\":[\"Dom(f)=ℝ\",\"parity(f,odd)\",\"∀x∈(0,∞): f(x)=x^3+2*x+1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(0)+f(-1)\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要只输出JSON。需要提取题干。图片内容：12. 已知函数 y=f(x) 是定义域为 R 的奇函数，当 x>0 时，f(x)=x^3+2x+1，则 f(0)+f(-1)=____。注意手写答案-4等不是题目。original_text保留题号? 题干开头12.是题号，可以保留在original_text。public_content不包含题号来源。root label? 题号12明确是试卷题号，可以root.label \"12.\" role source? 但是root.label存在时填root_label_role。题干里有\"12.\"作为题号。可以 root.label=\"12.\"并 role source。不过题干中可以有下划线填空。original_text 包括 \"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\" 注意\"定义域为 R\"用 \\mathbb{R}。公式用$...$，反斜杠需双写。原始文本 JSON 字符串中 $\\\\mathbb{R}$ 等。\n\nroot facts:\n- \"f(x)是定义域为ℝ的奇函数\" 需要 definitions: f? 这道题给了抽象函数，条件当x>0时解析式。可以定义 \"f(x)=x^3+2*x+1\" 仅当x>0? 但函数整体分段未知，只是当x>0时。应该放 facts: \"∀x∈(0,∞): f(x)=x^3+2*x+1\" 或者 definitions? 函数定义部分只在x>0，不应作为全局定义。还要 \"parity(f,odd)\" 和 \"Dom(f)=ℝ\" 放 facts? 根据 catalog 函数性质放 expressions，definitions 放函数定义。但这里 f 没有完整解析式，因此无需 definitions，放 facts:\n\"Dom(f)=ℝ\"\n\"parity(f,odd)\" 或 \"parity(f,odd)\" 表示奇函数。 catalog 说 parity(f,odd|even|both|odd_only|even_only)，普通奇/偶允许零函数；奇函数用 parity(f,odd)。\n\"∀x∈(0,∞): f(x)=x^3+2*x+1\"\n目标 find_value expression \"f(0)+f(-1)\"。无选项 status none selection_mode none options [].\n\n小问无，只用root。\n\npublic_content: completeness complete, privacy? 图片包含手写答案（-3/-4涂改）以及顶部可能其他题。题干本身无个人信息，但手写答案需要排除；可以声明 separated? \"仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated.\" 我们已把题号放root.label并 role source，公开statement不含题号；手写答案排除。所以 privacy=separated 可以。figure: not_required 无图。figure_detection status none regions [].\n\npublic_content.scopes: one root scope with statement no题号, no答案： \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\" 这里题干中\"定义域为 R\" 用 $\\\\mathbb{R}$。choices [{target_ref:\"/root/goals/0\",status:\"none\",selection_mode:\"none\",options:[]}].\n可能需要 root.label=\"12.\" and root_label_role \"source\"。public_content root_label_role source。original_text包含题号12.和完整的填空。手写答案不转录。注意原图 \"f(0)+f(-1)=____\" 手写-3 -4 不抄。\n\n根 facts 中\"定义域为ℝ的奇函数\"可以拆: \"Dom(f)=ℝ\", \"parity(f,odd)\"。当x>0: \"∀x∈(0,∞): f(x)=x^3+2*x+1\"。题面变量 x>0。用 (0,∞)。math expression catalog允许∞。也可以 \"∀x>0: f(x)=...\" 但受控建议 ∀x∈(0,∞)。保留严格端点。好。\n\nGoals find_value expression \"f(0)+f(-1)\"。无需 in_terms_of。\n\nuncertainties: [] 因为可读。需要记录手写批注吗？不是题目，不报告unreadable。没有不确定。\n\noriginal_text 需要保留题干原文。LaTeX反斜杠：JSON中要写 \"\\\\mathbb{R}\"。公式用$...$包围。可能写成：\n\"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\"\n注意原图 f(0)+f(-1)= 后面横线，可能不是中文句号？原图没有明显句号，可能手写挡住。可以加句号？转录原文，有\"则 f(0)+f(-1)=____\" 没句号。不要补。不加句号。original_text 可以结尾 \"______\" 无句号。题号12. 是来源题号保留。\n\npublic_content statement 不包含题号： \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\" 可能公式后不需要句号。如果公开题面保持原样可以无句号。注意公式内 \\mathbb{R}需要双反斜杠。JSON字符串中 \"\\\\mathbb{R}\" 输出为 \\mathbb{R}。还有 x^3 中 ^ 无需转义。LaTeX \"x^3\"合法。 2x+1。\n\n是否把所有公式中的反斜杠双写？只有 \\mathbb。$\\\\mathbb{R}$。\n\nroot definitions 可以空数组省略? JSON Schema properties optional。可以不要definitions。但公开仅要求 scopes。root required only? Scope 没有 required，但通常给 facts goals。可以包含 \"label\",\"facts\",\"goals\",\"uncertainties\"。definitions可以省略。需要 root.label 存在，public_content.root_label_role source。label \"12.\"。label需要 minLength。好的。\n\nfacts 中 parity(f,odd) 是否足够表示\"奇函数\"且定义域R。还有 f(0)+f(-1) 目标是求值。条件当x>0。可以。注意 \"f(x)=x^3+2x+1\" 当x>0是函数解析式限制。放 facts 使用 ∀x∈(0,∞): f(x)=x^3+2*x+1。是否需要\"x^3+2*x+1\"乘法 2*x。是。\n\n会不会定义\"parity(f,odd)\"不够？ Catalog: parity(f,odd|even|both|odd_only|even_only) \"题给的全域奇偶性（奇、偶、既奇又偶、仅奇、仅偶）及明确声明的多项式次数。普通奇／偶允许零函数；仅按原文记录性质，定义域另写 Dom(f)=D。\" 所以 \"parity(f,odd)\" 表示奇。定义域为R写Dom(f)=ℝ。很好。\n\n题面要求 f(0) 存在因为他定义域R，但题目有。无需额外。\n\nfigure none 无配图。图片有很多手写涂鸦，但非配图。figure_detection status none。\n\n现在构建 JSON。必须只输出JSON。确保无多余字段。public_content.scopes statement only own题，root scope statement includes full because no child. choices one.\n\nroot facts:\n\"Dom(f)=ℝ\"\n\"parity(f,odd)\"\n\"∀x∈(0,∞): f(x)=x^3+2*x+1\"\n\n是否因题面\"定义域为R的奇函数\"可以写 \"Dom(f)=ℝ\" 和 \"parity(f,odd)\"。可以。\n\ngoals [{\"kind\":\"find_value\",\"expression\":\"f(0)+f(-1)\"}]\n\noriginal_text \"12. 已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。\"\n\n这里\"f(0)+f(-1)=\" 不改变表达式。填空下划线六个。可以。\n\npublic_content.statement \"已知函数 $y=f(x)$ 是定义域为 $\\\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______\" 可能不应有来源题号。可以。\n\ncompleteness complete. privacy separated. figure not_required. root_label_role source. scopes. figure_detection none regions [].\n\n注意 public_content.scopes choices options 中 target_ref \"/root/goals/0\"，status \"none\", selection_mode \"none\", options []. Good.\n\n最终。"
+        }
+      }
+    ],
+    "created": 1794399749,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2344,
+      "prompt_tokens": 25457,
+      "total_tokens": 27801,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2067,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25088
+      },
+      "prompt_cache_hit_tokens": 25088,
+      "prompt_cache_miss_tokens": 369
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.36
+}

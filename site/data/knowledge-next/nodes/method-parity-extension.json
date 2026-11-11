@@ -1,0 +1,77 @@
+{
+  "id": "method-parity-extension",
+  "kind": "method",
+  "label": "对称补全法",
+  "summary": "把目标范围内的输入换成相反数，代入已知一侧的解析式，再用奇偶性换回原输入。",
+  "source": "函数奇偶性 FP-T3 R0",
+  "input": "题给奇偶性、完整定义域、一侧半轴上的解析式及其范围、所求范围。",
+  "output": "所求范围内的解析式，注明适用范围。",
+  "conditions": "定义域为实数集；已知规则为四次以内有理系数多项式，范围为半轴；所求范围中每个输入的相反数都在已知范围内且不含零。奇函数的已知范围含零时，已知式在零点的值必须为零。",
+  "steps": [
+    {
+      "id": "prepare",
+      "title": "读清已知与所求范围",
+      "body": [
+        "写出奇偶性、已知解析式及其输入范围，以及要补的输入范围。"
+      ],
+      "calls": []
+    },
+    {
+      "id": "map",
+      "title": "把输入换到已知一侧",
+      "body": [
+        "所求范围内取 $x$，说明 $-x$ 落在已知范围内，才能代入已知解析式。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-function-symmetry-transform"
+        }
+      ]
+    },
+    {
+      "id": "substitute",
+      "title": "代入相反输入",
+      "body": [
+        "把 $-x$ 作为整体代入已知解析式的每个自变量位置，得到 $f(-x)$。"
+      ],
+      "calls": [
+        {
+          "ref": "method-function-evaluation"
+        }
+      ]
+    },
+    {
+      "id": "write-back",
+      "title": "用奇偶性换回原输入",
+      "body": [
+        "偶函数 $f(x)=f(-x)$；奇函数 $f(x)=-f(-x)$，负号作用于整个 $f(-x)$。"
+      ],
+      "calls": [
+        {
+          "ref": "skill-function-symmetry-transform"
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "title": "写出带范围的结论",
+      "body": [
+        "答案写明适用范围；独立核对映射、代入和外层负号。"
+      ],
+      "calls": []
+    }
+  ],
+  "examples": [
+    {
+      "title": "偶函数补全负半轴",
+      "prompt": "已知 $f(x)$ 是定义域为 $\\mathbb R$ 的偶函数，当 $x\\ge0$ 时，$f(x)=x(1+x)$。求 $x<0$ 时 $f(x)$ 的解析式。",
+      "solution": [
+        "$x<0$ 时 $-x>0$，落在已知范围 $x\\ge0$ 内。",
+        "$f(-x)=(-x)(1-x)=x^2-x$。",
+        "偶函数 $f(x)=f(-x)$，所以 $x<0$ 时 $f(x)=x^2-x$。"
+      ],
+      "source": "函数奇偶性 FP-A07"
+    }
+  ],
+  "resources": []
+}

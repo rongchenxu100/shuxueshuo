@@ -1,0 +1,43 @@
+{
+  "original_text": "8. 函数 $f(x)$ 是定义在 $\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。",
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)"
+    ],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x)=x^2-3*x-1",
+        "relation_domain": "(0,+∞)",
+        "declared_domain": "ℝ",
+        "requested_domain": "(-∞,0)"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "函数 $f(x)$ 是定义在 $\\mathbf{R}$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$ ______。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

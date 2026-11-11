@@ -1,0 +1,47 @@
+{
+  "id": "type-parity-formula",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "根据奇偶性求解析式",
+  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+  "source": "函数奇偶性 FP-T3 R0",
+  "choice_hint": "已知奇偶性和一侧公式，所求是另一侧的公式",
+  "features": [
+    {
+      "cue": "题目给出奇偶性，以及某一侧输入范围内的解析式。"
+    },
+    {
+      "cue": "所求范围中的每个 $x$，其相反数 $-x$ 都落在已知范围内。"
+    }
+  ],
+  "confuse": [
+    {
+      "text": "根据奇偶性求参，目标是参数；本型参数已定，目标是另一侧的解析式。",
+      "ref": "type-parity-parameter"
+    },
+    {
+      "text": "判断函数的奇偶性，目标是性质；本型的性质已给。",
+      "ref": "type-function-parity"
+    }
+  ],
+  "knowledge": [
+    "function-parity"
+  ],
+  "methods": [
+    "method-parity-extension"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "偶函数补全负半轴",
+      "prompt": "已知 $f(x)$ 是定义域为 $\\mathbb R$ 的偶函数，当 $x\\ge0$ 时，$f(x)=x(1+x)$。求 $x<0$ 时 $f(x)$ 的解析式。",
+      "solution": [
+        "$x<0$ 时 $-x>0$，落在已知范围 $x\\ge0$ 内。",
+        "$f(-x)=(-x)(1-x)=x^2-x$。",
+        "偶函数 $f(x)=f(-x)$，所以 $x<0$ 时 $f(x)=x^2-x$。"
+      ],
+      "source": "函数奇偶性 FP-A07"
+    }
+  ],
+  "sample": "把 $-x$ 放进已知范围，代入后再用奇偶性换回 $f(x)$。"
+}

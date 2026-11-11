@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a06",
+  "reviewer": "Codex：对照用户原图第 6 题印刷题干转录，忽略手写答案；把 x=-2 代入并用奇偶性得 -f(2)-g(2)=-5，故 f(2)+g(2)=5。先联立求出 f(2)、g(2) 再相加的长路线同样正确，不判错。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第6题；规划编号 FP-A06"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf R$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "Dom(g)=ℝ",
+        "parity(f,odd)",
+        "parity(g,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)-g(x)=x^3+x^2-1",
+          "expression": "f(2)+g(2)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "5"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

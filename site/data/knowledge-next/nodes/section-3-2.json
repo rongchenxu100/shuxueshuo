@@ -72,6 +72,10 @@
     {
       "ref": "type-parity-parameter",
       "relation": "extends"
+    },
+    {
+      "ref": "type-parity-formula",
+      "relation": "extends"
     }
   ]
 }

@@ -111,6 +111,20 @@ def dispatch(payload):
     if operation == 'finish_parity_parameter':
         from .parity_parameter_runtime import finish
         return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_parity_extension':
+        from .parity_extension_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],
+                             payload['parity_extension_result_exact'])
+    if operation == 'finish_parity_extension':
+        from .parity_extension_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_function_symmetry':
+        from .symmetry_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],
+                             payload['symmetry_result_exact'])
+    if operation == 'finish_function_symmetry':
+        from .symmetry_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
     if operation == 'finish_monotonicity_parameter':
         from .monotonicity_parameter_runtime import finish
         return finish(payload['state'], payload['context'], payload['previous'])

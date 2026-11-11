@@ -1,7 +1,19 @@
 {
   "schema_version": "graph-direct-method-selection/v1",
   "type": "type-function-evaluation",
-  "admission": "function_evaluation",
-  "method": "method-function-evaluation",
-  "route_id": "function-evaluation"
+  "admission": "function_evaluation_routes",
+  "routes": [
+    {
+      "method": "method-function-evaluation",
+      "route_id": "function-evaluation",
+      "admission": "function_evaluation",
+      "label": "代入法"
+    },
+    {
+      "method": "method-function-symmetry",
+      "route_id": "function-symmetry",
+      "admission": "function_symmetry",
+      "label": "对称关系法"
+    }
+  ]
 }

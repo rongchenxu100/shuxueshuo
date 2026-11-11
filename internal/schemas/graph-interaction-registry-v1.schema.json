@@ -368,7 +368,9 @@
             "monotonicity_parameter",
             "abstract_monotonicity",
             "function_parity",
-            "parity_parameter"
+            "parity_parameter",
+            "parity_extension",
+            "function_symmetry"
           ]
         },
         "parts": {

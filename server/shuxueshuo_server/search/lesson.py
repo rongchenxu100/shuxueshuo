@@ -148,6 +148,8 @@ def _goal(goal, features, text, candidate=None):
             or known.get('piecewise_inequality', {}).get('structure_supported')
             or source_goal.get('kind') == 'determine_function_parity'
             or known.get('parity_parameter', {}).get('structure_supported')
+            or known.get('parity_extension', {}).get('structure_supported')
+            or known.get('symmetry_evaluation', {}).get('structure_supported')
             or known.get('monotonicity_inequality', {}).get('structure_supported')
             or known.get('monotonicity_parameter', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
@@ -412,6 +414,10 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('parity_extension', {}).get('structure_supported'):
+        return _parity_extension_d1_rows(target, fragments, known, text)
+    if known.get('symmetry_evaluation', {}).get('structure_supported'):
+        return _symmetry_d1_rows(target, fragments, known, text)
     if known.get('parity_parameter', {}).get('structure_supported'):
         return _parity_parameter_d1_rows(target, fragments, known, text)
     if known.get('function_parity', {}).get('structure_supported'):
@@ -556,6 +562,92 @@ def _extremum_d1_rows(target, fragments, known, text):
                                          ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': question,
             'feedback': feedback, 'summary': correct}
+
+
+def _parity_extension_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.parity_extension_math import points, region
+    from ..graph_lesson.stage_one.function_domain import expression_latex
+    from ..graph_lesson.stage_three.math_values import latex
+    from ..graph_lesson.stage_three.parity_extension_presentation import _printed, range_latex
+    from ..graph_lesson.stage_three.parity_parameter_presentation import PROPERTY, _display_ast
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['parity_extension']
+    name, variable = desc['function'], desc['variable']
+    known_range = range_latex(region(desc['rule_domain_ast']), variable)
+    formula = _printed(expression_latex(_display_ast(desc['rule_ast']), variable), variable)
+    if desc['domain_ast'] is None:
+        where = ''
+    else:
+        domain = region(desc['domain_ast'])
+        where = '定义在 $' + ('\\mathbb{R}' if domain == region(['real']) else latex(domain)) + '$ 上的'
+    point_text = ''.join(f'，${name}({latex(c)})={latex(v)}$' for c, v in sorted(points(desc).items()))
+    summary = (f'${name}({variable})$ 是{where}{PROPERTY[desc["property"]]}；'
+               f'${known_range}$ 时 ${name}({variable})={formula}${point_text}。')
+    if desc['requested_domain_ast'] is None:
+        correct = f'求 ${name}({variable})$ 在整个定义域上的解析式'
+        feedback = f'已知的只是 ${known_range}$ 时的解析式；所求的是整个定义域上的解析式。'
+    else:
+        requested = range_latex(region(desc['requested_domain_ast']), variable)
+        correct = f'求 ${requested}$ 时 ${name}({variable})$ 的解析式'
+        feedback = f'已知的是 ${known_range}$ 时的解析式；所求的是 ${requested}$ 时的解析式。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct),
+                                        _option(f'求 ${known_range}$ 时 ${name}({variable})$ 的解析式', 'goal', feedback),
+                                        _option(f'判断 ${name}({variable})$ 是奇函数还是偶函数', 'goal',
+                                                '奇偶性是已知条件，不需要再判断。')]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _symmetry_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.parity_extension_math import region
+    from ..graph_lesson.stage_three.math_values import latex
+    from ..graph_lesson.stage_three.parity_extension_presentation import range_latex
+    from ..graph_lesson.stage_three.symmetry_presentation import _source, _source_latex
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['symmetry_evaluation']
+    s = _source(desc)
+    name, variable = s['f'], s['x']
+    if desc['domain_ast'] is None:
+        where = ''
+    elif desc.get('parameter'):
+        where = f'定义在 ${_source_latex(desc["domain_ast"], variable)}$ 上的'
+    else:
+        domain = region(desc['domain_ast'])
+        where = '定义在 $' + ('\\mathbb{R}' if domain == region(['real']) else latex(domain)) + '$ 上的'
+    givens = ([] if s['rule'] is None else
+              [f'${range_latex(s["printed_known"], variable)}$ 时 ${name}({variable})={s["rule"]}$'])
+    givens += [f'${row}$' for row in [*s['equations'], *(i['text'] for i in s['identities'])]]
+    summary = ('，'.join(f'${F}({variable})$ 是{where}{word}' for F, word in s['parities'])
+               + ''.join('；' + g for g in givens) + '。')
+    correct = f'求 ${s["target"]}$ 的值'
+    feedback = f'所求的是 ${s["target"]}$ 这个值，不必补出整个函数。'
+    if s['rule'] is not None:
+        whole = _option(f'求 ${name}({variable})$ 在整个定义域上的解析式', 'goal', feedback)
+    elif s['identities']:
+        whole = _option(f'求 ${name}({variable})$ 的解析式', 'goal', feedback)
+    else:
+        whole = _option(f'先求出 ${name}({variable})$ 的解析式', 'goal', '题目没有给出解析式；' + feedback)
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct), whole,
+                                        _option(f'判断 ${name}({variable})$ 是奇函数还是偶函数', 'goal',
+                                                '奇偶性是已知条件，不需要再判断。')]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
 
 
 def _parity_parameter_d1_rows(target, fragments, known, text):

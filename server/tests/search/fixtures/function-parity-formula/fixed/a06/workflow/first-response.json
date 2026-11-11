@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\\n$f(2)+g(2)=$______\",\"root\":{\"label\":\"6.\",\"facts\":[\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"parity(f,odd)\",\"parity(g,even)\",\"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 4072,
+      "prompt_tokens": 25486,
+      "total_tokens": 29558,
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 142
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 693,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-21beffc1-bd59-4325-8382-300ea13e4135",
+        "sha256": "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 16007,
+        "expires_at": 1794486618,
+        "uploaded_at": 1794400218.056163
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d8bb620764dab641f703aaf1b02380507b02f863cf56ad3e6876094d2f125330",
+        "api_calls": 1,
+        "file_id": "file-api-21beffc1-bd59-4325-8382-300ea13e4135",
+        "expires_at": 1794486618,
+        "elapsed_ms": 202
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 25234,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 4072,
+          "prompt_tokens": 25486,
+          "total_tokens": 29558,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3788
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25344
+          },
+          "prompt_cache_hit_tokens": 25344,
+          "prompt_cache_miss_tokens": 142
+        },
+        "raw_payload": {
+          "id": "2121013d-7375-44d9-96cb-70e66fc8d5e6",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 4072,
+            "prompt_tokens": 25486,
+            "total_tokens": 29558,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3788
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25344
+            },
+            "prompt_cache_hit_tokens": 25344,
+            "prompt_cache_miss_tokens": 142
+          },
+          "created": 1794400218,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\\n$f(2)+g(2)=$______\",\"root\":{\"label\":\"6.\",\"facts\":[\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"parity(f,odd)\",\"parity(g,even)\",\"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意。图片显示一道题：6. 已知f(x), g(x)分别是定义在R上的奇函数和偶函数，且f(x)-g(x)=x^3+x^2-1，则f(2)+g(2)=____。手写答案（5）不算。有右侧配图？图片右侧似乎有一个坐标系曲线图？需要判断。观察图片：右侧有一部分坐标轴/曲线？看起来像是图形，可能是相邻题的图，或者本题的图？题目本身没有提到图。右侧图形似乎被截断，可能是别的题目/解析图。需要判断 figure present? 题干未引用图，右侧有图形痕迹，但不属于本题？题目文字与图无关。按规定，不把公式排版或解析里的图当题给配图。右侧看起来是坐标系，有可能是相邻题或草稿。不确定是否本题配图。题干没有引用图，因此 figure_detection status 可以 none? 如果有图但非题目引用，不应标记。这里图片右侧有图，但题干不需要图，且无法确认属于本题，可能来自相邻题。按 figure=not_required。但 figure_detection 需要 status none/present/uncertain。如果存在非题图，是否 present？说明：有配图为present，不能确定或题干引用的图未拍到为uncertain。题干没有图，右侧图形不属于本题，因此 none 更合适。需要不把解析图当配图。右侧似乎是解析/草稿的图形？也可能是题目配图，但题干未引用。我们选择 none，不标区域。或者可标 uncertain? 但题干不涉及图，不需要图。根据“无配图为 none，有配图为 present，不能确定或题干引用的图未拍到为 uncertain。”右侧明显有图，但题干没有引用，且无法确认是否属于本题。严格来说，图片中存在图形，但不是题干配图？如果看作配图，则 figure=unrepresented? 但题目不需要读取图即可确定完整题意，因此 figure=not_required。figure_detection status 可以是 none，因为本题无配图。需要谨慎。\n\n数学内容：\nf(x), g(x) 分别是定义在 R 上的奇函数和偶函数。且 f(x)-g(x)=x^3+x^2-1。求 f(2)+g(2) 的值。\n\n注意：f 奇，g 偶，且关系式。需要定义 f(x), g(x) 吗？没有给出解析式，只是抽象函数。关系式对所有 x 成立？\"已知f(x), g(x)... 且 f(x)-g(x)=...\" 默认对定义域内任意x成立。需要用恒等关系求值。目标 find_value expression f(2)+g(2)。但未知函数关系 f(x)-g(x)=...，以及奇偶性。这属于 FindRelationValueGoal? 需要表示 function? 关系里有f,g。目标求 f(2)+g(2)。可以定义一个未知函数关系？FindRelationValueGoal 需要 function, variable, relation, expression；但关系涉及两个函数 f,g，且 f,g 的奇偶性。可能可以使用 find_value 普通 (kind find_value, expression \"f(2)+g(2)\")，并将关系放 facts。但不能用 unknown dependencies。题面是抽象函数。catalog 中有 abstract functions? FindRelationValueGoal 是单一未知函数的关系。奇偶性事实可以通过 facts \"parity(f,odd)\" \"parity(g,even)\"，关系放 facts \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"，目标 find_value expression f(2)+g(2)。也可以定义 f,g 吗？不需要。root facts 包含 parity, 恒等关系。目标 find_value expression \"f(2)+g(2)\"。这样合理。变量 x 是关系变量，默认 ℝ，显式写在 facts。也可以不写 ∀x∈ℝ? 题面未写\"对任意x\"，但恒等式默认。按规则“未另限变量的实数函数输入恒等关系按实数变量理解”，可写 ∀x∈ℝ: f(x)-g(x)=x^3+x^2-1。奇偶函数定义在 R 上的事实用 facts: parity(f,odd), parity(g,even) 或者 \"f为奇函数；g为偶函数\"? catalog parity 是全域奇偶性。用 math strings \"parity(f,odd)\" 和 \"parity(g,even)\"，但也要定义域 R? parity 的 meaning 说定义域另写 Dom(f)=D。题面明确 f,g 定义在 R 上。可以写 \"Dom(f)=ℝ\" \"Dom(g)=ℝ\" 和 \"parity(f,odd)\" \"parity(g,even)\"。或者用一句 \"f为R上奇函数\" 没有受控？用定义：f: 定义在R上的奇函数。可以 facts: [\"Dom(f)=ℝ\", \"parity(f,odd)\", \"Dom(g)=ℝ\", \"parity(g,even)\", \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"]。但 Dom(f)=ℝ 是否必要？题面明确。可以放 facts。definitions 可定义 f,g? 题面没有解析式，只有函数名和性质，不算定义？不应添加定义。facts即可。\n\n目标 find_value expression \"f(2)+g(2)\"。无选项，status none, selection_mode none, options []。\n\noriginal_text：需要完整题干，包含题号？题干开头的“6.”是题号，属于来源题号，但 original_text 保留完整题干及题号；public_content.statement 不应包含题号。root.label? 题号“6.”是标签，原图明确是题号，可设 root.label \"6.\"，root_label_role source。但也可省略 label 并在 original_text 保留题号。按规则：“original_text 可以保留来源题号”；public_content.scopes statement 不含题号。root.label 存在时 role source 可标记。是否设置 root.label=\"6.\"？可以，但需 public_content.root_label_role=\"source\"。我觉得 root.label 可以放 \"6.\"，或者不设置。若不设置，original_text 仍有 \"6.\"。没有 label 就没有 role。为了明确题号，可以设置 root.label 为 \"6.\" 并 root_label_role source。但 root.label 是“题面分问或图景标签，如（1）、②”，题号也可。这是来源题号，不是小问。可以设置。但有些系统不喜欢 root.label 源题号？规则明确支持。我选择设置 root.label=\"6.\"，public_content.root_label_role=\"source\"。\n\n但“6.”后是题干，非分问。没有小问。root facts/goals。\n\noriginal_text 转录：\n\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\n$f(2)+g(2)=$______\"\n注意图片中“定义在R上的奇函数和偶函数”，R 是黑体，保留 $\\mathbf{R}$ 或 ℝ。公式用 $...$。填空处照印刷原样横线。题面结尾“则 f(2)+g(2)=_____”。手写的 5 不算，不转录。图片中有一些手写笔记（-2<k<2等）不算。右侧图形不算。\n\n还有“已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____” 注意可能是 f(2)+g(2)? 图片清晰。需要不要漏掉“则”及其后。\n\npublic_content.scopes 对应 root:\nstatement 应该不含题号和小问编号，保留 \"已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。\" 可以。选项 choices 空，status none, selection_mode none, options []。\n\ncompleteness: complete。没有小问，题面完整。\nprivacy: 图片有手写答案和一些草稿，但公开题干只保留题面，已分离手写。题号作为来源，statement 不含，privacy 可以 separated? 但图片中存在手写笔记，公开字段不包含；可以声明 separated 因为题目正文与手写批注已分离。姓名班级等没有。来源题号也可以排除。privacy=separated? 规则说“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件。无法确认分离时privacy=uncertain。”这里题干开头的 6. 是题号，可放 root.label source，statement 排除，可以 separated。手写答案未进入公开字段。选 separated。\n\nfigure: not_required。figure_detection status none, regions []。\n\nuncertainties: 是否有？手写图形不明确，不算题目；不需要。没有无法辨认。可不填或空数组。root.uncertainties 可省略。\n\n注意 facts 中“分别是定义在R上的奇函数和偶函数”可以拆为 parity(f,odd), parity(g,even), Dom(f)=ℝ, Dom(g)=ℝ。但\"定义在R上的奇函数\"是否奇函数定义域必须关于原点对称，R满足。写 Dom(f)=ℝ 和 parity(f,odd) 足够。g同理。关系恒等式写 ∀x∈ℝ: f(x)-g(x)=x^3+x^2-1。由于关系本身用到 f,g，且我们 facts 有定义域。目标 find_value expression f(2)+g(2)。这不需要用 FindRelationValueGoal，因为可以普通求值。但普通 find_value 是否允许抽象函数？表达式原样。可以。\n\n还有一个问题：求 f(2)+g(2) 可以通过 f(2)-g(2)=? 和 f(-2)+g(-2)?? 其实奇偶性得到 f(-2)=-f(2), g(-2)=g(2)，关系代入 x=2 和 x=-2。没问题。\n\nroot.definitions 也许不需要，因为 f,g 不是解析式定义。但函数名没有定义？题面已命名函数 f,g。规则：definitions：“函数定义（f(t)=t^2）及题内新概念定义原文放这里。”这里没有函数体，只有性质，不放 definitions。facts 放性质。\n\n目标 find_value expression \"f(2)+g(2)\"，没有 input_domain。可以。\n\npublic_content.scopes[0].choices 必须 target_ref /root/goals/0, status none, selection_mode none, options [].\n\nfigure_detection status none regions [].\n\noriginal_text 需要保留题号，但手写答案不抄。填空处用横线。公式中的 R 可以写 $\\mathbf{R}$。f(x) 等用 $...$。\n\n需要注意 response JSON 中反斜杠要转义。original_text 中 \"$\\mathbf{R}$\" 要写成 \"$\\\\mathbf{R}$\"。其他公式简单。不确定要不要将 R 写成 $\\mathbf{R}$ 或 $\\mathbb{R}$? 原图是黑体 R，常见是 $\\mathbf{R}$。用 $\\mathbf{R}$。fact 中用 ℝ 目录记法。public_content.statement 也保留 $\\mathbf{R}$? 可以使用 $\\mathbf{R}$ 与原题一致。目录说 root 数学式用 Unicode；公开 statement 用 LaTeX。可以写 $\\mathbf{R}$。public statement 中公式用 $...$，需转义。JSON 中双引号内反斜杠写 \\\\。\n\n需要输出 JSON 对象，且仅一个 JSON。要符合 schema。root 没有 additionalProperties? Scope 有 properties label, definitions, facts, goals, children, uncertainties. 可省略 label? 有 label。goal find_value additionalProperties false，允许 expression, in_terms_of, input_domain。无需 in_terms_of。没有 choices 在 root，选项放在 public_content。\n\n检查 root.facts 字符串是否使用受控数学字符串，不应含 LaTeX。facts：[\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"parity(f,odd)\",\"parity(g,even)\",\"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"]。第三个/第四个 parity 是否符合 catalog 语法 parity(f,odd|even|both|odd_only|even_only)。题面“奇函数和偶函数”用 odd 和 even 可以。但也许更准确的表示是 f为奇函数，g为偶函数。catalog 的 parity(f,odd) 表示“奇函数”，g even。好。没有定义域声明单独? 题面明确 R 上，所以 Dom(f)=ℝ, Dom(g)=ℝ 保留。不过 parity 的 meaning 说“普通奇／偶允许零函数；仅按原文记录性质，定义域另写 Dom(f)=D。”所以我们写了。\n\n恒等式 ∀x∈ℝ 是否添加了题面没有的量词？规则：未另限变量的实数函数输入恒等关系按实数变量理解；“恒成立”未指明变量时取除待求量外唯一自由变量，未给范围取 ℝ。这里题面写“且 f(x)-g(x)=...” 是恒等式，x 唯一自由变量。需要保留为 ∀x∈ℝ 吗？可以用 facts \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"。这符合。也可以直接写 \"f(x)-g(x)=x^3+x^2-1\" 不含量词？但规则鼓励量词。使用量词。\n\n目标 find_value expression f(2)+g(2)。是否应该用 relation 形式？FindRelationValueGoal 需要 function, variable, relation, expression。但我们有两个函数和奇偶性。用普通 find_value 合适。\n\nroot.uncertainties 可省略，不能输出空吗？可以省略。没有额外字段。root 还可以有 children? 没有，不写。如果没有小问，只用 root。不要输出 children 空数组？properties 允许省略。省略。\n\noriginal_text 不能有手写答案，需写横线。图片里在 f(2)+g(2)= 后面有一个手写的“5”被圈起来，还有一个下划线。印刷是一条横线。转录为 \"______\" 或 \"____\"。最好照印刷原样写横线。图片中“f(2)+g(2)=”下方似乎有横线被手写5覆盖。可以写 \"$f(2)+g(2)=$______\"。注意“则”后面可能换行。完整。\n\n图片左上角“6.”是题号。original_text 应保留阅读顺序。右侧图形不写。\n\npublic_content.statement 是否需要包含“则”和填空？是，保留所求。不含“6.”。公式用 $...$；题面变量、量词措辞保留。“分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。” 这是完整。没有选项。\n\n关于 public_content.completeness: complete。figure not_required。privacy separated。root_label_role source。scopes 数组一个。\n\nfigure_detection: status none，regions []。\n\npotential issue: 图片右侧显示了图形，且 maybe 这是一道数形结合的题? 但题干没有引用图。该图可能是相邻题的解析。根据“不把公式排版或解析里的图当题给配图”，“右图”不是配图。无配图。\n\n需要填 public_content 的 scopes 每一项 scope_ref \"/root\"，statement，choices。choices 的 target_ref 必须 \"/root/goals/0\"。status none。selection_mode none。options []。\n\nroot.goals [{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]。这符合 find_value 必填 expression。\n\nroot.facts 中文？只用数学字符串。Dom(f)=ℝ 等。parity 是 catalog 中定义的数学记号。OK。\n\noriginal_text 中公式里 x^3+x^2-1 用 $x^3+x^2-1$。JSON 字符串中反斜杠需转义：例如 \"$\\\\mathbf{R}$\"。但是否需要转义所有反斜杠？JSON 中必须。所以 original_text 字符串写成 \"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\\n$f(2)+g(2)=$______\"。注意只有 \\mathbf 有反斜杠。public_content.statement 同样。\n\nroot.facts 中 Unicode 没有反斜杠，直接。\n\n考虑是否在 original_text 中保留换行。可以一行或两行。按阅读顺序换行。可以写 \"...，则\\n$f(2)+g(2)=$______\"。\n\n题号 \"6.\" 与题干之间有一个空格。保留。\n\nuncertainties? 可能图片中“R”黑体清晰。没有。\n\n最后只输出 JSON。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 25476
+  },
+  "raw_payload": {
+    "id": "2121013d-7375-44d9-96cb-70e66fc8d5e6",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\\n$f(2)+g(2)=$______\",\"root\":{\"label\":\"6.\",\"facts\":[\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"parity(f,odd)\",\"parity(g,even)\",\"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意。图片显示一道题：6. 已知f(x), g(x)分别是定义在R上的奇函数和偶函数，且f(x)-g(x)=x^3+x^2-1，则f(2)+g(2)=____。手写答案（5）不算。有右侧配图？图片右侧似乎有一个坐标系曲线图？需要判断。观察图片：右侧有一部分坐标轴/曲线？看起来像是图形，可能是相邻题的图，或者本题的图？题目本身没有提到图。右侧图形似乎被截断，可能是别的题目/解析图。需要判断 figure present? 题干未引用图，右侧有图形痕迹，但不属于本题？题目文字与图无关。按规定，不把公式排版或解析里的图当题给配图。右侧看起来是坐标系，有可能是相邻题或草稿。不确定是否本题配图。题干没有引用图，因此 figure_detection status 可以 none? 如果有图但非题目引用，不应标记。这里图片右侧有图，但题干不需要图，且无法确认属于本题，可能来自相邻题。按 figure=not_required。但 figure_detection 需要 status none/present/uncertain。如果存在非题图，是否 present？说明：有配图为present，不能确定或题干引用的图未拍到为uncertain。题干没有图，右侧图形不属于本题，因此 none 更合适。需要不把解析图当配图。右侧似乎是解析/草稿的图形？也可能是题目配图，但题干未引用。我们选择 none，不标区域。或者可标 uncertain? 但题干不涉及图，不需要图。根据“无配图为 none，有配图为 present，不能确定或题干引用的图未拍到为 uncertain。”右侧明显有图，但题干没有引用，且无法确认是否属于本题。严格来说，图片中存在图形，但不是题干配图？如果看作配图，则 figure=unrepresented? 但题目不需要读取图即可确定完整题意，因此 figure=not_required。figure_detection status 可以是 none，因为本题无配图。需要谨慎。\n\n数学内容：\nf(x), g(x) 分别是定义在 R 上的奇函数和偶函数。且 f(x)-g(x)=x^3+x^2-1。求 f(2)+g(2) 的值。\n\n注意：f 奇，g 偶，且关系式。需要定义 f(x), g(x) 吗？没有给出解析式，只是抽象函数。关系式对所有 x 成立？\"已知f(x), g(x)... 且 f(x)-g(x)=...\" 默认对定义域内任意x成立。需要用恒等关系求值。目标 find_value expression f(2)+g(2)。但未知函数关系 f(x)-g(x)=...，以及奇偶性。这属于 FindRelationValueGoal? 需要表示 function? 关系里有f,g。目标求 f(2)+g(2)。可以定义一个未知函数关系？FindRelationValueGoal 需要 function, variable, relation, expression；但关系涉及两个函数 f,g，且 f,g 的奇偶性。可能可以使用 find_value 普通 (kind find_value, expression \"f(2)+g(2)\")，并将关系放 facts。但不能用 unknown dependencies。题面是抽象函数。catalog 中有 abstract functions? FindRelationValueGoal 是单一未知函数的关系。奇偶性事实可以通过 facts \"parity(f,odd)\" \"parity(g,even)\"，关系放 facts \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"，目标 find_value expression f(2)+g(2)。也可以定义 f,g 吗？不需要。root facts 包含 parity, 恒等关系。目标 find_value expression \"f(2)+g(2)\"。这样合理。变量 x 是关系变量，默认 ℝ，显式写在 facts。也可以不写 ∀x∈ℝ? 题面未写\"对任意x\"，但恒等式默认。按规则“未另限变量的实数函数输入恒等关系按实数变量理解”，可写 ∀x∈ℝ: f(x)-g(x)=x^3+x^2-1。奇偶函数定义在 R 上的事实用 facts: parity(f,odd), parity(g,even) 或者 \"f为奇函数；g为偶函数\"? catalog parity 是全域奇偶性。用 math strings \"parity(f,odd)\" 和 \"parity(g,even)\"，但也要定义域 R? parity 的 meaning 说定义域另写 Dom(f)=D。题面明确 f,g 定义在 R 上。可以写 \"Dom(f)=ℝ\" \"Dom(g)=ℝ\" 和 \"parity(f,odd)\" \"parity(g,even)\"。或者用一句 \"f为R上奇函数\" 没有受控？用定义：f: 定义在R上的奇函数。可以 facts: [\"Dom(f)=ℝ\", \"parity(f,odd)\", \"Dom(g)=ℝ\", \"parity(g,even)\", \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"]。但 Dom(f)=ℝ 是否必要？题面明确。可以放 facts。definitions 可定义 f,g? 题面没有解析式，只有函数名和性质，不算定义？不应添加定义。facts即可。\n\n目标 find_value expression \"f(2)+g(2)\"。无选项，status none, selection_mode none, options []。\n\noriginal_text：需要完整题干，包含题号？题干开头的“6.”是题号，属于来源题号，但 original_text 保留完整题干及题号；public_content.statement 不应包含题号。root.label? 题号“6.”是标签，原图明确是题号，可设 root.label \"6.\"，root_label_role source。但也可省略 label 并在 original_text 保留题号。按规则：“original_text 可以保留来源题号”；public_content.scopes statement 不含题号。root.label 存在时 role source 可标记。是否设置 root.label=\"6.\"？可以，但需 public_content.root_label_role=\"source\"。我觉得 root.label 可以放 \"6.\"，或者不设置。若不设置，original_text 仍有 \"6.\"。没有 label 就没有 role。为了明确题号，可以设置 root.label 为 \"6.\" 并 root_label_role source。但 root.label 是“题面分问或图景标签，如（1）、②”，题号也可。这是来源题号，不是小问。可以设置。但有些系统不喜欢 root.label 源题号？规则明确支持。我选择设置 root.label=\"6.\"，public_content.root_label_role=\"source\"。\n\n但“6.”后是题干，非分问。没有小问。root facts/goals。\n\noriginal_text 转录：\n\"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\n$f(2)+g(2)=$______\"\n注意图片中“定义在R上的奇函数和偶函数”，R 是黑体，保留 $\\mathbf{R}$ 或 ℝ。公式用 $...$。填空处照印刷原样横线。题面结尾“则 f(2)+g(2)=_____”。手写的 5 不算，不转录。图片中有一些手写笔记（-2<k<2等）不算。右侧图形不算。\n\n还有“已知 f(x), g(x) 分别是定义在 R 上的奇函数和偶函数，且 f(x)-g(x)=x^3+x^2-1，则 f(2)+g(2)=____” 注意可能是 f(2)+g(2)? 图片清晰。需要不要漏掉“则”及其后。\n\npublic_content.scopes 对应 root:\nstatement 应该不含题号和小问编号，保留 \"已知 $f(x)$，$g(x)$ 分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。\" 可以。选项 choices 空，status none, selection_mode none, options []。\n\ncompleteness: complete。没有小问，题面完整。\nprivacy: 图片有手写答案和一些草稿，但公开题干只保留题面，已分离手写。题号作为来源，statement 不含，privacy 可以 separated? 但图片中存在手写笔记，公开字段不包含；可以声明 separated 因为题目正文与手写批注已分离。姓名班级等没有。来源题号也可以排除。privacy=separated? 规则说“来源只能在能够明确分离时排除，不能泛化删除题干开头的数字、括号或数学条件。无法确认分离时privacy=uncertain。”这里题干开头的 6. 是题号，可放 root.label source，statement 排除，可以 separated。手写答案未进入公开字段。选 separated。\n\nfigure: not_required。figure_detection status none, regions []。\n\nuncertainties: 是否有？手写图形不明确，不算题目；不需要。没有无法辨认。可不填或空数组。root.uncertainties 可省略。\n\n注意 facts 中“分别是定义在R上的奇函数和偶函数”可以拆为 parity(f,odd), parity(g,even), Dom(f)=ℝ, Dom(g)=ℝ。但\"定义在R上的奇函数\"是否奇函数定义域必须关于原点对称，R满足。写 Dom(f)=ℝ 和 parity(f,odd) 足够。g同理。关系恒等式写 ∀x∈ℝ: f(x)-g(x)=x^3+x^2-1。由于关系本身用到 f,g，且我们 facts 有定义域。目标 find_value expression f(2)+g(2)。这不需要用 FindRelationValueGoal，因为可以普通求值。但普通 find_value 是否允许抽象函数？表达式原样。可以。\n\n还有一个问题：求 f(2)+g(2) 可以通过 f(2)-g(2)=? 和 f(-2)+g(-2)?? 其实奇偶性得到 f(-2)=-f(2), g(-2)=g(2)，关系代入 x=2 和 x=-2。没问题。\n\nroot.definitions 也许不需要，因为 f,g 不是解析式定义。但函数名没有定义？题面已命名函数 f,g。规则：definitions：“函数定义（f(t)=t^2）及题内新概念定义原文放这里。”这里没有函数体，只有性质，不放 definitions。facts 放性质。\n\n目标 find_value expression \"f(2)+g(2)\"，没有 input_domain。可以。\n\npublic_content.scopes[0].choices 必须 target_ref /root/goals/0, status none, selection_mode none, options [].\n\nfigure_detection status none regions [].\n\noriginal_text 需要保留题号，但手写答案不抄。填空处用横线。公式中的 R 可以写 $\\mathbf{R}$。f(x) 等用 $...$。\n\n需要注意 response JSON 中反斜杠要转义。original_text 中 \"$\\mathbf{R}$\" 要写成 \"$\\\\mathbf{R}$\"。其他公式简单。不确定要不要将 R 写成 $\\mathbf{R}$ 或 $\\mathbb{R}$? 原图是黑体 R，常见是 $\\mathbf{R}$。用 $\\mathbf{R}$。fact 中用 ℝ 目录记法。public_content.statement 也保留 $\\mathbf{R}$? 可以使用 $\\mathbf{R}$ 与原题一致。目录说 root 数学式用 Unicode；公开 statement 用 LaTeX。可以写 $\\mathbf{R}$。public statement 中公式用 $...$，需转义。JSON 中双引号内反斜杠写 \\\\。\n\n需要输出 JSON 对象，且仅一个 JSON。要符合 schema。root 没有 additionalProperties? Scope 有 properties label, definitions, facts, goals, children, uncertainties. 可省略 label? 有 label。goal find_value additionalProperties false，允许 expression, in_terms_of, input_domain。无需 in_terms_of。没有 choices 在 root，选项放在 public_content。\n\n检查 root.facts 字符串是否使用受控数学字符串，不应含 LaTeX。facts：[\"Dom(f)=ℝ\",\"Dom(g)=ℝ\",\"parity(f,odd)\",\"parity(g,even)\",\"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"]。第三个/第四个 parity 是否符合 catalog 语法 parity(f,odd|even|both|odd_only|even_only)。题面“奇函数和偶函数”用 odd 和 even 可以。但也许更准确的表示是 f为奇函数，g为偶函数。catalog 的 parity(f,odd) 表示“奇函数”，g even。好。没有定义域声明单独? 题面明确 R 上，所以 Dom(f)=ℝ, Dom(g)=ℝ 保留。不过 parity 的 meaning 说“普通奇／偶允许零函数；仅按原文记录性质，定义域另写 Dom(f)=D。”所以我们写了。\n\n恒等式 ∀x∈ℝ 是否添加了题面没有的量词？规则：未另限变量的实数函数输入恒等关系按实数变量理解；“恒成立”未指明变量时取除待求量外唯一自由变量，未给范围取 ℝ。这里题面写“且 f(x)-g(x)=...” 是恒等式，x 唯一自由变量。需要保留为 ∀x∈ℝ 吗？可以用 facts \"∀x∈ℝ: f(x)-g(x)=x^3+x^2-1\"。这符合。也可以直接写 \"f(x)-g(x)=x^3+x^2-1\" 不含量词？但规则鼓励量词。使用量词。\n\n目标 find_value expression f(2)+g(2)。是否应该用 relation 形式？FindRelationValueGoal 需要 function, variable, relation, expression。但我们有两个函数和奇偶性。用普通 find_value 合适。\n\nroot.uncertainties 可省略，不能输出空吗？可以省略。没有额外字段。root 还可以有 children? 没有，不写。如果没有小问，只用 root。不要输出 children 空数组？properties 允许省略。省略。\n\noriginal_text 不能有手写答案，需写横线。图片里在 f(2)+g(2)= 后面有一个手写的“5”被圈起来，还有一个下划线。印刷是一条横线。转录为 \"______\" 或 \"____\"。最好照印刷原样写横线。图片中“f(2)+g(2)=”下方似乎有横线被手写5覆盖。可以写 \"$f(2)+g(2)=$______\"。注意“则”后面可能换行。完整。\n\n图片左上角“6.”是题号。original_text 应保留阅读顺序。右侧图形不写。\n\npublic_content.statement 是否需要包含“则”和填空？是，保留所求。不含“6.”。公式用 $...$；题面变量、量词措辞保留。“分别是定义在 $\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则 $f(2)+g(2)=$______。” 这是完整。没有选项。\n\n关于 public_content.completeness: complete。figure not_required。privacy separated。root_label_role source。scopes 数组一个。\n\nfigure_detection: status none，regions []。\n\npotential issue: 图片右侧显示了图形，且 maybe 这是一道数形结合的题? 但题干没有引用图。该图可能是相邻题的解析。根据“不把公式排版或解析里的图当题给配图”，“右图”不是配图。无配图。\n\n需要填 public_content 的 scopes 每一项 scope_ref \"/root\"，statement，choices。choices 的 target_ref 必须 \"/root/goals/0\"。status none。selection_mode none。options []。\n\nroot.goals [{\"kind\":\"find_value\",\"expression\":\"f(2)+g(2)\"}]。这符合 find_value 必填 expression。\n\nroot.facts 中文？只用数学字符串。Dom(f)=ℝ 等。parity 是 catalog 中定义的数学记号。OK。\n\noriginal_text 中公式里 x^3+x^2-1 用 $x^3+x^2-1$。JSON 字符串中反斜杠需转义：例如 \"$\\\\mathbf{R}$\"。但是否需要转义所有反斜杠？JSON 中必须。所以 original_text 字符串写成 \"6. 已知 $f(x)$，$g(x)$ 分别是定义在 $\\\\mathbf{R}$ 上的奇函数和偶函数，且 $f(x)-g(x)=x^3+x^2-1$，则\\n$f(2)+g(2)=$______\"。注意只有 \\mathbf 有反斜杠。public_content.statement 同样。\n\nroot.facts 中 Unicode 没有反斜杠，直接。\n\n考虑是否在 original_text 中保留换行。可以一行或两行。按阅读顺序换行。可以写 \"...，则\\n$f(2)+g(2)=$______\"。\n\n题号 \"6.\" 与题干之间有一个空格。保留。\n\nuncertainties? 可能图片中“R”黑体清晰。没有。\n\n最后只输出 JSON。"
+        }
+      }
+    ],
+    "created": 1794400218,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 4072,
+      "prompt_tokens": 25486,
+      "total_tokens": 29558,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3788,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25344
+      },
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 142
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 25.478
+}

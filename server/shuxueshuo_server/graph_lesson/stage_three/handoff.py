@@ -147,11 +147,12 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
                            or route['result'].get('answer') != answer))
             or (formula and (feasible_set is not None
                              or answer.get('status') not in ('determined_on_domain', 'insufficient_information')
-                             or 'formula_result' not in (route.get('result') or {})))
+                             or not ({'formula_result', 'parity_extension_result'} & (route.get('result') or {}).keys())))
             or (comparison and (feasible_set is not None or answer.get('status') != 'complete'
                                 or 'comparison_result' not in (route.get('result') or {})))
             or (evaluation and (feasible_set is not None or answer.get('status') not in ('complete', 'insufficient_information')
-                                or not ({'evaluation_result', 'formula_result'} & (route.get('result') or {}).keys())))):
+                                or not ({'evaluation_result', 'formula_result', 'symmetry_result'}
+                                        & (route.get('result') or {}).keys())))):
         raise ValueError("handoff.incomplete_finalization")
     if consistency not in {"consistent", "conflict", "unknown"}:
         raise ValueError("handoff.invalid_consistency")

@@ -346,6 +346,21 @@ test('A0 answer cannot replace the determined input range with the original vari
   katex.renderToString(summary.formula, {throwOnError: true});
   assert.equal(routeAnswerSummary({...answer, determined_domain: null}), null);
   assert.match(routeAnswerSummary({...answer, status: 'insufficient_information'}).label, /不足/);
+  const free = {latex: '\\left\\{0\\right\\}', expression: '{0}', exact: '{0}'};
+  const partial = routeAnswerSummary({...answer, status: 'insufficient_information', free_domain: free});
+  assert.match(partial.formula, /不能唯一确定/);
+  katex.renderToString(partial.formula, {throwOnError: true});
+  const abstract = routeAnswerSummary({...answer, status: 'insufficient_information', free_domain: free,
+    declared_domain: null, determined_domain: null, requested_domain: null,
+    domain_identity: 'declared_symmetric_domain'});
+  assert.match(abstract.formula, /D\\setminus/);
+  katex.renderToString(abstract.formula, {throwOnError: true});
+  assert.equal(routeAnswerSummary({...answer, free_domain: {}}), null);
+  const value = {kind: 'find_value', result_type: 'scalar_value', defined: true, domain: free,
+    expression: null, is_constant: null};
+  assert.equal(routeAnswerSummary({...value, status: 'complete', value: free}).label, '函数值：');
+  assert.match(routeAnswerSummary({...value, status: 'insufficient_information', value: null}).label, /不能唯一确定/);
+  assert.equal(routeAnswerSummary({...value, status: 'insufficient_information', value: free}), null);
 });
 
 test('complete-answer preview follows each draft and only completion uses confirmed styling', () => {

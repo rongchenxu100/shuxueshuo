@@ -90,6 +90,16 @@ def _parity_parameter_view(values):
     return presentation(values)
 
 
+def _parity_extension_view(values):
+    from .parity_extension_presentation import presentation
+    return presentation(values)
+
+
+def _function_symmetry_view(values):
+    from .symmetry_presentation import presentation
+    return presentation(values)
+
+
 def _monotonicity_view(values):
     from .monotonicity_presentation import presentation
     return presentation(values)
@@ -503,6 +513,8 @@ PREPARERS = {
     'mono_inequality_view': _mono_inequality_view,
     'mono_parameter_view': _mono_parameter_view,
     'parity_parameter_view': _parity_parameter_view,
+    'parity_extension_view': _parity_extension_view,
+    'function_symmetry_view': _function_symmetry_view,
     'monotonicity_view': _monotonicity_view,
     'abstract_monotonicity_view': _abstract_monotonicity_view,
     'parity_view': _parity_view,
@@ -550,6 +562,8 @@ PREPARED_FIELDS = {
     'mono_inequality_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'mono_parameter_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'parity_parameter_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'parity_extension_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
+    'function_symmetry_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'abstract_monotonicity_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'parity_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},
     'function_graph_view': {'formula_title', 'formula_explanation', 'derivation_caption', 'derivation_left_label', 'derivation_left_math', 'derivation_left_note', 'derivation_right_label', 'derivation_right_math'},

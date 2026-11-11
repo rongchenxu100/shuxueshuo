@@ -32,6 +32,7 @@
         "function_equality",
         "abstract_function_domain",
         "function_evaluation",
+        "function_evaluation_routes",
         "function_range",
         "function_range_routes",
         "function_formula",
@@ -44,7 +45,8 @@
         "monotonicity_parameter",
         "abstract_monotonicity",
         "function_parity",
-        "parity_parameter"
+        "parity_parameter",
+        "parity_extension"
       ]
     },
     "routes": {
@@ -95,7 +97,10 @@
               "monotonicity_parameter",
               "abstract_monotonicity",
               "function_parity",
-              "parity_parameter"
+              "parity_parameter",
+              "parity_extension",
+              "function_evaluation",
+              "function_symmetry"
             ]
           },
           "label": {
@@ -140,7 +145,8 @@
             "monotonicity_parameter",
             "abstract_monotonicity",
             "function_parity",
-            "parity_parameter"
+            "parity_parameter",
+            "parity_extension"
           ]
         }
       }
@@ -167,6 +173,7 @@
         "admission": {
           "enum": [
             "function_domain_routes",
+            "function_evaluation_routes",
             "function_range_routes",
             "function_formula",
             "function_graph",

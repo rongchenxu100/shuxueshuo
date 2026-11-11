@@ -1,0 +1,718 @@
+{
+  "search_id": "ac1f034c1f81",
+  "user_id": "2cb54bc0-154e-4d77-acdc-52822a0eabc0",
+  "problem_id": "cba0e420-0718-4ab9-8d3d-9e51f9df3087",
+  "statement": "已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "7040da3accc1806afc38eceb2c5e84dcf6e1aa168a023f04896c51ac8b0c17a0",
+      "width": 1030,
+      "height": 90,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/ac1f034c1f81/figures/original?version=c10309bdf57f3a3eb69926c1b1de33bbd7ce5e9ece7758fdbc6774ac204257b7"
+      }
+    ],
+    "content_id": "c10309bdf57f3a3eb69926c1b1de33bbd7ce5e9ece7758fdbc6774ac204257b7"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f58474c9e5a9",
+    "box": [
+      0.0859375,
+      0.16412661195779601,
+      0.890625,
+      0.21688159437280188
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      1030,
+      90
+    ],
+    "bytes": 11866
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "3. 已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____",
+  "parts": [],
+  "root": {
+    "facts": [
+      "parity(f,odd)",
+      "parity(g,even)",
+      "∀x∈ℝ: f(x)+g(x)=x^2-x+1"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(2)"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "2020442757b50337f67c21be35974f90596b70a53c59af7174a995efe882474f",
+    "sent_image_sha256": [
+      "2020442757b50337f67c21be35974f90596b70a53c59af7174a995efe882474f"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 19.582,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-evaluation",
+        "supported": [
+          "type-function-evaluation"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 9,
+                  "end": 13,
+                  "text": "$f(x)$"
+                },
+                {
+                  "start": 16,
+                  "end": 19,
+                  "text": "奇函数"
+                },
+                {
+                  "start": 24,
+                  "end": 28,
+                  "text": "$g(x)$"
+                },
+                {
+                  "start": 31,
+                  "end": 34,
+                  "text": "偶函数"
+                },
+                {
+                  "start": 38,
+                  "end": 55,
+                  "text": "$f(x)+g(x)=x^2-x+1$"
+                },
+                {
+                  "start": 60,
+                  "end": 65,
+                  "text": "$f(2)=$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3",
+                "/root/goals/0:d1:4",
+                "/root/goals/0:d1:5",
+                "/root/goals/0:d1:6"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/facts/0",
+                "/root/facts/1",
+                "/root/facts/2"
+              ],
+              "options": [
+                {
+                  "text": "求 $f(x)$ 的解析式",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "所求的是 $f(2)$ 这个值，不必补出整个函数。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求 $f(2)$ 的值",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                },
+                {
+                  "text": "判断 $f(x)$ 是奇函数还是偶函数",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "奇偶性是已知条件，不需要再判断。",
+                  "id": "/root/goals/0:goal:o2"
+                }
+              ],
+              "signature": "6e8dcd74698b4a4a"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问的已知条件和目标是什么？",
+          "feedback": "所求的是 $f(2)$ 这个值，不必补出整个函数。",
+          "summary": "$f(x)$ 是奇函数，$g(x)$ 是偶函数；$f(x)+g(x)=x^{2}-x+1$。求 $f(2)$ 的值。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-evaluation",
+            "label": "求函数值",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+            ],
+            "choice_hint": "根据函数关系，求给定输入或组合的输出"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "ac1f034c1f81//root/goals/0",
+            "graphVersion": "ea9da605c83163d99dd7da1d9706f5e47ec20b102416691feab9d4ab5550606a",
+            "problem": {
+              "text": "已知函数 $f(x)$ 是奇函数，函数 $g(x)$ 为偶函数，若 $f(x)+g(x)=x^2-x+1$，则 $f(2)=$____"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问的已知条件和目标是什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求 $f(x)$ 的解析式",
+                      "feedback": "所求的是 $f(2)$ 这个值，不必补出整个函数。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求 $f(2)$ 的值"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o2",
+                      "label": "判断 $f(x)$ 是奇函数还是偶函数",
+                      "feedback": "奇偶性是已知条件，不需要再判断。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "所求的是 $f(2)$ 这个值，不必补出整个函数。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-function-evaluation",
+                  "type-function-parity",
+                  "type-parity-formula",
+                  "type-parity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)$ 是奇函数，$g(x)$ 是偶函数；$f(x)+g(x)=x^{2}-x+1$。求 $f(2)$ 的值。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 4 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-evaluation",
+                      "label": "求函数值",
+                      "note": "根据函数关系，求给定输入或组合的输出"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-evaluation"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-evaluation"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-evaluation"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+                  ],
+                  "log": "作答判断：选择主要题型「求函数值」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据已有函数规则求数值、带域表达式、定值判断及有限函数值之和。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-formula",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求解析式",
+                  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-parameter",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求参",
+                  "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-function-evaluation",
+                  "kind": "method",
+                  "label": "代入法",
+                  "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "evaluate",
+                      "title": "代入并计算",
+                      "calls": [
+                        "skill-expression-defined",
+                        "skill-simplify",
+                        "skill-equality-transform",
+                        "skill-solve-quadratic"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验原式与目标结果",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-function-symmetry",
+                  "kind": "method",
+                  "label": "对称关系法",
+                  "summary": "利用奇偶性把函数值的输入换成相反数，找出与已知规则或已知组合的关系，直接求出所求函数值或其组合。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "读清已知与所求",
+                      "calls": []
+                    },
+                    {
+                      "id": "rewrite",
+                      "title": "把输入换成相反数",
+                      "calls": [
+                        "skill-function-symmetry-transform"
+                      ]
+                    },
+                    {
+                      "id": "evaluate",
+                      "title": "代入已知解析式",
+                      "calls": [
+                        "method-function-evaluation"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "组合得到所求的值",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "method-function-symmetry|calls|method-function-evaluation",
+                  "from": "method-function-symmetry",
+                  "to": "method-function-evaluation",
+                  "type": "calls",
+                  "occurrences": [
+                    {
+                      "step": "evaluate",
+                      "when": ""
+                    }
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|candidate|method-function-evaluation",
+                  "from": "type-function-evaluation",
+                  "to": "method-function-evaluation",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|candidate|method-function-symmetry",
+                  "from": "type-function-evaluation",
+                  "to": "method-function-symmetry",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-formula|involves|function-parity",
+                  "from": "type-parity-formula",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-parameter|involves|function-parity",
+                  "from": "type-parity-parameter",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "4b563faba7d56e0b840475c0056ed60d05875963eefaae64192fafd60ff3f918"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "ac1f034c1f81//root/goals/0",
+            "bundleVersion": "4b563faba7d56e0b840475c0056ed60d05875963eefaae64192fafd60ff3f918",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "$f(x)$ 是奇函数，$g(x)$ 是偶函数；$f(x)+g(x)=x^{2}-x+1$。求 $f(2)$ 的值。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-evaluation",
+                "reason": "选「求函数值」：题给奇偶性时，把输入换成相反数，由已知的一侧解析式或已知的函数值组合求所求的值；只知道组合时，所求组合可能唯一而单个函数值不唯一。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "stream_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "snapshot_url": "/api/search/problems/ac1f034c1f81/lesson/a7c26d9f44b84e90a79d9f3588d647cf/snapshot",
+      "events_url": "/api/search/problems/ac1f034c1f81/lesson/a7c26d9f44b84e90a79d9f3588d647cf/events",
+      "websocket_url": "/api/search/problems/ac1f034c1f81/lesson/a7c26d9f44b84e90a79d9f3588d647cf/ws"
+    }
+  }
+}

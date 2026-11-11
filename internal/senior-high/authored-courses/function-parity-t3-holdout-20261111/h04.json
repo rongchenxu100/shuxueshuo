@@ -1,0 +1,33 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h04",
+  "reviewer": "Codex：T3 独立留出（双函数关系，替补 H03）。偶函数在前、奇函数在后、系数为 -3、关系以“对任意实数”给出：x=2 得 f(2)-3g(2)=5，x=-2 得 f(2)+3g(2)=-11，故 f(2)=-3、g(2)=-8/3，f(-2)+g(2)=-17/3。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/holdout-source.md",
+      "sha256": "c702fc27f056f83fbf2c635323cf9f89962452cc1251b6af1216749758ff9fc1",
+      "location": "留出题源表 H04"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$ 是偶函数，$g(x)$ 是奇函数，且对任意实数 $x$ 都有 $f(x)-3g(x)=x^3-2x^2+5$，则 $f(-2)+g(2)=$____．",
+    "root": {
+      "facts": [
+        "parity(f,even)",
+        "parity(g,odd)",
+        "∀x∈ℝ:f(x)-3*g(x)=x^3-2*x^2+5"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "f(-2)+g(2)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-function-evaluation",
+    "value": "-17/3"
+  },
+  "usage": "holdout_independent_authored_not_from_planning_images"
+}

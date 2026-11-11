@@ -19,7 +19,7 @@ from shuxueshuo_server.problem_understanding.notation_semantics import (
 
 FIXTURES = Path(__file__).parent / "fixtures/graph-guided-stage-one/quadratic-always"
 REPO = Path(__file__).resolve().parents[3]
-FUNCTION_GOAL_FEATURES = {'function_parity', 'abstract_monotonicity', 'monotonicity_parameter',
+FUNCTION_GOAL_FEATURES = {'parity_extension', 'symmetry_evaluation', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter',
                           'monotonicity_inequality', 'function_extremum',
                           'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain',
                           'function_evaluation', 'function_range', 'abstract_function_range',

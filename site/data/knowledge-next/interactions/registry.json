@@ -1877,6 +1877,16 @@
       "repeat": "always",
       "compiler": "parity_parameter",
       "parts": []
+    },
+    "parity_extension_derivation": {
+      "repeat": "always",
+      "compiler": "parity_extension",
+      "parts": []
+    },
+    "function_symmetry_derivation": {
+      "repeat": "always",
+      "compiler": "function_symmetry",
+      "parts": []
     }
   },
   "overrides": {

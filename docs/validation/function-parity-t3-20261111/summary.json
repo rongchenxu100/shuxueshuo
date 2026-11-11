@@ -1,0 +1,1308 @@
+{
+  "date": "2026-11-11",
+  "scope": "original_development_photos_fresh_live_ocr_model_review_lesson_api",
+  "not_unseen_holdout": true,
+  "browser_acceptance": false,
+  "account_progress_persistence_acceptance": false,
+  "public_courses_rebuilt": false,
+  "prompts_changed": false,
+  "calls": {
+    "initial": {
+      "semantic_calls": 20,
+      "network_attempts": 20,
+      "recordings": 9,
+      "page_uploads_with_real_ocr": 2
+    },
+    "fixed": {
+      "semantic_calls": 10,
+      "network_attempts": 10,
+      "recordings": 5,
+      "page_uploads_with_real_ocr": 2
+    },
+    "a15-recheck": {
+      "semantic_calls": 4,
+      "network_attempts": 4,
+      "recordings": 1,
+      "page_uploads_with_real_ocr": 1
+    }
+  },
+  "cases": [
+    {
+      "case": "a03",
+      "attempt": "fixed",
+      "search_id": "ac1f034c1f81",
+      "recording": "server/tests/search/fixtures/function-parity-formula/fixed/a03",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          280,
+          1140,
+          370
+        ],
+        "box": [
+          0.0859375,
+          0.16412661195779601,
+          0.890625,
+          0.21688159437280188
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-2",
+              "latex": "-2"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a03",
+        "search_id": "ac1f034c1f81",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 28.054,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 19.582,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+        "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+        "input_sha256": "15907cddc95b31f7a94f2f86b7ae27172e7c2bff4aa6eec6dc4f5529ebe1edb6",
+        "checkpoint_sha256": "2516e74b50e12e7c4250dd9d9a911dfd0edd5379f2327edfb1794408d994ff99",
+        "result_sha256": "499effaa8726fc74374fa9dd46553019ed0c2d0f0b361889aabde582b2be97d6",
+        "stage_one_sha256": "78d726c04b3afeb7317cc7e81f251409de0d1c02c0c2afcffedae235b70d8de8",
+        "stage_two_sha256": "a7b7e69fa3fb5dd55b14601846316f90fa129ea281aaac3d6ac5b3b6c4337102"
+      },
+      "course_export_sha256": "5cefdb1a04876ed7f59a208d2119ca8f27ebf9a84a87da2c37c3e141bfd00ed3",
+      "compiler_and_grading": {
+        "decisions": 5,
+        "formulas": 56,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-2"
+        }
+      }
+    },
+    {
+      "case": "a04",
+      "attempt": "fixed",
+      "search_id": "bc53c1717528",
+      "recording": "server/tests/search/fixtures/function-parity-formula/fixed/a04",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          374,
+          1160,
+          490
+        ],
+        "box": [
+          0.0859375,
+          0.21922626025791325,
+          0.90625,
+          0.28722157092614303
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "declared_domain": null,
+            "determined_domain": null,
+            "domain_identity": "declared_symmetric_domain",
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Pow",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "4"
+                      },
+                      {
+                        "$math": "Abs",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "x**2 + 4*Abs(x)",
+              "latex": "x^{2} + 4 \\left|{x}\\right|"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": null,
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval(0, oo)",
+              "latex": "\\left[0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a04",
+        "search_id": "bc53c1717528",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 44.144,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 35.935,
+        "execution_status": "completed",
+        "types": [
+          "type-parity-formula"
+        ],
+        "source_located": true,
+        "interaction_count": 4,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "41d26fd2bccd47bf87123106358e2946",
+        "lesson_version": "b7302bcbfbfd6a261880cb19d180d804a5dad37cc4e80de334b9eac1633698b5",
+        "input_sha256": "c5215f07ac1ff10c9b22a7d4a067629c5de178fb0c75d9a5ccde109db8c556fb",
+        "checkpoint_sha256": "f2f6ad590eeb42d532a817fa0cfe09ad7e04e3b4ae3a012788bd01f1d7a997de",
+        "result_sha256": "d390a83743bccfc09d36536ced088b22a6c5d5652c8a7e7b639be4fc2471d544",
+        "stage_one_sha256": "ccad30e5b728662325a1bd5d51254c75011dd2d102934854e99311f564347342",
+        "stage_two_sha256": "65f7ac92f09c932167bff5a7d07cf3a1efd42b2eb6dbaaed62c504659a897f84"
+      },
+      "course_export_sha256": "655678f7c075b0003bd041d769266507977e067c85eae4744b25e5111e575a96",
+      "compiler_and_grading": {
+        "decisions": 7,
+        "formulas": 99,
+        "summary": {
+          "label": "已确定的函数规则：",
+          "formula": "f(x)=x^{2} + 4 \\left|{x}\\right|,\\quad x\\in D"
+        }
+      }
+    },
+    {
+      "case": "a06",
+      "attempt": "fixed",
+      "search_id": "12a8102fdbe7",
+      "recording": "server/tests/search/fixtures/function-parity-formula/fixed/a06",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          630,
+          1185,
+          744
+        ],
+        "box": [
+          0.0859375,
+          0.369284876905041,
+          0.92578125,
+          0.4361078546307151
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "5",
+              "latex": "5"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a06",
+        "search_id": "12a8102fdbe7",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 43.934,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 34.861,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "8b0a5a54d6fa42b49f72da8a6f872d4e",
+        "lesson_version": "4308392d12da4694933c496987f53d54bea9bedcb9b6b1806cd1694a85ab38cd",
+        "input_sha256": "49a8f2bbf05b11e18c9aa63a5e0a62c6a0f9c5a04b45865d78eb6daad7e4c175",
+        "checkpoint_sha256": "b28c87945e82f341598bbfee3e37c68bfc8ee9a22c4534b2eec3c6c886cbd526",
+        "result_sha256": "e7aadec591404d1ce9f8fb1e618c5fadf54ebc5b5cb23331829feceb111ee4f5",
+        "stage_one_sha256": "89071fd645da417903390f20b14389dcd0c366f3bedc83552fd87c283abf6745",
+        "stage_two_sha256": "b9daadeb651cc7403b7eb5aea9e19a12f9abcf20fb96377d4667d7d4a99eee9c"
+      },
+      "course_export_sha256": "697af7060b2abe3ad3e1aa83ccc6d2228f246a648c5dc8aa84873fb410df0d28",
+      "compiler_and_grading": {
+        "decisions": 5,
+        "formulas": 57,
+        "summary": {
+          "label": "函数值：",
+          "formula": "5"
+        }
+      }
+    },
+    {
+      "case": "a07",
+      "attempt": "initial",
+      "search_id": "e04a70eb2413",
+      "recording": "server/tests/search/fixtures/function-parity-formula/initial/a07",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          750,
+          1140,
+          846
+        ],
+        "box": [
+          0.0859375,
+          0.4396248534583822,
+          0.890625,
+          0.4958968347010551
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "declared_domain": {
+              "exact": {
+                "$math": "Reals"
+              },
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "determined_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right)"
+            },
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Pow",
+                    "args": [
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "x**2 - x",
+              "latex": "x^{2} - x"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right)"
+            },
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval(0, oo)",
+              "latex": "\\left[0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a07",
+        "search_id": "e04a70eb2413",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 49.867,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 37.138,
+        "execution_status": "completed",
+        "types": [
+          "type-parity-formula"
+        ],
+        "source_located": true,
+        "interaction_count": 4,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "fb01e88d8c844bba9d0929715cc0fdac",
+        "lesson_version": "15e7bcedfe762d5d51d127d68a3580b7742e15e434e300399a227f86782b5cca",
+        "input_sha256": "3078b4200157d36faf846645bc2367e5508490a85c8560fb7db0f7cfa3d7b219",
+        "checkpoint_sha256": "68535d5605845e74164fe8fa1d5358496b7a59191861b37263c50e2fa87d8f3f",
+        "result_sha256": "9d32703b80c9bbf2a7f9e47510c2c0c77b483f29841e666e3bfa1db539e8286b",
+        "stage_one_sha256": "bfe2c803288beb3eef0a571d3b09e7b562afefc3a0746e8319063b7124e98823",
+        "stage_two_sha256": "0622fdc46fe30f35ecbd09471cba120418348608cd9d93361bb1c34000da6dde"
+      },
+      "course_export_sha256": "53c4433b1225268357b9fdeed58ddca24970fb322fb708a2ca027b782113da7c",
+      "compiler_and_grading": {
+        "decisions": 7,
+        "formulas": 108,
+        "summary": {
+          "label": "已确定的函数规则：",
+          "formula": "f(x)=x^{2} - x,\\quad x\\in \\left(-\\infty, 0\\right)"
+        }
+      }
+    },
+    {
+      "case": "a08",
+      "attempt": "initial",
+      "search_id": "0750c5d24d17",
+      "recording": "server/tests/search/fixtures/function-parity-formula/initial/a08",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          852,
+          1140,
+          933
+        ],
+        "box": [
+          0.0859375,
+          0.49941383352872215,
+          0.890625,
+          0.5468933177022274
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "declared_domain": {
+              "exact": {
+                "$math": "Reals"
+              },
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "determined_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right)"
+            },
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "1"
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-3"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-x**2 - 3*x + 1",
+              "latex": "- x^{2} - 3 x + 1"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right)"
+            },
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(0, oo)",
+              "latex": "\\left(0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a08",
+        "search_id": "0750c5d24d17",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 39.861,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 31.517,
+        "execution_status": "completed",
+        "types": [
+          "type-parity-formula"
+        ],
+        "source_located": true,
+        "interaction_count": 4,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "e6d3a3aa1d1a46c3bd860e69cb305abb",
+        "lesson_version": "705de3845e49605fddf4de5ff89ee6a16fd49b3575c0288d437eb14bbcf8dacf",
+        "input_sha256": "60f42d29a772730fca16ef68feb61360fdd5e5ff418aee8518f1cc04bbca4a19",
+        "checkpoint_sha256": "35c11f57e691f46fad8aa25e443945b56c3600188ab6546d4d5435f8ecb99cf4",
+        "result_sha256": "b90eb23b96cbf04860fd137e8d116087eda5abfc58dae90941f9a6403a10ac8a",
+        "stage_one_sha256": "ac373d75f358475bf8a214df7b3bad1a3dedc6fb4d28779f189d5531fcd8a5d7",
+        "stage_two_sha256": "97c2e5cf5c001460d6b4f51f8cc7dc65e1a9ec9158eda6acb1153a610bab7b6b"
+      },
+      "course_export_sha256": "03d6ff91cfe6a5d9dafb762825f6da66b57a119f4e40e0d10298a97e273ac04c",
+      "compiler_and_grading": {
+        "decisions": 7,
+        "formulas": 106,
+        "summary": {
+          "label": "已确定的函数规则：",
+          "formula": "f(x)=- x^{2} - 3 x + 1,\\quad x\\in \\left(-\\infty, 0\\right)"
+        }
+      }
+    },
+    {
+      "case": "a09",
+      "attempt": "fixed",
+      "search_id": "76796fb2de4f",
+      "recording": "server/tests/search/fixtures/function-parity-formula/fixed/a09",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+        "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+        "crop_pixels": [
+          110,
+          935,
+          1140,
+          1075
+        ],
+        "box": [
+          0.0859375,
+          0.5480656506447831,
+          0.890625,
+          0.6301289566236812
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 2,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-15",
+              "latex": "-15"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "declared_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, oo)",
+              "latex": "\\left(-\\infty, \\infty\\right)"
+            },
+            "determined_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right]"
+            },
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-2"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-2*x**2 - x",
+              "latex": "- 2 x^{2} - x"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "NegativeInfinity"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-oo, 0)",
+              "latex": "\\left(-\\infty, 0\\right]"
+            },
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Infinity"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(0, oo)",
+              "latex": "\\left(0, \\infty\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a09",
+        "search_id": "76796fb2de4f",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 97.447,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 75.563,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation",
+          "type-parity-formula"
+        ],
+        "source_located": true,
+        "interaction_count": 6,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "b9de5206ebfc4325820a16e7411e3e31",
+        "lesson_version": "b0a6cf06da0a2bf732f6847eaa6ed18144d729e4b98f27a130df6ab93c584016",
+        "input_sha256": "25186472860c5c26811530834b98d23ab202582d7523d478c249cab20fb8500e",
+        "checkpoint_sha256": "c54350b3f74460ef8ddfb72b2580db0118bbafa8794bd3b7338e74018b059657",
+        "result_sha256": "7787b912778f8c1fbc7dff3235a709df6c0f020b7d6ec8270903fcf3155abc73",
+        "stage_one_sha256": "50a889d3339a9f57f9db1e62c2eb45a26a5d2568edbcf68e63988be1ab26acee",
+        "stage_two_sha256": "d3054cbf6ebc876861edaed88a4c21c87d07e4162d1bb7fc1f462a8ac1c5804e"
+      },
+      "course_export_sha256": "a80bbdeefb6aa9858cef3b1c380e6da1d271fbd2687cb843d00012be0dafa74b",
+      "compiler_and_grading": {
+        "decisions": 12,
+        "formulas": 145,
+        "summary": {
+          "label": "本题全部目标已完成",
+          "formula": "",
+          "items": [
+            {
+              "title": "第①空：求 $f(-3)$",
+              "summary": {
+                "label": "函数值：",
+                "formula": "-15"
+              }
+            },
+            {
+              "title": "第②空：求 $x\\le 0$ 时的解析式",
+              "summary": {
+                "label": "已确定的函数规则：",
+                "formula": "f(x)=- 2 x^{2} - x,\\quad x\\in \\left(-\\infty, 0\\right]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "a12",
+      "attempt": "initial",
+      "search_id": "9695f37834d8",
+      "recording": "server/tests/search/fixtures/function-parity-formula/initial/a12",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+        "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+        "crop_pixels": [
+          110,
+          99,
+          1090,
+          190
+        ],
+        "box": [
+          0.0859375,
+          0.05803048065650645,
+          0.8515625,
+          0.11137162954279015
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-4",
+              "latex": "-4"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a12",
+        "search_id": "9695f37834d8",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 28.27,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 19.448,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "b8a1e3353329404fb641a4a8e44e6ec9",
+        "lesson_version": "59d4173fa2d789afde6bdcb245680cbfe6ba048847f2be6920c03631ad98350c",
+        "input_sha256": "40eaede42945fa535ce5884cf091c78be73d135168dc059539393489ae33e475",
+        "checkpoint_sha256": "dff06ba7e4daefe60bc7460c2393464a121dcce451a9d5d2c586734a8636cc51",
+        "result_sha256": "b5add6800c22230fbd8dd227ee3d00346474bd4beef4179f061629fcfd9aa866",
+        "stage_one_sha256": "c07342b412d5325446bd98e464c9d2c057ce8cebc8b6b8197fe65bae83683220",
+        "stage_two_sha256": "11932d3f37ccbe49904b87e4cab45d12494e5955591ee761b00d3f5fa5fb5edd"
+      },
+      "course_export_sha256": "e9426843a8eb45b155df5a92268f019182df46d4f9ee4ebf9533509769f2e119",
+      "compiler_and_grading": {
+        "decisions": 5,
+        "formulas": 47,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-4"
+        }
+      }
+    },
+    {
+      "case": "a13",
+      "attempt": "initial",
+      "search_id": "87f1eebd2f35",
+      "recording": "server/tests/search/fixtures/function-parity-formula/initial/a13",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+        "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+        "crop_pixels": [
+          110,
+          192,
+          970,
+          270
+        ],
+        "box": [
+          0.0859375,
+          0.11254396248534584,
+          0.7578125,
+          0.15826494724501758
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-3",
+              "latex": "-3"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a13",
+        "search_id": "87f1eebd2f35",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 26.836,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 19.199,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "1aa8351b06f44dcfbf7c341798c390bf",
+        "lesson_version": "2a2ca2f31fc7b7475a3edc5734cc7fdb91ec72daf455c04d76cd7f2095959800",
+        "input_sha256": "751fedd67e4bf56b33e2f848ece1b2ab7e8b2480302f9916ec3367840d376e64",
+        "checkpoint_sha256": "78fb9e0c453805f1f0db29ddc0984387aac8926c8e3d056ee0b294a68c29e761",
+        "result_sha256": "ab4963c61af81728e352370aba2e1043ac8d62fbce88acec8df42bbd000dfd9e",
+        "stage_one_sha256": "b41501ba945fd188a3025a159ac68a115141c4d98fa72579ad5102ae49391413",
+        "stage_two_sha256": "1f47afe79020fc67ca83899b436f36cebfb5a50e647aee0db8fb42e7bc18bcaf"
+      },
+      "course_export_sha256": "02f7105e08edc0b202bba768384bde53b427b7564c3a7a1d041fadb99c79c4e2",
+      "compiler_and_grading": {
+        "decisions": 5,
+        "formulas": 44,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-3"
+        }
+      }
+    },
+    {
+      "case": "a15",
+      "attempt": "a15-recheck",
+      "search_id": "de8231a48516",
+      "recording": "server/tests/search/fixtures/function-parity-formula/a15-recheck/a15",
+      "source": {
+        "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+        "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+        "crop_pixels": [
+          110,
+          445,
+          1060,
+          523
+        ],
+        "box": [
+          0.0859375,
+          0.2608440797186401,
+          0.828125,
+          0.30656506447831183
+        ],
+        "usage": "development_real_photo_not_holdout"
+      },
+      "printed_goal_count": 1,
+      "verified_goals": {
+        "/root/goals/0": {
+          "answer": {
+            "defined": true,
+            "domain": {
+              "expression": "Reals",
+              "latex": "\\mathbb{R}"
+            },
+            "expression": null,
+            "is_constant": null,
+            "kind": "find_value",
+            "result_type": "scalar_value",
+            "status": "complete",
+            "value": {
+              "expression": "-8",
+              "latex": "-8"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "api": {
+        "case": "a15",
+        "search_id": "de8231a48516",
+        "recognition_status": "reviewed",
+        "lesson_status": "ready",
+        "elapsed_seconds": 83.532,
+        "calls": [
+          {
+            "stage": "extract",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          },
+          {
+            "stage": "repair",
+            "status": "completed"
+          },
+          {
+            "stage": "review",
+            "status": "completed"
+          }
+        ],
+        "status": "reviewed_candidate",
+        "recognition_seconds": 72.744,
+        "execution_status": "completed",
+        "types": [
+          "type-function-evaluation"
+        ],
+        "source_located": true,
+        "interaction_count": 2,
+        "interactions_ready": true,
+        "same_stream_on_reopen": true,
+        "same_snapshot_on_reopen": true
+      },
+      "course_provenance": {
+        "run_id": "938a963666a14917aaa7998c04059b28",
+        "lesson_version": "8014cb86f05a80237f2b6a1daa9495415df254e93c0825e2e2d139663a060d1c",
+        "input_sha256": "51f2dd0d1e1f1844f8612f5cb0fd630962d126d66e1298627b1c62fa00771ece",
+        "checkpoint_sha256": "14b3c5a9f3440445fd3025d46b9c058d163efe87938ee8f5f22a6c8b3b1a8bae",
+        "result_sha256": "6165861b28cbb38333547e76c3d36d21b62031ef1c0a8329d2aa14a467c523b4",
+        "stage_one_sha256": "e82e825aca4ed399434d7701f31df7e3d43b5c43418031bd41b8e146fcc7bb4c",
+        "stage_two_sha256": "dcece5a1aeff5a3619f3e670595860cfeba4db6f1935020b7c6ebaaa910dd8d1"
+      },
+      "course_export_sha256": "17ecbe5d195ced4bd071c27411956d47193e0ab139c9ea64eae3b9d5a4db662e",
+      "compiler_and_grading": {
+        "decisions": 6,
+        "formulas": 67,
+        "summary": {
+          "label": "函数值：",
+          "formula": "-8"
+        }
+      }
+    }
+  ],
+  "totals": {
+    "questions": 9,
+    "goals": 10,
+    "decisions": 59,
+    "rendered_math_fields": 729,
+    "semantic_calls": 34,
+    "network_attempts": 34
+  }
+}

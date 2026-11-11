@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "content_version": "c7296b443dcbf08752b25d60f6f9b2fa62ec36dd76234e0bb9bacfe71bb1302f",
+  "content_version": "91f4ed7597dcbb6fc07ef9245c4f7e862d4e0eb8810eb043d1a42959e39601ae",
   "counts": {
-    "nodes": 160,
-    "edges": 512,
+    "nodes": 164,
+    "edges": 521,
     "problems": 137,
     "routes": 157,
     "steps": 1310,

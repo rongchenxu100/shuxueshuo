@@ -1,0 +1,42 @@
+{
+  "original_text": "12. 已知函数 $y=f(x)$ 是定义域为 $\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______。",
+  "root": {
+    "label": "12.",
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)",
+      "∀x∈(0,∞): f(x)=x^3+2*x+1"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "f(0)+f(-1)"
+      }
+    ],
+    "uncertainties": []
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $y=f(x)$ 是定义域为 $\\mathbb{R}$ 的奇函数，当 $x>0$ 时，$f(x)=x^3+2x+1$，则 $f(0)+f(-1)=$______",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

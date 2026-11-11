@@ -1,0 +1,46 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a09",
+  "reviewer": "Codex：对照用户原图第 9 题印刷题干转录，忽略手写答案；第②问用奇性补出负半轴，再由奇函数零点 f(0)=0 与负半轴式在 0 处取值 0 一致而合并为 x≤0。第①问用对称关系法 f(-3)=-f(3)=-15。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第9题；规划编号 FP-A09"
+    }
+  ],
+  "candidate": {
+    "original_text": "设 $f(x)$ 是定义在 $(-\\infty,+\\infty)$ 上的奇函数，且 $x>0$ 时，$f(x)=2x^2-x$，则 $f(-3)=$____；当 $x\\le 0$ 时，$f(x)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=2*x^2-x",
+          "relation_domain": "(0,∞)",
+          "expression": "f(-3)"
+        },
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=2*x^2-x",
+          "relation_domain": "(0,∞)",
+          "requested_domain": "(-∞,0]"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": {
+      "/root/goals/0": {"type": "type-function-evaluation", "value": "-15"},
+      "/root/goals/1": {"type": "type-parity-formula", "expression": "-2*x**2 - x", "requested_domain": "(-∞,0]"}
+    }
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

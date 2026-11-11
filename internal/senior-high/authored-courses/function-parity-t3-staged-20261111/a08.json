@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a08",
+  "reviewer": "Codex：对照用户原图第 8 题印刷题干转录，忽略手写答案；整体代入 -x 后按题给奇偶性回写，并独立核验映射、代入与外层负号。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第8题；规划编号 FP-A08"
+    }
+  ],
+  "candidate": {
+    "original_text": "函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，当 $x>0$ 时，$f(x)=x^2-3x-1$，则当 $x<0$ 时，$f(x)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2-3*x-1",
+          "relation_domain": "(0,∞)",
+          "requested_domain": "(-∞,0)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-formula",
+    "expression": "-x**2 - 3*x + 1",
+    "requested_domain": "(-∞,0)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

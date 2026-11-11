@@ -1642,7 +1642,10 @@
               ]
             },
             "status": {
-              "const": "complete"
+              "enum": [
+                "complete",
+                "insufficient_information"
+              ]
             },
             "result_type": {
               "enum": [
@@ -2063,22 +2066,29 @@
               }
             },
             "determined_domain": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "expression",
-                "latex",
-                "exact"
-              ],
-              "properties": {
-                "expression": {
-                  "type": "string"
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "expression",
+                    "latex",
+                    "exact"
+                  ],
+                  "properties": {
+                    "expression": {
+                      "type": "string"
+                    },
+                    "latex": {
+                      "type": "string"
+                    },
+                    "exact": {}
+                  }
                 },
-                "latex": {
-                  "type": "string"
-                },
-                "exact": {}
-              }
+                {
+                  "type": "null"
+                }
+              ]
             },
             "declared_domain": {
               "anyOf": [
@@ -2129,6 +2139,29 @@
                   "type": "null"
                 }
               ]
+            },
+            "domain_identity": {
+              "enum": [
+                "declared_symmetric_domain"
+              ]
+            },
+            "free_domain": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expression",
+                "latex",
+                "exact"
+              ],
+              "properties": {
+                "expression": {
+                  "type": "string"
+                },
+                "latex": {
+                  "type": "string"
+                },
+                "exact": {}
+              }
             }
           }
         },

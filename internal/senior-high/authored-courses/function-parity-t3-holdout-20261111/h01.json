@@ -1,0 +1,41 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h01",
+  "reviewer": "Codex：T3 独立留出（补全及零点）。不来自两张规划原图，也不是改系数的原题：已知侧在负半轴、规则含分母、所求范围含原点。x>0 时 f(x)=-f(-x)=-x^2+1/x，f(0)=0 由奇性单独确定。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t3-holdout-20261111/holdout-source.md",
+      "sha256": "c702fc27f056f83fbf2c635323cf9f89962452cc1251b6af1216749758ff9fc1",
+      "location": "留出题源表 H01"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)$ 是定义在 $\\mathbf R$ 上的奇函数，当 $x<0$ 时，$f(x)=x^2+\\frac{1}{x}$，则当 $x\\ge 0$ 时，$f(x)=$____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2+1/x",
+          "relation_domain": "(-∞,0)",
+          "requested_domain": "[0,∞)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-formula",
+    "samples": {
+      "0": "0",
+      "1": "0",
+      "2": "-7/2"
+    },
+    "domain": "Interval(0, oo)"
+  },
+  "usage": "holdout_independent_authored_not_from_planning_images"
+}

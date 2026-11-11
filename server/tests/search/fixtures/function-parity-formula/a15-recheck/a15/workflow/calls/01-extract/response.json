@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为______.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2*m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2648,
+      "prompt_tokens": 25469,
+      "total_tokens": 28117,
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 253
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 584,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-b67304ee-8aa9-4782-ba3d-138a79b1194c",
+        "sha256": "39d6fd6829c3205bb5c1f3bf6f21068c4b8d28d854491892019732f6be8e2e01",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7797,
+        "expires_at": 1794487031,
+        "uploaded_at": 1794400631.152396
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "39d6fd6829c3205bb5c1f3bf6f21068c4b8d28d854491892019732f6be8e2e01",
+        "api_calls": 1,
+        "file_id": "file-api-b67304ee-8aa9-4782-ba3d-138a79b1194c",
+        "expires_at": 1794487031,
+        "elapsed_ms": 526
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 16153,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2648,
+          "prompt_tokens": 25469,
+          "total_tokens": 28117,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2397
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25216
+          },
+          "prompt_cache_hit_tokens": 25216,
+          "prompt_cache_miss_tokens": 253
+        },
+        "raw_payload": {
+          "id": "698a4438-8ca8-4220-9f8b-72ea9816f1c7",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2648,
+            "prompt_tokens": 25469,
+            "total_tokens": 28117,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2397
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25216
+            },
+            "prompt_cache_hit_tokens": 25216,
+            "prompt_cache_miss_tokens": 253
+          },
+          "created": 1794400631,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为______.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2*m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题干，不求解。题干：15. 已知定义在[m-5, 1-2m]上的奇函数f(x)，当x≥0时，f(x)=x²-2x，则f(m)的值为____。手写答案 -8 不转录。配图没有。\n\n需要输出 original_text, root, public_content。root 中用受控数学字符串，不写 $ 和反斜杠。要表达定义在区间 [m-5,1-2m] 上的奇函数 f(x)，当 x≥0 时 f(x)=x^2-2*x，求 f(m) 的值。题目中有奇函数性质。定义域区间关于原点对称（实际上由奇函数定义可以推出端点条件，但题面没有明写等式；只写“定义在...上的奇函数”）。我们需要把定义 f(x)=x^2-2*x 条件放在 facts？函数定义是分段/局部定义：“当x≥0时，f(x)=x^2-2x”。这是一个条件等式，不是完整函数定义，不宜放 definitions 作为 f(x)=... 无条件定义，因为只在 x≥0。可以放 facts: ∀x≥0? 原文“当 x≥0 时，f(x)=x²-2x” 可以表示为在 x≥0 上 f(x)=x^2-2*x。另外“奇函数”作为 parity(f,odd) 放 facts。“定义在[m-5,1-2m]上” 可以作为 Dom(f)=[m-5,1-2m] 放 facts。但注意定义域区间，m 参数。求 f(m) 是一个 find_value。因为 f(m) 需要求值，表达式 f(m)。这满足 find_value.expression。不需要 find_range。\n\n需要小心：函数 f 定义域是 [m-5,1-2m]。奇函数在定义域上。题面说“当x≥0时，f(x)=x²-2x”，这只给非负部分的规则。奇函数可推导负半轴。但提取不推导，保留原条件。目标 f(m) 的值。\n\nroot.definitions 可以放函数定义吗？对于“当x≥0时，f(x)=x²-2x”，不是全局定义，是事实条件。可以放 facts。definitions 可能可以放 f 作为一个空？不。facts: \"Dom(f)=[m-5,1-2m]\"? 受控语法 domain_and_interval 支持区间，有变量 m。可以写 Dom(f)=[m-5,1-2*m]。注意乘法显式 *。facts 中 \"∀x∈[0,∞): f(x)=x^2-2*x\" 以保留“当 x≥0 时”。这看起来合适。奇函数：parity(f,odd)。目标 find_value expression \"f(m)\"。m 是区间参数，也是 f 的定义域参数。没有额外条件。题目没有要求求 m，虽然可以求，但原题求 f(m)。不添加。\n\npotential issue: 定义域区间端点有 m，f(m) 输入 m 是否在定义域？条件隐含 m 在定义域内，不额外添加。\n\npublic_content: completeness complete; privacy separated（手写答案已排除？图片上有手写 -8 和划线，不是题设，未转录，所以 separated 可以？但是题号15属于来源题号，original_text保留，public_content statement不包含题号。我们需不把题号放入公开字段。root.label? 原图开头“15.”是试卷题号。我们可以设 root.label \"15.\"? 但 root.label存在时需 root_label_role source，可在 public_content 中 root_label_role source。但是否需要提取题号到 root.label？ root.label 可以省略。我们不需要保留题号。original_text 可以保留题号吗？要求完整题干原文，保留题号通常可以。公开字段不包含题号。我们可以 original_text 写“15. 已知定义在...”。root 无需 label。这样 public_content 不需要 root_label_role。但 privacy separated：题干正文与手写答案、题号已分离；题号在 original_text 中但不是公开字段，应该可以 separated 因为 source 只存在 original_text。不过说明 privacy 也涵盖 root 所有内容，不包括 original_text? privacy 是关于公开字段？ “仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选 separated”。我们公开字段没有题号和手写答案，所以 separated。\n\npublic_content.scopes 对应 root。只有 root 一个作用域。statement 写题干本身，数学公式 $...$，不包含小问编号和选项。题干陈述：“已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____。” 这里“15.”不放。公开展示保留公式，LaTeX 中 \\ge 要转义为 \\\\ge。在 JSON 字符串中反斜杠要双写。choices: 每个 goals 项都需 choices 数组。这里一个目标，无选项，status none，selection_mode none，options []。target_ref \"/root/goals/0\"。\n\nfigure_detection: none. regions [].\n\noriginal_text: 要保留完整题干，公式用 $…$。可以保留题号和手写横线处，但不保留手写答案。题中横线是填空，照印刷原样写横线，不写手写答案。题干后面的横线有手写 -8 被划掉覆盖。应写横线，如“则$f(m)$的值为________.” 但不要包含手写答案。原图横线有 -8 涂改，但作为填空处照印刷原样写横线。原文可能为“则$f(m)$的值为____.” 我们可以写“则$f(m)$的值为______.”。题号15保留？ original_text 可以保留题号。这样是完整题干原文。注意“当$x\\ge0$时”在 JSON 中 \\g 需转义：写成 $x\\\\ge 0$? 在 JSON 字符串中反斜杠要双写，因此 original_text 字符串中应包含 `$x\\\\ge 0$`。返回实际 JSON 时 `\\\\` 表示一个反斜杠。这里我们输出 JSON 文本，确实写 `\\\\ge`。但最后响应作为 JSON object，字符串里 `\\\\` 转义为单个 \\。Ok。\n\noriginal_text: \"15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为______.\" 需要确保 $[m-5,1-2m]$ 集合区间用括号，不需要花括号。数学公式中反斜杠没有，除了 \\ge。注意 public_content statement 中 \"$x\\\\ge 0$\"。\n\nroot facts:\n- \"Dom(f)=[m-5,1-2*m]\"\n- \"parity(f,odd)\"\n- \"∀x∈[0,∞): f(x)=x^2-2*x\" 这里量词域 [0,∞)，半开半闭? “x≥0” 对应 [0,∞)。目录 domain_and_interval 支持 [a,∞)。好的。\ndefinitions 可以为空；facts 3条。goals: [{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]。注意目标中的表达式是 f(m)，保留原调用。没有 in_terms_of。\n\nIs there an issue with \"m\" in domain and f(m): m may be limited by domain nonempty/symmetric, but not needed.\n\nroot.label 省略。uncertainties: 可选为空或不写。Schema required root? Root requires? In Scope required not specified? It has properties no required? Actually Scope has properties but no required list? The schema for Scope doesn't show required; maybe optional all. But we need define. We'll include definitions? Omit empty arrays perhaps. Include facts, goals. Should we include definitions empty? Not necessary. We can omit definitions. But likely okay to include. The schema additionalProperties false for Scope and properties. No required, so okay. We can just include facts and goals. Public_content required scopes etc. statement.\n\nNeed ensure public_content.scopes statement includes all conditions and所求, but no题号. It should say exactly. \"已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____。\" 这里没有小问编号。choices: target_ref /root/goals/0 status none selection_mode none options [].\n\nBut note \"每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none...\" 我们需要在 public_content 中 root scope choices 数组一个对象。Good.\n\ncompleteness: complete. privacy: separated. figure: not_required. root_label_role? root.label absent, so omit. figure_detection status none regions [].\n\nPotential issue: \"图形\" there is none.\n\nNow reconsider definitions: Should \"f(x)\" function definition with conditional be in facts, yes. Could facts \"parity(f,odd)\" maybe abstract concept. \"奇函数\" is a property. Good.\n\nThe problem asks for f(m), but m is in domain endpoints. The value f(m) could require finding m from symmetric domain. That's solving. Not extracting.\n\nAny uncertainty? Handwritten answer not part. The printed blank line after \"为\" partially overwritten; but \"横线\" is clearly. No unreadable. We can omit uncertainties. But if original_text \"______\" maybe fine. No uncertainty.\n\nNeed maybe public_content statement not use \\ge but `$x\\\\ge 0$`. JSON value string with backslash double. In final output, we need write valid JSON. We should use unicode ≤? Could use `\\\\ge` (two chars? Actually JSON escape: `\\\\` yields one backslash then `ge`). Good. Alternatively use `≥` Unicode to avoid backslash. But original_text allowed unicode. public_content formula can use $x\\ge 0$ with escaped. Either is okay. Maybe use `$x\\\\ge 0$` in raw JSON. Let's ensure not accidentally produce invalid JSON. We'll output JSON object. In original_text we can use \"x≥0\" Unicode directly to avoid escaping? Original_text formula can be Unicode. But pattern \\S, fine. Use \"$x\\\\ge 0$\" consistent with statement. Actually raw JSON string: `\"当$x\\\\ge 0$时\"` yields text `当$x\\ge 0$时`, valid LaTeX. Good.\n\nNow final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 16719
+  },
+  "raw_payload": {
+    "id": "698a4438-8ca8-4220-9f8b-72ea9816f1c7",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为______.\",\"root\":{\"facts\":[\"Dom(f)=[m-5,1-2*m]\",\"parity(f,odd)\",\"∀x∈[0,∞): f(x)=x^2-2*x\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题干，不求解。题干：15. 已知定义在[m-5, 1-2m]上的奇函数f(x)，当x≥0时，f(x)=x²-2x，则f(m)的值为____。手写答案 -8 不转录。配图没有。\n\n需要输出 original_text, root, public_content。root 中用受控数学字符串，不写 $ 和反斜杠。要表达定义在区间 [m-5,1-2m] 上的奇函数 f(x)，当 x≥0 时 f(x)=x^2-2*x，求 f(m) 的值。题目中有奇函数性质。定义域区间关于原点对称（实际上由奇函数定义可以推出端点条件，但题面没有明写等式；只写“定义在...上的奇函数”）。我们需要把定义 f(x)=x^2-2*x 条件放在 facts？函数定义是分段/局部定义：“当x≥0时，f(x)=x^2-2x”。这是一个条件等式，不是完整函数定义，不宜放 definitions 作为 f(x)=... 无条件定义，因为只在 x≥0。可以放 facts: ∀x≥0? 原文“当 x≥0 时，f(x)=x²-2x” 可以表示为在 x≥0 上 f(x)=x^2-2*x。另外“奇函数”作为 parity(f,odd) 放 facts。“定义在[m-5,1-2m]上” 可以作为 Dom(f)=[m-5,1-2m] 放 facts。但注意定义域区间，m 参数。求 f(m) 是一个 find_value。因为 f(m) 需要求值，表达式 f(m)。这满足 find_value.expression。不需要 find_range。\n\n需要小心：函数 f 定义域是 [m-5,1-2m]。奇函数在定义域上。题面说“当x≥0时，f(x)=x²-2x”，这只给非负部分的规则。奇函数可推导负半轴。但提取不推导，保留原条件。目标 f(m) 的值。\n\nroot.definitions 可以放函数定义吗？对于“当x≥0时，f(x)=x²-2x”，不是全局定义，是事实条件。可以放 facts。definitions 可能可以放 f 作为一个空？不。facts: \"Dom(f)=[m-5,1-2m]\"? 受控语法 domain_and_interval 支持区间，有变量 m。可以写 Dom(f)=[m-5,1-2*m]。注意乘法显式 *。facts 中 \"∀x∈[0,∞): f(x)=x^2-2*x\" 以保留“当 x≥0 时”。这看起来合适。奇函数：parity(f,odd)。目标 find_value expression \"f(m)\"。m 是区间参数，也是 f 的定义域参数。没有额外条件。题目没有要求求 m，虽然可以求，但原题求 f(m)。不添加。\n\npotential issue: 定义域区间端点有 m，f(m) 输入 m 是否在定义域？条件隐含 m 在定义域内，不额外添加。\n\npublic_content: completeness complete; privacy separated（手写答案已排除？图片上有手写 -8 和划线，不是题设，未转录，所以 separated 可以？但是题号15属于来源题号，original_text保留，public_content statement不包含题号。我们需不把题号放入公开字段。root.label? 原图开头“15.”是试卷题号。我们可以设 root.label \"15.\"? 但 root.label存在时需 root_label_role source，可在 public_content 中 root_label_role source。但是否需要提取题号到 root.label？ root.label 可以省略。我们不需要保留题号。original_text 可以保留题号吗？要求完整题干原文，保留题号通常可以。公开字段不包含题号。我们可以 original_text 写“15. 已知定义在...”。root 无需 label。这样 public_content 不需要 root_label_role。但 privacy separated：题干正文与手写答案、题号已分离；题号在 original_text 中但不是公开字段，应该可以 separated 因为 source 只存在 original_text。不过说明 privacy 也涵盖 root 所有内容，不包括 original_text? privacy 是关于公开字段？ “仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选 separated”。我们公开字段没有题号和手写答案，所以 separated。\n\npublic_content.scopes 对应 root。只有 root 一个作用域。statement 写题干本身，数学公式 $...$，不包含小问编号和选项。题干陈述：“已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____。” 这里“15.”不放。公开展示保留公式，LaTeX 中 \\ge 要转义为 \\\\ge。在 JSON 字符串中反斜杠要双写。choices: 每个 goals 项都需 choices 数组。这里一个目标，无选项，status none，selection_mode none，options []。target_ref \"/root/goals/0\"。\n\nfigure_detection: none. regions [].\n\noriginal_text: 要保留完整题干，公式用 $…$。可以保留题号和手写横线处，但不保留手写答案。题中横线是填空，照印刷原样写横线，不写手写答案。题干后面的横线有手写 -8 被划掉覆盖。应写横线，如“则$f(m)$的值为________.” 但不要包含手写答案。原图横线有 -8 涂改，但作为填空处照印刷原样写横线。原文可能为“则$f(m)$的值为____.” 我们可以写“则$f(m)$的值为______.”。题号15保留？ original_text 可以保留题号。这样是完整题干原文。注意“当$x\\ge0$时”在 JSON 中 \\g 需转义：写成 $x\\\\ge 0$? 在 JSON 字符串中反斜杠要双写，因此 original_text 字符串中应包含 `$x\\\\ge 0$`。返回实际 JSON 时 `\\\\` 表示一个反斜杠。这里我们输出 JSON 文本，确实写 `\\\\ge`。但最后响应作为 JSON object，字符串里 `\\\\` 转义为单个 \\。Ok。\n\noriginal_text: \"15. 已知定义在$[m-5,1-2m]$上的奇函数$f(x)$，当$x\\\\ge 0$时，$f(x)=x^2-2x$，则$f(m)$的值为______.\" 需要确保 $[m-5,1-2m]$ 集合区间用括号，不需要花括号。数学公式中反斜杠没有，除了 \\ge。注意 public_content statement 中 \"$x\\\\ge 0$\"。\n\nroot facts:\n- \"Dom(f)=[m-5,1-2*m]\"\n- \"parity(f,odd)\"\n- \"∀x∈[0,∞): f(x)=x^2-2*x\" 这里量词域 [0,∞)，半开半闭? “x≥0” 对应 [0,∞)。目录 domain_and_interval 支持 [a,∞)。好的。\ndefinitions 可以为空；facts 3条。goals: [{\"kind\":\"find_value\",\"expression\":\"f(m)\"}]。注意目标中的表达式是 f(m)，保留原调用。没有 in_terms_of。\n\nIs there an issue with \"m\" in domain and f(m): m may be limited by domain nonempty/symmetric, but not needed.\n\nroot.label 省略。uncertainties: 可选为空或不写。Schema required root? Root requires? In Scope required not specified? It has properties no required? Actually Scope has properties but no required list? The schema for Scope doesn't show required; maybe optional all. But we need define. We'll include definitions? Omit empty arrays perhaps. Include facts, goals. Should we include definitions empty? Not necessary. We can omit definitions. But likely okay to include. The schema additionalProperties false for Scope and properties. No required, so okay. We can just include facts and goals. Public_content required scopes etc. statement.\n\nNeed ensure public_content.scopes statement includes all conditions and所求, but no题号. It should say exactly. \"已知定义在 $[m-5,1-2m]$ 上的奇函数 $f(x)$，当 $x\\\\ge 0$ 时，$f(x)=x^2-2x$，则 $f(m)$ 的值为____。\" 这里没有小问编号。choices: target_ref /root/goals/0 status none selection_mode none options [].\n\nBut note \"每个 goals 项都在对应作用域 choices 中恰好出现一次；无选项用 status=none...\" 我们需要在 public_content 中 root scope choices 数组一个对象。Good.\n\ncompleteness: complete. privacy: separated. figure: not_required. root_label_role? root.label absent, so omit. figure_detection status none regions [].\n\nPotential issue: \"图形\" there is none.\n\nNow reconsider definitions: Should \"f(x)\" function definition with conditional be in facts, yes. Could facts \"parity(f,odd)\" maybe abstract concept. \"奇函数\" is a property. Good.\n\nThe problem asks for f(m), but m is in domain endpoints. The value f(m) could require finding m from symmetric domain. That's solving. Not extracting.\n\nAny uncertainty? Handwritten answer not part. The printed blank line after \"为\" partially overwritten; but \"横线\" is clearly. No unreadable. We can omit uncertainties. But if original_text \"______\" maybe fine. No uncertainty.\n\nNeed maybe public_content statement not use \\ge but `$x\\\\ge 0$`. JSON value string with backslash double. In final output, we need write valid JSON. We should use unicode ≤? Could use `\\\\ge` (two chars? Actually JSON escape: `\\\\` yields one backslash then `ge`). Good. Alternatively use `≥` Unicode to avoid backslash. But original_text allowed unicode. public_content formula can use $x\\ge 0$ with escaped. Either is okay. Maybe use `$x\\\\ge 0$` in raw JSON. Let's ensure not accidentally produce invalid JSON. We'll output JSON object. In original_text we can use \"x≥0\" Unicode directly to avoid escaping? Original_text formula can be Unicode. But pattern \\S, fine. Use \"$x\\\\ge 0$\" consistent with statement. Actually raw JSON string: `\"当$x\\\\ge 0$时\"` yields text `当$x\\ge 0$时`, valid LaTeX. Good.\n\nNow final."
+        }
+      }
+    ],
+    "created": 1794400631,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2648,
+      "prompt_tokens": 25469,
+      "total_tokens": 28117,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2397,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25216
+      },
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 253
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 16.721
+}

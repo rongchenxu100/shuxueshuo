@@ -1,0 +1,479 @@
+{
+  "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+  "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+  "input_sha256": "15907cddc95b31f7a94f2f86b7ae27172e7c2bff4aa6eec6dc4f5529ebe1edb6",
+  "stream_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+  "last_seq": 16,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_rewrite",
+      "explanation": "$$\\begin{gathered}f(2)+g(2)=2^{2}-2+1=3\\\\f(-2)+g(-2)=\\left(-2\\right)^{2}-\\left(-2\\right)+1=7\\Rightarrow -f(2)+g(2)=7\\end{gathered}$$",
+      "highlight": {
+        "caption": "在相反输入处使用已知关系",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}x\\in\\mathbb R\\text{ 时，}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
+          },
+          {
+            "label": "改写后的等式",
+            "math": "-f(2)+g(2)=7"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "local_check": "passed",
+      "math_step_sha256": "a08d4004119b09bde79013a2d4f307933bbeb7960b28c06cf862c0d9ff3b3e8d",
+      "method_ref": "method-function-symmetry#rewrite",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "function-symmetry",
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "source_refs": [
+        "/steps/1/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "target_ref": "/root/goals/0",
+      "title": "在相反输入处使用已知关系",
+      "used_basis": []
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "function_symmetry_conclude",
+      "explanation": "$$\\begin{gathered}f(2)+g(2)=2^{2}-2+1=3\\\\f(-2)+g(-2)=\\left(-2\\right)^{2}-\\left(-2\\right)+1=7\\Rightarrow -f(2)+g(2)=7\\\\f(2)=\\frac{1}{2}\\left(f(2)+g(2)\\right)- \\frac{1}{2}\\left(-f(2)+g(2)\\right)=-2\\end{gathered}$$",
+      "highlight": {
+        "caption": "求出所求的值",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知与改写",
+            "math": "\\begin{gathered}f(2)\\\\f(2)+g(2)=3\\\\-f(2)+g(2)=7\\end{gathered}"
+          },
+          {
+            "label": "结论",
+            "math": "f(2)=-2"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "local_check": "passed",
+      "math_step_sha256": "1e701c582819754ddcc2ea6822eb0038fdf9f948a935b89f53a722d2461ba8b3",
+      "method_ref": "method-function-symmetry#conclude",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+      "route_id": "function-symmetry",
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "求出所求的值",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "-2",
+          "latex": "-2"
+        }
+      },
+      "available": true,
+      "feasible_set": null,
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "defined": true,
+        "domain": {
+          "expression": "Reals",
+          "latex": "\\mathbb{R}"
+        },
+        "expression": null,
+        "is_constant": null,
+        "kind": "find_value",
+        "result_type": "scalar_value",
+        "status": "complete",
+        "value": {
+          "expression": "-2",
+          "latex": "-2"
+        }
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": null,
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "math_steps": [
+        {
+          "math_step_sha256": "a08d4004119b09bde79013a2d4f307933bbeb7960b28c06cf862c0d9ff3b3e8d",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        },
+        {
+          "math_step_sha256": "1e701c582819754ddcc2ea6822eb0038fdf9f948a935b89f53a722d2461ba8b3",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "dfaefe4c6971d5603f0e9ec9813d8516b093347f93ba9d2baf59ca0121693676",
+      "verified_route_sha256": "18a54417aff17cedbd9e226969cb2c9bc87adbed4ae51234631ef9dda4be04aa"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-function-evaluation",
+          "op": "methods"
+        },
+        "question": "只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；能直接得到所求组合，就不用补出整个函数。",
+        "submit_label": "用对称关系法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-function-symmetry",
+            "recommendation": "preferred",
+            "route_id": "function-symmetry",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite",
+      "ordinal": 1,
+      "math_step_sha256": "a08d4004119b09bde79013a2d4f307933bbeb7960b28c06cf862c0d9ff3b3e8d",
+      "status": "interactive",
+      "interaction_id": "e5d8f60c5ad3cb548de5b009"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude",
+      "ordinal": 2,
+      "math_step_sha256": "1e701c582819754ddcc2ea6822eb0038fdf9f948a935b89f53a722d2461ba8b3",
+      "status": "interactive",
+      "interaction_id": "549c59f5e651f97de900ece3"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "4f66f69cbff8a52b15792ad8cb878f5e9023542f5ae7f6544ae696edc7eb9fdb",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:function-symmetry:complete",
+      "last_seq": 16
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "function-symmetry",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-function-symmetry",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-function-symmetry",
+          "step": "rewrite",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 3,
+          "method": "method-function-symmetry",
+          "step": "evaluate",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "method-function-evaluation",
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 4,
+          "method": "method-function-symmetry",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "e5d8f60c5ad3cb548de5b009",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "6b27ff86eb2763defc0ea316e165634c03b30be378677da3e393ca3e0f8cd18c",
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "在相反输入处使用已知关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}x\\in\\mathbb R\\text{ 时，}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
+              },
+              {
+                "label": "改写后的等式",
+                "math": "-f(2)+g(2)=7"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "e5d8f60c5ad3cb548de5b009#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$-f(2)+g(2)=3$",
+                "value": "o4"
+              },
+              {
+                "label": "$f(2)-g(2)=7$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(2)+g(2)=7$",
+                "value": "o2"
+              },
+              {
+                "label": "$-f(2)+g(2)=7$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "已知 $f(x)+g(x)=x^{2}-x+1$，且 $f$ 是奇函数，$g$ 是偶函数。把 $x=-2$ 代入已知关系，再用奇偶性把其中的函数值都改写成输入为 $2$ 的函数值，得到什么等式？",
+          "stem_board": {
+            "caption": "在相反输入处使用已知关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}x\\in\\mathbb R\\text{ 时，}f(x)+g(x)=x^{2}-x+1\\\\f\\text{ 是奇函数}\\\\g\\text{ 是偶函数}\\\\f(2)+g(2)=2^{2}-2+1=3\\end{gathered}"
+              },
+              {
+                "label": "改写后的等式",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "在相反输入处使用已知关系"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "a08d4004119b09bde79013a2d4f307933bbeb7960b28c06cf862c0d9ff3b3e8d",
+          "step_id": "39e5646dcb-function-symmetry-001-function_symmetry_rewrite"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "549c59f5e651f97de900ece3",
+      "interaction_revision": "5087e60cbbf14e0d2195302944bbb6b483c0188cd94dec14b703828d50a6d8a7",
+      "interaction_sha256": "49053eb11ba1ecfefb43d672b0ecb52941d82d7d9ad7fc8f79e51461426a48b7",
+      "lesson_version": "f60e3f447e48e0190a6a8f8ef84bcb20a4992f996f1bf6710741241ed4d5babb",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "求出所求的值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与改写",
+                "math": "\\begin{gathered}f(2)\\\\f(2)+g(2)=3\\\\-f(2)+g(2)=7\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": "f(2)=-2"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "549c59f5e651f97de900ece3#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(2)=0$",
+                "value": "o4"
+              },
+              {
+                "label": "$f(2)=2$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(2)=5$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(2)=-2$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "所求式为 $f(2)$。把得到的等式联立，看所求式能否由它们求出。所求的结论是什么？",
+          "stem_board": {
+            "caption": "求出所求的值",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知与改写",
+                "math": "\\begin{gathered}f(2)\\\\f(2)+g(2)=3\\\\-f(2)+g(2)=7\\end{gathered}"
+              },
+              {
+                "label": "结论",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "求出所求的值"
+        }
+      ],
+      "route_id": "function-symmetry",
+      "run_id": "a7c26d9f44b84e90a79d9f3588d647cf",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "1e701c582819754ddcc2ea6822eb0038fdf9f948a935b89f53a722d2461ba8b3",
+          "step_id": "39e5646dcb-function-symmetry-002-function_symmetry_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

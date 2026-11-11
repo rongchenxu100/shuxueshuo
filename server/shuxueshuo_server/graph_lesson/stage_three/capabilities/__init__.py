@@ -805,6 +805,35 @@ for _name, _function in {'prepare_parity_parameter': 'prepare',
     REGISTRY[_name] = _parity_parameter_capability(_function)
 
 
+def _parity_extension_capability(name):
+    def call(**inputs):
+        from .. import parity_extension_runtime
+        return getattr(parity_extension_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'prepare_parity_extension': 'prepare',
+                         'map_parity_extension_input': 'map_input',
+                         'substitute_parity_extension_rule': 'substitute',
+                         'apply_parity_extension_relation': 'write_back',
+                         'confirm_parity_extension': 'confirm'}.items():
+    REGISTRY[_name] = _parity_extension_capability(_function)
+
+
+def _symmetry_capability(name):
+    def call(**inputs):
+        from .. import symmetry_runtime
+        return getattr(symmetry_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'prepare_function_symmetry': 'prepare',
+                         'rewrite_symmetric_inputs': 'rewrite',
+                         'evaluate_symmetric_rule_values': 'evaluate',
+                         'confirm_function_symmetry': 'confirm'}.items():
+    REGISTRY[_name] = _symmetry_capability(_function)
+
+
 for _name in ('prepare_function_parity', 'check_domain_symmetry', 'reflect_function_input',
               'compare_parity_relations', 'collect_function_parity'):
     REGISTRY[_name] = _parity_capability(_name)

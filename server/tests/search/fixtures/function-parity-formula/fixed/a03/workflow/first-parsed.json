@@ -1,0 +1,629 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": true,
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "even"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "quantifier",
+              "∀",
+              "quantified_0",
+              [
+                "real"
+              ],
+              [
+                "=",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "quantified_0"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:f",
+                "function"
+              ],
+              "odd"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "function_parity",
+              [
+                "ref",
+                "r:function:g",
+                "function"
+              ],
+              "even"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "quantifier",
+              "∀",
+              "quantified_0",
+              [
+                "real"
+              ],
+              [
+                "=",
+                [
+                  "+",
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:f",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "function_call",
+                    [
+                      "ref",
+                      "r:function:g",
+                      "function"
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ]
+                ],
+                [
+                  "+",
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "quantified_0"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "bound",
+                      "quantified_0"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "5264e2abc984c9f488e3b5e3d3d7800879b2b0caa8d3e2d73097b9685a1146e1",
+  "canonical": {
+    "root": {
+      "facts": [
+        [
+          [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ],
+          [
+            "function_parity",
+            [
+              "ref",
+              "r:function:g",
+              "function"
+            ],
+            "even"
+          ],
+          [
+            "quantifier",
+            "∀",
+            [
+              "real"
+            ],
+            [
+              [
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Symbol('n_6ee86e9e92d24e13a8c639ecd471384532669d9028ae03cefb6c05ac2f7a13ae', real=True)), Pow(Symbol('n_eea58a61977e052df34b873f210d383011ae3dc4fd6ff31adadb2c4d1cfe535d', real=True), Integer(2)), Mul(Integer(-1), Symbol('n_eea58a61977e052df34b873f210d383011ae3dc4fd6ff31adadb2c4d1cfe535d', real=True)), Mul(Integer(-1), Symbol('n_fd255a30dfeb54c9ef437d96be1dd73fd22213975c76e4ced028e76c33e90114', real=True)), Integer(1))"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "target": [
+            "function_call",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "number",
+              "2"
+            ]
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "well_definedness": []
+  },
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_parity",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "odd"
+        ],
+        [
+          "function_parity",
+          [
+            "ref",
+            "r:function:g",
+            "function"
+          ],
+          "even"
+        ],
+        [
+          "quantifier",
+          "∀",
+          "quantified_0",
+          [
+            "real"
+          ],
+          [
+            "=",
+            [
+              "+",
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:f",
+                  "function"
+                ],
+                [
+                  "bound",
+                  "quantified_0"
+                ]
+              ],
+              [
+                "function_call",
+                [
+                  "ref",
+                  "r:function:g",
+                  "function"
+                ],
+                [
+                  "bound",
+                  "quantified_0"
+                ]
+              ]
+            ],
+            [
+              "+",
+              [
+                "-",
+                [
+                  "^",
+                  [
+                    "bound",
+                    "quantified_0"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ],
+                [
+                  "bound",
+                  "quantified_0"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "target": [
+            "function_call",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "number",
+              "2"
+            ]
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      },
+      {
+        "ref": "r:function:g",
+        "name": "g",
+        "kind": "function",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_parity\",[\"ref\",\"r:function:f\",\"function\"],\"odd\"]": {
+        "path": "r.facts[0]",
+        "source": "parity(f,odd)"
+      },
+      "[\"function_parity\",[\"ref\",\"r:function:g\",\"function\"],\"even\"]": {
+        "path": "r.facts[1]",
+        "source": "parity(g,even)"
+      },
+      "[\"quantifier\",\"∀\",\"quantified_0\",[\"real\"],[\"=\",[\"+\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"bound\",\"quantified_0\"]],[\"function_call\",[\"ref\",\"r:function:g\",\"function\"],[\"bound\",\"quantified_0\"]]],[\"+\",[\"-\",[\"^\",[\"bound\",\"quantified_0\"],[\"number\",\"2\"]],[\"bound\",\"quantified_0\"]],[\"number\",\"1\"]]]]": {
+        "path": "r.facts[2]",
+        "source": "∀x∈ℝ: f(x)+g(x)=x^2-x+1"
+      }
+    },
+    "normalization_report": {
+      "version": "semantic-equivalence/v1",
+      "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+      "initial_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 1,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:g",
+              "function"
+            ],
+            "even"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 2,
+          "fact": [
+            "quantifier",
+            "∀",
+            "quantified_0",
+            [
+              "real"
+            ],
+            [
+              "=",
+              [
+                "+",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ]
+              ],
+              [
+                "+",
+                [
+                  "-",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "quantified_0"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ]
+          ]
+        }
+      ],
+      "canonical_facts": [
+        {
+          "scope": "r",
+          "index": 0,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            "odd"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 1,
+          "fact": [
+            "function_parity",
+            [
+              "ref",
+              "r:function:g",
+              "function"
+            ],
+            "even"
+          ]
+        },
+        {
+          "scope": "r",
+          "index": 2,
+          "fact": [
+            "quantifier",
+            "∀",
+            "quantified_0",
+            [
+              "real"
+            ],
+            [
+              "=",
+              [
+                "+",
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:f",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ],
+                [
+                  "function_call",
+                  [
+                    "ref",
+                    "r:function:g",
+                    "function"
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ]
+              ],
+              [
+                "+",
+                [
+                  "-",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "quantified_0"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "bound",
+                    "quantified_0"
+                  ]
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ]
+          ]
+        }
+      ],
+      "derived_facts": [],
+      "proofs": [],
+      "blocked": []
+    }
+  },
+  "binding": {
+    "problem_id": "ac1f034c1f81",
+    "source_sha256": "2020442757b50337f67c21be35974f90596b70a53c59af7174a995efe882474f"
+  }
+}
