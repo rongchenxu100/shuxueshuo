@@ -8,7 +8,18 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
 
-from shuxueshuo_server.graph_lesson import domain_expression, function_evaluation
+from shuxueshuo_server.graph_lesson import (
+    domain_expression,
+    function_evaluation,
+    linear_parameter_family,
+    parameter_domain,
+    parity_parameter_domain,
+    parity_parameter_joint,
+    parity_parameter_math,
+    parity_parameter_original,
+    parity_parameter_radical,
+)
+from shuxueshuo_server.graph_lesson.stage_one.extraction import frozen_files
 from shuxueshuo_server.graph_lesson.stage_three import (
     calculations,
     driver,
@@ -16,6 +27,12 @@ from shuxueshuo_server.graph_lesson.stage_three import (
     evaluation_presentation,
     evaluation_runtime,
     execution_contracts,
+    parity_domain_presentation,
+    parity_joint_presentation,
+    parity_original_presentation,
+    parity_parameter_graphs,
+    parity_parameter_presentation,
+    parity_parameter_runtime,
     runner,
 )
 from shuxueshuo_server.graph_lesson.stage_three.execution import _artifact
@@ -156,3 +173,24 @@ def test_fingerprint_freezes_function_evaluation_math_runtime_and_presentation()
         digest = sha256(source.read_bytes()).hexdigest()
         assert frozen[str(source.relative_to(ROOT))] == digest
         assert direct[name] == digest
+
+
+def test_parameter_math_is_frozen_for_recognition_execution_and_resume():
+    stages = [frozen_files(), runner.fingerprint()]
+    direct = execution_contracts.revisions()
+    for module in (linear_parameter_family, parameter_domain, parity_parameter_math,
+                   parity_parameter_domain, parity_parameter_original, parity_parameter_radical,
+                   parity_parameter_joint):
+        source = Path(module.__file__).resolve()
+        digest = sha256(source.read_bytes()).hexdigest()
+        assert all(stage[str(source.relative_to(ROOT))] == digest for stage in stages)
+        assert direct[source.stem] == digest
+
+
+def test_parameter_presentations_are_frozen_for_direct_execution_and_resume():
+    frozen, direct = runner.fingerprint(), execution_contracts.revisions()
+    for module in (parity_domain_presentation, parity_original_presentation, parity_joint_presentation,
+                   parity_parameter_presentation, parity_parameter_runtime, parity_parameter_graphs):
+        source = Path(module.__file__).resolve()
+        digest = sha256(source.read_bytes()).hexdigest()
+        assert frozen[str(source.relative_to(ROOT))] == direct[source.stem] == digest

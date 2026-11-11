@@ -124,10 +124,12 @@
     ],
     "method-function-evaluation": [
       "submethod",
-      "reflect_function_input"
+      "reflect_function_input",
+      "form_parity_parameter_identities"
     ],
     "skill-polynomial-coefficient-comparison": [
-      "compare_polynomial_coefficients"
+      "compare_polynomial_coefficients",
+      "compare_quartic_polynomial_coefficients"
     ],
     "skill-graph-coordinate-transform": [
       "transform_function_graph"
@@ -170,7 +172,8 @@
       "instantiate_abstract_sign"
     ],
     "skill-domain-symmetry": [
-      "check_domain_symmetry"
+      "check_domain_symmetry",
+      "solve_domain_symmetry_conditions"
     ]
   },
   "internal": {
@@ -419,6 +422,24 @@
     ],
     "collect_function_parity": [
       "method-parity-definition#conclude"
+    ],
+    "prepare_parity_parameter": [
+      "method-parity-parameter#prepare"
+    ],
+    "solve_parity_parameter_conditions": [
+      "method-parity-parameter#solve"
+    ],
+    "confirm_parity_parameter": [
+      "method-parity-parameter#verify"
+    ],
+    "compare_domained_parity": [
+      "method-parity-parameter#compare"
+    ],
+    "compare_original_parity": [
+      "method-parity-parameter#compare"
+    ],
+    "compare_joint_parity": [
+      "method-parity-parameter#compare"
     ]
   }
 }

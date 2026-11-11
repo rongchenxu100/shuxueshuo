@@ -53,6 +53,9 @@ PREC = {
 RELATIONS = {"=", "!=", "<", "<=", ">", ">=", "∈", "∉", "⟂", "∥", *SUBSET_RELATIONS}
 BUILTINS = {
     "Dom",
+    "parity",
+    "defined_on",
+    "degree",
     "sqrt",
     "abs",
     "piecewise",

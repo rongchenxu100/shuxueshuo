@@ -68,6 +68,10 @@
     {
       "ref": "type-function-parity",
       "relation": "extends"
+    },
+    {
+      "ref": "type-parity-parameter",
+      "relation": "extends"
     }
   ]
 }

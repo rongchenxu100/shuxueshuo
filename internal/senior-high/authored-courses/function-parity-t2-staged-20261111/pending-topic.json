@@ -1,0 +1,164 @@
+{
+  "contract": "authored-topic-staging/v1",
+  "topic": "function-parity",
+  "group": "parameter",
+  "publish_state": "awaiting_t2_t5_unified_rebuild",
+  "note": "这份内部登记不被公开构建自动读取；先完成验收，再在统一重建时加入 topic.problems、group.problems 与 graph-walk source。不能提前添加未生成的公共链接。",
+  "public_problem_ids": [
+    "function-parity-a17"
+  ],
+  "pending": [
+    {
+      "id": "function-parity-c01",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-r1-20261111/domain-endpoints.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c01",
+        "title": "定义域端点配对 · C01",
+        "page": "/topics/function-parity/variant1/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-r1-20261111/domain-endpoints.json",
+        "evidence": "site/data/graph-walk/function-parity-c01.evidence.json"
+      },
+      "topic_entry": {
+        "label": "定义域端点配对 · C01",
+        "path": "/topics/function-parity/variant1/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c01.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-c02",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c02.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c02",
+        "title": "四次式中的一次项 · C02",
+        "page": "/topics/function-parity/variant2/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c02.json",
+        "evidence": "site/data/graph-walk/function-parity-c02.evidence.json"
+      },
+      "topic_entry": {
+        "label": "四次式中的一次项 · C02",
+        "path": "/topics/function-parity/variant2/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c02.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-c03",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c03.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c03",
+        "title": "约分后仍保留原孔洞 · C03",
+        "page": "/topics/function-parity/variant3/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c03.json",
+        "evidence": "site/data/graph-walk/function-parity-c03.evidence.json"
+      },
+      "topic_entry": {
+        "label": "约分后仍保留原孔洞 · C03",
+        "path": "/topics/function-parity/variant3/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c03.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-c04",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c04.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c04",
+        "title": "分段函数的零点条件 · C04",
+        "page": "/topics/function-parity/variant4/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c04.json",
+        "evidence": "site/data/graph-walk/function-parity-c04.evidence.json"
+      },
+      "topic_entry": {
+        "label": "分段函数的零点条件 · C04",
+        "path": "/topics/function-parity/variant4/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c04.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-c05",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c05.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c05",
+        "title": "根式的自然定义域 · C05",
+        "page": "/topics/function-parity/variant5/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c05.json",
+        "evidence": "site/data/graph-walk/function-parity-c05.evidence.json"
+      },
+      "topic_entry": {
+        "label": "根式的自然定义域 · C05",
+        "path": "/topics/function-parity/variant5/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c05.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-c06",
+      "batch": "R3",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c06.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-c06",
+        "title": "有限定义域中的联合参数 · C06",
+        "page": "/topics/function-parity/variant6/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/c06.json",
+        "evidence": "site/data/graph-walk/function-parity-c06.evidence.json"
+      },
+      "topic_entry": {
+        "label": "有限定义域中的联合参数 · C06",
+        "path": "/topics/function-parity/variant6/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-c06.json",
+        "types": [
+          "type-parity-parameter"
+        ]
+      }
+    }
+  ],
+  "validation": {
+    "regression": "server/tests/solver/test_graph_parity_parameter_staging.py",
+    "source_kind": "development_authored_not_unseen_photo",
+    "live_photo": "not_run",
+    "public_page": "awaiting_unified_rebuild",
+    "isolated_formal_pages": "passed_desktop_mobile_save_and_restore",
+    "acceptance_report": "docs/function-parity-t2-photo-page-acceptance.md"
+  }
+}

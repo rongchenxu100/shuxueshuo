@@ -1,0 +1,1529 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a17",
+  "graphVersion": "15adb2edd648bc430080a2b5a299d8efdb8a4e363391e102554000315dbec532",
+  "problem": {
+    "text": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是____。"
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "这一问的已知条件和目标是什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "根据题给奇偶性，求参数 $m$ 的全部取值"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "判断函数是奇函数还是偶函数",
+            "feedback": "奇偶性是已知条件；要确定哪些 $m$ 使这个条件成立。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "奇偶性是已知条件；要确定哪些 $m$ 使这个条件成立。"
+      },
+      "candidateNodes": [
+        "function-parity",
+        "type-function-parity",
+        "type-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "function-parity"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "$f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12$，在 $\\mathbb{R}$ 上为偶函数。根据题给奇偶性，求参数 $m$ 的全部取值。"
+        ],
+        "log": "图谱查询：从 1 个知识线索反查，找到 2 个相关题型；最高覆盖 1/1。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-parity",
+            "label": "判断函数的奇偶性",
+            "note": "原目标是判断一个已给解析式的函数的奇偶性",
+            "feedback": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。"
+          },
+          {
+            "value": "type-parity-parameter",
+            "label": "根据奇偶性求参",
+            "note": "已知奇偶性，所求是函数中的参数"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-parity-parameter"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-parity",
+        "type-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "type-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|involves|function-parity"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：题目给出含参函数和奇偶性，要求参数的值或范围。"
+        ],
+        "log": "作答判断：选择主要题型「根据奇偶性求参」；另外 1 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "奇偶性条件求参法",
+            "target": "method-parity-parameter",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "parity-parameter"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "使用奇偶性条件求参法：先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-parity-parameter"
+      ],
+      "effects": {
+        "nodes": [
+          "method-parity-parameter"
+        ],
+        "edges": [
+          "type-parity-parameter|candidate|method-parity-parameter"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "parity-parameter"
+      }
+    }
+  ],
+  "routes": {
+    "parity-parameter": {
+      "id": "parity-parameter",
+      "method": "method-parity-parameter",
+      "label": "奇偶性条件求参法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "completion_board": {
+            "caption": "检查定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数与题给性质",
+                "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "定义域",
+                "math": "\\mathbb R"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "c441f0d7816f0e7bb9a5f8d2#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\mathbb R\\setminus\\{0\\}$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\mathbb R$",
+                "value": "o1"
+              },
+              {
+                "label": "$(0,+\\infty)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "原式是多项式。对每个实数参数，定义域是什么？它是否关于原点对称？",
+          "stem_board": {
+            "caption": "检查定义域",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数与题给性质",
+                "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "定义域",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "检查定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+              "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "c441f0d7816f0e7bb9a5f8d2",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "检查定义域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：检查定义域"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "把奇偶性写成关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数与相反输入",
+                "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "要恒成立的关系",
+                "math": "f(-x)=f(x)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "804b631cb58ded5bd0060c7f#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(-x)=f(x)$",
+                "value": "o1"
+              },
+              {
+                "label": "$f(-x)=-f(x)$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "先把相反数作为整体代入。题给的奇偶性要求哪条关系对每个合法输入都成立？",
+          "stem_board": {
+            "caption": "把奇偶性写成关系",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数与相反输入",
+                "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+              },
+              {
+                "label": "要恒成立的关系",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把奇偶性写成关系",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+              "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "804b631cb58ded5bd0060c7f",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "把奇偶性写成关系",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：把奇偶性写成关系"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "比较对应项的系数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "要恒成立的关系",
+                "math": "f(-x)=f(x)"
+              },
+              {
+                "label": "系数条件",
+                "math": "2 m - 4=0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "b7de6f8b9f14cd77b0e60d97#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "两边要对所有实数输入都相等，各次项的系数必须分别相等；相同的项不再限制参数。",
+          "stem_board": {
+            "caption": "比较对应项的系数",
+            "lines": [
+              "$$x^{2}\\text{ 项系数：}1=1$$",
+              "$$x\\text{ 项系数：}m - 2=2 - m$$",
+              "$$\\text{常数项：}m^{2} + 12=m^{2} + 12$$",
+              "$$2 m - 4=0$$"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "比较对应项的系数",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+              "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "b7de6f8b9f14cd77b0e60d97",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "比较对应项的系数",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：比较对应项的系数"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "合并全部参数条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已得到的条件",
+                "math": "\\begin{gathered}\\text{定义域 }\\mathbb R\\text{ 关于原点对称}\\\\2 m - 4=0\\end{gathered}"
+              },
+              {
+                "label": "参数的取值集合",
+                "math": "m\\in \\left\\{2\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "0aa93e268d6ebf9fe651396a#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$m\\in \\left\\{0\\right\\}$",
+                "value": "o4"
+              },
+              {
+                "label": "$m\\in \\emptyset$",
+                "value": "o3"
+              },
+              {
+                "label": "$m\\in \\left\\{2\\right\\}$",
+                "value": "o1"
+              },
+              {
+                "label": "$m\\in \\mathbb{R}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "将系数条件与原参数限制一起求解；若题目明确排除零函数或声明次数，也要同时满足。",
+          "stem_board": {
+            "caption": "合并全部参数条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已得到的条件",
+                "math": "\\begin{gathered}\\text{定义域 }\\mathbb R\\text{ 关于原点对称}\\\\2 m - 4=0\\end{gathered}"
+              },
+              {
+                "label": "参数的取值集合",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "合并全部参数条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+              "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "0aa93e268d6ebf9fe651396a",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "合并全部参数条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：合并全部参数条件"
+          }
+        },
+        {
+          "completion_board": {
+            "caption": "代回核验",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "原函数",
+                "math": "f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12"
+              },
+              {
+                "label": "最终参数集合",
+                "math": "\\left\\{2\\right\\}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {},
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "8441b24844f923ed2601440b#1",
+          "interaction": {
+            "type": "read"
+          },
+          "question": "核验包括保留的全部参数和被排除的情形，不能只找出一个可行参数就结束。",
+          "stem_board": {
+            "caption": "代回核验",
+            "lines": [
+              "$$m\\in \\left\\{2\\right\\}$$",
+              "$$m=2:\\quad f(x)=x^{2} + 16$$",
+              "已按原式核对定义域、全部系数条件和原参数限制"
+            ]
+          },
+          "submit_label": "继续",
+          "title": "代回核验",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+              "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "8441b24844f923ed2601440b",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "代回核验",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：代回核验"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "find_value",
+          "parameter": "m",
+          "parameter_set": {
+            "exact": {
+              "$math": "FiniteSet",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "2"
+                }
+              ]
+            },
+            "expression": "{2}",
+            "latex": "\\left\\{2\\right\\}"
+          },
+          "result_type": "parameter_value",
+          "status": "complete",
+          "value": {
+            "exact": {
+              "$math": "Integer",
+              "value": "2"
+            },
+            "expression": "2",
+            "latex": "2"
+          }
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": null,
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "math_steps": [
+          {
+            "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare"
+          },
+          {
+            "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          },
+          {
+            "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          },
+          {
+            "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          },
+          {
+            "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "8511a3a054e8bed83881dacf9c13c7f3cbfb394735cfd237830998b7dda704fb",
+        "verified_route_sha256": "b81de56cb3749896c030d6a8deacd99631ff209b11c0b07e48b118d20d88ad7c"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-parity/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-parity",
+        "kind": "knowledge",
+        "label": "函数的奇偶性",
+        "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+        "aliases": [],
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-parity",
+        "kind": "problem_type",
+        "label": "判断函数的奇偶性",
+        "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-parity-parameter",
+        "kind": "problem_type",
+        "label": "根据奇偶性求参",
+        "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-parity-parameter",
+        "kind": "method",
+        "label": "奇偶性条件求参法",
+        "summary": "保留原式与参数限制，把奇偶性转为恒等条件，求出全部参数并回验。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "prepare",
+            "title": "检查定义域",
+            "calls": []
+          },
+          {
+            "id": "identity",
+            "title": "把奇偶性写成关系",
+            "calls": [
+              "method-function-evaluation"
+            ]
+          },
+          {
+            "id": "compare",
+            "title": "比较对应项的系数",
+            "calls": [
+              "skill-polynomial-coefficient-comparison"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "合并全部参数条件",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "代回核验",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "method-function-evaluation",
+        "kind": "method",
+        "label": "代入法",
+        "summary": "把完整输入放进已有函数规则，按内到外计算并保留原输入限制；可验证定值与有限配对求和。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "evaluate",
+            "title": "代入并计算",
+            "calls": [
+              "skill-expression-defined",
+              "skill-simplify",
+              "skill-equality-transform",
+              "skill-solve-quadratic"
+            ]
+          },
+          {
+            "id": "verify",
+            "title": "核验原式与目标结果",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify",
+        "kind": "skill",
+        "label": "代数式化简",
+        "summary": "把式子展开、合并同类项或约分，变成更简单、值不变的样子，方便下一步比较或求解。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "skill-polynomial-coefficient-comparison",
+        "kind": "skill",
+        "label": "多项式恒等式比较系数",
+        "summary": "两个多项式对任意实数都相等时，同次幂的系数分别相等。",
+        "aliases": []
+      },
+      {
+        "id": "equality-properties",
+        "kind": "knowledge",
+        "label": "等式的性质",
+        "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      }
+    ],
+    "edges": [
+      {
+        "id": "method-function-evaluation|calls|skill-simplify",
+        "from": "method-function-evaluation",
+        "to": "skill-simplify",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "evaluate",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-parity-parameter|calls|method-function-evaluation",
+        "from": "method-parity-parameter",
+        "to": "method-function-evaluation",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "identity",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-parity-parameter|calls|skill-polynomial-coefficient-comparison",
+        "from": "method-parity-parameter",
+        "to": "skill-polynomial-coefficient-comparison",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "compare",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "skill-polynomial-coefficient-comparison|uses|equality-properties",
+        "from": "skill-polynomial-coefficient-comparison",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "polynomial-coefficients"
+          }
+        ]
+      },
+      {
+        "id": "skill-simplify|uses|equality-properties",
+        "from": "skill-simplify",
+        "to": "equality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "identity"
+          }
+        ]
+      },
+      {
+        "id": "type-function-parity|involves|function-parity",
+        "from": "type-function-parity",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|candidate|method-parity-parameter",
+        "from": "type-parity-parameter",
+        "to": "method-parity-parameter",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-parity-parameter|involves|function-parity",
+        "from": "type-parity-parameter",
+        "to": "function-parity",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-parity"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-simplify",
+          "skill-polynomial-coefficient-comparison",
+          "equality-properties"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"be68bdfd124f2fbd018de3f8f41112fb7b7f9d0c1480e861025529d62b9570eb\",\"c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6\",\"e05ffff7322d46d881f8099634c1aa40\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "e05ffff7322d46d881f8099634c1aa40",
+    "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+    "stream_id": "e05ffff7322d46d881f8099634c1aa40",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "be68bdfd124f2fbd018de3f8f41112fb7b7f9d0c1480e861025529d62b9570eb",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-parity-parameter",
+        "op": "methods"
+      },
+      "question": "先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。",
+      "submit_label": "用奇偶性条件求参法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-parity-parameter",
+          "recommendation": "preferred",
+          "route_id": "parity-parameter",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_prepare",
+        "explanation": "$$\\begin{gathered}D=\\mathbb R\\\\-D=D\\end{gathered}$$",
+        "highlight": {
+          "caption": "检查定义域",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数与题给性质",
+              "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+            },
+            {
+              "label": "定义域",
+              "math": "\\mathbb R"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "local_check": "passed",
+        "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+        "method_ref": "method-parity-parameter#prepare",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare",
+        "target_ref": "/root/goals/0",
+        "title": "检查定义域",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_identity",
+        "explanation": "$$\\begin{gathered}f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\f(-x)=f(x)\\end{gathered}$$",
+        "highlight": {
+          "caption": "把奇偶性写成关系",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数与相反输入",
+              "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+            },
+            {
+              "label": "要恒成立的关系",
+              "math": "f(-x)=f(x)"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "local_check": "passed",
+        "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+        "method_ref": "method-parity-parameter#identity",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "target_ref": "/root/goals/0",
+        "title": "把奇偶性写成关系",
+        "used_basis": [
+          "skill-simplify"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_compare",
+        "explanation": "$$\\begin{gathered}x^{2}\\text{ 项系数：}1=1\\\\x\\text{ 项系数：}m - 2=2 - m\\\\\\text{常数项：}m^{2} + 12=m^{2} + 12\\\\2 m - 4=0\\end{gathered}$$",
+        "highlight": {
+          "caption": "比较对应项的系数",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "要恒成立的关系",
+              "math": "f(-x)=f(x)"
+            },
+            {
+              "label": "系数条件",
+              "math": "2 m - 4=0"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "local_check": "passed",
+        "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+        "method_ref": "method-parity-parameter#compare",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/2/skipped_calls/0",
+          "/steps/2/merges/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "target_ref": "/root/goals/0",
+        "title": "比较对应项的系数",
+        "used_basis": [
+          "equality-properties#polynomial-coefficients"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_solve",
+        "explanation": "$$m\\in \\left\\{2\\right\\}$$",
+        "highlight": {
+          "caption": "合并全部参数条件",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "已得到的条件",
+              "math": "\\begin{gathered}\\text{定义域 }\\mathbb R\\text{ 关于原点对称}\\\\2 m - 4=0\\end{gathered}"
+            },
+            {
+              "label": "参数的取值集合",
+              "math": "m\\in \\left\\{2\\right\\}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "local_check": "passed",
+        "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+        "method_ref": "method-parity-parameter#solve",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "source_refs": [
+          "/steps/3/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "target_ref": "/root/goals/0",
+        "title": "合并全部参数条件",
+        "used_basis": []
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "parity_parameter_verify",
+        "explanation": "$$\\begin{gathered}m\\in \\left\\{2\\right\\}\\\\m=2:\\quad f(x)=x^{2} + 16\\\\\\text{已按原式核对定义域、全部系数条件和原参数限制}\\end{gathered}$$",
+        "highlight": {
+          "caption": "代回核验",
+          "connector": "⇒",
+          "items": [
+            {
+              "label": "原函数",
+              "math": "f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12"
+            },
+            {
+              "label": "最终参数集合",
+              "math": "\\left\\{2\\right\\}"
+            }
+          ],
+          "layout": "derivation"
+        },
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "local_check": "passed",
+        "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+        "method_ref": "method-parity-parameter#verify",
+        "ordinal": 5,
+        "premise_refs": [],
+        "revisions_ref": "cd6289c3e686b2efd06a168b49071b9a864a77aa16f2fb1a916c6043b23c44c7",
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "target_ref": "/root/goals/0",
+        "title": "代回核验",
+        "used_basis": []
+      }
+    ],
+    "step_calls": {
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-001-parity_parameter_prepare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "prepare",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-002-parity_parameter_identity\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "identity",
+          "ref": "method-function-evaluation",
+          "usedBasis": [
+            "skill-simplify"
+          ],
+          "source": "/steps/1/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-003-parity_parameter_compare\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "compare",
+          "ref": "skill-polynomial-coefficient-comparison",
+          "usedBasis": [
+            "equality-properties#polynomial-coefficients"
+          ],
+          "source": "/steps/2/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-004-parity_parameter_solve\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/3/calls/0"
+        }
+      ],
+      "[\"parity-parameter\",\"39e5646dcb-parity-parameter-005-parity_parameter_verify\"]": [
+        {
+          "method": "method-parity-parameter",
+          "step": "verify",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/4/calls/0"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare",
+        "ordinal": 1,
+        "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+        "status": "interactive",
+        "interaction_id": "c441f0d7816f0e7bb9a5f8d2"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity",
+        "ordinal": 2,
+        "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+        "status": "interactive",
+        "interaction_id": "804b631cb58ded5bd0060c7f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare",
+        "ordinal": 3,
+        "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+        "status": "interactive",
+        "interaction_id": "b7de6f8b9f14cd77b0e60d97"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve",
+        "ordinal": 4,
+        "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+        "status": "interactive",
+        "interaction_id": "0aa93e268d6ebf9fe651396a"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "parity-parameter",
+        "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify",
+        "ordinal": 5,
+        "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+        "status": "interactive",
+        "interaction_id": "8441b24844f923ed2601440b"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "c441f0d7816f0e7bb9a5f8d2",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "529e34db8179d675e501aeefd46b1eb4cc198157d13a1980f5a561cd01d4ccc2",
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "检查定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与题给性质",
+                  "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+                },
+                {
+                  "label": "定义域",
+                  "math": "\\mathbb R"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "c441f0d7816f0e7bb9a5f8d2#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\mathbb R\\setminus\\{0\\}$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\mathbb R$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$(0,+\\infty)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原式是多项式。对每个实数参数，定义域是什么？它是否关于原点对称？",
+            "stem_board": {
+              "caption": "检查定义域",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与题给性质",
+                  "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+                },
+                {
+                  "label": "定义域",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "检查定义域"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "ebbb2e40cc4f3152dbe06fb18eb21ec320b99b28d3d7d849bcdcf81b8b95c53e",
+            "step_id": "39e5646dcb-parity-parameter-001-parity_parameter_prepare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "804b631cb58ded5bd0060c7f",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "f799f82b21786711e6b82c7b9cdc3f443a3ff3b914bf253d86aab76288a68a27",
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "把奇偶性写成关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与相反输入",
+                  "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+                },
+                {
+                  "label": "要恒成立的关系",
+                  "math": "f(-x)=f(x)"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "804b631cb58ded5bd0060c7f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$f(-x)=f(x)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$f(-x)=-f(x)$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "先把相反数作为整体代入。题给的奇偶性要求哪条关系对每个合法输入都成立？",
+            "stem_board": {
+              "caption": "把奇偶性写成关系",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数与相反输入",
+                  "math": "\\begin{gathered}f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12\\\\f(-x)=(-x)^{2}+(2-m)\\cdot (-x)+m^{2}+12\\\\\\text{偶函数}\\end{gathered}"
+                },
+                {
+                  "label": "要恒成立的关系",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "把奇偶性写成关系"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "6c3d21d03eafd933b953b27ad2d738612295f9fe90d5aed0eac26790ab4ce0ba",
+            "step_id": "39e5646dcb-parity-parameter-002-parity_parameter_identity"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b7de6f8b9f14cd77b0e60d97",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "e1a84da27d2d7255160e26921633bec8614ba0e2661e46885f406409a415845b",
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "比较对应项的系数",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "要恒成立的关系",
+                  "math": "f(-x)=f(x)"
+                },
+                {
+                  "label": "系数条件",
+                  "math": "2 m - 4=0"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "b7de6f8b9f14cd77b0e60d97#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "两边要对所有实数输入都相等，各次项的系数必须分别相等；相同的项不再限制参数。",
+            "stem_board": {
+              "caption": "比较对应项的系数",
+              "lines": [
+                "$$x^{2}\\text{ 项系数：}1=1$$",
+                "$$x\\text{ 项系数：}m - 2=2 - m$$",
+                "$$\\text{常数项：}m^{2} + 12=m^{2} + 12$$",
+                "$$2 m - 4=0$$"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "比较对应项的系数"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "66f9e8c5a02fac171c72f102caef9f5984eab705c1f4105658f8be5525ef7d83",
+            "step_id": "39e5646dcb-parity-parameter-003-parity_parameter_compare"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0aa93e268d6ebf9fe651396a",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "64ca6783bad6a6f4205f067cb102834f06b0d61825974bb3dc97ab3d2d8d2f50",
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "合并全部参数条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已得到的条件",
+                  "math": "\\begin{gathered}\\text{定义域 }\\mathbb R\\text{ 关于原点对称}\\\\2 m - 4=0\\end{gathered}"
+                },
+                {
+                  "label": "参数的取值集合",
+                  "math": "m\\in \\left\\{2\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "0aa93e268d6ebf9fe651396a#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$m\\in \\left\\{0\\right\\}$",
+                  "value": "o4"
+                },
+                {
+                  "label": "$m\\in \\emptyset$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$m\\in \\left\\{2\\right\\}$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$m\\in \\mathbb{R}$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "将系数条件与原参数限制一起求解；若题目明确排除零函数或声明次数，也要同时满足。",
+            "stem_board": {
+              "caption": "合并全部参数条件",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "已得到的条件",
+                  "math": "\\begin{gathered}\\text{定义域 }\\mathbb R\\text{ 关于原点对称}\\\\2 m - 4=0\\end{gathered}"
+                },
+                {
+                  "label": "参数的取值集合",
+                  "math": null
+                }
+              ],
+              "layout": "derivation"
+            },
+            "submit_label": "确认判断",
+            "title": "合并全部参数条件"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "1dc3fc47d0cbd2dc5e855121c0e94e969ac82146513105a4e061698aacfcb129",
+            "step_id": "39e5646dcb-parity-parameter-004-parity_parameter_solve"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "8441b24844f923ed2601440b",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "073e31fcbbae965b4d1bb0db2660fd070a5987073c8e446207971e01143913cc",
+        "lesson_version": "c7f1c8a705872e9bd13faff8caae9b77d6c7a6e9427843319b39db1a788b3fc6",
+        "parts": [
+          {
+            "completion_board": {
+              "caption": "代回核验",
+              "connector": "⇒",
+              "items": [
+                {
+                  "label": "原函数",
+                  "math": "f(x)=x^{2}+(2-m)\\cdot x+m^{2}+12"
+                },
+                {
+                  "label": "最终参数集合",
+                  "math": "\\left\\{2\\right\\}"
+                }
+              ],
+              "layout": "derivation"
+            },
+            "expected_answer": {},
+            "feedback": {
+              "answer": "结合卡片中的式子和范围，再核对一次。"
+            },
+            "id": "8441b24844f923ed2601440b#1",
+            "interaction": {
+              "type": "read"
+            },
+            "question": "核验包括保留的全部参数和被排除的情形，不能只找出一个可行参数就结束。",
+            "stem_board": {
+              "caption": "代回核验",
+              "lines": [
+                "$$m\\in \\left\\{2\\right\\}$$",
+                "$$m=2:\\quad f(x)=x^{2} + 16$$",
+                "已按原式核对定义域、全部系数条件和原参数限制"
+              ]
+            },
+            "submit_label": "继续",
+            "title": "代回核验"
+          }
+        ],
+        "route_id": "parity-parameter",
+        "run_id": "e05ffff7322d46d881f8099634c1aa40",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3f736fed7afff24dd6b7c090ae9cd106d63f91390e241f798212e0f4c8f9fb06",
+            "step_id": "39e5646dcb-parity-parameter-005-parity_parameter_verify"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

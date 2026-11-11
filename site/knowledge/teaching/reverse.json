@@ -7130,6 +7130,13 @@
       "conditions": {}
     },
     {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "804b631cb58ded5bd0060c7f#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10",
       "route": "function-evaluation",
@@ -17987,6 +17994,13 @@
       "conditions": {}
     },
     {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "804b631cb58ded5bd0060c7f#1",
+      "conditions": {}
+    },
+    {
       "topic": "function-representations",
       "problem": "function-representations-b10",
       "route": "function-evaluation",
@@ -26964,6 +26978,13 @@
       "route": "parity-definition",
       "step": "D1",
       "conditions": {}
+    },
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "D1",
+      "conditions": {}
     }
   ],
   "method-parity-definition": [
@@ -27163,6 +27184,504 @@
       "problem": "function-parity-a01-2-v2",
       "route": "parity-definition",
       "step": "f886262a2f0e366358daaf89#1",
+      "conditions": {}
+    }
+  ],
+  "type-parity-parameter": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17"
+    }
+  ],
+  "method-parity-parameter": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-parity-parameter#prepare": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "c441f0d7816f0e7bb9a5f8d2#1",
+      "conditions": {}
+    }
+  ],
+  "method-parity-parameter#identity": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "804b631cb58ded5bd0060c7f#1",
+      "conditions": {}
+    }
+  ],
+  "method-parity-parameter#compare": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "b7de6f8b9f14cd77b0e60d97#1",
+      "conditions": {}
+    }
+  ],
+  "skill-polynomial-coefficient-comparison": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "b7de6f8b9f14cd77b0e60d97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "27ead00557dccb270ee8f9aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "61ac47f7c30432b37dbc2438#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "2f8c654e3cfa0349af2bbcd0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "b77abe5f0e51781662f7d30e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "411fbd64ab754cf12e740269#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "02dd0c2591239bf66102e9d2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "c570033e93e6c3e19e6fd866#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "e8b7263ba73226c16829c753#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a17bfffc2dc40488a13e4f00#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "ea80ab89ab0514168e291d7d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "78ba1030a50b9db2194ef591#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a291aab6ac415dfa8fe2cba9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "ca72a2126b8781c3889bc77b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "34802a878c0161d2067c988f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "84cab7bf8bd98278b289e042#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "980bb25c04cf488b303ff37f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "540c35079d7d53e8bf6b2626#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "07173b84f187e037f81e2ddd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3abdf29863b394db825a64c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "521353f84a8f0c18e1a3bdc3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "400846fdf813b05702dbdacf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3be794b6dd773def900319bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "2c5240db9d237216c69b77d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "d4ef721a3a65e600267d60ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "60586a484491cfabdc8808c9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "0c15483542ffc991b5596280#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "c6f2e04da3ea7ee46c1b1439#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "241a21d58fb2170979f3cc3c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "50fdcc09abe04af52479d0bc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "cc493a8d635ba88caa30c135#1",
+      "conditions": {}
+    }
+  ],
+  "equality-properties#polynomial-coefficients": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "b7de6f8b9f14cd77b0e60d97#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "27ead00557dccb270ee8f9aa#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "61ac47f7c30432b37dbc2438#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "2f8c654e3cfa0349af2bbcd0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "b77abe5f0e51781662f7d30e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "411fbd64ab754cf12e740269#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04",
+      "route": "function-coefficients",
+      "step": "02dd0c2591239bf66102e9d2#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "c570033e93e6c3e19e6fd866#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "e8b7263ba73226c16829c753#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a17bfffc2dc40488a13e4f00#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "ea80ab89ab0514168e291d7d#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "78ba1030a50b9db2194ef591#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w01",
+      "route": "function-coefficients",
+      "step": "a291aab6ac415dfa8fe2cba9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "ca72a2126b8781c3889bc77b#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "34802a878c0161d2067c988f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "84cab7bf8bd98278b289e042#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "980bb25c04cf488b303ff37f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "540c35079d7d53e8bf6b2626#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w12",
+      "route": "function-coefficients",
+      "step": "07173b84f187e037f81e2ddd#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3abdf29863b394db825a64c0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "521353f84a8f0c18e1a3bdc3#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "400846fdf813b05702dbdacf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "3be794b6dd773def900319bf#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "2c5240db9d237216c69b77d0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-b04-v",
+      "route": "function-coefficients",
+      "step": "d4ef721a3a65e600267d60ce#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "60586a484491cfabdc8808c9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "0c15483542ffc991b5596280#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "c6f2e04da3ea7ee46c1b1439#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "241a21d58fb2170979f3cc3c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "50fdcc09abe04af52479d0bc#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-representations",
+      "problem": "function-representations-w10",
+      "route": "function-coefficients",
+      "step": "cc493a8d635ba88caa30c135#1",
+      "conditions": {}
+    }
+  ],
+  "method-parity-parameter#solve": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "0aa93e268d6ebf9fe651396a#1",
+      "conditions": {}
+    }
+  ],
+  "method-parity-parameter#verify": [
+    {
+      "topic": "function-parity",
+      "problem": "function-parity-a17",
+      "route": "parity-parameter",
+      "step": "8441b24844f923ed2601440b#1",
       "conditions": {}
     }
   ],
@@ -27869,430 +28388,6 @@
     }
   ],
   "method-function-coefficients#recover": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "27ead00557dccb270ee8f9aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "61ac47f7c30432b37dbc2438#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "2f8c654e3cfa0349af2bbcd0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "b77abe5f0e51781662f7d30e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "411fbd64ab754cf12e740269#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "02dd0c2591239bf66102e9d2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "c570033e93e6c3e19e6fd866#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "e8b7263ba73226c16829c753#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a17bfffc2dc40488a13e4f00#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "ea80ab89ab0514168e291d7d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "78ba1030a50b9db2194ef591#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a291aab6ac415dfa8fe2cba9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "ca72a2126b8781c3889bc77b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "34802a878c0161d2067c988f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "84cab7bf8bd98278b289e042#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "980bb25c04cf488b303ff37f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "540c35079d7d53e8bf6b2626#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "07173b84f187e037f81e2ddd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3abdf29863b394db825a64c0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "521353f84a8f0c18e1a3bdc3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "400846fdf813b05702dbdacf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3be794b6dd773def900319bf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "2c5240db9d237216c69b77d0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "d4ef721a3a65e600267d60ce#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "60586a484491cfabdc8808c9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "0c15483542ffc991b5596280#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "c6f2e04da3ea7ee46c1b1439#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "241a21d58fb2170979f3cc3c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "50fdcc09abe04af52479d0bc#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "cc493a8d635ba88caa30c135#1",
-      "conditions": {}
-    }
-  ],
-  "skill-polynomial-coefficient-comparison": [
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "27ead00557dccb270ee8f9aa#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "61ac47f7c30432b37dbc2438#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "2f8c654e3cfa0349af2bbcd0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "b77abe5f0e51781662f7d30e#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "411fbd64ab754cf12e740269#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04",
-      "route": "function-coefficients",
-      "step": "02dd0c2591239bf66102e9d2#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "c570033e93e6c3e19e6fd866#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "e8b7263ba73226c16829c753#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a17bfffc2dc40488a13e4f00#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "ea80ab89ab0514168e291d7d#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "78ba1030a50b9db2194ef591#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w01",
-      "route": "function-coefficients",
-      "step": "a291aab6ac415dfa8fe2cba9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "ca72a2126b8781c3889bc77b#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "34802a878c0161d2067c988f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "84cab7bf8bd98278b289e042#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "980bb25c04cf488b303ff37f#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "540c35079d7d53e8bf6b2626#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w12",
-      "route": "function-coefficients",
-      "step": "07173b84f187e037f81e2ddd#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3abdf29863b394db825a64c0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "521353f84a8f0c18e1a3bdc3#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "400846fdf813b05702dbdacf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "3be794b6dd773def900319bf#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "2c5240db9d237216c69b77d0#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-b04-v",
-      "route": "function-coefficients",
-      "step": "d4ef721a3a65e600267d60ce#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "60586a484491cfabdc8808c9#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "0c15483542ffc991b5596280#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "c6f2e04da3ea7ee46c1b1439#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "241a21d58fb2170979f3cc3c#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "50fdcc09abe04af52479d0bc#1",
-      "conditions": {}
-    },
-    {
-      "topic": "function-representations",
-      "problem": "function-representations-w10",
-      "route": "function-coefficients",
-      "step": "cc493a8d635ba88caa30c135#1",
-      "conditions": {}
-    }
-  ],
-  "equality-properties#polynomial-coefficients": [
     {
       "topic": "function-representations",
       "problem": "function-representations-b04",

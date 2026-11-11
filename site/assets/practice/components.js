@@ -767,11 +767,39 @@
       </g>
     </svg>`;
   }
+  // Every polyline is sampled by the server inside one exact continuous input
+  // cell. Never join separate polylines: a gap may be a pole or an original hole.
+  function sampledCurveGraph(spec) {
+    const {bounds: [xmin, xmax, ymin, ymax], traces, xTicks, dividers, title, description, variable} = spec;
+    const id = escape(spec.uid || 'sampled-curve');
+    const x = v => 48 + (v - xmin) / (xmax - xmin) * 270;
+    const y = v => 222 - (v - ymin) / (ymax - ymin) * 174;
+    const colors = ['#087f79', '#a04c36'];
+    const line = (trace, index) => `<g class="sampled-trace" aria-label="${escape(trace.label)}">
+      ${trace.segments.map(points => `<polyline fill="none" stroke="${colors[index]}" stroke-width="${index ? 2 : 3}" ${index ? 'stroke-dasharray="5 4"' : ''} points="${points.map(([a, b]) => `${x(a)},${y(b)}`).join(' ')}"/>`).join('')}
+      ${trace.markers.map(p => `<circle class="sampled-endpoint" cx="${x(p.x)}" cy="${y(p.y)}" r="${index ? 3 : 4.5}" fill="${p.closed ? colors[index] : '#fff'}" stroke="${colors[index]}" stroke-width="1.5"/>`).join('')}
+    </g>`;
+    return `<svg viewBox="0 0 360 270" role="img" aria-labelledby="${id}-title ${id}-desc">
+      <title id="${id}-title">${escape(title)}</title><desc id="${id}-desc">${escape(description)}</desc>
+      <defs><clipPath id="${id}-clip"><rect x="48" y="48" width="270" height="174"/></clipPath></defs>
+      <rect x="48" y="48" width="270" height="174" rx="5" fill="#f0f7f4"/>
+      <path d="M25 ${y(0)}H330M${x(0)} 235V35" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
+      <g clip-path="url(#${id}-clip)">
+        ${dividers.map(v => `<path d="M${x(v)} 48V222" fill="none" stroke="#b8cac4" stroke-dasharray="3 4"/>`).join('')}
+        ${traces.map(line).join('')}
+      </g>
+      <g fill="#526e64" font-family="Georgia,serif" font-size="12">
+        ${xTicks.map(([v, label]) => `<text x="${x(v)}" y="${y(0)+17}" text-anchor="middle">${escape(label)}</text>`).join('')}
+        <text x="335" y="${y(0)+5}">${escape(variable)}</text><text x="${x(0)-8}" y="28">y</text>
+        ${traces.map((t, i) => `<path d="M${48+i*140} 252h20" stroke="${colors[i]}" stroke-width="2" ${i ? 'stroke-dasharray="5 4"' : ''}/><text x="${74+i*140}" y="256">${escape(t.label)}</text>`).join('')}
+      </g>
+    </svg>`;
+  }
   // A server-built picture {kind, params, uid}: the page only picks the component for its kind.
   // axis_explorer returns a draggable explorer (SVG plus slider); the page mounts its dragging.
   const graphKinds = {quadratic: quadraticGraph, reciprocal_sum: reciprocalSumGraph, linear: linearGraph, number_line: numberLine,
     absolute_affine: absoluteAffineGraph, piecewise_curve: piecewiseCurveGraph, axis_explorer: spec => axisExplorer(spec),
-    coefficient_explorer: spec => coefficientExplorer(spec)};
+    coefficient_explorer: spec => coefficientExplorer(spec), sampled_curve: sampledCurveGraph};
   // Validate streamed pictures separately from the older authored quadratic API.
   // A rejected picture is optional presentation: callers can keep the original answer labels.
   function validateGraph(spec) {
@@ -802,6 +830,12 @@
       boolean(piece.left_closed) && boolean(piece.right_closed) && (piece.from !== null || !piece.left_closed) &&
       (piece.to !== null || !piece.right_closed));
     if (!ticks(p.xTicks) || !interval(p.interval) || !tuple(p.interval_closed, 2, boolean)) return false;
+    if (spec.kind === 'sampled_curve') return p.points.length === 0 &&
+      array(p.dividers, Number.isFinite) && p.dividers.length <= 97 &&
+      array(p.traces, t => object(t) && string(t.label) && t.label.length > 0 &&
+        array(t.segments, s => array(s, v => tuple(v, 2, Number.isFinite)) && s.length >= 2 && s.length <= 129) && t.segments.length <= 96 &&
+        array(t.markers, m => object(m) && Number.isFinite(m.x) && Number.isFinite(m.y) && boolean(m.closed)) && t.markers.length <= 192) &&
+      p.traces.length >= 1 && p.traces.length <= 2;
     if (spec.kind === 'piecewise_curve') {
       const rationalDomain = v => {
         if (!tuple(v.denominator, 2, Number.isFinite) || v.denominator[0] === 0) return false;

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"root\":{\"label\":\"17\",\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1423,
+      "prompt_tokens": 25461,
+      "total_tokens": 26884,
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 245
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 578,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-8c6b0b64-f80e-4697-a423-73334dbd981b",
+        "sha256": "40868dcc53b59b72207fb9c610cb7d46bf39949c16535ef51606f94ee42d356f",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7120,
+        "expires_at": 1794459375,
+        "uploaded_at": 1794372975.707179
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "40868dcc53b59b72207fb9c610cb7d46bf39949c16535ef51606f94ee42d356f",
+        "api_calls": 1,
+        "file_id": "file-api-8c6b0b64-f80e-4697-a423-73334dbd981b",
+        "expires_at": 1794459375,
+        "elapsed_ms": 609
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 8798,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1423,
+          "prompt_tokens": 25461,
+          "total_tokens": 26884,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1214
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25216
+          },
+          "prompt_cache_hit_tokens": 25216,
+          "prompt_cache_miss_tokens": 245
+        },
+        "raw_payload": {
+          "id": "a712362e-484c-4d0c-95c8-b94bcd1aaadd",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1423,
+            "prompt_tokens": 25461,
+            "total_tokens": 26884,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1214
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25216
+            },
+            "prompt_cache_hit_tokens": 25216,
+            "prompt_cache_miss_tokens": 245
+          },
+          "created": 1794372975,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"root\":{\"label\":\"17\",\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目文字，不求解。图片显示：\n\n17. 已知函数 f(x)=x^2+(2-m)x+m^2+12 为偶函数，则 m 的值是 ____\n\n手写“2”和对勾等不是题目内容。需要保留填空横线。题号17是来源题号？原图明确是题号，root.label? 题目有题号17，但 root.label 可以写“17”吗？规则：label存在时，用root_label_role区分来源题号与有题意标签。仅原图明确是来源或试卷题号时source。这里是题号17，明确是题号。可在root.label写\"17\"并public root_label_role source。但schema root.label optional。公开题干不包含题号。original_text保留题号，这可以。是否要放root.label?通常可以。要决定。可以设置root.label=\"17\"，root_label_role=\"source\"。但也要注意public scopes statement不含题号。\n\n题目：已知函数f(x)=x^2+(2-m)x+m^2+12为偶函数，则m的值是____。\n\n需要 root definitions? 函数定义放definitions: f(x)=x^2+(2-m)*x+m^2+12。facts: parity(f,even)? 根据目录 function_property: parity(f,even)。但偶函数是题设，放facts。goal: find_value expression \"m\" ? 求m的值，属于求参数值，find_value.expression填写m。没有选项，status none, selection_mode none, options []。没有小问。\n\noriginal_text完整，含题号17，公式。填空处横线。手写不算。可以使用LaTeX。需要反斜杠转义。original_text: \"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\" 保留填空横线。注意手写“2”不转录。? 手写批注也不是。对勾不写。保留题号。填空处照印刷原样写横线，印刷好像是一条横线，手写2写在上面。写______。\n\npublic_content:\ncompleteness complete, privacy? 题号17是来源题号，但可以通过root_label_role source排除；手写答案已不放入公开，但图片中有手写答案，是否privacy separated? 规则 privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。我们公开字段不包含手写答案和题号，已经分离。可以 separated. 但图片中有手写作答，我们排除了，判断可以 separated? \"已明确分离\" 是。figure none not_required。figure_detection status none regions []。root_label_role source。\nscopes: one root scope. statement: \"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\" 不含题号、小问编号。choices: 一个目标，target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []\n\nroot:\ndefinitions [\"f(x)=x^2+(2-m)*x+m^2+12\"] 注意乘法：目录要求独立乘法显式*，这里(2-m)x写成(2-m)*x。m^2+12.\nfacts [\"parity(f,even)\"] 可以用。\ngoals [{\"kind\":\"find_value\",\"expression\":\"m\"}]。注意 find_value expression 可以填m，求m的值。不需要 in_terms_of。\nchildren none不写。\nuncertainties可以空或不写。没有无法辨认。不过手写“2”是学生答案，不是题目内容，不报告。没有配图。root label \"17\"? 但label一般不用于题号？可以放，但public_content.root_label_role source。需要确保如果root.label存在，用source。可以放入。问题是 public_content.scopes statement不包含题号。可以。但root.label是\"17\"，label最大长度。好。\n\noriginal_text max32768， pattern \\S. 字符串中LaTeX反斜杠不需要，除非用LaTeX命令。x^2 etc无需反斜杠。需要中文逗号。可用 $f(x)=x^2+(2-m)x+m^2+12$。\n\n需要注意 response_schema root properties order? 无影响。\n\nfigure_detection status none。\n\n复核：图片顶部可能就是题号17，无小问。公式f(x)=x²+(2−m)x+m²+12为偶函数。求m的值。填空横线位置后面有手写2。不转录手写。函数定义中的x一次项系数是(2-m)，m平方+12。不要写错。\n\n有一个问题：偶函数这一事实用 facts \"parity(f,even)\" 是否恰当。目录 function_property 中 parity(f,even) 是题给的全域奇偶性。对。函数f定义在R? 没有声明定义域，多项式自然域R，但题面没有给定义域，不要补。parity谓词即可。是否应该放facts \"∀x∈ℝ: f(-x)=f(x)\"？目录优先 parity。好。\n\n目标 find_value expression \"m\" 是在求参数值。对。\n\npublic_content statement 里包含填空横线。如果原始印刷横线长度不确定，用六个下划线。可以。不写手写答案。\n\n注意 root.label \"17\" 是题号，public_content.root_label_role \"source\"。\n\n完整输出JSON。不要额外说明。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 9459
+  },
+  "raw_payload": {
+    "id": "a712362e-484c-4d0c-95c8-b94bcd1aaadd",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"root\":{\"label\":\"17\",\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目文字，不求解。图片显示：\n\n17. 已知函数 f(x)=x^2+(2-m)x+m^2+12 为偶函数，则 m 的值是 ____\n\n手写“2”和对勾等不是题目内容。需要保留填空横线。题号17是来源题号？原图明确是题号，root.label? 题目有题号17，但 root.label 可以写“17”吗？规则：label存在时，用root_label_role区分来源题号与有题意标签。仅原图明确是来源或试卷题号时source。这里是题号17，明确是题号。可在root.label写\"17\"并public root_label_role source。但schema root.label optional。公开题干不包含题号。original_text保留题号，这可以。是否要放root.label?通常可以。要决定。可以设置root.label=\"17\"，root_label_role=\"source\"。但也要注意public scopes statement不含题号。\n\n题目：已知函数f(x)=x^2+(2-m)x+m^2+12为偶函数，则m的值是____。\n\n需要 root definitions? 函数定义放definitions: f(x)=x^2+(2-m)*x+m^2+12。facts: parity(f,even)? 根据目录 function_property: parity(f,even)。但偶函数是题设，放facts。goal: find_value expression \"m\" ? 求m的值，属于求参数值，find_value.expression填写m。没有选项，status none, selection_mode none, options []。没有小问。\n\noriginal_text完整，含题号17，公式。填空处横线。手写不算。可以使用LaTeX。需要反斜杠转义。original_text: \"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\" 保留填空横线。注意手写“2”不转录。? 手写批注也不是。对勾不写。保留题号。填空处照印刷原样写横线，印刷好像是一条横线，手写2写在上面。写______。\n\npublic_content:\ncompleteness complete, privacy? 题号17是来源题号，但可以通过root_label_role source排除；手写答案已不放入公开，但图片中有手写答案，是否privacy separated? 规则 privacy 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。我们公开字段不包含手写答案和题号，已经分离。可以 separated. 但图片中有手写作答，我们排除了，判断可以 separated? \"已明确分离\" 是。figure none not_required。figure_detection status none regions []。root_label_role source。\nscopes: one root scope. statement: \"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______\" 不含题号、小问编号。choices: 一个目标，target_ref \"/root/goals/0\", status \"none\", selection_mode \"none\", options []\n\nroot:\ndefinitions [\"f(x)=x^2+(2-m)*x+m^2+12\"] 注意乘法：目录要求独立乘法显式*，这里(2-m)x写成(2-m)*x。m^2+12.\nfacts [\"parity(f,even)\"] 可以用。\ngoals [{\"kind\":\"find_value\",\"expression\":\"m\"}]。注意 find_value expression 可以填m，求m的值。不需要 in_terms_of。\nchildren none不写。\nuncertainties可以空或不写。没有无法辨认。不过手写“2”是学生答案，不是题目内容，不报告。没有配图。root label \"17\"? 但label一般不用于题号？可以放，但public_content.root_label_role source。需要确保如果root.label存在，用source。可以放入。问题是 public_content.scopes statement不包含题号。可以。但root.label是\"17\"，label最大长度。好。\n\noriginal_text max32768， pattern \\S. 字符串中LaTeX反斜杠不需要，除非用LaTeX命令。x^2 etc无需反斜杠。需要中文逗号。可用 $f(x)=x^2+(2-m)x+m^2+12$。\n\n需要注意 response_schema root properties order? 无影响。\n\nfigure_detection status none。\n\n复核：图片顶部可能就是题号17，无小问。公式f(x)=x²+(2−m)x+m²+12为偶函数。求m的值。填空横线位置后面有手写2。不转录手写。函数定义中的x一次项系数是(2-m)，m平方+12。不要写错。\n\n有一个问题：偶函数这一事实用 facts \"parity(f,even)\" 是否恰当。目录 function_property 中 parity(f,even) 是题给的全域奇偶性。对。函数f定义在R? 没有声明定义域，多项式自然域R，但题面没有给定义域，不要补。parity谓词即可。是否应该放facts \"∀x∈ℝ: f(-x)=f(x)\"？目录优先 parity。好。\n\n目标 find_value expression \"m\" 是在求参数值。对。\n\npublic_content statement 里包含填空横线。如果原始印刷横线长度不确定，用六个下划线。可以。不写手写答案。\n\n注意 root.label \"17\" 是题号，public_content.root_label_role \"source\"。\n\n完整输出JSON。不要额外说明。"
+        }
+      }
+    ],
+    "created": 1794372975,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1423,
+      "prompt_tokens": 25461,
+      "total_tokens": 26884,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1214,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25216
+      },
+      "prompt_cache_hit_tokens": 25216,
+      "prompt_cache_miss_tokens": 245
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 9.461
+}

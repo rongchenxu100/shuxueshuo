@@ -10,6 +10,7 @@ from copy import deepcopy
 from .notation_parser import NotationError
 
 KIND = 'determine_function_parity'
+PARITY_PROPERTIES = ('odd', 'even', 'both', 'odd_only', 'even_only')
 
 
 def compile_parity(goal, path):

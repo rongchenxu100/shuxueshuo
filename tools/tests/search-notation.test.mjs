@@ -17,6 +17,23 @@ const context = vm.createContext({
 vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'utf8'), context);
 const tex = expression => context.tex(expression);
 
+test('given parity and declared degree stay visible as conditions of the parameter goal', () => {
+  const text = context.meaningBlocks({definitions: ['f(x)=m*x^2'],
+    facts: ['parity(f,even)', 'degree(f)=2', 'm>0'],
+    goals: [{kind: 'find_value', expression: 'm'}]}, '', []).join('');
+  assert.match(text, /是偶函数/);
+  assert.match(text, /是二次函数/);
+  assert.match(text, /求 \$m\$ 的值/);
+  assert.doesNotMatch(text, /parity|degree|m=2/);
+  for (const [degree, label] of [[3, '三次函数'], [4, '四次函数']]) {
+    const meaning = context.meaningBlocks({definitions: [`f(x)=m*x^${degree}`],
+      facts: ['parity(f,even)', `degree(f)=${degree}`],
+      goals: [{kind: 'find_value', expression: 'm'}]}, '', []).join('');
+    assert.ok(meaning.includes(label));
+    assert.doesNotMatch(meaning, /degree/);
+  }
+});
+
 test('photographed formula questions show the given relation and requested formula without solving it', () => {
   const goal = {kind: 'find_function_formula', function: 'f', variable: 'x',
     relation: 'f(sqrt(x)+1)=x+2*sqrt(x)'};

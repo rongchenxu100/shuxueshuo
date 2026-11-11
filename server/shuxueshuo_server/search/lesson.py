@@ -147,6 +147,7 @@ def _goal(goal, features, text, candidate=None):
             or known.get('piecewise_equation', {}).get('structure_supported')
             or known.get('piecewise_inequality', {}).get('structure_supported')
             or source_goal.get('kind') == 'determine_function_parity'
+            or known.get('parity_parameter', {}).get('structure_supported')
             or known.get('monotonicity_inequality', {}).get('structure_supported')
             or known.get('monotonicity_parameter', {}).get('structure_supported')):
         diagnostics = goal["d1"].get("diagnostics", [])
@@ -411,6 +412,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get('parity_parameter', {}).get('structure_supported'):
+        return _parity_parameter_d1_rows(target, fragments, known, text)
     if known.get('function_parity', {}).get('structure_supported'):
         return _parity_d1_rows(target, fragments, known, text)
     if known.get('piecewise_modeling', {}).get('structure_supported'):
@@ -553,6 +556,48 @@ def _extremum_d1_rows(target, fragments, known, text):
                                          ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': question,
             'feedback': feedback, 'summary': correct}
+
+
+def _parity_parameter_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.stage_one.function_domain import expression_latex
+    from ..graph_lesson.stage_three.parity_parameter_presentation import (
+        PROPERTY,
+        _display_ast,
+        condition_latex,
+    )
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['parity_parameter']
+    name, variable, parameter = desc['function'], desc['variable'], desc['parameter']
+    properties = '、'.join(PROPERTY[p] for p in sorted({f['property'] for f in desc['parity_facts']}))
+    if desc.get('analysis_mode') == 'joint':
+        from ..graph_lesson.stage_three.parity_joint_presentation import source_lines
+        summary = '；'.join(f'${line}$' for line in source_lines(desc)) + '。'
+    elif desc.get('analysis_mode') == 'domain':
+        from ..graph_lesson.stage_three.parity_domain_presentation import source_lines
+        summary = '；'.join(f'${line}$' for line in source_lines(desc)) + '。'
+    elif desc.get('analysis_mode') == 'original':
+        from ..graph_lesson.stage_three.parity_original_presentation import source_lines
+        summary = '；'.join(f'${line}$' for line in source_lines(desc)) + '。'
+    else:
+        formula = expression_latex(_display_ast(desc['expression_ast']), variable)
+        summary = f'${name}({variable})={formula}$，在 $\\mathbb{{R}}$ 上为{properties}。'
+    for degree in desc['degrees']:
+        summary += '题目声明为' + ['非零常函数', '一次函数', '二次函数', '三次函数', '四次函数'][degree['degree']] + '。'
+    for constraint in desc['constraints']:
+        summary += f"${condition_latex(constraint['ast'], variable)}$。"
+    correct = f'根据题给奇偶性，求参数 ${parameter}$ 的全部取值'
+    feedback = f'奇偶性是已知条件；要确定哪些 ${parameter}$ 使这个条件成立。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct), _option('判断函数是奇函数还是偶函数', 'goal', feedback)]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
 
 
 def _parity_d1_rows(target, fragments, known, text):

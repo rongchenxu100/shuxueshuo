@@ -103,6 +103,15 @@ def compare_coefficients(relations, variable, parameters, domain):
 
     Does not solve equations, choose a function type or produce a function.
     """
+    return _compare(relations, variable, parameters, domain, 2)
+
+
+def compare_quartic_coefficients(relations, variable, parameters, domain):
+    """Opt-in fourth-degree contract; the original quadratic skill stays strict."""
+    return _compare(relations, variable, parameters, domain, 4)
+
+
+def _compare(relations, variable, parameters, domain, maximum):
     if domain != sp.S.Reals or not relations or len(relations) > 4:
         raise NotationError('coefficient_comparison.full_real_identity_required')
     rows, equations = [], []
@@ -110,7 +119,7 @@ def compare_coefficients(relations, variable, parameters, domain):
         if not isinstance(identity, sp.Equality):
             raise NotationError('coefficient_comparison.equality_required')
         lhs, rhs = sp.Poly(identity.lhs, variable), sp.Poly(identity.rhs, variable)
-        if max(lhs.degree(), rhs.degree()) > 2 or (identity.free_symbols - {variable} - set(parameters)):
+        if max(lhs.degree(), rhs.degree()) > maximum or (identity.free_symbols - {variable} - set(parameters)):
             raise NotationError('coefficient_comparison.unsupported_polynomial')
         for degree in range(int(max(0, lhs.degree(), rhs.degree())), -1, -1):
             a, b = lhs.nth(degree), rhs.nth(degree)

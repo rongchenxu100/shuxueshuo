@@ -1,0 +1,33 @@
+function-parity-a17 { changed: 0 }
+check { changed: 0 }
+function-parity-c01 { changed: 0 }
+check { changed: 0 }
+function-parity-c02 { changed: 0 }
+check { changed: 0 }
+function-parity-c03 { changed: 0 }
+check { changed: 0 }
+function-parity-c04 { changed: 0 }
+check { changed: 0 }
+function-parity-c05 { changed: 2 }
+check { changed: 0 }
+function-parity-c06 { changed: 0 }
+check { changed: 0 }
+knowledge { nodes: 160, edges: 512, files: 549, compatibility: 189, changed: 5 }
+topics { changed: 0 }
+knowledge check { nodes: 160, edges: 512, files: 549, compatibility: 189, changed: 0 }
+topics check { changed: 0 }
+export {
+  schema_version: 2,
+  content_version: 'c7b0b8ff73cf288c00459ce85643babe78a84611567d2cf1e70c958604879b23',
+  counts: {
+    nodes: 160,
+    edges: 512,
+    problems: 143,
+    routes: 163,
+    steps: 1358,
+    tips: 219,
+    drills: 177,
+    drill_nodes: 29,
+    eligible_drill_nodes: 16
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a17",
+      "search_id": "ded7ee8d5028",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 26.283,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 17.639,
+      "original_text": "17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______",
+      "root": {
+        "label": "17",
+        "definitions": [
+          "f(x)=x^2+(2-m)*x+m^2+12"
+        ],
+        "facts": [
+          "parity(f,even)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "m"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-parity-parameter"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "kind": "find_value",
+            "parameter": "m",
+            "parameter_set": {
+              "exact": {
+                "$math": "FiniteSet",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  }
+                ]
+              },
+              "expression": "{2}",
+              "latex": "\\left\\{2\\right\\}"
+            },
+            "result_type": "parameter_value",
+            "status": "complete",
+            "value": {
+              "exact": {
+                "$math": "Integer",
+                "value": "2"
+              },
+              "expression": "2",
+              "latex": "2"
+            }
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        }
+      },
+      "interaction_count": 5,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    }
+  ]
+}

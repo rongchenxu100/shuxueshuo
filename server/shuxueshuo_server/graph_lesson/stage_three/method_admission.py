@@ -227,6 +227,11 @@ def _monotonicity_parameter(context):
     return admitted(context)
 
 
+def _parity_parameter(context):
+    from .parity_parameter_runtime import admitted
+    return admitted(context)
+
+
 def _function_monotonicity(context, method=None):
     from .monotonicity_runtime import admitted
     return admitted(context, method)
@@ -250,6 +255,7 @@ CHECKS = {
     'piecewise_equation': _piecewise_equation_admitted,
     'monotonicity_inequality': _monotonicity_inequality,
     'monotonicity_parameter': _monotonicity_parameter,
+    'parity_parameter': _parity_parameter,
     'function_extremum': _function_extremum,
     'function_monotonicity': _function_monotonicity,
     'abstract_monotonicity': _abstract_monotonicity,

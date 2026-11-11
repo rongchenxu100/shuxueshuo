@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "problemId": "function-monotonicity-c01-v1",
-  "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
+  "graphVersion": "15adb2edd648bc430080a2b5a299d8efdb8a4e363391e102554000315dbec532",
   "problem": {
     "text": "已知函数 $f(x)$ 的定义域为 $\\mathbb{R}$，且对任意的 $x,y\\in\\mathbb{R}$ 均有 $f(x+y)=f(x)+f(y)$，且对任意的 $x>0$，都有 $f(x)>0$，试判断函数 $f(x)$ 在定义域上的单调性。"
   },
@@ -237,12 +237,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "0ffc2a700f68aa0537a3147d2c8db1f5f90079631d6e4762c7c16bc56011326b",
+              "math_step_sha256": "91f5a3976fdda121414584177fdd51529a9d3ec4480440e9be1407f731c00cd8",
               "step_id": "39e5646dcb-monotonicity-definition-001-pair"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "68215d05a29562fd755f1cf8",
+          "stream_interaction_id": "7863f13f944928f77db81511",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "任取两点",
@@ -315,12 +315,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+              "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
               "step_id": "39e5646dcb-monotonicity-definition-002-construct"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "7d49e464f2253dc6ff7b06ac",
+          "stream_interaction_id": "38809c7bd6ef2cf3668a1ce7",
           "stream_part_index": 0,
           "stream_part_count": 3,
           "stream_group_title": "用函数关系构造差式",
@@ -398,12 +398,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+              "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
               "step_id": "39e5646dcb-monotonicity-definition-002-construct"
             }
           ],
           "stream_last_part": false,
-          "stream_interaction_id": "7d49e464f2253dc6ff7b06ac",
+          "stream_interaction_id": "38809c7bd6ef2cf3668a1ce7",
           "stream_part_index": 1,
           "stream_part_count": 3,
           "stream_group_title": "用函数关系构造差式",
@@ -481,12 +481,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+              "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
               "step_id": "39e5646dcb-monotonicity-definition-002-construct"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "7d49e464f2253dc6ff7b06ac",
+          "stream_interaction_id": "38809c7bd6ef2cf3668a1ce7",
           "stream_part_index": 2,
           "stream_part_count": 3,
           "stream_group_title": "用函数关系构造差式",
@@ -564,12 +564,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "96333235b8a7d64556878d6934165b33a244acb15d2b93730609419717bb657b",
+              "math_step_sha256": "dbfc29d275b1c7afad23690acd672ce2d5ae4992efa25a09ff5c3d0bef662fe3",
               "step_id": "39e5646dcb-monotonicity-definition-003-sign"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "d1e9e18986d36344dc9074f7",
+          "stream_interaction_id": "3c413d7dac388003c44cfdda",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "利用题给条件判断差的正负",
@@ -647,12 +647,12 @@
           "source": "stream",
           "stream_steps": [
             {
-              "math_step_sha256": "fa1a08e2ea9a278441ac92b3d46ccad4b9779cdcc99e5ba19639beef0c3ee51e",
+              "math_step_sha256": "cc4d9cbdac52572a98bcde1d65069a654a78cae2c75cffc85c56ac221ed8aee3",
               "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
             }
           ],
           "stream_last_part": true,
-          "stream_interaction_id": "9c25c60c937dbd3a72e63c19",
+          "stream_interaction_id": "ff9943535b149b03ff92199f",
           "stream_part_index": 0,
           "stream_part_count": 1,
           "stream_group_title": "回到单调性的定义",
@@ -686,35 +686,35 @@
         "available": true,
         "contract": "graph-stage-four-handoff/v1",
         "feasible_set": null,
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "math_steps": [
           {
-            "math_step_sha256": "0ffc2a700f68aa0537a3147d2c8db1f5f90079631d6e4762c7c16bc56011326b",
+            "math_step_sha256": "91f5a3976fdda121414584177fdd51529a9d3ec4480440e9be1407f731c00cd8",
             "ordinal": 1,
             "step_id": "39e5646dcb-monotonicity-definition-001-pair"
           },
           {
-            "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+            "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
             "ordinal": 2,
             "step_id": "39e5646dcb-monotonicity-definition-002-construct"
           },
           {
-            "math_step_sha256": "96333235b8a7d64556878d6934165b33a244acb15d2b93730609419717bb657b",
+            "math_step_sha256": "dbfc29d275b1c7afad23690acd672ce2d5ae4992efa25a09ff5c3d0bef662fe3",
             "ordinal": 3,
             "step_id": "39e5646dcb-monotonicity-definition-003-sign"
           },
           {
-            "math_step_sha256": "fa1a08e2ea9a278441ac92b3d46ccad4b9779cdcc99e5ba19639beef0c3ee51e",
+            "math_step_sha256": "cc4d9cbdac52572a98bcde1d65069a654a78cae2c75cffc85c56ac221ed8aee3",
             "ordinal": 4,
             "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
           }
         ],
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "status": "verified",
         "target_ref": "/root/goals/0",
-        "task_id": "cbeb32b262cc97eb4d12d76588423619e03de8af2cdb98767bc378eb496ff5d4",
-        "verified_route_sha256": "e4dd10d314ca7f4980df2b149ffd744d2a1406b04cd795514a39dd82ee110500"
+        "task_id": "e59bf7fe55be768125860486024bc860592e94b07ec5487022bafcd56418c4da",
+        "verified_route_sha256": "82c25308bf5e1c63f81f168b4796f1be9521777be72997b61f62c53d657a9062"
       },
       "interactions_complete": true,
       "pending_count": 0
@@ -1102,11 +1102,11 @@
   },
   "bundleVersion": "[\"stream\",\"2e74a64f568c0c8160e9feebb0e5bb7f6a0a6df7f9523ba8c62b6a0bc8a64dcd\",\"6a1c72d5a7d99faf0c7f40c4047992d98d3e111b89f793ee1304ed20c56ab348\",\"c919741aabf54acebae0375703c9dd3b\",\"/root/goals/0\"]",
   "stream": {
-    "run_id": "6a3021d03e434944a06979f1559d4a63",
-    "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
-    "stream_id": "6a3021d03e434944a06979f1559d4a63",
+    "run_id": "ca325c26d7f947f994fcaf754faf99d4",
+    "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
+    "stream_id": "ca325c26d7f947f994fcaf754faf99d4",
     "target_ref": "/root/goals/0",
-    "base_bundle_version": "00cb6de7a45812782203240ce123687f9e9c7b7f8e000f3c0787c65055736dc4",
+    "base_bundle_version": "6b70163a8403ce75789e64e2bda06761e0d0188a4102d7d68725f24308594799",
     "d3": {
       "expected_answer": {
         "checks": {
@@ -1220,15 +1220,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "local_check": "passed",
-        "math_step_sha256": "0ffc2a700f68aa0537a3147d2c8db1f5f90079631d6e4762c7c16bc56011326b",
+        "math_step_sha256": "91f5a3976fdda121414584177fdd51529a9d3ec4480440e9be1407f731c00cd8",
         "method_ref": "method-monotonicity-definition#compare",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "source_refs": [
           "/steps/2/calls/0",
           "/steps/2/skipped_calls/0"
@@ -1262,15 +1262,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "local_check": "passed",
-        "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+        "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
         "method_ref": "method-difference-comparison#simplify",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "source_refs": [
           "/steps/4/calls/0",
           "/steps/4/calls/1",
@@ -1312,15 +1312,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "local_check": "passed",
-        "math_step_sha256": "96333235b8a7d64556878d6934165b33a244acb15d2b93730609419717bb657b",
+        "math_step_sha256": "dbfc29d275b1c7afad23690acd672ce2d5ae4992efa25a09ff5c3d0bef662fe3",
         "method_ref": "method-difference-comparison#sign",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "source_refs": [
           "/steps/5/calls/0",
           "/steps/5/calls/1",
@@ -1357,15 +1357,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "local_check": "passed",
-        "math_step_sha256": "fa1a08e2ea9a278441ac92b3d46ccad4b9779cdcc99e5ba19639beef0c3ee51e",
+        "math_step_sha256": "cc4d9cbdac52572a98bcde1d65069a654a78cae2c75cffc85c56ac221ed8aee3",
         "method_ref": "method-monotonicity-definition#conclude",
         "ordinal": 4,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "source_refs": [
           "/steps/7/calls/0",
           "/steps/7/skipped_calls/0"
@@ -1462,45 +1462,45 @@
         "route_id": "monotonicity-definition",
         "step_id": "39e5646dcb-monotonicity-definition-001-pair",
         "ordinal": 1,
-        "math_step_sha256": "0ffc2a700f68aa0537a3147d2c8db1f5f90079631d6e4762c7c16bc56011326b",
+        "math_step_sha256": "91f5a3976fdda121414584177fdd51529a9d3ec4480440e9be1407f731c00cd8",
         "status": "interactive",
-        "interaction_id": "68215d05a29562fd755f1cf8"
+        "interaction_id": "7863f13f944928f77db81511"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-definition",
         "step_id": "39e5646dcb-monotonicity-definition-002-construct",
         "ordinal": 2,
-        "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+        "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
         "status": "interactive",
-        "interaction_id": "7d49e464f2253dc6ff7b06ac"
+        "interaction_id": "38809c7bd6ef2cf3668a1ce7"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-definition",
         "step_id": "39e5646dcb-monotonicity-definition-003-sign",
         "ordinal": 3,
-        "math_step_sha256": "96333235b8a7d64556878d6934165b33a244acb15d2b93730609419717bb657b",
+        "math_step_sha256": "dbfc29d275b1c7afad23690acd672ce2d5ae4992efa25a09ff5c3d0bef662fe3",
         "status": "interactive",
-        "interaction_id": "d1e9e18986d36344dc9074f7"
+        "interaction_id": "3c413d7dac388003c44cfdda"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "monotonicity-definition",
         "step_id": "39e5646dcb-monotonicity-definition-004-conclude",
         "ordinal": 4,
-        "math_step_sha256": "fa1a08e2ea9a278441ac92b3d46ccad4b9779cdcc99e5ba19639beef0c3ee51e",
+        "math_step_sha256": "cc4d9cbdac52572a98bcde1d65069a654a78cae2c75cffc85c56ac221ed8aee3",
         "status": "interactive",
-        "interaction_id": "9c25c60c937dbd3a72e63c19"
+        "interaction_id": "ff9943535b149b03ff92199f"
       }
     ],
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "68215d05a29562fd755f1cf8",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "6923614c508eb6e611958c7e4123225206b325049518a1975f04b5e5c66e4de4",
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "interaction_id": "7863f13f944928f77db81511",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "757d502ab09481463770585b5df0424495fb03e957801c3d2bbf4d6ed60356fc",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "parts": [
           {
             "completion_board": {
@@ -1526,14 +1526,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "68215d05a29562fd755f1cf8#1",
+            "id": "7863f13f944928f77db81511#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\text{任取}\\ x_{1},x_{2}\\in \\mathbb{R},\\ x_{1}<x_{2}$",
-                  "value": "o1"
-                },
                 {
                   "feedback": "函数值的大小是需要证明的结论，不能事先假设。",
                   "label": "$\\text{先假设}\\ f\\left(x_{1}\\right)<f\\left(x_{2}\\right)$",
@@ -1543,6 +1539,10 @@
                   "feedback": "只比较一组输入不能代表区间内任意两点。",
                   "label": "$\\text{只取一组}\\ x_{1},x_{2}\\in \\mathbb{R},\\ x_{1}<x_{2}$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\text{任取}\\ x_{1},x_{2}\\in \\mathbb{R},\\ x_{1}<x_{2}$",
+                  "value": "o1"
                 }
               ],
               "type": "choice"
@@ -1568,11 +1568,11 @@
           }
         ],
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "0ffc2a700f68aa0537a3147d2c8db1f5f90079631d6e4762c7c16bc56011326b",
+            "math_step_sha256": "91f5a3976fdda121414584177fdd51529a9d3ec4480440e9be1407f731c00cd8",
             "step_id": "39e5646dcb-monotonicity-definition-001-pair"
           }
         ],
@@ -1580,10 +1580,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "7d49e464f2253dc6ff7b06ac",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "5dffa700e166f5ac9a1c08c4033fadaac2c3f2661eee7b7f90f81b165fee194d",
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "interaction_id": "38809c7bd6ef2cf3668a1ce7",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "8e24981ca1199c00f3b5177e571fcbbfac9b63815d3e97c126b4faf6d217d9f2",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "parts": [
           {
             "completion_board": {
@@ -1609,7 +1609,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7d49e464f2253dc6ff7b06ac#1",
+            "id": "38809c7bd6ef2cf3668a1ce7#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1668,7 +1668,7 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7d49e464f2253dc6ff7b06ac#2",
+            "id": "38809c7bd6ef2cf3668a1ce7#2",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1732,15 +1732,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "7d49e464f2253dc6ff7b06ac#3",
+            "id": "38809c7bd6ef2cf3668a1ce7#3",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "feedback": "两个输入不同，不能把两个函数值直接消去。",
-                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
-                  "value": "o3"
-                },
                 {
                   "feedback": "统一计算第二个函数值减第一个函数值，移项时保持差的方向。",
                   "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=-\\left(f\\left(- x_{1} + x_{2}\\right)\\right)$",
@@ -1749,6 +1744,11 @@
                 {
                   "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=f\\left(- x_{1} + x_{2}\\right)$",
                   "value": "o1"
+                },
+                {
+                  "feedback": "两个输入不同，不能把两个函数值直接消去。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -1774,11 +1774,11 @@
           }
         ],
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "98b1af1d8d324049fa3fed381305931feaaf51a5d06f0c89a081b1cf9a9af2a7",
+            "math_step_sha256": "9075e53226baa8457fea71852cf1569e647707598bb33ea5b138d10a6fbc49cf",
             "step_id": "39e5646dcb-monotonicity-definition-002-construct"
           }
         ],
@@ -1786,10 +1786,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "d1e9e18986d36344dc9074f7",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "95aa36b21afc67c99b07c7ea36d4f141c66cb06e6e044b868c5506d7f8006747",
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "interaction_id": "3c413d7dac388003c44cfdda",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "b25fa9c12ddb08ffe01af0a5095b8f623deb073b7b77eb6cddcb1fea0e3dae4c",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "parts": [
           {
             "completion_board": {
@@ -1815,10 +1815,15 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "d1e9e18986d36344dc9074f7#1",
+            "id": "3c413d7dac388003c44cfdda#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
+                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)<0$",
+                  "value": "o2"
+                },
                 {
                   "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)>0$",
                   "value": "o1"
@@ -1827,11 +1832,6 @@
                   "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
                   "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)=0$",
                   "value": "o3"
-                },
-                {
-                  "feedback": "把新输入代入题给条件后，还要检查差式前的负号和各因子的符号。",
-                  "label": "$f\\left(x_{2}\\right)-f\\left(x_{1}\\right)<0$",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1857,11 +1857,11 @@
           }
         ],
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "96333235b8a7d64556878d6934165b33a244acb15d2b93730609419717bb657b",
+            "math_step_sha256": "dbfc29d275b1c7afad23690acd672ce2d5ae4992efa25a09ff5c3d0bef662fe3",
             "step_id": "39e5646dcb-monotonicity-definition-003-sign"
           }
         ],
@@ -1869,10 +1869,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "9c25c60c937dbd3a72e63c19",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "f5105f157ebf79a56194e641742d556f622dddae90436c2b47de010fe0413a91",
-        "lesson_version": "800857d09cfa2989f3933e26c82461418c7ca9fed70cdb4ab2c9f48f9459465b",
+        "interaction_id": "ff9943535b149b03ff92199f",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "fef1ac350597ca2ac87e03db9e2424b41f0bba04ea4ca81639dcd431d7ec93cd",
+        "lesson_version": "d77c978449394106d0f3036cf35aa9cf4ce00f2f351cd6cd6f5a32513e06934d",
         "parts": [
           {
             "completion_board": {
@@ -1898,15 +1898,10 @@
             "feedback": {
               "answer": "结合卡片中的式子和范围，再核对一次。"
             },
-            "id": "9c25c60c937dbd3a72e63c19#1",
+            "id": "ff9943535b149b03ff92199f#1",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
-                  "label": "$f\\ \\text{在}\\ \\mathbb{R}\\ \\text{上严格递减}$",
-                  "value": "o2"
-                },
                 {
                   "label": "$f\\ \\text{在}\\ \\mathbb{R}\\ \\text{上严格递增}$",
                   "value": "o1"
@@ -1915,6 +1910,11 @@
                   "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
                   "label": "$f\\ \\text{在}\\ \\mathbb{R}\\ \\text{上为常函数}$",
                   "value": "o3"
+                },
+                {
+                  "feedback": "函数值的严格大小关系决定了增减方向，也排除了常函数。",
+                  "label": "$f\\ \\text{在}\\ \\mathbb{R}\\ \\text{上严格递减}$",
+                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1940,11 +1940,11 @@
           }
         ],
         "route_id": "monotonicity-definition",
-        "run_id": "6a3021d03e434944a06979f1559d4a63",
+        "run_id": "ca325c26d7f947f994fcaf754faf99d4",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "fa1a08e2ea9a278441ac92b3d46ccad4b9779cdcc99e5ba19639beef0c3ee51e",
+            "math_step_sha256": "cc4d9cbdac52572a98bcde1d65069a654a78cae2c75cffc85c56ac221ed8aee3",
             "step_id": "39e5646dcb-monotonicity-definition-004-conclude"
           }
         ],

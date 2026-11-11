@@ -3,6 +3,12 @@
   "output_rule": "目录中的id、syntax、meaning等字段仅供阅读，不是输出格式。模型的definitions/facts仍输出数学字符串数组，不输出表达对象、目录条目或运算树。优先按Schema中的字段放置规则组织；在目录支持的范围内保留题面直观表达，不为等价关系提前改写。",
   "expressions": [
     {
+      "id": "function_property",
+      "syntax": "parity(f,odd|even|both|odd_only|even_only)；degree(f)=n",
+      "meaning": "题给的全域奇偶性（奇、偶、既奇又偶、仅奇、仅偶）及明确声明的多项式次数。普通奇／偶允许零函数；仅按原文记录性质，定义域另写 Dom(f)=D。",
+      "examples": ["parity(f,even)", "degree(f)=2"]
+    },
+    {
       "id": "curve_definition",
       "syntax": "Γ: y = 表达式",
       "meaning": "为曲线引入稳定符号；x、y是坐标变量。优先放definitions。",

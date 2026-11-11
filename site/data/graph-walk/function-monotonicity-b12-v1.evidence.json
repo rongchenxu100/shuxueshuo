@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "provenance": {
-    "run_id": "479b9d4ca89c4a878434238230b88381",
-    "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
-    "input_sha256": "5f4bb7f2fbc0f4cee040075aad27f8ef34e41689f6a5ba5452fe3c41d3a3af79",
-    "checkpoint_sha256": "1bbf581ce75bae815d7a0feec45bdc6272e94baa71f2a1a049263b2df1c197ce",
-    "result_sha256": "ecfe7bd599b214999cf0cfd344587cfbcbc89bc86b3c128f457087131972a2e0",
-    "stage_one_sha256": "b7f50a10f5098268ed267535738db31e0959ec0016ee60285b2c2ff1074f9d33",
-    "stage_two_sha256": "04469953c5d03f5a0c4edd64604194ed47d40468f9b1a6e7355849d456a7940a",
+    "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
+    "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
+    "input_sha256": "0b92420319b40dd93ed84dc579931a9ab89abca8b3307b44d7f4879c38f50122",
+    "checkpoint_sha256": "84f8a2c4ac3633ca823dd42c7e6552722bd6024444f96e4cfec896ea66753f6a",
+    "result_sha256": "97b781d99c6f7e31e3cf0c9bbe9895bf47985f6294c324815c43f64d29beb2b4",
+    "stage_one_sha256": "90418876ea0fda8984a2fd9af32e60bbe21e083865c11632a39877cf1099ae58",
+    "stage_two_sha256": "4a5cd1f6050d72d03a5df457344accb018b3b90df22d5990bae840d4eb903ed7",
     "source_admission": "authored_topic",
     "authoring_record_sha256": "b41bd2291dc3ee0ff613de80c311be9f825b040bec3b4c8c34af6923d7985bbe",
-    "teaching_revision": "c0c780d2b767dbf5c3471e96bf08056c576ba73757b5eabf7b723cf481413771"
+    "teaching_revision": "6720c229d808528ca32f724498adf677658119a8a6d47d9d8467e112f7a74814"
   },
   "lesson": {
     "status": "completed",
@@ -88,7 +88,7 @@
           "bundle": {
             "schemaVersion": 1,
             "problemId": "function-monotonicity-b12-v1//root/goals/0",
-            "graphVersion": "7f7d9fc32f9f3e28c15cefebf5f34e74e4c932beaf6ca28703bee7488b0e8d13",
+            "graphVersion": "15adb2edd648bc430080a2b5a299d8efdb8a4e363391e102554000315dbec532",
             "problem": {
               "text": "已知函数 $f(x)=\\begin{cases}x^{2}+1,&x\\ge0,\\\\1,&x<0\\end{cases}$。若 $f(1-x^{2})>f(2x)$，则 $x$ 的取值范围是______。"
             },
@@ -458,12 +458,12 @@
                 }
               ]
             },
-            "bundleVersion": "7bfa3ea14158954beb34e718aa9dbb0aba5f6e1315fb6b4fe2a5dafe71ce0676"
+            "bundleVersion": "51d88b64b4fee9c55b17adc2b81cc0c1cd01dc19df92002e6e11d870168f4663"
           },
           "replay": {
             "schemaVersion": 2,
             "problemId": "function-monotonicity-b12-v1//root/goals/0",
-            "bundleVersion": "7bfa3ea14158954beb34e718aa9dbb0aba5f6e1315fb6b4fe2a5dafe71ce0676",
+            "bundleVersion": "51d88b64b4fee9c55b17adc2b81cc0c1cd01dc19df92002e6e11d870168f4663",
             "status": "partial",
             "routes": [],
             "actions": [
@@ -484,10 +484,10 @@
     ]
   },
   "stream": {
-    "run_id": "479b9d4ca89c4a878434238230b88381",
-    "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
-    "input_sha256": "5f4bb7f2fbc0f4cee040075aad27f8ef34e41689f6a5ba5452fe3c41d3a3af79",
-    "stream_id": "479b9d4ca89c4a878434238230b88381",
+    "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
+    "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
+    "input_sha256": "0b92420319b40dd93ed84dc579931a9ab89abca8b3307b44d7f4879c38f50122",
+    "stream_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
     "last_seq": 19,
     "minimum_seq": 1,
     "math_steps": [
@@ -513,15 +513,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "local_check": "passed",
-        "math_step_sha256": "d9c0423349ec3c45c0cc44d8253329c4dffac8dcb414f93e5ce8432ad6a5068a",
+        "math_step_sha256": "454110aadd6eba3d430d89ff496e61891e0a5a2865276e4c43a81bc4837ed2d1",
         "method_ref": "method-piecewise-inequality#route",
         "ordinal": 1,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "source_refs": [
           "/steps/0/calls/0"
         ],
@@ -552,15 +552,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "local_check": "passed",
-        "math_step_sha256": "a41e51070a2a7ce76a040eb6ce808457451671bb4ef9d7893f5b86216219a317",
+        "math_step_sha256": "6119197ccbb6acf13aeddc8f27e412878e177aaf8fbd3d4aed81408f72c80af6",
         "method_ref": "method-piecewise-inequality#two-inputs",
         "ordinal": 2,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -591,15 +591,15 @@
           ],
           "layout": "derivation"
         },
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "local_check": "passed",
-        "math_step_sha256": "d213840b8cc01868d320ef68b533e9252ab023a04931afcb228dba62e1736080",
+        "math_step_sha256": "608c732565562c322292f17ed47e930eac0678eb87ea181cc75747cdbab420f7",
         "method_ref": "method-piecewise-inequality#two-inputs",
         "ordinal": 3,
         "premise_refs": [],
-        "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+        "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "source_refs": [
           "/steps/5/calls/0"
         ],
@@ -643,30 +643,30 @@
           "expression": "Interval.open(-1, -1 + sqrt(2))",
           "latex": "\\left(-1, -1 + \\sqrt{2}\\right)"
         },
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "math_steps": [
           {
-            "math_step_sha256": "d9c0423349ec3c45c0cc44d8253329c4dffac8dcb414f93e5ce8432ad6a5068a",
+            "math_step_sha256": "454110aadd6eba3d430d89ff496e61891e0a5a2865276e4c43a81bc4837ed2d1",
             "ordinal": 1,
             "step_id": "39e5646dcb-piecewise-inequality-001-applicability"
           },
           {
-            "math_step_sha256": "a41e51070a2a7ce76a040eb6ce808457451671bb4ef9d7893f5b86216219a317",
+            "math_step_sha256": "6119197ccbb6acf13aeddc8f27e412878e177aaf8fbd3d4aed81408f72c80af6",
             "ordinal": 2,
             "step_id": "39e5646dcb-piecewise-inequality-002-cases"
           },
           {
-            "math_step_sha256": "d213840b8cc01868d320ef68b533e9252ab023a04931afcb228dba62e1736080",
+            "math_step_sha256": "608c732565562c322292f17ed47e930eac0678eb87ea181cc75747cdbab420f7",
             "ordinal": 3,
             "step_id": "39e5646dcb-piecewise-inequality-003-merge-two"
           }
         ],
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "status": "pending",
         "target_ref": "/root/goals/0",
-        "task_id": "1109a63bd7bd2eb775800188107f55d3ed4fdd57a547d9f600688d0ffad51395",
-        "verified_route_sha256": "2e5cb3055f0b589cb90271a24fc67a463db8238b543a6baa8f6aa961f7a0727f"
+        "task_id": "1fc8f1c48d8cf038a7281f03dac86ea2dcf8b0fb0b8d67820db3fc4b0b4b0ef9",
+        "verified_route_sha256": "3364d257551efda6462005007ac9ef7e4b45fcd5b66c2796bf0c7bb7cc54131e"
       }
     ],
     "qa": [],
@@ -716,31 +716,31 @@
         "route_id": "piecewise-inequality",
         "step_id": "39e5646dcb-piecewise-inequality-001-applicability",
         "ordinal": 1,
-        "math_step_sha256": "d9c0423349ec3c45c0cc44d8253329c4dffac8dcb414f93e5ce8432ad6a5068a",
+        "math_step_sha256": "454110aadd6eba3d430d89ff496e61891e0a5a2865276e4c43a81bc4837ed2d1",
         "status": "interactive",
-        "interaction_id": "6f11d0ec20a184cb713723b8"
+        "interaction_id": "83f03318ff99e4d575fe55c5"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-inequality",
         "step_id": "39e5646dcb-piecewise-inequality-002-cases",
         "ordinal": 2,
-        "math_step_sha256": "a41e51070a2a7ce76a040eb6ce808457451671bb4ef9d7893f5b86216219a317",
+        "math_step_sha256": "6119197ccbb6acf13aeddc8f27e412878e177aaf8fbd3d4aed81408f72c80af6",
         "status": "interactive",
-        "interaction_id": "88815c7c828b27300ff26b5c"
+        "interaction_id": "81a017dbd343be9ecac59216"
       },
       {
         "target_ref": "/root/goals/0",
         "route_id": "piecewise-inequality",
         "step_id": "39e5646dcb-piecewise-inequality-003-merge-two",
         "ordinal": 3,
-        "math_step_sha256": "d213840b8cc01868d320ef68b533e9252ab023a04931afcb228dba62e1736080",
+        "math_step_sha256": "608c732565562c322292f17ed47e930eac0678eb87ea181cc75747cdbab420f7",
         "status": "interactive",
-        "interaction_id": "467b9ea044d26d454ea41f89"
+        "interaction_id": "f397e4cad8ccb33383be1cf9"
       }
     ],
     "contract": "graph-stage-three-snapshot/v2",
-    "revisions_ref": "426c822c63d3d3d2384f071e15f1054d48767a7c79af8551e3304a912eadcc21",
+    "revisions_ref": "654b306e6815be495366ffbc9e15c022997bdaa5c3d9676cfbe629e1ffdbf40f",
     "checkpoints": [
       {
         "target_ref": "/root/goals/0",
@@ -748,7 +748,7 @@
         "status": "verified",
         "phase": "complete",
         "commit_id": "/root/goals/0:piecewise-inequality:complete",
-        "last_seq": 17
+        "last_seq": 19
       }
     ],
     "trajectories": [
@@ -877,10 +877,10 @@
     "interactions": [
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "6f11d0ec20a184cb713723b8",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "98901bb48188c9332c367b4c3f17942659fdf6f85f6a6ad72b647b28af6880ed",
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "interaction_id": "83f03318ff99e4d575fe55c5",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "b0e4b720c0d9baa0ef57258b5bba7e822d477fb8417db00400e0b9794c09ca45",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "parts": [
           {
             "completion_board": {
@@ -1062,10 +1062,14 @@
                 ]
               }
             },
-            "id": "6f11d0ec20a184cb713723b8#1",
+            "id": "83f03318ff99e4d575fe55c5#1",
             "interaction": {
               "field": "answer",
               "options": [
+                {
+                  "label": "整体严格递增，可直接把函数值比较改成输入比较",
+                  "value": "o2"
+                },
                 {
                   "label": "把常值段也当成严格递增",
                   "value": "o3"
@@ -1073,10 +1077,6 @@
                 {
                   "label": "不严格单调，改为按两个输入各自所在分支分类比较",
                   "value": "o1"
-                },
-                {
-                  "label": "整体严格递增，可直接把函数值比较改成输入比较",
-                  "value": "o2"
                 }
               ],
               "type": "choice"
@@ -1102,11 +1102,11 @@
           }
         ],
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d9c0423349ec3c45c0cc44d8253329c4dffac8dcb414f93e5ce8432ad6a5068a",
+            "math_step_sha256": "454110aadd6eba3d430d89ff496e61891e0a5a2865276e4c43a81bc4837ed2d1",
             "step_id": "39e5646dcb-piecewise-inequality-001-applicability"
           }
         ],
@@ -1114,10 +1114,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "88815c7c828b27300ff26b5c",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "37f8b60743a7750262df915cf43674139848e3c5cd5f3c04e15434ce2da4aa9d",
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "interaction_id": "81a017dbd343be9ecac59216",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "911e5780f2db3a3073065b7353e5510d0c6ab7e2738ca508ab2edc35e7451a9c",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "parts": [
           {
             "completion_board": {
@@ -1344,7 +1344,7 @@
                 ]
               }
             },
-            "id": "88815c7c828b27300ff26b5c#1",
+            "id": "81a017dbd343be9ecac59216#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -1619,17 +1619,17 @@
                 ]
               }
             },
-            "id": "88815c7c828b27300ff26b5c#2",
+            "id": "81a017dbd343be9ecac59216#2",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\left[-1, 0\\right)$",
-                  "value": "o2"
-                },
-                {
                   "label": "$\\left(-1, 0\\right)$",
                   "value": "o1"
+                },
+                {
+                  "label": "$\\left[-1, 0\\right)$",
+                  "value": "o2"
                 },
                 {
                   "label": "$\\left\\{-1\\right\\}$",
@@ -1861,17 +1861,17 @@
                 ]
               }
             },
-            "id": "88815c7c828b27300ff26b5c#3",
+            "id": "81a017dbd343be9ecac59216#3",
             "interaction": {
               "field": "answer",
               "options": [
                 {
-                  "label": "$\\emptyset$",
-                  "value": "o1"
-                },
-                {
                   "label": "$\\mathbb{R}$",
                   "value": "o3"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o1"
                 },
                 {
                   "label": "$\\left(1, \\infty\\right)$",
@@ -2091,14 +2091,10 @@
                 ]
               }
             },
-            "id": "88815c7c828b27300ff26b5c#4",
+            "id": "81a017dbd343be9ecac59216#4",
             "interaction": {
               "field": "answer",
               "options": [
-                {
-                  "label": "$\\mathbb{R}$",
-                  "value": "o3"
-                },
                 {
                   "label": "$\\emptyset$",
                   "value": "o1"
@@ -2106,6 +2102,10 @@
                 {
                   "label": "$\\left(-\\infty, -1\\right)$",
                   "value": "o2"
+                },
+                {
+                  "label": "$\\mathbb{R}$",
+                  "value": "o3"
                 }
               ],
               "type": "choice"
@@ -2131,11 +2131,11 @@
           }
         ],
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "a41e51070a2a7ce76a040eb6ce808457451671bb4ef9d7893f5b86216219a317",
+            "math_step_sha256": "6119197ccbb6acf13aeddc8f27e412878e177aaf8fbd3d4aed81408f72c80af6",
             "step_id": "39e5646dcb-piecewise-inequality-002-cases"
           }
         ],
@@ -2143,10 +2143,10 @@
       },
       {
         "contract": "graph-step-interaction/v1",
-        "interaction_id": "467b9ea044d26d454ea41f89",
-        "interaction_revision": "100f2a7164bcb3c2da2210aca7a96415cd8c816f73bd6609d6ec0b435a7bf01f",
-        "interaction_sha256": "825b6f234b4d57797f96451df95f933f848c32355cc7de81db49fef10ad92866",
-        "lesson_version": "8aa0953ba938b1a8bf1ea6611bc7db69c86f22d84e191d36d09b45748f5cdc7a",
+        "interaction_id": "f397e4cad8ccb33383be1cf9",
+        "interaction_revision": "01c93b318e814fff626065d0e7c08688fb063437c5cc7c648596607a0cf0ff4f",
+        "interaction_sha256": "22f0fbabc7a1914ec9c36f236744b46ed53ec85556091359886ace6dfba1944b",
+        "lesson_version": "80982be362448e05569b3ccd1dba0093befedecd365ca83a61a5e2a2db8872f6",
         "parts": [
           {
             "completion_board": {
@@ -2203,7 +2203,7 @@
             "feedback": {
               "answer": "各情况结果取并集；空情况不必再占篇幅。"
             },
-            "id": "467b9ea044d26d454ea41f89#1",
+            "id": "f397e4cad8ccb33383be1cf9#1",
             "interaction": {
               "field": "answer",
               "options": [
@@ -2243,11 +2243,11 @@
           }
         ],
         "route_id": "piecewise-inequality",
-        "run_id": "479b9d4ca89c4a878434238230b88381",
+        "run_id": "bd310e87624f4129afb2ca9d5f3e5b8c",
         "status": "interactive",
         "steps": [
           {
-            "math_step_sha256": "d213840b8cc01868d320ef68b533e9252ab023a04931afcb228dba62e1736080",
+            "math_step_sha256": "608c732565562c322292f17ed47e930eac0678eb87ea181cc75747cdbab420f7",
             "step_id": "39e5646dcb-piecewise-inequality-003-merge-two"
           }
         ],

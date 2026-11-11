@@ -68,7 +68,8 @@
       "method-extremum-condition-parameter",
       "method-monotonicity-inequality",
       "method-monotonicity-parameter",
-      "method-parity-definition"
+      "method-parity-definition",
+      "method-parity-parameter"
     ]
   }
 }

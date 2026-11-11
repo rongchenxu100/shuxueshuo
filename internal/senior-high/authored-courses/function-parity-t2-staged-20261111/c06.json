@@ -1,0 +1,42 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-c06",
+  "reviewer": "Codex：新编开发代表题；按原定义域、奇偶性定义与参数条件核验。不是用户原图、OCR 结果或独立留出。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t2-staged-20261111/problems.md",
+      "sha256": "a30a866022a24b0e2e134f98f20dfc7bc865b59a49cbad9d94518a01128c3c79",
+      "location": "C06"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=ax^2+b$，定义域为 $\\{-1,1\\}$ 为奇函数，求实数 $a,b$ 的取值范围。",
+    "root": {
+      "definitions": [
+        "f(x)=a*x^2+b"
+      ],
+      "facts": [
+        "parity(f,odd)",
+        "Dom(f)={-1,1}"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "(a,b)"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-parameter",
+    "joint_values": [
+      "-b",
+      "b"
+    ],
+    "free_parameters": [
+      "b"
+    ],
+    "nonzero": []
+  },
+  "usage": "development_authored_not_unseen_photo"
+}

@@ -367,7 +367,8 @@
             "monotonicity_inequality",
             "monotonicity_parameter",
             "abstract_monotonicity",
-            "function_parity"
+            "function_parity",
+            "parity_parameter"
           ]
         },
         "parts": {

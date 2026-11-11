@@ -1,0 +1,12 @@
+[
+  {
+    "file": "upload-02.json",
+    "sha256": "4d3882caa4fe29c3cd01cddc91684b3b3a9250bb9f59a3e34f58d068e17e147c",
+    "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+    "source_sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+    "artifacts": {
+      "page-02/ocr.json": "f57dfd9c6b473fcdbe2e9bb4366403d8eb553a557e6f9db9f0fe5ffef6746593",
+      "page-02/segments.json": "564f3df0f3a8be88d58dda7fa92c1b845f90f26a4ba59a89696fc442b97aed14"
+    }
+  }
+]

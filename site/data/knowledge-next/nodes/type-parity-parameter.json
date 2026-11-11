@@ -1,0 +1,43 @@
+{
+  "id": "type-parity-parameter",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "根据奇偶性求参",
+  "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+  "source": "函数奇偶性 FP-T2 R0/R1/R2/R3",
+  "choice_hint": "已知奇偶性，所求是函数中的参数",
+  "features": [
+    {
+      "cue": "题目给出含参函数和奇偶性，要求参数的值或范围。"
+    },
+    {
+      "cue": "先检查完整定义域与相反输入的配对，再检查奇偶关系是否对每个合法输入都成立。"
+    }
+  ],
+  "confuse": [
+    {
+      "text": "判断函数的奇偶性，目标是性质；本型的性质已给，目标是参数。",
+      "ref": "type-function-parity"
+    }
+  ],
+  "knowledge": [
+    "function-parity"
+  ],
+  "methods": [
+    "method-parity-parameter"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "偶性求参",
+      "prompt": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，求 $m$。",
+      "solution": [
+        "定义域为实数集，关于原点对称。",
+        "由偶性比较一次项系数，得 $2-m=0$，故 $m=2$。",
+        "代回为 $x^2+16$，确为偶函数。"
+      ],
+      "source": "函数奇偶性 FP-A17"
+    }
+  ],
+  "sample": "先检查域，再让奇偶关系对所有输入成立。"
+}

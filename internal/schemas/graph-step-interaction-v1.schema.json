@@ -691,7 +691,8 @@
             "axis_explorer",
             "coefficient_explorer",
             "absolute_affine",
-            "piecewise_curve"
+            "piecewise_curve",
+            "sampled_curve"
           ]
         },
         "params": {
@@ -779,6 +780,16 @@
             },
             "params": {
               "$ref": "#/$defs/piecewiseCurveParams"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "sampled_curve"
+            },
+            "params": {
+              "$ref": "#/$defs/sampledCurveParams"
             }
           }
         }
@@ -2718,6 +2729,141 @@
         },
         "math": {
           "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "sampledCurveParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bounds",
+        "title",
+        "description",
+        "variable",
+        "interval",
+        "interval_closed",
+        "points",
+        "xTicks",
+        "dividers",
+        "traces"
+      ],
+      "properties": {
+        "bounds": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number"
+          }
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "interval_closed": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "boolean"
+          }
+        },
+        "points": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "xTicks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/graphTick"
+          }
+        },
+        "dividers": {
+          "type": "array",
+          "maxItems": 97,
+          "items": {
+            "type": "number"
+          }
+        },
+        "traces": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "segments",
+              "markers"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "segments": {
+                "type": "array",
+                "maxItems": 96,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 129,
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "markers": {
+                "type": "array",
+                "maxItems": 192,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "x",
+                    "y",
+                    "closed"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "closed": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

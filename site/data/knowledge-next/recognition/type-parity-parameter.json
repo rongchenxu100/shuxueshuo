@@ -1,0 +1,20 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-parity-parameter",
+  "branches": [
+    {
+      "branch_id": "supported-polynomial-parity-parameter",
+      "checks": [
+        {
+          "id": "supported-parity-parameter",
+          "feature_id": "parity_parameter",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

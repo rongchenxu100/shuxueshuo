@@ -1,0 +1,45 @@
+{
+  "scope": "local_formal_page_rehearsal_not_public_release",
+  "date": "2026-11-11",
+  "photo": "existing_a17_fresh_ocr_extract_review_not_unseen_photo",
+  "user_confirmed_no_new_photo": true,
+  "desktop_courses": 7,
+  "desktop_steps": 56,
+  "mobile_courses": 7,
+  "mobile_steps": 56,
+  "c05_fixed_desktop_and_mobile": "passed",
+  "regression": {
+    "passed": 14,
+    "modules": [
+      "tests/solver/test_graph_stage_three_parity_original.py",
+      "tests/search/test_function_parity_parameter_photo.py"
+    ]
+  },
+  "daily_site": {
+    "url": "http://127.0.0.1:8779/topics/function-parity/q17/",
+    "html_status": 200,
+    "content_api_status": 404,
+    "reason": "本题尚未发布或已更新，仍可在当前页面练习。",
+    "published": false
+  },
+  "a17_bundle_version_preserved": true,
+  "a17_practice_version_preserved": true,
+  "public_artifacts_and_prompt": {
+    "files_checked": 3175,
+    "changed": []
+  },
+  "files": {
+    "desktop-initial.json": "49f9cfcd5463dd7ea83cc35b5094e4767204c9a45273f428052c34f4479fb6aa",
+    "mobile-initial.json": "9d65f55cbe504aca5fb07de581ba98e512f6c448a09c754247e961926025e75f",
+    "desktop-c05-fixed.json": "d8971e4633dd720a93d821088bbeffbf444c20bcd2048f30ecbf61bc7c8e7447",
+    "mobile-c05-fixed.json": "68839f081ae872b531fc12e40badcbd9c9f529b3c0db8bdb6e718a866b03b99c",
+    "a17-live-api.json": "d99d199d61ef334192f81e5c4c40df3e767e65a33317752ace051b997c61faff",
+    "daily-a17-content.json": "b91b28047d86d06ba0a6fc58788df1b77c9be89f446d82b4b7dee2c8599ca7c1",
+    "build-initial.log": "946e5a0038f1cf983a55b79494bb2be2482170206103d6451b3a19f94c4014e5",
+    "build-fixed.log": "86641d74cd5db0146ae54e2d38c99ed2888736ad2d3a44c7ce5160b189cceffc",
+    "c04-mobile.png": "50d87108ce19429cf97776f0ae85bf6b6ca3fa644a73e00e9d128e47c831b2b2",
+    "c05-mobile-before.png": "e5eb9e7aa80683b203783a7dde31bbc98a6ba92ccb7065431efb88f51ae40cc1",
+    "c05-mobile-fixed.png": "be4c6876328fe76980f49af867025318c53abefc78d32be3f19586437395eb7c",
+    "c06-mobile.png": "0ca8c0797be2c8f2219fa71a191bd1d7f8b9631e7df4f9b333c5411b67767059"
+  }
+}

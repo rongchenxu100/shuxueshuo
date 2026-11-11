@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "id": "function-parity-c05",
+      "steps": 8,
+      "wrong_rejected": true,
+      "undo": true,
+      "midway_reload": true,
+      "completed_reload": true,
+      "mark": {
+        "problem_id": "function-parity-c05",
+        "practiced": true,
+        "learning_status": "mastered"
+      },
+      "attempt": "dff9fe61-2876-484f-98dd-81571269c620"
+    }
+  ],
+  "mobile": [
+    {
+      "id": "function-parity-c05",
+      "viewport": 390,
+      "width": 390,
+      "errors": 0
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

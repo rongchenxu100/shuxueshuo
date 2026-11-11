@@ -51,6 +51,16 @@
         "function-parity-a01-1-v2",
         "function-parity-a01-2-v2"
       ]
+    },
+    {
+      "id": "parameter",
+      "label": "根据奇偶性求参",
+      "type": "type-parity-parameter",
+      "groupBy": "method",
+      "description": "将已知的奇偶性写成恒等关系，比较系数后求参数并核验。",
+      "problems": [
+        "function-parity-a17"
+      ]
     }
   ],
   "problems": {
@@ -70,6 +80,15 @@
       "bundle": "/data/graph-walk/function-parity-a01-2-v2.json",
       "types": [
         "type-function-parity"
+      ]
+    },
+    "function-parity-a17": {
+      "label": "由偶函数求参数 · A17",
+      "path": "/topics/function-parity/q17/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-parity-a17.json",
+      "types": [
+        "type-parity-parameter"
       ]
     }
   }

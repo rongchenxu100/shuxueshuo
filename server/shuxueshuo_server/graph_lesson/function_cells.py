@@ -87,10 +87,14 @@ def roots(poly):
 
 
 def constant(ast):
-    if ast == ['infinity']:
+    # Source expressions use an unsigned infinity node; bound domain facts
+    # carry its sign explicitly. Both describe the same exact endpoint.
+    if ast in (['infinity'], ['infinity', 1]):
         return sp.oo
-    if ast == ['neg', ['infinity']]:
+    if ast == ['infinity', -1]:
         return -sp.oo
+    if ast[0] == 'neg' and ast[1][:1] == ['infinity']:
+        return -constant(ast[1])
     if ast == ARGUMENT or ast[0] == 'ref':
         fail('fixed_endpoint_required')
     if any(node == ARGUMENT for node in walk(ast)):
@@ -115,7 +119,7 @@ def input_set(ast, *, budget=None):
         budget['points'] += len(ast) - 1
         if budget['points'] > 16:
             fail('point_budget')
-        return sp.FiniteSet(*(constant(point) for point in ast[1:]))
+        return sp.FiniteSet(*(exact_point(constant(point)) for point in ast[1:]))
     if ast[0] != 'interval':
         fail('explicit_set_required')
     budget['intervals'] += 1

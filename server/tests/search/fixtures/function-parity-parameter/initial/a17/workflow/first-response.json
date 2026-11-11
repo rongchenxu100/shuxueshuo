@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"root\":{\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1083,
+      "prompt_tokens": 25461,
+      "total_tokens": 26544,
+      "prompt_cache_hit_tokens": 19200,
+      "prompt_cache_miss_tokens": 6261
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 536,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-f6d8732e-02c2-4e3d-b53b-7ad28c507a61",
+        "sha256": "40868dcc53b59b72207fb9c610cb7d46bf39949c16535ef51606f94ee42d356f",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 7120,
+        "expires_at": 1794448333,
+        "uploaded_at": 1794361933.8438752
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "40868dcc53b59b72207fb9c610cb7d46bf39949c16535ef51606f94ee42d356f",
+        "api_calls": 1,
+        "file_id": "file-api-f6d8732e-02c2-4e3d-b53b-7ad28c507a61",
+        "expires_at": 1794448333,
+        "elapsed_ms": 502
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 7388,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1083,
+          "prompt_tokens": 25461,
+          "total_tokens": 26544,
+          "completion_tokens_details": {
+            "reasoning_tokens": 882
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 19200
+          },
+          "prompt_cache_hit_tokens": 19200,
+          "prompt_cache_miss_tokens": 6261
+        },
+        "raw_payload": {
+          "id": "bc3c197f-fb1f-4514-9a7a-36b97b33f62e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1083,
+            "prompt_tokens": 25461,
+            "total_tokens": 26544,
+            "completion_tokens_details": {
+              "reasoning_tokens": 882
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 19200
+            },
+            "prompt_cache_hit_tokens": 19200,
+            "prompt_cache_miss_tokens": 6261
+          },
+          "created": 1794361934,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"root\":{\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要从图片提取题意，不求解。图片内容：第17题，已知函数 f(x)=x^2+(2-m)x+m^2+12 为偶函数，则 m 的值是 ____。学生手写答案“2”和涂改不算题目内容。填空横线印刷原样。需要返回 original_text, root, public_content, figure_detection。无配图。\n\n需要正确表示 root：definitions 放函数定义 f(x)=x^2+(2-m)*x+m^2+12。facts 放“f为偶函数”即 parity(f, even) 或 f(-x)=f(x)？受控目录有 function_property parity(f,even)。也可写 parity(f,even)。目标是 find_value expression m（求m的值）。或者 find_range symbol m? 题目“m的值是____”是求参数值，用 find_value expression \"m\"。不是范围。目标字段 kind find_value expression m。选择无。public_content.scopes 对应 root，statement 写完整题干不含题号和学生答案。completeness complete。privacy separated（题号可保留在 original_text，但 public_content 不含17.？题号不是来源还是题目编号？题号属于来源/试卷题号，明确有“17.”，public_content 应排除题号；original_text 保留。root.label 可以不填，避免题号。privacy=separated，因为题号分离。figure_detection none。\n\n需要注意 original_text 公式用 $...$，反斜杠需转义。函数公式：$f(x)=x^2+(2-m)x+m^2+12$；填空处照印刷原样写横线，如“则 $m$ 的值是 ____”。保留“为偶函数”。不能抄手写2。\n\nroot facts: \"parity(f,even)\"。definitions: \"f(x)=x^2+(2-m)*x+m^2+12\"。goal: {\"kind\":\"find_value\",\"expression\":\"m\"}。有没有要求“值”使用 find_value 可以。不写求解。\n\npublic_content.statement: \"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\" 不含17.。choices status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\nuncertainties 空。\n\n需要输出纯JSON。确保没有多余字段？root 可以只 definitions/facts/goals，uncertainties 可省略。public_content 需要 completeness/privacy/figure/scopes/figure_detection。root_label_role 可省略。scope statement choices 都有。\n\n注意 original_text 中花括号问题没有。公式内反斜杠没有。填空处横线。可能函数变量 m 参数。原文“为偶函数”被圈画，圈画不是题目内容但文字是。手写“2”和涂改不转录。\n\n检查 original_text 是否包含题号17.：题目要求完整题干原文，题号可保留；公共题面不含。可以保留“17. ”原文。手写答案“2”不写。涂改也不写。公式用$。\n\nroot 目标 expression \"m\" 是所求。定义函数包含参数 m。facts parity(f,even) 足够。偶函数也可写 ∀x∈ℝ: f(-x)=f(x)，但受控支持 parity，等价。使用 parity(f,even)。不添加定义域，因为偶函数隐含定义域关于原点对称，但题目没有明示完整定义域，不应添加。函数定义本身是多项式，自然域R；题面只说为偶函数，不明确写定义域。用 parity 记录即可，不写 Dom。\n\n目标选择：题目“m的值是____”是求参数具体值，find_value expression m。不是 find_range。即便可能求得一个值。OK。\n\npublic_content.scopes[0].statement 与 root 一致。不要重复题号。\n\nJSON转义不需要很多。original_text 字符串中有 $ 和中文。无 backslash。需要确保 JSON 双引号内。现在输出。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7910
+  },
+  "raw_payload": {
+    "id": "bc3c197f-fb1f-4514-9a7a-36b97b33f62e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"root\":{\"definitions\":[\"f(x)=x^2+(2-m)*x+m^2+12\"],\"facts\":[\"parity(f,even)\"],\"goals\":[{\"kind\":\"find_value\",\"expression\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意，不求解。图片内容：第17题，已知函数 f(x)=x^2+(2-m)x+m^2+12 为偶函数，则 m 的值是 ____。学生手写答案“2”和涂改不算题目内容。填空横线印刷原样。需要返回 original_text, root, public_content, figure_detection。无配图。\n\n需要正确表示 root：definitions 放函数定义 f(x)=x^2+(2-m)*x+m^2+12。facts 放“f为偶函数”即 parity(f, even) 或 f(-x)=f(x)？受控目录有 function_property parity(f,even)。也可写 parity(f,even)。目标是 find_value expression m（求m的值）。或者 find_range symbol m? 题目“m的值是____”是求参数值，用 find_value expression \"m\"。不是范围。目标字段 kind find_value expression m。选择无。public_content.scopes 对应 root，statement 写完整题干不含题号和学生答案。completeness complete。privacy separated（题号可保留在 original_text，但 public_content 不含17.？题号不是来源还是题目编号？题号属于来源/试卷题号，明确有“17.”，public_content 应排除题号；original_text 保留。root.label 可以不填，避免题号。privacy=separated，因为题号分离。figure_detection none。\n\n需要注意 original_text 公式用 $...$，反斜杠需转义。函数公式：$f(x)=x^2+(2-m)x+m^2+12$；填空处照印刷原样写横线，如“则 $m$ 的值是 ____”。保留“为偶函数”。不能抄手写2。\n\nroot facts: \"parity(f,even)\"。definitions: \"f(x)=x^2+(2-m)*x+m^2+12\"。goal: {\"kind\":\"find_value\",\"expression\":\"m\"}。有没有要求“值”使用 find_value 可以。不写求解。\n\npublic_content.statement: \"已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ____。\" 不含17.。choices status none selection_mode none options [].\n\nfigure_detection status none regions [].\n\nuncertainties 空。\n\n需要输出纯JSON。确保没有多余字段？root 可以只 definitions/facts/goals，uncertainties 可省略。public_content 需要 completeness/privacy/figure/scopes/figure_detection。root_label_role 可省略。scope statement choices 都有。\n\n注意 original_text 中花括号问题没有。公式内反斜杠没有。填空处横线。可能函数变量 m 参数。原文“为偶函数”被圈画，圈画不是题目内容但文字是。手写“2”和涂改不转录。\n\n检查 original_text 是否包含题号17.：题目要求完整题干原文，题号可保留；公共题面不含。可以保留“17. ”原文。手写答案“2”不写。涂改也不写。公式用$。\n\nroot 目标 expression \"m\" 是所求。定义函数包含参数 m。facts parity(f,even) 足够。偶函数也可写 ∀x∈ℝ: f(-x)=f(x)，但受控支持 parity，等价。使用 parity(f,even)。不添加定义域，因为偶函数隐含定义域关于原点对称，但题目没有明示完整定义域，不应添加。函数定义本身是多项式，自然域R；题面只说为偶函数，不明确写定义域。用 parity 记录即可，不写 Dom。\n\n目标选择：题目“m的值是____”是求参数具体值，find_value expression m。不是 find_range。即便可能求得一个值。OK。\n\npublic_content.scopes[0].statement 与 root 一致。不要重复题号。\n\nJSON转义不需要很多。original_text 字符串中有 $ 和中文。无 backslash。需要确保 JSON 双引号内。现在输出。"
+        }
+      }
+    ],
+    "created": 1794361934,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1083,
+      "prompt_tokens": 25461,
+      "total_tokens": 26544,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 882,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 19200
+      },
+      "prompt_cache_hit_tokens": 19200,
+      "prompt_cache_miss_tokens": 6261
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.912
+}

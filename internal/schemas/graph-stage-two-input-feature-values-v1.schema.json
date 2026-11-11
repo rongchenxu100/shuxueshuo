@@ -3627,6 +3627,105 @@
         }
       },
       "additionalProperties": false
+    },
+    "parity_parameter": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "parameter_ref",
+        "parameter",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "structure_version": {
+          "enum": [
+            "parity-parameter/r0-v1",
+            "parity-parameter/r1-domain-v1",
+            "parity-parameter/r2-original-v1",
+            "parity-parameter/r2-quartic-v1",
+            "parity-parameter/r3-joint-v1"
+          ]
+        },
+        "source": {
+          "type": "object"
+        },
+        "parameter_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "parameter": {
+          "type": "string"
+        },
+        "target_ref": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "structure_version": {
+                "const": "parity-parameter/r3-joint-v1"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "parameter_refs",
+              "parameters"
+            ],
+            "properties": {
+              "parameter_refs": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "parameters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "parameter_ref": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

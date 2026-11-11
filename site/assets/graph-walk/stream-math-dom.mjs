@@ -174,6 +174,17 @@ export function createDerivationBoard(document, board) {
 }
 
 export function routeAnswerSummary(answer = {}, {routeId} = {}) {
+  if (['find_value', 'find_range'].includes(answer.kind) && answer.result_type === 'parameter_family' && answer.status === 'complete') {
+    if (!Array.isArray(answer.parameters) || answer.parameters.length !== 2 || new Set(answer.parameters).size !== 2 ||
+        answer.parameters.some(name => typeof name !== 'string' || !/^[A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*$/.test(name))) return null;
+    const formula = expressionText(answer.conditions);
+    return formula ? {label: '符合条件的联合参数：', formula} : null;
+  }
+  if (answer.kind === 'find_value' && answer.result_type === 'parameter_value' && answer.status === 'complete') {
+    if (!/^[A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*$/.test(answer.parameter || '')) return null;
+    const value = expressionText(answer.value), set = expressionText(answer.parameter_set);
+    return set ? {label: '符合条件的参数：', formula: value ? `${answer.parameter}=${value}` : `${answer.parameter}\\in ${set}`} : null;
+  }
   if (answer.kind === 'find_equation' && answer.status === 'complete') {
     const p = answer.pricing, rows = answer.pieces;
     if (!p || !/^[a-z]$/.test(p.quantity || '') || !/^[a-z]$/.test(p.amount || '') ||

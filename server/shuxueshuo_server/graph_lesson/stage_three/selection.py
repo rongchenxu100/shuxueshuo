@@ -118,7 +118,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
+        if admission not in ('parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
                              'abstract_function_domain', 'function_evaluation', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from ..piecewise_equation import admitted as admitted_piecewise
@@ -132,6 +132,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         from .context import build_context
         from .equality_runtime import admitted as admitted_equality
         from .parity_runtime import admitted as admitted_parity
+        from .parity_parameter_runtime import admitted as admitted_parity_parameter
         from .evaluation_runtime import admitted as admitted_evaluation
         from .formula_runtime import admitted as admitted_formula
         from .function_domain import admitted, admitted_parameter
@@ -182,6 +183,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_domain_parameter': admitted_parameter,
             'function_equality': admitted_equality,
             'function_parity': admitted_parity,
+            'parity_parameter': admitted_parity_parameter,
             'function_evaluation': admitted_evaluation,
             'function_range': admitted_range,
             'function_range_direct': lambda context: admitted_range(context, 'method-direct-range'),
@@ -211,6 +213,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         elif admission == 'function_parity':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '奇偶性定义法'}]
+        elif admission == 'parity_parameter':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '奇偶性条件求参法'}]
         elif admission == 'function_domain':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': 'function_domain', 'label': '列条件求交集法'}]
@@ -287,6 +292,8 @@ def evaluate_goal(candidate, target_ref, features, primary):
             '先求定义域，看它是否关于原点对称；对称时把 $-x$ 整体代入求 $f(-x)$，'
             '分别与 $f(x)$、$-f(x)$ 比较，再按奇偶性的定义下结论。'
             if chosen['admission'] == 'function_parity' else
+            '先核对定义域，再把已知奇偶性写成函数值关系。比较对应项的系数，求出满足全部条件的参数，并代回检查。'
+            if chosen['admission'] == 'parity_parameter' else
             '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
             if chosen['admission'] == 'function_domain_parameter' else
             ('让每个完整输入落在题设给定范围内，要求存在共同合法的自变量，再求参数范围。'

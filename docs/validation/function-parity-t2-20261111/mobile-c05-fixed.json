@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "id": "function-parity-c05",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -118,14 +118,21 @@ def complete_route(store, checkpoint, *, route, verification, feasible_set, answ
     model = isinstance(answer, dict) and answer.get('kind') == 'find_equation'
     comparison = isinstance(answer, dict) and answer.get('kind') == 'compare_functions'
     parity = isinstance(answer, dict) and answer.get('kind') == 'determine_function_parity'
-    evaluation = isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
+    parameter_value = (isinstance(answer, dict) and
+                       ((answer.get('kind') == 'find_value' and answer.get('result_type') == 'parameter_value')
+                        or (answer.get('kind') in ('find_value', 'find_range') and answer.get('result_type') == 'parameter_family')))
+    evaluation = (isinstance(answer, dict) and answer.get('kind') in ('find_value', 'check_constant', 'finite_sum')
+                  and not parameter_value)
     formula = isinstance(answer, dict) and answer.get('kind') == 'find_function_formula'
     graph = isinstance(answer, dict) and answer.get('kind') in ('select_function_graph', 'draw_function_graph', 'solve_graph_inequality')
     candidate_range = (isinstance(answer, dict) and answer.get('kind') == 'find_range'
                        and answer.get('status') == 'insufficient_information'
                        and bool(answer.get('candidates')) and 'formula_result' in (route.get('result') or {}))
     if (checkpoint["status"] != "verified" or answer is None
-            or (feasible_set is None and not (model or comparison or parity or evaluation or formula or candidate_range or graph or monotonicity or extremum))
+            or (feasible_set is None and not (model or comparison or parity or parameter_value or evaluation or formula or candidate_range or graph or monotonicity or extremum))
+            or (parameter_value and (feasible_set is not None or answer.get('status') != 'complete'
+                                     or 'parity_parameter_result' not in (route.get('result') or {})
+                                     or route['result'].get('answer') != answer))
             or (monotonicity and (feasible_set is not None or answer.get('status') != 'complete'
                            or 'monotonicity_result' not in (route.get('result') or {})
                            or route['result'].get('answer') != answer))

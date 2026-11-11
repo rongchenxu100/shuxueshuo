@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a17",
+  "reviewer": "Codex：对照用户原图第 17 题印刷题干转录，忽略手写答案；由偶性恒等式比较一次项系数并代回独立核验。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "第2张图，印刷第17题；规划编号 FP-A17"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是____。",
+    "root": {
+      "definitions": [
+        "f(x)=x^2+(2-m)*x+m^2+12"
+      ],
+      "facts": [
+        "parity(f,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "m"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "parameter": "m",
+    "parameter_values": [
+      2
+    ],
+    "type": "type-parity-parameter"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

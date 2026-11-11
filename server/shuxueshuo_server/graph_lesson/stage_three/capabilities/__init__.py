@@ -786,6 +786,25 @@ def _parity_capability(name):
     return call
 
 
+def _parity_parameter_capability(name):
+    def call(**inputs):
+        from .. import parity_parameter_runtime
+        return getattr(parity_parameter_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'prepare_parity_parameter': 'prepare',
+                         'solve_domain_symmetry_conditions': 'analyze_domain',
+                         'compare_domained_parity': 'compare_domain',
+                         'compare_quartic_polynomial_coefficients': 'compare_quartic',
+                         'compare_original_parity': 'compare_original',
+                         'compare_joint_parity': 'compare_joint',
+                         'form_parity_parameter_identities': 'form_identities',
+                         'solve_parity_parameter_conditions': 'solve_conditions',
+                         'confirm_parity_parameter': 'confirm'}.items():
+    REGISTRY[_name] = _parity_parameter_capability(_function)
+
+
 for _name in ('prepare_function_parity', 'check_domain_symmetry', 'reflect_function_input',
               'compare_parity_relations', 'collect_function_parity'):
     REGISTRY[_name] = _parity_capability(_name)

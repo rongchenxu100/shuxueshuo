@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-parity-a17",
+  "title": "由偶函数求参数 · A17",
+  "page": "/topics/function-parity/q17/",
+  "topicHref": "/topics/function-parity/",
+  "targetRef": "/root/goals/0",
+  "statement": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是____。",
+  "evidence": "site/data/graph-walk/function-parity-a17.evidence.json",
+  "authoringSource": "internal/senior-high/authored-courses/function-parity-t2-20261111/a17.json"
+}

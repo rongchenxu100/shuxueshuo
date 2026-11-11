@@ -1,0 +1,37 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-c01",
+  "reviewer": "Codex：设计文档中的新编端点题，用完整定义域对称及严格区间约定核验；不是原图题、OCR 结果或独立留出。",
+  "sources": [
+    {
+      "reference": "docs/function-parity-parameter-problem-type-design.md",
+      "sha256": "76ad20668003c0f8a83fedaad17414263ac73ae42868e5c542f3b40405a231fc",
+      "location": "§2.2 新编端点代表题"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知函数 $f$ 是定义在 $[a-3,2a]$ 上的偶函数，求实数 $a$ 的值。",
+    "root": {
+      "definitions": [],
+      "facts": [
+        "Dom(f)=[a-3,2*a]",
+        "parity(f,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_value",
+          "expression": "a"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "parameter": "a",
+    "parameter_values": [
+      1
+    ],
+    "instantiated_domain": "[-2,2]",
+    "type": "type-parity-parameter"
+  },
+  "usage": "development_authored_not_unseen_photo"
+}

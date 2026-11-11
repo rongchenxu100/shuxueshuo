@@ -1,0 +1,42 @@
+{
+  "original_text": "17. 已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______",
+  "root": {
+    "label": "17",
+    "definitions": [
+      "f(x)=x^2+(2-m)*x+m^2+12"
+    ],
+    "facts": [
+      "parity(f,even)"
+    ],
+    "goals": [
+      {
+        "kind": "find_value",
+        "expression": "m"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "root_label_role": "source",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知函数 $f(x)=x^2+(2-m)x+m^2+12$ 为偶函数，则 $m$ 的值是 ______",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

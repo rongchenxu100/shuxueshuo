@@ -1488,6 +1488,46 @@
       ]
     },
     {
+      "id": "method-parity-parameter",
+      "kind": "method",
+      "label": "奇偶性条件求参法",
+      "summary": "保留原式与参数限制，把奇偶性转为恒等条件，求出全部参数并回验。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "检查定义域",
+          "calls": [
+            "skill-domain-symmetry"
+          ]
+        },
+        {
+          "id": "identity",
+          "title": "把奇偶性写成关系",
+          "calls": [
+            "method-function-evaluation"
+          ]
+        },
+        {
+          "id": "compare",
+          "title": "检查函数值关系",
+          "calls": [
+            "skill-polynomial-coefficient-comparison"
+          ]
+        },
+        {
+          "id": "solve",
+          "title": "合并全部参数条件",
+          "calls": []
+        },
+        {
+          "id": "verify",
+          "title": "代回核验",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-piecewise-equation",
       "kind": "method",
       "label": "分段解方程法",
@@ -2832,6 +2872,15 @@
       "summary": "二次不等式的系数里有参数，按参数的不同情况分别写出 x 的解集。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "type-parity-parameter",
+      "kind": "problem_type",
+      "label": "根据奇偶性求参",
+      "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+      "aliases": [],
+      "status": "active",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "type-piecewise-function",
@@ -4332,6 +4381,42 @@
       "id": "method-parity-definition|calls|skill-simplify",
       "from": "method-parity-definition",
       "to": "skill-simplify",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "compare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-parameter|calls|method-function-evaluation",
+      "from": "method-parity-parameter",
+      "to": "method-function-evaluation",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "identity",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-parameter|calls|skill-domain-symmetry",
+      "from": "method-parity-parameter",
+      "to": "skill-domain-symmetry",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "prepare",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-parameter|calls|skill-polynomial-coefficient-comparison",
+      "from": "method-parity-parameter",
+      "to": "skill-polynomial-coefficient-comparison",
       "type": "calls",
       "occurrences": [
         {
@@ -6413,6 +6498,15 @@
       ]
     },
     {
+      "id": "section-3-2|extends|type-parity-parameter",
+      "from": "section-3-2",
+      "to": "type-parity-parameter",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "set-concept|prerequisite|function-concept",
       "from": "set-concept",
       "to": "function-concept",
@@ -7858,6 +7952,24 @@
       "id": "type-parameter-quadratic-solve|involves|quadratic-inequality",
       "from": "type-parameter-quadratic-solve",
       "to": "quadratic-inequality",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-parameter|candidate|method-parity-parameter",
+      "from": "type-parity-parameter",
+      "to": "method-parity-parameter",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-parameter|involves|function-parity",
+      "from": "type-parity-parameter",
+      "to": "function-parity",
       "type": "involves",
       "occurrences": [
         {}

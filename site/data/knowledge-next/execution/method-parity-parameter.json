@@ -1,0 +1,452 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-parity-parameter",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_parity_parameter",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description"
+          },
+          "order": 0
+        },
+        {
+          "id": "domain_conditions",
+          "capability": "solve_domain_symmetry_conditions",
+          "public_ref": "skill-domain-symmetry",
+          "inputs": {
+            "domain_ast": "$description.domain_ast",
+            "parameter": "$description.parameter",
+            "parameter_ref": "$description.parameter_ref",
+            "source_refs": "$description.domain_source_refs"
+          },
+          "outputs": {
+            "domain_evidence": "domain_evidence"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "domain"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_parameter_prepare",
+          "after": "prepare",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": {},
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description"
+          ],
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "coefficients"
+          }
+        },
+        {
+          "id": "parity_parameter_domain",
+          "after": "domain_conditions",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$domain_evidence",
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "domain_evidence"
+          ],
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "domain"
+          }
+        },
+        {
+          "id": "parity_parameter_quartic_prepare",
+          "after": "prepare",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": {},
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description"
+          ],
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "quartic"
+          }
+        },
+        {
+          "id": "parity_parameter_original_prepare",
+          "after": "prepare",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": {},
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description"
+          ],
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "original"
+          }
+        },
+        {
+          "id": "parity_parameter_joint_prepare",
+          "after": "prepare",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": {},
+            "phase": "domain",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description"
+          ],
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "joint"
+          }
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "calls": [
+        {
+          "id": "identity",
+          "capability": "form_parity_parameter_identities",
+          "public_ref": "method-function-evaluation",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "identities": "identities",
+            "variable": "variable",
+            "parameters": "parameters",
+            "domain": "domain"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_parameter_identity",
+          "after": "identity",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$identities",
+            "phase": "identity",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "identities"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "compare_polynomial_coefficients",
+          "public_ref": "skill-polynomial-coefficient-comparison",
+          "inputs": {
+            "identities": "$identities",
+            "variable": "$variable",
+            "parameters": "$parameters",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "real_comparison": "comparison"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "coefficients"
+          }
+        },
+        {
+          "id": "domain_compare",
+          "capability": "compare_domained_parity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "domain_evidence": "$domain_evidence"
+          },
+          "outputs": {
+            "domain_comparison": "comparison"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "domain"
+          }
+        },
+        {
+          "id": "quartic_compare",
+          "capability": "compare_quartic_polynomial_coefficients",
+          "public_ref": "skill-polynomial-coefficient-comparison",
+          "inputs": {
+            "identities": "$identities",
+            "variable": "$variable",
+            "parameters": "$parameters",
+            "domain": "$domain"
+          },
+          "outputs": {
+            "quartic_comparison": "comparison"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "quartic"
+          }
+        },
+        {
+          "id": "original_compare",
+          "capability": "compare_original_parity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "original_comparison": "comparison"
+          },
+          "order": 3,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "original"
+          }
+        },
+        {
+          "id": "joint_compare",
+          "capability": "compare_joint_parity",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "joint_comparison": "comparison"
+          },
+          "order": 4,
+          "guard": {
+            "ref": "description.analysis_mode",
+            "equals": "joint"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_parameter_compare",
+          "after": "comparison_ready",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$comparison",
+            "phase": "compare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "comparison"
+          ]
+        }
+      ],
+      "merges": [
+        {
+          "id": "comparison_ready",
+          "order": 5,
+          "branches": [
+            {
+              "guard": {
+                "ref": "description.analysis_mode",
+                "equals": "coefficients"
+              },
+              "bindings": {
+                "comparison": "$real_comparison"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.analysis_mode",
+                "equals": "domain"
+              },
+              "bindings": {
+                "comparison": "$domain_comparison"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.analysis_mode",
+                "equals": "quartic"
+              },
+              "bindings": {
+                "comparison": "$quartic_comparison"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.analysis_mode",
+                "equals": "original"
+              },
+              "bindings": {
+                "comparison": "$original_comparison"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.analysis_mode",
+                "equals": "joint"
+              },
+              "bindings": {
+                "comparison": "$joint_comparison"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "solve",
+          "capability": "solve_parity_parameter_conditions",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "comparison": "$comparison"
+          },
+          "outputs": {
+            "parity_parameter_result": "parity_parameter_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_parameter_solve",
+          "after": "solve",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$parity_parameter_result",
+            "phase": "solve",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "parity_parameter_result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "calls": [
+        {
+          "id": "verify",
+          "capability": "confirm_parity_parameter",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "parity_parameter_result": "$parity_parameter_result"
+          },
+          "outputs": {
+            "parity_parameter_result": "parity_parameter_result"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_parameter_verify",
+          "after": "verify",
+          "template": "parity_parameter_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$parity_parameter_result",
+            "phase": "verify",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "parity_parameter_result"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "parity_parameter_result": "$parity_parameter_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "parity_parameter",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

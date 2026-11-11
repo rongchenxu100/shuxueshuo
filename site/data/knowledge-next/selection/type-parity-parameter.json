@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-parity-parameter",
+  "admission": "parity_parameter",
+  "method": "method-parity-parameter",
+  "route_id": "parity-parameter"
+}

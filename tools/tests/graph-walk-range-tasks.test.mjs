@@ -5,6 +5,18 @@ import {originalChoiceDecision, createState, submitAnswer} from '../../site/asse
 import {routeAnswerSummary} from '../../site/assets/graph-walk/stream-math-dom.mjs';
 import {nativePracticeContract} from '../lib/graph-walk-practice.mjs';
 
+test('parameter value summaries preserve singleton, all, multiple and empty solution sets', () => {
+  const answer = {kind: 'find_value', status: 'complete', result_type: 'parameter_value', parameter: 'm'};
+  assert.deepEqual(routeAnswerSummary({...answer, value: {latex: '2'}, parameter_set: {latex: '\\{2\\}'}}),
+    {label: '符合条件的参数：', formula: 'm=2'});
+  for (const set of ['\\mathbb{R}', '\\{-1,1\\}', '\\varnothing']) {
+    assert.deepEqual(routeAnswerSummary({...answer, value: null, parameter_set: {latex: set}}),
+      {label: '符合条件的参数：', formula: `m\\in ${set}`});
+  }
+  assert.deepEqual(routeAnswerSummary({...answer, parameter: 'α', value: {latex: '2'}, parameter_set: {latex: '\\{2\\}'}}),
+    {label: '符合条件的参数：', formula: 'α=2'});
+});
+
 function completion(labels = ['D'], mode = 'single') {
   return {status: 'verified', target_ref: '/root/goals/0', verified_route_sha256: 'range-proof',
     answer: {kind: 'select_range_domain', status: 'complete', correct_labels: labels, select_relation: 'differs', selection_mode: mode},

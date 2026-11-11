@@ -423,7 +423,17 @@ function tex(expr) {
 }
 
 const math = expr => `$${escape(tex(expr))}$`;
-const knownLine = expr => (/[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(expr));
+const knownLine = expr => {
+  const parity = /^\s*parity\(\s*([A-Za-z]\w*)\s*,\s*(odd_only|even_only|odd|even|both)\s*\)\s*$/.exec(expr);
+  if (parity) {
+    const labels = {odd: '奇函数', even: '偶函数', both: '既是奇函数又是偶函数',
+      odd_only: '奇函数且不是偶函数', even_only: '偶函数且不是奇函数'};
+    return `${math(parity[1])} 是${labels[parity[2]]}`;
+  }
+  const degree = /^\s*degree\(\s*([A-Za-z]\w*)\s*\)\s*=\s*([01234])\s*$/.exec(expr);
+  if (degree) return `${math(degree[1])} 是${['非零常函数', '一次函数', '二次函数', '三次函数', '四次函数'][Number(degree[2])]}`;
+  return /[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(expr);
+};
 const GOALS = {
   find_function_formula: g => `${math(`${g.function}(${g.variable})`)} 的解析式${g.requested_domain ? `（所求范围 ${math(g.requested_domain)}）` : ''}`,
   find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,

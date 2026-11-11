@@ -50,6 +50,10 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec('parity_parameter', ('goal',), 'parity_parameter',
+                ('function-parity#definition', 'function-parity#zero'), '已知奇偶性求函数参数',
+                version='parity-parameter/r3-v1', supported_structures=('quadratic_parity_parameter', 'affine_parity_domain', 'original_parity_parameter', 'joint_affine_parity_parameter'),
+                computation_boundary='bound parity, original polynomial/local rule and affine domain syntax; no parameter solving'),
     FeatureSpec('function_parity', ('goal',), 'function_parity',
                 ('function-parity#definition', 'function-parity#domain'), '判断具体函数的奇偶性',
                 version='function-parity-definition/v2', supported_structures=('explicit_function_parity',),
@@ -552,6 +556,15 @@ def _scope_features(report, candidate, scope, ancestors, features):
         )
         original = pointer(candidate, target_ref)
         sources = [{'source_ref': _json_path(row['path']), 'expression': pointer(candidate, _json_path(row['path']))} for row in records]
+        from ..parity_parameter_math import describe as parity_parameter_description
+        parity_entries = [{**src, 'ast': row['value']} for src, row in zip(sources, records, strict=True)]
+        if desc := parity_parameter_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind'], **({'symbol': desc['parameter']} if goal['kind'] == 'find_range' else {})}, source_refs=[target_ref])
+            add('parity_parameter', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_parity_parameter_goal'}, source_refs=[target_ref])
+            continue
         if desc := mono_parameter_description(original, target_ref, sources):
             add('goal', {'kind': goal['kind'], 'symbol': original['symbol']}, source_refs=[target_ref])
             add('monotonicity_parameter', desc, source_refs=desc['source_refs'])

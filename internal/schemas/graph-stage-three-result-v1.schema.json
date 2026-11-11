@@ -574,6 +574,27 @@
                           }
                         }
                       }
+                    },
+                    {
+                      "required": [
+                        "primary",
+                        "answer"
+                      ],
+                      "properties": {
+                        "primary": {
+                          "const": "type-parity-parameter"
+                        },
+                        "answer": {
+                          "required": [
+                            "result_type"
+                          ],
+                          "properties": {
+                            "result_type": {
+                              "const": "parameter_family"
+                            }
+                          }
+                        }
+                      }
                     }
                   ]
                 },
@@ -2609,6 +2630,144 @@
             "latex": {
               "type": "string",
               "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "result_type",
+            "parameter",
+            "value",
+            "parameter_set"
+          ],
+          "properties": {
+            "kind": {
+              "const": "find_value"
+            },
+            "status": {
+              "const": "complete"
+            },
+            "result_type": {
+              "const": "parameter_value"
+            },
+            "parameter": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/mathValue"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "parameter_set": {
+              "$ref": "#/$defs/mathValue"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "status",
+            "result_type",
+            "parameters",
+            "conditions",
+            "families"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "find_value",
+                "find_range"
+              ]
+            },
+            "status": {
+              "const": "complete"
+            },
+            "result_type": {
+              "const": "parameter_family"
+            },
+            "parameters": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true
+            },
+            "conditions": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "families": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "assignments",
+                  "free_parameters",
+                  "equations",
+                  "nonzero"
+                ],
+                "properties": {
+                  "assignments": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "parameter",
+                        "value"
+                      ],
+                      "properties": {
+                        "parameter": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {
+                          "$ref": "#/$defs/mathValue"
+                        }
+                      }
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "free_parameters": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 2,
+                    "uniqueItems": true
+                  },
+                  "equations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/mathValue"
+                    }
+                  },
+                  "nonzero": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/mathValue"
+                    }
+                  }
+                }
+              },
+              "maxItems": 8
             }
           }
         }

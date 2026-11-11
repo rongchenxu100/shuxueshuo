@@ -43,7 +43,8 @@
         "monotonicity_inequality",
         "monotonicity_parameter",
         "abstract_monotonicity",
-        "function_parity"
+        "function_parity",
+        "parity_parameter"
       ]
     },
     "routes": {
@@ -93,7 +94,8 @@
               "monotonicity_inequality",
               "monotonicity_parameter",
               "abstract_monotonicity",
-              "function_parity"
+              "function_parity",
+              "parity_parameter"
             ]
           },
           "label": {
@@ -137,7 +139,8 @@
             "monotonicity_inequality",
             "monotonicity_parameter",
             "abstract_monotonicity",
-            "function_parity"
+            "function_parity",
+            "parity_parameter"
           ]
         }
       }

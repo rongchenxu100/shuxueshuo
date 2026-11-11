@@ -1,0 +1,327 @@
+{
+  "cases": [
+    {
+      "id": "function-parity-a17",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c01",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c02",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c03",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c04",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c05",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "id": "function-parity-c06",
+      "steps": 8,
+      "layouts": [
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        },
+        {
+          "viewport": 390,
+          "width": 390,
+          "errors": 0
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

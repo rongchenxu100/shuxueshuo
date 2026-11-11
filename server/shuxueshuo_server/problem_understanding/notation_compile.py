@@ -22,6 +22,7 @@ from .notation_parser import (
 
 ARITY = {
     "Dom": 1,
+    "degree": 1,
     "sqrt": 1,
     "abs": 1,
     "sum": 1,
@@ -537,8 +538,21 @@ class Scope:
             return node(kind, ast[1], hints, body)
         if kind == "call":
             name, args = ast[1], ast[2:]
+            if name == 'parity':
+                from .notation_function_parity import PARITY_PROPERTIES
+                if (len(args) != 2 or args[0][0] != 'name' or args[1][0] != 'name'
+                        or args[1][1] not in PARITY_PROPERTIES):
+                    raise NotationError('binding.parity_fact')
+                return node('function_parity', self.reference(args[0][1], 'function'), args[1][1])
+            if name == 'defined_on':
+                if len(args) != 2 or args[0][0] != 'name':
+                    raise NotationError('binding.defined_on_fact')
+                domain = bind(args[1])
+                if domain[0] == 'tuple':
+                    domain = node('interval', False, False, *domain[1:])
+                return node('function_defined_on', self.reference(args[0][1], 'function'), domain)
             if name == 'piecewise':
-                if len(args) not in (4, 6, 8):
+                if len(args) not in (4, 6, 8, 10, 12):
                     raise NotationError('binding.call_arity', name)
                 return node('call', name, *[bind(p) for p in args])
             if (
@@ -654,6 +668,15 @@ def typecheck(ast):
         return "boolean"
     if kind in ("definition_prose", "role"):
         return "boolean"
+    if kind == 'function_parity':
+        from .notation_function_parity import PARITY_PROPERTIES
+        if len(ast) != 3 or typecheck(ast[1]) != 'function' or ast[2] not in PARITY_PROPERTIES:
+            raise NotationError('type.parity_fact')
+        return 'boolean'
+    if kind == 'function_defined_on':
+        if len(ast) != 3 or typecheck(ast[1]) != 'function' or typecheck(ast[2]) not in ('domain', 'set'):
+            raise NotationError('type.defined_on_fact')
+        return 'boolean'
     if kind in ("curve_definition", "function_definition"):
         if typecheck(ast[2]) != "scalar":
             raise NotationError("type.function_body")
@@ -704,7 +727,7 @@ def typecheck(ast):
         name = ast[1]
         types = [typecheck(x) for x in ast[2:]]
         if name == 'piecewise':
-            if len(types) not in (4, 6, 8) or types != ['scalar', 'boolean'] * (len(types) // 2):
+            if len(types) not in (4, 6, 8, 10, 12) or types != ['scalar', 'boolean'] * (len(types) // 2):
                 raise NotationError('type.piecewise_branches')
             return 'scalar'
         if name in POINT_ARGS:
@@ -721,6 +744,7 @@ def typecheck(ast):
             }.get(name, "boolean")
         required = {
             "Dom": "function",
+            "degree": "function",
             "axis": "curve",
             "vertex": "curve",
             "x": "point",
@@ -1097,7 +1121,11 @@ class NotationValidator:
                     "match_domain": ("function",),
                     "find_count": ("set",),
                 }.get(goal["kind"], ("scalar", "length", "angle", "area"))
-                if typ not in expected:
+                scalar_pair = (goal['kind'] in ('find_value', 'find_range') and target in ('expression', 'symbol')
+                               and value[0] == 'tuple'
+                               and len(value) == 3 and value[1] != value[2]
+                               and all(v[0] == 'ref' and v[-1] == 'scalar' for v in value[1:]))
+                if typ not in expected and not scalar_pair:
                     raise NotationError("type.goal_target")
                 # match_domain binds the function via object; symbol is the
                 # sought parameter and domain is the prescribed Dom(f).

@@ -3,9 +3,9 @@
   "title": "高中数学公共知识图谱",
   "defaultScope": "section-2-1",
   "expectedCounts": {
-    "method": 48,
+    "method": 49,
     "knowledge": 32,
-    "problem_type": 23,
+    "problem_type": 24,
     "judgment_rule": 11,
     "section": 9,
     "skill": 30,

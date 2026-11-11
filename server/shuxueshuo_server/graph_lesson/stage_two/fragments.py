@@ -593,6 +593,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('parity_parameter', {}).get('structure_supported'):
+        from .parity_parameter_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['parity_parameter'], _abstract_formula_matches)
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{
+                'code': 'd1.parity_parameter_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'parity_parameter'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-parity#definition']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('monotonicity_parameter', {}).get('structure_supported'):
         from .monotonicity_parameter_surface import source_spans
         spans = source_spans(candidate, target_ref, ranges, values['monotonicity_parameter'], _abstract_formula_matches)

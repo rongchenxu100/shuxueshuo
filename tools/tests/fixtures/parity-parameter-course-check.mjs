@@ -1,0 +1,63 @@
+// Compile the supplied temporary evidence in memory; never rebuild public courses.
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {compileCourse} from '../../build-graph-walk-topic.mjs';
+import {loadSources, publicGraphNodes} from '../../lib/public-knowledge-sources.mjs';
+import {validateGraph} from '../../../site/assets/knowledge-next/model.mjs';
+import {createState, currentDecision, submitAnswer, replayState, undo} from '../../../site/assets/graph-walk/walk-state.mjs';
+import {routeAnswerSummary} from '../../../site/assets/graph-walk/stream-math-dom.mjs';
+
+const evidence = JSON.parse(await fs.readFile(process.argv[2], 'utf8'));
+const {nodes, manifest} = await loadSources();
+const source = process.argv[3] ? JSON.parse(await fs.readFile(process.argv[3], 'utf8'))
+  : {schemaVersion: 1, problemId: 'function-parity-r3-test', title: '两参数联合条件 · 开发题',
+    page: '/topics/function-parity/variant99/', topicHref: '/topics/function-parity/', targetRef: '/root/goals/0'};
+const graph = {...evidence.lesson.goals[0].walk.bundle.graph,
+  nodes: publicGraphNodes(nodes), edges: validateGraph(nodes, manifest)};
+const {bundle, replay} = compileCourse(source, evidence, graph, nodes);
+let state = createState(bundle);
+for (const [index, action] of replay.actions.entries()) {
+  const decision = currentDecision(bundle, state);
+  assert.equal(decision.id, action.decision);
+  assert.equal(state.done, false);
+  assert.equal(currentDecision(bundle, replayState(bundle, replay, index)).id, decision.id);
+  if (decision.interaction.type === 'choice') {
+    for (const option of decision.interaction.options.filter(row => !decision.expected_answer.one_of.includes(row.value))) {
+      const rejected = submitAnswer(bundle, state, {decision: decision.id, answer: option.value});
+      assert.equal(rejected.lastFeedback.status, 'wrong');
+      assert.equal(currentDecision(bundle, rejected).id, decision.id);
+      assert.equal(rejected.done, false);
+    }
+  }
+  const passed = submitAnswer(bundle, state, action);
+  assert.equal(passed.lastFeedback.status, 'passed');
+  if (decision.id !== 'D3') assert.equal(currentDecision(bundle, undo(bundle, passed)).id, decision.id);
+  state = passed;
+}
+assert.equal(state.done, true);
+assert.equal(replayState(bundle, replay).done, true);
+const answer = bundle.routes['parity-parameter'].completion.answer;
+const summary = routeAnswerSummary(answer);
+if (answer.result_type === 'parameter_family') {
+  assert.equal(answer.parameters.length, 2);
+  assert.equal(new Set(answer.parameters).size, 2);
+  assert.equal(summary.label, '符合条件的联合参数：');
+}
+assert.ok(summary.formula);
+const katex = createRequire(import.meta.url)('../../../site/assets/practice/vendor/katex-0.18.9/katex.min.js');
+let rendered = 0;
+const render = math => { katex.renderToString(math, {throwOnError: true, strict: 'ignore'}); rendered++; };
+function visit(value) {
+  if (Array.isArray(value)) return value.forEach(visit);
+  if (!value || typeof value !== 'object') return;
+  for (const [key, item] of Object.entries(value)) {
+    if (key === 'math' && typeof item === 'string') render(item);
+    else if (typeof item === 'string') for (const match of item.matchAll(/\$\$([\s\S]*?)\$\$|\$([^$]+)\$/g)) render(match[1] ?? match[2]);
+    else visit(item);
+  }
+}
+visit(bundle);
+render(summary.formula);
+assert.ok(rendered > 8);
+console.log(JSON.stringify({decisions: replay.actions.length, formulas: rendered, summary}));

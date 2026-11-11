@@ -1872,6 +1872,11 @@
       "repeat": "always",
       "compiler": "function_parity",
       "parts": []
+    },
+    "parity_parameter_derivation": {
+      "repeat": "always",
+      "compiler": "parity_parameter",
+      "parts": []
     }
   },
   "overrides": {
