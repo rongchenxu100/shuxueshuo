@@ -1887,6 +1887,11 @@
       "repeat": "always",
       "compiler": "function_symmetry",
       "parts": []
+    },
+    "parity_inequality_derivation": {
+      "repeat": "always",
+      "compiler": "parity_inequality",
+      "parts": []
     }
   },
   "overrides": {

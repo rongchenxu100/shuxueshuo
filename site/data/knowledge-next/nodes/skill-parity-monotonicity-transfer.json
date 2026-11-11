@@ -1,0 +1,43 @@
+{
+  "id": "skill-parity-monotonicity-transfer",
+  "kind": "skill",
+  "label": "利用奇偶性传递单调性",
+  "summary": "由一侧的严格单调性和奇性，得到对称一侧的单调方向，再在零点处连接，判断整个定义域上是否严格单调。",
+  "source": "函数奇偶性 FP-T4",
+  "input": "奇函数及其对称定义域；一侧范围上的严格单调方向（由解析式得出或题给），或题给整个定义域上的单调方向。",
+  "output": "整个定义域上严格递增或严格递减的依据；方向不能连接时说明无法比较。",
+  "conditions": "奇函数在对称两侧单调方向相同，偶函数在对称两侧方向相反；只有两侧方向相同且在零点处能连接，才得到整个定义域上的严格单调。开区间半轴的单调性不能直接跨过零点。",
+  "basis": [
+    "function-parity-graph#monotonicity",
+    "function-parity#definition",
+    "function-monotonicity#interval"
+  ],
+  "operations": [
+    {
+      "id": "transfer",
+      "title": "把一侧的单调方向传到对称一侧",
+      "body": [
+        "对称一侧任取 $x_1<x_2$，则 $-x_1>-x_2$ 落在已知一侧；奇函数 $f(x)=-f(-x)$，两侧单调方向相同。"
+      ]
+    },
+    {
+      "id": "junction",
+      "title": "在零点处连接",
+      "body": [
+        "奇函数在零点有定义时 $f(0)=0$。已知一侧在包含零点的范围上严格单调，两侧就能连成整个定义域上的严格单调。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "由一侧解析式得到整体单调",
+      "prompt": "$f$ 是 $\\mathbb R$ 上的奇函数，$x\\ge0$ 时 $f(x)=x^2+x$。判断 $f$ 在 $\\mathbb R$ 上的单调性。",
+      "solution": [
+        "$x\\ge0$ 时 $x^2+x$ 严格递增。",
+        "奇函数对称两侧单调方向相同，所以 $x\\le0$ 时也严格递增；两段在 $x=0$ 处连接。",
+        "$f$ 在 $\\mathbb R$ 上严格递增。"
+      ],
+      "source": "函数奇偶性 FP-A11"
+    }
+  ]
+}

@@ -15,6 +15,10 @@ from .surface_math import normalize_surface
 PROPERTY = {'odd': '奇函数', 'even': '偶函数', 'both': '既是奇函数又是偶函数'}
 
 
+def function_intro(prefix):
+    return re.search(r'(?:^(?:\s*\d+\s*[.．、])?|函数|设|已知)\s*\$\s*$', prefix)
+
+
 def parity_spans(text, ranges, intros, functions, desc):
     """Bind each property to its function; an unordered bag of parity words is insufficient."""
     words = [(begin + m.start(), begin + m.end(), m[0]) for begin, end in ranges
@@ -81,7 +85,7 @@ def _product_spelling(ast, variable):
 def _same(body, expected, desc):
     body = _call_brackets(body, desc['function'])
     try:
-        actual = parse(normalize_surface(body).text)
+        actual = parse(normalize_surface(_range_notation(body)).text)
         if _product_spelling(actual, desc['variable']) == parse(expected):
             return True
     except (NotationError, ValueError, RecursionError):
@@ -162,11 +166,116 @@ def _domain(body):
         return None
 
 
-def _sibling_goals(candidate, target_ref):
-    scope = candidate['root']
-    for segment in target_ref.strip('/').split('/')[1:-2]:
-        scope = scope[int(segment)] if isinstance(scope, list) else scope[segment]
-    return len(scope.get('goals', [])) > 1
+def range_question(candidate, target_ref, formulas, desc):
+    """Locate a range question whether its relation is a goal field or a fact.
+
+    A bare range goal owns only one explicitly asked inequality. Multiple bare
+    range goals are ambiguous; an arbitrary later condition cannot become one.
+    The returned reference always points into the unchanged candidate.
+    """
+    scope_ref, _ = target_ref.rsplit('/goals/', 1)
+    scope, goal = pointer(candidate, scope_ref), pointer(candidate, target_ref)
+    if goal.get('kind') != 'find_range':
+        return None
+    if goal.get('expression'):
+        sources = [(target_ref + '/expression', goal['expression'])]
+    else:
+        bare = [g for g in scope.get('goals', []) if g.get('kind') == 'find_range' and not g.get('expression')]
+        if len(bare) != 1:
+            return None
+        sources = [(f'{scope_ref}/facts/{i}', value) for i, value in enumerate(scope.get('facts', []))]
+    text = candidate['original_text']
+    hits = []
+    for ref, value in sources:
+        try:
+            ast = parse(value)
+        except (NotationError, ValueError):
+            continue
+        if ast[0] not in ('<', '<=', '>', '>='):
+            continue
+        for part in formulas:
+            if not _same(part[2], value, desc):
+                continue
+            if (re.search(r'不等式\s*\$\s*$', text[:part[0]])
+                    or re.match(r'\s*\$\s*(?:的解集|成立的|的解)', text[part[1]:])):
+                hits.append({'part': part, 'expression': value, 'source_ref': ref})
+    return hits[0] if len(hits) == 1 else None
+
+
+def sibling_question_fact_refs(candidate, target_ref, entries, desc):
+    """Facts representing a different, source-bound question are not hypotheses."""
+    from .fragments import _scope_ranges
+    text = candidate['original_text']
+    formulas = [part for begin, end in _scope_ranges(candidate, target_ref)
+                for m in re.finditer(r'\$([^$\n]+)\$', text[begin:end])
+                for part in _formula_parts(m[1], begin + m.start(1))]
+    scope_ref, index = target_ref.rsplit('/goals/', 1)
+    refs = set()
+    for i, goal in enumerate(pointer(candidate, scope_ref).get('goals', [])):
+        if i == int(index) or goal.get('kind') != 'find_range':
+            continue
+        bound = range_question(candidate, f'{scope_ref}/goals/{i}', formulas, desc)
+        if bound:
+            refs.update(r['source_ref'] for r in entries if _same(r['expression'], bound['expression'], desc))
+    return refs
+
+
+def sibling_formula_spans(candidate, target_ref, formulas, desc):
+    """Only another goal's actual question and its attached range belong to it.
+
+    Position alone never owns a formula: an extra condition after a question
+    must still be bound, even on a worksheet with several blanks.
+    """
+    text = candidate['original_text']
+    scope_ref, index = target_ref.rsplit('/goals/', 1)
+    goals = pointer(candidate, scope_ref).get('goals', [])
+    owned = set()
+    for i, goal in enumerate(goals):
+        if i == int(index):
+            continue
+        if goal.get('kind') == 'find_range':
+            bound = range_question(candidate, f'{scope_ref}/goals/{i}', formulas, desc)
+            hits = [bound['part']] if bound else []
+            if len(hits) == 1:
+                owned.add(hits[0][:2])
+                requested = goal.get('input_domain')
+                if requested:
+                    bounds = [p for p in formulas if p[0] > hits[0][1]
+                              and _range(p[2], goal.get('symbol', desc['variable'])) == _domain(requested)]
+                    if len(bounds) == 1:
+                        owned.add(bounds[0][:2])
+        elif goal.get('kind') == 'find_value' and goal.get('expression'):
+            hits = [p for p in formulas if
+                    (p[2].rstrip().endswith('=') and _same(p[2].rstrip()[:-1], goal['expression'], desc)
+                     and re.match(r'\s*\$\s*[_＿]', text[p[1]:]))
+                    or (_same(p[2], goal['expression'], desc)
+                        and re.match(r'\s*\$\s*的值(?:为|是)\s*[_＿]', text[p[1]:]))]
+            if len(hits) == 1:
+                owned.add(hits[0][:2])
+        elif goal.get('kind') == 'find_function_formula':
+            shape = {**desc, 'function': goal['function'], 'variable': goal['variable']}
+            call = f"{goal['function']}({goal['variable']})"
+            hits = [p for p in formulas if
+                    (p[2].rstrip().endswith('=') and _same(p[2].rstrip()[:-1], call, shape)
+                     and re.match(r'\s*\$\s*[_＿]', text[p[1]:]))
+                    or (_same(p[2], call, shape)
+                        and re.match(r'\s*\$\s*的?(?:解析式|表达式)', text[p[1]:]))]
+            if len(hits) != 1:
+                continue
+            target = hits[0]
+            requested = goal.get('requested_domain')
+            if requested:
+                previous = [p for p in formulas if p[1] < target[0]]
+                if not previous:
+                    continue
+                part = previous[-1]
+                if (not re.search(r'(?:当|且|则)\s*\$\s*$', text[:part[0]])
+                        or not re.fullmatch(r'\s*\$\s*时\s*[，,]?\s*\$\s*', text[part[1]:target[0]])
+                        or _range(part[2], goal['variable']) != _domain(requested)):
+                    continue
+                owned.add(part[:2])
+            owned.add(target[:2])
+    return owned
 
 
 def bind_local_rules(candidate, formulas, desc, target_start):
@@ -207,7 +316,7 @@ def source_spans(candidate, target_ref, ranges, desc):
     call = f"{desc['function']}({desc['variable']})"
 
     def when(part):
-        return (re.search(r'(?:当|且)\s*\$\s*$', text[:part[0]])
+        return (re.search(r'(?:当|且|则)\s*\$\s*$', text[:part[0]])
                 and re.match(r'\s*\$\s*时', text[part[1]:]))
 
     def asked(part):
@@ -232,7 +341,7 @@ def source_spans(candidate, target_ref, ranges, desc):
     domains = [part for part in formulas if re.search(r'(?:定义在|定义域(?:都|均)?(?:为|是))\s*\$\s*$', text[:part[0]])
                and (abstract or _domain(part[2]) == region(desc['domain_ast']))]
     intros = [part for part in formulas if part[1] < first and _same(part[2], call, desc)
-              and re.search(r'(?:函数|设|已知)\s*\$\s*$', text[:part[0]])]
+              and function_intro(text[:part[0]])]
     functions = [{'name': desc['function'], 'property': desc['property'],
                   'parity_source_ref': desc['parity_source_ref']}]
     properties = parity_spans(text, ranges, intros, functions, desc)
@@ -256,12 +365,7 @@ def source_spans(candidate, target_ref, ranges, desc):
             *((part, 'given_domain', list(desc['domain_source_refs'])) for part in domains),
             *((part, 'expression', [target_ref + '/function']) for part in intros)]
     covered = {(part[0], part[1]) for part, *_ in rows}
-    siblings = _sibling_goals(candidate, target_ref)
-
-    def sibling_owned(part):
-        slot = re.match(r'\s*\$\s*[_＿]', text[part[1]:]) and part[1] < target[0]
-        return siblings and (slot or part[0] > target[1])
-
-    if any((part[0], part[1]) not in covered and not sibling_owned(part) for part in formulas):
+    siblings = sibling_formula_spans(candidate, target_ref, formulas, desc)
+    if any(part[:2] not in covered | siblings for part in formulas):
         return None
     return [(part[0], part[1], kind, refs) for part, kind, refs in sorted(rows, key=lambda row: row[0][0])]

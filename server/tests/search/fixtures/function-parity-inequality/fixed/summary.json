@@ -1,0 +1,386 @@
+{
+  "scope": "development_source_photos_fresh_live_api_not_unseen_holdout",
+  "cases": [
+    {
+      "case": "a02",
+      "search_id": "4803fac9c711",
+      "recognition_status": "failed",
+      "lesson_status": "not_started",
+      "elapsed_seconds": 45.281,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "workflow.budget_exhausted",
+      "recognition_seconds": 44.739,
+      "original_text": "2. 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为 ______。",
+      "root": {
+        "facts": [
+          "∀x∈[0,∞): f(x)=x^2-3*x",
+          "parity(f,even)",
+          "f(x)≤0"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ],
+        "uncertainties": []
+      }
+    },
+    {
+      "case": "a05",
+      "search_id": "4028dd10adf0",
+      "recognition_status": "reviewed",
+      "lesson_status": "ready",
+      "elapsed_seconds": 96.93,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 80.45,
+      "original_text": "5. 已知 $f(x)$ 是定义在 $(-2,2)$ 上的奇函数，且当 $x∈(0,2)$ 时，$f(x)=x^2+2x$，则当 $-2<x<0$ 时，$f(x)=$ ______，不等式 $f(x-1)+f(x)<0$ 的解集是 ______．",
+      "root": {
+        "facts": [
+          "Dom(f)=(-2,2)",
+          "parity(f,odd)",
+          "∀x∈(0,2): f(x)=x^2+2*x",
+          "f(x-1)+f(x)<0"
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x)=x^2+2*x",
+            "relation_domain": "(0,2)",
+            "declared_domain": "(-2,2)",
+            "requested_domain": "(-2,0)"
+          },
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ]
+      },
+      "execution_status": "completed",
+      "types": [
+        "type-parity-formula",
+        "type-parity-inequality"
+      ],
+      "source_located": true,
+      "goals": {
+        "/root/goals/0": {
+          "answer": {
+            "declared_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-2"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-2, 2)",
+              "latex": "\\left(-2, 2\\right)"
+            },
+            "determined_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-2"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-2, 0)",
+              "latex": "\\left(-2, 0\\right)"
+            },
+            "expression": {
+              "exact": {
+                "$math": "Add",
+                "args": [
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Pow",
+                        "args": [
+                          {
+                            "$math": "Symbol",
+                            "name": "x"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Mul",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "2"
+                      },
+                      {
+                        "$math": "Symbol",
+                        "name": "x"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "-x**2 + 2*x",
+              "latex": "- x^{2} + 2 x"
+            },
+            "function": "f",
+            "kind": "find_function_formula",
+            "requested_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-2"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(-2, 0)",
+              "latex": "\\left(-2, 0\\right)"
+            },
+            "source_domain": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  {
+                    "$math": "Integer",
+                    "value": "2"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  },
+                  {
+                    "$math": "BooleanTrue"
+                  }
+                ]
+              },
+              "expression": "Interval.open(0, 2)",
+              "latex": "\\left(0, 2\\right)"
+            },
+            "status": "determined_on_domain",
+            "variable": "x"
+          },
+          "available": true,
+          "feasible_set": null,
+          "status": "solved"
+        },
+        "/root/goals/1": {
+          "answer": {
+            "kind": "find_range",
+            "set": {
+              "expression": "Interval.open(-1, 1/2)",
+              "latex": "\\left(-1, \\frac{1}{2}\\right)"
+            },
+            "status": "set"
+          },
+          "available": true,
+          "feasible_set": {
+            "exact": {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Rational",
+                  "p": "1",
+                  "q": "2"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            "expression": "Interval.open(-1, 1/2)",
+            "latex": "\\left(-1, \\frac{1}{2}\\right)"
+          },
+          "status": "solved"
+        }
+      },
+      "interaction_count": 8,
+      "interactions_ready": true,
+      "same_stream_on_reopen": true,
+      "same_snapshot_on_reopen": true
+    },
+    {
+      "case": "a11",
+      "search_id": "adafa668fd6e",
+      "recognition_status": "failed",
+      "lesson_status": "not_started",
+      "elapsed_seconds": 170.975,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        }
+      ],
+      "status": "workflow.budget_exhausted",
+      "recognition_seconds": 170.38,
+      "original_text": "11. $f(x)$是定义在$\\mathbb{R}$上的奇函数，且当$x\\ge 0$时，$f(x)=x^2+x$。则$x<0$时，$f(x)=$____，不等式$f(2x+1)+f(-5)>0$的解集是____。",
+      "root": {
+        "label": "11.",
+        "facts": [
+          "Dom(f)=ℝ",
+          "parity(f,odd)",
+          "∀x∈[0,∞): f(x)=x^2+x",
+          "f(2*x+1)+f(-5)>0"
+        ],
+        "goals": [
+          {
+            "kind": "find_function_formula",
+            "function": "f",
+            "variable": "x",
+            "relation": "f(x)=x^2+x",
+            "relation_domain": "[0,∞)",
+            "additional_relations": [
+              "f(-x)=-f(x)"
+            ],
+            "requested_domain": "(-∞,0)"
+          },
+          {
+            "kind": "find_range",
+            "symbol": "x"
+          }
+        ],
+        "uncertainties": []
+      }
+    },
+    {
+      "case": "a18",
+      "search_id": "e4fe9c313a5e",
+      "recognition_status": "reviewed",
+      "lesson_status": "unsupported",
+      "elapsed_seconds": 72.612,
+      "calls": [
+        {
+          "stage": "extract",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        },
+        {
+          "stage": "repair",
+          "status": "completed"
+        },
+        {
+          "stage": "review",
+          "status": "completed"
+        }
+      ],
+      "status": "reviewed_candidate",
+      "recognition_seconds": 69.835,
+      "original_text": "18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。",
+      "root": {
+        "definitions": [],
+        "facts": [
+          "Dom(f)=[-2,2]",
+          "parity(f,odd)",
+          "∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2) < 0",
+          "f(1-2*a)+f(a-3) > 0",
+          "a∈ℝ"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "a"
+          }
+        ],
+        "children": [],
+        "uncertainties": []
+      }
+    }
+  ]
+}

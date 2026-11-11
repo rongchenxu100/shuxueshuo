@@ -1,0 +1,126 @@
+{
+  "contract": "search-problem-extraction/v1",
+  "contract_valid": false,
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.definitions[0]",
+          "source": "f(x)=piecewise(x^2-3*x,x>=0)",
+          "code": "notation.bind",
+          "reason_code": "binding.call_arity",
+          "message": "binding.call_arity: piecewise"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r:scalar:x",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:x",
+          "name": "x",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {}
+    },
+    "scope_policy": {
+      "ok": true,
+      "diagnostics": []
+    }
+  },
+  "revision": "c6db0b58c28ae79cc6a32f8615fba7235dd1ec3b2eb8408e2efaf009a3882792",
+  "compiled": {
+    "root": {
+      "scope": "r",
+      "facts": [
+        [
+          "function_parity",
+          [
+            "ref",
+            "r:function:f",
+            "function"
+          ],
+          "even"
+        ],
+        [
+          "<=",
+          [
+            "function_call",
+            [
+              "ref",
+              "r:function:f",
+              "function"
+            ],
+            [
+              "ref",
+              "r:scalar:x",
+              "scalar"
+            ]
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "target": [
+            "ref",
+            "r:scalar:x",
+            "scalar"
+          ]
+        }
+      ],
+      "uncertainties": [],
+      "children": []
+    },
+    "objects": [
+      {
+        "ref": "r:function:f",
+        "name": "f",
+        "kind": "function",
+        "scope": "r"
+      },
+      {
+        "ref": "r:scalar:x",
+        "name": "x",
+        "kind": "scalar",
+        "scope": "r"
+      }
+    ],
+    "source_locations": {
+      "[\"function_parity\",[\"ref\",\"r:function:f\",\"function\"],\"even\"]": {
+        "path": "r.facts[0]",
+        "source": "parity(f,even)"
+      },
+      "[\"<=\",[\"function_call\",[\"ref\",\"r:function:f\",\"function\"],[\"ref\",\"r:scalar:x\",\"scalar\"]],[\"number\",\"0\"]]": {
+        "path": "r.facts[1]",
+        "source": "f(x) ≤ 0"
+      }
+    },
+    "normalization_report": {}
+  },
+  "binding": {
+    "problem_id": "bb17d43b7c4f",
+    "source_sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6"
+  }
+}

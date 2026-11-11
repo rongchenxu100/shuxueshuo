@@ -3834,6 +3834,13 @@
             },
             "additionalProperties": false
           }
+        },
+        "sibling_question_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       },
       "if": {
@@ -4053,6 +4060,250 @@
           "functions",
           "identities",
           "parameter"
+        ]
+      },
+      "additionalProperties": false
+    },
+    "parity_inequality": {
+      "type": "object",
+      "required": [
+        "source",
+        "target_ref",
+        "source_refs",
+        "given_entries",
+        "structure_supported",
+        "reason",
+        "structure_version"
+      ],
+      "properties": {
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "given_entries": {
+          "type": "array"
+        },
+        "structure_version": {
+          "enum": [
+            "parity-inequality/r0-v1",
+            "parity-inequality/r2-order-v1",
+            "parity-inequality/r3-sign-v1"
+          ]
+        },
+        "source": {
+          "type": "object"
+        },
+        "target_ref": {
+          "type": "string"
+        },
+        "extension": {
+          "$ref": "#/$defs/parity_extension"
+        },
+        "function": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "property": {
+          "enum": [
+            "odd",
+            "even"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "<",
+            "<=",
+            ">",
+            ">="
+          ]
+        },
+        "threshold_ast": {},
+        "relation_ast": {},
+        "parity_source_ref": {
+          "type": "string"
+        },
+        "domain_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "route": {
+          "enum": [
+            "half_axis",
+            "order",
+            "sign"
+          ]
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "enum": [
+                  1,
+                  -1
+                ]
+              },
+              {}
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "minItems": 1,
+          "maxItems": 2
+        },
+        "relation_source_ref": {
+          "type": "string"
+        },
+        "domain_ast": {},
+        "domain_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "direction_source": {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "rule",
+                "given"
+              ]
+            }
+          }
+        },
+        "parameter": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "ref",
+            "name",
+            "source_refs"
+          ],
+          "properties": {
+            "ref": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "source_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "input_ast": {},
+        "factor_ast": {},
+        "factor_kind": {
+          "enum": [
+            "quotient",
+            "product",
+            null
+          ]
+        },
+        "zero_asts": {
+          "type": "array",
+          "minItems": 1
+        },
+        "zero_source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "structure_supported": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "function",
+          "variable",
+          "property",
+          "operator",
+          "relation_ast",
+          "parity_source_ref",
+          "domain_source_refs",
+          "route"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "route": {
+                  "const": "order"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "terms",
+                "direction_source",
+                "relation_source_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "route": {
+                  "const": "sign"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "input_ast",
+                "factor_ast",
+                "factor_kind",
+                "zero_asts",
+                "zero_source_refs",
+                "direction_source",
+                "relation_source_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "route": {
+                  "const": "half_axis"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "extension",
+                "threshold_ast"
+              ]
+            }
+          }
         ]
       },
       "additionalProperties": false

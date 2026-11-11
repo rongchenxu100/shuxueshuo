@@ -40,6 +40,10 @@ def describe_function_formula(report, scope, ancestors, goal_index):
         value['value_ast'] = deepcopy(goal['value'])
         value['source_refs'].append(ref+'/expression')
     try:
+        if 'input_domain' in goal:
+            # FP-T4 consumes this restriction before this generic route. Do not
+            # silently discard it in older relation/coefficient consumers.
+            raise NotationError('function_formula.input_restriction_unsupported')
         if 'relation_variables' in goal:
             from ..function_assignment import assignment_source, VERSION as ASSIGNMENT_VERSION
             value['structure_version'] = ASSIGNMENT_VERSION

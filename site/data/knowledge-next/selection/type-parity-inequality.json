@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-parity-inequality",
+  "admission": "parity_inequality",
+  "method": "method-parity-inequality",
+  "route_id": "parity-inequality"
+}

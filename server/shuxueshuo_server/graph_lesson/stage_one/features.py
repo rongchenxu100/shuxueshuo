@@ -54,6 +54,12 @@ FEATURE_REGISTRY = (
                 ('function-parity#definition', 'function-parity#zero'), '已知奇偶性与一侧解析式求另一侧',
                 version='parity-extension/r0-v1', supported_structures=('half_axis_polynomial_extension',),
                 computation_boundary='bound parity fact, local rule, rule range and requested range; no reflection or substitution'),
+    FeatureSpec('parity_inequality', ('goal',), 'parity_inequality',
+                ('function-parity#definition', 'function-parity#zero'), '利用奇偶性解不等式',
+                version='parity-inequality/r3-v1', supported_structures=('half_axis_value_threshold', 'monotone_comparison',
+                                                                        'even_absolute_comparison', 'borrowed_domain_parameter',
+                                                                        'abstract_sign_table'),
+                computation_boundary='bound parity fact, domain, local rule or printed direction, and the inequality; no solving, reflection, comparison or parameter value'),
     FeatureSpec('symmetry_evaluation', ('goal',), 'symmetry_evaluation',
                 ('function-parity#definition', 'function-parity#zero'), '利用奇偶性求函数值或函数值的组合',
                 version='function-symmetry/r2-v1', supported_structures=('opposite_input_value_combination',),
@@ -573,6 +579,14 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={'code': 'feature.not_parity_extension_goal'}, source_refs=[target_ref])
+            continue
+        from ..parity_inequality_math import describe as parity_inequality_description
+        if desc := parity_inequality_description(original, goal, target_ref, parity_entries, candidate=candidate):
+            add('goal', {'kind': goal['kind'], 'symbol': original['symbol']}, source_refs=[target_ref])
+            add('parity_inequality', desc, source_refs=desc['source_refs'])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={'code': 'feature.not_parity_inequality_goal'}, source_refs=[target_ref])
             continue
         from ..symmetry_value_math import describe as symmetry_value_description
         if desc := symmetry_value_description(original, goal, target_ref, parity_entries, candidate=candidate):

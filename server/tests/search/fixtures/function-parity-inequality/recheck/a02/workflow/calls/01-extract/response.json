@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-3*x,x>=0)\"],\"facts\":[\"parity(f,even)\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 959,
+      "prompt_tokens": 25721,
+      "total_tokens": 26680,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 249
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 644,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-b2b9bb1b-f6d9-4595-a00e-79fa716d5c4c",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10168,
+        "expires_at": 1794501420,
+        "uploaded_at": 1794415020.831317
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "api_calls": 1,
+        "file_id": "file-api-b2b9bb1b-f6d9-4595-a00e-79fa716d5c4c",
+        "expires_at": 1794501420,
+        "elapsed_ms": 789
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 5858,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 959,
+          "prompt_tokens": 25721,
+          "total_tokens": 26680,
+          "completion_tokens_details": {
+            "reasoning_tokens": 699
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 249
+        },
+        "raw_payload": {
+          "id": "8a60d7c6-9c99-4339-9ef2-d634755744bf",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 959,
+            "prompt_tokens": 25721,
+            "total_tokens": 26680,
+            "completion_tokens_details": {
+              "reasoning_tokens": 699
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 249
+          },
+          "created": 1794415021,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-3*x,x>=0)\"],\"facts\":[\"parity(f,even)\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题目：已知 \\(y=f(x)\\) 是 \\(\\mathbb{R}\\) 上的偶函数，且当 \\(x\\ge 0\\) 时，\\(f(x)=x^2-3x\\)，则不等式 \\(f(x)\\le 0\\) 的解集为____。\n\n需要输出 original_text、root、public_content。无图。\n\nroot: definitions 中 f(x)=piecewise(x^2-3*x, x>=0) 但题面说当 x≥0 时 f(x)=x^2-3x，并且偶函数。应写 definitions: f(x)=piecewise(x^2-3*x,x>=0)，facts: parity(f,even)；但 f 的完整定义由偶函数延拓，不补造负半轴表达式。也可写 facts: ∀x∈ℝ: f(-x)=f(x) 或 parity(f,even)。由于题面已给当 x≥0 时公式，完整定义需用偶函数得到。提取时保留：definitions [\"f(x)=piecewise(x^2-3*x,x>=0)\"]？piecewise 条件只给 x>=0，剩余未定义但由偶函数给出。可以这样。goals 求不等式 f(x)≤0 的解集，用 find_range symbol x，条件放 facts：f(x)≤0。注意 find_range.symbol 是 x，条件本身就是原不等式。题问“不等式 f(x)≤0 的解集”，目标 find_range symbol x，facts 写 f(x)≤0。函数定义在 definitions，偶函数在 facts。\n\npublic_content.statement: 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____。\noriginal_text 包含题号“2.”，可保留？题号属于来源，public_content 不写题号。original_text 保留原题原文包括题号。根 label 可省略或写\"2.\"？root.label 若存在需要 role。题号“2.”是来源题号，original_text保留，public_content不写，privacy separated。root.label 可省略，避免麻烦。但 response schema root.label 可选。省略。\n\nfigure_detection none。\n\nuncertainties 无。\n\nchoices: 无选项，status none selection_mode none options []。\n\n注意 original_text 公式用 $…$，内部 LaTeX。题干中“R”可写 $\\mathbb{R}$。手写答案“[-3,3]”不转录。题干下划线保留“____”。\n\nroot facts: parity(f,even) 和 f(x)≤0。definitions: f(x)=piecewise(x^2-3*x,x>=0)。要不要把“当x≥0时”写成 x>=0。可以。\n\noriginal_text 中“R”原图是 R，可写 $\\mathbb{R}$。注意 JSON 转义反斜杠：$\\mathbb{R}$ 需要 \\\\mathbb。所有 $…$ 内反斜杠双写。\n\npublic_content.statement 同样。\n\ngoals find_range symbol x。该目标不需要 function 字段。条件 f(x)≤0 放 facts。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 6728
+  },
+  "raw_payload": {
+    "id": "8a60d7c6-9c99-4339-9ef2-d634755744bf",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"root\":{\"definitions\":[\"f(x)=piecewise(x^2-3*x,x>=0)\"],\"facts\":[\"parity(f,even)\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题目：已知 \\(y=f(x)\\) 是 \\(\\mathbb{R}\\) 上的偶函数，且当 \\(x\\ge 0\\) 时，\\(f(x)=x^2-3x\\)，则不等式 \\(f(x)\\le 0\\) 的解集为____。\n\n需要输出 original_text、root、public_content。无图。\n\nroot: definitions 中 f(x)=piecewise(x^2-3*x, x>=0) 但题面说当 x≥0 时 f(x)=x^2-3x，并且偶函数。应写 definitions: f(x)=piecewise(x^2-3*x,x>=0)，facts: parity(f,even)；但 f 的完整定义由偶函数延拓，不补造负半轴表达式。也可写 facts: ∀x∈ℝ: f(-x)=f(x) 或 parity(f,even)。由于题面已给当 x≥0 时公式，完整定义需用偶函数得到。提取时保留：definitions [\"f(x)=piecewise(x^2-3*x,x>=0)\"]？piecewise 条件只给 x>=0，剩余未定义但由偶函数给出。可以这样。goals 求不等式 f(x)≤0 的解集，用 find_range symbol x，条件放 facts：f(x)≤0。注意 find_range.symbol 是 x，条件本身就是原不等式。题问“不等式 f(x)≤0 的解集”，目标 find_range symbol x，facts 写 f(x)≤0。函数定义在 definitions，偶函数在 facts。\n\npublic_content.statement: 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____。\noriginal_text 包含题号“2.”，可保留？题号属于来源，public_content 不写题号。original_text 保留原题原文包括题号。根 label 可省略或写\"2.\"？root.label 若存在需要 role。题号“2.”是来源题号，original_text保留，public_content不写，privacy separated。root.label 可省略，避免麻烦。但 response schema root.label 可选。省略。\n\nfigure_detection none。\n\nuncertainties 无。\n\nchoices: 无选项，status none selection_mode none options []。\n\n注意 original_text 公式用 $…$，内部 LaTeX。题干中“R”可写 $\\mathbb{R}$。手写答案“[-3,3]”不转录。题干下划线保留“____”。\n\nroot facts: parity(f,even) 和 f(x)≤0。definitions: f(x)=piecewise(x^2-3*x,x>=0)。要不要把“当x≥0时”写成 x>=0。可以。\n\noriginal_text 中“R”原图是 R，可写 $\\mathbb{R}$。注意 JSON 转义反斜杠：$\\mathbb{R}$ 需要 \\\\mathbb。所有 $…$ 内反斜杠双写。\n\npublic_content.statement 同样。\n\ngoals find_range symbol x。该目标不需要 function 字段。条件 f(x)≤0 放 facts。"
+        }
+      }
+    ],
+    "created": 1794415021,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 959,
+      "prompt_tokens": 25721,
+      "total_tokens": 26680,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 699,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 249
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 6.73
+}

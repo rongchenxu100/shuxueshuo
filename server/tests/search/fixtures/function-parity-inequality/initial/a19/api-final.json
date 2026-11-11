@@ -1,0 +1,746 @@
+{
+  "search_id": "f82877dda27c",
+  "user_id": "60e2212a-3f30-4890-bd88-4f6263526a21",
+  "problem_id": "b47a2fec-bfce-434e-9667-fb6979d01a1a",
+  "statement": "已知 $f(x)$ 是奇函数，且在 $(0,+∞)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为______",
+  "recognition_status": "reviewed",
+  "lesson_status": "ready",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "3f0b4d66dcfb75801698a2c5f230bd624fdbaa580e354f96dfce93b20f2aa5a2",
+      "width": 1032,
+      "height": 95,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/f82877dda27c/figures/original?version=141ff0e76f5ddf9a4c05a4947d28e98b95210ee78345a9be3ee09ee8cdb9c038"
+      }
+    ],
+    "content_id": "141ff0e76f5ddf9a4c05a4947d28e98b95210ee78345a9be3ee09ee8cdb9c038"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "a9b46738aa81",
+    "box": [
+      0.0921875,
+      0.5293083235638921,
+      0.8984375,
+      0.5849941383352872
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      1032,
+      95
+    ],
+    "bytes": 8994
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "19. 已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为______",
+  "parts": [],
+  "root": {
+    "facts": [
+      "parity(f,odd)",
+      "f(2)=0",
+      "f(x-1)/x < 0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "(0,+∞)",
+          "direction": "increasing",
+          "strict": true,
+          "basis": "given"
+        }
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "b8725f134fa96e7b66b38b451c5e24ff5389c13b6611efd0e531f855e09b3090",
+    "sent_image_sha256": [
+      "b8725f134fa96e7b66b38b451c5e24ff5389c13b6611efd0e531f855e09b3090"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 48.44,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-parity-inequality",
+        "supported": [
+          "type-parity-inequality"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 8,
+                  "end": 12,
+                  "text": "$f(x)$"
+                },
+                {
+                  "start": 15,
+                  "end": 18,
+                  "text": "奇函数"
+                },
+                {
+                  "start": 23,
+                  "end": 34,
+                  "text": "$(0,+\\infty)$"
+                },
+                {
+                  "start": 38,
+                  "end": 41,
+                  "text": "增函数"
+                },
+                {
+                  "start": 45,
+                  "end": 51,
+                  "text": "$f(2)=0$"
+                },
+                {
+                  "start": 56,
+                  "end": 74,
+                  "text": "$\\frac{f(x-1)}{x}<0$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1",
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3",
+                "/root/goals/0:d1:4",
+                "/root/goals/0:d1:5",
+                "/root/goals/0:d1:6"
+              ],
+              "knowledge_refs": [
+                "function-parity#definition"
+              ],
+              "source_refs": [
+                "/root/goals/0",
+                "/root/facts/0",
+                "/root/facts/1",
+                "/root/facts/2"
+              ],
+              "options": [
+                {
+                  "text": "求 $f(x)$ 的零点",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "零点由题给条件和奇偶性得到，它是解不等式的依据，不是所求。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "求不等式 $\\frac{f(x-1)}{x}<0$ 的解集",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                },
+                {
+                  "text": "判断 $f(x)$ 的单调性",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "单调性由题给条件得到，不是所求。",
+                  "id": "/root/goals/0:goal:o2"
+                }
+              ],
+              "signature": "4d8345c463e967cc"
+            }
+          ],
+          "givens": [],
+          "interaction": "choice",
+          "question": "这一问的已知条件和目标是什么？",
+          "feedback": "所求的是满足 $\\frac{f(x-1)}{x}<0$ 的全部 $x$。",
+          "summary": "$f(x)$ 是奇函数；$f$ 在 $\\left(0, \\infty\\right)$ 上严格递增，$f(2)=0$。求不等式 $\\frac{f(x-1)}{x}<0$ 的解集。"
+        },
+        "d2": [
+          {
+            "type_id": "type-parity-inequality",
+            "label": "利用奇偶性解不等式",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "题目给出奇偶性，以及某一侧的解析式、单调性或零点。"
+            ],
+            "choice_hint": "已知奇偶性和一侧的公式、单调性或零点，所求是不等式的解集"
+          }
+        ],
+        "knowledge": [],
+        "links": [],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "f82877dda27c//root/goals/0",
+            "graphVersion": "5601333b732afbcfb283a1044f6fb328abbb67db6f50da4ef263bdab3fff8d06",
+            "problem": {
+              "text": "已知 $f(x)$ 是奇函数，且在 $(0,+∞)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为______"
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "这一问的已知条件和目标是什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "求 $f(x)$ 的零点",
+                      "feedback": "零点由题给条件和奇偶性得到，它是解不等式的依据，不是所求。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "求不等式 $\\frac{f(x-1)}{x}<0$ 的解集"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o2",
+                      "label": "判断 $f(x)$ 的单调性",
+                      "feedback": "单调性由题给条件得到，不是所求。"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "所求的是满足 $\\frac{f(x-1)}{x}<0$ 的全部 $x$。"
+                },
+                "candidateNodes": [
+                  "function-parity",
+                  "type-parity-inequality",
+                  "type-function-parity",
+                  "type-parity-formula",
+                  "type-parity-parameter"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-parity"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "$f(x)$ 是奇函数；$f$ 在 $\\left(0, \\infty\\right)$ 上严格递增，$f(2)=0$。求不等式 $\\frac{f(x-1)}{x}<0$ 的解集。"
+                  ],
+                  "log": "图谱查询：从 1 个知识线索反查，找到 4 个相关题型；最高覆盖 1/1。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-parity-inequality",
+                      "label": "利用奇偶性解不等式",
+                      "note": "已知奇偶性和一侧的公式、单调性或零点，所求是不等式的解集"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-parity-inequality"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-parity-inequality"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-parity-inequality"
+                  ],
+                  "edges": [
+                    "type-parity-inequality|involves|function-parity"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：题目给出奇偶性，以及某一侧的解析式、单调性或零点。"
+                  ],
+                  "log": "作答判断：选择主要题型「利用奇偶性解不等式」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-parity",
+                  "kind": "knowledge",
+                  "label": "函数的奇偶性",
+                  "summary": "先检查定义域是否关于原点对称，再比较相反输入的函数值；认识常见函数及运算、复合后的奇偶性。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-inequality",
+                  "kind": "problem_type",
+                  "label": "利用奇偶性解不等式",
+                  "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-parity",
+                  "kind": "problem_type",
+                  "label": "判断函数的奇偶性",
+                  "summary": "给出具体函数，判断它是奇函数、偶函数、既奇又偶还是非奇非偶。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-formula",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求解析式",
+                  "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parity-parameter",
+                  "kind": "problem_type",
+                  "label": "根据奇偶性求参",
+                  "summary": "已知函数的奇偶性，求使定义域与函数值关系同时满足要求的参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "method-parity-inequality",
+                  "kind": "method",
+                  "label": "奇偶性解不等式法",
+                  "summary": "已知一侧解析式时，先在该侧解再用奇偶性对称；能化成同一函数两值比较时，用奇偶性改写、确定单调方向后比较输入；只知道单调性和零点时，列出函数值的符号，再结合分母判断。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "prepare",
+                      "title": "读清已知与所求",
+                      "calls": []
+                    },
+                    {
+                      "id": "given-side",
+                      "title": "半轴路线：先在已知范围内解",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "mirror",
+                      "title": "半轴路线：用奇偶性得到另一侧的解",
+                      "calls": [
+                        "skill-function-symmetry-transform"
+                      ]
+                    },
+                    {
+                      "id": "rewrite",
+                      "title": "比较路线：改写成同一函数两值比较",
+                      "calls": [
+                        "skill-function-symmetry-transform"
+                      ]
+                    },
+                    {
+                      "id": "direction",
+                      "title": "比较路线：确定整个定义域上的单调方向",
+                      "calls": [
+                        "skill-parity-monotonicity-transfer"
+                      ]
+                    },
+                    {
+                      "id": "compare",
+                      "title": "比较路线：去掉函数符号比较输入",
+                      "calls": [
+                        "skill-monotonicity-order"
+                      ]
+                    },
+                    {
+                      "id": "sign-known",
+                      "title": "符号路线：确定已知区间上函数值的符号",
+                      "calls": [
+                        "skill-monotonicity-order"
+                      ]
+                    },
+                    {
+                      "id": "sign-mirror",
+                      "title": "符号路线：用奇偶性得到另一侧的符号",
+                      "calls": [
+                        "skill-function-symmetry-transform"
+                      ]
+                    },
+                    {
+                      "id": "sign-solve",
+                      "title": "符号路线：结合分母列出符号条件",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "conclude",
+                      "title": "合并或求交得解集",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-function-parity|involves|function-parity",
+                  "from": "type-function-parity",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-formula|involves|function-parity",
+                  "from": "type-parity-formula",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-inequality|candidate|method-parity-inequality",
+                  "from": "type-parity-inequality",
+                  "to": "method-parity-inequality",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-inequality|involves|function-parity",
+                  "from": "type-parity-inequality",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parity-parameter|involves|function-parity",
+                  "from": "type-parity-parameter",
+                  "to": "function-parity",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-parity"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "788c18172a3786bfd5ba0f3091ed0e75e7fb12bde403ecfed3141cff998bd8c9"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "f82877dda27c//root/goals/0",
+            "bundleVersion": "788c18172a3786bfd5ba0f3091ed0e75e7fb12bde403ecfed3141cff998bd8c9",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "$f(x)$ 是奇函数；$f$ 在 $\\left(0, \\infty\\right)$ 上严格递增，$f(2)=0$。求不等式 $\\frac{f(x-1)}{x}<0$ 的解集。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-parity-inequality",
+                "reason": "选「利用奇偶性解不等式」：题目给出奇偶性，以及某一侧的解析式、单调性或零点。"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "stream_id": "11db50de2c044134b6aa37a90cd0723e",
+      "snapshot_url": "/api/search/problems/f82877dda27c/lesson/11db50de2c044134b6aa37a90cd0723e/snapshot",
+      "events_url": "/api/search/problems/f82877dda27c/lesson/11db50de2c044134b6aa37a90cd0723e/events",
+      "websocket_url": "/api/search/problems/f82877dda27c/lesson/11db50de2c044134b6aa37a90cd0723e/ws"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h03",
+  "reviewer": "T4 R4 独立留出题，独立编写，不来自两张规划原图，也不是对原题改系数。金标手算：f(1-a)<f(2a-1)，递减得 1-a>2a-1 即 a<2/3；-1<1-a<1、-1<1-2a<1 得 0<a<1；求交 (0,2/3)。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/holdout-source.md",
+      "sha256": "64216315eb62355d52e9eb67ca53de1bf60a41b1d8bb0906c24e7da8b78ac373",
+      "location": "留出题源表 H03"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知奇函数 $f(x)$ 是定义在 $(-1,1)$ 上的减函数，且 $f(1-a)+f(1-2a)<0$，则实数 $a$ 的取值范围是____．",
+    "root": {
+      "facts": [
+        "Dom(f)=(-1,1)",
+        "parity(f,odd)",
+        "f(1-a)+f(1-2*a)<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "a",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "(-1,1)",
+            "function_domain": "(-1,1)",
+            "direction": "decreasing",
+            "strict": true,
+            "basis": {
+              "kind": "stated",
+              "statement": ""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-inequality",
+    "solution": "(0,2/3)",
+    "expression": "Interval.open(0, 2/3)"
+  },
+  "usage": "holdout_isolated_compile_only"
+}

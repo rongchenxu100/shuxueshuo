@@ -560,6 +560,25 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
+            "parity_inequality_result",
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "$ref": "#/$defs/goalAnswer"
+            },
+            "feasible_set": {
+              "$ref": "#/$defs/mathValue"
+            },
+            "parity_inequality_result": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
             "symmetry_result",
             "answer"
           ],

@@ -1,0 +1,46 @@
+{
+  "original_text": "19. 已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为______",
+  "root": {
+    "facts": [
+      "parity(f,odd)",
+      "f(2)=0",
+      "f(x-1)/x < 0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x",
+        "function_monotonicity": {
+          "function": "f",
+          "domain": "(0,+∞)",
+          "direction": "increasing",
+          "strict": true,
+          "basis": "given"
+        }
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为______",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

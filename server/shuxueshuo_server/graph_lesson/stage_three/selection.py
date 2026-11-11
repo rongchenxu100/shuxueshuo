@@ -118,7 +118,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
         admission = contract.get('admission')
-        if admission not in ('parity_extension', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
+        if admission not in ('parity_extension', 'parity_inequality', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_domain_routes', 'function_equality',
                              'abstract_function_domain', 'function_evaluation', 'function_evaluation_routes', 'function_range', 'function_range_routes', 'function_formula', 'function_graph', 'piecewise_equation', 'piecewise_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from ..piecewise_equation import admitted as admitted_piecewise
@@ -134,6 +134,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
         from .parity_runtime import admitted as admitted_parity
         from .parity_parameter_runtime import admitted as admitted_parity_parameter
         from .parity_extension_runtime import admitted as admitted_parity_extension
+        from .parity_inequality_runtime import admitted as admitted_parity_inequality
         from .symmetry_runtime import admitted as admitted_symmetry
         from .evaluation_runtime import admitted as admitted_evaluation
         from .formula_runtime import admitted as admitted_formula
@@ -187,6 +188,7 @@ def evaluate_goal(candidate, target_ref, features, primary):
             'function_parity': admitted_parity,
             'parity_parameter': admitted_parity_parameter,
             'parity_extension': admitted_parity_extension,
+            'parity_inequality': admitted_parity_inequality,
             'function_symmetry': admitted_symmetry,
             'function_evaluation': admitted_evaluation,
             'function_range': admitted_range,
@@ -223,6 +225,9 @@ def evaluate_goal(candidate, target_ref, features, primary):
         elif admission == 'parity_extension':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': admission, 'label': '对称补全法'}]
+        elif admission == 'parity_inequality':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': admission, 'label': '奇偶性解不等式法'}]
         elif admission == 'function_domain':
             routes = [{'method': contract['method'], 'route_id': contract['route_id'],
                        'admission': 'function_domain', 'label': '列条件求交集法'}]
@@ -304,6 +309,23 @@ def evaluate_goal(candidate, target_ref, features, primary):
             '只知道一侧的解析式：把要研究的输入 $x$ 换成相反数 $-x$，让它落进已知范围，'
             '代入已知解析式，再用奇偶性换回 $f(x)$。'
             if chosen['admission'] == 'parity_extension' else
+            ('先由定义域关于原点对称求出参数，' if context['parity_inequality_goal'].get('parameter') else '')
+            + '用偶性把两个输入都换到非负一侧，确定这一侧的单调方向，再比较输入的绝对值，并要求每个输入都在定义域内。'
+            if chosen['admission'] == 'parity_inequality'
+            and context['parity_inequality_goal'].get('route') == 'order'
+            and context['parity_inequality_goal'].get('property') == 'even' else
+            ('先由定义域关于原点对称求出参数，' if context['parity_inequality_goal'].get('parameter') else '')
+            + '用奇性把不等式改写成同一个函数两个值的比较，确定整个定义域上的单调方向，'
+            '再比较输入，并要求每个输入都在定义域内。'
+            if chosen['admission'] == 'parity_inequality'
+            and context['parity_inequality_goal'].get('route') == 'order' else
+            '知道一侧的单调性和零点：先判断这一侧函数值的正负，再用奇偶性得到另一侧的正负，'
+            '结合分母或因式的正负列出条件，最后检查使函数输入为 $0$ 的点。'
+            if chosen['admission'] == 'parity_inequality'
+            and context['parity_inequality_goal'].get('route') == 'sign' else
+            '只知道一侧的解析式：先在已知范围内解不等式，再用奇偶性得到对称范围内的解；'
+            '$0$ 不在两侧范围内时单独检查，最后合并。'
+            if chosen['admission'] == 'parity_inequality' else
             '只求几个函数值或它们的组合：先用奇偶性把每个输入换成它的相反数，找出与已知条件的关系；'
             '能直接得到所求组合，就不用补出整个函数。'
             if chosen['admission'] == 'function_symmetry' else

@@ -149,6 +149,7 @@ def _goal(goal, features, text, candidate=None):
             or source_goal.get('kind') == 'determine_function_parity'
             or known.get('parity_parameter', {}).get('structure_supported')
             or known.get('parity_extension', {}).get('structure_supported')
+            or known.get('parity_inequality', {}).get('structure_supported')
             or known.get('symmetry_evaluation', {}).get('structure_supported')
             or known.get('monotonicity_inequality', {}).get('structure_supported')
             or known.get('monotonicity_parameter', {}).get('structure_supported')):
@@ -416,6 +417,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
     if known.get('parity_extension', {}).get('structure_supported'):
         return _parity_extension_d1_rows(target, fragments, known, text)
+    if known.get('parity_inequality', {}).get('structure_supported'):
+        return _parity_inequality_d1_rows(target, fragments, known, text)
     if known.get('symmetry_evaluation', {}).get('structure_supported'):
         return _symmetry_d1_rows(target, fragments, known, text)
     if known.get('parity_parameter', {}).get('structure_supported'):
@@ -600,6 +603,136 @@ def _parity_extension_d1_rows(target, fragments, known, text):
            'options': _shuffle(row_id, [_option(correct),
                                         _option(f'求 ${known_range}$ 时 ${name}({variable})$ 的解析式', 'goal', feedback),
                                         _option(f'判断 ${name}({variable})$ 是奇函数还是偶函数', 'goal',
+                                                '奇偶性是已知条件，不需要再判断。')]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _parity_inequality_d1_rows(target, fragments, known, text):
+    from ..graph_lesson.parity_extension_math import region
+    from ..graph_lesson.stage_one.function_domain import expression_latex
+    from ..graph_lesson.stage_three.math_values import latex
+    from ..graph_lesson.stage_three.parity_extension_presentation import _printed, range_latex
+    from ..graph_lesson.stage_three.parity_inequality_presentation import SYMBOL
+    from ..graph_lesson.parity_inequality_math import threshold
+    from ..graph_lesson.stage_three.parity_parameter_presentation import PROPERTY, _display_ast
+
+    if not any(row['fragment_kind'] == 'goal' for row in fragments):
+        return {'rows': [], 'summary': ''}
+    desc = known['parity_inequality']
+    if desc.get('route') == 'order':
+        return _parity_order_d1_rows(target, fragments, desc, text)
+    if desc.get('route') == 'sign':
+        return _parity_sign_d1_rows(target, fragments, desc, text)
+    ext = desc['extension']
+    name, variable = desc['function'], desc['variable']
+    known_range = range_latex(region(ext['rule_domain_ast']), variable)
+    formula = _printed(expression_latex(_display_ast(ext['rule_ast']), variable), variable)
+    if ext['domain_ast'] is None:
+        where = ''
+    else:
+        domain = region(ext['domain_ast'])
+        where = '定义在 $' + ('\\mathbb{R}' if domain == region(['real']) else latex(domain)) + '$ 上的'
+    inequality = f'{name}({variable}){SYMBOL[desc["operator"]]}{latex(threshold(desc))}'
+    summary = (f'${name}({variable})$ 是{where}{PROPERTY[desc["property"]]}；'
+               f'${known_range}$ 时 ${name}({variable})={formula}$。')
+    correct = f'求不等式 ${inequality}$ 的解集'
+    feedback = f'已知的只是 ${known_range}$ 时的解析式；所求的是整个定义域上满足 ${inequality}$ 的全部 ${variable}$。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct),
+                                        _option(f'只求 ${known_range}$ 时 ${inequality}$ 的解', 'goal', feedback),
+                                        _option(f'判断 ${name}({variable})$ 是奇函数还是偶函数', 'goal',
+                                                '奇偶性是已知条件，不需要再判断。')]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _parity_sign_d1_rows(target, fragments, desc, text):
+    import sympy as sp
+
+    from ..graph_lesson.parity_order_math import _read_region, interval_of, read_input
+    from ..graph_lesson.stage_three.math_values import latex
+    from ..graph_lesson.stage_three.parity_inequality_presentation import DIRECTION, _domain_text, sign_inequality_latex
+    from ..graph_lesson.stage_three.parity_parameter_presentation import PROPERTY
+
+    name, variable = desc['function'], desc['variable']
+    shown = f'{name}(x)' if variable != 'x' else f'{name}({variable})'
+    inequality = sign_inequality_latex(desc)
+    source = desc['direction_source']
+    zeros = '，'.join(f'${name}({latex(read_input(z, sp.Symbol(variable, real=True)))})=0$' for z in desc['zero_asts'])
+    where = ('定义在 $' + _domain_text(_read_region(desc['domain_ast']), variable) + '$ 上的'
+             if desc['domain_ast'] is not None else '')
+    summary = (f'${shown}$ 是{where}{PROPERTY[desc["property"]]}；${name}$ 在 ${latex(interval_of(source))}$ 上'
+               f'{DIRECTION[source["direction"]]}，{zeros}。')
+    correct = f'求不等式 ${inequality}$ 的解集'
+    feedback = f'所求的是满足 ${inequality}$ 的全部 ${variable}$。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct),
+                                        _option(f'判断 ${shown}$ 的单调性', 'goal', '单调性由题给条件得到，不是所求。'),
+                                        _option(f'求 ${shown}$ 的零点', 'goal',
+                                                '零点由题给条件和奇偶性得到，它是解不等式的依据，不是所求。')]),
+           'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
+    return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',
+            'feedback': feedback, 'summary': summary + correct + '。'}
+
+
+def _parity_order_d1_rows(target, fragments, desc, text):
+    from ..graph_lesson.parity_extension_math import region
+    from ..graph_lesson.parity_order_math import certificate
+    from ..graph_lesson.stage_one.function_domain import expression_latex
+    from ..graph_lesson.stage_three.math_values import latex
+    from ..graph_lesson.stage_three.parity_extension_presentation import _printed, range_latex
+    from ..graph_lesson.stage_three.parity_inequality_presentation import (
+        DIRECTION, _domain_text, _side_latex, _statement_latex, SYMBOL)
+    from ..graph_lesson.stage_three.parity_parameter_presentation import PROPERTY, _display_ast
+
+    name, variable = desc['function'], desc['variable']
+    shown = f'{name}(x)' if variable != 'x' else f'{name}({variable})'
+    rel = desc['relation_ast']
+    inequality = _side_latex(rel[1], name, variable) + SYMBOL[rel[0]] + _side_latex(rel[2], name, variable)
+    source = desc['direction_source']
+    parameter = desc.get('parameter')
+    if parameter:
+        from ..graph_lesson.stage_three.symmetry_presentation import _source_latex
+        domain, interval = _source_latex(desc['domain_ast'], variable), _source_latex(source['interval_ast'], variable)
+    else:
+        cert = certificate(desc)
+        domain, interval = _domain_text(cert['domain'], variable), latex(cert['interval']) if 'interval' in cert else None
+    if source['kind'] == 'rule':
+        ext = source['extension']
+        known_range = range_latex(region(ext['rule_domain_ast']), variable)
+        formula = _printed(expression_latex(_display_ast(ext['rule_ast']), variable), variable)
+        given = f'${known_range}$ 时 ${name}({variable})={formula}$'
+        wrong = _option(f'只求 ${known_range}$ 时 ${inequality}$ 的解', 'goal',
+                        f'已知的只是 ${known_range}$ 时的解析式；所求的是整个定义域上满足不等式的全部 ${variable}$。')
+    else:
+        statement = source['basis'].get('statement')
+        given = (f'${_statement_latex(statement)}$' if statement else
+                 f'${name}$ 在 ${interval}$ 上{DIRECTION[source["direction"]]}')
+        wrong = _option(f'判断 ${shown}$ 的单调性', 'goal', '单调性由题给条件得到，不是所求。')
+    if parameter:
+        wrong = _option(f'只求参数 ${parameter["name"]}$ 的值', 'goal',
+                        f'${parameter["name"]}$ 要先由定义域关于原点对称求出，但所求是满足不等式的 ${variable}$ 的范围。')
+    summary = f'${shown}$ 是定义在 ${domain}$ 上的{PROPERTY[desc["property"]]}；{given}。'
+    correct = f'求满足 ${inequality}$ 的 ${variable}$ 的取值范围'
+    feedback = f'所求的是定义域内满足 ${inequality}$ 的全部 ${variable}$。'
+    row_id = f'{target}:goal'
+    spans = [_spans([row], text) for row in fragments]
+    row = {'id': row_id, 'kind': 'goal', 'quote': spans,
+           'fragment_ids': [row['id'] for row in fragments],
+           'knowledge_refs': ['function-parity#definition'], 'source_refs': desc['source_refs'],
+           'options': _shuffle(row_id, [_option(correct), wrong,
+                                        _option(f'判断 ${shown}$ 是奇函数还是偶函数', 'goal',
                                                 '奇偶性是已知条件，不需要再判断。')]),
            'signature': sha256(json.dumps([spans, desc], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]}
     return {'rows': [row], 'givens': [], 'interaction': 'choice', 'question': '这一问的已知条件和目标是什么？',

@@ -1,0 +1,1018 @@
+{
+  "run_id": "f71fb2febcd44a179084484b2d76fe43",
+  "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+  "input_sha256": "bec5157025909ab390be546866b4f0226d2e3f91ae06f607495c673798ac8e4e",
+  "stream_id": "f71fb2febcd44a179084484b2d76fe43",
+  "last_seq": 22,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_rewrite",
+      "explanation": "$$\\begin{gathered}\\left(-2b\\right)+\\left(b+1\\right)=0\\\\b=1\\\\\\text{定义域为 }\\left[-2, 2\\right]\\\\\\text{单调区间为 }\\left[-2, 0\\right]\\end{gathered}$$",
+      "highlight": {
+        "caption": "先确定定义域中的参数",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
+          },
+          {
+            "label": "参数",
+            "math": "b=1"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "local_check": "passed",
+      "math_step_sha256": "490441cac110988e5c36a0322650c04223e74e3caad7c05178b8bafe901ed755",
+      "method_ref": "method-parity-inequality#rewrite",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "source_refs": [
+        "/steps/3/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite",
+      "target_ref": "/root/goals/0",
+      "title": "先确定定义域中的参数",
+      "used_basis": [
+        "function-parity#definition"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_direction",
+      "explanation": "$$\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数在对称两侧单调方向相反}\\Rightarrow f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}\\end{gathered}$$",
+      "highlight": {
+        "caption": "确定非负一侧的单调方向",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+          },
+          {
+            "label": "单调性",
+            "math": "f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "local_check": "passed",
+      "math_step_sha256": "d1f278fedaf06d08209b02c99d2db53859736c9521fc48ab23f4c0fd5fb0c184",
+      "method_ref": "method-parity-inequality#direction",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "source_refs": [
+        "/steps/4/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction",
+      "target_ref": "/root/goals/0",
+      "title": "确定非负一侧的单调方向",
+      "used_basis": [
+        "function-parity#definition",
+        "function-parity-graph#monotonicity"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_compare",
+      "explanation": "$$\\begin{gathered}f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}\\text{，不等号方向改变}\\\\f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)\\Leftrightarrow \\left|x - 1\\right|\\ge \\left|2 x\\right|\\end{gathered}$$",
+      "highlight": {
+        "caption": "去掉函数符号比较输入",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}\\\\f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)\\end{gathered}"
+          },
+          {
+            "label": "输入之间的关系",
+            "math": "\\left|x - 1\\right|\\ge \\left|2 x\\right|"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "local_check": "passed",
+      "math_step_sha256": "aa6328a6f747e96fb479a87cbe3f9f09e34e2c4906063cb215938f1a6cdf3905",
+      "method_ref": "method-parity-inequality#compare",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "source_refs": [
+        "/steps/5/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare",
+      "target_ref": "/root/goals/0",
+      "title": "去掉函数符号比较输入",
+      "used_basis": [
+        "function-concept#elements",
+        "function-monotonicity#definition",
+        "function-monotonicity#interval",
+        "set-intersection-union#intersection"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_conclude",
+      "explanation": "$$\\begin{gathered}x-1\\in \\left[-2, 2\\right]\\\\2\\cdot x\\in \\left[-2, 2\\right]\\\\\\Rightarrow -1\\le x\\le 1\\\\\\left|x - 1\\right|\\ge \\left|2 x\\right|\\Leftrightarrow \\left(x - 1\\right)^2\\ge \\left(2 x\\right)^2\\\\\\Leftrightarrow - 3 x^{2} - 2 x + 1\\ge 0\\Rightarrow -1\\le x\\le \\frac{1}{3}\\\\\\text{求交得 }-1\\le x\\le \\frac{1}{3}\\end{gathered}$$",
+      "highlight": {
+        "caption": "合法输入求交，写出解集",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "要同时满足",
+            "math": "\\begin{gathered}x-1\\in \\left[-2, 2\\right]\\\\2\\cdot x\\in \\left[-2, 2\\right]\\\\\\left|x - 1\\right|\\ge \\left|2 x\\right|\\end{gathered}"
+          },
+          {
+            "label": "解集",
+            "math": "-1\\le x\\le \\frac{1}{3}"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "local_check": "passed",
+      "math_step_sha256": "7af88c37e2c66d3039daa06d43e14d750364824e7cd08a9e5da40385121b9b98",
+      "method_ref": "method-parity-inequality#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "source_refs": [
+        "/steps/9/calls/0",
+        "/steps/9/skipped_calls/0",
+        "/steps/9/skipped_calls/1",
+        "/steps/9/merges/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "合法输入求交，写出解集",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval(-1, 1/3)",
+          "latex": "\\left[-1, \\frac{1}{3}\\right]"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Integer",
+              "value": "-1"
+            },
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "3"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanFalse"
+            }
+          ]
+        },
+        "expression": "Interval(-1, 1/3)",
+        "latex": "\\left[-1, \\frac{1}{3}\\right]"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Interval(-1, 1/3)",
+          "latex": "\\left[-1, \\frac{1}{3}\\right]"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Interval",
+          "args": [
+            {
+              "$math": "Integer",
+              "value": "-1"
+            },
+            {
+              "$math": "Rational",
+              "p": "1",
+              "q": "3"
+            },
+            {
+              "$math": "BooleanFalse"
+            },
+            {
+              "$math": "BooleanFalse"
+            }
+          ]
+        },
+        "expression": "Interval(-1, 1/3)",
+        "latex": "\\left[-1, \\frac{1}{3}\\right]"
+      },
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "math_steps": [
+        {
+          "math_step_sha256": "490441cac110988e5c36a0322650c04223e74e3caad7c05178b8bafe901ed755",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
+        },
+        {
+          "math_step_sha256": "d1f278fedaf06d08209b02c99d2db53859736c9521fc48ab23f4c0fd5fb0c184",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
+        },
+        {
+          "math_step_sha256": "aa6328a6f747e96fb479a87cbe3f9f09e34e2c4906063cb215938f1a6cdf3905",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
+        },
+        {
+          "math_step_sha256": "7af88c37e2c66d3039daa06d43e14d750364824e7cd08a9e5da40385121b9b98",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "464d9baa74f6f61582e14432595d0047d5f25849d99a02b6334777c0d0dd7a1b",
+      "verified_route_sha256": "44f69ec07cd87e29c2723167f49606ceb2dfaf05685b403848cada1a256c7f36"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-parity-inequality",
+          "op": "methods"
+        },
+        "question": "先由定义域关于原点对称求出参数，用偶性把两个输入都换到非负一侧，确定这一侧的单调方向，再比较输入的绝对值，并要求每个输入都在定义域内。",
+        "submit_label": "用奇偶性解不等式法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-parity-inequality",
+            "recommendation": "preferred",
+            "route_id": "parity-inequality",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite",
+      "ordinal": 1,
+      "math_step_sha256": "490441cac110988e5c36a0322650c04223e74e3caad7c05178b8bafe901ed755",
+      "status": "interactive",
+      "interaction_id": "341f742ce31bdd26497cc733"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction",
+      "ordinal": 2,
+      "math_step_sha256": "d1f278fedaf06d08209b02c99d2db53859736c9521fc48ab23f4c0fd5fb0c184",
+      "status": "interactive",
+      "interaction_id": "2898c67cfd5bb8f79efa19be"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare",
+      "ordinal": 3,
+      "math_step_sha256": "aa6328a6f747e96fb479a87cbe3f9f09e34e2c4906063cb215938f1a6cdf3905",
+      "status": "interactive",
+      "interaction_id": "a64125728331df70c0d4850a"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
+      "ordinal": 4,
+      "math_step_sha256": "7af88c37e2c66d3039daa06d43e14d750364824e7cd08a9e5da40385121b9b98",
+      "status": "interactive",
+      "interaction_id": "1b7a18a522bdce79c77e8755"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:parity-inequality:complete",
+      "last_seq": 22
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-parity-inequality",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                },
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-parity-inequality",
+          "step": "given-side",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-parity-inequality",
+          "step": "mirror",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-parity-inequality",
+          "step": "rewrite",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [
+                "function-parity#definition"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 5,
+          "method": "method-parity-inequality",
+          "step": "direction",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-parity-monotonicity-transfer",
+              "used_basis": [
+                "function-parity#definition",
+                "function-parity-graph#monotonicity"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 6,
+          "method": "method-parity-inequality",
+          "step": "compare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-order",
+              "used_basis": [
+                "function-concept#elements",
+                "function-monotonicity#definition",
+                "function-monotonicity#interval",
+                "set-intersection-union#intersection"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 7,
+          "method": "method-parity-inequality",
+          "step": "sign-known",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 8,
+          "method": "method-parity-inequality",
+          "step": "sign-mirror",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 9,
+          "method": "method-parity-inequality",
+          "step": "sign-solve",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 10,
+          "method": "method-parity-inequality",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "341f742ce31bdd26497cc733",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "a89fd03340032813f78b5bf9d419df433ce1c3a70d39b2e1e1c7730e7005cace",
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "先确定定义域中的参数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
+              },
+              {
+                "label": "参数",
+                "math": "b=1"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "341f742ce31bdd26497cc733#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$b\\text{ 的值不能唯一确定}$",
+                "value": "o3"
+              },
+              {
+                "label": "$b=1$",
+                "value": "o1"
+              },
+              {
+                "label": "$b=-1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "$f$ 是偶函数，它的定义域 $[-2b,b+1]$ 必须关于原点对称。由此先确定定义域中的参数，$b$ 的值是多少？",
+          "stem_board": {
+            "caption": "先确定定义域中的参数",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}\\text{偶函数}\\\\\\text{定义域 }[-2b,b+1]\\end{gathered}"
+              },
+              {
+                "label": "参数",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "先确定定义域中的参数"
+        },
+        {
+          "completion_board": {
+            "caption": "把两个输入换到非负一侧",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+              },
+              {
+                "label": "等价的比较",
+                "math": "f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "341f742ce31bdd26497cc733#2",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f(\\left|x - 1\\right|)\\ge f(\\left|2 x\\right|)$",
+                "value": "o2"
+              },
+              {
+                "label": "$f(\\left|x - 1\\right|)\\le -f(\\left|2 x\\right|)$",
+                "value": "o3"
+              },
+              {
+                "label": "$f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给 $f$ 是偶函数。把两个输入都换到非负一侧，不等式 $f(x-1)\\le f(2x)$ 等价于下面哪一个？",
+          "stem_board": {
+            "caption": "把两个输入换到非负一侧",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}\\text{偶函数}\\\\f(x-1)\\le f(2x)\\end{gathered}"
+              },
+              {
+                "label": "等价的比较",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "把两个输入换到非负一侧"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "490441cac110988e5c36a0322650c04223e74e3caad7c05178b8bafe901ed755",
+          "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_rewrite"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "2898c67cfd5bb8f79efa19be",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "31618798c19c878462280d4886a7eca34305f6b26a10a33b607e10e95018acd2",
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "确定非负一侧的单调方向",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "单调性",
+                "math": "f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "2898c67cfd5bb8f79efa19be#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}$",
+                "value": "o1"
+              },
+              {
+                "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上不单调}$",
+                "value": "o3"
+              },
+              {
+                "label": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递增}$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给 $f$ 是偶函数，定义域为 $\\left[-2, 2\\right]$，且 $f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}$。$f$ 在非负一侧 $\\left[0, 2\\right]$ 上的单调性是什么？",
+          "stem_board": {
+            "caption": "确定非负一侧的单调方向",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[-2, 0\\right]\\text{ 上严格递增}\\\\\\text{偶函数，定义域 }\\left[-2, 2\\right]\\end{gathered}"
+              },
+              {
+                "label": "单调性",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "确定非负一侧的单调方向"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "d1f278fedaf06d08209b02c99d2db53859736c9521fc48ab23f4c0fd5fb0c184",
+          "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_direction"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "a64125728331df70c0d4850a",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "6b1f5aee874121d9ef65001dbe1b664d0a060498cfdd8fde8bba3fbb68b22f54",
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "去掉函数符号比较输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}\\\\f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)\\end{gathered}"
+              },
+              {
+                "label": "输入之间的关系",
+                "math": "\\left|x - 1\\right|\\ge \\left|2 x\\right|"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a64125728331df70c0d4850a#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\left|x - 1\\right|\\le \\left|2 x\\right|$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\left|x - 1\\right|\\ge \\left|2 x\\right|$",
+                "value": "o1"
+              },
+              {
+                "label": "$x - 1\\ge 2 x$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "$f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}$，两个输入都在定义域内时 $\\left|x - 1\\right|$、$\\left|2 x\\right|$ 都在 $\\left[0, 2\\right]$ 内，$f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)$ 等价于下面哪一个输入之间的关系？",
+          "stem_board": {
+            "caption": "去掉函数符号比较输入",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left[0, 2\\right]\\text{ 上严格递减}\\\\f(\\left|x - 1\\right|)\\le f(\\left|2 x\\right|)\\end{gathered}"
+              },
+              {
+                "label": "输入之间的关系",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "去掉函数符号比较输入"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "aa6328a6f747e96fb479a87cbe3f9f09e34e2c4906063cb215938f1a6cdf3905",
+          "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_compare"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "1b7a18a522bdce79c77e8755",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "b1af79cbc4bf58e8545be4a1df36e07d2b19eb916a14a48ab16d5bd978ba9b59",
+      "lesson_version": "6ba1bdc6944ef3bb691e8e0ccfc913ba5ae25ae80c7bd33a262c0acbc5f3456f",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "合法输入求交，写出解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "要同时满足",
+                "math": "\\begin{gathered}x-1\\in \\left[-2, 2\\right]\\\\2\\cdot x\\in \\left[-2, 2\\right]\\\\\\left|x - 1\\right|\\ge \\left|2 x\\right|\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": "-1\\le x\\le \\frac{1}{3}"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "completion_number_line": {
+            "bounds": [
+              -2.0,
+              1.3333333333333333
+            ],
+            "exact_set": {
+              "exact": {
+                "$math": "Interval",
+                "args": [
+                  {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  {
+                    "$math": "Rational",
+                    "p": "1",
+                    "q": "3"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  },
+                  {
+                    "$math": "BooleanFalse"
+                  }
+                ]
+              },
+              "expression": "Interval(-1, 1/3)",
+              "latex": "\\left[-1, \\frac{1}{3}\\right]"
+            },
+            "intervals": [
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-1"
+                      },
+                      {
+                        "$math": "Rational",
+                        "p": "1",
+                        "q": "3"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      },
+                      {
+                        "$math": "BooleanFalse"
+                      }
+                    ]
+                  },
+                  "expression": "Interval(-1, 1/3)",
+                  "latex": "\\left[-1, \\frac{1}{3}\\right]"
+                },
+                "left": -1.0,
+                "left_closed": true,
+                "right": 0.3333333333333333,
+                "right_closed": true
+              }
+            ],
+            "label": "\\text{解集}",
+            "points": [],
+            "ticks": [
+              {
+                "at": -1.0,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "-1"
+                  },
+                  "expression": "-1",
+                  "latex": "-1"
+                },
+                "label": "-1"
+              },
+              {
+                "at": 0.0,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "0"
+                  },
+                  "expression": "0",
+                  "latex": "0"
+                },
+                "label": "0"
+              },
+              {
+                "at": 0.3333333333333333,
+                "exact": {
+                  "exact": {
+                    "$math": "Rational",
+                    "p": "1",
+                    "q": "3"
+                  },
+                  "expression": "1/3",
+                  "latex": "\\frac{1}{3}"
+                },
+                "label": "1/3"
+              }
+            ],
+            "variable": "x"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "1b7a18a522bdce79c77e8755#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\frac{1}{3}<x\\le 1$",
+                "value": "o4"
+              },
+              {
+                "label": "$x\\in \\left\\{-1\\right\\} \\cup \\left[\\frac{1}{3}, 1\\right]$",
+                "value": "o3"
+              },
+              {
+                "label": "$-1\\le x\\le \\frac{1}{3}$",
+                "value": "o1"
+              },
+              {
+                "label": "$-1\\le x\\le 1$",
+                "value": "o2"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "每个输入都要在定义域 $\\left[-2, 2\\right]$ 内，再与 $\\left|x - 1\\right|\\ge \\left|2 x\\right|$ 的解求交。满足不等式 $f(x-1)\\le f(2x)$ 的 $x$ 的取值范围是什么？",
+          "stem_board": {
+            "caption": "合法输入求交，写出解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "要同时满足",
+                "math": "\\begin{gathered}x-1\\in \\left[-2, 2\\right]\\\\2\\cdot x\\in \\left[-2, 2\\right]\\\\\\left|x - 1\\right|\\ge \\left|2 x\\right|\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "合法输入求交，写出解集"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "f71fb2febcd44a179084484b2d76fe43",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "7af88c37e2c66d3039daa06d43e14d750364824e7cd08a9e5da40385121b9b98",
+          "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

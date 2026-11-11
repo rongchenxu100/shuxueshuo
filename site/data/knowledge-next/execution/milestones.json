@@ -71,6 +71,7 @@
       "method-parity-definition",
       "method-parity-parameter",
       "method-parity-extension",
+      "method-parity-inequality",
       "method-function-symmetry"
     ]
   }

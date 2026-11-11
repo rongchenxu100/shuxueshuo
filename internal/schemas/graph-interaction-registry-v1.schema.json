@@ -370,6 +370,7 @@
             "function_parity",
             "parity_parameter",
             "parity_extension",
+            "parity_inequality",
             "function_symmetry"
           ]
         },

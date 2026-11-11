@@ -820,6 +820,28 @@ for _name, _function in {'prepare_parity_extension': 'prepare',
     REGISTRY[_name] = _parity_extension_capability(_function)
 
 
+def _parity_inequality_capability(name):
+    def call(**inputs):
+        from .. import parity_inequality_runtime
+        return getattr(parity_inequality_runtime, name)(**inputs)
+    return call
+
+
+for _name, _function in {'prepare_parity_inequality': 'prepare',
+                         'solve_parity_inequality_given_side': 'solve_known',
+                         'mirror_parity_inequality_solution': 'mirror',
+                         'confirm_parity_inequality': 'confirm',
+                         'rewrite_parity_inequality': 'rewrite',
+                         'parity_inequality_direction': 'direction',
+                         'compare_parity_inequality_inputs': 'compare',
+                         'confirm_parity_inequality_order': 'confirm_order',
+                         'parity_inequality_known_signs': 'sign_known',
+                         'mirror_parity_inequality_signs': 'sign_mirror',
+                         'solve_parity_sign_inequality': 'sign_solve',
+                         'confirm_parity_inequality_sign': 'confirm_sign'}.items():
+    REGISTRY[_name] = _parity_inequality_capability(_function)
+
+
 def _symmetry_capability(name):
     def call(**inputs):
         from .. import symmetry_runtime

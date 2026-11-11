@@ -1,0 +1,12 @@
+{
+  "revision": "1ab37a653ee98188e061616dbee12970963a7e7ef0f2513bdb954f7b77ea3def",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/facts",
+      "kind": "missing_condition",
+      "source_excerpt": "已知y=f(x)是R上的偶函数",
+      "message": "原题明确给出函数定义域为 ℝ 且为偶函数；candidate 仅记录 parity(f,even)，遗漏定义域条件 Dom(f)=ℝ（或等价的全局定义域声明），应在 facts 中补入。"
+    }
+  ]
+}

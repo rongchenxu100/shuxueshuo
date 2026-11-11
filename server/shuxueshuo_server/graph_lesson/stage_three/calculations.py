@@ -118,6 +118,13 @@ def dispatch(payload):
     if operation == 'finish_parity_extension':
         from .parity_extension_runtime import finish
         return finish(payload['state'], payload['context'], payload['previous'])
+    if operation == 'verify_parity_inequality':
+        from .parity_inequality_runtime import verify_frozen
+        return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],
+                             payload['parity_inequality_result_exact'])
+    if operation == 'finish_parity_inequality':
+        from .parity_inequality_runtime import finish
+        return finish(payload['state'], payload['context'], payload['previous'])
     if operation == 'verify_function_symmetry':
         from .symmetry_runtime import verify_frozen
         return verify_frozen(payload['candidate'], payload['target_ref'], payload['context'],

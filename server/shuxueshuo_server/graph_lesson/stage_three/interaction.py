@@ -1712,6 +1712,9 @@ def _compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get('compiler') == 'parity_extension':
         from .parity_extension_presentation import compile_cards
         return compile_cards(seeds, interaction_id)
+    if rule.get('compiler') == 'parity_inequality':
+        from .parity_inequality_presentation import compile_cards
+        return compile_cards(seeds, interaction_id)
     if rule.get('compiler') == 'function_symmetry':
         from .symmetry_presentation import compile_cards
         return compile_cards(seeds, interaction_id)

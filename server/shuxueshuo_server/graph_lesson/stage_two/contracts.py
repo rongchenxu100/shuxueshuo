@@ -216,7 +216,7 @@ def validate_input(value, admission="acceptance"):
         # reviewed results do not contain irrelevant features introduced later;
         # any rows they do contain still receive all shape/source checks above.
         kind = expected[target]['goal']['kind']
-        required = registry - {'parity_extension', 'symmetry_evaluation', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
+        required = registry - {'parity_extension', 'parity_inequality', 'symmetry_evaluation', 'parity_parameter', 'function_parity', 'abstract_monotonicity', 'monotonicity_parameter', 'monotonicity_inequality', 'function_extremum', 'function_monotonicity', 'function_domain', 'function_comparison', 'abstract_function_domain', 'function_evaluation', 'function_range', 'abstract_function_range', 'translation_range',
                                'function_graph', 'piecewise_equation', 'piecewise_inequality'}
         if kind == 'determine_monotonicity_on_interval' or (
                 kind == 'prove_monotonicity_on_interval' and 'relation' in expected[target]['goal']):
@@ -230,6 +230,8 @@ def validate_input(value, admission="acceptance"):
                 required.add('parity_parameter')
             if context.get('symmetry_value_goal') is not None:
                 required.add('symmetry_evaluation')
+            if context.get('parity_inequality_goal') is not None:
+                required.add('parity_inequality')
         if kind == 'find_function_formula':
             from ..stage_three.context import build_context
             if build_context(candidate, target).get('parity_extension_goal') is not None:

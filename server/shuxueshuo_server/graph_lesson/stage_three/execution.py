@@ -465,6 +465,46 @@ def _finish_parity_extension(state, candidate, goal, store, calculator, previous
     return state
 
 
+def _finish_parity_inequality(state, candidate, goal, store, calculator, previous, hooks):
+    state.setdefault('parity_inequality_result_exact', deepcopy(state['result']['parity_inequality_result']))
+    finalization = state.setdefault('finalization', [])
+    if 'verification' not in state:
+        if hooks and hooks.get('before_verification'):
+            hooks['before_verification'](state, store)
+        state['verification'] = calculator.call('independent_parity_inequality_verification', {
+            'operation': 'verify_parity_inequality', 'candidate': candidate, 'target_ref': goal['target_ref'],
+            'context': goal['constraint_context'],
+            'parity_inequality_result_exact': state['parity_inequality_result_exact'],
+        }, bucket='verification')
+        finalization.append({'capability': 'independent_parity_inequality_verification', **state['verification']})
+        if state['verification']['status'] == 'verified' and state['verification'].get('processing'):
+            finalization.append({'capability': 'apply_visible_constraints', 'processing': state['verification']['processing']})
+        calculator.sync_state(state)
+        _commit(store, state, 'parity-inequality-verification', phase='verification', hooks=hooks)
+    if state['verification']['status'] != 'verified':
+        state['status'] = state['verification']['status']
+        state.setdefault('diagnostics', []).extend(state['verification'].get('diagnostics', []))
+        return state
+    if not state.get('goal_finalized'):
+        result = calculator.call('parity_inequality_goal_finalize', {
+            'operation': 'finish_parity_inequality', 'state': state,
+            'context': goal['constraint_context'], 'previous': list(previous),
+        }, bucket='verification')
+        state = _accept_state(state, result['state'])
+        state['verified_result'] = {
+            'parity_inequality_result': result['parity_inequality_result_exact'],
+            'answer': result['answer'],
+            'feasible_set': result['feasible_set'],
+        }
+        state['feasible_set_exact'] = result['feasible_set']['exact']
+        state['consistency'] = result['consistency']
+        state['goal_finalized'] = True
+        calculator.sync_state(state)
+        _commit(store, state, 'parity-inequality-goal-finalization', phase='finalization', hooks=hooks)
+    state['status'] = 'verified'
+    return state
+
+
 def _finish_function_symmetry(state, candidate, goal, store, calculator, previous, hooks):
     state.setdefault('symmetry_result_exact', deepcopy(state['result']['symmetry_result']))
     finalization = state.setdefault('finalization', [])
@@ -717,6 +757,8 @@ def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=
                 state = _finish_parity_parameter(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and 'parity_extension_result' in state.get('result', {}):
                 state = _finish_parity_extension(state, candidate, goal, store, calculator, previous, hooks)
+            if state['status'] == 'method_complete' and 'parity_inequality_result' in state.get('result', {}):
+                state = _finish_parity_inequality(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and 'symmetry_result' in state.get('result', {}):
                 state = _finish_function_symmetry(state, candidate, goal, store, calculator, previous, hooks)
             if state['status'] == 'method_complete' and 'parity_result' in state.get('result', {}):
@@ -818,7 +860,7 @@ def execute_route(candidate, goal, branch, folder, store, *, previous=(), hooks=
     if store.checkpoint(ref, route_id)["status"] not in TERMINAL:
         route = _artifact(state, goal["constraint_context"], folder)
         if state["status"] == "verified":
-            if 'parity_extension_result' in state['verified_result'] or 'parity_parameter_result' in state['verified_result'] or 'parity_result' in state['verified_result'] or 'extremum_result' in state['verified_result'] or 'mono_inequality_result' in state['verified_result'] or 'mono_parameter_result' in state['verified_result'] or 'monotonicity_result' in state['verified_result'] or 'model_result' in state['verified_result'] or 'graph_result' in state['verified_result'] or 'formula_result' in state['verified_result'] or goal['goal']['kind'] in ('find_value', 'check_constant', 'finite_sum', 'find_function_formula'):
+            if 'parity_extension_result' in state['verified_result'] or 'parity_inequality_result' in state['verified_result'] or 'parity_parameter_result' in state['verified_result'] or 'parity_result' in state['verified_result'] or 'extremum_result' in state['verified_result'] or 'mono_inequality_result' in state['verified_result'] or 'mono_parameter_result' in state['verified_result'] or 'monotonicity_result' in state['verified_result'] or 'model_result' in state['verified_result'] or 'graph_result' in state['verified_result'] or 'formula_result' in state['verified_result'] or goal['goal']['kind'] in ('find_value', 'check_constant', 'finite_sum', 'find_function_formula'):
                 original_choice = None
             elif goal['goal']['kind'] == 'compare_functions':
                 from .equality_runtime import original_choice as comparison_choice

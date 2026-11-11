@@ -262,6 +262,7 @@ def test_complete_answer_preserves_variable_range_feedback_and_schema(value, con
 
 @pytest.mark.stage_three_db
 def test_complete_formula_lesson_and_replay(tmp_path):
+    from collections import Counter
     from shuxueshuo_server.graph_lesson.stage_three import runner
     from tests.solver.test_graph_stage_three_execution import (
         constructed_upstream,
@@ -279,11 +280,15 @@ def test_complete_formula_lesson_and_replay(tmp_path):
     assert goal['answer']['determined_domain']['expression'] == 'Interval(1, oo)'
     assert goal['feasible_set'] is None
     snapshot = store(output).snapshot()
-    assert len(snapshot['math_steps']) == 4
+    assert Counter(row['route_id'] for row in snapshot['math_steps']) == {
+        'function-substitution': 4, 'function-matching': 4,
+    }
+    step_ids = {row['step_id'] for row in snapshot['math_steps']}
+    assert len(step_ids) == 8
     assert all(row['status'] == 'interactive' for row in snapshot['interaction_states'])
     course = export_course(output, 'function-formula-a0-regression')
     assert course['lesson']['goals'][0]['walk'] is not None
     assert not course['lesson']['goals'][0]['d1'].get('diagnostics')
     replay = runner.run_sample(upstream, output, resume=True)
     assert replay['goals'][0]['answer'] == goal['answer']
-    assert len(store(output).snapshot()['math_steps']) == 4
+    assert {row['step_id'] for row in store(output).snapshot()['math_steps']} == step_ids

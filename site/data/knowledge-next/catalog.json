@@ -3,12 +3,12 @@
   "title": "高中数学公共知识图谱",
   "defaultScope": "section-2-1",
   "expectedCounts": {
-    "method": 51,
+    "method": 52,
     "knowledge": 32,
-    "problem_type": 25,
+    "problem_type": 26,
     "judgment_rule": 11,
     "section": 9,
-    "skill": 31,
+    "skill": 32,
     "textbook": 1,
     "collection": 1,
     "chapter": 3

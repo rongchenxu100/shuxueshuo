@@ -1,0 +1,97 @@
+{
+  "search_id": "bb17d43b7c4f",
+  "user_id": "ecdaf7bf-d144-440d-b1d4-648c2db7d073",
+  "problem_id": null,
+  "statement": null,
+  "recognition_status": "failed",
+  "lesson_status": "not_started",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "9f054239bba54256f3799cf0ab0c0121e6a7c1e7db9a64f60f22efe07d8533b0",
+      "width": 1030,
+      "height": 85,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/bb17d43b7c4f/figures/original?version=84d2bff6f7f97a8e8336595687b9215b2975254851a346cd71c0c71ef91aa43b"
+      }
+    ],
+    "content_id": "84d2bff6f7f97a8e8336595687b9215b2975254851a346cd71c0c71ef91aa43b"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    },
+    {
+      "stage": "repair",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "f31b9a83e203",
+    "box": [
+      0.0859375,
+      0.11430246189917936,
+      0.890625,
+      0.16412661195779601
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      1030,
+      85
+    ],
+    "bytes": 10168
+  },
+  "state": "done",
+  "status": "workflow.budget_exhausted",
+  "outcome": "error",
+  "original_text": "2. 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____",
+  "parts": [],
+  "root": {
+    "definitions": [
+      "f(x)=piecewise(x^2-3*x,x>=0)"
+    ],
+    "facts": [
+      "parity(f,even)",
+      "f(x) ≤ 0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ],
+    "uncertainties": []
+  },
+  "findings": [],
+  "features": [],
+  "image_check": {
+    "question_sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+    "sent_image_sha256": [
+      "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 51.521
+}

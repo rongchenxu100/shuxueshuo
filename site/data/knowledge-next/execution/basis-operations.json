@@ -418,6 +418,14 @@
     "parity_classification": [
       "function-parity#definition",
       "function-parity#zero"
+    ],
+    "parity_monotonicity_transfer": [
+      "function-parity-graph#monotonicity",
+      "function-parity#definition"
+    ],
+    "parity_sign_reflection": [
+      "function-parity-graph#paired-values",
+      "function-parity#definition"
     ]
   }
 }

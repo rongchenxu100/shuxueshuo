@@ -1,0 +1,47 @@
+{
+  "id": "type-parity-inequality",
+  "kind": "problem_type",
+  "status": "active",
+  "label": "利用奇偶性解不等式",
+  "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
+  "source": "函数奇偶性 FP-T4 R0–R3",
+  "choice_hint": "已知奇偶性和一侧的公式、单调性或零点，所求是不等式的解集",
+  "features": [
+    {
+      "cue": "题目给出奇偶性，以及某一侧的解析式、单调性或零点。"
+    },
+    {
+      "cue": "所求是关于函数值的不等式的解集，需要考虑整个定义域。"
+    }
+  ],
+  "confuse": [
+    {
+      "text": "根据奇偶性求解析式，目标是另一侧的公式；本型目标是不等式的解集。",
+      "ref": "type-parity-formula"
+    },
+    {
+      "text": "单调性解不等式直接用已知增减比较输入；本型要先用奇偶性改写不等式，或把一侧的公式、单调性、符号传到另一侧。",
+      "ref": "type-monotonicity-inequality"
+    }
+  ],
+  "knowledge": [
+    "function-parity"
+  ],
+  "methods": [
+    "method-parity-inequality"
+  ],
+  "rules": [],
+  "examples": [
+    {
+      "title": "偶函数半轴求解再对称",
+      "prompt": "已知 $f(x)$ 是定义在 $\\mathbb R$ 上的偶函数，当 $x\\ge0$ 时，$f(x)=x^2-3x$。解不等式 $f(x)\\le0$。",
+      "solution": [
+        "$x\\ge0$ 时，$x^2-3x\\le0$，解得 $0\\le x\\le3$。",
+        "$x<0$ 时 $-x>0$，偶函数 $f(x)=f(-x)$，所以 $f(x)\\le0$ 即 $0<-x\\le3$，得 $-3\\le x<0$。",
+        "合并得解集 $[-3,3]$。"
+      ],
+      "source": "函数奇偶性 FP-A02"
+    }
+  ],
+  "sample": "先用奇偶性把一侧的已知信息传到另一侧，再解不等式并合并。"
+}

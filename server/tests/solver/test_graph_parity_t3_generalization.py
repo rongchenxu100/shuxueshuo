@@ -23,6 +23,18 @@ from tests.solver.test_graph_symmetry_value import pair_goal, rule_goal
 X = sp.Symbol('x', real=True)
 
 
+@pytest.mark.parametrize('value_ask', ['$f(-3)=$____', '$f(-3)$ 的值为____'])
+@pytest.mark.parametrize('formula_ask', ['$f(x)=$____', '$f(x)$ 的解析式为____'])
+def test_sibling_questions_keep_both_blank_and_named_target_forms(value_ask, formula_ask):
+    value = candidate('a09')
+    value['original_text'] = value['original_text'].replace('$f(-3)=$____', value_ask).replace('$f(x)=$____', formula_ask)
+    for desc in (value_description(value), description(value, 'a09')):
+        assert desc['structure_supported'], desc['reason']
+    value['original_text'] += '另有 $f(0)=1$．'
+    for desc in (value_description(value), description(value, 'a09')):
+        assert not desc['structure_supported']
+
+
 @pytest.mark.parametrize('name,expected', [('a03', -2), ('a06', 5)])
 def test_identity_can_be_an_ordinary_fact_without_changing_point_equations(name, expected):
     value = deepcopy(value_candidate(name))

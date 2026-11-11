@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x)≤0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1561,
+      "prompt_tokens": 25721,
+      "total_tokens": 27282,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 249
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 620,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-3b8dc645-a9dc-4dcc-b851-44ce4e9cb91f",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10168,
+        "expires_at": 1794501678,
+        "uploaded_at": 1794415278.625885
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "api_calls": 1,
+        "file_id": "file-api-3b8dc645-a9dc-4dcc-b851-44ce4e9cb91f",
+        "expires_at": 1794501678,
+        "elapsed_ms": 431
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 8301,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1561,
+          "prompt_tokens": 25721,
+          "total_tokens": 27282,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1302
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 249
+        },
+        "raw_payload": {
+          "id": "b44ce806-614c-4629-99ee-2d8265e3effe",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1561,
+            "prompt_tokens": 25721,
+            "total_tokens": 27282,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1302
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 249
+          },
+          "created": 1794415278,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x)≤0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题意，不求解。图片：题目“2. 已知y=f(x)是R上的偶函数，且当x≥0时，f(x)=x^2-3x，则不等式f(x)≤0的解集为____”。有手写答案[-3,3]和圈画，不转录。\n\n需要输出original_text完整题干，保留题号? 原文开头“2.”是来源题号吗？可以保留在original_text，但public_content不包含题号。root.label? 题面没有小问，root可以无label，或者label题号? 规则：root.label存在时区分来源题号。若省略题号可以不放label。original_text可含2.。public_content statement不含题号。\n\n数学：y=f(x)是R上的偶函数，当x≥0时 f(x)=x^2-3x，求不等式 f(x)≤0的解集。目标：find_range symbol x? 原题求解集，解不等式对未知数x的find_range，条件在facts。需要偶函数事实：parity(f,even)？facts可写 parity(f,even)，定义域R。题面“已知y=f(x)是R上的偶函数”包含定义域R和偶函数。我们可以放definitions: f(x)=piecewise(x^2-3*x,x>=0, ...?) 不知道x<0表达式，只能题给当x≥0时。不能补全。需保留函数定义及条件。表述: definitions [\"f(x)=x^2-3*x\"] 和 facts [\"Dom(f)=ℝ\", \"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]? 但“且当x≥0时，f(x)=x^2-3x” 是局部解析式，用函数定义和条件。可以 facts [\"∀x∈[0,∞): f(x)=x^2-3*x\"]，definitions无？ 函数名f未定义可以facts条件识别。或 definitions [\"f(x)=x^2-3*x\"] 会暗示全域，不合适。应该保留局部：facts [\"Dom(f)=ℝ\", \"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]。目标：find_range symbol \"x\"，条件“f(x)≤0”放facts? 目标本身是解不等式，按规则“解不等式”是对未知数的find_range，该不等式作为本节点条件。所以 facts 加 \"f(x)≤0\"，goal {\"kind\":\"find_range\",\"symbol\":\"x\"}。 public_content statement需完整原题不含手写答案和题号：已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____。 choices none selection none.\n\nfigure_detection: none no figure.\n\noriginal_text需用$...$。题号可保留“2. ”。注意偶函数被圈了，不是内容？仍然题干。手写[-3,3]不转录。填空处原样横线：______。\n\npublic_content scopes 只有一个 root. choices target_ref /root/goals/0, status none, selection_mode none, options [].\n\nroot definitions/facts/goals. 可能uncertainties: 无。 completeness complete. privacy separated? 手写答案和圈画已排除，题号也排除? 原图有题号2，可分离来源，可以 separated。 root_label不存在，不需要root_label_role。 figure not_required.\n\n是否用 root.definitions 为空? 可以省略。 facts 用 math catalog: Dom(f)=ℝ，parity(f,even)，∀x∈[0,∞): f(x)=x^2-3*x，f(x)≤0。 goals find_range symbol x。 good.\n\n但“已知y=f(x)是R上的偶函数”也可写 parity(f,even) 和 Dom(f)=ℝ。目标解集为{x | f(x)≤0} 用 find_range symbol x。没问题。\n\noriginal_text 中 LaTeX 的 \\mathbb{R} 需要反斜杠转义 JSON：用 $\\\\mathbb{R}$? 在JSON字符串内，反斜杠必须写成 \\\\。文本输出时： \"$\\\\mathbb{R}$\"。x≥0: $x\\\\ge 0$。f(x)=x^2-3x。不等式 $f(x)\\\\le 0$。\n\npublic_content statement也可以用 $\\\\mathbb{R}$。JSON正确。\n\n注意 original_text 不能包含手写答案。题干里有下划线，写“______”。\n\n可能 root.facts 中 \"∀x∈[0,∞): f(x)=x^2-3*x\" 量词符号目录允许；我们JSON字符串中直接Unicode ∀ ∈。使用“ℝ”。可以 \"Dom(f)=ℝ\"。 \"parity(f,even)\"。\n\n目标 symbol \"x\"。条件也包含 f(x)≤0。完美。\n\npublic_content completeness complete, privacy separated, figure not_required, scopes [{scope_ref:\"/root\", statement: \"...\", choices:[{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]}], figure_detection {status:\"none\", regions:[]}。\n\nroot 需要 definitions? maybe not. facts 数组四项。 goals 一项。 children省。\n\noriginal_text \"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\" 是完整。\n\n注意题号“2.”可能不是题目内容但original_text保留没问题。public_content无题号。\n\n是否有手写圈画？不转录。\n\nuncertainties 可以省略或空。root.uncertainties可省略。 okay.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 8780
+  },
+  "raw_payload": {
+    "id": "b44ce806-614c-4629-99ee-2d8265e3effe",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x)≤0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题意，不求解。图片：题目“2. 已知y=f(x)是R上的偶函数，且当x≥0时，f(x)=x^2-3x，则不等式f(x)≤0的解集为____”。有手写答案[-3,3]和圈画，不转录。\n\n需要输出original_text完整题干，保留题号? 原文开头“2.”是来源题号吗？可以保留在original_text，但public_content不包含题号。root.label? 题面没有小问，root可以无label，或者label题号? 规则：root.label存在时区分来源题号。若省略题号可以不放label。original_text可含2.。public_content statement不含题号。\n\n数学：y=f(x)是R上的偶函数，当x≥0时 f(x)=x^2-3x，求不等式 f(x)≤0的解集。目标：find_range symbol x? 原题求解集，解不等式对未知数x的find_range，条件在facts。需要偶函数事实：parity(f,even)？facts可写 parity(f,even)，定义域R。题面“已知y=f(x)是R上的偶函数”包含定义域R和偶函数。我们可以放definitions: f(x)=piecewise(x^2-3*x,x>=0, ...?) 不知道x<0表达式，只能题给当x≥0时。不能补全。需保留函数定义及条件。表述: definitions [\"f(x)=x^2-3*x\"] 和 facts [\"Dom(f)=ℝ\", \"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]? 但“且当x≥0时，f(x)=x^2-3x” 是局部解析式，用函数定义和条件。可以 facts [\"∀x∈[0,∞): f(x)=x^2-3*x\"]，definitions无？ 函数名f未定义可以facts条件识别。或 definitions [\"f(x)=x^2-3*x\"] 会暗示全域，不合适。应该保留局部：facts [\"Dom(f)=ℝ\", \"parity(f,even)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]。目标：find_range symbol \"x\"，条件“f(x)≤0”放facts? 目标本身是解不等式，按规则“解不等式”是对未知数的find_range，该不等式作为本节点条件。所以 facts 加 \"f(x)≤0\"，goal {\"kind\":\"find_range\",\"symbol\":\"x\"}。 public_content statement需完整原题不含手写答案和题号：已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____。 choices none selection none.\n\nfigure_detection: none no figure.\n\noriginal_text需用$...$。题号可保留“2. ”。注意偶函数被圈了，不是内容？仍然题干。手写[-3,3]不转录。填空处原样横线：______。\n\npublic_content scopes 只有一个 root. choices target_ref /root/goals/0, status none, selection_mode none, options [].\n\nroot definitions/facts/goals. 可能uncertainties: 无。 completeness complete. privacy separated? 手写答案和圈画已排除，题号也排除? 原图有题号2，可分离来源，可以 separated。 root_label不存在，不需要root_label_role。 figure not_required.\n\n是否用 root.definitions 为空? 可以省略。 facts 用 math catalog: Dom(f)=ℝ，parity(f,even)，∀x∈[0,∞): f(x)=x^2-3*x，f(x)≤0。 goals find_range symbol x。 good.\n\n但“已知y=f(x)是R上的偶函数”也可写 parity(f,even) 和 Dom(f)=ℝ。目标解集为{x | f(x)≤0} 用 find_range symbol x。没问题。\n\noriginal_text 中 LaTeX 的 \\mathbb{R} 需要反斜杠转义 JSON：用 $\\\\mathbb{R}$? 在JSON字符串内，反斜杠必须写成 \\\\。文本输出时： \"$\\\\mathbb{R}$\"。x≥0: $x\\\\ge 0$。f(x)=x^2-3x。不等式 $f(x)\\\\le 0$。\n\npublic_content statement也可以用 $\\\\mathbb{R}$。JSON正确。\n\n注意 original_text 不能包含手写答案。题干里有下划线，写“______”。\n\n可能 root.facts 中 \"∀x∈[0,∞): f(x)=x^2-3*x\" 量词符号目录允许；我们JSON字符串中直接Unicode ∀ ∈。使用“ℝ”。可以 \"Dom(f)=ℝ\"。 \"parity(f,even)\"。\n\n目标 symbol \"x\"。条件也包含 f(x)≤0。完美。\n\npublic_content completeness complete, privacy separated, figure not_required, scopes [{scope_ref:\"/root\", statement: \"...\", choices:[{target_ref:\"/root/goals/0\", status:\"none\", selection_mode:\"none\", options:[]}]}], figure_detection {status:\"none\", regions:[]}。\n\nroot 需要 definitions? maybe not. facts 数组四项。 goals 一项。 children省。\n\noriginal_text \"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x\\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\\\le 0$ 的解集为 ______。\" 是完整。\n\n注意题号“2.”可能不是题目内容但original_text保留没问题。public_content无题号。\n\n是否有手写圈画？不转录。\n\nuncertainties 可以省略或空。root.uncertainties可省略。 okay."
+        }
+      }
+    ],
+    "created": 1794415278,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 1561,
+      "prompt_tokens": 25721,
+      "total_tokens": 27282,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1302,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 249
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 8.782
+}

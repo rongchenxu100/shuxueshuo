@@ -1,0 +1,44 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a19",
+  "reviewer": "对照用户原图第 19 题印刷题干转录，忽略手写答案；f 在 (0,+∞) 上严格递增且 f(2)=0，得 0<t<2 时 f(t)<0、t>2 时 f(t)>0，奇性反射得负侧符号；题目未说明 0 是否在定义域内，x=1 时 f(0) 无意义或为 0，两种情况都不满足严格不等式，答案相同；与分母 x 异号求交得 (-1,0)∪(1,3)，独立逐段代入核验。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-02.jpg",
+      "sha256": "cf1d8518709056916e037db63263a8505112d27d740e446e04a9dc689623a33f",
+      "location": "第2张图，印刷第19题；规划编号 FP-A19"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $f(x)$ 是奇函数，且在 $(0,+\\infty)$ 上是增函数，又 $f(2)=0$，则 $\\frac{f(x-1)}{x}<0$ 的解集为____．",
+    "root": {
+      "facts": [
+        "parity(f,odd)",
+        "f(2)=0",
+        "f(x-1)/x<0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "(0,∞)",
+            "direction": "increasing",
+            "strict": true,
+            "basis": {
+              "kind": "stated",
+              "statement": ""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-inequality",
+    "solution": "(-1,0)∪(1,3)",
+    "set_expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

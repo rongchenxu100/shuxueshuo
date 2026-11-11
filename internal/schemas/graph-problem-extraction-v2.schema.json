@@ -328,11 +328,39 @@
                         "description": "true 表示严格单调，false 表示非严格；按原题保留。"
                       },
                       "basis": {
-                        "enum": [
-                          "given",
-                          "proved_monotonicity"
-                        ],
-                        "description": "given 表示题给已知；proved_monotonicity 仅供后续程序写入，原图提取不得生成。"
+                        "anyOf": [
+                          {
+                            "enum": [
+                              "given",
+                              "proved_monotonicity"
+                            ],
+                            "description": "given 表示题给已知；proved_monotonicity 仅供后续程序写入，原图提取不得生成。 旧写法，读取时兼容；新提取用对象写法。"
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "statement"
+                            ],
+                            "properties": {
+                              "kind": {
+                                "enum": [
+                                  "stated",
+                                  "difference_quotient",
+                                  "difference_product"
+                                ],
+                                "description": "题目直接说增减用 stated；以任意两点差商或差积恒正／恒负给出时用对应类型。"
+                              },
+                              "statement": {
+                                "type": "string",
+                                "maxLength": 512,
+                                "description": "差商／差积原式，保持原题两个输入的顺序，如 (f(x_1)-f(x_2))/(x_1-x_2)<0；stated 时为空串。"
+                              }
+                            },
+                            "description": "可选：题给严格单调性的原始来源；省略表示题目直接说明增减。差商／差积按定义域内任意两个不等输入理解。"
+                          }
+                        ]
                       }
                     },
                     "description": "题给同一函数的严格单调性事实；仅用于函数值比较转输入比较，不写答案。"
@@ -1792,6 +1820,13 @@
           "maxLength": 4096,
           "pattern": "\\S",
           "description": "原关系的变量名，如 x。"
+        },
+        "input_domain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "\\S",
+          "description": "题给待求变量的附加范围；与函数完整定义域、已知关系的适用范围分别记录。"
         }
       },
       "description": "由题给函数关系与类型，求满足原不等式的自变量范围。"

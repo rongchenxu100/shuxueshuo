@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"20. 已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"root\":{\"facts\":[\"Dom(f)=[-2b,b+1]\",\"parity(f,even)\",\"f(x-1) ≤ f(2x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2516,
+      "prompt_tokens": 25743,
+      "total_tokens": 28259,
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 399
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 691,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-23fbcf13-94ff-40c5-a0c2-46a19f4f0b71",
+        "sha256": "805311bcd4bdff5595f99f10d990b1191e0d8e91a20b51803a49b3348ceed1e0",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 11717,
+        "expires_at": 1794500002,
+        "uploaded_at": 1794413602.301159
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "805311bcd4bdff5595f99f10d990b1191e0d8e91a20b51803a49b3348ceed1e0",
+        "api_calls": 1,
+        "file_id": "file-api-23fbcf13-94ff-40c5-a0c2-46a19f4f0b71",
+        "expires_at": 1794500002,
+        "elapsed_ms": 273
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 14535,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2516,
+          "prompt_tokens": 25743,
+          "total_tokens": 28259,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2245
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25344
+          },
+          "prompt_cache_hit_tokens": 25344,
+          "prompt_cache_miss_tokens": 399
+        },
+        "raw_payload": {
+          "id": "a5775034-6f36-41d7-9d78-4932fc210de0",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2516,
+            "prompt_tokens": 25743,
+            "total_tokens": 28259,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2245
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25344
+            },
+            "prompt_cache_hit_tokens": 25344,
+            "prompt_cache_miss_tokens": 399
+          },
+          "created": 1794413602,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"20. 已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"root\":{\"facts\":[\"Dom(f)=[-2b,b+1]\",\"parity(f,even)\",\"f(x-1) ≤ f(2x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "We need extract. Image shows problem 20. Text: \"20. 已知函数f(x)是定义在[-2b,b+1]上的偶函数，且在[-2b,0]上单调递增，则f(x-1)≤f(2x)的解集为____\" Student handwritten answer not include. Need root facts definitions. Need careful.\n\nFunction f defined on [-2b,b+1] is even, and increasing on [-2b,0]. What is solution set of f(x-1) ≤ f(2x). Need infer b? Wait definition interval [-2b,b+1] is symmetric for even function; but题面 doesn't explicitly say symmetry? Even function domain must symmetric, so [-2b,b+1] symmetric implies -2b = -(b+1), b=1? But that's a derived condition, not write. But root facts: f is even, domain exactly [-2b,b+1], increasing on [-2b,0]. Goal find_range symbol x? Because solve inequality解集. Condition f(x-1) ≤ f(2x). Need include domain legality? The inequality itself and function domain inherited. However root facts can include Dom(f)=[-2b,b+1], parity(f,even), monotonic? The catalog has function_monotonicity for find_range? But here target is solve inequality for x, not necessarily parameter monotonicity. We can put facts: Dom(f)=[-2b,b+1], parity(f,even), ∀? \"在[-2b,0]上单调递增\" can be fact \"f在[-2b,0]上单调递增\" maybe use catalog? There is function_monotonicity only as goal field for find_range? Hmm facts can include \"f在[-2b,0]上单调递增\" but catalog doesn't list natural lang except point roles. Maybe use \"∀x_1,x_2∈[-2b,0]: x_1<x_2 ⇒ f(x_1)<f(x_2)\"? But that's a quantifier implication; catalog has quantifier and comparison, logic but not implication. Maybe use difference quotient? Could write \"∀x_1,x_2∈[-2b,0], x_1<x_2: f(x_1)<f(x_2)\"? Catalog syntax quantifier can include relation, no implication. Hmm. Could use \"f在[-2b,0]上单调递增\" natural? It says use catalog, but perhaps function monotonicity condition can be represented with find_range.function_monotonicity? But the goal is find_range symbol x; field function_monotonicity is for \"题给已知单调事实\" used for value comparison. It requires function, domain, direction, strict. This is exactly. Though target is find_range symbol x, the field function_monotonicity can be included. It says \"题给同一函数的严格单调性事实；仅用于函数值比较转输入比较\". Here we have even and monotonic increasing on [-2b,0], target inequality. So find_range with symbol x? Could include function_monotonicity: {\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}. But strict? \"单调递增\" in Chinese high school means non-decreasing? Often \"单调递增\" ambiguous strict? They say strict and false non-strict; by default \"单调递增\" may mean increasing (strict?) In China, \"单调递增\" sometimes means x1<x2 => f(x1)<f(x2), strict. Since \"单调递增\" not \"增函数\"? Usually strict. Use strict=true. Also even parity in facts.\n\nBut root facts also need b? Domain [-2b,b+1] implies symmetry but don't derive b. Even function property \"parity(f,even)\" in facts. Domain \"Dom(f)=[-2b,b+1]\" in facts. Monotonicity maybe in facts too? Could include with goal function_monotonicity. Since goal is find_range symbol x, not object, oneOf allows symbol and function_monotonicity. Good.\n\nGoal: find_range symbol x, facts include condition f(x-1) ≤ f(2x)? Wait \"解集\" says \"求 f(x-1)≤f(2x) 的解集\", so that inequality is condition? In catalog says \"解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件.\" So facts should include inequality. But then goal symbol x. Also domain legality perhaps included? The original condition is simply inequality. However f is defined only on domain; x must be such that arguments in domain? This is implicit from function definition; don't add as fact maybe code handles. But the inequality as condition uses f calls; if arguments outside domain, undefined. Can include inequality only. Could also include Dom(f)=... in facts.\n\nNeed public_content: scopes root statement. Need original_text exact with LaTeX. No handwritten answer. The image has \"解集为____\" and student wrote [-1,0] maybe overwrote? We don't transcribe. Need maybe underline only. Original_text: \"20. 已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____\" Use \\le. Need preserve \"20.\"? It is题号? The instruction says original_text can retain source题号, public_content not. root.label? We can put label \"20.\"? Is it source? Image shows \"20.\" likely source. If label exists, root_label_role source. But root.label maybe optional. If include, public_content.root_label_role source. The problem statement stripped. But original_text retains. Could omit root.label to avoid? It's a source题号 and not mathematical; original_text includes. root doesn't need label. We'll omit root.label. Good.\n\npublic_content scopes root statement without 20. \"已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____\" choices none status none selection_mode none options [].\n\nFigure detection: no figure? The image is text only, no graph. status none. Could there be no figure. yes.\n\nRoot facts: Need math_expression_catalog strings. \"Dom(f)=[-2b,b+1]\" maybe functions. \"parity(f,even)\" supported. \"∀x_1,x_2∈[-2b,0]: x_1<x_2 ⇒ f(x_1)<f(x_2)\" not exactly supported. But can use \"f在[-2b,0]上单调递增\" natural unsupported? Maybe goal function_monotonicity captures monotonic. Then facts only Dom and parity and inequality. In goal find_range symbol x include function_monotonicity. But function_monotonicity says \"仅用于函数值比较转输入比较\" and includes function, domain. Great. Then facts: [\"Dom(f)=[-2b,b+1]\", \"parity(f,even)\", \"f(x-1) ≤ f(2x)\"]. Is inequality a fact? Yes. But f(x-1) and f(2x) need f defined.\n\nShould we include b? domain includes b, no b range. Even function requires b? no.\n\nGoal:\n{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}}\n\nBut is \"单调递增\" strict? Could mark strict true. If uncertain no. Use strict true common. Does function_monotonicity field require basis? no.\n\nPotential issue: The monotonicity is on [-2b,0]; f even. Good.\n\nRoot definitions: f(x) maybe no explicit formula. Abstract function: define \"f(x)\"? Since函数 f is abstract with domain, maybe no definitions needed. Facts have Dom(f), parity. No need function_definition. However functions used in facts f(x-1) etc. Function name f established by Dom(f) and parity? okay.\n\nNeed maybe include \"b∈ℝ\"? not given. no.\n\nUncertainties? none? Maybe \"20.\" source not in fields. No. \"b\" not specified; but no. The interval [-2b,b+1] and increasing on [-2b,0]. It implies b maybe? Not题面. We don't derive. Fine. Could there be ambiguous whether \"单调递增\" strict? no.\n\nNeed public_content completeness complete, privacy separated? Image has handwriting answer. We are not including. But privacy \"姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离\". We have source \"20.\" excluded from public. Handwritten answer excluded. So privacy separated? The original image includes handwriting; we separated. Yes. But public_content statement doesn't include source or answer. separated.\n\nfigure not_required.\n\nNeed JSON exactly. Let's craft original_text with proper escaping: Use LaTeX, backslashes must be double in JSON. $f(x)$ etc. \"\\\\le\". \"[-2b,b+1]\" okay. \"f(x-1)\\\\le f(2x)\". Use Chinese punctuation. Need \"解集为____\" not include handwritten.\n\nRoot facts strings no $, use Unicode ≤? Catalog uses ≤. \"Dom(f)=[-2b,b+1]\" string. \"parity(f,even)\". \"f(x-1) ≤ f(2x)\". Should inequality have quantifier? No, it's condition to solve. In facts no quantifier. Fine.\n\nCould include \"x\" range? no.\n\nPublic statement formula uses $...$ and \\le. In JSON string: \"$f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\". Need JSON escaping.\n\nNo choices. For each goal, choices status none selection_mode none options [].\n\nFigure_detection status none regions [].\n\nNeed maybe root uncertainties empty? optional. Omit.\n\nCheck schema: root additionalProperties false. It permits definitions facts goals children label uncertainties. We omit definitions? Could omit. But facts and goals. Need maybe root.label omitted. Good.\n\nNow final JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 14847
+  },
+  "raw_payload": {
+    "id": "a5775034-6f36-41d7-9d78-4932fc210de0",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"20. 已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"root\":{\"facts\":[\"Dom(f)=[-2b,b+1]\",\"parity(f,even)\",\"f(x-1) ≤ f(2x)\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need extract. Image shows problem 20. Text: \"20. 已知函数f(x)是定义在[-2b,b+1]上的偶函数，且在[-2b,0]上单调递增，则f(x-1)≤f(2x)的解集为____\" Student handwritten answer not include. Need root facts definitions. Need careful.\n\nFunction f defined on [-2b,b+1] is even, and increasing on [-2b,0]. What is solution set of f(x-1) ≤ f(2x). Need infer b? Wait definition interval [-2b,b+1] is symmetric for even function; but题面 doesn't explicitly say symmetry? Even function domain must symmetric, so [-2b,b+1] symmetric implies -2b = -(b+1), b=1? But that's a derived condition, not write. But root facts: f is even, domain exactly [-2b,b+1], increasing on [-2b,0]. Goal find_range symbol x? Because solve inequality解集. Condition f(x-1) ≤ f(2x). Need include domain legality? The inequality itself and function domain inherited. However root facts can include Dom(f)=[-2b,b+1], parity(f,even), monotonic? The catalog has function_monotonicity for find_range? But here target is solve inequality for x, not necessarily parameter monotonicity. We can put facts: Dom(f)=[-2b,b+1], parity(f,even), ∀? \"在[-2b,0]上单调递增\" can be fact \"f在[-2b,0]上单调递增\" maybe use catalog? There is function_monotonicity only as goal field for find_range? Hmm facts can include \"f在[-2b,0]上单调递增\" but catalog doesn't list natural lang except point roles. Maybe use \"∀x_1,x_2∈[-2b,0]: x_1<x_2 ⇒ f(x_1)<f(x_2)\"? But that's a quantifier implication; catalog has quantifier and comparison, logic but not implication. Maybe use difference quotient? Could write \"∀x_1,x_2∈[-2b,0], x_1<x_2: f(x_1)<f(x_2)\"? Catalog syntax quantifier can include relation, no implication. Hmm. Could use \"f在[-2b,0]上单调递增\" natural? It says use catalog, but perhaps function monotonicity condition can be represented with find_range.function_monotonicity? But the goal is find_range symbol x; field function_monotonicity is for \"题给已知单调事实\" used for value comparison. It requires function, domain, direction, strict. This is exactly. Though target is find_range symbol x, the field function_monotonicity can be included. It says \"题给同一函数的严格单调性事实；仅用于函数值比较转输入比较\". Here we have even and monotonic increasing on [-2b,0], target inequality. So find_range with symbol x? Could include function_monotonicity: {\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}. But strict? \"单调递增\" in Chinese high school means non-decreasing? Often \"单调递增\" ambiguous strict? They say strict and false non-strict; by default \"单调递增\" may mean increasing (strict?) In China, \"单调递增\" sometimes means x1<x2 => f(x1)<f(x2), strict. Since \"单调递增\" not \"增函数\"? Usually strict. Use strict=true. Also even parity in facts.\n\nBut root facts also need b? Domain [-2b,b+1] implies symmetry but don't derive b. Even function property \"parity(f,even)\" in facts. Domain \"Dom(f)=[-2b,b+1]\" in facts. Monotonicity maybe in facts too? Could include with goal function_monotonicity. Since goal is find_range symbol x, not object, oneOf allows symbol and function_monotonicity. Good.\n\nGoal: find_range symbol x, facts include condition f(x-1) ≤ f(2x)? Wait \"解集\" says \"求 f(x-1)≤f(2x) 的解集\", so that inequality is condition? In catalog says \"解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件.\" So facts should include inequality. But then goal symbol x. Also domain legality perhaps included? The original condition is simply inequality. However f is defined only on domain; x must be such that arguments in domain? This is implicit from function definition; don't add as fact maybe code handles. But the inequality as condition uses f calls; if arguments outside domain, undefined. Can include inequality only. Could also include Dom(f)=... in facts.\n\nNeed public_content: scopes root statement. Need original_text exact with LaTeX. No handwritten answer. The image has \"解集为____\" and student wrote [-1,0] maybe overwrote? We don't transcribe. Need maybe underline only. Original_text: \"20. 已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____\" Use \\le. Need preserve \"20.\"? It is题号? The instruction says original_text can retain source题号, public_content not. root.label? We can put label \"20.\"? Is it source? Image shows \"20.\" likely source. If label exists, root_label_role source. But root.label maybe optional. If include, public_content.root_label_role source. The problem statement stripped. But original_text retains. Could omit root.label to avoid? It's a source题号 and not mathematical; original_text includes. root doesn't need label. We'll omit root.label. Good.\n\npublic_content scopes root statement without 20. \"已知函数 $f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\le f(2x)$ 的解集为____\" choices none status none selection_mode none options [].\n\nFigure detection: no figure? The image is text only, no graph. status none. Could there be no figure. yes.\n\nRoot facts: Need math_expression_catalog strings. \"Dom(f)=[-2b,b+1]\" maybe functions. \"parity(f,even)\" supported. \"∀x_1,x_2∈[-2b,0]: x_1<x_2 ⇒ f(x_1)<f(x_2)\" not exactly supported. But can use \"f在[-2b,0]上单调递增\" natural unsupported? Maybe goal function_monotonicity captures monotonic. Then facts only Dom and parity and inequality. In goal find_range symbol x include function_monotonicity. But function_monotonicity says \"仅用于函数值比较转输入比较\" and includes function, domain. Great. Then facts: [\"Dom(f)=[-2b,b+1]\", \"parity(f,even)\", \"f(x-1) ≤ f(2x)\"]. Is inequality a fact? Yes. But f(x-1) and f(2x) need f defined.\n\nShould we include b? domain includes b, no b range. Even function requires b? no.\n\nGoal:\n{\"kind\":\"find_range\",\"symbol\":\"x\",\"function_monotonicity\":{\"function\":\"f\",\"domain\":\"[-2b,0]\",\"direction\":\"increasing\",\"strict\":true}}\n\nBut is \"单调递增\" strict? Could mark strict true. If uncertain no. Use strict true common. Does function_monotonicity field require basis? no.\n\nPotential issue: The monotonicity is on [-2b,0]; f even. Good.\n\nRoot definitions: f(x) maybe no explicit formula. Abstract function: define \"f(x)\"? Since函数 f is abstract with domain, maybe no definitions needed. Facts have Dom(f), parity. No need function_definition. However functions used in facts f(x-1) etc. Function name f established by Dom(f) and parity? okay.\n\nNeed maybe include \"b∈ℝ\"? not given. no.\n\nUncertainties? none? Maybe \"20.\" source not in fields. No. \"b\" not specified; but no. The interval [-2b,b+1] and increasing on [-2b,0]. It implies b maybe? Not题面. We don't derive. Fine. Could there be ambiguous whether \"单调递增\" strict? no.\n\nNeed public_content completeness complete, privacy separated? Image has handwriting answer. We are not including. But privacy \"姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离\". We have source \"20.\" excluded from public. Handwritten answer excluded. So privacy separated? The original image includes handwriting; we separated. Yes. But public_content statement doesn't include source or answer. separated.\n\nfigure not_required.\n\nNeed JSON exactly. Let's craft original_text with proper escaping: Use LaTeX, backslashes must be double in JSON. $f(x)$ etc. \"\\\\le\". \"[-2b,b+1]\" okay. \"f(x-1)\\\\le f(2x)\". Use Chinese punctuation. Need \"解集为____\" not include handwritten.\n\nRoot facts strings no $, use Unicode ≤? Catalog uses ≤. \"Dom(f)=[-2b,b+1]\" string. \"parity(f,even)\". \"f(x-1) ≤ f(2x)\". Should inequality have quantifier? No, it's condition to solve. In facts no quantifier. Fine.\n\nCould include \"x\" range? no.\n\nPublic statement formula uses $...$ and \\le. In JSON string: \"$f(x)$ 是定义在 $[-2b,b+1]$ 上的偶函数，且在 $[-2b,0]$ 上单调递增，则 $f(x-1)\\\\le f(2x)$ 的解集为____\". Need JSON escaping.\n\nNo choices. For each goal, choices status none selection_mode none options [].\n\nFigure_detection status none regions [].\n\nNeed maybe root uncertainties empty? optional. Omit.\n\nCheck schema: root additionalProperties false. It permits definitions facts goals children label uncertainties. We omit definitions? Could omit. But facts and goals. Need maybe root.label omitted. Good.\n\nNow final JSON."
+        }
+      }
+    ],
+    "created": 1794413602,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2516,
+      "prompt_tokens": 25743,
+      "total_tokens": 28259,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2245,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25344
+      },
+      "prompt_cache_hit_tokens": 25344,
+      "prompt_cache_miss_tokens": 399
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 14.85
+}

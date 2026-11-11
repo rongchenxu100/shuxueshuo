@@ -237,6 +237,11 @@ def _parity_extension(context):
     return admitted(context)
 
 
+def _parity_inequality(context):
+    from .parity_inequality_runtime import admitted
+    return admitted(context)
+
+
 def _function_symmetry(context):
     from .symmetry_runtime import admitted
     return admitted(context)
@@ -267,6 +272,7 @@ CHECKS = {
     'monotonicity_parameter': _monotonicity_parameter,
     'parity_parameter': _parity_parameter,
     'parity_extension': _parity_extension,
+    'parity_inequality': _parity_inequality,
     'function_symmetry': _function_symmetry,
     'function_extremum': _function_extremum,
     'function_monotonicity': _function_monotonicity,

@@ -26,6 +26,7 @@ def test_holdouts_are_not_staged_or_public():
 
 
 @pytest.mark.parametrize('entry', MANIFEST['holdouts'], ids=lambda v: v['id'])
+@pytest.mark.stage_three_db
 def test_holdout_answer_replay_and_course(entry, tmp_path):
     record = json.loads((ROOT/entry['authored_source']).read_text())
     assert record['problem_id'] == entry['id']

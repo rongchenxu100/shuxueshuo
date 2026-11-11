@@ -76,6 +76,10 @@
     {
       "ref": "type-parity-formula",
       "relation": "extends"
+    },
+    {
+      "ref": "type-parity-inequality",
+      "relation": "extends"
     }
   ]
 }

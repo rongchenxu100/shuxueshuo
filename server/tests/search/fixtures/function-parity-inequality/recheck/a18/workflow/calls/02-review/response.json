@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 2648,
+      "prompt_tokens": 10863,
+      "total_tokens": 13511,
+      "prompt_cache_hit_tokens": 10112,
+      "prompt_cache_miss_tokens": 751
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-b42a5288-10d5-4527-b8b0-cc5bfb629f95",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 15246,
+        "expires_at": 1794501564,
+        "uploaded_at": 1794415164.311588
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "file_id": "file-api-b42a5288-10d5-4527-b8b0-cc5bfb629f95",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 14813,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 2648,
+          "prompt_tokens": 10863,
+          "total_tokens": 13511,
+          "completion_tokens_details": {
+            "reasoning_tokens": 2637
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 10112
+          },
+          "prompt_cache_hit_tokens": 10112,
+          "prompt_cache_miss_tokens": 751
+        },
+        "raw_payload": {
+          "id": "43235cca-c49a-4701-9a01-b1218c07deab",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 2648,
+            "prompt_tokens": 10863,
+            "total_tokens": 13511,
+            "completion_tokens_details": {
+              "reasoning_tokens": 2637
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 10112
+            },
+            "prompt_cache_hit_tokens": 10112,
+            "prompt_cache_miss_tokens": 751
+          },
+          "created": 1794415179,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "We need review candidate vs image. Need output JSON only, status/findings. Need inspect candidate. Original_text: \"18. 已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" Image matches? It says 18. 已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2)<0, 则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 [1,3/2] handwritten. Original excludes answer fill okay. It includes 18. Source number acceptable original_text. Root: facts Dom(f)=[-2,2], parity(f,odd), ∀x1,x2∈[-2,2], x1≠x2: (f(x1)-f(x2))/(x1-x2)<0, f(1-2*a)+f(a-3)>0. goals find_range symbol a. Need check root correctness. Potential issue: condition on x1,x2 domain? Original says function defined on [-2,2], then fraction condition likely for any x1,x2? Image just fraction <0 no explicit quantifier but usual for any x1,x2 in domain, x1≠x2. Candidate adds ∀x1,x2∈[-2,2], x1≠x2. Is that permissible? Need not add conditions unsupported. But universal closure on variables x1,x2 is standard; no explicit \"任意\" but fraction with x1,x2 under given domain and no other quantifier is a property for all distinct x1,x2. Candidate likely okay. But check strictness: quotient <0 means function decreasing? Candidate retained <0. Facts also includes inequality f...>0. Good.\n\nNeed inspect public_content statement. It excludes 18 (source number) okay. It says \"已知定义在...函数...\" matches. privacy separated? Handwritten answer present in image but excluded. Is that okay? Public statement doesn't include handwritten. Original_text also excludes handwritten? original_text has blank ____, not handwritten answer. That's okay; original_text should preserve original transcription; handwritten answer isn't part. But \"18.\" included; privacy separated? The source number in original_text but not public statement. root label absent. privacy separated maybe all public fields okay. But check \"18.\" in original_text only, not public. Fine.\n\nPotential issue: public_content statement condition formula uses \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) without specifying quantifier. That matches original text exactly; root elaborates. Public statement not required to include quantifier if original doesn't. Good.\n\nNeed check root: Dom(f)=[-2,2] uses correct. parity(f,odd). \"∀x1,x2∈[-2,2], x1≠x2: ...\" notation? Catalog quantifier syntax \"∀变量∈定义域: 关系\". Candidate has \"∀x1,x2∈[-2,2], x1≠x2: ...\" This is acceptable? It is not exactly syntax? code_validation notation_valid true. But maybe issue: x1,x2 variables not subscript math? It's plain x1,x2. Fine.\n\nHowever, need think about domain restriction for arguments in inequality. Candidate did not include conditions that 1-2a, a-3 in [-2,2]. But original says f defined on [-2,2]; the inequality involving f(1-2a) etc implicitly requires arguments in domain. Should the root include? The instruction says don't add derived domain conditions? \"known_domain... target input\" etc. For abstract function maybe if problem gives f defined on [-2,2] and inequality f(...)+f(...)>0, should facts include additional conditions that arguments lie in domain? Does original explicitly state? Since f(x) defined on [-2,2], for f(1-2a) to be meaningful, inputs must be in domain. Is that derivable, not stated. The extraction says \"不把推导出的定义域...补成题设\" and \"不添加复合输入必须落在某段的条件\" maybe not add. So candidate not including is okay. It records Dom(f). Good.\n\nBut candidate's facts includes \"f(1-2*a)+f(a-3)>0\" as condition. That's the inequality to solve, correct. Goal find_range a. Good.\n\nNeed check original image: It seems handwritten answer [1,3/2], perhaps the problem asks \"取值范围为____\" and handwritten answer lower [1,3/2]. Candidate original_text has blank, okay. There's also handwritten \"f(a-3) > -f(1-2a) = f(2a-1)\" not included. Fine.\n\nPotential issue: Domain of fraction condition. The image has fraction \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\), with no quantifier explicitly but likely \"对于任意 x1, x2\"? Actually sentence: \"已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2)<0，则...\" The comma after <0. It doesn't explicitly say \"对于任意 x1,x2\". However, mathematical convention: variables x1,x2 are arbitrary satisfying? It could be \"且 \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\)\" without quantifier but necessarily meaning for any distinct x1,x2? This is an abstract condition; root quantifier with ∀ is standard. The review instruction: \"不添加...量词\"? Need \"保留量词顺序\" but if none, default? Let's examine catalog quantifier: \"题面只说恒成立而未写出量词变量范围时，量词域取 ℝ\" for \"恒成立\". Here not literally \"恒成立\"; fraction condition is a condition involving free variables x1,x2. The root must bind them. The only sensible is universal over domain distinct. Could be missing quantifier but consensus. Candidate added ∀x1,x2∈[-2,2], x1≠x2. Is that \"擅自新增\"? I think no, it's formalization of condition. But need consider if x1,x2 are supposed to be any two points? yes, the fraction \\( \\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) for function defined on [-2,2] is shorthand for ∀x1,x2 in domain, x1≠x2. Good.\n\nCould there be issue that x1,x2 are not defined/declared in original? They appear in fraction. No.\n\nNeed check \"定义在[-2,2]上的函数f(x)是奇函数\" Parity for odd function with domain [-2,2] is okay. Candidate facts \"parity(f,odd)\" plus Dom. Good.\n\nNeed check scope: no subquestions. Root contains all. public_content.scopes one. choices status none. Good.\n\nNeed check public_content completeness. \"complete\" yes. privacy separated: Are there handwritten annotations? They are not in public fields. Root facts are math content. root doesn't have label. Statement no personal info. okay. figure none? Image no diagram; just text and handwriting. figure_detection none. It is appropriate.\n\nNeed status likely confirmed and findings [].\n\nBut let's thoroughly inspect potential subtle issues:\n\n- original_text says \"18. 已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则...\" The image has \"18. 已知定义在[-2, 2]上的函数f(x)是奇函数，且 ...<0, 则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 [1, 3/2]\". Candidate original_text has blank not handwritten. Should original_text include handwritten answer? No, instructions \"手写答案...不是题设，不写入 original_text\". So correct. It has \"____\" which is not in image? Image has bracket blank with handwritten answer? Let's look: \"取值范围为 [1, 3/2]\" maybe there is printed blank line? The image shows bracket with handwritten [1,3/2] over a printed long underline? Actually the image: after \"取值范围为\" there is a horizontal line maybe blank, and handwritten [1, 3/2] over/above? Let's inspect: \"取值范围为\" then an underline? The bracket [1,3/2] seems handwritten in red/gray. Underneath is maybe a long blank line. Candidate writes \"____。\" This is acceptable representation of blank. It may not be exactly \"____\" but fine. Original_text should preserve original transcription; blank line maybe okay. No issue.\n\n- Candidate public_content statement has \"已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" It drops \"18.\" and includes blank. That's fine.\n\n- public_content scopes statement missing \"18.\"? That's source number, not public. Good.\n\n- Root facts include condition f(1-2a)+f(a-3)>0. But this is the inequality from \"则满足不等式 ... 的实数 a 的取值范围\". Is it correctly in facts? Yes.\n\n- Goal find_range symbol a. This problem asks range of a satisfying inequality. Good.\n\n- It doesn't specify requested range is real. Since real number a explicit. Good.\n\n- Potential problem: \"定义在[-2,2]上的函数f(x)是奇函数\" in root facts: Dom(f)=[-2,2], parity(f,odd). Good.\n\n- The fraction condition \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) for all x1,x2 in [-2,2], x1≠x2 means f strictly decreasing (maybe not necessary to solve). Candidate wrote with quantifier over x1,x2. Good.\n\n- However, code notation \"∀x1,x2∈[-2,2], x1≠x2: ...\" could be interpreted as both x1,x2 in [-2,2] and x1≠x2. Fine.\n\n- The fraction denominator x1-x2 not zero, candidate includes x1≠x2. Good.\n\n- Does fraction condition require x1<x2? No, denominator sign; expression <0 for all distinct implies same direction? Actually if x1-x2 sign etc; but candidate doesn't restrict order. Correct.\n\n- The handwritten answer maybe [1,3/2]? Let's solve quick not needed: f decreasing odd. f(1-2a)+f(a-3)>0 -> f(1-2a)> -f(a-3)=f(3-a) (since odd). f decreasing -> 1-2a < 3-a -> -2 < a? Wait decreasing: f(u)>f(v) => u<v. So 1-2a < 3-a -> -a<2 -> a>-2. Domain: -2≤1-2a≤2 -> -3≤-2a≤1 -> -1/2≤a≤3/2; -2≤a-3≤2 -> 1≤a≤5. Intersection [1,3/2], and a>-2 no additional. Yes. Good. Candidate doesn't include domain conditions but not required.\n\nCould root need explicit \"a ∈ ℝ\"? The original \"实数a\". find_range symbol a implies real. No fact needed.\n\nPotential issue: original_text's fraction uses \"x_1-x_2\" in denominator. Candidate original_text does. Good.\n\nNeed maybe report nothing. confirmed.\n\nBut before final, check response_schema: Only status and findings; top-level no other keys. We can output {\"status\":\"confirmed\",\"findings\":[]}. Need no markdown. Ensure JSON object.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 14843
+  },
+  "raw_payload": {
+    "id": "43235cca-c49a-4701-9a01-b1218c07deab",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need review candidate vs image. Need output JSON only, status/findings. Need inspect candidate. Original_text: \"18. 已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" Image matches? It says 18. 已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2)<0, 则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 [1,3/2] handwritten. Original excludes answer fill okay. It includes 18. Source number acceptable original_text. Root: facts Dom(f)=[-2,2], parity(f,odd), ∀x1,x2∈[-2,2], x1≠x2: (f(x1)-f(x2))/(x1-x2)<0, f(1-2*a)+f(a-3)>0. goals find_range symbol a. Need check root correctness. Potential issue: condition on x1,x2 domain? Original says function defined on [-2,2], then fraction condition likely for any x1,x2? Image just fraction <0 no explicit quantifier but usual for any x1,x2 in domain, x1≠x2. Candidate adds ∀x1,x2∈[-2,2], x1≠x2. Is that permissible? Need not add conditions unsupported. But universal closure on variables x1,x2 is standard; no explicit \"任意\" but fraction with x1,x2 under given domain and no other quantifier is a property for all distinct x1,x2. Candidate likely okay. But check strictness: quotient <0 means function decreasing? Candidate retained <0. Facts also includes inequality f...>0. Good.\n\nNeed inspect public_content statement. It excludes 18 (source number) okay. It says \"已知定义在...函数...\" matches. privacy separated? Handwritten answer present in image but excluded. Is that okay? Public statement doesn't include handwritten. Original_text also excludes handwritten? original_text has blank ____, not handwritten answer. That's okay; original_text should preserve original transcription; handwritten answer isn't part. But \"18.\" included; privacy separated? The source number in original_text but not public statement. root label absent. privacy separated maybe all public fields okay. But check \"18.\" in original_text only, not public. Fine.\n\nPotential issue: public_content statement condition formula uses \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) without specifying quantifier. That matches original text exactly; root elaborates. Public statement not required to include quantifier if original doesn't. Good.\n\nNeed check root: Dom(f)=[-2,2] uses correct. parity(f,odd). \"∀x1,x2∈[-2,2], x1≠x2: ...\" notation? Catalog quantifier syntax \"∀变量∈定义域: 关系\". Candidate has \"∀x1,x2∈[-2,2], x1≠x2: ...\" This is acceptable? It is not exactly syntax? code_validation notation_valid true. But maybe issue: x1,x2 variables not subscript math? It's plain x1,x2. Fine.\n\nHowever, need think about domain restriction for arguments in inequality. Candidate did not include conditions that 1-2a, a-3 in [-2,2]. But original says f defined on [-2,2]; the inequality involving f(1-2a) etc implicitly requires arguments in domain. Should the root include? The instruction says don't add derived domain conditions? \"known_domain... target input\" etc. For abstract function maybe if problem gives f defined on [-2,2] and inequality f(...)+f(...)>0, should facts include additional conditions that arguments lie in domain? Does original explicitly state? Since f(x) defined on [-2,2], for f(1-2a) to be meaningful, inputs must be in domain. Is that derivable, not stated. The extraction says \"不把推导出的定义域...补成题设\" and \"不添加复合输入必须落在某段的条件\" maybe not add. So candidate not including is okay. It records Dom(f). Good.\n\nBut candidate's facts includes \"f(1-2*a)+f(a-3)>0\" as condition. That's the inequality to solve, correct. Goal find_range a. Good.\n\nNeed check original image: It seems handwritten answer [1,3/2], perhaps the problem asks \"取值范围为____\" and handwritten answer lower [1,3/2]. Candidate original_text has blank, okay. There's also handwritten \"f(a-3) > -f(1-2a) = f(2a-1)\" not included. Fine.\n\nPotential issue: Domain of fraction condition. The image has fraction \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\), with no quantifier explicitly but likely \"对于任意 x1, x2\"? Actually sentence: \"已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2)<0，则...\" The comma after <0. It doesn't explicitly say \"对于任意 x1,x2\". However, mathematical convention: variables x1,x2 are arbitrary satisfying? It could be \"且 \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\)\" without quantifier but necessarily meaning for any distinct x1,x2? This is an abstract condition; root quantifier with ∀ is standard. The review instruction: \"不添加...量词\"? Need \"保留量词顺序\" but if none, default? Let's examine catalog quantifier: \"题面只说恒成立而未写出量词变量范围时，量词域取 ℝ\" for \"恒成立\". Here not literally \"恒成立\"; fraction condition is a condition involving free variables x1,x2. The root must bind them. The only sensible is universal over domain distinct. Could be missing quantifier but consensus. Candidate added ∀x1,x2∈[-2,2], x1≠x2. Is that \"擅自新增\"? I think no, it's formalization of condition. But need consider if x1,x2 are supposed to be any two points? yes, the fraction \\( \\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) for function defined on [-2,2] is shorthand for ∀x1,x2 in domain, x1≠x2. Good.\n\nCould there be issue that x1,x2 are not defined/declared in original? They appear in fraction. No.\n\nNeed check \"定义在[-2,2]上的函数f(x)是奇函数\" Parity for odd function with domain [-2,2] is okay. Candidate facts \"parity(f,odd)\" plus Dom. Good.\n\nNeed check scope: no subquestions. Root contains all. public_content.scopes one. choices status none. Good.\n\nNeed check public_content completeness. \"complete\" yes. privacy separated: Are there handwritten annotations? They are not in public fields. Root facts are math content. root doesn't have label. Statement no personal info. okay. figure none? Image no diagram; just text and handwriting. figure_detection none. It is appropriate.\n\nNeed status likely confirmed and findings [].\n\nBut let's thoroughly inspect potential subtle issues:\n\n- original_text says \"18. 已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则...\" The image has \"18. 已知定义在[-2, 2]上的函数f(x)是奇函数，且 ...<0, 则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 [1, 3/2]\". Candidate original_text has blank not handwritten. Should original_text include handwritten answer? No, instructions \"手写答案...不是题设，不写入 original_text\". So correct. It has \"____\" which is not in image? Image has bracket blank with handwritten answer? Let's look: \"取值范围为 [1, 3/2]\" maybe there is printed blank line? The image shows bracket with handwritten [1,3/2] over a printed long underline? Actually the image: after \"取值范围为\" there is a horizontal line maybe blank, and handwritten [1, 3/2] over/above? Let's inspect: \"取值范围为\" then an underline? The bracket [1,3/2] seems handwritten in red/gray. Underneath is maybe a long blank line. Candidate writes \"____。\" This is acceptable representation of blank. It may not be exactly \"____\" but fine. Original_text should preserve original transcription; blank line maybe okay. No issue.\n\n- Candidate public_content statement has \"已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" It drops \"18.\" and includes blank. That's fine.\n\n- public_content scopes statement missing \"18.\"? That's source number, not public. Good.\n\n- Root facts include condition f(1-2a)+f(a-3)>0. But this is the inequality from \"则满足不等式 ... 的实数 a 的取值范围\". Is it correctly in facts? Yes.\n\n- Goal find_range symbol a. This problem asks range of a satisfying inequality. Good.\n\n- It doesn't specify requested range is real. Since real number a explicit. Good.\n\n- Potential problem: \"定义在[-2,2]上的函数f(x)是奇函数\" in root facts: Dom(f)=[-2,2], parity(f,odd). Good.\n\n- The fraction condition \\(\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0\\) for all x1,x2 in [-2,2], x1≠x2 means f strictly decreasing (maybe not necessary to solve). Candidate wrote with quantifier over x1,x2. Good.\n\n- However, code notation \"∀x1,x2∈[-2,2], x1≠x2: ...\" could be interpreted as both x1,x2 in [-2,2] and x1≠x2. Fine.\n\n- The fraction denominator x1-x2 not zero, candidate includes x1≠x2. Good.\n\n- Does fraction condition require x1<x2? No, denominator sign; expression <0 for all distinct implies same direction? Actually if x1-x2 sign etc; but candidate doesn't restrict order. Correct.\n\n- The handwritten answer maybe [1,3/2]? Let's solve quick not needed: f decreasing odd. f(1-2a)+f(a-3)>0 -> f(1-2a)> -f(a-3)=f(3-a) (since odd). f decreasing -> 1-2a < 3-a -> -2 < a? Wait decreasing: f(u)>f(v) => u<v. So 1-2a < 3-a -> -a<2 -> a>-2. Domain: -2≤1-2a≤2 -> -3≤-2a≤1 -> -1/2≤a≤3/2; -2≤a-3≤2 -> 1≤a≤5. Intersection [1,3/2], and a>-2 no additional. Yes. Good. Candidate doesn't include domain conditions but not required.\n\nCould root need explicit \"a ∈ ℝ\"? The original \"实数a\". find_range symbol a implies real. No fact needed.\n\nPotential issue: original_text's fraction uses \"x_1-x_2\" in denominator. Candidate original_text does. Good.\n\nNeed maybe report nothing. confirmed.\n\nBut before final, check response_schema: Only status and findings; top-level no other keys. We can output {\"status\":\"confirmed\",\"findings\":[]}. Need no markdown. Ensure JSON object."
+        }
+      }
+    ],
+    "created": 1794415179,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 2648,
+      "prompt_tokens": 10863,
+      "total_tokens": 13511,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 2637,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 10112
+      },
+      "prompt_cache_hit_tokens": 10112,
+      "prompt_cache_miss_tokens": 751
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 14.844
+}

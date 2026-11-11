@@ -1,0 +1,85 @@
+{
+  "pipeline": "text-then-figures/v1",
+  "output_contract": "search-problem-extraction/v1",
+  "status": "workflow.budget_exhausted",
+  "source_reviewed": false,
+  "public_candidate": {
+    "original_text": "2. 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2-3*x,x>=0)"
+      ],
+      "facts": [
+        "parity(f,even)",
+        "f(x) ≤ 0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ],
+      "uncertainties": []
+    },
+    "public_content": {
+      "completeness": "complete",
+      "privacy": "separated",
+      "figure": "not_required",
+      "scopes": [
+        {
+          "scope_ref": "/root",
+          "statement": "已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____",
+          "choices": [
+            {
+              "target_ref": "/root/goals/0",
+              "status": "none",
+              "selection_mode": "none",
+              "options": []
+            }
+          ]
+        }
+      ],
+      "figure_detection": {
+        "status": "none",
+        "regions": []
+      }
+    }
+  },
+  "candidate": {
+    "original_text": "2. 已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le 0$ 的解集为____",
+    "root": {
+      "definitions": [
+        "f(x)=piecewise(x^2-3*x,x>=0)"
+      ],
+      "facts": [
+        "parity(f,even)",
+        "f(x) ≤ 0"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "x"
+        }
+      ],
+      "uncertainties": []
+    }
+  },
+  "reviewed_candidate_revision": null,
+  "features": [],
+  "features_ok": false,
+  "feature_diagnostics": [
+    {
+      "code": "figure.pending_or_invalid_mathematics"
+    }
+  ],
+  "review_findings": [],
+  "confirmation_diagnostics": [],
+  "unsupported_diagnostics": [],
+  "question_sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+  "sent_image_sha256": [
+    "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6"
+  ],
+  "elapsed_seconds": 51.521,
+  "figure_attempts": [],
+  "stored_original_sha256": "9f054239bba54256f3799cf0ab0c0121e6a7c1e7db9a64f60f22efe07d8533b0"
+}

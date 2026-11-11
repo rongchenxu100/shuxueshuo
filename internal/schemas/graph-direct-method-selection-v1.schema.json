@@ -46,7 +46,8 @@
         "abstract_monotonicity",
         "function_parity",
         "parity_parameter",
-        "parity_extension"
+        "parity_extension",
+        "parity_inequality"
       ]
     },
     "routes": {
@@ -99,6 +100,7 @@
               "function_parity",
               "parity_parameter",
               "parity_extension",
+              "parity_inequality",
               "function_evaluation",
               "function_symmetry"
             ]
@@ -146,7 +148,8 @@
             "abstract_monotonicity",
             "function_parity",
             "parity_parameter",
-            "parity_extension"
+            "parity_extension",
+            "parity_inequality"
           ]
         }
       }

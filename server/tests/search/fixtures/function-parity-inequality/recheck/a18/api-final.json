@@ -1,0 +1,299 @@
+{
+  "search_id": "243559926cf3",
+  "user_id": "ecdaf7bf-d144-440d-b1d4-648c2db7d073",
+  "problem_id": "c882910e-9204-4a47-8197-4dc68134f9d4",
+  "statement": "已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。",
+  "recognition_status": "reviewed",
+  "lesson_status": "unsupported",
+  "artifact_state": "active",
+  "figures": {
+    "schema_version": "question-figures/v1",
+    "source": {
+      "sha256": "ee02a11c2942da888346c97172db0a8221c637b8525b2007a5df01b3f1a0ac2a",
+      "width": 990,
+      "height": 142,
+      "quality": "original"
+    },
+    "figures": [
+      {
+        "id": "original",
+        "role": "source",
+        "scope_ref": "/root",
+        "box": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "image_url": "/api/search/problems/243559926cf3/figures/original?version=68453ae46a53b8b26b2e96e8fedcad04f7759bbf4728d42e66303a9309796b75"
+      }
+    ],
+    "content_id": "68453ae46a53b8b26b2e96e8fedcad04f7759bbf4728d42e66303a9309796b75"
+  },
+  "calls": [
+    {
+      "stage": "extract",
+      "status": "completed"
+    },
+    {
+      "stage": "review",
+      "status": "completed"
+    }
+  ],
+  "crop": {
+    "page_id": "82282ed0bf68",
+    "box": [
+      0.0859375,
+      0.4232121922626026,
+      0.859375,
+      0.5064478311840562
+    ],
+    "page_size": [
+      1280,
+      1706
+    ],
+    "crop_size": [
+      990,
+      142
+    ],
+    "bytes": 15246
+  },
+  "state": "done",
+  "status": "reviewed_candidate",
+  "outcome": "ok",
+  "original_text": "18. 已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。",
+  "parts": [],
+  "root": {
+    "facts": [
+      "Dom(f)=[-2,2]",
+      "parity(f,odd)",
+      "∀x1,x2∈[-2,2], x1≠x2: (f(x1)-f(x2))/(x1-x2)<0",
+      "f(1-2*a)+f(a-3)>0"
+    ],
+    "goals": [
+      {
+        "kind": "find_range",
+        "symbol": "a"
+      }
+    ]
+  },
+  "findings": [],
+  "features": [
+    {
+      "feature_id": "goal",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_inequality",
+      "scope": "/root",
+      "status": "known"
+    },
+    {
+      "feature_id": "parity_extension",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "symmetry_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "parity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_parity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "monotonicity_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_extremum",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_monotonicity",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_modeling",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_range_parameter",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_inequality",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "piecewise_equation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_graph",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_formula",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "translation_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_range",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_evaluation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_comparison",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "abstract_function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "function_domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "quantifier",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "bound_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "free_vars",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "domain_kind",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "relation",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "normal_form",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "degree_in_goal",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "leading_coeff_in_bound",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "coefficients",
+      "scope": "/root",
+      "status": "unknown"
+    },
+    {
+      "feature_id": "range_var_is_principal",
+      "scope": "/root",
+      "status": "unknown"
+    }
+  ],
+  "image_check": {
+    "question_sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+    "sent_image_sha256": [
+      "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc"
+    ],
+    "original_sha256": null,
+    "verified": true
+  },
+  "elapsed_seconds": 30.175,
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "unsupported",
+        "primary": null,
+        "supported": [],
+        "d1": {
+          "rows": [],
+          "summary": ""
+        },
+        "walk": null
+      }
+    ],
+    "execution_status": "completed",
+    "stream": {
+      "run_id": "77df7a08ae6641269a1a2e68ac697de9",
+      "lesson_version": "f21b2dbc537c734751a78d1ddef77db76d0065abd014f98d0bf4ab65e9a5fdb2",
+      "stream_id": "77df7a08ae6641269a1a2e68ac697de9",
+      "snapshot_url": "/api/search/problems/243559926cf3/lesson/77df7a08ae6641269a1a2e68ac697de9/snapshot",
+      "events_url": "/api/search/problems/243559926cf3/lesson/77df7a08ae6641269a1a2e68ac697de9/events",
+      "websocket_url": "/api/search/problems/243559926cf3/lesson/77df7a08ae6641269a1a2e68ac697de9/ws"
+    }
+  }
+}

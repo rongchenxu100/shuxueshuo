@@ -1,0 +1,54 @@
+{
+  "contract": "authored-topic-holdout/v1",
+  "topic": "function-parity",
+  "batch": "T4-R4",
+  "note": "独立留出，只做隔离编译、作答、回放与课包检查；不进入专题发布清单，不登记 pending。首次运行即通过的题保留为留出；首次失败并修复的题转为回归，并另补新留出。",
+  "holdouts": [
+    {
+      "id": "function-parity-h01",
+      "class": "half_axis_reflection",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h01.json",
+      "route": "parity-inequality",
+      "first_run": "passed"
+    },
+    {
+      "id": "function-parity-h02",
+      "class": "same_side_comparison",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h02.json",
+      "route": "parity-inequality",
+      "first_run": "failed_source_not_bound",
+      "fix": "“满足 $f(2x-1)>f(1)$ 的实数 $x$ 的取值范围”中的不等式未被认作所求；扩展为前缀“满足”后通过，本题转为回归，补 H05",
+      "status": "regression"
+    },
+    {
+      "id": "function-parity-h03",
+      "class": "same_side_comparison",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h03.json",
+      "route": "parity-inequality",
+      "first_run": "failed_source_not_bound",
+      "fix": "不等式作为条件“且 $f(1-a)+f(1-2a)<0$”出现、随后问“实数 $a$ 的取值范围”，未被认作所求；改为其后有唯一取值范围槽位时也认领后通过，本题转为回归，补 H06",
+      "status": "regression"
+    },
+    {
+      "id": "function-parity-h04",
+      "class": "abstract_sign",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h04.json",
+      "route": "parity-inequality",
+      "first_run": "passed"
+    },
+    {
+      "id": "function-parity-h05",
+      "class": "same_side_comparison",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h05.json",
+      "route": "parity-inequality",
+      "first_run": "passed"
+    },
+    {
+      "id": "function-parity-h06",
+      "class": "same_side_comparison",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/h06.json",
+      "route": "parity-inequality",
+      "first_run": "passed"
+    }
+  ]
+}

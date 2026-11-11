@@ -1,0 +1,895 @@
+{
+  "run_id": "11db50de2c044134b6aa37a90cd0723e",
+  "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+  "input_sha256": "2ef2276dfd0e5f74c2a763264721aff76838b11e4095bd6b8c1d3e637da18115",
+  "stream_id": "11db50de2c044134b6aa37a90cd0723e",
+  "last_seq": 22,
+  "minimum_seq": 1,
+  "math_steps": [
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_sign_known",
+      "explanation": "$$\\begin{gathered}f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上严格递增}\\\\f(2)=0\\\\0<x<2\\text{ 时，}f(x)<f(2)=0\\\\x>2\\text{ 时，}f(x)>f(2)=0\\end{gathered}$$",
+      "highlight": {
+        "caption": "确定已知区间上函数值的符号",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上严格递增}\\\\f(2)=0\\end{gathered}"
+          },
+          {
+            "label": "已知区间上的符号",
+            "math": "0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "local_check": "passed",
+      "math_step_sha256": "b3be3d55a8428e3d7a0126d9f4fdd55c6624e957dfa1202a13e749c08b04d14a",
+      "method_ref": "method-parity-inequality#sign-known",
+      "ordinal": 1,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "source_refs": [
+        "/steps/6/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known",
+      "target_ref": "/root/goals/0",
+      "title": "确定已知区间上函数值的符号",
+      "used_basis": [
+        "function-monotonicity#definition",
+        "function-monotonicity#interval"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_sign_mirror",
+      "explanation": "$$\\begin{gathered}f(x)=-f(-x)\\\\-2<x<0\\Rightarrow 0<-x<2\\Rightarrow f(x)>0\\\\f(-2)=-f(2)=0\\\\x<-2\\Rightarrow -x>2\\Rightarrow f(x)<0\\end{gathered}$$",
+      "highlight": {
+        "caption": "用奇偶性得到另一侧的符号",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已求出的结果",
+            "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+          },
+          {
+            "label": "对称一侧的符号",
+            "math": "-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "local_check": "passed",
+      "math_step_sha256": "b8b7c00faa60c4b20c8c658761920122c86ed707e5e48a3caa9abed08b70f102",
+      "method_ref": "method-parity-inequality#sign-mirror",
+      "ordinal": 2,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "source_refs": [
+        "/steps/7/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror",
+      "target_ref": "/root/goals/0",
+      "title": "用奇偶性得到另一侧的符号",
+      "used_basis": [
+        "function-parity#definition",
+        "function-parity-graph#paired-values"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_sign_solve",
+      "explanation": "$$\\begin{gathered}\\frac{f(x-1)}{x}<0\\Leftrightarrow x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\\\text{分母 }x\\ne 0\\end{gathered}$$",
+      "highlight": {
+        "caption": "结合分母列出符号条件",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "已知条件",
+            "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+          },
+          {
+            "label": "等价条件",
+            "math": "x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "local_check": "passed",
+      "math_step_sha256": "0158c7b7850d333ba8343d010ff70ea602662cbaf30a8252bcbd082b58057bd5",
+      "method_ref": "method-parity-inequality#sign-solve",
+      "ordinal": 3,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "source_refs": [
+        "/steps/8/calls/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve",
+      "target_ref": "/root/goals/0",
+      "title": "结合分母列出符号条件",
+      "used_basis": [
+        "method-discriminant#merge",
+        "method-discriminant#solve",
+        "rational-expression#meaning"
+      ]
+    },
+    {
+      "after": [],
+      "before": [],
+      "case_path": [],
+      "contract": "graph-math-step/v2",
+      "display_unit": "parity_inequality_conclude",
+      "explanation": "$$\\begin{gathered}x>0,\\ f(x - 1)<0\\Rightarrow 1<x<3\\\\x<0,\\ f(x - 1)>0\\Rightarrow -1<x<0\\\\x - 1=0\\Rightarrow x=1:\\ 0\\notin D\\text{ 时 }f(0)\\text{ 无意义}\\text{；}0\\in D\\text{ 时 }f(0)=0\\text{，不是解}\\\\\\frac{f(x-1)}{x}<0\\text{ 的解集为 }\\left(-1, 0\\right) \\cup \\left(1, 3\\right)\\end{gathered}$$",
+      "highlight": {
+        "caption": "解出各种情况，写出解集",
+        "connector": "⇒",
+        "items": [
+          {
+            "label": "要同时满足",
+            "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+          },
+          {
+            "label": "解集",
+            "math": "x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+          }
+        ],
+        "layout": "derivation"
+      },
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "local_check": "passed",
+      "math_step_sha256": "01409b90339e77a3d50913e1f96d3cb4cb4457791f2c0a1e03820392eca66f9d",
+      "method_ref": "method-parity-inequality#conclude",
+      "ordinal": 4,
+      "premise_refs": [],
+      "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "source_refs": [
+        "/steps/9/calls/0",
+        "/steps/9/skipped_calls/0",
+        "/steps/9/skipped_calls/1",
+        "/steps/9/merges/0"
+      ],
+      "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
+      "target_ref": "/root/goals/0",
+      "title": "解出各种情况，写出解集",
+      "used_basis": []
+    }
+  ],
+  "goals": {
+    "/root/goals/0": {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))",
+          "latex": "\\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "feasible_set": {
+        "exact": {
+          "$math": "Union",
+          "args": [
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            }
+          ]
+        },
+        "expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))",
+        "latex": "\\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+      },
+      "status": "solved"
+    }
+  },
+  "handoffs": [
+    {
+      "answer": {
+        "kind": "find_range",
+        "set": {
+          "expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))",
+          "latex": "\\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+        },
+        "status": "set"
+      },
+      "available": true,
+      "contract": "graph-stage-four-handoff/v1",
+      "feasible_set": {
+        "exact": {
+          "$math": "Union",
+          "args": [
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "-1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "0"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            },
+            {
+              "$math": "Interval",
+              "args": [
+                {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                {
+                  "$math": "Integer",
+                  "value": "3"
+                },
+                {
+                  "$math": "BooleanTrue"
+                },
+                {
+                  "$math": "BooleanTrue"
+                }
+              ]
+            }
+          ]
+        },
+        "expression": "Union(Interval.open(-1, 0), Interval.open(1, 3))",
+        "latex": "\\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+      },
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "math_steps": [
+        {
+          "math_step_sha256": "b3be3d55a8428e3d7a0126d9f4fdd55c6624e957dfa1202a13e749c08b04d14a",
+          "ordinal": 1,
+          "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known"
+        },
+        {
+          "math_step_sha256": "b8b7c00faa60c4b20c8c658761920122c86ed707e5e48a3caa9abed08b70f102",
+          "ordinal": 2,
+          "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror"
+        },
+        {
+          "math_step_sha256": "0158c7b7850d333ba8343d010ff70ea602662cbaf30a8252bcbd082b58057bd5",
+          "ordinal": 3,
+          "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve"
+        },
+        {
+          "math_step_sha256": "01409b90339e77a3d50913e1f96d3cb4cb4457791f2c0a1e03820392eca66f9d",
+          "ordinal": 4,
+          "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "status": "pending",
+      "target_ref": "/root/goals/0",
+      "task_id": "bfb758ea9a9b2b1937223775896431ad5dd36f5ff1a5c58e909033c068dbf1fb",
+      "verified_route_sha256": "2627fa543cf5a0863dada17248f47fccc4bf34530d9889f3e74d99b10fd09200"
+    }
+  ],
+  "qa": [],
+  "selection_chunks": [
+    {
+      "chunk": {
+        "expected_answer": {},
+        "id": "D3",
+        "interaction": {
+          "type": "read"
+        },
+        "query": {
+          "from": "type-parity-inequality",
+          "op": "methods"
+        },
+        "question": "知道一侧的单调性和零点：先判断这一侧函数值的正负，再用奇偶性得到另一侧的正负，结合分母或因式的正负列出条件，最后检查使函数输入为 $0$ 的点。",
+        "submit_label": "用奇偶性解不等式法解题",
+        "title": "选择解题方法",
+        "verdicts": {}
+      },
+      "kind": "D3",
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "chunk": {
+        "id": "D4",
+        "options": [
+          {
+            "branch": "direct",
+            "message": "开始解题",
+            "method": "method-parity-inequality",
+            "recommendation": "preferred",
+            "route_id": "parity-inequality",
+            "route_plan": "planned"
+          }
+        ],
+        "title": "解题路线"
+      },
+      "kind": "D4",
+      "target_ref": "/root/goals/0"
+    }
+  ],
+  "interaction_protocol": "graph-step-interaction/v1",
+  "interaction_states": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known",
+      "ordinal": 1,
+      "math_step_sha256": "b3be3d55a8428e3d7a0126d9f4fdd55c6624e957dfa1202a13e749c08b04d14a",
+      "status": "interactive",
+      "interaction_id": "99f1f267de97573aedc576ea"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror",
+      "ordinal": 2,
+      "math_step_sha256": "b8b7c00faa60c4b20c8c658761920122c86ed707e5e48a3caa9abed08b70f102",
+      "status": "interactive",
+      "interaction_id": "f125c8476748f568024a5c7c"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve",
+      "ordinal": 3,
+      "math_step_sha256": "0158c7b7850d333ba8343d010ff70ea602662cbaf30a8252bcbd082b58057bd5",
+      "status": "interactive",
+      "interaction_id": "7a438156379836eca5a98ee9"
+    },
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude",
+      "ordinal": 4,
+      "math_step_sha256": "01409b90339e77a3d50913e1f96d3cb4cb4457791f2c0a1e03820392eca66f9d",
+      "status": "interactive",
+      "interaction_id": "a98f9b02839b506240c60a1b"
+    }
+  ],
+  "contract": "graph-stage-three-snapshot/v2",
+  "revisions_ref": "7ca7fdc09bb2b887b1e2043d74dc7ae100fc0706342e2b2059e6bed66308303d",
+  "checkpoints": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "status": "verified",
+      "phase": "complete",
+      "commit_id": "/root/goals/0:parity-inequality:complete",
+      "last_seq": 22
+    }
+  ],
+  "trajectories": [
+    {
+      "target_ref": "/root/goals/0",
+      "route_id": "parity-inequality",
+      "steps": [
+        {
+          "seq": 1,
+          "method": "method-parity-inequality",
+          "step": "prepare",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 2,
+          "method": "method-parity-inequality",
+          "step": "given-side",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 3,
+          "method": "method-parity-inequality",
+          "step": "mirror",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 4,
+          "method": "method-parity-inequality",
+          "step": "rewrite",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 5,
+          "method": "method-parity-inequality",
+          "step": "direction",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 6,
+          "method": "method-parity-inequality",
+          "step": "compare",
+          "case_path": [],
+          "calls": []
+        },
+        {
+          "seq": 7,
+          "method": "method-parity-inequality",
+          "step": "sign-known",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-monotonicity-order",
+              "used_basis": [
+                "function-monotonicity#definition",
+                "function-monotonicity#interval"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 8,
+          "method": "method-parity-inequality",
+          "step": "sign-mirror",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-function-symmetry-transform",
+              "used_basis": [
+                "function-parity#definition",
+                "function-parity-graph#paired-values"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 9,
+          "method": "method-parity-inequality",
+          "step": "sign-solve",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": "skill-inequality-transform",
+              "used_basis": [
+                "method-discriminant#merge",
+                "method-discriminant#solve",
+                "rational-expression#meaning"
+              ],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "seq": 10,
+          "method": "method-parity-inequality",
+          "step": "conclude",
+          "case_path": [],
+          "calls": [
+            {
+              "public_ref": null,
+              "used_basis": [],
+              "case_path": [],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "finalization": []
+    }
+  ],
+  "interactions": [
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "99f1f267de97573aedc576ea",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "cc32f83380de4afbcddfecf8eda1aa0790b77a0436c1151ab76354509692f06b",
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "确定已知区间上函数值的符号",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上严格递增}\\\\f(2)=0\\end{gathered}"
+              },
+              {
+                "label": "已知区间上的符号",
+                "math": "0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "99f1f267de97573aedc576ea#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$0<x<2\\text{ 时，}f(x)>0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)<0$",
+                "value": "o2"
+              },
+              {
+                "label": "$0<x<2\\text{ 时，}f(x)>0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0$",
+                "value": "o3"
+              },
+              {
+                "label": "$0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给 $f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上严格递增}$，且 $f(2)=0$。在 $\\left(0, \\infty\\right)$ 上，$f(x)$ 的符号是什么？",
+          "stem_board": {
+            "caption": "确定已知区间上函数值的符号",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}f\\text{ 在 }\\left(0, \\infty\\right)\\text{ 上严格递增}\\\\f(2)=0\\end{gathered}"
+              },
+              {
+                "label": "已知区间上的符号",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "确定已知区间上函数值的符号"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b3be3d55a8428e3d7a0126d9f4fdd55c6624e957dfa1202a13e749c08b04d14a",
+          "step_id": "39e5646dcb-parity-inequality-001-parity_inequality_sign_known"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "f125c8476748f568024a5c7c",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "4ae3d81a9810d47040b6d6d4c16b3c66d185b8db7bb435a68518009fe7dfffea",
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "用奇偶性得到另一侧的符号",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求出的结果",
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "对称一侧的符号",
+                "math": "-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "f125c8476748f568024a5c7c#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0$",
+                "value": "o1"
+              },
+              {
+                "label": "$-2<x<0\\text{ 时，}f(x)<0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)>0$",
+                "value": "o2"
+              },
+              {
+                "label": "$-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)>0$",
+                "value": "o3"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "题给 $f$ 是奇函数。在对称一侧 $\\left(-\\infty, 0\\right)$ 上，$f(x)$ 的符号是什么？",
+          "stem_board": {
+            "caption": "用奇偶性得到另一侧的符号",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已求出的结果",
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\\\\\text{奇函数}\\end{gathered}"
+              },
+              {
+                "label": "对称一侧的符号",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "用奇偶性得到另一侧的符号"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "b8b7c00faa60c4b20c8c658761920122c86ed707e5e48a3caa9abed08b70f102",
+          "step_id": "39e5646dcb-parity-inequality-002-parity_inequality_sign_mirror"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "7a438156379836eca5a98ee9",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "b6f51ad99f8a15550f19958a94b16853653eb0122dfc6037b8bdc2c9474c8ba5",
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "结合分母列出符号条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+              },
+              {
+                "label": "等价条件",
+                "math": "x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "7a438156379836eca5a98ee9#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x>0\\text{ 且 }f(x - 1)>0\\text{，或 }x<0\\text{ 且 }f(x - 1)<0$",
+                "value": "o2"
+              },
+              {
+                "label": "$x>0\\text{ 且 }f(x - 1)<0$",
+                "value": "o3"
+              },
+              {
+                "label": "$x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0$",
+                "value": "o1"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "按 $x$ 的正负分开讨论，不等式 $\\frac{f(x-1)}{x}<0$ 等价于下面哪一组条件？",
+          "stem_board": {
+            "caption": "结合分母列出符号条件",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "已知条件",
+                "math": "\\begin{gathered}0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\\\\\frac{f(x-1)}{x}<0\\end{gathered}"
+              },
+              {
+                "label": "等价条件",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "结合分母列出符号条件"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "0158c7b7850d333ba8343d010ff70ea602662cbaf30a8252bcbd082b58057bd5",
+          "step_id": "39e5646dcb-parity-inequality-003-parity_inequality_sign_solve"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    },
+    {
+      "contract": "graph-step-interaction/v1",
+      "interaction_id": "a98f9b02839b506240c60a1b",
+      "interaction_revision": "76e5b4aa9093346d0fa3699cf0fd4ebdcc93d3ccd6e9b0317b52892c157e83c0",
+      "interaction_sha256": "feeb5e1a999fd5a714f8a38d96a5850ec31734b7d0033c4ccdae90c13a3e544f",
+      "lesson_version": "e377f7c9c3ae50450369d6edeb18e1a51a192615a57a7eb6c07308c931bce247",
+      "parts": [
+        {
+          "completion_board": {
+            "caption": "解出各种情况，写出解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "要同时满足",
+                "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": "x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)"
+              }
+            ],
+            "layout": "derivation"
+          },
+          "expected_answer": {
+            "one_of": [
+              "o1"
+            ]
+          },
+          "feedback": {
+            "answer": "结合卡片中的式子和范围，再核对一次。"
+          },
+          "id": "a98f9b02839b506240c60a1b#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(1, 3\\right)$",
+                "value": "o3"
+              },
+              {
+                "label": "$x\\in \\left(-1, 0\\right) \\cup \\left(1, 3\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$x\\in \\left(-\\infty, -1\\right) \\cup \\left(0, 1\\right) \\cup \\left(3, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$x\\in \\left(-\\infty, -1\\right] \\cup \\left(0, 1\\right) \\cup \\left[3, \\infty\\right)$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "按符号条件解出 $x$，再合并。题目没有说明 $0$ 是否在定义域内，两种情况都要检查。不等式 $\\frac{f(x-1)}{x}<0$ 的解集是什么？",
+          "stem_board": {
+            "caption": "解出各种情况，写出解集",
+            "connector": "⇒",
+            "items": [
+              {
+                "label": "要同时满足",
+                "math": "\\begin{gathered}x>0\\text{ 且 }f(x - 1)<0\\text{，或 }x<0\\text{ 且 }f(x - 1)>0\\\\0<x<2\\text{ 时，}f(x)<0\\text{；}f(2)=0\\text{；}x>2\\text{ 时，}f(x)>0\\text{；}-2<x<0\\text{ 时，}f(x)>0\\text{；}f(-2)=0\\text{；}x<-2\\text{ 时，}f(x)<0\\end{gathered}"
+              },
+              {
+                "label": "解集",
+                "math": null
+              }
+            ],
+            "layout": "derivation"
+          },
+          "submit_label": "确认判断",
+          "title": "解出各种情况，写出解集"
+        }
+      ],
+      "route_id": "parity-inequality",
+      "run_id": "11db50de2c044134b6aa37a90cd0723e",
+      "status": "interactive",
+      "steps": [
+        {
+          "math_step_sha256": "01409b90339e77a3d50913e1f96d3cb4cb4457791f2c0a1e03820392eca66f9d",
+          "step_id": "39e5646dcb-parity-inequality-004-parity_inequality_conclude"
+        }
+      ],
+      "target_ref": "/root/goals/0"
+    }
+  ]
+}

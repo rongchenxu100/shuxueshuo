@@ -73,6 +73,8 @@ def compile_function_formula(goal, path):
     for field in DOMAIN_FIELDS:
         if field in goal:
             compiled[field] = _domain_ast(env, goal[field], path + '.' + field)
+    if 'input_domain' in goal:
+        compiled['input_domain'] = _domain_ast(env, goal['input_domain'], path + '.input_domain')
     if 'function_type' in goal:
         compiled['function_type'] = goal['function_type']
     return compiled

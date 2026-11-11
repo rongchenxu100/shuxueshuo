@@ -8,7 +8,7 @@ from .parity_extension_surface import (
     _domain,
     _range,
     _same,
-    _sibling_goals,
+    sibling_formula_spans,
     parity_spans,
 )
 
@@ -114,12 +114,7 @@ def source_spans(candidate, target_ref, ranges, desc):
     rows += [*((part, 'given_domain', list(desc['domain_source_refs'])) for part in domains),
              *((part, 'expression', [target_ref]) for part in intros)]
     covered = {(part[0], part[1]) for part, *_ in rows}
-    siblings = _sibling_goals(candidate, target_ref)
-
-    def sibling_owned(part):
-        slot = re.match(r'\s*\$\s*[_＿]', text[part[1]:]) and part[1] < target[0]
-        return siblings and (slot or part[0] > target[1])
-
-    if any((part[0], part[1]) not in covered and not sibling_owned(part) for part in formulas):
+    siblings = sibling_formula_spans(candidate, target_ref, formulas, desc)
+    if any(part[:2] not in covered | siblings for part in formulas):
         return None
     return [(part[0], part[1], kind, refs) for part, kind, refs in sorted(rows, key=lambda row: row[0][0])]

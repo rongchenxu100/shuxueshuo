@@ -1,0 +1,38 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a02",
+  "reviewer": "对照用户原图第 2 题印刷题干转录，忽略手写答案；先在 x≥0 上解 x^2-3x≤0，再用偶函数把解集对称到 x<0，独立逐段代入核验。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第2题；规划编号 FP-A02"
+    }
+  ],
+  "candidate": {
+    "original_text": "已知 $y=f(x)$ 是 $\\mathbf R$ 上的偶函数，且当 $x\\ge0$ 时，$f(x)=x^2-3x$，则不等式 $f(x)\\le0$ 的解集为____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,even)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2-3*x",
+          "relation_domain": "[0,∞)",
+          "expression": "f(x)<=0",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-inequality",
+    "solution": "[-3,3]",
+    "set_expression": "Interval(-3, 3)"
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

@@ -1,0 +1,532 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-parity-inequality",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "prepare",
+      "calls": [
+        {
+          "id": "prepare",
+          "capability": "prepare_parity_inequality",
+          "public_ref": null,
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "description": "description"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "given-side",
+      "calls": [
+        {
+          "id": "given_side",
+          "capability": "solve_parity_inequality_given_side",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "known_side": "known_side"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "half_axis"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_known",
+          "after": "given_side",
+          "template": "parity_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$known_side",
+            "phase": "known",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "known_side"
+          ],
+          "guard": {
+            "ref": "description.route",
+            "equals": "half_axis"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mirror",
+      "calls": [
+        {
+          "id": "mirror",
+          "capability": "mirror_parity_inequality_solution",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description",
+            "known_side": "$known_side"
+          },
+          "outputs": {
+            "mirror": "mirror"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "half_axis"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_mirror",
+          "after": "mirror",
+          "template": "parity_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$mirror",
+            "phase": "mirror",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mirror"
+          ],
+          "guard": {
+            "ref": "description.route",
+            "equals": "half_axis"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rewrite",
+      "calls": [
+        {
+          "id": "rewrite",
+          "capability": "rewrite_parity_inequality",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "rewrite": "rewrite"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_rewrite",
+          "after": "rewrite",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$rewrite",
+            "phase": "rewrite",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "rewrite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "direction",
+      "calls": [
+        {
+          "id": "direction",
+          "capability": "parity_inequality_direction",
+          "public_ref": "skill-parity-monotonicity-transfer",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "direction": "direction"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_direction",
+          "after": "direction",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$direction",
+            "phase": "direction",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "direction"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare",
+      "calls": [
+        {
+          "id": "compare",
+          "capability": "compare_parity_inequality_inputs",
+          "public_ref": "skill-monotonicity-order",
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite",
+            "direction": "$direction"
+          },
+          "outputs": {
+            "comparison": "comparison"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_compare",
+          "after": "compare",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$comparison",
+            "phase": "compare",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "comparison"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sign-known",
+      "calls": [
+        {
+          "id": "sign_known",
+          "capability": "parity_inequality_known_signs",
+          "public_ref": "skill-monotonicity-order",
+          "inputs": {
+            "description": "$description"
+          },
+          "outputs": {
+            "known_signs": "known_signs"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_sign_known",
+          "after": "sign_known",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$known_signs",
+            "phase": "sign_known",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "known_signs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sign-mirror",
+      "calls": [
+        {
+          "id": "sign_mirror",
+          "capability": "mirror_parity_inequality_signs",
+          "public_ref": "skill-function-symmetry-transform",
+          "inputs": {
+            "description": "$description",
+            "known_signs": "$known_signs"
+          },
+          "outputs": {
+            "mirrored_signs": "mirrored_signs"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_sign_mirror",
+          "after": "sign_mirror",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$mirrored_signs",
+            "phase": "sign_mirror",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "mirrored_signs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sign-solve",
+      "calls": [
+        {
+          "id": "sign_solve",
+          "capability": "solve_parity_sign_inequality",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "description": "$description",
+            "known_signs": "$known_signs",
+            "mirrored_signs": "$mirrored_signs"
+          },
+          "outputs": {
+            "sign_solution": "sign_solution"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_sign_solve",
+          "after": "sign_solve",
+          "template": "parity_inequality_derivation",
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          },
+          "bindings": {
+            "description": "$description",
+            "evidence": "$sign_solution",
+            "phase": "sign_solve",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "sign_solution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclude",
+      "calls": [
+        {
+          "id": "conclude",
+          "capability": "confirm_parity_inequality",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "known_side": "$known_side",
+            "mirror": "$mirror"
+          },
+          "outputs": {
+            "half_axis_result": "parity_inequality_result"
+          },
+          "order": 0,
+          "guard": {
+            "ref": "description.route",
+            "equals": "half_axis"
+          }
+        },
+        {
+          "id": "conclude_order",
+          "capability": "confirm_parity_inequality_order",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "rewrite": "$rewrite",
+            "direction": "$direction",
+            "comparison": "$comparison"
+          },
+          "outputs": {
+            "order_result": "parity_inequality_result"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "description.route",
+            "equals": "order"
+          }
+        },
+        {
+          "id": "conclude_sign",
+          "capability": "confirm_parity_inequality_sign",
+          "public_ref": null,
+          "inputs": {
+            "description": "$description",
+            "known_signs": "$known_signs",
+            "mirrored_signs": "$mirrored_signs",
+            "sign_solution": "$sign_solution"
+          },
+          "outputs": {
+            "sign_result": "parity_inequality_result"
+          },
+          "order": 2,
+          "guard": {
+            "ref": "description.route",
+            "equals": "sign"
+          }
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "parity_inequality_conclude",
+          "after": "result_ready",
+          "template": "parity_inequality_derivation",
+          "bindings": {
+            "description": "$description",
+            "evidence": "$parity_inequality_result",
+            "phase": "conclude",
+            "before": [],
+            "after": []
+          },
+          "depends_on": [
+            "description",
+            "parity_inequality_result"
+          ]
+        }
+      ],
+      "merges": [
+        {
+          "id": "result_ready",
+          "order": 3,
+          "branches": [
+            {
+              "guard": {
+                "ref": "description.route",
+                "equals": "half_axis"
+              },
+              "bindings": {
+                "parity_inequality_result": "$half_axis_result"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.route",
+                "equals": "order"
+              },
+              "bindings": {
+                "parity_inequality_result": "$order_result"
+              }
+            },
+            {
+              "guard": {
+                "ref": "description.route",
+                "equals": "sign"
+              },
+              "bindings": {
+                "parity_inequality_result": "$sign_result"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "parity_inequality_result": "$parity_inequality_result"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "parity_inequality",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-a11",
+  "reviewer": "对照用户原图第 11 题印刷题干转录，忽略手写答案；整题两问：第一问由奇性求 x<0 时的解析式，第二问由奇性把 f(2x+1)+f(-5)>0 改写为 f(2x+1)>f(5)，由已知半轴规则与奇性得 f 在 R 上严格递增，独立逐段代入核验。人工题源，不是 OCR 结果。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+      "sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+      "location": "第1张图，印刷第11题；规划编号 FP-A11"
+    }
+  ],
+  "candidate": {
+    "original_text": "$f(x)$ 是定义在 $R$ 上的奇函数，且当 $x\\ge0$ 时，$f(x)=x^2+x$．则 $x<0$ 时，$f(x)=$____；不等式 $f(2x+1)+f(-5)>0$ 的解集是____．",
+    "root": {
+      "facts": [
+        "Dom(f)=ℝ",
+        "parity(f,odd)"
+      ],
+      "goals": [
+        {
+          "kind": "find_function_formula",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2+x",
+          "relation_domain": "[0,∞)",
+          "requested_domain": "(-∞,0)"
+        },
+        {
+          "kind": "find_range",
+          "function": "f",
+          "variable": "x",
+          "relation": "f(x)=x^2+x",
+          "relation_domain": "[0,∞)",
+          "expression": "f(2*x+1)+f(-5)>0",
+          "symbol": "x"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "goals": [
+      {
+        "type": "type-parity-formula",
+        "expression": "-x**2 + x",
+        "domain": "(-∞,0)"
+      },
+      {
+        "type": "type-parity-inequality",
+        "solution": "(2,∞)",
+        "set_expression": "Interval.open(2, oo)"
+      }
+    ]
+  },
+  "usage": "development_source_checked_transcription_not_unseen_photo"
+}

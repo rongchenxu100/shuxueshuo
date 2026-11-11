@@ -1561,6 +1561,81 @@
       ]
     },
     {
+      "id": "method-parity-inequality",
+      "kind": "method",
+      "label": "奇偶性解不等式法",
+      "summary": "已知一侧解析式时，先在该侧解再用奇偶性对称；能化成同一函数两值比较时，用奇偶性改写、确定单调方向后比较输入；只知道单调性和零点时，列出函数值的符号，再结合分母判断。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "prepare",
+          "title": "读清已知与所求",
+          "calls": []
+        },
+        {
+          "id": "given-side",
+          "title": "半轴路线：先在已知范围内解",
+          "calls": [
+            "skill-inequality-transform"
+          ]
+        },
+        {
+          "id": "mirror",
+          "title": "半轴路线：用奇偶性得到另一侧的解",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "rewrite",
+          "title": "比较路线：改写成同一函数两值比较",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "direction",
+          "title": "比较路线：确定整个定义域上的单调方向",
+          "calls": [
+            "skill-parity-monotonicity-transfer"
+          ]
+        },
+        {
+          "id": "compare",
+          "title": "比较路线：去掉函数符号比较输入",
+          "calls": [
+            "skill-monotonicity-order"
+          ]
+        },
+        {
+          "id": "sign-known",
+          "title": "符号路线：确定已知区间上函数值的符号",
+          "calls": [
+            "skill-monotonicity-order"
+          ]
+        },
+        {
+          "id": "sign-mirror",
+          "title": "符号路线：用奇偶性得到另一侧的符号",
+          "calls": [
+            "skill-function-symmetry-transform"
+          ]
+        },
+        {
+          "id": "sign-solve",
+          "title": "符号路线：结合分母列出符号条件",
+          "calls": [
+            "skill-inequality-transform"
+          ]
+        },
+        {
+          "id": "conclude",
+          "title": "合并或求交得解集",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-parity-parameter",
       "kind": "method",
       "label": "奇偶性条件求参法",
@@ -2703,6 +2778,13 @@
       "aliases": []
     },
     {
+      "id": "skill-parity-monotonicity-transfer",
+      "kind": "skill",
+      "label": "利用奇偶性传递单调性",
+      "summary": "由一侧的严格单调性和奇性，得到对称一侧的单调方向，再在零点处连接，判断整个定义域上是否严格单调。",
+      "aliases": []
+    },
+    {
       "id": "skill-piecewise-order-join",
       "kind": "skill",
       "label": "跨段单调性检查",
@@ -2958,6 +3040,15 @@
       "kind": "problem_type",
       "label": "根据奇偶性求解析式",
       "summary": "已知奇偶性和一侧的解析式，求另一侧指定范围内的解析式。",
+      "aliases": [],
+      "status": "active",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-parity-inequality",
+      "kind": "problem_type",
+      "label": "利用奇偶性解不等式",
+      "summary": "已知奇偶性，以及一侧的解析式、单调性或零点，解关于函数值的不等式。",
       "aliases": [],
       "status": "active",
       "home": "compulsory-1-ch3"
@@ -4526,6 +4617,70 @@
         },
         {
           "step": "write-back",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-inequality|calls|skill-function-symmetry-transform",
+      "from": "method-parity-inequality",
+      "to": "skill-function-symmetry-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "mirror",
+          "when": ""
+        },
+        {
+          "step": "rewrite",
+          "when": ""
+        },
+        {
+          "step": "sign-mirror",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-inequality|calls|skill-inequality-transform",
+      "from": "method-parity-inequality",
+      "to": "skill-inequality-transform",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "given-side",
+          "when": ""
+        },
+        {
+          "step": "sign-solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-inequality|calls|skill-monotonicity-order",
+      "from": "method-parity-inequality",
+      "to": "skill-monotonicity-order",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "compare",
+          "when": ""
+        },
+        {
+          "step": "sign-known",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-parity-inequality|calls|skill-parity-monotonicity-transfer",
+      "from": "method-parity-inequality",
+      "to": "skill-parity-monotonicity-transfer",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "direction",
           "when": ""
         }
       ]
@@ -6648,6 +6803,15 @@
       ]
     },
     {
+      "id": "section-3-2|extends|type-parity-inequality",
+      "from": "section-3-2",
+      "to": "type-parity-inequality",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-2|extends|type-parity-parameter",
       "from": "section-3-2",
       "to": "type-parity-parameter",
@@ -6923,6 +7087,39 @@
         },
         {
           "entry": "interval"
+        }
+      ]
+    },
+    {
+      "id": "skill-parity-monotonicity-transfer|uses|function-monotonicity",
+      "from": "skill-parity-monotonicity-transfer",
+      "to": "function-monotonicity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "interval"
+        }
+      ]
+    },
+    {
+      "id": "skill-parity-monotonicity-transfer|uses|function-parity",
+      "from": "skill-parity-monotonicity-transfer",
+      "to": "function-parity",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "definition"
+        }
+      ]
+    },
+    {
+      "id": "skill-parity-monotonicity-transfer|uses|function-parity-graph",
+      "from": "skill-parity-monotonicity-transfer",
+      "to": "function-parity-graph",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "monotonicity"
         }
       ]
     },
@@ -8139,6 +8336,24 @@
     {
       "id": "type-parity-formula|involves|function-parity",
       "from": "type-parity-formula",
+      "to": "function-parity",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-inequality|candidate|method-parity-inequality",
+      "from": "type-parity-inequality",
+      "to": "method-parity-inequality",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-parity-inequality|involves|function-parity",
+      "from": "type-parity-inequality",
       "to": "function-parity",
       "type": "involves",
       "occurrences": [

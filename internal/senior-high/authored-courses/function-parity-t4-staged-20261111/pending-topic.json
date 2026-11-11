@@ -1,0 +1,176 @@
+{
+  "contract": "authored-topic-staging/v1",
+  "topic": "function-parity",
+  "group": "inequality",
+  "publish_state": "awaiting_t2_t5_unified_rebuild",
+  "note": "这份内部登记不被公开构建自动读取；T4 开发期只做临时目录的隔离课程编译与作答核验。T2–T5 完成后统一重建时，再加入 topic.problems、group.problems 与 graph-walk source；不能提前添加未生成的公共链接。",
+  "group_entry": {
+    "id": "inequality",
+    "label": "利用奇偶性解不等式",
+    "type": "type-parity-inequality",
+    "groupBy": "method",
+    "description": "已知一侧解析式时，先在该侧解再用奇偶性对称并合并；能化成同一函数两值比较时，用奇偶性改写、确定单调方向后比较输入，并要求输入在定义域内；只知道一侧单调性和零点时，列出函数值的符号，再结合分母判断。"
+  },
+  "pending": [
+    {
+      "id": "function-parity-a02",
+      "batch": "R0",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a02.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a02",
+        "title": "偶函数半轴解析式解不等式 · A02",
+        "page": "/topics/function-parity/q02/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a02.json",
+        "evidence": "site/data/graph-walk/function-parity-a02.evidence.json"
+      },
+      "topic_entry": {
+        "label": "偶函数半轴解析式解不等式 · A02",
+        "path": "/topics/function-parity/q02/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a02.json",
+        "types": [
+          "type-parity-inequality"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a05",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a05.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a05",
+        "title": "奇函数半轴解析式与两值比较 · A05",
+        "page": "/topics/function-parity/q05/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "targetRefs": ["/root/goals/0", "/root/goals/1"],
+        "targetTitles": ["补全另一侧解析式", "解不等式"],
+        "mainTargetRef": "/root/goals/1",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a05.json",
+        "evidence": "site/data/graph-walk/function-parity-a05.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数半轴解析式与两值比较 · A05",
+        "path": "/topics/function-parity/q05/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a05.json",
+        "types": [
+          "type-parity-formula",
+          "type-parity-inequality"
+        ]
+      },
+      "goals": {
+        "first": "type-parity-formula",
+        "second": "type-parity-inequality"
+      }
+    },
+    {
+      "id": "function-parity-a11",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a11.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a11",
+        "title": "奇函数半轴解析式与两值比较 · A11",
+        "page": "/topics/function-parity/q11/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "targetRefs": ["/root/goals/0", "/root/goals/1"],
+        "targetTitles": ["补全另一侧解析式", "解不等式"],
+        "mainTargetRef": "/root/goals/1",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a11.json",
+        "evidence": "site/data/graph-walk/function-parity-a11.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数半轴解析式与两值比较 · A11",
+        "path": "/topics/function-parity/q11/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a11.json",
+        "types": [
+          "type-parity-formula",
+          "type-parity-inequality"
+        ]
+      },
+      "goals": {
+        "first": "type-parity-formula",
+        "second": "type-parity-inequality"
+      }
+    },
+    {
+      "id": "function-parity-a18",
+      "batch": "R1",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a18.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a18",
+        "title": "奇函数差商单调与两值比较 · A18",
+        "page": "/topics/function-parity/q18/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a18.json",
+        "evidence": "site/data/graph-walk/function-parity-a18.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数差商单调与两值比较 · A18",
+        "path": "/topics/function-parity/q18/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a18.json",
+        "types": [
+          "type-parity-inequality"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a20",
+      "batch": "R2",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a20.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a20",
+        "title": "含参定义域偶函数两值比较 · A20",
+        "page": "/topics/function-parity/q20/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a20.json",
+        "evidence": "site/data/graph-walk/function-parity-a20.evidence.json"
+      },
+      "topic_entry": {
+        "label": "含参定义域偶函数两值比较 · A20",
+        "path": "/topics/function-parity/q20/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a20.json",
+        "types": [
+          "type-parity-inequality"
+        ]
+      }
+    },
+    {
+      "id": "function-parity-a19",
+      "batch": "R3",
+      "authored_source": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a19.json",
+      "course_source": {
+        "schemaVersion": 1,
+        "problemId": "function-parity-a19",
+        "title": "奇函数符号表与分母 · A19",
+        "page": "/topics/function-parity/q19/",
+        "topicHref": "/topics/function-parity/",
+        "targetRef": "/root/goals/0",
+        "authoringSource": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a19.json",
+        "evidence": "site/data/graph-walk/function-parity-a19.evidence.json"
+      },
+      "topic_entry": {
+        "label": "奇函数符号表与分母 · A19",
+        "path": "/topics/function-parity/q19/",
+        "runtime": "graph-walk",
+        "bundle": "/data/graph-walk/function-parity-a19.json",
+        "types": [
+          "type-parity-inequality"
+        ]
+      }
+    }
+  ]
+}

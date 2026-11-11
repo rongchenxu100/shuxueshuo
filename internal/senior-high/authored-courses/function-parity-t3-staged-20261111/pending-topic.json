@@ -244,18 +244,18 @@
       "batch": "R1",
       "goals": {
         "first": "math_contract_verified",
-        "second": "awaiting_t4_inequality_goal_notation"
+        "second": "verified_in_t4_r1"
       },
-      "whole_problem": "no_authored_record_until_t4_notation"
+      "whole_problem": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a05.json"
     },
     {
       "id": "function-parity-a11",
       "batch": "R1",
       "goals": {
         "first": "math_contract_verified",
-        "second": "awaiting_t4_inequality_goal_notation"
+        "second": "verified_in_t4_r1"
       },
-      "whole_problem": "no_authored_record_until_t4_notation"
+      "whole_problem": "internal/senior-high/authored-courses/function-parity-t4-staged-20261111/a11.json"
     }
   ]
 }

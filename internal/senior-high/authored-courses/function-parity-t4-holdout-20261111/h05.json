@@ -1,0 +1,45 @@
+{
+  "contract": "authored-graph-course/v1",
+  "problem_id": "function-parity-h05",
+  "reviewer": "T4 R4 独立留出题，独立编写，不来自两张规划原图，也不是对原题改系数。金标手算：偶函数化为 f(|m-1|)<f(|2m|)，[0,3] 上递增，|m-1|<|2m| 即 3m^2+2m-1>0，m<-1 或 m>1/3；m-1、2m 都在 [-3,3] 内得 -3/2≤m≤3/2；求交。",
+  "sources": [
+    {
+      "reference": "internal/senior-high/authored-courses/function-parity-t4-holdout-20261111/holdout-source.md",
+      "sha256": "64216315eb62355d52e9eb67ca53de1bf60a41b1d8bb0906c24e7da8b78ac373",
+      "location": "留出题源表 H05"
+    }
+  ],
+  "candidate": {
+    "original_text": "设偶函数 $f(x)$ 的定义域为 $[-3,3]$，且在 $[0,3]$ 上单调递增，若 $f(m-1)<f(2m)$，则实数 $m$ 的取值范围是____．",
+    "root": {
+      "facts": [
+        "Dom(f)=[-3,3]",
+        "parity(f,even)",
+        "f(m-1)<f(2*m)"
+      ],
+      "goals": [
+        {
+          "kind": "find_range",
+          "symbol": "m",
+          "function_monotonicity": {
+            "function": "f",
+            "domain": "[0,3]",
+            "function_domain": "[-3,3]",
+            "direction": "increasing",
+            "strict": true,
+            "basis": {
+              "kind": "stated",
+              "statement": ""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "type": "type-parity-inequality",
+    "solution": "[-3/2,-1)∪(1/3,3/2]",
+    "expression": "Union(Interval.Ropen(-3/2, -1), Interval.Lopen(1/3, 3/2))"
+  },
+  "usage": "holdout_isolated_compile_only"
+}

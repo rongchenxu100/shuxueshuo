@@ -371,6 +371,25 @@ def quantified_rule(ast, source_ref, function_ref):
     return {'rule_ast': rule, 'domain_ast': within_domain_scope(ast[3], {function_ref}), 'source_ref': source_ref}
 
 
+def _parity_identity(ast, function_ref, variable, prop):
+    """An exact restatement of the bound parity premise adds no new condition."""
+    refs = [n for n in function_cells.walk(ast) if n[0] == 'ref' and n[-1] == 'scalar']
+    if not refs or any(n[1].rsplit(':', 1)[-1] != variable or n != refs[0] for n in refs):
+        return False
+    functions = [n for n in function_cells.walk(ast) if n[0] == 'ref' and n[-1] == 'function']
+    if not functions or any(n[1].rsplit(':', 1)[-1] != function_ref.rsplit(':', 1)[-1]
+                            or n != functions[0] for n in functions):
+        return False
+    # Formula goal fields have their own lexical scope, as does local_rule().
+    call = ['function_call', functions[0], refs[0]]
+    reflected = ['function_call', call[1], ['neg', refs[0]]]
+    for sign in property_signs(prop):
+        value = call if sign == 1 else ['neg', call]
+        if ast in (['=', reflected, value], ['=', value, reflected]):
+            return True
+    return False
+
+
 def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
     """Bind a parity fact and local rules to a requested-range formula target.
 
@@ -397,7 +416,8 @@ def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
                     scope = scope[int(segment)] if isinstance(scope, list) else scope[segment]
         for row in entries:
             base._budget(row['ast'])
-        base._budget(goal_ast['relation'])
+        if goal_ast.get('relation') is not None:
+            base._budget(goal_ast['relation'])
         refs = {r['ast'][1][1] for r in facts}
         if len(refs) != 1 or len(facts) != 1:
             raise ValueError('parity_ext.single_parity_fact_required')
@@ -405,9 +425,14 @@ def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
         prop = facts[0]['ast'][2]
         if prop not in SIGNS:
             raise ValueError('parity_ext.property_unsupported')
+        sibling_refs = set()
+        if candidate is not None:
+            from .stage_two.parity_extension_surface import sibling_question_fact_refs
+            sibling_refs = sibling_question_fact_refs(candidate, target_ref, entries,
+                                                      {'function': name, 'variable': goal['variable']})
         domain_rows, point_rows, local_rows = [], [], []
         for row in entries:
-            if row is facts[0]:
+            if row is facts[0] or row['source_ref'] in sibling_refs:
                 continue
             ast = row['ast']
             if ast[0] == '=' and ['call', 'Dom', ['ref', function_ref, 'function']] in ast[1:]:
@@ -420,7 +445,8 @@ def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
                     raise ValueError('parity_ext.additional_condition_unsupported')
                 point_rows.extend(found)
         extra = _point_rows([(f'{target_ref}/additional_relations/{i}', ast)
-                             for i, ast in enumerate(goal_ast.get('additional_relations', []))], name)
+                             for i, ast in enumerate(goal_ast.get('additional_relations', []))
+                             if not _parity_identity(ast, function_ref, goal['variable'], prop)], name)
         if extra is None:
             raise ValueError('parity_ext.additional_relation_unsupported')
         point_rows.extend(extra)
@@ -431,19 +457,31 @@ def describe(goal, goal_ast, target_ref, entries, *, candidate=None):
             raise ValueError('parity_ext.one_declared_domain_required')
         if 'function_type' in goal:
             raise ValueError('parity_ext.additional_relation_unsupported')
-        rule_ast = local_rule(goal, goal_ast, name)
-        relation = goal_ast['relation']
+        if goal_ast.get('relation') is not None:
+            rule_ast = local_rule(goal, goal_ast, name)
+            relation = goal_ast['relation']
+            rule_domain = goal_ast['relation_domain']
+            primary = {'rule_ast': rule_ast, 'domain_ast': deepcopy(rule_domain),
+                       'source_ref': target_ref + '/relation'}
+            local_rows = [primary, *local_rows]
+        elif local_rows:
+            primary = local_rows[0]
+            rule_ast, rule_domain = primary['rule_ast'], primary['domain_ast']
+            relation = next(r['ast'][4] for r in entries if r['source_ref'] == primary['source_ref'])
+        else:
+            raise ValueError('parity_ext.rule_required')
         desc.update(function_ref=function_ref, function=name, variable=goal['variable'],
                     property=prop, rule_ast=rule_ast, relation_ast=deepcopy(relation),
-                    rule_domain_ast=deepcopy(goal_ast['relation_domain']),
+                    rule_domain_ast=deepcopy(rule_domain),
                     requested_domain_ast=deepcopy(goal_ast.get('requested_domain')),
                     domain_ast=deepcopy(declared[0]) if declared else None, point_rules=point_rows,
                     parity_source_ref=facts[0]['source_ref'],
                     domain_source_refs=([r['source_ref'] for r, _ in domain_rows] or
                                         [target_ref if declared else facts[0]['source_ref']]))
-        if local_rows:
-            desc['local_rules'] = [{'rule_ast': rule_ast, 'domain_ast': deepcopy(goal_ast['relation_domain']),
-                                    'source_ref': target_ref + '/relation'}, *local_rows]
+        if len(local_rows) > 1 or goal_ast.get('relation') is None:
+            desc['local_rules'] = local_rows
+        if sibling_refs:
+            desc['sibling_question_refs'] = sorted(sibling_refs)
         _check(desc)
         if candidate is not None:
             from .stage_two.fragments import _scope_ranges

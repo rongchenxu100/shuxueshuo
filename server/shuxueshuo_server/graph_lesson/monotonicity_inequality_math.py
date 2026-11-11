@@ -84,7 +84,20 @@ def describe(goal, target_ref, entries):
         required = {'function', 'domain', 'direction', 'strict'}
         if not required <= set(mono) or set(mono) - required - {'basis', 'function_domain'}:
             raise ValueError('mono_ineq.monotonicity_fields')
-        if mono.get('basis') not in (None, 'given', 'proved_monotonicity'):
+        basis = mono.get('basis')
+        if isinstance(basis, dict):
+            from .monotonicity_parameter_math import _basis_direction
+            if basis.get('kind') not in ('stated', 'difference_quotient', 'difference_product'):
+                raise ValueError('mono_ineq.monotonicity_basis')
+            if basis['kind'] == 'stated' and basis.get('statement') != '':
+                raise ValueError('mono_ineq.monotonicity_basis')
+            try:
+                implied = _basis_direction(basis, mono.get('function'))
+            except ValueError as exc:
+                raise ValueError('mono_ineq.monotonicity_basis') from exc
+            if implied is not None and implied != mono.get('direction'):
+                raise ValueError('mono_ineq.basis_direction_conflict')
+        elif basis not in (None, 'given', 'proved_monotonicity'):
             raise ValueError('mono_ineq.monotonicity_basis')
         if mono['direction'] not in ('increasing', 'decreasing'):
             raise ValueError('mono_ineq.direction_required')
@@ -98,12 +111,15 @@ def describe(goal, target_ref, entries):
             raise ValueError('mono_ineq.interval_domain_required')
         if interval is sp.S.Reals:
             interval = sp.Interval(-sp.oo, sp.oo)
-        relation_rows, definition_rows, domain_rows = [], [], []
+        relation_rows, definition_rows, domain_rows, parity_rows = [], [], [], []
         for row in entries:
             ast = parse(row['expression'])
             bounds = declared_domain_ast(ast, function)
             if bounds is not None:
                 domain_rows.append({'source_ref': row['source_ref'], 'domain_ast': bounds})
+                continue
+            if ast[:3] == ['call', 'parity', ['name', function]] and ast[3] in (['name', 'odd'], ['name', 'even']):
+                parity_rows.append({'source_ref': row['source_ref'], 'property': ast[3][1]})
                 continue
             if '/definitions/' in row['source_ref'] or ast[0] == 'function_definition':
                 definition_rows.append(row)
@@ -128,14 +144,54 @@ def describe(goal, target_ref, entries):
             left_ast=deepcopy(left[2]), right_ast=deepcopy(right[2]),
             definition_refs=[row['source_ref'] for row in definition_rows],
             domain_sources=domain_rows,
-            mono_basis=mono.get('basis') or 'given',
+            mono_basis=mono.get('basis') if mono.get('basis') == 'proved_monotonicity' else 'given',
             structure_supported=True,
         )
+        if isinstance(mono.get('basis'), dict):
+            desc['mono_basis_source'] = deepcopy(mono['basis'])
+        if parity_rows:
+            desc['parity_sources'] = parity_rows
+            _parity_compatible(desc, parity_rows, interval, mono)
         _coverage(desc)
     except (ValueError, KeyError, TypeError, NotImplementedError, sp.PolynomialError) as exc:
         desc['structure_supported'] = False
         desc['reason'] = str(exc) or 'mono_ineq.unsupported'
     return desc
+
+
+def _parity_compatible(description, parity_rows, interval, mono):
+    """A parity fact the comparison does not use must still agree with the strict direction and domain."""
+    if len({row['property'] for row in parity_rows}) != 1:
+        raise ValueError('mono_ineq.parity_conflict')
+    exact = [domain(row['domain_ast']) for row in description['domain_sources']]
+    if 'function_domain' in mono:
+        exact.append(domain(parse(mono['function_domain'])))
+    for value in exact:
+        value = sp.Interval(-sp.oo, sp.oo) if value is sp.S.Reals else value
+        if not isinstance(value, sp.Interval) or sp.Interval(-value.end, -value.start, value.right_open,
+                                                             value.left_open) != value:
+            raise ValueError('mono_ineq.parity_conflict')
+    if parity_rows[0]['property'] == 'even' and interval.inf < 0 < interval.sup:
+        raise ValueError('mono_ineq.parity_conflict')
+    # A proved direction comes from an actual function: a redundant parity fact
+    # must hold for that original function, including its natural domain.
+    if description['mono_basis'] == 'proved_monotonicity':
+        from . import function_cells as cells
+        from .function_monotonicity import _bind_argument
+        from .function_parity import reflect_ast
+        for row in description['given_definitions']:
+            if row['source_ref'] not in description['definition_refs']:
+                continue
+            raw = definition(row['expression'])
+            ast = _bind_argument(raw[3], raw[2])
+            natural = cells.natural_domain(ast)
+            actual = exact[0] if exact else natural
+            if not cells.same_set(actual, cells.reflect_set(actual)) or actual - natural != sp.S.EmptySet:
+                raise ValueError('mono_ineq.parity_conflict')
+            right = ast if parity_rows[0]['property'] == 'even' else ['neg', ast]
+            proof = cells.compare_on_domain(reflect_ast(ast), right, actual)
+            if proof['relation'] != 'equal' or not cells.verify_identity(reflect_ast(ast), right, actual, proof):
+                raise ValueError('mono_ineq.parity_conflict')
 
 
 def _input_expr(ast, names, symbol):

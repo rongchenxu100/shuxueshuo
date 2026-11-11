@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 759,
+      "prompt_tokens": 25721,
+      "total_tokens": 26480,
+      "prompt_cache_hit_tokens": 7680,
+      "prompt_cache_miss_tokens": 18041
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 626,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-734fbe8c-b6a6-4be1-9cc1-4f90d8e0b45b",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 10168,
+        "expires_at": 1794499666,
+        "uploaded_at": 1794413266.103147
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d4ddb9181a0e7abd42d1391ec425131ef449072decab47fffca871367882a3f6",
+        "api_calls": 1,
+        "file_id": "file-api-734fbe8c-b6a6-4be1-9cc1-4f90d8e0b45b",
+        "expires_at": 1794499666,
+        "elapsed_ms": 514
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 4142,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 759,
+          "prompt_tokens": 25721,
+          "total_tokens": 26480,
+          "completion_tokens_details": {
+            "reasoning_tokens": 497
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 7680
+          },
+          "prompt_cache_hit_tokens": 7680,
+          "prompt_cache_miss_tokens": 18041
+        },
+        "raw_payload": {
+          "id": "c3d5d18e-2405-4ad6-825e-7a6e0ca2376e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 759,
+            "prompt_tokens": 25721,
+            "total_tokens": 26480,
+            "completion_tokens_details": {
+              "reasoning_tokens": 497
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 7680
+            },
+            "prompt_cache_hit_tokens": 7680,
+            "prompt_cache_miss_tokens": 18041
+          },
+          "created": 1794413266,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题干：已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x \\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\le 0$ 的解集为 ____。\n\n手写答案 [-3,3] 不转录，填空照原样横线。\n\nroot: definitions 里有 f(x)=piecewise(x^2-3*x, x>=0, ...)？题目只给 x>=0 时的表达式，偶函数给出另一半。这不补造，保留事实：parity(f,even)，Dom(f)=ℝ（\"是R上的偶函数\" 隐含定义域为 R？原文“y=f(x)是R上的偶函数”，可写 Dom(f)=ℝ 以及 parity(f,even)）。然后 ∀x≥0: f(x)=x^2-3*x。但 f(x)=x^2-3x 当 x>=0 — 写成 piecewise? 更自然写事实 ∀x∈[0,∞): f(x)=x^2-3*x。不过目录允许 function_definition 与量词。definitions 可以放 f(x)=piecewise(x^2-3*x,x>=0)；但另一半没有。或许简单放 facts 多条。\n\n我将 definitions 放 [\"f(x)=piecewise(x^2-3*x,x>=0)\"]？这会暗示 x<0 时无定义，不合适。改用 facts: [\"∀x∈ℝ: f(-x)=f(x)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]。也可 parity(f,even)。用 facts 保留。\n\ngoal: find_range, symbol x, 条件 f(x)<=0 作为事实（题面里的不等式是目标条件，应放 facts）。规则：“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 facts 含 f(x) ≤ 0，goal find_range symbol x。\n\npublic_content.scopes 一个 root，statement 含完整题干与横线。choices: target status none.\n\nfigure: none.\n\noriginal_text 保留题号？original_text 保留完整题干原文，题号可保留（可保留来源题号于 original_text）。root.label 不设。\n\nuncertainties 无。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 4698
+  },
+  "raw_payload": {
+    "id": "c3d5d18e-2405-4ad6-825e-7a6e0ca2376e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"2. 已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"root\":{\"facts\":[\"Dom(f)=ℝ\",\"parity(f,even)\",\"∀x∈[0,∞): f(x)=x^2-3*x\",\"f(x) ≤ 0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"x\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知 $y=f(x)$ 是 $\\\\mathbb{R}$ 上的偶函数，且当 $x \\\\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\\\le 0$ 的解集为 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题干：已知 $y=f(x)$ 是 $\\mathbb{R}$ 上的偶函数，且当 $x \\ge 0$ 时，$f(x)=x^2-3x$，则不等式 $f(x) \\le 0$ 的解集为 ____。\n\n手写答案 [-3,3] 不转录，填空照原样横线。\n\nroot: definitions 里有 f(x)=piecewise(x^2-3*x, x>=0, ...)？题目只给 x>=0 时的表达式，偶函数给出另一半。这不补造，保留事实：parity(f,even)，Dom(f)=ℝ（\"是R上的偶函数\" 隐含定义域为 R？原文“y=f(x)是R上的偶函数”，可写 Dom(f)=ℝ 以及 parity(f,even)）。然后 ∀x≥0: f(x)=x^2-3*x。但 f(x)=x^2-3x 当 x>=0 — 写成 piecewise? 更自然写事实 ∀x∈[0,∞): f(x)=x^2-3*x。不过目录允许 function_definition 与量词。definitions 可以放 f(x)=piecewise(x^2-3*x,x>=0)；但另一半没有。或许简单放 facts 多条。\n\n我将 definitions 放 [\"f(x)=piecewise(x^2-3*x,x>=0)\"]？这会暗示 x<0 时无定义，不合适。改用 facts: [\"∀x∈ℝ: f(-x)=f(x)\", \"∀x∈[0,∞): f(x)=x^2-3*x\"]。也可 parity(f,even)。用 facts 保留。\n\ngoal: find_range, symbol x, 条件 f(x)<=0 作为事实（题面里的不等式是目标条件，应放 facts）。规则：“解不等式”“求解集”同样是对未知数的 find_range，该不等式作为本节点条件。所以 facts 含 f(x) ≤ 0，goal find_range symbol x。\n\npublic_content.scopes 一个 root，statement 含完整题干与横线。choices: target status none.\n\nfigure: none.\n\noriginal_text 保留题号？original_text 保留完整题干原文，题号可保留（可保留来源题号于 original_text）。root.label 不设。\n\nuncertainties 无。"
+        }
+      }
+    ],
+    "created": 1794413266,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 759,
+      "prompt_tokens": 25721,
+      "total_tokens": 26480,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 497,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 7680
+      },
+      "prompt_cache_hit_tokens": 7680,
+      "prompt_cache_miss_tokens": 18041
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 4.7
+}

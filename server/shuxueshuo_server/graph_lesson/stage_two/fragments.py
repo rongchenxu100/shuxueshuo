@@ -607,6 +607,20 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         for index, item in enumerate(fragments, 1):
             item['id'] = f'{target_ref}:d1:{index}'
         return {'fragments': fragments, 'diagnostics': diagnostics}
+    if values.get('parity_inequality', {}).get('structure_supported'):
+        from .parity_inequality_surface import source_spans
+        spans = source_spans(candidate, target_ref, ranges, values['parity_inequality'])
+        if spans is None:
+            return {'fragments': [], 'diagnostics': [{
+                'code': 'd1.parity_inequality_source_not_located', 'target_ref': target_ref}]}
+        for start, end, kind, refs in spans:
+            surface = normalize_surface(text, start, end)
+            add(surface, 0, len(surface.text), kind, ['goal', 'parity_inequality'])
+            fragments[-1]['source_refs'] = refs
+            fragments[-1]['knowledge_refs'] = ['function-parity#definition']
+        for index, item in enumerate(fragments, 1):
+            item['id'] = f'{target_ref}:d1:{index}'
+        return {'fragments': fragments, 'diagnostics': diagnostics}
     if values.get('symmetry_evaluation', {}).get('structure_supported'):
         from .symmetry_value_surface import source_spans
         spans = source_spans(candidate, target_ref, ranges, values['symmetry_evaluation'])

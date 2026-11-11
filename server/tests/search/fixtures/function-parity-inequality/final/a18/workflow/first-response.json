@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"root\":{\"label\":\"18\",\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0\",\"f(1-2*a)+f(a-3)>0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 916,
+      "prompt_tokens": 25713,
+      "total_tokens": 26629,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 241
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 789,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-b2405633-db98-4929-a729-90149499b254",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 15246,
+        "expires_at": 1794501707,
+        "uploaded_at": 1794415308.402358
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "api_calls": 1,
+        "file_id": "file-api-b2405633-db98-4929-a729-90149499b254",
+        "expires_at": 1794501707,
+        "elapsed_ms": 701
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 4534,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 916,
+          "prompt_tokens": 25713,
+          "total_tokens": 26629,
+          "completion_tokens_details": {
+            "reasoning_tokens": 572
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 241
+        },
+        "raw_payload": {
+          "id": "ab12addb-f5f8-4656-a285-925b62b5ad92",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 916,
+            "prompt_tokens": 25713,
+            "total_tokens": 26629,
+            "completion_tokens_details": {
+              "reasoning_tokens": 572
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 241
+          },
+          "created": 1794415308,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"root\":{\"label\":\"18\",\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0\",\"f(1-2*a)+f(a-3)>0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "题目：已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2) < 0，则满足不等式 f(1-2a)+f(a-3)>0 的实数a的取值范围为____。\n\n手写答案忽略。\n\n注意差商条件：x1, x2 应该是定义域内任意两个不相等实数。转录保持原式。\n\nroot: definitions: f(x) 是……不，只需 facts: f 定义在 [-2,2]，奇函数，差商小于0。变量绑定：可以写 ∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0；parity(f, odd)。Dom(f)=[-2,2]。\n\n目标：find_range symbol a。\n\noriginal_text 保留原题，忽略手写。\n\n配图：无。\n\nroot.label: \"18\" 是来源题号，root_label_role source。public_content 不包含题号？statement 不含题号。\n\npublic_content.scopes root statement 只写题干和所求，不含题号。\n\ntranscription:\n\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\"\n\nroot facts 写：\n\"Dom(f)=[-2,2]\"\n\"parity(f,odd)\"\n\"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2) < 0\"\n\n注意 catalog 量词语法：∀变量∈定义域: 关系；多变量可能写成 ∀x_1,x_2∈[-2,2]: ... 并附 x_1≠x_2。可写 \"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0\"。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\"}。题面条件不等式作为 facts 还是作为目标条件？规则说 find_range 该不等式作为本节点条件。所以 facts 加 \"f(1-2*a)+f(a-3)>0\"。这是目标的条件，放 facts 可以。\n\npublic_content choices: status none, selection_mode none, options [].",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5289
+  },
+  "raw_payload": {
+    "id": "ab12addb-f5f8-4656-a285-925b62b5ad92",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"root\":{\"label\":\"18\",\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0\",\"f(1-2*a)+f(a-3)>0\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"root_label_role\":\"source\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ______\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "题目：已知定义在[-2,2]上的函数f(x)是奇函数，且 (f(x1)-f(x2))/(x1-x2) < 0，则满足不等式 f(1-2a)+f(a-3)>0 的实数a的取值范围为____。\n\n手写答案忽略。\n\n注意差商条件：x1, x2 应该是定义域内任意两个不相等实数。转录保持原式。\n\nroot: definitions: f(x) 是……不，只需 facts: f 定义在 [-2,2]，奇函数，差商小于0。变量绑定：可以写 ∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0；parity(f, odd)。Dom(f)=[-2,2]。\n\n目标：find_range symbol a。\n\noriginal_text 保留原题，忽略手写。\n\n配图：无。\n\nroot.label: \"18\" 是来源题号，root_label_role source。public_content 不包含题号？statement 不含题号。\n\npublic_content.scopes root statement 只写题干和所求，不含题号。\n\ntranscription:\n\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\"\n\nroot facts 写：\n\"Dom(f)=[-2,2]\"\n\"parity(f,odd)\"\n\"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2) < 0\"\n\n注意 catalog 量词语法：∀变量∈定义域: 关系；多变量可能写成 ∀x_1,x_2∈[-2,2]: ... 并附 x_1≠x_2。可写 \"∀x_1,x_2∈[-2,2], x_1≠x_2: (f(x_1)-f(x_2))/(x_1-x_2)<0\"。\n\ngoals: {\"kind\":\"find_range\",\"symbol\":\"a\"}。题面条件不等式作为 facts 还是作为目标条件？规则说 find_range 该不等式作为本节点条件。所以 facts 加 \"f(1-2*a)+f(a-3)>0\"。这是目标的条件，放 facts 可以。\n\npublic_content choices: status none, selection_mode none, options []."
+        }
+      }
+    ],
+    "created": 1794415308,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 916,
+      "prompt_tokens": 25713,
+      "total_tokens": 26629,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 572,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 241
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.29
+}

@@ -38,6 +38,14 @@ for (const [index, action] of replay.actions.entries()) {
 assert.equal(state.done, true);
 assert.equal(replayState(bundle, replay).done, true);
 const answer = bundle.routes[process.argv[4] || 'parity-parameter'].completion.answer;
+const targets = source.targetRefs || [source.targetRef];
+if (targets.length > 1) {
+  assert.equal(answer.kind, 'goal_group');
+  assert.deepEqual(answer.answers.map(item => item.target_ref), targets);
+  assert.deepEqual(bundle.stream.target_refs, targets);
+} else {
+  assert.notEqual(answer.kind, 'goal_group');
+}
 const summary = routeAnswerSummary(answer);
 if (answer.result_type === 'parameter_family') {
   assert.equal(answer.parameters.length, 2);
@@ -61,4 +69,4 @@ function visit(value) {
 visit(bundle);
 for (const formula of answer.kind === 'goal_group' ? summary.items.map(item => item.summary.formula) : [summary.formula]) render(formula);
 assert.ok(rendered > 8);
-console.log(JSON.stringify({decisions: replay.actions.length, formulas: rendered, summary}));
+console.log(JSON.stringify({targets, decisions: replay.actions.length, formulas: rendered, summary}));

@@ -139,8 +139,11 @@ def build_context(candidate, target_ref):
     from ..parity_parameter_math import describe as parity_parameter_description
     from ..parity_extension_math import describe as parity_extension_description
     from ..symmetry_value_math import describe as symmetry_value_description
+    from ..parity_inequality_math import describe as parity_inequality_description
     if desc := parity_extension_description(goal, goal_ast, target_ref, entries, candidate=candidate):
         context['parity_extension_goal'] = desc
+    elif desc := parity_inequality_description(goal, goal_ast, target_ref, entries, candidate=candidate):
+        context['parity_inequality_goal'] = desc
     elif desc := symmetry_value_description(goal, goal_ast, target_ref, entries, candidate=candidate):
         context['symmetry_value_goal'] = desc
     elif desc := parity_parameter_description(goal, goal_ast, target_ref, entries, candidate=candidate):

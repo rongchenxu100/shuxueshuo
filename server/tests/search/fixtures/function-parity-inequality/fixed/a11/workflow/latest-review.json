@@ -1,0 +1,12 @@
+{
+  "revision": "d3c890e0c3fb9a218112b1fd4e2bd9e27bb0650b9b066a9f402fa6fb6cea3dab",
+  "status": "correction_required",
+  "findings": [
+    {
+      "path": "/root/facts/3",
+      "kind": "wrong_scope",
+      "source_excerpt": "不等式 f(2x+1)+f(-5)>0 的解集是____",
+      "message": "该不等式是第二个空“解集”的局部条件，不是整题共用条件；当前放在 root 的共用 facts 中，会错误地约束第一个空求 f(x) 的 x 范围。应移入第二个 find_range 目标的作用域或局部条件中。"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "original_text": "11. $f(x)$是定义在$R$上的奇函数，且当$x\\ge 0$时，$f(x)=x^2+x$。则$x<0$时，$f(x)=$____，不等式$f(2x+1)+f(-5)>0$的解集是____。",
+  "root": {
+    "facts": [
+      "Dom(f)=ℝ",
+      "parity(f,odd)",
+      "∀x∈[0,∞): f(x)=x^2+x",
+      "f(2*x+1)+f(-5)>0"
+    ],
+    "goals": [
+      {
+        "kind": "find_function_formula",
+        "function": "f",
+        "variable": "x",
+        "relation": "f(x)=x^2+x",
+        "relation_domain": "[0,∞)",
+        "declared_domain": "ℝ",
+        "requested_domain": "(-∞,0)"
+      },
+      {
+        "kind": "find_range",
+        "symbol": "x"
+      }
+    ]
+  },
+  "public_content": {
+    "completeness": "complete",
+    "privacy": "separated",
+    "figure": "not_required",
+    "scopes": [
+      {
+        "scope_ref": "/root",
+        "statement": "$f(x)$是定义在$R$上的奇函数，且当$x\\ge 0$时，$f(x)=x^2+x$。则$x<0$时，$f(x)=$____，不等式$f(2x+1)+f(-5)>0$的解集是____。",
+        "choices": [
+          {
+            "target_ref": "/root/goals/0",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          },
+          {
+            "target_ref": "/root/goals/1",
+            "status": "none",
+            "selection_mode": "none",
+            "options": []
+          }
+        ]
+      }
+    ],
+    "figure_detection": {
+      "status": "none",
+      "regions": []
+    }
+  }
+}

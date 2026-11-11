@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"root\":{\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2]: (f(x_1)-f(x_2))/(x_1-x_2) < 0\",\"f(1-2*a)+f(a-3) > 0\",\"a∈ℝ\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3463,
+      "prompt_tokens": 25713,
+      "total_tokens": 29176,
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 241
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 762,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-text-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-a1949790-b9c2-42da-a4f4-23087bc58efa",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 15246,
+        "expires_at": 1794501023,
+        "uploaded_at": 1794414623.4540281
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "ef9b24029db396e87804a718efc42d40b809d31303c4cac858f8dd972dbdcffc",
+        "api_calls": 1,
+        "file_id": "file-api-a1949790-b9c2-42da-a4f4-23087bc58efa",
+        "expires_at": 1794501023,
+        "elapsed_ms": 326
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 19762,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3463,
+          "prompt_tokens": 25713,
+          "total_tokens": 29176,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3123
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 25472
+          },
+          "prompt_cache_hit_tokens": 25472,
+          "prompt_cache_miss_tokens": 241
+        },
+        "raw_payload": {
+          "id": "cbb06865-3662-4ca3-a8b0-4bc772459cc8",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3463,
+            "prompt_tokens": 25713,
+            "total_tokens": 29176,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3123
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 25472
+            },
+            "prompt_cache_hit_tokens": 25472,
+            "prompt_cache_miss_tokens": 241
+          },
+          "created": 1794414623,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"root\":{\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2]: (f(x_1)-f(x_2))/(x_1-x_2) < 0\",\"f(1-2*a)+f(a-3) > 0\",\"a∈ℝ\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+                "reasoning_content": "我们需要提取题目。图片内容：18. 已知定义在[-2, 2]上的函数 f(x) 是奇函数，且 ((f(x1)-f(x2))/(x1-x2))<0，则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 ____。 手写答案 [1,3/2] 不算。需要输出 original_text 完整题干，包括题号18？可以保留题号。original_text 中公式用 $...$，反斜杠转义。不要手写答案。填空横线照印刷原样。图中似乎有手写下划线和答案。原文末尾“取值范围为”后面可能没有横线？图片显示有手写 [1,3/2]，但印刷部分可能是“____”。看图片，在“取值范围为”后面有一个横线？看起来手写 [1,3/2] 覆盖。需要转录为“____”。题目是求 a 的取值范围。函数定义在[-2,2]上，奇函数，且差商 <0 (x1-x2 分母)。x1≠x2? 题目只写 x1-x2, 通常隐含 x1≠x2。不能添加。root：definitions f? facts: Dom? 定义在[-2,2]上的函数f(x)是奇函数，差商条件。求a范围。按 schema，find_range symbol a，条件放facts。需要表示 f(x) 定义在[-2,2]上；Dom(f)=[-2,2]。奇函数：parity(f,odd) 或 f(-x)=-f(x)？目录有 parity(f,odd) 全域奇偶性。也可以写 f(-x)=-f(x) 并说明定义域关于原点对称？题面明确“是奇函数”。用 facts [\"Dom(f)=[-2,2]\", \"parity(f,odd)\"] 但是 parity 目录支持。差商条件：∀x1,x2∈[-2,2]? 原题没有显式写出对任意 x1,x2，但差商式子通常表示对定义域内任意 x1,x2 且 x1≠x2 成立。规则说“恒成立”未写量词时取除待求量外唯一自由变量；这里差商关系有两个变量 x1,x2。原文“且 (f(x1)-f(x2))/(x1-x2)<0”没有量词，但按题意是任意的。需要保留原式，可能添加 ∀x1,x2∈[-2,2]: x1≠x2 -> ...？但是不要补充隐含非零条件。目录说“不要补充隐含非零条件”。差商分母 x1-x2 本身隐含 x1≠x2；如果不写，表达式在 x1=x2 无意义。schema 说复现题面，不补充条件。需要表示原题条件，可能写 \"(f(x1)-f(x2))/(x1-x2) < 0\" 作为事实？但缺少量词绑定。可以写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 这隐含 x1≠x2 但数学上不严谨。目录示例 difference_product 等。对于 required_monotonicity 有 basis。这里是题目给定单调性? 差商<0 表示函数在[-2,2]上递减（严格）。但题面没有说单调性，只给差商。我们只转录关系。fact 可以写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 但分母为零情况。不补条件. 或者 \"∀x1,x2∈[-2,2], x1≠x2: (f(x1)-f(x2))/(x1-x2) < 0\" 这是隐含但符合通常含义。规则说不补充隐含非零条件，但为了量词合法？可能不要加 x1≠x2。保持原式。目标求 a 范围。还需要 f(1-2a)+f(a-3)>0 作为条件还是目标？原题“则满足不等式 ... 的实数a的取值范围” 不等式是条件，目标 find_range symbol a。所以 facts 包括 \"f(1-2*a)+f(a-3)>0\"。 但需要将 f 的输入落在定义域? 这是定义域条件会由题设决定，不用额外写。a 是实数。可以写 a∈ℝ? 原题“实数a”。facts [\"a∈ℝ\"] 或目标隐含。可以写 fact \"a∈ℝ\"？ 可加。不要补充隐含定义域? “实数a”明确。\n\npublic_content: scopes 对应 root only? 没有小问。root 只有一个作用域。scope_ref \"/root\"; statement 保留题号? 公开题干不应放题号、来源文字。题号18是来源题号，不应放 statement。但 original_text 保留。root.label? 原题有题号18，可作为 label? root.label 存在时，用 root_label_role source，因为明确题号。但 public_content.statement 不应含题号。root 的 label 可以 \"18\" 并 role source? 题目是学生拍题，题号可视为来源。不过规则：original_text 保留来源题号，公开字段不放题号。root.label 可选；如果选择放 label \"18\" role source。public_content.scopes statement 不含“18.”。label 可以省略以简化。original_text 包含 18。public_content statement 从“已知定义在...”开始。\n\nfigure_detection: 无配图，none。手写答案不是配图。图形? 没有。none regions [].\n\nuncertainties: 可能没有。手写答案忽略。填空处可能原题有横线，转录“____”。需要 original_text 内使用公式$...$，集合花括号转义。差商公式用 \\frac，里面 x_1, x_2。分母 x_1-x_2. 在 JSON 字符串，反斜杠要双写：$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$。范围 $[-2,2]$。 奇函数。 末尾“____”。\n\nroot facts 数学字符串不要 $ 和反斜杠，用 Unicode 记法。目录里乘法用 *，幂用 ^。差商可写 \"(f(x1)-f(x2))/(x1-x2) < 0\" 但需要量词。x1,x2 是变量名，目录允许 x_1? 数学字符串受控：可以直接写 f(x_1) 吗？目录示例用 x_1。根式等。量词：∀x1,x2∈[-2,2]: ... 变量名可用 x1? 目录没有规定下标。用 x1,x2 可以。但 original_text 用 x_1。root 数学字符串可写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\"。然而未写 x1≠x2。要不要写？题面没有明确，但差商有分母。如果我不加，语义包含 x1=x2 除零，不合理。目录 [redacted-credential] 说不补隐含。但数学事实必须避免除以零。可以写两个量词变量不同，属于原表达式有意义的自然条件？题面用 x1,x2，分母就是 x1-x2，通常默认 x1≠x2。 schema 说“不要补充隐含非零条件”，所以可能不要加。但可写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 不加。嗯。\n\n或者可以放在 required_monotonicity? 原题给差商<0，不是要求单调性，而是已知事实。没有单调性来源字段在 root facts。可写函数单调性事实? function_monotonicity 是 find_range 的字段，题给已知单调事实。这里差商<0 等价于严格递减，但题面没有“递减”字眼。不应该转为单调性。放 facts 原式最好。\n\n还需要 \"parity(f,odd)\" 表示奇函数。Dom(f)=[-2,2] 放 facts? 定义在... 是函数定义域，应该 facts 中 \"Dom(f)=[-2,2]\"。函数本身没有解析式，可以定义 f(x)? 不能用未知函数定义。可以只引用 f。definitions 可空或包含 \"f(x)\"? 不需要。目标 find_range symbol \"a\"。条件 f(1-2a)+f(a-3)>0。由于 a 是实数，加 \"a∈ℝ\"。 另外题面求“取值范围”不是集合? find_range symbol a。\n\npublic_content statement: \"已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" 需要“取值范围为____” 原文可能横线。保留。是否写“且$\\\\frac{...}{x_1-x_2}<0$” 没有“对任意”。可以。choices: one goal, no options status none selection none options []. target_ref \"/root/goals/0\". public_content.scopes only root. root_label_role? If root.label omitted, not required. We can omit root.label. root itself no label. Original_text starts \"18. 已知...\" but public statement omits 18. 在 original_text 保留题号。public_content privacy separated? 图片有手写答案，已在公开内容中排除；题号也排除？题号在 original_text 保留，但 public_content 未包含。可以 separated。但题干开头有手写下划线等，不算隐私。可 separated。\n\nfigure none.\n\noriginal_text：需要包括题号 \"18.\"? 图片中“18.”可能是题号。保留。公式使用 LaTeX。完整：\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\" 图片中“函数f(x)是奇函数”下方有手写下划线，忽略。 \"且\" 后公式分子分母有圈? 圈是手写批注? 图片有手画圆圈围绕分数，不算题目内容。忽略。右侧手写推导 f(a-3)>-f(1-2a) 等忽略。末尾手写 [1,3/2] 忽略。可能原题在“取值范围为”后有下划线/横线，用____。\n\nroot facts:\n\"Dom(f)=[-2,2]\"\n\"parity(f,odd)\"\n\"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\"\n\"f(1-2*a)+f(a-3) > 0\"\n\"a∈ℝ\" maybe facts. 目标 find_range symbol a. 但 fact \"a∈ℝ\" 可能不算条件? okay.\ndefinitions maybe [] optional. Could include \"f(x)\"? no. Maybe \"f(x)\" not definition. Leave definitions omitted.\n\nUncertainties: 差商的条件没有显式全称量词，分母非零未写；但这是常规理解，是否报告 ambiguous_symbol? We can maybe not. But original formula \"x1,x2\" with subscripts. Need report \"unreadable\"? no. Maybe uncertainty kind \"unstructured\" about the handwritten annotation? No,手写不算. No uncertainties.\n\nCheck original_text pattern \\S. okay.\n\nNeed ensure public_content statement matches root conditions. It includes all. Choices none. Scope root. public_content.completeness complete. privacy separated. figure not_required. figure_detection status none.\n\nNeed JSON only. Use no markdown. Ensure backslashes in JSON strings double. original_text LaTeX \\\\frac etc. In JSON string, to represent \\frac need \"\\\\frac\". I'll write \"\\\\frac\". Also $f(x_1)$ etc. In JSON, underscores no escape. \n\nRoot math strings use Unicode ∀ ∈ ℝ? \"∀x1,x2∈[-2,2]: ...\" okay. Use \"-2\" etc. \"parity(f,odd)\" uses catalog. Dom(f)=[-2,2]. Use \"f(1-2*a)+f(a-3) > 0\" multiplication explicit. The expression 1-2a should be 1-2*a. a-3. Good.\n\nGoal: {\"kind\":\"find_range\",\"symbol\":\"a\"}. No object.\n\npublic_content choices target_ref must be \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nLet's consider whether root facts should use \"∀x_1,x_2∈[-2,2]\" with underscores? Math string catalog uses x_1. Could use x_1 and x_2. \"∀x_1,x_2∈[-2,2]: (f(x_1)-f(x_2))/(x_1-x_2) < 0\". But x1 vs x_1. Both valid? Catalog examples use x_1. Use x_1, x_2 for consistency. But quantifier \"∀x_1,x_2∈[-2,2]\" acceptable. In JSON, underscore okay. \n\nHowever denominator x_1-x_2, no condition x_1≠x_2. okay.\n\nOriginal_text uses \"$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$\". Good.\n\nCould there be a “18.” that is source. public_content root_label_role not include if no label. Good.\n\nWait public_content.scopes statement should not contain small question number, but can contain \"已知定义在...\" no 18. Good.\n\nCheck privacy: There is handwritten answer; we excluded. Statement doesn't include. separated. \n\nFigure: There is no graph. none.\n\nReturn exactly JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 20124
+  },
+  "raw_payload": {
+    "id": "cbb06865-3662-4ca3-a8b0-4bc772459cc8",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"root\":{\"definitions\":[],\"facts\":[\"Dom(f)=[-2,2]\",\"parity(f,odd)\",\"∀x_1,x_2∈[-2,2]: (f(x_1)-f(x_2))/(x_1-x_2) < 0\",\"f(1-2*a)+f(a-3) > 0\",\"a∈ℝ\"],\"goals\":[{\"kind\":\"find_range\",\"symbol\":\"a\"}],\"children\":[],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}],\"figure_detection\":{\"status\":\"none\",\"regions\":[]}}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目。图片内容：18. 已知定义在[-2, 2]上的函数 f(x) 是奇函数，且 ((f(x1)-f(x2))/(x1-x2))<0，则满足不等式 f(1-2a)+f(a-3)>0 的实数 a 的取值范围为 ____。 手写答案 [1,3/2] 不算。需要输出 original_text 完整题干，包括题号18？可以保留题号。original_text 中公式用 $...$，反斜杠转义。不要手写答案。填空横线照印刷原样。图中似乎有手写下划线和答案。原文末尾“取值范围为”后面可能没有横线？图片显示有手写 [1,3/2]，但印刷部分可能是“____”。看图片，在“取值范围为”后面有一个横线？看起来手写 [1,3/2] 覆盖。需要转录为“____”。题目是求 a 的取值范围。函数定义在[-2,2]上，奇函数，且差商 <0 (x1-x2 分母)。x1≠x2? 题目只写 x1-x2, 通常隐含 x1≠x2。不能添加。root：definitions f? facts: Dom? 定义在[-2,2]上的函数f(x)是奇函数，差商条件。求a范围。按 schema，find_range symbol a，条件放facts。需要表示 f(x) 定义在[-2,2]上；Dom(f)=[-2,2]。奇函数：parity(f,odd) 或 f(-x)=-f(x)？目录有 parity(f,odd) 全域奇偶性。也可以写 f(-x)=-f(x) 并说明定义域关于原点对称？题面明确“是奇函数”。用 facts [\"Dom(f)=[-2,2]\", \"parity(f,odd)\"] 但是 parity 目录支持。差商条件：∀x1,x2∈[-2,2]? 原题没有显式写出对任意 x1,x2，但差商式子通常表示对定义域内任意 x1,x2 且 x1≠x2 成立。规则说“恒成立”未写量词时取除待求量外唯一自由变量；这里差商关系有两个变量 x1,x2。原文“且 (f(x1)-f(x2))/(x1-x2)<0”没有量词，但按题意是任意的。需要保留原式，可能添加 ∀x1,x2∈[-2,2]: x1≠x2 -> ...？但是不要补充隐含非零条件。目录说“不要补充隐含非零条件”。差商分母 x1-x2 本身隐含 x1≠x2；如果不写，表达式在 x1=x2 无意义。schema 说复现题面，不补充条件。需要表示原题条件，可能写 \"(f(x1)-f(x2))/(x1-x2) < 0\" 作为事实？但缺少量词绑定。可以写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 这隐含 x1≠x2 但数学上不严谨。目录示例 difference_product 等。对于 required_monotonicity 有 basis。这里是题目给定单调性? 差商<0 表示函数在[-2,2]上递减（严格）。但题面没有说单调性，只给差商。我们只转录关系。fact 可以写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 但分母为零情况。不补条件. 或者 \"∀x1,x2∈[-2,2], x1≠x2: (f(x1)-f(x2))/(x1-x2) < 0\" 这是隐含但符合通常含义。规则说不补充隐含非零条件，但为了量词合法？可能不要加 x1≠x2。保持原式。目标求 a 范围。还需要 f(1-2a)+f(a-3)>0 作为条件还是目标？原题“则满足不等式 ... 的实数a的取值范围” 不等式是条件，目标 find_range symbol a。所以 facts 包括 \"f(1-2*a)+f(a-3)>0\"。 但需要将 f 的输入落在定义域? 这是定义域条件会由题设决定，不用额外写。a 是实数。可以写 a∈ℝ? 原题“实数a”。facts [\"a∈ℝ\"] 或目标隐含。可以写 fact \"a∈ℝ\"？ 可加。不要补充隐含定义域? “实数a”明确。\n\npublic_content: scopes 对应 root only? 没有小问。root 只有一个作用域。scope_ref \"/root\"; statement 保留题号? 公开题干不应放题号、来源文字。题号18是来源题号，不应放 statement。但 original_text 保留。root.label? 原题有题号18，可作为 label? root.label 存在时，用 root_label_role source，因为明确题号。但 public_content.statement 不应含题号。root 的 label 可以 \"18\" 并 role source? 题目是学生拍题，题号可视为来源。不过规则：original_text 保留来源题号，公开字段不放题号。root.label 可选；如果选择放 label \"18\" role source。public_content.scopes statement 不含“18.”。label 可以省略以简化。original_text 包含 18。public_content statement 从“已知定义在...”开始。\n\nfigure_detection: 无配图，none。手写答案不是配图。图形? 没有。none regions [].\n\nuncertainties: 可能没有。手写答案忽略。填空处可能原题有横线，转录“____”。需要 original_text 内使用公式$...$，集合花括号转义。差商公式用 \\frac，里面 x_1, x_2。分母 x_1-x_2. 在 JSON 字符串，反斜杠要双写：$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$。范围 $[-2,2]$。 奇函数。 末尾“____”。\n\nroot facts 数学字符串不要 $ 和反斜杠，用 Unicode 记法。目录里乘法用 *，幂用 ^。差商可写 \"(f(x1)-f(x2))/(x1-x2) < 0\" 但需要量词。x1,x2 是变量名，目录允许 x_1? 数学字符串受控：可以直接写 f(x_1) 吗？目录示例用 x_1。根式等。量词：∀x1,x2∈[-2,2]: ... 变量名可用 x1? 目录没有规定下标。用 x1,x2 可以。但 original_text 用 x_1。root 数学字符串可写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\"。然而未写 x1≠x2。要不要写？题面没有明确，但差商有分母。如果我不加，语义包含 x1=x2 除零，不合理。目录 basic inequality 说不补隐含。但数学事实必须避免除以零。可以写两个量词变量不同，属于原表达式有意义的自然条件？题面用 x1,x2，分母就是 x1-x2，通常默认 x1≠x2。 schema 说“不要补充隐含非零条件”，所以可能不要加。但可写 \"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\" 不加。嗯。\n\n或者可以放在 required_monotonicity? 原题给差商<0，不是要求单调性，而是已知事实。没有单调性来源字段在 root facts。可写函数单调性事实? function_monotonicity 是 find_range 的字段，题给已知单调事实。这里差商<0 等价于严格递减，但题面没有“递减”字眼。不应该转为单调性。放 facts 原式最好。\n\n还需要 \"parity(f,odd)\" 表示奇函数。Dom(f)=[-2,2] 放 facts? 定义在... 是函数定义域，应该 facts 中 \"Dom(f)=[-2,2]\"。函数本身没有解析式，可以定义 f(x)? 不能用未知函数定义。可以只引用 f。definitions 可空或包含 \"f(x)\"? 不需要。目标 find_range symbol \"a\"。条件 f(1-2a)+f(a-3)>0。由于 a 是实数，加 \"a∈ℝ\"。 另外题面求“取值范围”不是集合? find_range symbol a。\n\npublic_content statement: \"已知定义在$[-2,2]$上的函数$f(x)$是奇函数，且$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式$f(1-2a)+f(a-3)>0$的实数$a$的取值范围为____。\" 需要“取值范围为____” 原文可能横线。保留。是否写“且$\\\\frac{...}{x_1-x_2}<0$” 没有“对任意”。可以。choices: one goal, no options status none selection none options []. target_ref \"/root/goals/0\". public_content.scopes only root. root_label_role? If root.label omitted, not required. We can omit root.label. root itself no label. Original_text starts \"18. 已知...\" but public statement omits 18. 在 original_text 保留题号。public_content privacy separated? 图片有手写答案，已在公开内容中排除；题号也排除？题号在 original_text 保留，但 public_content 未包含。可以 separated。但题干开头有手写下划线等，不算隐私。可 separated。\n\nfigure none.\n\noriginal_text：需要包括题号 \"18.\"? 图片中“18.”可能是题号。保留。公式使用 LaTeX。完整：\"18. 已知定义在 $[-2,2]$ 上的函数 $f(x)$ 是奇函数，且 $\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$，则满足不等式 $f(1-2a)+f(a-3)>0$ 的实数 $a$ 的取值范围为 ____。\" 图片中“函数f(x)是奇函数”下方有手写下划线，忽略。 \"且\" 后公式分子分母有圈? 圈是手写批注? 图片有手画圆圈围绕分数，不算题目内容。忽略。右侧手写推导 f(a-3)>-f(1-2a) 等忽略。末尾手写 [1,3/2] 忽略。可能原题在“取值范围为”后有下划线/横线，用____。\n\nroot facts:\n\"Dom(f)=[-2,2]\"\n\"parity(f,odd)\"\n\"∀x1,x2∈[-2,2]: (f(x1)-f(x2))/(x1-x2) < 0\"\n\"f(1-2*a)+f(a-3) > 0\"\n\"a∈ℝ\" maybe facts. 目标 find_range symbol a. 但 fact \"a∈ℝ\" 可能不算条件? okay.\ndefinitions maybe [] optional. Could include \"f(x)\"? no. Maybe \"f(x)\" not definition. Leave definitions omitted.\n\nUncertainties: 差商的条件没有显式全称量词，分母非零未写；但这是常规理解，是否报告 ambiguous_symbol? We can maybe not. But original formula \"x1,x2\" with subscripts. Need report \"unreadable\"? no. Maybe uncertainty kind \"unstructured\" about the handwritten annotation? No,手写不算. No uncertainties.\n\nCheck original_text pattern \\S. okay.\n\nNeed ensure public_content statement matches root conditions. It includes all. Choices none. Scope root. public_content.completeness complete. privacy separated. figure not_required. figure_detection status none.\n\nNeed JSON only. Use no markdown. Ensure backslashes in JSON strings double. original_text LaTeX \\\\frac etc. In JSON string, to represent \\frac need \"\\\\frac\". I'll write \"\\\\frac\". Also $f(x_1)$ etc. In JSON, underscores no escape. \n\nRoot math strings use Unicode ∀ ∈ ℝ? \"∀x1,x2∈[-2,2]: ...\" okay. Use \"-2\" etc. \"parity(f,odd)\" uses catalog. Dom(f)=[-2,2]. Use \"f(1-2*a)+f(a-3) > 0\" multiplication explicit. The expression 1-2a should be 1-2*a. a-3. Good.\n\nGoal: {\"kind\":\"find_range\",\"symbol\":\"a\"}. No object.\n\npublic_content choices target_ref must be \"/root/goals/0\", status \"none\", selection_mode \"none\", options [].\n\nLet's consider whether root facts should use \"∀x_1,x_2∈[-2,2]\" with underscores? Math string catalog uses x_1. Could use x_1 and x_2. \"∀x_1,x_2∈[-2,2]: (f(x_1)-f(x_2))/(x_1-x_2) < 0\". But x1 vs x_1. Both valid? Catalog examples use x_1. Use x_1, x_2 for consistency. But quantifier \"∀x_1,x_2∈[-2,2]\" acceptable. In JSON, underscore okay. \n\nHowever denominator x_1-x_2, no condition x_1≠x_2. okay.\n\nOriginal_text uses \"$\\\\frac{f(x_1)-f(x_2)}{x_1-x_2}<0$\". Good.\n\nCould there be a “18.” that is source. public_content root_label_role not include if no label. Good.\n\nWait public_content.scopes statement should not contain small question number, but can contain \"已知定义在...\" no 18. Good.\n\nCheck privacy: There is handwritten answer; we excluded. Statement doesn't include. separated. \n\nFigure: There is no graph. none.\n\nReturn exactly JSON."
+        }
+      }
+    ],
+    "created": 1794414623,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3463,
+      "prompt_tokens": 25713,
+      "total_tokens": 29176,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3123,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 25472
+      },
+      "prompt_cache_hit_tokens": 25472,
+      "prompt_cache_miss_tokens": 241
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 20.126
+}

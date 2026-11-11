@@ -13,7 +13,9 @@
       "solve_abstract_domain_parameter",
       "return_fraction_range",
       "prove_monotonicity_difference",
-      "order_abstract_input"
+      "order_abstract_input",
+      "solve_parity_inequality_given_side",
+      "solve_parity_sign_inequality"
     ],
     "skill-equality-transform": [
       "separation_division",
@@ -163,7 +165,9 @@
       "confirm_extremum_children"
     ],
     "skill-monotonicity-order": [
-      "confirm_monotonicity_order"
+      "confirm_monotonicity_order",
+      "compare_parity_inequality_inputs",
+      "parity_inequality_known_signs"
     ],
     "method-interval-extremum": [
       "submethod"
@@ -180,7 +184,13 @@
     "skill-function-symmetry-transform": [
       "map_parity_extension_input",
       "apply_parity_extension_relation",
-      "rewrite_symmetric_inputs"
+      "rewrite_symmetric_inputs",
+      "mirror_parity_inequality_solution",
+      "rewrite_parity_inequality",
+      "mirror_parity_inequality_signs"
+    ],
+    "skill-parity-monotonicity-transfer": [
+      "parity_inequality_direction"
     ]
   },
   "internal": {
@@ -459,6 +469,18 @@
     ],
     "confirm_function_symmetry": [
       "method-function-symmetry#conclude"
+    ],
+    "prepare_parity_inequality": [
+      "method-parity-inequality#prepare"
+    ],
+    "confirm_parity_inequality": [
+      "method-parity-inequality#conclude"
+    ],
+    "confirm_parity_inequality_order": [
+      "method-parity-inequality#conclude"
+    ],
+    "confirm_parity_inequality_sign": [
+      "method-parity-inequality#conclude"
     ]
   }
 }

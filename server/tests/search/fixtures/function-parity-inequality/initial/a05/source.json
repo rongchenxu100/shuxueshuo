@@ -1,0 +1,17 @@
+{
+  "source": "internal/senior-high/source-images/function-parity-planning-20261110/source-image-01.jpg",
+  "source_sha256": "ba28d88ca97acf13cec7e64f36887e0af8fb3447de0214cd49f18ecfb4c437ae",
+  "crop_pixels": [
+    110,
+    490,
+    1160,
+    625
+  ],
+  "box": [
+    0.0859375,
+    0.28722157092614303,
+    0.90625,
+    0.36635404454865184
+  ],
+  "usage": "development_real_photo_not_holdout"
+}
